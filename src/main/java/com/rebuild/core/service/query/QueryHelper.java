@@ -29,7 +29,7 @@ public class QueryHelper {
      * @return
      */
     public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter) {
-        if (advFilter == null || advFilter.isEmpty()) return true;
+        if (!ParseHelper.validAdvFilter(advFilter)) return true;
 
         String filterSql = new AdvFilterParser(advFilter).toSqlWhere();
         if (filterSql != null) {
@@ -40,7 +40,6 @@ public class QueryHelper {
             Object[] m = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
             return m != null;
         }
-
         return true;
     }
 }

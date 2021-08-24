@@ -7,15 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
-import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.QueryHelper;
 
-import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,19 +73,7 @@ public class FlowBranch extends FlowNode {
      * @return
      */
     public boolean matches(ID record) {
-        Entity entity = MetadataHelper.getEntity(record.getEntityCode());
-        JSONObject filterExp = (JSONObject) getDataMap().get("filter");
-        JSONArray filterItems = filterExp == null ? null : filterExp.getJSONArray("items");
-        if (filterItems != null && !filterItems.isEmpty()) {
-            AdvFilterParser filterParser = new AdvFilterParser(filterExp);
-            String sqlWhere = filterParser.toSqlWhere();
-
-            String sql = MessageFormat.format("select {0} from {1} where {2} and {0} = ?",
-                    entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
-            Object[] matches = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
-            return matches != null;
-        }
-        return true;
+        return QueryHelper.isMatchAdvFilter(record, (JSONObject) getDataMap().get("filter"));
     }
 
     @Override
