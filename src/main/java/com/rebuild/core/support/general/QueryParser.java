@@ -103,7 +103,7 @@ public class QueryParser {
     /**
      * @return
      */
-    protected int[] getSqlLimit() {
+    public int[] getSqlLimit() {
         doParseIfNeed();
         return limit;
     }

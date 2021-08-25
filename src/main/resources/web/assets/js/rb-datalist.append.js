@@ -29,60 +29,34 @@ class BatchOperator extends RbFormHandler {
             <div>
               {selectedRows > 0 && (
                 <label className="custom-control custom-control-sm custom-radio mb-2">
-                  <input
-                    className="custom-control-input"
-                    name="dataRange"
-                    type="radio"
-                    checked={~~this.state.dataRange === 1}
-                    value="1"
-                    onChange={this.handleChange}
-                  />
+                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
                   <span className="custom-control-label">
                     {$L('选中的数据')} ({$L('共 %d 项', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input
-                  className="custom-control-input"
-                  name="dataRange"
-                  type="radio"
-                  checked={~~this.state.dataRange === 2}
-                  value="2"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('当前页的数据')} ({$L('共 %d 项', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input
-                  className="custom-control-input"
-                  name="dataRange"
-                  type="radio"
-                  checked={~~this.state.dataRange === 3}
-                  value="3"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('查询后的数据')} ({$L('共 %d 项', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input
-                  className="custom-control-input"
-                  name="dataRange"
-                  type="radio"
-                  checked={~~this.state.dataRange === 10}
-                  value="10"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('全部数据')}</span>
               </label>
             </div>
           </div>
+
           {this.renderOperator()}
         </div>
+
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           <a className="btn btn-link btn-space" onClick={this.hide}>
             {$L('取消')}
@@ -119,16 +93,37 @@ class DataExport extends BatchOperator {
 
   confirm = () => {
     this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${$(this._$report).val()}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        const attname = `${this.props.entity || 'RB'}.csv`
-        window.open(`${rb.baseUrl}/filex/download/${res.data}?temp=yes&attname=${$encode(attname)}`)
+        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
         this.disabled(false)
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+
+  renderOperator() {
+    return (
+      <div className="form-group">
+        <label className="text-bold">{$L('使用报表模板')}</label>
+        <select className="form-control form-control-sm w-50" ref={(c) => (this._$report = c)}>
+          <option value="0">{$L('不使用')}</option>
+          {(this.state.reports || []).map((item) => {
+            return (
+              <option value={item.id} key={item.id}>
+                {item.name}
+              </option>
+            )
+          })}
+        </select>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/report/available?list=true`, (res) => this.setState({ reports: res.data }))
   }
 }
 
@@ -152,22 +147,20 @@ class BatchUpdate extends BatchOperator {
         <div>
           <div className="batch-contents">
             {(this.state.updateContents || []).map((item) => {
-              const fieldObj = this.state.fields.find((x) => item.field === x.name)
+              const field = this.state.fields.find((x) => item.field === x.name)
               return (
                 <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
                       <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
-                        <i className="zmdi zmdi-close"></i>
+                        <i className="zmdi zmdi-close" />
                       </a>
-                      <span className="badge badge-light">{fieldObj.label}</span>
+                      <span className="badge badge-light">{field.label}</span>
                     </div>
                     <div className="col-2 pl-0 pr-0">
                       <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
                     </div>
-                    <div className="col-6">
-                      {item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, fieldObj)}</span>}
-                    </div>
+                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, field)}</span>}</div>
                   </div>
                 </div>
               )
@@ -284,14 +277,14 @@ class BatchUpdateEditor extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
-    const $field2s = $(this._field)
+    const $field2s = $(this._$field)
       .select2({
         allowClear: false,
       })
       .on('change', () => {
         this.setState({ selectField: $field2s.val() }, () => this._renderFieldValueSet())
       })
-    const $op2s = $(this._op)
+    const $op2s = $(this._$op)
       .select2({
         allowClear: false,
       })
@@ -316,7 +309,7 @@ class BatchUpdateEditor extends React.Component {
     return (
       <div className="row">
         <div className="col-4">
-          <select className="form-control form-control-sm" ref={(c) => (this._field = c)}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
             {this.props.fields.map((item) => {
               return (
                 <option value={item.name} key={item.name}>
@@ -327,16 +320,14 @@ class BatchUpdateEditor extends React.Component {
           </select>
         </div>
         <div className="col-2 pl-0 pr-0">
-          <select className="form-control form-control-sm" ref={(c) => (this._op = c)}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
             <option value="SET">{BUE_OPTYPES['SET']}</option>
             <option value="NULL">{BUE_OPTYPES['NULL']}</option>
           </select>
         </div>
         <div className="col-6">
           <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
-            {this.state.selectFieldObj && (
-              <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('新值')} ref={(c) => (this._valueComp = c)} />
-            )}
+            {this.state.selectFieldObj && <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('新值')} ref={(c) => (this._FieldValue = c)} />}
           </div>
         </div>
       </div>
@@ -345,28 +336,28 @@ class BatchUpdateEditor extends React.Component {
 
   _renderFieldValueSet() {
     if (this.state.selectOp === 'NULL') return null // set Null
-    const field = this.props.fields.find((item) => this.state.selectField === item.name)
+    const field = this.props.fields.find((x) => this.state.selectField === x.name)
     this.setState({ selectFieldObj: null }, () => this.setState({ selectFieldObj: field }))
   }
 
   buildItem() {
-    const item = {
+    const d = {
       field: this.state.selectField,
       op: this.state.selectOp,
     }
 
-    const field = this.props.fields.find((item) => this.state.selectField === item.name)
-    if (item.op === 'NULL') {
+    const field = this.props.fields.find((x) => this.state.selectField === x.name)
+    if (d.op === 'NULL') {
       if (!field.nullable) {
         RbHighbar.create($L('%s 不能为空', field.label))
         return null
       } else {
-        return item
+        return d
       }
     }
 
-    item.value = this._valueComp.val()
-    if (!item.value) return null
-    else return item
+    d.value = this._FieldValue.val()
+    if (!d.value) return null
+    else return d
   }
 }

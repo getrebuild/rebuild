@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
  */
 public class TemplateExtractor {
 
-    // 明细字段
-    protected static final String DETAIL_PREFIX = ".";
+    // 列表（即多条记录）
+    protected static final String NROW_PREFIX = ".";
 
     // ${xxx}
     private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
@@ -62,14 +62,22 @@ public class TemplateExtractor {
         Map<String, String> map = new HashMap<>();
         for (String field : vars) {
 
-            // 明细实体的字段
-            if (detailEntity != null && field.startsWith(DETAIL_PREFIX)) {
+            // 列表型字段
+            if (field.startsWith(NROW_PREFIX)) {
 
-                String detailField = field.substring(1);
-                if (MetadataHelper.getLastJoinField(detailEntity, detailField) != null) {
-                    map.put(field, detailField);
+                String listField = field.substring(1);
+
+                if (detailEntity != null) {
+                    if (MetadataHelper.getLastJoinField(detailEntity, listField) != null) {
+                        map.put(field, listField);
+                    } else {
+                        String realField = transformRealField(detailEntity, listField);
+                        map.put(field, realField);
+                    }
+                } else if (MetadataHelper.getLastJoinField(entity, listField) != null) {
+                    map.put(field, listField);
                 } else {
-                    String realField = transformRealField(detailEntity, detailField);
+                    String realField = transformRealField(entity, field);
                     map.put(field, realField);
                 }
 

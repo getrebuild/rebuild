@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -14,7 +15,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
@@ -26,7 +29,6 @@ import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,25 +61,21 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File report = new EasyExcelGenerator(reportId, recordId).generate();
+        File file = new EasyExcelGenerator(reportId, recordId).generate();
+        String fileName = getReportName(entity, reportId, file);
 
         if (ServletUtils.isAjaxRequest(request)) {
-            writeSuccess(response, JSONUtils.toJSONObject("file", report.getName()));
+            JSON data = JSONUtils.toJSONObject(
+                    new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
+            writeSuccess(response, data);
 
         } else {
-            String attname = request.getParameter("attname");
-            if (StringUtils.isBlank(attname)) {
-                attname = report.getName();
-            } else {
-                attname += (report.getName().endsWith(".xlsx") ? ".xlsx" : "xls");
-            }
-
-            FileDownloader.setDownloadHeaders(request, response, attname);
-            FileDownloader.writeLocalFile(report, response);
+            FileDownloader.setDownloadHeaders(request, response, fileName);
+            FileDownloader.writeLocalFile(file, response);
         }
     }
 
-    // 数据导出
+    // 列表数据导出
 
     @RequestMapping("export/submit")
     public RespBody export(@PathVariable String entity, HttpServletRequest request) {
@@ -90,13 +88,37 @@ public class ReportsController extends BaseController {
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
         queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
 
+        ID reportId = getIdParameter(request, "report");
+
         try {
             DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
-            File file = exporter.export();
-            return RespBody.ok(file.getName());
+            File file = exporter.export(reportId);
+
+            String fileName = reportId != null ? getReportName(entity, reportId, file) : null;
+            if (fileName == null) {
+                fileName = String.format("%s-%s.csv",
+                        EasyMetaFactory.getLabel(entity),
+                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+            }
+
+            JSON data = JSONUtils.toJSONObject(
+                    new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
+            return RespBody.ok(data);
 
         } catch (Exception ex) {
             return RespBody.error(ex.getLocalizedMessage());
         }
+    }
+
+    private String getReportName(String entity, ID report, File file) {
+        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
+            if (cb.getID("id").equals(report)) {
+                return String.format("%s-%s.%s",
+                        cb.getString("name"),
+                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
+                        file.getName().endsWith(".xlsx") ? "xlsx" : "xls");
+            }
+        }
+        return null;
     }
 }
