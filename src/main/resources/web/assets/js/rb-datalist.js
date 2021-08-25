@@ -947,7 +947,7 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
+          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)
