@@ -109,15 +109,13 @@ public class ApprovalHelper {
      * @return
      */
     public static Field checkVirtualField(String userField) {
-        if (userField.startsWith(APPROVAL_SUBMITOR)
-                || userField.startsWith(APPROVAL_APPROVER)) {
-            String realField = userField.split("\\.")[1];
-            Entity userEntity = MetadataHelper.getEntity(EntityHelper.User);
-            if (userEntity.containsField(realField)) {
-                return userEntity.getField(realField);
-            } else {
+        if (userField.startsWith(APPROVAL_SUBMITOR) || userField.startsWith(APPROVAL_APPROVER)) {
+            String realFields = userField.split("\\$\\.")[1];
+            Field lastField = MetadataHelper.getLastJoinField(MetadataHelper.getEntity(EntityHelper.User), realFields);
+            if (lastField == null) {
                 log.warn("No field of virtual found : {}", userField);
             }
+            return lastField;
         }
         return null;
     }

@@ -15,12 +15,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -66,7 +65,9 @@ public class RobotTriggerManager implements ConfigManager {
         List<TriggerAction> actions = new ArrayList<>();
         for (ConfigBean cb : getConfig(entity)) {
             if (allowedWhen(cb, when)) {
-                if (record == null || !isFiltered((JSONObject) cb.getJSON("whenFilter"), record)) {
+                if (record == null
+                        || QueryHelper.isMatchAdvFilter(record, (JSONObject) cb.getJSON("whenFilter"))) {
+
                     ActionContext ctx = new ActionContext(record, entity, cb.getJSON("actionContent"), cb.getID("id"));
                     TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
                     actions.add(o);
@@ -105,28 +106,6 @@ public class RobotTriggerManager implements ConfigManager {
             }
         }
         return false;
-    }
-
-    /**
-     * 是否过滤
-     *
-     * @param whenFilter
-     * @param record
-     * @return
-     */
-    private boolean isFiltered(JSONObject whenFilter, ID record) {
-        if (whenFilter == null || whenFilter.isEmpty()) {
-            return false;
-        }
-
-        Entity entity = MetadataHelper.getEntity(record.getEntityCode());
-        AdvFilterParser filterParser = new AdvFilterParser(whenFilter);
-        String sqlWhere = StringUtils.defaultIfBlank(filterParser.toSqlWhere(), "1=1");
-        String sql = MessageFormat.format(
-                "select {0} from {1} where {0} = ? and {2}",
-                entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
-        Object matchs = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
-        return matchs == null;
     }
 
     /**

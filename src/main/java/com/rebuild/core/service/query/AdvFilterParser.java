@@ -61,6 +61,9 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 @Slf4j
 public class AdvFilterParser extends SetUser {
 
+    // 快速查询
+    private static final String MODE_QUICK = "QUICK";
+
     private JSONObject filterExp;
     private Entity rootEntity;
 
@@ -92,8 +95,8 @@ public class AdvFilterParser extends SetUser {
 
         this.includeFields = new HashSet<>();
 
-        // 快速搜索模式，自动确定查询项
-        if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
+        // 自动确定查询项
+        if (MODE_QUICK.equalsIgnoreCase(filterExp.getString("type"))) {
             JSONArray quickItems = buildQuickFilterItems(filterExp.getString("quickFields"));
             this.filterExp.put("items", quickItems);
         }

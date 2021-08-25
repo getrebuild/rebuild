@@ -79,36 +79,15 @@ class AdvFilter extends React.Component {
           <div className="mb-1">
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="useEquation"
-                  value="OR"
-                  checked={this.state.useEquation === 'OR'}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('或关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="useEquation"
-                  value="AND"
-                  checked={this.state.useEquation === 'AND'}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('且关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="useEquation"
-                  value="9999"
-                  checked={this.state.useEquation === '9999'}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
                   <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
@@ -302,7 +281,9 @@ class AdvFilter extends React.Component {
     const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
 
-    typeof this.props.confirm === 'function' && this.props.confirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
+    const c = this.props.confirm || this.props.onConfirm
+    typeof c === 'function' && c(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
+
     this.props.inModal && this._dlg.hide()
     this.setState({ filterName: null })
   }
@@ -312,8 +293,10 @@ class AdvFilter extends React.Component {
   }
 
   hide() {
+    const c = this.props.cancel || this.props.onCancel
+    typeof c === 'function' && c()
+
     this.props.inModal && this._dlg.hide()
-    typeof this.props.cancel === 'function' && this.props.cancel()
   }
 }
 
@@ -413,31 +396,7 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = [
-        'TDA',
-        'YTA',
-        'TTA',
-        'GT',
-        'LT',
-        'EQ',
-        'BW',
-        'RED',
-        'REM',
-        'REY',
-        'FUD',
-        'FUM',
-        'FUY',
-        'BFD',
-        'BFM',
-        'BFY',
-        'AFD',
-        'AFM',
-        'AFY',
-        'CUW',
-        'CUM',
-        'CUQ',
-        'CUY',
-      ]
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
@@ -474,21 +433,8 @@ class FilterItem extends React.Component {
     if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
-          <input
-            className="form-control form-control-sm"
-            ref={(c) => (this._filterVal = c)}
-            onChange={this.valueHandle}
-            onBlur={this.valueCheck}
-            value={this.state.value || ''}
-          />
-          <input
-            className="form-control form-control-sm"
-            ref={(c) => (this._filterVal2 = c)}
-            onChange={this.valueHandle}
-            onBlur={this.valueCheck}
-            value={this.state.value2 || ''}
-            data-at="2"
-          />
+          <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+          <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
         </div>
@@ -516,15 +462,7 @@ class FilterItem extends React.Component {
         </select>
       )
     } else {
-      valComp = (
-        <input
-          className="form-control form-control-sm"
-          ref={(c) => (this._filterVal = c)}
-          onChange={this.valueHandle}
-          onBlur={this.valueCheck}
-          value={this.state.value || ''}
-        />
-      )
+      valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
