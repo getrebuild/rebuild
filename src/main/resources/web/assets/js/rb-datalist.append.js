@@ -123,7 +123,7 @@ class DataExport extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available?list=true`, (res) => this.setState({ reports: res.data }))
+    $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => this.setState({ reports: res.data }))
   }
 }
 

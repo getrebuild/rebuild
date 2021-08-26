@@ -320,6 +320,7 @@
         <field name="name" type="string" max-length="100" nullable="false" description="报表名称"/>
         <field name="templateFile" type="string" max-length="200" description="模板文件"/>
         <field name="templateContent" type="text" description="模板内容"/>
+        <field name="templateType" type="small-int" default-value="1" description="模板类型 (1=记录, 2=列表)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 

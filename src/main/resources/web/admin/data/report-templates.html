@@ -4,6 +4,11 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/excel-admin" />
     <title>[[${bundle.L('报表模板')}]]</title>
+    <style>
+      .invalid-vars .alert {
+        margin-bottom: 0;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside" th:classappend="${sideCollapsedClazz}">

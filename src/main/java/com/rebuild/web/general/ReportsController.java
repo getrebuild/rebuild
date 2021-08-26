@@ -9,7 +9,6 @@ package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -51,9 +50,10 @@ public class ReportsController extends BaseController {
     // 报表模板
 
     @RequestMapping("report/available")
-    public JSON availableReports(@PathVariable String entity) {
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        return DataReportManager.instance.getReports(entityMeta);
+    public JSON availableReports(@PathVariable String entity, HttpServletRequest request) {
+        return DataReportManager.instance.getReports(
+                MetadataHelper.getEntity(entity),
+                getIntParameter(request, "type", DataReportManager.TYPE_RECORD));
     }
 
     @RequestMapping({"report/generate", "report/export"})

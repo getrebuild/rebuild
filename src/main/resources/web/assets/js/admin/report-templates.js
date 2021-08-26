@@ -105,8 +105,25 @@ class ReporEdit extends ConfigFormDlg {
                   {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
                 </div>
                 <div className="clearfix" />
-                <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('如何编写模板文件？[查看帮助](https://getrebuild.com/docs/admin/excel-admin)') }} />
-                {(this.state.invalidVars || []).length > 0 && <p className="form-text text-danger mt-0 mb-1">{$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)}</p>}
+                <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
+
+                {(this.state.invalidVars || []).length > 0 && (
+                  <div className="invalid-vars mt-2">
+                    <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
+                  <input className="custom-control-input" type="checkbox" />
+                  <span className="custom-control-label">
+                    {$L('这是一个列表模板')}
+                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在列表导出数据时使用')} />
+                  </span>
+                </label>
               </div>
             </div>
           </React.Fragment>
@@ -156,6 +173,8 @@ class ReporEdit extends ConfigFormDlg {
         }
       )
     }
+
+    $(this._$listType).find('[data-toggle="tooltip"]').tooltip()
   }
 
   // 检查模板
@@ -188,25 +207,22 @@ class ReporEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) {
-      RbHighbar.create($L('请输入名称'))
-      return
-    }
+    if (!post.name) return RbHighbar.create($L('请输入名称'))
+
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
     } else {
       post.belongEntity = this.__select2.val()
-      if (!post.belongEntity) {
-        RbHighbar.create($L('请选择应用实体'))
-        return
-      }
       post.templateFile = this.state.templateFile
-      if (!post.templateFile) {
-        RbHighbar.create($L('请上传文件'))
-        return
-      }
+      post.templateType = $(this._$listType).find('input').prop('checked') ? 2 : 1
+      if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
+      if (!post.templateFile) return RbHighbar.create($L('请上传文件'))
     }
-    post.metadata = { entity: 'DataReportConfig', id: this.props.id }
+
+    post.metadata = {
+      entity: 'DataReportConfig',
+      id: this.props.id,
+    }
 
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
