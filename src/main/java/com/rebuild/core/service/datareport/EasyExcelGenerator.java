@@ -23,6 +23,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -36,9 +37,10 @@ import java.util.*;
  * @author devezhao
  * @since 2020/2/24
  */
+@Slf4j
 public class EasyExcelGenerator extends SetUser {
 
-    private File template;
+    protected File template;
     private ID recordId;
 
     private boolean hasMain = false;
@@ -65,8 +67,8 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     public File generate() {
-        String suffix = this.template.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
-        File dest = RebuildConfiguration.getFileOfTemp("REPORT-" + System.currentTimeMillis() + suffix);
+        File tmp = RebuildConfiguration.getFileOfTemp(String.format("REPORT-%d.%s",
+                System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
 
         List<Map<String, Object>> datas = buildData();
         if (datas.isEmpty()) {
@@ -83,10 +85,10 @@ public class EasyExcelGenerator extends SetUser {
         ExcelWriter excelWriter = null;
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
         try {
-            excelWriter = EasyExcel.write(dest).withTemplate(template).build();
+            excelWriter = EasyExcel.write(tmp).withTemplate(template).build();
             WriteSheet writeSheet = EasyExcel.writerSheet().registerWriteHandler(new FixsMergeStrategy()).build();
 
-            // 明细记录
+            // 有明细记录
             if (!datas.isEmpty()) {
                 excelWriter.fill(datas, fillConfig, writeSheet);
             }
@@ -101,7 +103,7 @@ public class EasyExcelGenerator extends SetUser {
                 excelWriter.finish();
             }
         }
-        return dest;
+        return tmp;
     }
 
     /**
@@ -120,10 +122,11 @@ public class EasyExcelGenerator extends SetUser {
             String validField = e.getValue();
             // 无效字段
             if (validField == null) {
+                log.warn("Invalid field `{}` in template : {}", e.getKey(), this.template);
                 continue;
             }
 
-            if (e.getKey().startsWith(TemplateExtractor.DETAIL_PREFIX)) {
+            if (e.getKey().startsWith(TemplateExtractor.NROW_PREFIX)) {
                 fieldsOfDetail.add(validField);
             } else {
                 fieldsOfMain.add(validField);
@@ -145,7 +148,7 @@ public class EasyExcelGenerator extends SetUser {
                     .record();
             Assert.notNull(record, "No record found : " + this.recordId);
 
-            Map<String, Object> data = buildData(record, varsMap, false);
+            Map<String, Object> data = buildData(record, varsMap);
             datas.add(data);
             this.hasMain = true;
         }
@@ -164,7 +167,7 @@ public class EasyExcelGenerator extends SetUser {
                 .list();
 
         for (Record c : list) {
-            datas.add(buildData(c, varsMap, true));
+            datas.add(buildData(c, varsMap));
         }
         return datas;
     }
@@ -172,13 +175,12 @@ public class EasyExcelGenerator extends SetUser {
     /**
      * @param record
      * @param varsMap
-     * @param isDetail
      * @return
      */
-    protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isDetail) {
+    protected Map<String, Object> buildData(Record record, Map<String, String> varsMap) {
         final Entity entity = record.getEntity();
 
-        final String badFieldTip = Language.L("[无效字段]");
+        final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
 
         final Map<String, Object> data = new HashMap<>();
@@ -186,13 +188,10 @@ public class EasyExcelGenerator extends SetUser {
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             if (e.getValue() == null) {
                 String varName = e.getKey();
-                if (isDetail) {
-                    if (varName.startsWith(TemplateExtractor.DETAIL_PREFIX)) {
-                        data.put(varName.substring(1), badFieldTip);
-                    }
-                } else {
-                    data.put(varName, badFieldTip);
+                if (varName.startsWith(TemplateExtractor.NROW_PREFIX)) {
+                    varName = varName.substring(1);
                 }
+                data.put(varName, invalidFieldTip);
             }
         }
 
@@ -216,7 +215,7 @@ public class EasyExcelGenerator extends SetUser {
                     break;
                 }
             }
-            if (varName.startsWith(TemplateExtractor.DETAIL_PREFIX)) {
+            if (varName.startsWith(TemplateExtractor.NROW_PREFIX)) {
                 varName = varName.substring(1);
             }
 

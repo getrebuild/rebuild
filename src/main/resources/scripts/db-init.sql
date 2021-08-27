@@ -474,6 +474,7 @@ create table if not exists `data_report_config` (
   `NAME`               varchar(100) not null comment '报表名称',
   `TEMPLATE_FILE`      varchar(200) comment '模板文件',
   `TEMPLATE_CONTENT`   text(21845) comment '模板内容',
+  `TEMPLATE_TYPE`      smallint(6) default '1' comment '模板类型 (1=记录, 2=列表)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -800,4 +801,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 37);
+  values ('021-9000000000000001', 'DBVer', 38);

@@ -9,7 +9,7 @@ package com.rebuild.web.admin.data;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -22,11 +22,14 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
+import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +47,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/8/13
  */
-@Controller
+@RestController
 @RequestMapping("/admin/data/")
 public class ReportTemplateController extends BaseController {
 
@@ -53,8 +56,8 @@ public class ReportTemplateController extends BaseController {
         return createModelAndView("/admin/data/report-templates");
     }
 
-    @RequestMapping("/report-templates/list")
-    public void reportList(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/report-templates/list")
+    public RespBody reportList(HttpServletRequest request) {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
@@ -62,22 +65,18 @@ public class ReportTemplateController extends BaseController {
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
-        Object[][] array = queryListOfConfig(sql, entity, q);
-        writeSuccess(response, array);
+        Object[][] list = queryListOfConfig(sql, entity, q);
+        return RespBody.ok(list);
     }
 
     @RequestMapping("/report-templates/check-template")
-    public void checkTemplate(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody checkTemplate(@EntityParam Entity entity, HttpServletRequest request) {
         String file = getParameterNotNull(request, "file");
-        String entity = getParameterNotNull(request, "entity");
-
         File template = RebuildConfiguration.getFileOfData(file);
-        Entity entityMeta = MetadataHelper.getEntity(entity);
 
-        Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entityMeta);
+        Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entity);
         if (vars.isEmpty()) {
-            writeFailure(response, Language.L("无效模板文件 (未找到有效字段)"));
-            return;
+            return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
         Set<String> invalidVars = new HashSet<>();
@@ -88,17 +87,14 @@ public class ReportTemplateController extends BaseController {
         }
 
         if (invalidVars.size() >= vars.size()) {
-            writeFailure(response, Language.L("无效模板文件 (未找到有效字段)"));
-            return;
+            return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
-        JSON ret = JSONUtils.toJSONObject("invalidVars", invalidVars);
-        writeSuccess(response, ret);
+        return RespBody.ok(JSONUtils.toJSONObject("invalidVars", invalidVars));
     }
 
-    @RequestMapping("/report-templates/preview")
-    public void preview(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID reportId = getIdParameterNotNull(request, "id");
+    @GetMapping("/report-templates/preview")
+    public void preview(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Object[] report = Application.createQueryNoFilter(
                 "select belongEntity from DataReportConfig where configId = ?")
                 .setParameter(1, reportId)

@@ -899,7 +899,7 @@ class ValueRelatedRecord extends ValueComp {
     if (data) {
       return (
         <div className={`form-control-plaintext ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
-          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('点击查看记录')} target="_blank" onClick={(e) => $stopEvent(e)}>
+          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('查看记录')} target="_blank" onClick={(e) => $stopEvent(e)}>
             {data.text}
           </a>
         </div>
