@@ -430,6 +430,11 @@
             <artifactId>commons-email</artifactId>
             <version>1.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.onelogin</groupId>
+            <artifactId>java-saml</artifactId>
+            <version>2.6.0</version>
+        </dependency>
 
         <!-- Local .deps -->
         <dependency>

@@ -135,32 +135,19 @@ public class LoginController extends BaseController {
 
         // H5
         String mobileUrl = RebuildConfiguration.getMobileUrl("/");
-        String mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileUrl);
         mv.getModel().put("mobileUrl", mobileUrl);
-        mv.getModel().put("mobileQrUrl", mobileQrUrl);
 
-        // DingTalk
-        String dingtalkAppid = RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey);
-        if (StringUtils.isNotBlank(dingtalkAppid)) {
-            String dingtalkUrl = String.format(
-                    "https://oapi.dingtalk.com/connect/qrconnect?appid=%s&response_type=code&scope=snsapi_login&state=&redirect_uri=%s",
-                    dingtalkAppid,
-                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/dingtalk-login")));
-            mv.getModel().put("dingtalkUrl", dingtalkUrl);
-        }
-        // WxWork
-        String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
-        if (StringUtils.isNotBlank(wxworkCorpid)) {
-            String wxworkUrl = String.format(
-                    "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=%s&agentid=%s&redirect_uri=%s&state=",
-                    wxworkCorpid, RebuildConfiguration.get(ConfigurationItem.WxworkAgentid),
-                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/wxwork-login")));
-            mv.getModel().put("wxworkUrl", wxworkUrl);
-        }
-
-        if (!License.isCommercial()) {
-            mv.getModel().put("dingtalkUrl", "#");
-            mv.getModel().put("wxworkUrl", "#");
+        if (License.isCommercial()) {
+            // DingTalk
+            mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey));
+            // WxWork
+            mv.getModel().put("ssoWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid));
+            // SSO TODO
+            mv.getModel().put("ssoSaml", "#");
+        } else {
+            mv.getModel().put("ssoDingtalk", "#");
+            mv.getModel().put("ssoWxwork", "#");
+            mv.getModel().put("ssoSaml", "#");
         }
 
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());

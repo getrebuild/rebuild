@@ -144,13 +144,16 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
-                  <div class="login-with d-none d-md-block" th:if="${dingtalkUrl != null || wxworkUrl != null}">
+                  <div class="login-with d-none d-md-block" th:if="${ssoDingtalk != null || ssoWxwork != null || ssoSaml != null}">
                     <span>[[${bundle.L('第三方登录')}]]</span>
-                    <a th:href="${dingtalkUrl}" th:if="${dingtalkUrl != null}">
-                      <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" th:title="${bundle.L('钉钉')}" />
+                    <a href="login/sso?type=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
+                      <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" />
                     </a>
-                    <a th:href="${wxworkUrl}" th:if="${wxworkUrl != null}">
-                      <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" th:title="${bundle.L('企业微信')}" />
+                    <a href="login/sso?type=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
+                      <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" />
+                    </a>
+                    <a href="login/sso?type=saml" th:if="${ssoSaml != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
+                      <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
                     </a>
                   </div>
                   <div class="row mb-2">
@@ -162,7 +165,7 @@
                         </a>
                         <div class="dropdown-menu">
                           <div>
-                            <img class="w-100" th:src="${mobileQrUrl}" alt="Mobile QR" />
+                            <img class="w-100" alt="Mobile QR" />
                           </div>
                         </div>
                       </div>
@@ -202,6 +205,8 @@
           return
         }
 
+        $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?t=${$encode($('.h5-mobile a').attr('href'))}`)
+
         if ($.browser.mobile) {
           setTimeout(function () {
             $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
@@ -209,16 +214,6 @@
               .on('click', () => (location.href = $('.h5-mobile>a').attr('href')))
           }, 1000)
         }
-
-        $('.login-with > a').each(function () {
-          var $this = $(this)
-          if ($this.attr('href') === '#') {
-            $this.on('click', function () {
-              RbHighbar.create($L('请联系管理员配置后使用'))
-              return false
-            })
-          }
-        })
 
         var error = $urlp('error', location.hash)
         if (error === 'dingtalk-not-bind' || error === 'wxwork-not-bind') {
