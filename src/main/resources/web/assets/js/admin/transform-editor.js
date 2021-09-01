@@ -52,7 +52,7 @@ $(document).ready(() => {
 
   $('#fillbackField')
     .select2({
-      placeholder: `(${$L('可选')})`,
+      placeholder: `${$L('(可选)')}`,
       data: fillbackFields,
       allowClear: true,
       language: {
