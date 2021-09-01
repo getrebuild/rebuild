@@ -361,9 +361,7 @@ class FileShare extends RbModalHandler {
         text: function () {
           return that.state.shareUrl
         },
-      }).on('success', function () {
-        RbHighbar.success($L('分享链接已复制'))
-      })
+      }).on('success', () => RbHighbar.success($L('已复制')))
     }
     if (!window.ClipboardJS) {
       $.getScript('/assets/lib/clipboard.min.js', initCopy)

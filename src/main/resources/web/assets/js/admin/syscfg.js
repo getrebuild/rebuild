@@ -17,12 +17,12 @@ $(document).ready(() => {
   $('.edit-footer>.btn-link').click(() => location.reload())
   $('.edit-footer>.btn-primary').click(() => post(__data))
 
-  $.getScript('/assets/lib/clipboard.min.js', () => {
+  if (window.ClipboardJS) {
     $('a[data-clipboard-text]').each(function () {
       // eslint-disable-next-line no-undef
-      new ClipboardJS(this)
+      new ClipboardJS(this).on('success', () => RbHighbar.success($L('已复制')))
     })
-  })
+  }
 })
 
 const __data = {}
@@ -37,12 +37,13 @@ const enableEditMode = function () {
     const $item = $(this)
     const name = $item.data('id')
     const value = $item.data('value')
+    const optional = $item.data('optional')
 
     const c = useEditComp(name, value)
     if (c) {
-      renderRbcomp(React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value }), $item)
+      renderRbcomp(React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null }), $item)
     } else {
-      renderRbcomp(<input className="form-control form-control-sm" name={name} onChange={changeValue} defaultValue={value} />, $item)
+      renderRbcomp(<input className="form-control form-control-sm" name={name} onChange={changeValue} defaultValue={value} placeholder={optional ? $L('(选填)') : null} />, $item)
     }
   })
   $('.syscfg').addClass('edit')
@@ -53,7 +54,7 @@ const post = function (data) {
   for (let name in data) {
     if (!data[name]) {
       const $field = $('td[data-id=' + name + ']')
-      if ($isTrue($field.data('nullable'))) continue
+      if ($field.data('optional')) continue // 可选值
 
       const $c = $field.prev().clone()
       $c.find('p').remove()

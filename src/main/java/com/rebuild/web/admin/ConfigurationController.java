@@ -343,4 +343,31 @@ public class ConfigurationController extends BaseController {
         setValues(data);
         return RespBody.ok();
     }
+
+    // SAML
+
+    @GetMapping("integration/sso-saml")
+    public ModelAndView pageIntegrationSsoSaml() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持企业身份认证 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/sso-saml");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Saml")) {
+                mv.getModel().put(name, RebuildConfiguration.get(item));
+            }
+        }
+
+        mv.getModel().put("_SamlSpLoginUrl", RebuildConfiguration.getHomeUrl("/user/sso-saml2-login"));
+        mv.getModel().put("_SamlSpLogoutUrl", RebuildConfiguration.getHomeUrl("/user/logout"));
+
+        return mv;
+    }
+
+    @PostMapping("integration/sso-saml")
+    public RespBody postIntegrationSsoSaml(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
 }

@@ -146,13 +146,13 @@
                   </div>
                   <div class="login-with d-none d-md-block" th:if="${ssoDingtalk != null || ssoWxwork != null || ssoSaml != null}">
                     <span>[[${bundle.L('第三方登录')}]]</span>
-                    <a href="login/sso?type=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
+                    <a href="login/sso?protocol=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
                       <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" />
                     </a>
-                    <a href="login/sso?type=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
+                    <a href="login/sso?protocol=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
                       <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" />
                     </a>
-                    <a href="login/sso?type=saml" th:if="${ssoSaml != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
+                    <a href="login/sso?protocol=saml2" th:if="${ssoSaml != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
                       <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
                     </a>
                   </div>
