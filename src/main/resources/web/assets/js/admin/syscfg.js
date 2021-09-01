@@ -16,6 +16,13 @@ $(document).ready(() => {
 
   $('.edit-footer>.btn-link').click(() => location.reload())
   $('.edit-footer>.btn-primary').click(() => post(__data))
+
+  $.getScript('/assets/lib/clipboard.min.js', () => {
+    $('a[data-clipboard-text]').each(function () {
+      // eslint-disable-next-line no-undef
+      new ClipboardJS(this)
+    })
+  })
 })
 
 const __data = {}

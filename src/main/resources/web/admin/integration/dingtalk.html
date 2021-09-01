@@ -45,11 +45,17 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('应用首页地址')}]]</td>
-                        <td class="click-copy">[[${_DingtalkHomeUrl}]]</td>
+                        <td class="click-copy">
+                          [[${_DingtalkHomeUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_DingtalkHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回调域名')}]]</td>
-                        <td class="click-copy">[[${_DingtalkAuthCallUrl}]]</td>
+                        <td class="click-copy">
+                          [[${_DingtalkAuthCallUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_DingtalkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
