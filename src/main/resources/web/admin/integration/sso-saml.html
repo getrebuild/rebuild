@@ -19,23 +19,19 @@
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>SSO SAML 2.0</h5>
+                  <h5>SAML 2.0</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('显示名称')}]]</td>
-                        <td data-id="SamlDisplayName" th:data-value="${SamlDisplayName ?:''}">[[${SamlDisplayName ?:bundle.L('未设置')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>SSO Endpoint</td>
+                        <td width="40%">SSO Endpoint</td>
                         <td data-id="SamlEndpoint" th:data-value="${SamlEndpoint ?:''}">[[${SamlEndpoint ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('IdP 公钥')}]]</td>
+                        <td>IdP Public Certificate</td>
                         <td data-id="SamlIdPCert" data-optional="true" th:data-value="${SamlIdPCert ?:''}">[[${SamlIdPCert ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('SAML 加密算法')}]]</td>
+                        <td>SAML Algorithm</td>
                         <td data-id="SamlIdPCertAlgorithm" th:data-value="${SamlIdPCertAlgorithm}">[[${SamlIdPCertAlgorithm}]]</td>
                       </tr>
                       <tr>
@@ -48,18 +44,18 @@
                       </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('IdP 侧配置')}]]</h5>
+                  <h5>IdP</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('登录回调 URL')}]]</td>
+                        <td width="40%">Login URL</td>
                         <td class="click-copy">
                           [[${_SamlSpLoginUrl}]]
                           <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLoginUrl}"><i class="icon zmdi zmdi-copy"></i></a>
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('登出回调 URL')}]]</td>
+                        <td>Logout URL</td>
                         <td class="click-copy">
                           [[${_SamlSpLogoutUrl}]]
                           <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLogoutUrl}"><i class="icon zmdi zmdi-copy"></i></a>

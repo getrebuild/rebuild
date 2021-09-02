@@ -142,12 +142,9 @@ public class LoginController extends BaseController {
             mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey));
             // WxWork
             mv.getModel().put("ssoWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid));
-            // SSO TODO
-            mv.getModel().put("ssoSaml", "#");
         } else {
             mv.getModel().put("ssoDingtalk", "#");
             mv.getModel().put("ssoWxwork", "#");
-            mv.getModel().put("ssoSaml", "#");
         }
 
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
