@@ -215,11 +215,6 @@
           }, 1000)
         }
 
-        var error = $urlp('error', location.hash)
-        if (error === 'dingtalk-not-bind' || error === 'wxwork-not-bind') {
-          RbHighbar.create($L('请绑定用户后使用'), { timeout: 5000 })
-        }
-
         $('.vcode-row img').on('click', function () {
           $(this).attr('src', 'captcha?' + $random())
         })
