@@ -115,7 +115,7 @@ public class ProjectController extends BaseController {
     @GetMapping("search")
     public void searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String gs = getParameter(request, "gs");
-        String baseUrl = AppUtils.getContextPath() + "/project/";
+        String baseUrl = AppUtils.getContextPath("/project/");
 
         // 全局搜索
         if (StringUtils.isNotBlank(gs)) {

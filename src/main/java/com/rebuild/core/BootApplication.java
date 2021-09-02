@@ -56,6 +56,8 @@ public class BootApplication extends SpringBootServletInitializer {
     private static String TOMCAT_PORT;
 
     /**
+     * 获取上下文地址，注意此地址尾部不含 `/`
+     *
      * @return
      */
     public static String getContextPath() {

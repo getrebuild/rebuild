@@ -4325,3 +4325,9 @@ html.external-auth .auth-body.must-center .login {
   content: '\f15a';
   transform: translateY(1px);
 }
+
+.copied-check > .zmdi-copy::before {
+  content: '\f26b' !important;
+  color: #34a853;
+  font-weight: bold;
+}

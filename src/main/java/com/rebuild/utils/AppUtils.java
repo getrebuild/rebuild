@@ -50,11 +50,25 @@ public class AppUtils {
     public static final String HF_LOCALE = "X-ClientLocale";
 
     /**
+     * 获取相对地址
+     *
      * @return
      * @see BootApplication#getContextPath()
+     * @see RebuildConfiguration#getHomeUrl()
      */
     public static String getContextPath() {
         return BootApplication.getContextPath();
+    }
+
+    /**
+     * 获取相对地址
+     *
+     * @return
+     * @see RebuildConfiguration#getHomeUrl(String)
+     */
+    public static String getContextPath(String path) {
+        if (!path.startsWith("/")) path = "/" + path;
+        return BootApplication.getContextPath() + path;
     }
 
     /**

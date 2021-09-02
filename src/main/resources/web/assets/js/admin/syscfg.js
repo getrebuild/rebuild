@@ -19,8 +19,9 @@ $(document).ready(() => {
 
   if (window.ClipboardJS) {
     $('a[data-clipboard-text]').each(function () {
+      const $copy = $(this).on('mouseenter', () => $(this).removeClass('copied-check'))
       // eslint-disable-next-line no-undef
-      new ClipboardJS(this).on('success', () => RbHighbar.success($L('已复制')))
+      new ClipboardJS(this).on('success', () => $copy.addClass('copied-check'))
     })
   }
 })
