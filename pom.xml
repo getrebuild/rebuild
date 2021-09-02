@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.2</version>
+        <version>2.5.4</version>
         <relativePath/>
     </parent>
     <groupId>com.rebuild</groupId>
@@ -37,7 +37,7 @@
                     <executable>true</executable>
                     <fork>true</fork>
                     -->
-                    <includeSystemScope>true</includeSystemScope>
+                    <!-- <includeSystemScope>true</includeSystemScope> -->
                 </configuration>
             </plugin>
             <plugin>
@@ -430,15 +430,15 @@
             <artifactId>commons-email</artifactId>
             <version>1.5</version>
         </dependency>
-
-        <!-- Local .deps -->
         <dependency>
-            <groupId>deps</groupId>
-            <artifactId>dingtalk-sdk</artifactId>
-            <version>20210719</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/.deps/taobao-sdk-java-auto_1479188381469-20210716.jar</systemPath>
+            <groupId>com.onelogin</groupId>
+            <artifactId>java-saml</artifactId>
+            <version>2.6.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.devezhao</groupId>
+            <artifactId>dingtalk-sdk</artifactId>
+            <version>1.0-20210901</version>
+        </dependency>
     </dependencies>
 </project>

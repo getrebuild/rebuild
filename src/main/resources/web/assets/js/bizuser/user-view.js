@@ -189,7 +189,7 @@ class DlgEnableUser extends RbModalHandler {
               </div>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">
-                  {$L('附加角色')} ({$L('可选')}) <sup className="rbv"></sup>
+                  {$L('附加角色')} {$L('(可选)')} <sup className="rbv"></sup>
                 </label>
                 <div className="col-sm-7">
                   <UserSelector

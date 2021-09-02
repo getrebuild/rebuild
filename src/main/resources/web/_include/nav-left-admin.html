@@ -24,6 +24,9 @@
                           <li th:class="${active == 'integration-submail'} ? 'active'">
                             <a th:href="@{/admin/integration/submail}"><span>[[${bundle.L('邮件&短信')}]]</span></a>
                           </li>
+                          <li class="hide" th:classappend="${active == 'integration-sso-saml'} ? 'active'">
+                            <a th:href="@{/admin/integration/sso-saml}"><span>[[${bundle.L('企业身份认证')}]]</span> <sup class="rbv"></sup></a>
+                          </li>
                           <li th:class="${active == 'integration-dingtalk'} ? 'active'">
                             <a th:href="@{/admin/integration/dingtalk}"><span>[[${bundle.L('钉钉')}]]</span> <sup class="rbv"></sup></a>
                           </li>

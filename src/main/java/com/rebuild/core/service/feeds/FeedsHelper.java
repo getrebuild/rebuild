@@ -182,7 +182,7 @@ public class FeedsHelper {
         Matcher urlMatcher = URL_PATTERN.matcher(content);
         while (urlMatcher.find()) {
             String url = urlMatcher.group();
-            String safeUrl = AppUtils.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(url);
+            String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(url));
             content = content.replace(url,
                     String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, url));
         }

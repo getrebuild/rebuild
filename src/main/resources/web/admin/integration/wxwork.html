@@ -41,11 +41,17 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('应用主页')}]]</td>
-                        <td>[[${_WxworkHomeUrl}]]</td>
+                        <td>
+                          [[${_WxworkHomeUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_WxworkHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('可信域名')}]]</td>
-                        <td>[[${_WxworkAuthCallUrl}]]</td>
+                        <td>
+                          [[${_WxworkAuthCallUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_WxworkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -62,6 +68,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
   </body>
 </html>

@@ -4169,7 +4169,7 @@ html.external-auth body {
 }
 
 html.external-auth .auth-body {
-  max-width: 441px;
+  max-width: 461px;
   margin: 0 auto;
 }
 
@@ -4324,4 +4324,10 @@ html.external-auth .auth-body.must-center .login {
 .user-popup .infos p.email::after {
   content: '\f15a';
   transform: translateY(1px);
+}
+
+.copied-check > .zmdi-copy::before {
+  content: '\f26b' !important;
+  color: #34a853;
+  font-weight: bold;
 }

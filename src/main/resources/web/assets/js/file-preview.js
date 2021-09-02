@@ -125,13 +125,7 @@ class RbPreview extends React.Component {
               <RbSpinner fully={true} />
             </div>
           )}
-          <iframe
-            className={!this.state.docRendered ? 'hide' : ''}
-            src={this.state.previewUrl || ''}
-            onLoad={() => this.setState({ docRendered: true })}
-            frameBorder="0"
-            scrolling="no"
-          />
+          <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
         </div>
       </div>
     )
@@ -333,8 +327,8 @@ class FileShare extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._btn = c)}>
-                {$L('复制')}
+              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
           </div>
@@ -363,13 +357,12 @@ class FileShare extends RbModalHandler {
     const that = this
     const initCopy = function () {
       // eslint-disable-next-line no-undef
-      new ClipboardJS(that._btn, {
+      new ClipboardJS(that._$copy, {
         text: function () {
           return that.state.shareUrl
         },
-      }).on('success', function () {
-        RbHighbar.success($L('分享链接已复制'))
-      })
+      }).on('success', () => $(that._$copy).addClass('copied-check'))
+      $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
     }
     if (!window.ClipboardJS) {
       $.getScript('/assets/lib/clipboard.min.js', initCopy)

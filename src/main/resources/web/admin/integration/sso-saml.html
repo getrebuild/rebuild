@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-saml" />
+    <title>[[${bundle.L('企业身份认证')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-sso-saml')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">
+                  [[${bundle.L('企业身份认证')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>SAML 2.0</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">SSO Endpoint</td>
+                        <td data-id="SamlEndpoint" th:data-value="${SamlEndpoint ?:''}">[[${SamlEndpoint ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>IdP Public Certificate</td>
+                        <td data-id="SamlIdPCert" data-optional="true" th:data-value="${SamlIdPCert ?:''}">[[${SamlIdPCert ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>SAML Algorithm</td>
+                        <td data-id="SamlIdPCertAlgorithm" th:data-value="${SamlIdPCertAlgorithm}">[[${SamlIdPCertAlgorithm}]]</td>
+                      </tr>
+                      <tr>
+                        <td>Issurer URL</td>
+                        <td data-id="SamlIssurerUrl" data-optional="true" th:data-value="${SamlIssurerUrl ?:''}">[[${SamlIssurerUrl ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>IdP SLO URL</td>
+                        <td data-id="SamlSloEndpoint" data-optional="true" th:data-value="${SamlSloEndpoint ?:''}">[[${SamlSloEndpoint ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>IdP</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">Login URL</td>
+                        <td class="click-copy">
+                          [[${_SamlSpLoginUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLoginUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Logout URL</td>
+                        <td class="click-copy">
+                          [[${_SamlSpLogoutUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLogoutUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script type="text/babel">
+      useEditComp = function (name) {
+        if ('SamlIdPCert' === name) {
+          return <textarea className="form-control form-control-sm row3x" maxLength="2000" />
+        } else if ('SamlIdPCertAlgorithm' === name) {
+          return (
+            <select className="form-control form-control-sm">
+              <option value="SHA-1">SHA-1</option>
+              <option value="SHA-256">SHA-256</option>
+              <option value="SHA-512">SHA-512</option>
+            </select>
+          )
+        }
+      }
+    </script>
+  </body>
+</html>

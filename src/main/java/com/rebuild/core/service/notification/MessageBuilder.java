@@ -133,7 +133,7 @@ public class MessageBuilder {
         }
 
         String recordLabel = FieldValueHelper.getLabelNotry(id);
-        String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + id;
+        String recordUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
         return String.format("[%s](%s)", recordLabel, recordUrl);
     }
 

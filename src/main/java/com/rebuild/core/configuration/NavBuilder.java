@@ -244,22 +244,22 @@ public class NavBuilder extends NavManager {
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
             if (isOutUrl) {
-                navUrl = AppUtils.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+                navUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl));
             } else {
-                navUrl = AppUtils.getContextPath() + navUrl;
+                navUrl = AppUtils.getContextPath(navUrl);
             }
 
         } else if (NAV_FEEDS.equals(navName)) {
             navName = "nav_entity-FEEDS";
-            navUrl = AppUtils.getContextPath() + "/feeds/home";
+            navUrl = AppUtils.getContextPath("/feeds/home");
 
         } else if (NAV_FILEMRG.equals(navName)) {
             navName = "nav_entity-ATTACHMENT";
-            navUrl = AppUtils.getContextPath() + "/files/home";
+            navUrl = AppUtils.getContextPath("/files/home");
 
         } else if (NAV_PROJECT.equals(navName)) {
             navName = "nav_entity-PROJECT";
-            navUrl = AppUtils.getContextPath() + "/project/search";
+            navUrl = AppUtils.getContextPath("/project/search");
 
         } else if (NAV_PROJECT.equals(navType)) {
             navName = "nav_project-" + navName;
@@ -267,12 +267,12 @@ public class NavBuilder extends NavManager {
 
         } else if (navName.startsWith(NAV_PROJECT)) {
             navName = "nav_project--add";
-            navUrl = AppUtils.getContextPath() + "/admin/projects";
+            navUrl = AppUtils.getContextPath("/admin/projects");
 
         } else {
             navEntity = navName;
             navName = "nav_entity-" + navName;
-            navUrl = AppUtils.getContextPath() + "/app/" + navUrl + "/list";
+            navUrl = AppUtils.getContextPath("/app/" + navUrl + "/list");
         }
 
         String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
