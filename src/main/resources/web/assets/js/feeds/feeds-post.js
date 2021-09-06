@@ -85,7 +85,7 @@ class FeedsPost extends React.Component {
     const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       $btn.button('reset')
-      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
 
       this._FeedsEditor.reset()
       typeof this.props.call === 'function' && this.props.call()
@@ -745,7 +745,7 @@ class FeedsEditDlg extends RbModalHandler {
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       $btn.button('reset')
-      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
 
       this.hide()
       typeof this.props.call === 'function' && this.props.call()
