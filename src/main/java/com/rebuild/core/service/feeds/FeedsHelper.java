@@ -170,14 +170,12 @@ public class FeedsHelper {
      * 格式化动态内容
      *
      * @param content
-     * @param xss     是否处理 XSS
+     * @param xss 是否处理 XSS
      * @return
      * @see MessageBuilder#formatMessage(String, boolean, boolean)
      */
     public static String formatContent(String content, boolean xss) {
-        if (xss) {
-            content = MessageBuilder.escapeHtml(content);
-        }
+        if (xss) content = MessageBuilder.escapeHtml(content);
 
         Matcher urlMatcher = URL_PATTERN.matcher(content);
         while (urlMatcher.find()) {

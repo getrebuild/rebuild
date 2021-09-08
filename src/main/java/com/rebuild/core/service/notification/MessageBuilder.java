@@ -13,7 +13,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
@@ -94,9 +93,7 @@ public class MessageBuilder {
      * @see MarkdownUtils#render(String)
      */
     public static String formatMessage(String message, boolean md2html, boolean xss) {
-        if (xss) {
-            message = escapeHtml(message);
-        }
+        if (xss) message = escapeHtml(message);
 
         // 匹配 `@ID`
         Matcher atMatcher = AT_PATTERN.matcher(message);
@@ -146,7 +143,13 @@ public class MessageBuilder {
         if (text == null || StringUtils.isBlank(text.toString())) {
             return StringUtils.EMPTY;
         }
-        String escape = StringEscapeUtils.escapeHtml(text.toString());
-        return escape.replace("&gt;", ">");  // `>` for MD
+
+        // https://www.php.net/htmlspecialchars
+        return text.toString()
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+//                .replace(">", "&gt;")  // for MD quote
+                .replace("<", "&lt;");
     }
 }
