@@ -345,7 +345,7 @@ class DlgDashSettings extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch={true} shareTo={this.props.shareTo} />
                 </div>
               </div>
             </div>
@@ -367,10 +367,13 @@ class DlgDashSettings extends RbFormHandler {
 
   save() {
     const _data = {
-      shareTo: this._shareTo.getData().shareTo,
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
       title: this.state.title || $L('默认仪表盘'),
     }
-    _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
+    _data.metadata = {
+      id: this.props.dashid,
+      entity: 'DashboardConfig',
+    }
 
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
