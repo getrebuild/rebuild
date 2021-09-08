@@ -25,7 +25,11 @@ class LightFeedsList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-chart-donut" />
-        <p>{$L('暂无动态')}</p>
+        <p>
+          {$L('暂无数据')}
+          <br />
+          {$L('私密动态不支持在相关项中显示')}
+        </p>
       </div>
     )
   }
@@ -97,7 +101,11 @@ class LightTaskList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-shape" />
-        <p>{$L('暂无任务')}</p>
+        <p>
+          {$L('暂无数据')}
+          <br />
+          {$L('可能存在当前用户无访问权限的任务')}
+        </p>
       </div>
     )
   }
@@ -124,13 +132,7 @@ class LightTaskList extends RelatedList {
         <div className="row header-title">
           <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input
-                className="custom-control-input"
-                type="checkbox"
-                defaultChecked={item.status > 0}
-                disabled={item.planFlow === 2 || !item.projectMember}
-                onClick={() => this._toggleStatus(item)}
-              />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2 || !item.projectMember} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
@@ -179,20 +181,15 @@ class LightTaskList extends RelatedList {
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    $.get(
-      `/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}&search=${$encode(
-        this.__searchKey
-      )}`,
-      (res) => {
-        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}&search=${$encode(this.__searchKey)}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-        const data = res.data || []
-        const list = append ? (this.state.dataList || []).concat(data) : data
-        this.setState({ dataList: list, showMore: data.length >= pageSize })
+      const data = res.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-        if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-      }
-    )
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
   }
 
   _toggleStatus(item) {
