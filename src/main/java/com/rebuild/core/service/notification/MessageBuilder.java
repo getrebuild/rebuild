@@ -13,7 +13,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
@@ -146,7 +145,13 @@ public class MessageBuilder {
         if (text == null || StringUtils.isBlank(text.toString())) {
             return StringUtils.EMPTY;
         }
-        String escape = StringEscapeUtils.escapeHtml(text.toString());
-        return escape.replace("&gt;", ">");  // `>` for MD
+
+        // https://www.php.net/htmlspecialchars
+        return text.toString()
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+//                .replace(">", "&gt;")  // for MD quote
+                .replace("<", "&lt;");
     }
 }

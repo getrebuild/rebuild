@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
     <name>rebuild</name>
     <description>RB V2 use SpringBoot</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -320,11 +320,6 @@
             <version>1.6.2</version>
         </dependency>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-http</artifactId>
-            <version>5.7.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.14.2</version>
@@ -430,15 +425,15 @@
             <artifactId>oshi-core</artifactId>
             <version>5.8.0</version>
         </dependency>
-
-        <!-- Local .deps -->
         <dependency>
-            <groupId>deps</groupId>
-            <artifactId>dingtalk-sdk</artifactId>
-            <version>20210719</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/.deps/taobao-sdk-java-auto_1479188381469-20210716.jar</systemPath>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.21</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.devezhao</groupId>
+            <artifactId>dingtalk-sdk</artifactId>
+            <version>1.0-20210901</version>
+        </dependency>
     </dependencies>
 </project>

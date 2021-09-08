@@ -379,7 +379,7 @@ class DlgDashSettings extends RbFormHandler {
 
   save() {
     const _data = {
-      shareTo: this._shareTo.getData().shareTo,
+      shareTo: this._shareTo ? this._shareTo.getData().shareTo : 'SELF',
       title: this.state.title || $L('默认仪表盘'),
     }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }

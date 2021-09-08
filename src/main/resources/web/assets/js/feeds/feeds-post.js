@@ -129,8 +129,11 @@ class FeedsScope extends React.Component {
   componentDidMount() {
     const iv = this.props.initValue
     if (iv) {
-      if (iv === 'ALL' || iv === 'SELF') $(this._$items[iv]).trigger('click')
-      else this._renderGroupScope({ id: iv[0], name: iv[1] })
+      if (iv === 'ALL' || iv === 'SELF') {
+        $(this._$btn).html($(this._$items[iv]).html())
+      } else {
+        this._renderGroupScope({ id: iv[0], name: iv[1] })
+      }
     }
   }
 
