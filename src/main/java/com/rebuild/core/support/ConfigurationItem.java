@@ -88,6 +88,7 @@ public enum ConfigurationItem {
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
+    WxworkAuthFile,
     // SAML 2.0
     SamlDisplayName, SamlEndpoint, SamlIdPCert, SamlIdPCertAlgorithm("SHA-1"),
     SamlIssurerUrl, SamlSloEndpoint,

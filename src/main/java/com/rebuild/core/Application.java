@@ -131,7 +131,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "    License : " + License.queryAuthority(false).values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
-                                    "   External : " + localUrl.replace("localhost", ServerStatus.getLocalIp()));
+                                    "   External : " + localUrl.replace("localhost", ServerStatus.getLocalIp()),
+                                    "     Public : " + RebuildConfiguration.getHomeUrl());
                             log.info(banner);
                         }
                     }, 1500);
