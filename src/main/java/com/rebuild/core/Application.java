@@ -93,9 +93,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     // 系统状态
-    private static boolean _READY;
+    volatile private static boolean _READY = false;
     // 业务组件已装载
-    private static boolean _WAITLOAD = true;
+    volatile private static boolean _WAITLOAD = true;
 
     // SPRING
     private static ApplicationContext _CONTEXT;

@@ -23,7 +23,7 @@ public class LogbackReqidConverter extends MessageConverter {
     @Override
     public String convert(ILoggingEvent event) {
         String reqip = UserContextHolder.getReqip();
-        ID requser = UserContextHolder.getUser();
+        ID requser = UserContextHolder.getUser(true);
 
         if (reqip == null && requser == null) return NO_REQID;
         else return String.format("%s,%s", reqip == null ? NO_REQID : reqip, requser == null ? NO_REQID : requser);
