@@ -15,9 +15,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentInfo;
-import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
@@ -36,6 +33,8 @@ import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
+import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -231,22 +230,22 @@ public class LoginController extends BaseController {
     }
 
     private void createLoginLog(HttpServletRequest request, ID user) {
-        String UA = request.getHeader("user-agent");
+        String ua = request.getHeader("user-agent");
         try {
-            UserAgent uas = UserAgentUtil.parse(UA);
-            UA = String.format("%s-%s (%s)",
-                    uas.getBrowser(), uas.getVersion().split("\\.")[0], uas.getPlatform());
-            if (uas.isMobile()) UA += " [Mobile]";
+            UserAgent uas = UserAgent.parseUserAgentString(ua);
+            ua = String.format("%s-%s (%s)",
+                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
+            if (uas.getOperatingSystem().getDeviceType() == DeviceType.MOBILE) ua += " [Mobile]";
 
         } catch (Exception ex) {
-            log.warn("Unknown user-agent : " + UA);
-            UA = UserAgentInfo.NameUnknown;
+            log.warn("Unknown user-agent : " + ua);
+            ua = "UNKNOW";
         }
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
         record.setString("ipAddr", ServletUtils.getRemoteAddr(request));
-        record.setString("userAgent", UA.toUpperCase());
+        record.setString("userAgent", ua);
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
     }

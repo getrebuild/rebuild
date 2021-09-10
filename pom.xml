@@ -321,11 +321,6 @@
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
-            <artifactId>hutool-http</artifactId>
-            <version>5.7.9</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
             <artifactId>hutool-system</artifactId>
             <version>5.7.9</version>
         </dependency>
@@ -434,6 +429,11 @@
             <groupId>com.onelogin</groupId>
             <artifactId>java-saml</artifactId>
             <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.21</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>
