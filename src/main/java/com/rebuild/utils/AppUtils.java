@@ -17,8 +17,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
-import eu.bitwalker.useragentutils.DeviceType;
-import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
@@ -196,7 +194,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isMobile(HttpServletRequest request) {
-        UserAgent ua = UserAgent.parseUserAgentString(request.getHeader("user-agent"));
-        return ua.getOperatingSystem().getDeviceType() == DeviceType.MOBILE;
+        String ua = request.getHeader("user-agent");
+        return ua != null && (ua.contains("Mobile") || ua.contains("iPhone") || ua.contains("Android"));
     }
 }
