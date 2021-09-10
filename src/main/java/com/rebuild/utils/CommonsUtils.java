@@ -10,6 +10,7 @@ package com.rebuild.utils;
 import cn.devezhao.commons.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -68,6 +69,25 @@ public class CommonsUtils {
             return text.substring(0, maxLength);
         }
         return text;
+    }
+
+    /**
+     * @param text
+     * @return
+     * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
+     */
+    public static String escapeHtml(Object text) {
+        if (text == null || StringUtils.isBlank(text.toString())) {
+            return StringUtils.EMPTY;
+        }
+
+        // https://www.php.net/htmlspecialchars
+        return text.toString()
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+                .replace(">", "&gt;")
+                .replace("<", "&lt;");
     }
 
     /**

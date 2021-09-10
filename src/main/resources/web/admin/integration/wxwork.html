@@ -53,6 +53,14 @@
                           <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_WxworkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
                         </td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('可信域名效验文件')}]]</td>
+                        <td>
+                          <a class="J_authFile hide-empty mr-1 link" target="_blank">[[${WxworkAuthFile}]]</a>
+                          <button type="button" class="btn btn-light btn-sm J_authFile"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
+                          <input type="file" class="hide J_authFile" data-local="true" accept=".txt" />
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">
@@ -70,5 +78,26 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/clipboard.min.js}"></script>
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script type="text/babel">
+      $(document).ready(() => {
+        const $input = $('input.J_authFile')
+        $initUploader($input, null, (res) => {
+          const fileKey = res.key
+          $.post(location.href, JSON.stringify({ WxworkAuthFile: fileKey }), (res) => {
+            if (res.error_code === 0) renderAuthFile(fileKey)
+            else RbHighbar.error(res.error_msg)
+          })
+        })
+        $('button.J_authFile').on('click', () => $input[0].click())
+
+        const key = $('a.J_authFile').text()
+        if (key) renderAuthFile(key)
+      })
+
+      const renderAuthFile = function (key) {
+        const file = $fileCutName(key)
+        $('a.J_authFile').text(file).attr('href', `${rb.baseUrl}/${file}`)
+      }
+    </script>
   </body>
 </html>

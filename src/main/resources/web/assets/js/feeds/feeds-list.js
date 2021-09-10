@@ -414,7 +414,7 @@ class FeedsComments extends React.Component {
     const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       $btn.button('reset')
-      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
 
       this._FeedsEditor.reset()
       this._commentState(false)

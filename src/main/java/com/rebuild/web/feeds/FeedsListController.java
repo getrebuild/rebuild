@@ -70,8 +70,8 @@ public class FeedsListController extends BaseController {
     public RespBody fetchFeeds(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        JSON filter = ServletUtils.getRequestJson(request);
-        final AdvFilterParser parser = new AdvFilterParser((JSONObject) filter);
+        JSON filterJson = ServletUtils.getRequestJson(request);
+        final AdvFilterParser parser = new AdvFilterParser((JSONObject) filterJson);
         String sqlWhere = parser.toSqlWhere();
         if (sqlWhere == null) {
             sqlWhere = "(1=1)";

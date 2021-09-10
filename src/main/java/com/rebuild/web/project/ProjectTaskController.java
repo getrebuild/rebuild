@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.service.project.ProjectManager;
@@ -26,6 +27,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -47,6 +49,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2020/6/29
  */
+@Slf4j
 @RestController
 @RequestMapping("/project/")
 public class ProjectTaskController extends BaseController {
@@ -172,8 +175,14 @@ public class ProjectTaskController extends BaseController {
     private static final String BASE_FIELDS =
             "projectId,projectPlanId,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
 
-    private JSONObject formatTask(Object[] o, ID user) {
-        final ConfigBean project =  ProjectManager.instance.getProject((ID) o[0], user);
+    /**
+     * @param o
+     * @param user
+     * @return
+     * @throws ConfigurationException 如果指定用户无权限
+     */
+    private JSONObject formatTask(Object[] o, ID user) throws ConfigurationException {
+        final ConfigBean project = ProjectManager.instance.getProject((ID) o[0], user);
 
         String taskNumber = String.format("%s-%s", project.getString("projectCode"), o[2]);
         String createdOn = I18nUtils.formatDate((Date) o[5]);
@@ -261,14 +270,18 @@ public class ProjectTaskController extends BaseController {
         }
 
         String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
-
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
         JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
-            array.add(formatTask(o, user));
+            try {
+                array.add(formatTask(o, user));
+            } catch (ConfigurationException ex) {
+                // FIXME 无项目权限会报错（考虑任务在相关项中是否无权限也显示）
+                log.warn(ex.getLocalizedMessage());
+            }
         }
         return array;
     }

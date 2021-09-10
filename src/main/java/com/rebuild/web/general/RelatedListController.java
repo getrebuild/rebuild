@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -48,11 +49,13 @@ public class RelatedListController extends BaseController {
 
     @GetMapping("related-list")
     public JSON relatedList(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
         String related = getParameterNotNull(request, "related");
         String q = getParameter(request, "q");
         String sort = getParameter(request, "sort", "modifiedOn:desc");
 
-        String sql = buildMainSql(mainid, related, q, false);
+        String sql = buildMainSql(mainid, related, q, false, user);
         sql += " order by " + sort.replace(":", " ");
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
@@ -69,6 +72,7 @@ public class RelatedListController extends BaseController {
             if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
                 nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
+
             o[1] = nameValue;
             o[2] = I18nUtils.formatDate((Date) o[2]);
         }
@@ -82,12 +86,14 @@ public class RelatedListController extends BaseController {
     public Map<String, Integer> relatedCounts(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
         String[] relateds = getParameterNotNull(request, "relateds").split(",");
 
+        final ID user = getRequestUser(request);
         Map<String, Integer> countMap = new HashMap<>();
         for (String related : relateds) {
-            String sql = buildMainSql(mainid, related, null, true);
+            String sql = buildMainSql(mainid, related, null, true, user);
             if (sql != null) {
-                Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
+                // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
 
+                Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
                 Object[] count = MetadataHelper.hasPrivilegesField(relatedEntity)
                         ? Application.createQuery(sql).unique() : Application.createQueryNoFilter(sql).unique();
                 countMap.put(related, ObjectUtils.toInt(count[0]));
@@ -96,7 +102,7 @@ public class RelatedListController extends BaseController {
         return  countMap;
     }
 
-    private String buildMainSql(ID recordOfMain, String relatedExpr, String q, boolean count) {
+    private String buildMainSql(ID recordOfMain, String relatedExpr, String q, boolean count, ID user) {
         // Entity.Field
         String[] ef = relatedExpr.split("\\.");
         Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
@@ -120,9 +126,19 @@ public class RelatedListController extends BaseController {
 
         String mainWhere = "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')";
         mainWhere = MessageFormat.format(mainWhere, recordOfMain);
+
+        // @see FeedsListController#fetchFeeds
         if (relatedEntity.getEntityCode() == EntityHelper.Feeds) {
             mainWhere += String.format(" and (type = %d or type = %d)",
-                    FeedsType.FOLLOWUP.getMask(), FeedsType.SCHEDULE.getMask());
+                    FeedsType.FOLLOWUP.getMask(),
+                    FeedsType.SCHEDULE.getMask());
+
+            List<String> in = new ArrayList<>();
+            in.add("scope = 'ALL'");
+            for (Team t : Application.getUserStore().getUser(user).getOwningTeams()) {
+                in.add(String.format("scope = '%s'", t.getIdentity()));
+            }
+            mainWhere += " and ( " + StringUtils.join(in, " or ") + " )";
         }
 
         if (StringUtils.isNotBlank(q)) {
