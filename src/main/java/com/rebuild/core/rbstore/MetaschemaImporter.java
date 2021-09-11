@@ -331,20 +331,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
 
-        String actionType = config.getString("actionType");
-        boolean available = false;
-        for (ActionType type : ActionFactory.getAvailableActions()) {
-            if (type.name().equalsIgnoreCase(actionType)) {
-                available = true;
-                break;
-            }
-        }
-
-        if (!available) {
-            log.warn("Trigger `{}` unavailable", actionType);
-            return;
-        }
-
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
         Application.getBean(AutoFillinConfigService.class).create(record);
@@ -365,6 +351,20 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
+
+        String actionType = config.getString("actionType");
+        boolean available = false;
+        for (ActionType type : ActionFactory.getAvailableActions()) {
+            if (type.name().equalsIgnoreCase(actionType)) {
+                available = true;
+                break;
+            }
+        }
+
+        if (!available) {
+            log.warn("Trigger `{}` unavailable", actionType);
+            return;
+        }
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
