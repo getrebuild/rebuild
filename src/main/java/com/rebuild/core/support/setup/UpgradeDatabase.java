@@ -34,7 +34,7 @@ public final class UpgradeDatabase {
      */
     public void upgrade() throws Exception {
         if (Installer.isUseH2()) {
-            LOG.warn("H2 database unsupported upgrade!");
+            LOG.error("H2 database unsupported upgrade!");
             return;
         }
 

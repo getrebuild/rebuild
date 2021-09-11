@@ -146,7 +146,7 @@ public class LoginController extends BaseController {
             mv.getModel().put("ssoWxwork", "#");
         }
 
-        mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
+        mv.getModelMap().put("UsersMsg", AdminDiagnosis.getUsersDanger());
         return mv;
     }
 

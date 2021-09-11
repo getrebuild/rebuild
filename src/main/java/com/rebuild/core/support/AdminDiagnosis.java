@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
  * @since 2020/12/7
  */
 @SuppressWarnings("unchecked")
-public class CheckDangers {
+public class AdminDiagnosis {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
@@ -31,9 +31,7 @@ public class CheckDangers {
     private static final String UsersMsg = "UsersMsg";
     private static final String CommercialNoRbv = "CommercialNoRbv";
 
-    /**
-     */
-    public void checks() {
+    public void diagnose() {
         // Status
         ServerStatus.getLastStatus(true);
 
