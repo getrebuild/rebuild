@@ -43,7 +43,7 @@ class UserImport extends RbModalHandler {
                 <div className="file-select">
                   <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="temp" ref={(c) => (this._upload = c)} />
                   <label htmlFor="upload-input" className="btn-secondary">
-                    <i className="zmdi zmdi-upload"></i>
+                    <i className="zmdi zmdi-upload" />
                     <span>{$L('选择文件')}</span>
                   </label>
                 </div>
@@ -51,16 +51,17 @@ class UserImport extends RbModalHandler {
               <div className="float-left ml-2" style={{ paddingTop: 8 }}>
                 {this.state.uploadFile && <u className="text-bold">{$fileCutName(this.state.uploadFile)}</u>}
               </div>
-              <div className="clearfix"></div>
+              <div className="clearfix" />
               <p
                 className="form-text mt-0 mb-0 link"
                 dangerouslySetInnerHTML={{
-                  __html: $L('请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)'),
-                }}></p>
+                  __html: $L('请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users#2.%20%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5)'),
+                }}
+              />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <label className="col-sm-3 col-form-label text-sm-right" />
             <div className="col-sm-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._notify = c)} />
@@ -102,14 +103,7 @@ class UserImport extends RbModalHandler {
   }
 
   imports() {
-    if (rb.commercial < 1)
-      return RbHighbar.create($L('免费版不支持导入用户功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
-        type: 'danger',
-        html: true,
-        timeout: 6000,
-      })
     if (!this.state.uploadFile) return RbHighbar.create($L('请上传文件'))
-
     $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {
       if (res.error_code === 0) {
         this.__taskid = res.data
