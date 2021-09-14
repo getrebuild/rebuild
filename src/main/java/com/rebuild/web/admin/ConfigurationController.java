@@ -359,8 +359,9 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        mv.getModel().put("_SamlSpLoginUrl", RebuildConfiguration.getHomeUrl("/user/sso-saml2-login"));
-        mv.getModel().put("_SamlSpLogoutUrl", RebuildConfiguration.getHomeUrl("/user/logout"));
+        mv.getModel().put("_SamlSpEndpoint", RebuildConfiguration.getHomeUrl("/user/sso-saml2-login"));
+        mv.getModel().put("_SamlSpSloEndpoint", RebuildConfiguration.getHomeUrl("/user/logout"));
+        mv.getModel().put("_SamlSpEntityid", RebuildConfiguration.getHomeUrl());
 
         return mv;
     }
