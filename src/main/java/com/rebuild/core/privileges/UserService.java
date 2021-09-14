@@ -240,11 +240,6 @@ public class UserService extends BaseServiceImpl {
         }
     }
 
-    /**
-     * @param newUser
-     * @param passwd
-     * @return
-     */
     private boolean notifyNewUser(Record newUser, String passwd) {
         if (RebuildConfiguration.getMailAccount() == null || !newUser.hasValue("email")) {
             return false;
@@ -322,30 +317,39 @@ public class UserService extends BaseServiceImpl {
 
         // 是否需要发送激活通知
         if (beforeUnEnabled) {
-            enUser = Application.getUserStore().getUser(record.getPrimary());
-            if (enUser.isActive()) {
-                Object did = Application.createQueryNoFilter(
-                        "select logId from LoginLog where user = ?")
-                        .setParameter(1, enUser.getId())
-                        .unique();
-
-                if (did == null) {
-                    // 站内信
-                    String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。如有任何登陆或使用问题，请与系统管理员联系。",
-                            enUser.getFullName());
-                    Application.getNotifications().send(MessageBuilder.createMessage(enUser.getId(), content));
-                    
-                    // 邮件
-                    if (SMSender.availableMail() && enUser.getEmail() != null) {
-                        String homeUrl = RebuildConfiguration.getHomeUrl();
-                        content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
-                                enUser.getFullName(), homeUrl, homeUrl);
-                        String subject = Language.L("你的账户已激活");
-                        SMSender.sendMailAsync(enUser.getEmail(), subject, content);
-                    }
-                }
-            }
+            notifyEnableUser(Application.getUserStore().getUser(enUser.getId()));
         }
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public boolean notifyEnableUser(User user) {
+        // 未激活
+        if (!user.isActive()) return false;
+
+        // 登录过
+        Object did = Application.createQueryNoFilter(
+                "select logId from LoginLog where user = ?")
+                .setParameter(1, user.getId())
+                .unique();
+        if (did != null) return false;
+
+        // 站内信
+        String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。如有任何登陆或使用问题，请与系统管理员联系。",
+                user.getFullName());
+        Application.getNotifications().send(MessageBuilder.createMessage(user.getId(), content));
+
+        // 邮件
+        if (SMSender.availableMail() && user.getEmail() != null) {
+            String homeUrl = RebuildConfiguration.getHomeUrl();
+            content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
+                    user.getFullName(), homeUrl, homeUrl);
+            String subject = Language.L("你的账户已激活");
+            SMSender.sendMailAsync(user.getEmail(), subject, content);
+        }
+        return true;
     }
 
     /**
