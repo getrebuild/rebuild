@@ -2010,31 +2010,39 @@ th.column-fixed {
 }
 
 .aside-2tree ul li > span {
-  width: 22px;
   cursor: pointer;
 }
 
 .aside-2tree li span.collapse-icon {
   padding-left: 6px;
-  padding-top: 7px;
-  font-size: 1.22rem;
+  padding-top: 5px;
+  font-size: 1.7rem;
   color: #999;
+  width: 18px;
+}
+
+.aside-2tree li span.collapse-icon .zmdi {
+  transition: transform 0.2s ease-in-out;
+}
+
+.aside-2tree li span.collapse-icon .zmdi-chevron-right.open {
+  transform: rotate(90deg);
+}
+
+.aside-2tree li span.collapse-icon:hover {
+  color: #4285f4;
 }
 
 .aside-2tree li.active span.collapse-icon {
   color: #fff;
 }
 
-.aside-2tree li span.collapse-icon:not(.no-child):hover {
-  color: #4285f4;
-}
-
 .aside-2tree li.active span.collapse-icon:hover {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.aside-2tree li span.collapse-icon.no-child .zmdi::before {
-  content: '\f273';
+.aside-2tree li span.collapse-icon.no-child .zmdi {
+  display: none;
 }
 
 .aside-2tree li span.action {
@@ -2043,6 +2051,7 @@ th.column-fixed {
   text-align: center;
   font-size: 1.2rem;
   border-radius: 2px;
+  width: 22px;
   display: none;
 }
 

@@ -51,7 +51,7 @@ class AsideTree extends React.Component {
               this.setState({ expandItems: expandItemsNew })
             }
           }}>
-          <i className={`zmdi ${this.state.expandItems.contains(item.id) ? 'zmdi-minus' : 'zmdi-plus'} `} />
+          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) && 'open'} `} />
         </span>
         <a
           data-id={item.id}
