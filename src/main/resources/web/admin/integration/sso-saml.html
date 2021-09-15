@@ -23,24 +23,20 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">SSO Endpoint</td>
-                        <td data-id="SamlEndpoint" th:data-value="${SamlEndpoint ?:''}">[[${SamlEndpoint ?:bundle.L('未设置')}]]</td>
+                        <td width="40%">Issuer URL</td>
+                        <td data-id="SamlIdPEntityid" th:data-value="${SamlIdPEntityid ?:''}">[[${SamlIdPEntityid ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>IdP Public Certificate</td>
-                        <td data-id="SamlIdPCert" data-optional="true" th:data-value="${SamlIdPCert ?:''}">[[${SamlIdPCert ?:bundle.L('未设置')}]]</td>
+                        <td>Endpoint</td>
+                        <td data-id="SamlIdPEndpoint" th:data-value="${SamlIdPEndpoint ?:''}">[[${SamlIdPEndpoint ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>SAML Algorithm</td>
-                        <td data-id="SamlIdPCertAlgorithm" th:data-value="${SamlIdPCertAlgorithm}">[[${SamlIdPCertAlgorithm}]]</td>
+                        <td>SLO Endpoint</td>
+                        <td data-id="SamlIdPSloEndpoint" data-optional="true" th:data-value="${SamlIdPSloEndpoint ?:''}">[[${SamlIdPSloEndpoint ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>Issurer URL</td>
-                        <td data-id="SamlIssurerUrl" data-optional="true" th:data-value="${SamlIssurerUrl ?:''}">[[${SamlIssurerUrl ?:bundle.L('未设置')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>IdP SLO URL</td>
-                        <td data-id="SamlSloEndpoint" data-optional="true" th:data-value="${SamlSloEndpoint ?:''}">[[${SamlSloEndpoint ?:bundle.L('未设置')}]]</td>
+                        <td>X.509 Certificate</td>
+                        <td data-id="SamlIdPCert" th:data-value="${SamlIdPCert ?:''}">[[${SamlIdPCert ?:bundle.L('未设置')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -48,17 +44,24 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">Login URL</td>
+                        <td width="40%">ACS (Consumer) URL</td>
                         <td class="click-copy">
-                          [[${_SamlSpLoginUrl}]]
-                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLoginUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                          [[${_SamlSpEndpoint}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpEndpoint}"><i class="icon zmdi zmdi-copy"></i></a>
                         </td>
                       </tr>
                       <tr>
-                        <td>Logout URL</td>
+                        <td>Single Logout URL</td>
                         <td class="click-copy">
-                          [[${_SamlSpLogoutUrl}]]
-                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpLogoutUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                          [[${_SamlSpSloEndpoint}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpSloEndpoint}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Audience</td>
+                        <td class="click-copy">
+                          [[${_SamlSpEntityid}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_SamlSpEntityid}"><i class="icon zmdi zmdi-copy"></i></a>
                         </td>
                       </tr>
                     </tbody>
@@ -82,14 +85,6 @@
       useEditComp = function (name) {
         if ('SamlIdPCert' === name) {
           return <textarea className="form-control form-control-sm row3x" maxLength="2000" />
-        } else if ('SamlIdPCertAlgorithm' === name) {
-          return (
-            <select className="form-control form-control-sm">
-              <option value="SHA-1">SHA-1</option>
-              <option value="SHA-256">SHA-256</option>
-              <option value="SHA-512">SHA-512</option>
-            </select>
-          )
         }
       }
     </script>

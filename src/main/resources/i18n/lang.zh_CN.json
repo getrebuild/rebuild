@@ -348,7 +348,7 @@
 	"低 (最低6位，无字符类型限制)":"低 (最低6位，无字符类型限制)",
 	"何时回填":"何时回填",
 	"你":"你",
-	"你可以选择需要的业务实体使用，或在安装完成后再进行添加":"你可以选择需要的业务实体使用，或在安装完成后再进行添加",
+	"你可以选择来自 [RB 仓库](https://github.com/getrebuild/rebuild-datas/) 的业务实体使用，或在安装完成后自行添加":"你可以选择来自 [RB 仓库](https://github.com/getrebuild/rebuild-datas/) 的业务实体使用，或在安装完成后自行添加",
 	"你可在导入后进行适当调整。开始导入吗？":"你可在导入后进行适当调整。开始导入吗？",
 	"你已完成所有审批":"你已完成所有审批",
 	"你已审批同意，正在等待他人审批":"你已审批同意，正在等待他人审批",
@@ -1433,7 +1433,7 @@
 	"请再次确认修改数据范围和修改内容。开始修改吗？":"请再次确认修改数据范围和修改内容。开始修改吗？",
 	"请再次确认导入选项和字段映射。开始导入吗？":"请再次确认导入选项和字段映射。开始导入吗？",
 	"请分别上传深色与白色 LOGO，透明背景，宽高为 268 × 54":"请分别上传深色与白色 LOGO，透明背景，宽高为 268 × 54",
-	"请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)":"请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)",
+	"请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users#2.%20%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5)":"请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users#2.%20%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5)",
 	"请求失败 : %s":"请求失败 : %s",
 	"请求过于频繁，请稍后重试":"请求过于频繁，请稍后重试",
 	"请添加任务面板":"请添加任务面板",
@@ -1914,5 +1914,6 @@
 	"样式":"样式",
 	"请选择要导入的实体":"请选择要导入的实体",
 	"模板类型":"模板类型",
-	"SAML 未配置或配置错误":"SAML 未配置或配置错误"
+	"SAML 未配置或配置错误":"SAML 未配置或配置错误",
+	"还没有账号? [一键注册](#)":"还没有账号? [一键注册](#)"
 }

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.bizz;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -21,17 +20,12 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -91,15 +85,9 @@ public class UserController extends EntityController {
     }
 
     @PostMapping("enable-user")
-    public RespBody enableUser(HttpServletRequest request) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-
-        ID userId = ID.valueOf(data.getString("user"));
+    public RespBody enableUser(@RequestBody JSONObject data) {
+        final ID userId = ID.valueOf(data.getString("user"));
         User enUser = Application.getUserStore().getUser(userId);
-
-        // 当前是从未激活状态
-        final boolean beforeUnEnabled = enUser.isDisabled()
-                && (enUser.getOwningDept() == null || enUser.getOwningRole() == null);
 
         ID deptNew = null;
         ID roleNew = null;
@@ -145,24 +133,6 @@ public class UserController extends EntityController {
 
         Application.getBean(UserService.class)
                 .updateEnableUser(userId, deptNew, roleNew, roleAppends, enableNew);
-
-        // 是否需要发送激活通知
-        enUser = Application.getUserStore().getUser(userId);
-        if (beforeUnEnabled && enUser.isActive() && SMSender.availableMail() && enUser.getEmail() != null) {
-            Object did = Application.createQuery(
-                    "select logId from LoginLog where user = ?")
-                    .setParameter(1, enUser.getId())
-                    .unique();
-
-            if (did == null) {
-                String homeUrl = RebuildConfiguration.getHomeUrl();
-                String subject = Language.L("你的账户已激活");
-                String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
-                        enUser.getFullName(), homeUrl, homeUrl);
-
-                SMSender.sendMailAsync(enUser.getEmail(), subject, content);
-            }
-        }
 
         // 禁用后马上销毁会话
         if (!enUser.isActive()) {

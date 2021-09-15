@@ -55,6 +55,7 @@ public class FileDownloader extends BaseController {
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
 
+        filePath = CodecUtils.urlDecode(filePath);
         if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
             response.sendRedirect(filePath);
             return;

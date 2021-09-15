@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service;
 
-import com.rebuild.core.support.CheckDangers;
+import com.rebuild.core.support.AdminDiagnosis;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
@@ -42,7 +42,7 @@ public class PerHourJob extends DistributedJobLock {
         }
 
         if (hour % 2 == 0) {
-            new CheckDangers().checks();
+            new AdminDiagnosis().diagnose();
         }
 
         // DO OTHERS HERE ...

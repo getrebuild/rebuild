@@ -89,9 +89,8 @@ public enum ConfigurationItem {
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
     WxworkAuthFile,
-    // SAML 2.0
-    SamlDisplayName, SamlEndpoint, SamlIdPCert, SamlIdPCertAlgorithm("SHA-1"),
-    SamlIssurerUrl, SamlSloEndpoint,
+    // SAML (IdP)
+    SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 
     // !!! 仅命令行适用
     DataDirectory,  // 数据目录

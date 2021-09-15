@@ -414,7 +414,7 @@ var _initGlobalCreate = function () {
   var entities = []
   $('.sidebar-elements li').each(function () {
     var e = $(this).data('entity')
-    if (e && !entities.contains(e)) entities.push(e)
+    if (e && e !== '$PARENT$' && !entities.contains(e)) entities.push(e)
   })
   if (entities.length === 0) return
 
