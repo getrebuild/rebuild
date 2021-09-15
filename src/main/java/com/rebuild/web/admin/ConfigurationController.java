@@ -272,7 +272,7 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
                 RebuildConfiguration.set(item, e.getValue());
             } catch (Exception ex) {
-                log.error("Invalid item : " + e.getKey() + " = " + e.getValue());
+                log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
             }
         }
     }

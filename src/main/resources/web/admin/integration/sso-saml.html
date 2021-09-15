@@ -36,7 +36,8 @@
                       </tr>
                       <tr>
                         <td>X.509 Certificate</td>
-                        <td data-id="SamlIdPCert" th:data-value="${SamlIdPCert ?:''}">[[${SamlIdPCert ?:bundle.L('未设置')}]]</td>
+                        <td th:if="${SamlIdPCert != null}" data-id="SamlIdPCert" th:data-value="${SamlIdPCert}"><pre class="p-2">[[${SamlIdPCert}]]</pre></td>
+                        <td th:if="${SamlIdPCert == null}" data-id="SamlIdPCert">[[${bundle.L('未设置')}]]</td>
                       </tr>
                     </tbody>
                   </table>
