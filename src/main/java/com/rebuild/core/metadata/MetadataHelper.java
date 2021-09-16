@@ -36,6 +36,10 @@ import java.util.List;
 @Slf4j
 public class MetadataHelper {
 
+    // 通用分隔符
+    public static final String SPLITER = "$$$$";
+    public static final String SPLITER2 = "\\$\\$\\$\\$";
+
     /**
      * 元数据工厂
      *
@@ -365,11 +369,8 @@ public class MetadataHelper {
      * @return
      */
     public static boolean checkAndWarnField(Entity entity, String fieldName) {
-        if (entity.containsField(fieldName)) {
-            return true;
-        }
-
-        log.warn("Unknown field `" + fieldName + "` in `" + entity.getName() + "`");
+        if (entity.containsField(fieldName)) return true;
+        log.warn("Unknown field `{}` in `{}`", fieldName, entity.getName());
         return false;
     }
 

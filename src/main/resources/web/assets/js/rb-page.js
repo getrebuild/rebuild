@@ -580,18 +580,24 @@ var $unmount = function (container, delay, keepContainer) {
 /**
  * 初始化引用字段（搜索）
  */
-var $initReferenceSelect2 = function (el, field) {
+var $initReferenceSelect2 = function (el, options) {
   var search_input = null
   return $(el).select2({
-    placeholder: field.placeholder || $L('选择%s', field.label),
+    placeholder: options.placeholder || $L('选择%s', options.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
-      url: '/commons/search/' + (field.searchType || 'reference'),
+      url: '/commons/search/' + (options.searchType || 'reference'),
       delay: 300,
       data: function (params) {
         search_input = params.term
-        return { entity: field.entity, field: field.name, q: params.term }
+        const query = {
+          entity: options.entity,
+          field: options.name,
+          q: params.term,
+        }
+        if (options && typeof options.wrapQuery === 'function') return options.wrapQuery(query)
+        else return query
       },
       processResults: function (data) {
         return { results: data.data }
@@ -614,7 +620,7 @@ var $initReferenceSelect2 = function (el, field) {
         return $L('清除')
       },
     },
-    theme: 'default ' + (field.appendClass || ''),
+    theme: 'default ' + (options.appendClass || ''),
   })
 }
 

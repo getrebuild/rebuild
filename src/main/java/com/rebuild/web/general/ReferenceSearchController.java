@@ -74,7 +74,8 @@ public class ReferenceSearchController extends EntityController {
 
         // 引用字段数据过滤
         // 启用数据过滤后最近搜索将不可用
-        String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity.getName());
+        String protocolFilter = new ProtocolFilterParser(null)
+                .parseRef(field + "." + entity.getName(), request.getParameter("cascadingValue"));
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
@@ -272,8 +273,12 @@ public class ReferenceSearchController extends EntityController {
         mv.getModel().put("canCreate",
                 Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
-        if (ProtocolFilterParser.getFieldDataFilter(field) != null) {
-            mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
+        if (ProtocolFilterParser.getFieldDataFilter(field) != null
+                || ProtocolFilterParser.hasFieldCascadingField(field)) {
+            String protocolExpr = String.format("ref:%s:%s",
+                    getParameterNotNull(request, "field"),
+                    StringUtils.defaultString(getParameter(request, "cascadingValue"), ""));
+            mv.getModel().put("referenceFilter", protocolExpr);
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }

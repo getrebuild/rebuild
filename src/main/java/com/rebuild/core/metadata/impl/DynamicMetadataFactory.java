@@ -23,6 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.rebuild.core.metadata.MetadataHelper.SPLITER;
+import static com.rebuild.core.metadata.MetadataHelper.SPLITER2;
+
 /**
  * @author zhaofang123@gmail.com
  * @since 08/04/2018
@@ -93,16 +99,18 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             entity.addAttribute("extra-attrs", extraAttrs.toJSONString());
         }
 
+        Set<String> cascadingFieldsChild = new HashSet<>();
+
         Object[][] customFields = Application.createQueryNoFilter(
                 "select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,"
                         + "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig,repeatable,queryable from MetaField")
                 .array();
         for (Object[] c : customFields) {
-            String entityName = (String) c[0];
-            String fieldName = (String) c[1];
+            final String entityName = (String) c[0];
+            final String fieldName = (String) c[1];
             Element entityElement = (Element) rootElement.selectSingleNode("entity[@name='" + entityName + "']");
             if (entityElement == null) {
-                log.warn("No entity found : " + entityName + "." + fieldName);
+                log.warn("No entity `{}` found for field `{}`", entityName, fieldName);
                 continue;
             }
 
@@ -159,12 +167,34 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             extraAttrs.put("metaId", c[12]);
             extraAttrs.put("comments", c[13]);
             extraAttrs.put("displayType", dt.name());
+
+            String cascadingField = extraAttrs.getString(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
+            if (StringUtils.isNotBlank(cascadingField)
+                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+                extraAttrs.put("_cascadingFieldParent", cascadingField);
+                String[] fs = cascadingField.split(SPLITER2);
+                cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);
+            }
+
             field.addAttribute("extra-attrs", extraAttrs.toJSONString());
         }
 
-        if (log.isDebugEnabled()) {
-            XmlHelper.dump(rootElement);
+        // 处理父级级联的父子级关系
+        for (String child : cascadingFieldsChild) {
+            String[] fs = child.split(SPLITER2);
+            Element fieldElement = (Element) rootElement.selectSingleNode(
+                    String.format("entity[@name='%s']/field[@name='%s']", fs[0], fs[1]));
+            if (fieldElement == null) {
+                log.warn("No field found: {}.{}", fs[0], fs[1]);
+                continue;
+            }
+
+            JSONObject extraAttrs = JSON.parseObject(fieldElement.valueOf("@extra-attrs"));
+            extraAttrs.put("_cascadingFieldChild", fs[2] + SPLITER + fs[3]);
+            fieldElement.addAttribute("extra-attrs", extraAttrs.toJSONString());
         }
+
+        if (log.isDebugEnabled()) XmlHelper.dump(rootElement);
     }
 
     @Override

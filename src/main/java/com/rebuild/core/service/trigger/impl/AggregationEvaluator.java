@@ -82,7 +82,7 @@ public class AggregationEvaluator {
 
         List<String[]> fields = new ArrayList<>();
         for (String m : matchsVars) {
-            String[] fieldAndFunc = m.split("\\$\\$\\$\\$");
+            String[] fieldAndFunc = m.split(MetadataHelper.SPLITER2);
             if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
                 throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }
@@ -114,7 +114,7 @@ public class AggregationEvaluator {
             String[] field = fields.get(i);
             Object value = useSourceData[i] == null ? "0" : useSourceData[i];
 
-            String replace = "{" + StringUtils.join(field, "$$$$") + "}";
+            String replace = "{" + StringUtils.join(field, MetadataHelper.SPLITER) + "}";
             clearFormual = clearFormual.replace(replace.toUpperCase(), value.toString());
         }
 

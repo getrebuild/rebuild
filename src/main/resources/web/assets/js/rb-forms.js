@@ -6,6 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global SimpleMDE */
 
+const TYPE_DIVIDER = '$DIVIDER$'
+
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
   constructor(props) {
@@ -205,7 +207,7 @@ class RbForm extends React.Component {
       <div className="rbform">
         <div className="form" ref={(c) => (this._form = c)}>
           {this.props.children.map((fieldComp) => {
-            const refid = `fieldcomp-${fieldComp.props.field}`
+            const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
           {this.renderFormAction()}
@@ -1198,6 +1200,7 @@ class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
     this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
+    this._hasCascadingField = !!(props._cascadingFieldParent || props._cascadingFieldChild)
   }
 
   renderElement() {
@@ -1255,6 +1258,10 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
         // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
+        wrapQuery: (query) => {
+          const cascadingValue = this._getCascadingFieldValue()
+          return cascadingValue ? { cascadingValue, ...query } : query
+        },
       })
 
       const val = this.state.value
@@ -1278,12 +1285,31 @@ class RbFormReference extends RbFormElement {
     }
   }
 
+  _getCascadingFieldValue() {
+    let cascadingField
+    if (this.props._cascadingFieldParent) {
+      cascadingField = this.props._cascadingFieldParent.split('$$$$')[0]
+    } else if (this.props._cascadingFieldChild) {
+      cascadingField = this.props._cascadingFieldChild.split('$$$$')[0]
+    }
+    if (!cascadingField) return null
+
+    if (this.props.onView) {
+      const v = (this.props.$$$parent.__ViewData || {})[cascadingField]
+      return v ? v.id : null
+    } else {
+      const fieldComp = this.props.$$$parent.refs[`fieldcomp-${cascadingField}`]
+      return fieldComp ? fieldComp.getValue() : null
+    }
+  }
+
   // 字段回填
   triggerAutoFillin(value) {
     if (this.props.onView) return
 
     const $$$parent = this.props.$$$parent
-    $.get(`/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+    const url = `/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`
+    $.get(url, (res) => {
       res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
     })
   }
@@ -1307,27 +1333,27 @@ class RbFormReference extends RbFormElement {
     const that = this
     window.referenceSearch__call = function (selected) {
       that.showSearcher_call(selected, that)
-      that.__searcher.hide()
+      that._ReferenceSearcher.hide()
     }
 
-    if (this.__searcher) {
-      this.__searcher.show()
+    if (this._ReferenceSearcher && !this._hasCascadingField) {
+      this._ReferenceSearcher.show()
     } else {
-      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}`
+      const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', this.props.label)} />, function () {
-        that.__searcher = this
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} disposeOnHide={this._hasCascadingField} />, function () {
+        that._ReferenceSearcher = this
       })
     }
   }
 
   showSearcher_call(selected, that) {
-    const first = selected[0]
-    if ($(that._fieldValue).find(`option[value="${first}"]`).length > 0) {
-      that.__select2.val(first).trigger('change')
+    const s = selected[0]
+    if ($(that._fieldValue).find(`option[value="${s}"]`).length > 0) {
+      that.__select2.val(s).trigger('change')
     } else {
-      $.get(`/commons/search/read-labels?ids=${first}`, (res) => {
-        const o = new Option(res.data[first], first, true, true)
+      $.get(`/commons/search/read-labels?ids=${s}`, (res) => {
+        const o = new Option(res.data[s], s, true, true)
         that.__select2.append(o).trigger('change')
       })
     }
@@ -1760,8 +1786,6 @@ class RbFormDivider extends React.Component {
     }
   }
 }
-
-const TYPE_DIVIDER = '$DIVIDER$'
 
 // 确定元素类型
 var detectElement = function (item) {

@@ -39,10 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhaofang123@gmail.com
@@ -124,7 +121,13 @@ public class MetaFieldController extends BaseController {
         }
 
         // 扩展配置
-        mv.getModel().put("fieldExtConfig", easyField.getExtraAttrs(true));
+        JSONObject extraAttrs = new JSONObject();
+        for (Map.Entry<String, Object> e : easyField.getExtraAttrs(true).entrySet()) {
+            String name = e.getKey();
+            // 排除非私有
+            if (!name.startsWith("_")) extraAttrs.put(name, e.getValue());
+        }
+        mv.getModel().put("fieldExtConfig", extraAttrs);
 
         return mv;
     }
@@ -189,5 +192,33 @@ public class MetaFieldController extends BaseController {
 
         boolean drop = new Field2Schema(user).dropField(field, false);
         return drop ? RespBody.ok() : RespBody.error();
+    }
+
+    @RequestMapping("field-cascading-fields")
+    public RespBody fieldCascadingFields(@EntityParam Entity currentEntity, HttpServletRequest request) {
+        Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
+        Entity referenceEntity = refField.getReferenceEntity();
+
+        // 找到共同的引用字段
+        Field[] currentEntityFields = MetadataSorter.sortFields(currentEntity, DisplayType.REFERENCE);
+        Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE);
+
+        List<JSONObject> together = new ArrayList<>();
+        for (Field foo : currentEntityFields) {
+            if (MetadataHelper.isCommonsField(foo)) continue;
+
+            Entity fooEntity = foo.getReferenceEntity();
+            for (Field bar : referenceEntityFields) {
+                if (fooEntity.equals(bar.getReferenceEntity())) {
+                    // 当前实体字段$$$$引用实体字段
+                    String name = foo.getName() + MetadataHelper.SPLITER + bar.getName();
+                    String label = String.format("%s (%s)", EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
+                    together.add(JSONUtils.toJSONObject(
+                            new String[] { "name", "label" }, new String[] { name, label } ));
+                }
+            }
+        }
+
+        return RespBody.ok(together);
     }
 }
