@@ -153,7 +153,7 @@ public class FeedsHelper {
     }
 
     /**
-     * URL 提取
+     * URL 提取 FIXME 会匹配 " 符号
      */
     public static final Pattern URL_PATTERN = Pattern.compile("((www|https?://)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
 
@@ -164,7 +164,7 @@ public class FeedsHelper {
      * @return
      */
     public static String formatContent(String content) {
-        return formatContent(content, false);
+        return formatContent(content, true);
     }
 
     /**

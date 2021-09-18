@@ -58,7 +58,7 @@
                           [[${bundle.L('页脚')}]]
                           <p class="link">[(${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide)')})]</p>
                         </td>
-                        <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true">[(${PageFooter ?:bundle.L('无')})]</td>
+                        <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true"><pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre></td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('默认语言')}]]</td>

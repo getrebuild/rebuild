@@ -4349,3 +4349,11 @@ html.external-auth .auth-body.must-center .login {
   color: #34a853;
   font-weight: bold;
 }
+
+pre.unstyle {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  font-size: 1rem;
+  font-family: inherit;
+}

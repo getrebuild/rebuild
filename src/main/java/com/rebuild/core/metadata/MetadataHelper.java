@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
@@ -371,6 +372,7 @@ public class MetadataHelper {
     public static boolean checkAndWarnField(Entity entity, String fieldName) {
         if (entity.containsField(fieldName)) return true;
         log.warn("Unknown field `{}` in `{}`", fieldName, entity.getName());
+        CommonsUtils.printStackTrace();
         return false;
     }
 
