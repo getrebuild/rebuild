@@ -2670,9 +2670,8 @@ form {
 }
 
 .card-list .card-body > a {
-  display: inline-block;
-  overflow: hidden;
-  padding-top: 3px;
+  display: block;
+  padding: 3px 0 5px;
 }
 
 .card-list .card-body > p {

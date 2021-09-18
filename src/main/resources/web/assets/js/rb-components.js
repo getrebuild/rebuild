@@ -15,9 +15,13 @@ class RbModal extends React.Component {
   }
 
   render() {
-    const inFrame = !this.props.children
+    const styles = {}
+    if (this.props.zIndex) styles.zIndex = this.props.zIndex
+
+    const iframe = !this.props.children // No child
+
     return (
-      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => (this._rbmodal = c)}>
+      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} style={styles} ref={(c) => (this._rbmodal = c)}>
         <div className="modal-dialog" style={{ maxWidth: `${this.props.width || 680}px` }}>
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
@@ -26,9 +30,9 @@ class RbModal extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${inFrame ? 'iframe rb-loading' : ''} ${inFrame && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
+            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
               {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
-              {inFrame && <RbSpinner />}
+              {iframe && <RbSpinner />}
             </div>
           </div>
         </div>
@@ -100,7 +104,7 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} />, null, function () {
+      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} zIndex={options.zIndex} />, null, function () {
         that.__HOLDER = this
         if (options.disposeOnHide === false) that.__HOLDERs[url] = this
       })

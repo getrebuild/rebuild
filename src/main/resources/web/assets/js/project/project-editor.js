@@ -24,9 +24,19 @@ $(document).ready(() => {
   renderRbcomp(<PlanList />, 'plans', function () {
     _PlanList = this
   })
-  $('.J_add-plan').click(() => renderRbcomp(<PlanEdit projectId={wpc.id} flowNexts={_PlanList.getPlans()} seq={_PlanList.getMaxSeq() + 1000} />))
 
-  const $btn = $('.J_save').click(() => {
+  $('.J_add-plan').on('click', () => {
+    renderRbcomp(<PlanEdit projectId={wpc.id} flowNexts={_PlanList.getPlans()} seq={_PlanList.getMaxSeq() + 1000} />)
+  })
+
+  if (wpc.extraDefinition && wpc.extraDefinition.cardFields) {
+    $('#cardFields input').each(function () {
+      const $chk = $(this)
+      $chk.attr('checked', wpc.extraDefinition.cardFields.includes($chk.val()))
+    })
+  }
+
+  const $btn = $('.J_save').on('click', () => {
     const data = {
       scope: $('#scope_2').prop('checked') ? 2 : 1,
       principal: _Principal.val().join(','),
@@ -34,6 +44,14 @@ $(document).ready(() => {
       metadata: { id: wpc.id },
     }
     if (!data.members) return RbHighbar.create($L('请选择成员'))
+
+    const fs = []
+    $('#cardFields input:checked').each(function () {
+      fs.push($(this).val())
+    })
+    const extra = wpc.extraDefinition || {}
+    extra.cardFields = fs
+    data.extraDefinition = extra
 
     $btn.button('loading')
     $.post('/admin/projects/post', JSON.stringify(data), (res) => {
@@ -62,10 +80,10 @@ class PlanList extends React.Component {
               </div>
               <div className="card-footer card-footer-contrast">
                 <a onClick={() => this._handleEdit(item)}>
-                  <i className="zmdi zmdi-edit"></i>
+                  <i className="zmdi zmdi-edit" />
                 </a>
                 <a onClick={() => this._handleDelete(item[0])} className="danger danger-hover">
-                  <i className="zmdi zmdi-delete"></i>
+                  <i className="zmdi zmdi-delete" />
                 </a>
               </div>
             </div>
@@ -162,55 +180,26 @@ class PlanEdit extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('面板名称')}</label>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="planName"
-                value={this.state.planName || ''}
-                onChange={this.handleChange}
-                maxLength="60"
-                autoFocus
-              />
+              <input type="text" className="form-control form-control-sm" name="planName" value={this.state.planName || ''} onChange={this.handleChange} maxLength="60" autoFocus />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('工作流状态')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-radio mb-1 mt-1">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="flowStatus"
-                  value="1"
-                  checked={~~this.state.flowStatus === 1}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="flowStatus" value="1" checked={~~this.state.flowStatus === 1} onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('开始状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下可新建任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="flowStatus"
-                  value="2"
-                  checked={~~this.state.flowStatus === 2}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="flowStatus" value="2" checked={~~this.state.flowStatus === 2} onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('进行中')} <p className="text-muted mb-0 fs-12">{$L('该状态下不可新建任务，不可完成任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="flowStatus"
-                  value="3"
-                  checked={~~this.state.flowStatus === 3}
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="flowStatus" value="3" checked={~~this.state.flowStatus === 3} onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('结束状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下任务自动标记完成')}</p>
                 </span>

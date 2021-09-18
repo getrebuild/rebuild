@@ -93,13 +93,7 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('项目名称')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                value={this.state.projectName || ''}
-                data-id="projectName"
-                onChange={this.handleChange}
-                maxLength="60"
-              />
+              <input className="form-control form-control-sm" value={this.state.projectName || ''} data-id="projectName" onChange={this.handleChange} maxLength="60" />
             </div>
           </div>
           {!this.props.id && (
@@ -107,13 +101,7 @@ class DlgEdit extends RbFormHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('项目 ID')}</label>
                 <div className="col-sm-7">
-                  <input
-                    className="form-control form-control-sm "
-                    value={this.state.projectCode || ''}
-                    data-id="projectCode"
-                    onChange={this.handleChange}
-                    maxLength="6"
-                  />
+                  <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" />
                   <div className="form-text">{$L('任务编号将以项目 ID 作为前缀，用以区别不同项目。支持 2-6 位字母')}</div>
                 </div>
               </div>
@@ -149,7 +137,7 @@ class DlgEdit extends RbFormHandler {
       that.setState({ iconName: s })
       RbModal.hide()
     }
-    RbModal.create('/p/common/search-icon', $L('选择图标'))
+    RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
   }
 
   save = () => {
