@@ -11,8 +11,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.ServerStatus;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.utils.OshiUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,7 @@ public class UserHelperTest extends TestSupport {
     public void generateAvatar() throws Exception {
         for (int i = 0; i < 100; i++) {
             UserHelper.generateAvatar("你好", true);
-            System.out.println(ServerStatus.getJvmMemoryUsed()[1]);
+            System.out.println(OshiUtils.getOsMemoryUsed()[1]);
         }
     }
 

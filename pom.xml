@@ -320,9 +320,9 @@
             <version>1.6.2</version>
         </dependency>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-system</artifactId>
-            <version>5.7.9</version>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.8.2</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>

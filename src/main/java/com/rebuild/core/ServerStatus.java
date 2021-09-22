@@ -9,12 +9,7 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.runtime.MemoryInformationBean;
-import cn.hutool.core.util.RuntimeUtil;
-import cn.hutool.system.HostInfo;
-import cn.hutool.system.SystemUtil;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
@@ -187,41 +182,5 @@ public final class ServerStatus {
         private static Status error(String name, String error) {
             return new Status(name, false, error);
         }
-    }
-
-    // --
-
-    /**
-     * JVM 内存用量
-     *
-     * @return [总计M, 已用%]
-     */
-    public static double[] getJvmMemoryUsed() {
-        long maxMemory = RuntimeUtil.getMaxMemory();
-        long usableMemory = RuntimeUtil.getUsableMemory();
-        return new double[] {
-                (int) (maxMemory / MemoryInformationBean.MEGABYTES),
-                ObjectUtils.round(100 - (usableMemory * 100d / maxMemory), 2)
-        };
-    }
-
-    /**
-     * TODO CPU 负载
-     *
-     * @return
-     */
-    public static double getSystemLoad() {
-        return 0d;
-    }
-
-    /**
-     * 本机 IP
-     *
-     * @return
-     */
-    public static String getLocalIp() {
-        HostInfo host = SystemUtil.getHostInfo();
-        if (host == null || host.getAddress() == null) return "127.0.0.1";
-        else return host.getAddress();
     }
 }

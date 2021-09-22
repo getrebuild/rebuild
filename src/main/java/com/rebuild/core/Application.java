@@ -37,6 +37,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
+import com.rebuild.utils.OshiUtils;
 import com.rebuild.utils.RebuildBanner;
 import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
@@ -131,7 +132,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "    License : " + License.queryAuthority(false).values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
-                                    "   External : " + localUrl.replace("localhost", ServerStatus.getLocalIp()),
+                                    "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
                             log.info(banner);
                         }
