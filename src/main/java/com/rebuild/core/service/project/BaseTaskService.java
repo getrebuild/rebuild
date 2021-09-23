@@ -41,7 +41,7 @@ public abstract class BaseTaskService extends ObservableService {
         Assert.notNull(taskOrProject, "taskOrProject");
 
         ConfigBean c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask
-                ? ProjectManager.instance.getProjectByTask(taskOrProject, null)
+                ? ProjectManager.instance.getProjectByX(taskOrProject, null)
                 : ProjectManager.instance.getProject(taskOrProject, null);
         if (c != null && c.get("members", Set.class).contains(user)) return true;
 

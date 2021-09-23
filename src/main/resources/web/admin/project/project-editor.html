@@ -97,27 +97,31 @@
                     <div id="cardFields">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                         <input class="custom-control-input" type="checkbox" value="createdBy" />
-                        <span class="custom-control-label">创建人</span>
+                        <span class="custom-control-label">[[${bundle.L('创建人')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                         <input class="custom-control-input" type="checkbox" value="createdOn" checked />
-                        <span class="custom-control-label">创建时间</span>
+                        <span class="custom-control-label">[[${bundle.L('创建时间')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                         <input class="custom-control-input" type="checkbox" value="modifiedOn" />
-                        <span class="custom-control-label">更新时间</span>
+                        <span class="custom-control-label">[[${bundle.L('更新时间')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="_finishTime" checked />
-                        <span class="custom-control-label">完成时间</span>
+                        <input class="custom-control-input" type="checkbox" value="endTime" checked />
+                        <span class="custom-control-label">[[${bundle.L('完成时间')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="content" />
-                        <span class="custom-control-label">详情</span>
+                        <input class="custom-control-input" type="checkbox" value="description" />
+                        <span class="custom-control-label">[[${bundle.L('详情')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="_tag" />
-                        <span class="custom-control-label">标签</span>
+                        <input class="custom-control-input" type="checkbox" value="attachments" />
+                        <span class="custom-control-label">[[${bundle.L('附件')}]]</span>
+                      </label>
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" type="checkbox" value="_tag" checked />
+                        <span class="custom-control-label">[[${bundle.L('标签')}]]</span>
                       </label>
                     </div>
                   </div>
