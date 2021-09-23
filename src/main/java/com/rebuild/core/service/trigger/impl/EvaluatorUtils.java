@@ -176,7 +176,7 @@ public class EvaluatorUtils {
         }
     }
 
-    // 日期加 `date = dateadd(date, interval[H|D|M|Y])`
+    // 日期加 `date = DATEADD(date, interval[H|D|M|Y])`
     static class DateAddFunction extends AbstractFunction {
         private static final long serialVersionUID = 8286269123891483078L;
 
