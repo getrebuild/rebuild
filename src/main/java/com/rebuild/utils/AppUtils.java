@@ -18,8 +18,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -147,32 +145,6 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader(HF_CLIENT);
         return UA != null && UA.startsWith("RB/Mobile-");
-    }
-
-    /**
-     * 请求类型
-     *
-     * @param request
-     * @return
-     * @see MimeTypeUtils#parseMimeType(String)
-     */
-    public static MimeType parseMimeType(HttpServletRequest request) {
-        try {
-            String acceptType = request.getHeader("Accept");
-            if (acceptType == null || "*/*".equals(acceptType)) acceptType = request.getContentType();
-
-            // Via Spider?
-            if (StringUtils.isBlank(acceptType)) return MimeTypeUtils.TEXT_HTML;
-
-            acceptType = acceptType.split("[,;]")[0];
-            // Accpet ALL?
-            if ("*/*".equals(acceptType)) return MimeTypeUtils.TEXT_HTML;
-
-            return MimeTypeUtils.parseMimeType(acceptType);
-
-        } catch (Exception ignore) {
-        }
-        return null;
     }
 
     /**
