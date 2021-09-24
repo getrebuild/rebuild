@@ -280,13 +280,12 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
-    const that = this
     data.forEach((item) => {
       // eslint-disable-next-line react/no-string-refs
-      const fieldComp = that.refs[`fieldcomp-${item.target}`]
+      const fieldComp = this.refs[`fieldcomp-${item.target}`]
       if (fieldComp) {
         if (!item.fillinForce && fieldComp.getValue()) return
-        if ((that.isNew && item.whenCreate) || (!that.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
+        if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
   }
@@ -1265,17 +1264,13 @@ class RbFormReference extends RbFormElement {
       })
 
       const val = this.state.value
-      if (val) {
-        this.setValue(val)
-        // const o = new Option(val.text, val.id, true, true)
-        // this.__select2.append(o).trigger('change')
-      }
+      if (val) this.setValue(val)
 
       const that = this
       this.__select2.on('change', function (e) {
         const v = $(e.target).val()
         if (v && typeof v === 'string') {
-          $.post(`/commons/search/recently-add?id=${v}`)
+          __addRecentlyUse(v)
           that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
@@ -1322,8 +1317,7 @@ class RbFormReference extends RbFormElement {
   setValue(val) {
     if (val) {
       const o = new Option(val.text, val.id, true, true)
-      this.__select2.append(o)
-      this.handleChange({ target: { value: val.id } }, true)
+      this.__select2.append(o).trigger('change')
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -1428,19 +1422,14 @@ class RbFormN2NReference extends RbFormReference {
       }
       that.setValue(val, true)
     })
-    this._recentlyAdd(ids)
+    __addRecentlyUse(ids)
   }
 
   onEditModeChanged(destroy) {
     super.onEditModeChanged(destroy)
     if (!destroy && this.__select2) {
-      this.__select2.on('select2:select', (e) => this._recentlyAdd(e.params.data.id))
+      this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
-  }
-
-  _recentlyAdd(id) {
-    if (!id) return
-    $.post(`/commons/search/recently-add?id=${id}`)
   }
 }
 
@@ -1853,6 +1842,12 @@ const __findMultiTexts = function (options, maskValue) {
     if ((maskValue & item.mask) !== 0) texts.push(item.text)
   })
   return texts
+}
+
+// 最近使用
+const __addRecentlyUse = function (id) {
+  if (!id) return
+  $.post(`/commons/search/recently-add?id=${id}`)
 }
 
 // ~ 重复记录查看
