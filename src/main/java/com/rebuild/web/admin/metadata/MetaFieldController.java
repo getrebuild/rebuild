@@ -124,7 +124,7 @@ public class MetaFieldController extends BaseController {
         JSONObject extraAttrs = new JSONObject();
         for (Map.Entry<String, Object> e : easyField.getExtraAttrs(true).entrySet()) {
             String name = e.getKey();
-            // 排除非私有
+            // 排除私有
             if (!name.startsWith("_")) extraAttrs.put(name, e.getValue());
         }
         mv.getModel().put("fieldExtConfig", extraAttrs);

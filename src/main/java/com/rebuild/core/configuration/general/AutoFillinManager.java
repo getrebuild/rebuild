@@ -69,6 +69,17 @@ public class AutoFillinManager implements ConfigManager {
                     .set("whenCreate", true)
                     .set("whenUpdate", true)
                     .set("fillinForce", true);
+            
+            // 移除冲突的表单回填配置
+            for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+                ConfigBean cb = iter.next();
+                if (cb.getString("source").equals(fake.getString("source"))
+                        && cb.getString("target").equals(fake.getString("target"))) {
+                    iter.remove();
+                    break;
+                }
+            }
+
             config.add(fake);
         }
 
