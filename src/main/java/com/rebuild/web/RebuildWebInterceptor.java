@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -67,13 +68,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         final RequestEntry requestEntry = new RequestEntry(request, locale);
         REQUEST_ENTRY.set(requestEntry);
 
-        // 页面变量
-        // 请求页面时如果是非 HTML 请求头可能导致失败，因为页面中需要用到语言包变量
-        if (requestEntry.isHtmlRequest()) {
-            // Lang
-            request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
-            request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
-        }
+        // Lang
+        request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
+        request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
 
         final String requestUri = requestEntry.getRequestUri();
 
@@ -108,7 +105,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             // 管理中心
             if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (requestEntry.isHtmlRequest()) {
+                if (isHtmlRequest(request)) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
                     ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
@@ -119,7 +116,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             UserContextHolder.setUser(requestUser);
 
             // 页面变量（登录后）
-            if (requestEntry.isHtmlRequest()) {
+            if (isHtmlRequest(request)) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
@@ -148,7 +145,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
-            if (requestEntry.isHtmlRequest()) {
+            if (isHtmlRequest(request)) {
                 sendRedirect(response, "/user/login", requestUri);
             } else {
                 ServletUtils.writeJson(response, RespBody.error(HttpStatus.UNAUTHORIZED.value()).toJSONString());
@@ -228,19 +225,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     /**
-     * @param response
-     * @param url
-     * @param nexturl
-     * @throws IOException
-     */
-    private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
-        String fullUrl = AppUtils.getContextPath() + url;
-        if (nexturl != null) fullUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
-        response.sendRedirect(fullUrl);
-    }
-
-    /**
-     * 忽略认证
+     * 忽略认证的资源
      *
      * @param requestUri
      * @return
@@ -271,26 +256,53 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     /**
+     * 是否 HTML 请求
+     *
+     * @param request
+     * @return
+     */
+    private boolean isHtmlRequest(HttpServletRequest request) {
+        if (ServletUtils.isAjaxRequest(request) || request.getRequestURI().contains("/assets/")) {
+            return false;
+        }
+
+        try {
+            MimeType mimeType = MimeTypeUtils.parseMimeType(
+                    StringUtils.defaultIfBlank(request.getHeader("Accept"), MimeTypeUtils.TEXT_HTML_VALUE).split("[,;]")[0]);
+            return MimeTypeUtils.TEXT_HTML.equals(mimeType);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * @param response
+     * @param url
+     * @param nexturl
+     * @throws IOException
+     */
+    private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
+        String fullUrl = AppUtils.getContextPath() + url;
+        if (nexturl != null) fullUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
+        response.sendRedirect(fullUrl);
+    }
+
+    /**
      * 请求参数封装
      */
     @Data
     private static class RequestEntry {
         final long requestTime;
-        final ID requestUser;
         final String requestUri;
-        final boolean htmlRequest;
+        final ID requestUser;
         final String locale;
 
         RequestEntry(HttpServletRequest request, String locale) {
             this.requestTime = System.currentTimeMillis();
-
             this.requestUri = request.getRequestURI()
                     + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
-            this.htmlRequest = !ServletUtils.isAjaxRequest(request)
-                    && MimeTypeUtils.TEXT_HTML.equals(AppUtils.parseMimeType(request));
-
-            this.locale = locale;
             this.requestUser = AppUtils.getRequestUser(request, true);
+            this.locale = locale;
         }
 
         @Override
