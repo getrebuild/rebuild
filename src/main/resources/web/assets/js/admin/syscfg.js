@@ -29,7 +29,7 @@ $(document).ready(() => {
 const __data = {}
 const changeValue = function (e) {
   const name = e.target.name
-  __data[name] = e.target.value
+  __data[name] = (e.target.value || '').trim()
 }
 
 // 激活编辑模式

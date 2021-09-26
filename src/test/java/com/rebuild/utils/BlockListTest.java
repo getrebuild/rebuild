@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class BlockListTest {
 
     @Test
-    public void test() {
+    void isBlock() {
         Assertions.assertTrue(BlockList.isBlock("admin"));
         Assertions.assertFalse(BlockList.isBlock("imnotadmin"));
     }

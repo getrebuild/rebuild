@@ -184,9 +184,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 4px;
 }
 
+.task-content .task-extras > .avatar,
+.task-content .task-extras > .icon {
+  float: left;
+  cursor: default;
+}
+
 .task-content .task-extras > .avatar img {
   width: 24px;
   height: 24px;
+}
+
+.task-content .task-extras > .icon {
+  font-size: 1.3rem;
+  color: #999;
+  margin-top: 5px;
 }
 
 .task-content .task-extras > .badge {

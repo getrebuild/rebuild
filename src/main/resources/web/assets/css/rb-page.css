@@ -2670,9 +2670,8 @@ form {
 }
 
 .card-list .card-body > a {
-  display: inline-block;
-  overflow: hidden;
-  padding-top: 3px;
+  display: block;
+  padding: 3px 0 5px;
 }
 
 .card-list .card-body > p {
@@ -4348,4 +4347,12 @@ html.external-auth .auth-body.must-center .login {
   content: '\f26b' !important;
   color: #34a853;
   font-weight: bold;
+}
+
+pre.unstyle {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  font-size: 1rem;
+  font-family: inherit;
 }

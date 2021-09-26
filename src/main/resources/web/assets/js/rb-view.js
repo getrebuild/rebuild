@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig || {}
+const TYPE_DIVIDER = '$DIVIDER$'
 
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -41,11 +42,13 @@ class RbViewForm extends React.Component {
         hadApproval = null
       }
 
+      const viewData = {}
       const VFORM = (
         <div>
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
+              if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
               item.$$$parent = this
               return detectViewElement(item)
             })}
@@ -58,6 +61,8 @@ class RbViewForm extends React.Component {
           window.FrontJS.View._trigger('open', [res.data])
         }
       })
+
+      this.__ViewData = viewData
       this.__lastModified = res.data.lastModified || 0
     })
   }
@@ -124,11 +129,12 @@ class RbViewForm extends React.Component {
       [fieldName]: fieldValue.value,
     }
 
-    const $btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
+    const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
     $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
-      $btns.button('reset')
+      $btn.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
+        this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload()
@@ -147,7 +153,7 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = `col-${item.field === '$DIVIDER$' ? $random() : item.field}`
+  item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
   return (
     <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
       {window.detectElement(item)}

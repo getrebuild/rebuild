@@ -13,6 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,8 +58,8 @@ public class ErrorPageView extends BaseController {
         ModelAndView mv = createModelAndView("/error/server-status");
         mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
-        mv.getModel().put("MemoryUsage", ServerStatus.getJvmMemoryUsed());
-        mv.getModel().put("SystemLoad", ServerStatus.getSystemLoad());
+        mv.getModel().put("MemoryUsage", OshiUtils.getOsMemoryUsed());
+        mv.getModel().put("SystemLoad", OshiUtils.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         return mv;
     }
@@ -76,8 +77,8 @@ public class ErrorPageView extends BaseController {
         for (ServerStatus.Status item : ServerStatus.getLastStatus(realtime)) {
             status.put(item.name, item.success ? true : item.error);
         }
-        status.put("MemoryUsage", ServerStatus.getJvmMemoryUsed()[1]);
-        status.put("SystemLoad", ServerStatus.getSystemLoad());
+        status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
+        status.put("SystemLoad", OshiUtils.getSystemLoad());
 
         ServletUtils.writeJson(response, s.toJSONString());
     }

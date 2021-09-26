@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.core.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -145,9 +146,11 @@ public class CommonsUtils {
      * @return
      */
     public static void printStackTrace() {
-        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement traceElement : trace) {
-            System.err.println("\tat " + traceElement);
+        if (Application.devMode() || log.isDebugEnabled()) {
+            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+            for (StackTraceElement traceElement : trace) {
+                System.err.println("\tat " + traceElement);
+            }
         }
     }
 }

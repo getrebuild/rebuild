@@ -50,7 +50,7 @@ public class ProjectAdminController extends BaseController {
         }
 
         Object[] p = Application.createQuery(
-                "select projectName,scope,principal,members from ProjectConfig where configId = ?")
+                "select projectName,scope,principal,members,extraDefinition from ProjectConfig where configId = ?")
                 .setParameter(1, projectId2)
                 .unique();
 
@@ -59,6 +59,7 @@ public class ProjectAdminController extends BaseController {
         mv.getModelMap().put("scope", p[1]);
         mv.getModelMap().put("principal", p[2]);
         mv.getModelMap().put("members", p[3]);
+        mv.getModelMap().put("extraDefinition", p[4]);
         return mv;
     }
 

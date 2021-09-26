@@ -110,9 +110,7 @@ public class JSONUtils {
      * @return
      */
     public static boolean wellFormat(String text) {
-        if (StringUtils.isBlank(text)) {
-            return false;
-        }
+        if (StringUtils.isBlank(text)) return false;
         text = text.trim();
         return (text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"));
     }

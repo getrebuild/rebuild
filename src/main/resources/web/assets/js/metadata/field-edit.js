@@ -343,6 +343,15 @@ const _handleClassification = function (useClassification) {
 const _handleReference = function (isN2N) {
   const referenceEntity = $('.J_referenceEntity').data('refentity')
 
+  // 父级字段
+  $.get(`/admin/entity/field-cascading-fields?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+    res.data &&
+      res.data.forEach((item) => {
+        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#referenceCascadingField')
+      })
+    wpc.extConfig.referenceCascadingField && $('#referenceCascadingField').val(wpc.extConfig.referenceCascadingField)
+  })
+
   // 数据过滤
   let dataFilter = (wpc.extConfig || {}).referenceDataFilter
   const saveFilter = function (res) {

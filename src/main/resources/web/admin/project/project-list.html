@@ -5,22 +5,28 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/projects" />
     <title>[[${bundle.L('项目管理')}]]</title>
     <style type="text/css">
-      .project-icon {
-        display: inline-block;
-        width: 36px;
-        height: 36px;
-        background-color: #e3e3e3;
-        text-align: center;
-        border-radius: 2px;
-      }
-      .project-icon .icon,
+      .project-icon > .icon,
       .card-body > .icon {
         font-size: 26px;
         color: #555;
+        display: inline-block;
+        text-align: center;
+        border-radius: 2px;
+      }
+      .project-icon > .icon {
+        width: 36px;
+        height: 36px;
         line-height: 36px;
+        background-color: #e3e3e3;
       }
       .project-icon:hover {
         opacity: 0.8;
+      }
+      .card-body > .icon {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        margin-right: -9px;
       }
       .card-body {
         position: relative;

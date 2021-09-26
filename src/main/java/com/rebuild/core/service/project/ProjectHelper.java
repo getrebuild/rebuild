@@ -36,7 +36,7 @@ public class ProjectHelper {
             taskOrComment = convert2Task(taskOrComment);
 
             // 能访问就有读取权限
-            ProjectManager.instance.getProjectByTask(taskOrComment, user);
+            ProjectManager.instance.getProjectByX(taskOrComment, user);
             return true;
         } catch (ConfigurationException | AccessDeniedException ex) {
             return false;
@@ -60,9 +60,9 @@ public class ProjectHelper {
             Object[] projectId = Application.getQueryFactory().uniqueNoFilter(taskOrCommentOrTag, "projectId");
             pcfg = ProjectManager.instance.getProject((ID) projectId[0], null);
         } else {
-            pcfg = ProjectManager.instance.getProjectByTask(convert2Task(taskOrCommentOrTag), null);
+            pcfg = ProjectManager.instance.getProjectByX(convert2Task(taskOrCommentOrTag), null);
         }
-
+        
         // 负责人
         if (user.equals(pcfg.getID("principal"))) return true;
         // 非成员
