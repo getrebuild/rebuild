@@ -50,7 +50,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = UserContextHolder.getUser();
-        checkInMembers(user, record.getID("projectId"));
+        checkModifications(user, record.getID("projectId"));
 
         ID projectId = record.getID("projectId");
         ID projectPlanId = record.getID("projectPlanId");
@@ -74,7 +74,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record update(Record record) {
         final ID user = UserContextHolder.getUser();
-        checkInMembers(user, record.getPrimary());
+        checkModifications(user, record.getPrimary());
 
         // 自动完成
         int newFlowStatus = applyFlowStatus(record);

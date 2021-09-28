@@ -18,10 +18,12 @@ let __TaskContent
 let __TaskComment
 
 $(document).ready(() => {
-  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} />, 'task-contents', function () {
+  const editable = wpc.isMember && wpc.projectStatus !== 2
+
+  renderRbcomp(<TaskForm id={wpc.taskId} editable={editable} />, 'task-contents', function () {
     __TaskContent = this
   })
-  if (wpc.isMember) {
+  if (editable) {
     renderRbcomp(<TaskComment id={wpc.taskId} call={() => __TaskContent.refreshComments()} />, 'task-comment', function () {
       __TaskComment = this
     })

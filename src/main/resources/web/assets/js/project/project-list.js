@@ -14,9 +14,11 @@ class GridList extends React.Component {
   state = { ...this.props }
 
   render() {
+    const ps = this.state.list || []
+
     return (
       <div className="card-list row">
-        {(this.state.list || []).map((item) => {
+        {ps.map((item) => {
           return (
             <div key={`item-${item[0]}`} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
               <div className="card">
@@ -26,25 +28,27 @@ class GridList extends React.Component {
                   </a>
                   <p>
                     <span className="badge badge-light">{item[2]}</span>
+                    {item[4] === 2 && <span className="badge badge-danger font-weight-normal">{$L('已归档')}</span>}
                   </p>
-                  {item[2] && <i className={`icon zmdi zmdi-${item[3]}`}></i>}
+                  {item[2] && <i className={`icon zmdi zmdi-${item[3]}`} />}
                 </div>
                 <div className="card-footer card-footer-contrast">
                   <div className="float-left">
                     <a onClick={() => this._handleEdit(item)}>
-                      <i className="zmdi zmdi-edit"></i>
+                      <i className="zmdi zmdi-edit" />
                     </a>
                     <a onClick={() => this._handleDelete(item[0])} className="danger-hover">
-                      <i className="zmdi zmdi-delete"></i>
+                      <i className="zmdi zmdi-delete" />
                     </a>
                   </div>
-                  <div className="clearfix"></div>
+                  <div className="clearfix" />
                 </div>
               </div>
             </div>
           )
         })}
-        {this.state.list && this.state.list.length === 0 && <div className="text-muted">{$L('暂无项目')}</div>}
+
+        {ps.length === 0 && <div className="text-muted">{$L('暂无项目')}</div>}
       </div>
     )
   }
@@ -68,7 +72,9 @@ class GridList extends React.Component {
           if (res.error_code === 0) {
             RbHighbar.success($L('项目已删除'))
             setTimeout(() => location.reload(), 500)
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
         })
       },
     })
@@ -86,7 +92,7 @@ class DlgEdit extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图标')}</label>
             <div className="col-sm-7">
               <a className="project-icon" title="选择图标" onClick={() => this._selectIcon()}>
-                <i className={`icon zmdi zmdi-${this.state.iconName || 'texture'}`}></i>
+                <i className={`icon zmdi zmdi-${this.state.iconName || 'texture'}`} />
               </a>
             </div>
           </div>
@@ -106,7 +112,7 @@ class DlgEdit extends RbFormHandler {
                 </div>
               </div>
               <div className="form-group row">
-                <label className="col-sm-3 col-form-label text-sm-right"></label>
+                <label className="col-sm-3 col-form-label text-sm-right" />
                 <div className="col-sm-7">
                   <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                     <input className="custom-control-input" type="checkbox" value="1" defaultChecked ref={(c) => (this._useTemplate = c)} />

@@ -127,12 +127,14 @@ class LightTaskList extends RelatedList {
   }
 
   renderItem(item) {
+    const readonly = item.planFlow === 2 || !item.projectMember || item.projectStatus === 2
+
     return (
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
           <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2 || !item.projectMember} onClick={() => this._toggleStatus(item)} />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>

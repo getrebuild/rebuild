@@ -21,7 +21,8 @@
                 <div class="project-head">
                   <h4>
                     [[${projectName}]]
-                    <span th:if="${scope == 1}" class="badge badge-secondary up-2">[[${bundle.L('公开')}]]</span>
+                    <span th:if="${scope == 1}" class="badge badge-secondary up-1 ml-1">[[${bundle.L('公开')}]]</span>
+                    <span th:if="${status == 2}" class="badge badge-secondary up-1">[[${bundle.L('已归档')}]]</span>
                   </h4>
                   <div class="project-action">
                     <span class="admin-show">
@@ -79,6 +80,7 @@
         projectName: '[[${projectName}]]',
         projectPlans: [(${projectPlans ?:'null'})],
         isMember: '[[${isMember}]]' === 'true',
+        status: [[${status}]],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

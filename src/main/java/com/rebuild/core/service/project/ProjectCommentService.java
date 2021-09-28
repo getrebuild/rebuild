@@ -40,7 +40,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = UserContextHolder.getUser();
-        checkInMembers(user, record.getID("taskId"));
+        checkModifications(user, record.getID("taskId"));
 
         record = super.create(record);
 

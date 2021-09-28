@@ -73,6 +73,7 @@ public class ProjectController extends BaseController {
         mv.getModel().put("projectName", p.getString("projectName"));
         mv.getModel().put("isMember", p.get("members", Set.class).contains(user));
         mv.getModel().put("scope", p.getInteger("scope"));
+        mv.getModel().put("status", p.getInteger("status"));
 
         final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
         JSONArray plansList = new JSONArray();

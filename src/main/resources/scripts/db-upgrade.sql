@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #39 (v2.6)
+alter table `project_config`
+  add column `STATUS` smallint(6) default '1' comment '状态 (1=正常 2=归档)';
+
 -- #38 (v2.6)
 alter table `data_report_config`
   add column `TEMPLATE_TYPE` smallint(6) default '1' comment '模板类型 (1=记录, 2=列表)';

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -50,7 +51,7 @@ public class ProjectAdminController extends BaseController {
         }
 
         Object[] p = Application.createQuery(
-                "select projectName,scope,principal,members,extraDefinition from ProjectConfig where configId = ?")
+                "select projectName,scope,principal,members,extraDefinition,status from ProjectConfig where configId = ?")
                 .setParameter(1, projectId2)
                 .unique();
 
@@ -60,13 +61,14 @@ public class ProjectAdminController extends BaseController {
         mv.getModelMap().put("principal", p[2]);
         mv.getModelMap().put("members", p[3]);
         mv.getModelMap().put("extraDefinition", p[4]);
+        mv.getModelMap().put("status", ObjectUtils.toInt(p[5], 1));
         return mv;
     }
 
     @GetMapping("projects/list")
     public Object listProjects() {
         return Application.createQuery(
-                "select configId,projectName,projectCode,iconName from ProjectConfig order by projectName")
+                "select configId,projectName,projectCode,iconName,status from ProjectConfig order by status asc, projectName")
                 .array();
     }
 

@@ -18,7 +18,8 @@ $(document).ready(() => {
     $('.J_search .indicator-primary').removeClass('hide')
   }
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes', function () {
+  const readonly = !wpc.isMember || ~~wpc.status === 2
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()
     $('.J_project-load').remove()
@@ -64,7 +65,7 @@ $(document).ready(() => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal canNoFilters confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
     }
@@ -240,7 +241,7 @@ class PlanBox extends React.Component {
                   <div>
                     <label className="mb-1">{$L('执行人')}</label>
                     <div>
-                      <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => (this._executor = c)} />
+                      <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._executor = c)} />
                     </div>
                   </div>
                   <div>

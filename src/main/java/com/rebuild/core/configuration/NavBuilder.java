@@ -79,7 +79,7 @@ public class NavBuilder extends NavManager {
         ConfigBean config = getLayoutOfNav(user);
         if (config == null) {
             JSONArray useDefault = replaceLang(NAVS_DEFAULT);
-            ((JSONObject) useDefault.get(1)).put("sub", getAvailableProjects(user));
+            ((JSONObject) useDefault.get(1)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
 
@@ -104,7 +104,7 @@ public class NavBuilder extends NavManager {
             } else if (isFilterNavItem(nav, user)) {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
-                nav.put("sub", getAvailableProjects(user));
+                nav.put("sub", buildAvailableProjects(user));
             }
         }
         return navs;
@@ -155,14 +155,27 @@ public class NavBuilder extends NavManager {
      * @param user
      * @return
      */
-    private JSONArray getAvailableProjects(ID user) {
+    private JSONArray buildAvailableProjects(ID user) {
         ConfigBean[] projects = ProjectManager.instance.getAvailable(user);
 
         JSONArray navsOfProjects = new JSONArray();
+        JSONArray navsOfProjects2 = new JSONArray();
         for (ConfigBean e : projects) {
+            JSONObject item = JSONUtils.toJSONObject(
+                    NAV_ITEM_PROPS,
+                    new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") });
+            if (e.getInteger("status") == ProjectManager.STATUS_ARCHIVED) {
+                navsOfProjects2.add(item);
+            } else {
+                navsOfProjects.add(item);
+            }
+        }
+
+        if (!navsOfProjects2.isEmpty()) {
             navsOfProjects.add(JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,
-                    new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") }));
+                    new String[] { null, Language.L("已归档"), NAV_DIVIDER, "ARCHIVED" }));
+            navsOfProjects.addAll(navsOfProjects2);
         }
 
         // 管理员显示新建项目入口
@@ -286,14 +299,19 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        String navItemHtml = String.format(
-                "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
-                navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-                navEntity == null ? StringUtils.EMPTY : navEntity,
-                subNavs == null ? navUrl : "###",
-                isOutUrl ? "_blank" : "_self",
-                navIcon,
-                navText);
+        String navItemHtml;
+        if (NAV_DIVIDER.equals(navType)) {
+            navItemHtml = "<li class=\"divider\">" + navText;
+        } else {
+            navItemHtml = String.format(
+                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                    navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                    navEntity == null ? StringUtils.EMPTY : navEntity,
+                    subNavs == null ? navUrl : "###",
+                    isOutUrl ? "_blank" : "_self",
+                    navIcon,
+                    navText);
+        }
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
         if (subNavs != null) {
