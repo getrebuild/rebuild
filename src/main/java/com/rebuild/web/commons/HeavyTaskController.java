@@ -37,10 +37,10 @@ public class HeavyTaskController extends BaseController {
     @GetMapping("state")
     public JSONAware taskState(HttpServletRequest request) {
         String taskid = getParameterNotNull(request, "taskid");
-        HeavyTask<?> task = TaskExecutors.getTask(taskid);
+        HeavyTask<?> task = TaskExecutors.get(taskid);
 
         if (task == null) {
-            return RespBody.error("Unknow task : " + taskid);
+            return RespBody.error("unknow task : " + taskid);
         } else {
             return formatTaskState(task);
         }
@@ -50,7 +50,7 @@ public class HeavyTaskController extends BaseController {
     @RequestMapping("cancel")
     public JSONAware taskCancel(HttpServletRequest request) {
         String taskid = getParameterNotNull(request, "taskid");
-        HeavyTask<?> task = TaskExecutors.getTask(taskid);
+        HeavyTask<?> task = TaskExecutors.get(taskid);
         if (task == null) {
             return RespBody.error("Unknow task : " + taskid);
         }

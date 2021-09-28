@@ -66,15 +66,23 @@ public class TaskExecutors extends DistributedJobLock {
             throw new RebuildException("No Task found : " + taskid);
         }
         task.interrupt();
-        ThreadPool.waitFor(500);
-        return task.isInterrupted();
+
+        boolean interrupted = false;
+        for (int i = 1; i <= 3; i++) {
+            ThreadPool.waitFor(i * 500);
+            if (task.isInterrupted()) {
+                interrupted = true;
+                break;
+            }
+        }
+        return interrupted;
     }
 
     /**
      * @param taskid
      * @return
      */
-    public static HeavyTask<?> getTask(String taskid) {
+    public static HeavyTask<?> get(String taskid) {
         return TASKS.get(taskid);
     }
 
