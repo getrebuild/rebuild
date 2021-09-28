@@ -59,6 +59,9 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
         for (Object[] o : tasks) {
             ID projectId = (ID) o[1];
             ConfigBean cbProject = ProjectManager.instance.getProject(projectId, null);
+            // 已归档不显示
+            if (cbProject.getInteger("status") == ProjectManager.STATUS_ARCHIVED) continue;
+
             ConfigBean cbPlan = ProjectManager.instance.getPlanOfProject((ID) o[2], projectId);
 
             String projectName = String.format("%s (%s)",

@@ -93,8 +93,8 @@ public class ProjectController extends BaseController {
         try {
             ConfigBean p = ProjectManager.instance.getProject(ID.valueOf(projectId), user);
             details = JSONUtils.toJSONObject(
-                    new String[] { "projectName", "isMember" },
-                    new Object[] { p.getString("projectName"), p.get("members", Set.class).contains(user) });
+                    new String[] { "projectName", "isMember", "projectStatus" },
+                    new Object[] { p.getString("projectName"), p.get("members", Set.class).contains(user), p.getInteger("status") });
 
         } catch (ConfigurationException ex) {
             return RespBody.error(ex.getLocalizedMessage(), 403);
