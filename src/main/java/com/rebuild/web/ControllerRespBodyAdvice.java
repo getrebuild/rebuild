@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @Slf4j
 @ControllerAdvice
-public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+public class ControllerRespBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
