@@ -183,7 +183,7 @@ class PlanBoxes extends React.Component {
       $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
     }
 
-    if (this.state.search || this.state.filter) {
+    if (this.state.search || (this.state.filter && this.state.filter.items.length > 0)) {
       $('.J_search .indicator-primary').removeClass('hide')
     } else {
       $('.J_search .indicator-primary').addClass('hide')
