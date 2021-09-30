@@ -127,7 +127,7 @@ class FeedsList extends React.Component {
               <p className="text-muted fs-12 m-0">
                 <DateShow date={item.createdOn} />
                 {item.createdOn !== item.modifiedOn && (
-                  <span className="text-danger ml-1" title={`${$L('修改时间')} ${item.modifiedOn}`}>
+                  <span className="text-warning ml-1" title={`${$L('修改于')} ${item.modifiedOn}`}>
                     ({$L('已修改')})
                   </span>
                 )}
@@ -551,6 +551,18 @@ function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = $converEmoji(e.content.replace(/\n/g, '<br />'))
   const contentMore = e.contentMore || {}
+
+  let scheduleTimeTip
+  if (e.type === 4 && contentMore.scheduleTime && !contentMore.finishTime) {
+    if ($expired(contentMore.scheduleTime)) {
+      scheduleTimeTip = <span className="badge badge-danger ml-1">{$L('已过期')}</span>
+    } else if ($expired(contentMore.scheduleTime, -60 * 60 * 24 * 3)) {
+      scheduleTimeTip = <span className="badge badge-warning ml-1">{$fromNow(contentMore.scheduleTime)}</span>
+    } else {
+      scheduleTimeTip = <span className="badge badge-primary ml-1">{$fromNow(contentMore.scheduleTime)}</span>
+    }
+  }
+
   return (
     <div className="rich-content">
       <div className="texts text-break" dangerouslySetInnerHTML={{ __html: contentHtml }} />
@@ -559,6 +571,7 @@ function __renderRichContent(e) {
           <div>
             <div>
               <span>{$L('日程时间')} : </span> {contentMore.scheduleTime}
+              {scheduleTimeTip}
             </div>
             {contentMore.finishTime && (
               <div>

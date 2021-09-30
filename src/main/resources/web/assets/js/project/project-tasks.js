@@ -405,7 +405,7 @@ class Task extends React.Component {
     // 未完成且设置了到期时间
     if (this.state.status !== 1 && this.state.deadline) {
       if ($expired(this.state.deadline)) deadlineState = 2
-      else if ($expired(this.state.deadline, -60 * 60 * 24)) deadlineState = 1
+      else if ($expired(this.state.deadline, -60 * 60 * 24 * 3)) deadlineState = 1
       else deadlineState = 0
     }
 

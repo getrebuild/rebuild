@@ -591,9 +591,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #666;
 }
 
-.rich-content > .appends .badge {
+.rich-content > .appends span.badge {
+  padding: 3px 5px;
+  line-height: 1;
+  color: #fff;
   font-weight: normal;
-  padding: 0.07692rem 0.3154rem;
+  transform: translateY(-1px);
+}
+
+.rich-content > .appends span.badge.badge-light {
+  color: #404040;
 }
 
 .search-member {
