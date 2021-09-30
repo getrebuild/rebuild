@@ -40,7 +40,7 @@ public class HeavyTaskController extends BaseController {
         HeavyTask<?> task = TaskExecutors.get(taskid);
 
         if (task == null) {
-            return RespBody.error("unknow task : " + taskid);
+            return RespBody.error("Unknow task : " + taskid);
         } else {
             return formatTaskState(task);
         }
