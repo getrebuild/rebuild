@@ -23,6 +23,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -34,7 +35,6 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * SUBMAIL SMS/MAIL 发送
@@ -101,6 +101,15 @@ public class SMSender {
             htmlContent = htmlContent.replace("%TO%", to);
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
+
+            String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
+            if (StringUtils.isNotBlank(pageFooter)) {
+                pageFooter = MarkdownUtils.render(pageFooter);
+                htmlContent = htmlContent.replace("%PAGE_FOOTER%", pageFooter);
+            } else {
+                htmlContent = htmlContent.replace("%PAGE_FOOTER%", "");
+            }
+
             content = htmlContent;
         }
 
