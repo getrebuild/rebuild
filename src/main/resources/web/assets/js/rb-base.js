@@ -105,6 +105,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
   })
 
+  rb.commercial = ~~rb.commercial
   if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
   if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
 

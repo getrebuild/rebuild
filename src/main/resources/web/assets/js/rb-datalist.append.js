@@ -92,8 +92,14 @@ class DataExport extends BatchOperator {
   }
 
   confirm = () => {
+    const useReport = $(this._$report).val()
+    if (useReport !== '0' && rb.commercial < 1) {
+      RbHighbar.error($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      return false
+    }
+
     this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${$(this._$report).val()}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
         window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
@@ -107,7 +113,9 @@ class DataExport extends BatchOperator {
   renderOperator() {
     return (
       <div className="form-group">
-        <label className="text-bold">{$L('使用报表模板')}</label>
+        <label className="text-bold">
+          {$L('使用报表模板')} <sup className="rbv" title={$L('增值功能')} />
+        </label>
         <select className="form-control form-control-sm w-50" ref={(c) => (this._$report = c)}>
           <option value="0">{$L('不使用')}</option>
           {(this.state.reports || []).map((item) => {

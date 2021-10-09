@@ -151,7 +151,7 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1)
+    if (rb.commercial < 10)
       return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
         type: 'danger',
         html: true,
