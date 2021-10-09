@@ -60,6 +60,28 @@ $(document).ready(() => {
       $btn.button('reset')
     })
   })
+
+  const $status = $('.J_status').on('click', () => {
+    const status = wpc.status === 2 ? 1 : 2
+    const statusTip = status === 1 ? $L('确认取消归档？') : $L('归档后该项目将变为已读，且仅有负责人可见。确认归档？')
+
+    RbAlert.create(statusTip, {
+      onConfirm: function () {
+        this.disabled(true)
+
+        const _data = {
+          status,
+          metadata: { id: wpc.id },
+        }
+        $.post('/admin/projects/post', JSON.stringify(_data), (res) => {
+          if (res.error_code === 0) location.href = '../projects'
+          else RbHighbar.error(res.error_msg)
+          this.disabled()
+        })
+      },
+    })
+  })
+  if (wpc.status === 2) $status.text($L('取消归档'))
 })
 
 // 面板列表

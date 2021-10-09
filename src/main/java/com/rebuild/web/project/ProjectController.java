@@ -73,6 +73,7 @@ public class ProjectController extends BaseController {
         mv.getModel().put("projectName", p.getString("projectName"));
         mv.getModel().put("isMember", p.get("members", Set.class).contains(user));
         mv.getModel().put("scope", p.getInteger("scope"));
+        mv.getModel().put("status", p.getInteger("status"));
 
         final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
         JSONArray plansList = new JSONArray();
@@ -92,8 +93,8 @@ public class ProjectController extends BaseController {
         try {
             ConfigBean p = ProjectManager.instance.getProject(ID.valueOf(projectId), user);
             details = JSONUtils.toJSONObject(
-                    new String[] { "projectName", "isMember" },
-                    new Object[] { p.getString("projectName"), p.get("members", Set.class).contains(user) });
+                    new String[] { "projectName", "isMember", "projectStatus" },
+                    new Object[] { p.getString("projectName"), p.get("members", Set.class).contains(user), p.getInteger("status") });
 
         } catch (ConfigurationException ex) {
             return RespBody.error(ex.getLocalizedMessage(), 403);

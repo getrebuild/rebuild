@@ -127,12 +127,14 @@ class LightTaskList extends RelatedList {
   }
 
   renderItem(item) {
+    const readonly = item.planFlow === 2 || !item.projectMember || item.projectStatus === 2
+
     return (
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
           <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2 || !item.projectMember} onClick={() => this._toggleStatus(item)} />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
@@ -141,14 +143,7 @@ class LightTaskList extends RelatedList {
           </div>
           <div className="col-5 task-meta">
             <div className="row">
-              <div className="col-2">
-                {item.executor && (
-                  <a className="avatar" title={$L('执行人')}>
-                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
-                  </a>
-                )}
-              </div>
-              <div className="col-5 text-ellipsis">{item.planName}</div>
+              <div className="col-7 pr-0 text-ellipsis">{item.planName}</div>
               <div className="col-5 text-ellipsis">
                 {!item.deadline && !item.endTime && (
                   <React.Fragment>

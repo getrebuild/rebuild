@@ -18,7 +18,8 @@ $(document).ready(() => {
     $('.J_search .indicator-primary').removeClass('hide')
   }
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes', function () {
+  const readonly = !wpc.isMember || ~~wpc.status === 2
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()
     $('.J_project-load').remove()
@@ -64,7 +65,7 @@ $(document).ready(() => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal canNoFilters confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
     }
@@ -182,7 +183,7 @@ class PlanBoxes extends React.Component {
       $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
     }
 
-    if (this.state.search || this.state.filter) {
+    if (this.state.search || (this.state.filter && this.state.filter.items.length > 0)) {
       $('.J_search .indicator-primary').removeClass('hide')
     } else {
       $('.J_search .indicator-primary').addClass('hide')
@@ -240,7 +241,7 @@ class PlanBox extends React.Component {
                   <div>
                     <label className="mb-1">{$L('执行人')}</label>
                     <div>
-                      <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => (this._executor = c)} />
+                      <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._executor = c)} />
                     </div>
                   </div>
                   <div>
@@ -404,7 +405,7 @@ class Task extends React.Component {
     // 未完成且设置了到期时间
     if (this.state.status !== 1 && this.state.deadline) {
       if ($expired(this.state.deadline)) deadlineState = 2
-      else if ($expired(this.state.deadline, -60 * 60 * 24)) deadlineState = 1
+      else if ($expired(this.state.deadline, -60 * 60 * 24 * 3)) deadlineState = 1
       else deadlineState = 0
     }
 

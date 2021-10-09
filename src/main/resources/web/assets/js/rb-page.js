@@ -151,7 +151,7 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1)
+    if (rb.commercial < 10)
       return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
         type: 'danger',
         html: true,
@@ -776,6 +776,14 @@ var $moment = function (date) {
   return moment(date.split('UTC')[0].trim())
 }
 /**
+ * 是否过期
+ */
+var $expired = function (date, offset) {
+  var m = $moment(date)
+  if (offset) m.add(offset, 's')
+  return m.isBefore(moment())
+}
+/**
  * 友好时间显示
  */
 var $fromNow = function (date) {
@@ -783,12 +791,11 @@ var $fromNow = function (date) {
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
 /**
- * 是否过期
+ * 友好时间显示
  */
-var $expired = function (date, offset) {
+var $toNow = function (date) {
   var m = $moment(date)
-  if (offset) m.add(offset, 's')
-  return m.isBefore(moment())
+  return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.toNow()
 }
 
 /**

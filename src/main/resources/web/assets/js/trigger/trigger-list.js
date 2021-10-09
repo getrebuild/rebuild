@@ -224,7 +224,7 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
+    if (rb.commercial < 10 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
       return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), {
         type: 'danger',
         html: true,

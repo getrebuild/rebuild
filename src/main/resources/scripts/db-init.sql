@@ -619,6 +619,7 @@ create table if not exists `project_config` (
   `MEMBERS`            varchar(420) comment '项目成员 ($MemberID)',
   `SCOPE`              smallint(6) default '1' comment '可见范围 (1=公开 2=成员)',
   `EXTRA_DEFINITION`   text(21845) comment '扩展配置 (JSON Map)',
+  `STATUS`             smallint(6) default '1' comment '状态 (1=正常 2=归档)',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -801,4 +802,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 38);
+  values ('021-9000000000000001', 'DBVer', 39);

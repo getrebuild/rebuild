@@ -31,6 +31,9 @@ public class NavManager extends BaseLayoutManager {
     // 项目
     public static final String NAV_PROJECT = "$PROJECT$";
 
+    // <li class="divider">Features</li>
+    public static final String NAV_DIVIDER = "$DIVIDER$";
+
     public static final NavManager instance = new NavManager();
 
     protected NavManager() {

@@ -76,7 +76,7 @@ public class BootApplication extends SpringBootServletInitializer {
             // USE BOOT
             TOMCAT_PORT = BootEnvironmentPostProcessor.getProperty("server.port", "18080");
         }
-        return String.format("http://localhost:%s%s", TOMCAT_PORT, getContextPath());
+        return String.format("http://localhost:%s%s", TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
     }
 
     /**

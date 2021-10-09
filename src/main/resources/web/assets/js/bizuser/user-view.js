@@ -207,7 +207,7 @@ class DlgEnableUser extends RbModalHandler {
     }
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
-      if (data.roleAppends && rb.commercial < 1) {
+      if (data.roleAppends && rb.commercial < 10) {
         return RbHighbar.create($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
           type: 'danger',
           html: true,

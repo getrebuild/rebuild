@@ -240,8 +240,8 @@ class RbAlert extends React.Component {
       <p>{this.props.message || 'INMESSAGE'}</p>
     )
 
-    const cancel = (this.props.cancel || this.hide).bind(this)
-    const confirm = (this.props.confirm || this.hide).bind(this)
+    const _onCancel = (this.props.onCancel || this.props.cancel || this.hide).bind(this)
+    const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
       <div className="text-center ml-6 mr-6">
@@ -251,10 +251,10 @@ class RbAlert extends React.Component {
         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
         <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
         <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>
+          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
             {this.props.cancelText || $L('取消')}
           </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>
+          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
             {this.props.confirmText || $L('确定')}
           </button>
         </div>
@@ -714,8 +714,8 @@ const UserShow = function (props) {
 }
 
 // ~~ 日期显示
-const DateShow = function (props) {
-  return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
+const DateShow = function ({ date }) {
+  return date ? <span title={date}>{$fromNow(date)}</span> : null
 }
 
 // ~~ 任意记录选择

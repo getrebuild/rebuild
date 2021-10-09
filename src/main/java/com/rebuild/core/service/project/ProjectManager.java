@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.project;
 
 import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -34,31 +35,25 @@ public class ProjectManager implements ConfigManager {
 
     public static final ProjectManager instance = new ProjectManager();
 
+
     private ProjectManager() {
     }
 
-    private static final String CKEY_PROJECTS = "ProjectManager";
+    // 已归档
+    public static final int STATUS_ARCHIVED = 2;
+
+    private static final String CKEY_PROJECTS = "ProjectManager2";
     private static final String CKEY_PLANS = "ProjectPlan-";
     private static final String CKEY_TP2P = "TP2Project-";
-
-    /**
-     * @param user
-     * @return
-     * @see #getAvailable(ID, boolean)
-     */
-    public ConfigBean[] getAvailable(ID user) {
-        return getAvailable(user, false);
-    }
 
     /**
      * 获取指定用户可用项目
      *
      * @param user
-     * @param onlyMember
      * @return
      */
-    public ConfigBean[] getAvailable(ID user, boolean onlyMember) {
-        ConfigBean[] projects = getAllProjects();
+    public ConfigBean[] getAvailable(ID user) {
+        ConfigBean[] projects = getProjects();
 
         // 管理员可见全部
         boolean isAdmin = UserHelper.isAdmin(user);
@@ -66,10 +61,16 @@ public class ProjectManager implements ConfigManager {
         List<ConfigBean> alist = new ArrayList<>();
         for (ConfigBean e : projects) {
             boolean isMember = e.get("members", Set.class).contains(user);
-            if (onlyMember) {
-                if (isMember) alist.add(e.clone());
-            } else if (isAdmin || isMember || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
-                alist.add(e.clone());
+            boolean isPublic = e.getInteger("scope") == ProjectConfigService.SCOPE_ALL;
+            if (isAdmin || isMember || isPublic) {
+                boolean isArchived = e.getInteger("status") == STATUS_ARCHIVED;
+                if (isArchived) {
+                    // 仅负责人
+                    boolean isPrincipal = user.equals(e.getID("principal"));
+                    if (isAdmin || isPrincipal) alist.add(e.clone());
+                } else {
+                    alist.add(e.clone());
+                }
             }
         }
         return alist.toArray(new ConfigBean[0]);
@@ -80,12 +81,12 @@ public class ProjectManager implements ConfigManager {
      *
      * @return
      */
-    private ConfigBean[] getAllProjects() {
+    private ConfigBean[] getProjects() {
         ConfigBean[] projects = (ConfigBean[]) Application.getCommonsCache().getx(CKEY_PROJECTS);
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition from ProjectConfig")
+                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition,status from ProjectConfig")
                     .array();
 
             List<ConfigBean> alist = new ArrayList<>();
@@ -102,7 +103,8 @@ public class ProjectManager implements ConfigManager {
                         .set("iconName", StringUtils.defaultIfBlank((String) o[3], "texture"))
                         .set("scope", o[4])
                         .set("_members", members)
-                        .set("principal", o[6]);
+                        .set("principal", o[6])
+                        .set("status", ObjectUtils.toInt(o[8], 1));
 
                 // 扩展配置
                 String extraDefinition = (String) o[7];
@@ -139,7 +141,7 @@ public class ProjectManager implements ConfigManager {
      * @throws ConfigurationException If not found
      */
     public ConfigBean getProject(ID projectId, ID checkUser) throws ConfigurationException {
-        ConfigBean[] ee = checkUser == null ? getAllProjects() : getAvailable(checkUser);
+        ConfigBean[] ee = checkUser == null ? getProjects() : getAvailable(checkUser);
         for (ConfigBean e : ee) {
             if (projectId.equals(e.getID("id"))) {
                 return e.clone();

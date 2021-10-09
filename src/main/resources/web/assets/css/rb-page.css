@@ -326,6 +326,16 @@ a.btn {
   font-size: 18px;
 }
 
+.rb-left-sidebar .sidebar-elements .sub-menu-ul .divider {
+  padding: 0 15px 0 47px;
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements .sub-menu-ul .divider {
+  padding: 0 15px 0 25px;
+  height: auto;
+  text-indent: unset;
+}
+
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
   color: rgba(255, 255, 255, 0.7);
 }

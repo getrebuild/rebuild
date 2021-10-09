@@ -80,6 +80,7 @@ public class ProjectTaskController extends BaseController {
         ModelAndView mv = createModelAndView("/project/task-view");
         mv.getModel().put("id", taskId2.toLiteral());
         mv.getModel().put("projectIcon", project.getString("iconName"));
+        mv.getModel().put("projectStatus", project.getInteger("status"));
         mv.getModel().put("isMember", project.get("members", Set.class).contains(user));
         return mv;
     }
@@ -240,8 +241,8 @@ public class ProjectTaskController extends BaseController {
         Object[] executor = o[7] == null ? null : new Object[]{o[7], UserHelper.getName((ID) o[7])};
 
         JSONObject data = JSONUtils.toJSONObject(
-                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime", "projectId" },
-                new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0] });
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime", "projectId", "projectStatus" },
+                new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0], project.getInteger("status") });
 
         // 标签
         if (putTags) {
@@ -276,10 +277,12 @@ public class ProjectTaskController extends BaseController {
     public RespBody getProjectAndPlans(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        ConfigBean[] ps = ProjectManager.instance.getAvailable(user, true);
+        ConfigBean[] ps = ProjectManager.instance.getAvailable(user);
         JSONArray alist = new JSONArray();
 
         for (ConfigBean p : ps) {
+            if (p.getInteger("status") == ProjectManager.STATUS_ARCHIVED) continue;
+
             JSONObject item = (JSONObject) p.toJSON("id", "projectName");
 
             // 面板

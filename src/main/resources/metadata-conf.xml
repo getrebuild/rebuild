@@ -438,6 +438,7 @@
         <field name="members" type="string" max-length="420" description="项目成员 ($MemberID)"/>
         <field name="scope" type="small-int" default-value="1" description="可见范围 (1=公开 2=成员)"/>
         <field name="extraDefinition" type="text" description="扩展配置 (JSON Map)"/>
+        <field name="status" type="small-int" default-value="1" description="状态 (1=正常 2=归档)" />
         <index field-list="projectCode" type="unique"/>
     </entity>
 

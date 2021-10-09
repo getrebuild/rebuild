@@ -130,7 +130,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
-     * @see ControllerResponseBodyAdvice
+     * @see ControllerRespBodyAdvice
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
