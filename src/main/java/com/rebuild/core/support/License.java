@@ -128,19 +128,26 @@ public final class License {
             }
         }
 
-        String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
-        if (!api.contains("/authority/new")) apiUrl += "&sn=" + SN();
-
         try {
-            String result = HttpUtils.get(apiUrl);
+            String result = HttpUtils.get(buildApiUrl(api));
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
-                Application.getCommonsCache().putx(api, o, CommonsCache.TS_DAY / 2);
+                Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR * 2);
                 return o;
             }
         } catch (Exception ex) {
             log.error("Call site api `{}` error : {}", api, ex.toString());
         }
         return null;
+    }
+
+    /**
+     * @param api
+     * @return
+     */
+    public static String buildApiUrl(String api) {
+        String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
+        if (!api.contains("/authority/new")) apiUrl += "&sn=" + SN();
+        return apiUrl;
     }
 }
