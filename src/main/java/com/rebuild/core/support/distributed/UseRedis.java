@@ -31,14 +31,17 @@ public interface UseRedis {
     default boolean testJedisPool(JedisPool pool) {
         if (pool == BootConfiguration.USE_EHCACHE) return false;
 
+        Jedis jedis = null;
         try {
-            Jedis jedis = pool.getResource();
-            IOUtils.closeQuietly(jedis);
+            jedis = pool.getResource();
+            _log.debug(jedis.info());  // test NOAUTH
             return true;
         } catch (Exception ex) {
             _log.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
                     + " !!! falling back to EhCache");
             return false;
+        } finally {
+            IOUtils.closeQuietly(jedis);
         }
     }
 
