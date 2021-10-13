@@ -34,7 +34,7 @@ public interface UseRedis {
         Jedis jedis = null;
         try {
             jedis = pool.getResource();
-            _log.debug(jedis.info());  // test NOAUTH
+            _log.debug("Use redis server : {}", jedis.info("server"));  // test NOAUTH
             return true;
         } catch (Exception ex) {
             _log.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
