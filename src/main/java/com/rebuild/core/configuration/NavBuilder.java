@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
@@ -67,7 +68,8 @@ public class NavBuilder extends NavManager {
     );
 
     // URL 绑定实体权限
-    private static final String URL_BIND_PRIVI = "::";
+    // 如 https://www.baidu.com/$$Account
+    private static final String URL_BIND_EP = "\\$\\$";
 
     /**
      * 获取指定用户的导航菜单
@@ -135,14 +137,14 @@ public class NavBuilder extends NavManager {
                     MetadataHelper.getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
-            String[] split = value.split(URL_BIND_PRIVI);
+            String[] split = value.split(URL_BIND_EP);
             if (split.length != 2) return false;
 
-            String bindPriviEntity = split[1];
-            if (MetadataHelper.containsEntity(bindPriviEntity)) {
+            String bindEntity = split[1];
+            if (MetadataHelper.containsEntity(bindEntity)) {
                 nav.put("value", split[0]);
                 return !Application.getPrivilegesManager().allowRead(user,
-                        MetadataHelper.getEntity(bindPriviEntity).getEntityCode());
+                        MetadataHelper.getEntity(bindEntity).getEntityCode());
             }
         }
 
@@ -238,6 +240,8 @@ public class NavBuilder extends NavManager {
         return navsHtml.toString();
     }
 
+    private static final ThreadLocal<String> RBTOKEN = new ThreadLocal<>();
+
     /**
      * 渲染导航菜單
      *
@@ -256,6 +260,19 @@ public class NavBuilder extends NavManager {
         boolean isOutUrl = isUrlType && navUrl.startsWith("http");
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
+
+            String rbtoken = RBTOKEN.get();
+            if (rbtoken == null) {
+                rbtoken = PageTokenVerify.generate(UserContextHolder.getUser());
+                RBTOKEN.set(rbtoken);
+            }
+
+            if (navUrl.contains("$RBTOKEN$")) {
+                navUrl = navUrl.replace("$RBTOKEN$", rbtoken);
+            } else if (navUrl.contains("%24RBTOKEN%24")) {
+                navUrl = navUrl.replace("%24RBTOKEN%24", rbtoken);
+            }
+
             if (isOutUrl) {
                 navUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl));
             } else {
