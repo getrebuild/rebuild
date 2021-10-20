@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -14,7 +15,10 @@ import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * MD 转换工具
@@ -28,7 +32,7 @@ public class MarkdownUtils {
 
     static {
         OPTIONS.setFrom(ParserEmulationProfile.MARKDOWN)
-                .set(Parser.EXTENSIONS, Collections.singletonList(TablesExtension.create()));
+                .set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), TaskListExtension.create()));
     }
 
     private static final Parser PARSER = Parser.builder(OPTIONS).build();

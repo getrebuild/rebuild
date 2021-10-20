@@ -39,7 +39,7 @@ public class ApiGatewayTest extends TestSupport {
         System.out.println("OpenApiSDK response : " + ret);
 
         // 明文请求
-        String apiUrl = baseUrl + "system-time?appid=" + app[0] + "&sign=" + app[1];
+        String apiUrl = baseUrl + "page-token-verify?appid=" + app[0] + "&sign=" + app[1] + "&token=123";
         try {
             ret = openApiSDK.httpGet(apiUrl);
             System.out.println("OpenApiSDK response (plaintext) : " + ret);
