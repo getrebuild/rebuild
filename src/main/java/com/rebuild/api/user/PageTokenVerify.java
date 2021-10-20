@@ -37,7 +37,7 @@ public class PageTokenVerify extends BaseApi {
 
         User user = Application.getUserStore().getUser(tokenUser);
         JSON ret = JSONUtils.toJSONObject(
-                new String[]{"user_id", "user_name", "full_name"},
+                new String[]{"user_id", "login_name", "full_name"},
                 new Object[]{user.getId(), user.getName(), user.getFullName()});
         return formatSuccess(ret);
     }
