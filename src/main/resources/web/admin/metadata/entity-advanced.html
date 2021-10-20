@@ -4,6 +4,32 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
     <title>[[${bundle.L('高级配置')}]]</title>
+    <style>
+      .card-body {
+        padding-bottom: 25px;
+      }
+      .row.ph {
+        width: 195px;
+        height: 130px;
+        border: 1px solid #eee;
+        padding: 2px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .row.ph .block {
+        background-color: #eee;
+        height: 100%;
+        border: 1px solid #fff;
+      }
+      .row.ph .block .block-item {
+        background-color: #ccc;
+        height: 4px;
+        margin: 2px 5px;
+      }
+      .form-group .switch-button-xs {
+        margin-top: 7px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -36,6 +62,57 @@
         </div>
         <div class="main-content container-fluid pt-1">
           <div class="card">
+            <div class="card-header">[[${bundle.L('列表模式')}]] <sup class="rbv"></sup></div>
+            <div class="card-body mode-select">
+              <div class="row">
+                <div class="col">
+                  <div class="row ph">
+                    <div class="col-2 p-0">
+                      <div class="block"></div>
+                    </div>
+                    <div class="col-10 p-0">
+                      <div class="block" style="height: 10%"></div>
+                      <div class="block" style="height: 90%">
+                        <div class="block-item mt-1"></div>
+                        <div class="block-item"></div>
+                        <div class="block-item"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <h5 class="font-weight-bold">标准模式</h5>
+                    <div class="btn-group">
+                      <button class="btn btn-secondary J_mode-select" type="button" data-mode="1">[[${bundle.L('使用')}]]</button>
+                      <button class="btn btn-secondary J_mode1-option w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="row ph">
+                    <div class="col-2 p-0">
+                      <div class="block">
+                        <div class="block-item mt-1"></div>
+                        <div class="block-item"></div>
+                        <div class="block-item"></div>
+                      </div>
+                    </div>
+                    <div class="col-10 p-0">
+                      <div class="block"></div>
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <h5 class="font-weight-bold">详情模式</h5>
+                    <div class="btn-group">
+                      <button class="btn btn-secondary J_mode-select" type="button" data-mode="2">[[${bundle.L('使用')}]]</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col"></div>
+                <div class="col"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
             <div class="card-header">[[${bundle.L('删除实体')}]]</div>
             <div class="card-body">
               <p
@@ -49,7 +126,7 @@
                   <input class="custom-control-input J_drop-force" type="checkbox" /><span class="custom-control-label"> [[${bundle.L('强制删除')}]]</span>
                 </label>
               </div>
-              <div class="mb-1">
+              <div>
                 <button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('确定')}]]</button>
                 <div class="alert alert-warning alert-icon hide col-sm-6 mb-0">
                   <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
@@ -62,7 +139,7 @@
             <div class="card-header">[[${bundle.L('导出实体')}]]</div>
             <div class="card-body">
               <p class="link" th:utext="${bundle.L('将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 [RB 仓库](https://github.com/getrebuild/rebuild-datas)。')}"></p>
-              <div class="mb-1">
+              <div>
                 <a th:href="|../entity-export?id=${entityMetaId}|" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> [[${bundle.L('导出')}]]</a>
               </div>
             </div>
@@ -76,51 +153,10 @@
         id: '[[${entityMetaId}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
         entityName: '[[${entityName}]]',
+        extConfig: [(${entityExtConfig ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
-    <script type="text/babel">
-      $(document).ready(function () {
-        const metaid = window.__PageConfig.id
-        if (!!!metaid) {
-          $('.J_drop-confirm').next().removeClass('hide')
-          $('.J_drop-confirm').remove()
-          $('.J_drop-check').parent().parent().remove()
-          return
-        }
-
-        $('.J_drop-check').click(function () {
-          $('.J_drop-confirm').attr('disabled', !$(this).prop('checked'))
-        })
-
-        const $drop = $('.J_drop-confirm').click(() => {
-          if (!$('.J_drop-check').prop('checked')) return
-          if (!window.__PageConfig.isSuperAdmin) {
-            RbHighbar.error($L('仅超级管理员可删除实体'))
-            return
-          }
-
-          RbAlert.create($L('实体删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除实体'), {
-            type: 'danger',
-            confirmText: $L('删除'),
-            confirm: function () {
-              $drop.button('loading')
-              this.disabled(true)
-              $.post(`../entity-drop?id=${metaid}&force=${$('.J_drop-force').prop('checked')}`, (res) => {
-                if (res.error_code === 0) {
-                  RbHighbar.success($L('实体已删除'))
-                  setTimeout(() => location.replace('../../entities'), 1500)
-                } else {
-                  RbHighbar.error(res.error_msg)
-                }
-              })
-            },
-            call: function () {
-              $countdownButton($(this._dlg).find('.btn-danger'))
-            },
-          })
-        })
-      })
-    </script>
+    <script th:src="@{/assets/js/metadata/entity-advanced.js}" type="text/babel"></script>
   </body>
 </html>

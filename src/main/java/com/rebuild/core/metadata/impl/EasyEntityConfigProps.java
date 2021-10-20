@@ -14,6 +14,11 @@ package com.rebuild.core.metadata.impl;
 public class EasyEntityConfigProps {
 
     /**
+     * 快速查询字段
+     */
+    public static final String QUICK_FIELDS = "quickFields";
+
+    /**
      * 隐藏常用查询面板
      */
     public static final String ADV_LIST_HIDE_FILTERS = "advListHideFilters";
@@ -21,4 +26,8 @@ public class EasyEntityConfigProps {
      * 隐藏图表面板
      */
     public static final String ADV_LIST_HIDE_CHARTS = "advListHideCharts";
+    /**
+     * 列表模式
+     */
+    public static final String ADV_LIST_MODE = "advListMode";
 }

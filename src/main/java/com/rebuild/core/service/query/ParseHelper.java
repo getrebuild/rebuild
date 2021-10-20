@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -224,7 +225,7 @@ public class ParseHelper {
 
         // 未指定则使用系统配置的
         if (StringUtils.isBlank(quickFields)) {
-            quickFields = EasyMetaFactory.valueOf(entity).getExtraAttr("quickFields");
+            quickFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.QUICK_FIELDS);
         }
 
         // 验证
