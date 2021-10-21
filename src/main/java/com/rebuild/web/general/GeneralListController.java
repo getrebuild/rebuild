@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -46,18 +47,16 @@ public class GeneralListController extends EntityController {
                                  HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         final ID user = getRequestUser(request);
-        final Entity useEntity = checkPageOfEntity(user, entity, response);
-        if (useEntity == null) return null;
+        final Entity listEntity = checkPageOfEntity(user, entity, response);
+        if (listEntity == null) return null;
 
-        ModelAndView mv;
-        if (useEntity.getMainEntity() != null) {
-            mv = createModelAndView("/general/detail-list", entity, user);
-        } else {
-            mv = createModelAndView("/general/record-list", entity, user);
-        }
+        final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
-        JSON config = DataListManager.instance.getFieldsLayout(entity, user);
-        mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+        String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
+        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
+        if (listMode == 2) listPage += "-2";
+
+        ModelAndView mv = createModelAndView(listPage, entity, user);
 
         // 列表相关权限
         mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
@@ -67,14 +66,24 @@ public class GeneralListController extends EntityController {
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
 
-        // 扩展配置
-        EasyEntity easyEntity = EasyMetaFactory.valueOf(useEntity);
-        String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
-        String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
-        mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
-        mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
-        mv.getModel().put("hideAside",
-                BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
+        JSON listConfig = null;
+
+        if (listMode == 1) {
+            listConfig = DataListManager.instance.getFieldsLayout(entity, user);
+
+            // 扩展配置
+            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
+            mv.getModel().put("hideAside",
+                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
+
+        } else if (listMode == 2) {
+            listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
+        }
+
+        mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
 
         return mv;
     }

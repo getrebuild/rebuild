@@ -829,6 +829,8 @@ const RbViewPage = {
 
 // init
 $(document).ready(function () {
+  if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)

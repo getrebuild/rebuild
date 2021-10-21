@@ -5,7 +5,172 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FieldValueSet */
-// 列表附加操作，可在其他页面独立引入
+// 列表公共操作
+
+// ~~ 高级查询操作类
+
+const AdvFilters = {
+  /**
+   * @param {Element} el 控件
+   * @param {String} entity 实体
+   */
+  init(el, entity) {
+    this.__el = $(el)
+    this.__entity = entity
+
+    this.__el.find('.J_advfilter').click(() => {
+      this.showAdvFilter(null, this.current)
+      this.current = null
+    })
+    const $all = $('.adv-search .dropdown-item:eq(0)')
+    $all.click(() => this._effectFilter($all, 'aside'))
+
+    this.loadFilters()
+  },
+
+  loadFilters() {
+    const lastFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+
+    const that = this
+    let $defaultFilter
+
+    $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
+      $('.adv-search .J_custom').each(function () {
+        $(this).remove()
+      })
+
+      const $menu = $('.adv-search .dropdown-menu')
+      $(res.data).each(function () {
+        const item = this
+        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
+        $item.click(() => that._effectFilter($item, 'aside'))
+
+        if (lastFilter === item.id) $defaultFilter = $item
+
+        // 可修改
+        if (item.editable) {
+          const $action = $(
+            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`
+          ).appendTo($item)
+
+          $action.find('a:eq(0)').click(function () {
+            that.showAdvFilter(item.id)
+            $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
+            return false
+          })
+
+          $action.find('a:eq(1)').click(function () {
+            RbAlert.create($L('确认删除此高级查询？'), {
+              type: 'danger',
+              confirmText: $L('删除'),
+              confirm: function () {
+                this.disabled(true)
+                $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+                  if (res.error_code === 0) {
+                    this.hide()
+                    that.loadFilters()
+                    if (lastFilter === item.id) {
+                      RbListPage._RbList.setAdvFilter(null)
+                      $('.adv-search .J_name').text($L('全部数据'))
+                    }
+                  } else {
+                    RbHighbar.error(res.error_msg)
+                  }
+                })
+              },
+            })
+            return false
+          })
+        }
+      })
+
+      // ASIDE
+      if ($('#asideFilters').length > 0) {
+        const $ghost = $('.adv-search .dropdown-menu').clone()
+        $ghost.removeAttr('class')
+        $ghost.removeAttr('style')
+        $ghost.removeAttr('data-ps-id')
+        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        $ghost.find('.dropdown-item').click(function () {
+          $ghost.find('.dropdown-item').removeClass('active')
+          $(this).addClass('active')
+          that._effectFilter($(this), 'aside')
+        })
+        $ghost.appendTo($('#asideFilters').empty())
+      }
+
+      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+      $defaultFilter.trigger('click')
+    })
+  },
+
+  _effectFilter(item, rel) {
+    this.current = item.data('id')
+    $('.adv-search .J_name').text(item.find('>a').text())
+    if (rel === 'aside') {
+      const current_id = this.current
+      $('#asideFilters .dropdown-item')
+        .removeClass('active')
+        .each(function () {
+          if ($(this).data('id') === current_id) {
+            $(this).addClass('active')
+            return false
+          }
+        })
+    }
+
+    if (this.current === '$ALL$') this.current = null
+    RbListPage._RbList.setAdvFilter(this.current)
+  },
+
+  showAdvFilter(id, useCopyId) {
+    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    if (!id) {
+      if (this.__customAdv) {
+        this.__customAdv.show()
+      } else {
+        const that = this
+        if (useCopyId) {
+          this._getFilter(useCopyId, (res) => {
+            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () {
+              that.__customAdv = this
+            })
+          })
+        } else {
+          renderRbcomp(<AdvFilter {...props} />, null, function () {
+            that.__customAdv = this
+          })
+        }
+      }
+    } else {
+      this.current = id
+      this._getFilter(id, (res) => {
+        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+      })
+    }
+  },
+
+  saveFilter(filter, name, shareTo) {
+    if (!filter) return
+    const that = AdvFilters
+    let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
+    if (name) url += '&name=' + $encode(name)
+    if (shareTo) url += '&shareTo=' + $encode(shareTo)
+
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) {
+        $storage.set(RbListPage._RbList.__defaultFilterKey, res.data.id)
+        that.loadFilters()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  },
+
+  _getFilter(id, call) {
+    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
+  },
+}
 
 // ~~ 列表记录批量操作
 

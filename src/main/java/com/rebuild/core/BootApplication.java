@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -46,7 +47,8 @@ import java.util.Set;
         JdbcRepositoriesAutoConfiguration.class,
         JdbcTemplateAutoConfiguration.class,
         RedisAutoConfiguration.class,
-        CacheAutoConfiguration.class})
+        CacheAutoConfiguration.class,
+        H2ConsoleAutoConfiguration.class})
 @ImportResource("classpath:application-bean.xml")
 @EnableScheduling
 @Slf4j
