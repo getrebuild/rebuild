@@ -534,3 +534,61 @@ class BatchUpdateEditor extends React.Component {
     else return d
   }
 }
+
+const RbListCommon = {
+  inUrlViewId: null,
+
+  init: function (wpc) {
+    // 全局搜索
+    const gs = $urlp('gs', location.hash)
+    if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
+
+    // 快速查询
+    const $btn = $('.input-search .btn'),
+      $input = $('.input-search input')
+    $btn.click(() => RbListPage._RbList.searchQuick())
+    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+
+    // via 过滤
+    const via = $urlp('via', location.hash)
+    if (via) {
+      wpc.protocolFilter = `via:${via}`
+      const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
+      $cleanVia.find('a').click(() => {
+        wpc.protocolFilter = null
+        RbListPage.reload()
+        $cleanVia.remove()
+      })
+    }
+
+    // 自动打开 View
+    let viewHash = location.hash
+    if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'DetailList')) {
+      viewHash = viewHash.split('/')
+      if (viewHash.length === 4 && viewHash[3].length === 20) {
+        RbListCommon.inUrlViewId = viewHash[3]
+        setTimeout(() => {
+          if (RbListCommon.inUrlViewId) {
+            // eslint-disable-next-line no-undef
+            RbViewModal.create({ entity: viewHash[2], id: RbListCommon.inUrlViewId })
+          }
+        }, 500)
+      }
+    } else if (viewHash === '#!/New') {
+      $('.J_new').trigger('click')
+    }
+
+    const entity = wpc.entity
+
+    // 新建
+    $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    // 导出
+    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
+    // 批量修改
+    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
+
+    RbListPage.init(wpc.listConfig, entity, wpc.privileges)
+
+    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
+  },
+}

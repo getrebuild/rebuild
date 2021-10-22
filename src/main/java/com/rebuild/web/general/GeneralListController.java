@@ -25,6 +25,7 @@ import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.BooleanUtils;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -53,7 +54,10 @@ public class GeneralListController extends EntityController {
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
-        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
+        Integer listMode = getIntParameter(request, "forceListMode");
+        if (listMode == null) {
+            listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
+        }
         if (listMode == 2) listPage += "-2";
 
         ModelAndView mv = createModelAndView(listPage, entity, user);

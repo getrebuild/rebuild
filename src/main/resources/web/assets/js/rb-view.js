@@ -829,7 +829,12 @@ const RbViewPage = {
 
 // init
 $(document).ready(function () {
+  // 无关闭按钮
   if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+  // iframe 点击穿透
+  if (parent) {
+    $(document).on('click', () => parent.$(parent.document).trigger('_clickHandler'))
+  }
 
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)

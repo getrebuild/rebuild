@@ -15,6 +15,7 @@ const COLUMN_DEF_WIDTH = 130
 const supportFixedColumns = !($.browser.msie || $.browser.msedge) && $(window).width() > 767
 
 // ~~ 数据列表
+
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -697,6 +698,7 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
 })
 
 // ~ 分页组件
+
 class RbListPagination extends React.Component {
   constructor(props) {
     super(props)
@@ -816,7 +818,8 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表页操作类
+// ~~ 列表操作
+
 const RbListPage = {
   _RbList: null,
 
@@ -835,7 +838,6 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     $('.J_edit').click(() => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
@@ -859,6 +861,7 @@ const RbListPage = {
         RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
+
     $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
 
     // 权限实体才有
@@ -878,12 +881,6 @@ const RbListPage = {
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
 
-    // in `rb-datalist.common.js`
-    // eslint-disable-next-line react/jsx-no-undef
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
-    // eslint-disable-next-line react/jsx-no-undef
-    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
-
     // Privileges
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
@@ -893,12 +890,6 @@ const RbListPage = {
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
-
-    // Quick search
-    const $btn = $('.input-search .btn'),
-      $input = $('.input-search input')
-    $btn.click(() => this._RbList.searchQuick())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
   },
 
   reload() {
@@ -906,30 +897,8 @@ const RbListPage = {
   },
 }
 
-// init: DataList
-$(document).ready(() => {
-  const via = $urlp('via', location.hash)
-  if (via) {
-    wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
-    $cleanVia.find('a').click(() => {
-      wpc.protocolFilter = null
-      RbListPage.reload()
-      $cleanVia.remove()
-    })
-  }
+// ~~ 视图
 
-  const gs = $urlp('gs', location.hash)
-  if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
-  if (wpc.entity) {
-    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    // eslint-disable-next-line no-undef
-    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', wpc.entity[0])
-  }
-})
-
-// -- for View
-// ~~ 视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
@@ -1083,6 +1052,7 @@ class RbViewModal extends React.Component {
   }
 }
 
+// 复写
 window.chart_remove = function (box) {
   box.parent().animate({ opacity: 0 }, function () {
     box.parent().remove()
@@ -1157,18 +1127,8 @@ const ChartsWidget = {
 }
 
 $(document).ready(() => {
-  // 自动打开 View
-  let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'DetailList')) {
-    viewHash = viewHash.split('/')
-    if (viewHash.length === 4 && viewHash[3].length === 20) {
-      setTimeout(() => {
-        RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
-      }, 500)
-    }
-  } else if (viewHash === '#!/New') {
-    $('.J_new').trigger('click')
-  }
+  // eslint-disable-next-line no-undef
+  RbListCommon.init(wpc)
 
   // ASIDE
   if ($('#asideFilters, #asideWidgets').length > 0) {

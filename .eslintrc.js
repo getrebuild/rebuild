@@ -71,6 +71,7 @@ module.exports = {
     RbFormHandler: true,
     RbFormElement: true,
     RbList: true,
+    RbListCommon: true,
     RbListPage: true,
     RbViewPage: true,
     CellRenders: true,
