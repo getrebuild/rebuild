@@ -58,7 +58,9 @@ public class GeneralListController extends EntityController {
         if (listMode == null) {
             listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
         }
-        if (listMode == 2) listPage += "-2";
+        if (listMode == 2) {
+            listPage = "/general/record-list-2";  // Mode2
+        }
 
         ModelAndView mv = createModelAndView(listPage, entity, user);
 

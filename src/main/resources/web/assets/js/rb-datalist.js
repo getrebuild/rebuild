@@ -116,7 +116,7 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
+        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._Pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>
     )
@@ -192,9 +192,12 @@ class RbList extends React.Component {
       fields.push(item.field)
       if (item.sort) fieldSort = item.field + ':' + item.sort.replace('sort-', '')
     })
+    this.lastFilter = filter || this.lastFilter
 
     const entity = this.props.config.entity
-    this.lastFilter = filter || this.lastFilter
+    const reload = this._forceReload || this.pageNo === 1
+    this._forceReload = false
+
     const query = {
       entity: entity,
       fields: fields,
@@ -204,7 +207,7 @@ class RbList extends React.Component {
       advFilter: this.advFilterId,
       protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
-      reload: this.pageNo === 1,
+      reload: reload,
     }
     this.__lastQueryEntry = query
 
@@ -220,8 +223,8 @@ class RbList extends React.Component {
           $(this._rblistScroller).scrollTop(0)
         })
 
-        if (res.data.total > 0) {
-          this._pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
+        if (reload && this._Pagination) {
+          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -309,7 +312,7 @@ class RbList extends React.Component {
     }
 
     // 分页组件
-    this._pagination && this._pagination.setState({ selectedTotal: chkSelected })
+    this._Pagination && this._Pagination.setState({ selectedTotal: chkSelected })
   }
 
   _clearSelected() {
@@ -388,6 +391,14 @@ class RbList extends React.Component {
   }
 
   /**
+   * 重新加载
+   */
+  reload() {
+    this._forceReload = true
+    this.fetchList()
+  }
+
+  /**
    * 搜索
    */
   search(filter, fromAdv) {
@@ -401,9 +412,6 @@ class RbList extends React.Component {
       if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')
     }
   }
-
-  // Alias `fetchList`
-  reload = () => this.fetchList()
 
   // @el - search element
   searchQuick = (el) => this.search(this.__buildQuick(el))
@@ -440,7 +448,7 @@ class RbList extends React.Component {
    * 获取最后查询记录总数
    */
   getLastQueryTotal() {
-    return this._pagination ? this._pagination.state.rowsTotal : 0
+    return this._Pagination ? this._Pagination.state.rowsTotal : 0
   }
 
   /**

@@ -535,6 +535,7 @@ class BatchUpdateEditor extends React.Component {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 const RbListCommon = {
   inUrlViewId: null,
 
@@ -566,12 +567,9 @@ const RbListCommon = {
     if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'DetailList')) {
       viewHash = viewHash.split('/')
       if (viewHash.length === 4 && viewHash[3].length === 20) {
-        RbListCommon.inUrlViewId = viewHash[3]
         setTimeout(() => {
-          if (RbListCommon.inUrlViewId) {
-            // eslint-disable-next-line no-undef
-            RbViewModal.create({ entity: viewHash[2], id: RbListCommon.inUrlViewId })
-          }
+          // eslint-disable-next-line no-undef
+          RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
         }, 500)
       }
     } else if (viewHash === '#!/New') {
