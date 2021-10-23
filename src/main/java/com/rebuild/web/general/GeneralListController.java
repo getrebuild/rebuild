@@ -25,7 +25,6 @@ import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.BooleanUtils;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -87,6 +86,9 @@ public class GeneralListController extends EntityController {
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
+
+            // 明细列表
+            if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
         }
 
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));

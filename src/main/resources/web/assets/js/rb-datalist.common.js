@@ -562,19 +562,8 @@ const RbListCommon = {
       })
     }
 
-    // 自动打开 View
-    let viewHash = location.hash
-    if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'DetailList')) {
-      viewHash = viewHash.split('/')
-      if (viewHash.length === 4 && viewHash[3].length === 20) {
-        setTimeout(() => {
-          // eslint-disable-next-line no-undef
-          RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
-        }, 500)
-      }
-    } else if (viewHash === '#!/New') {
-      $('.J_new').trigger('click')
-    }
+    // 自动打开新建
+    if (location.hash === '#!/New') $('.J_new').trigger('click')
 
     const entity = wpc.entity
 

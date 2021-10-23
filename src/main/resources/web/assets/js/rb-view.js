@@ -834,7 +834,8 @@ $(document).ready(function () {
 
   // iframe 点击穿透
   if (parent) {
-    $(document).on('click', () => parent.$(parent.document).trigger('_clickFrameHandler'))
+    $(document).on('click', () => parent.$(parent.document).trigger('_clickEventHandler'))
+    window._clickEventHandler = () => $(document).trigger('click')
   }
 
   if (wpc.entity) {

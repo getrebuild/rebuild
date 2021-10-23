@@ -67,7 +67,7 @@ module.exports = {
     RbAlertBox: true,
     RbModal: true,
     RbModalHandler: true,
-    RbFrom: true,
+    RbForm: true,
     RbFormHandler: true,
     RbFormElement: true,
     RbList: true,

@@ -337,7 +337,7 @@ class RbForm extends React.Component {
         RbHighbar.success($L('保存成功'))
         setTimeout(() => {
           this.props.$$$parent.hide(true)
-          RbForm.postAfter(res.data, next)
+          RbForm.postAfter({ ...res.data, _isNew: !this.state.id }, next)
 
           if (next === RbForm.__NEXT_ADD) {
             const pstate = this.props.$$$parent.state
@@ -369,8 +369,7 @@ class RbForm extends React.Component {
     return true
   }
 
-  // 保存前调用，返回 false 则不继续保存
-  // eslint-disable-next-line no-unused-vars
+  // 保存前调用（返回 false 则不继续保存）
   static postBefore(data) {
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])

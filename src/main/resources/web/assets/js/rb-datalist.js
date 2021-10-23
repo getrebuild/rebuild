@@ -1138,6 +1138,11 @@ $(document).ready(() => {
   // eslint-disable-next-line no-undef
   RbListCommon.init(wpc)
 
+  const viewHash = (location.hash || '').split('/')
+  if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {
+    setTimeout(() => RbViewModal.create({ entity: viewHash[2], id: viewHash[3] }), 500)
+  }
+
   // ASIDE
   if ($('#asideFilters, #asideWidgets').length > 0) {
     $('.side-toggle').on('click', () => {
