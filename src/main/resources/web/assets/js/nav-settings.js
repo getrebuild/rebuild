@@ -12,7 +12,7 @@ let _entity_data = {}
 $(document).ready(function () {
   $('.J_add-menu').click(() => render_item({}, true))
 
-  $.get('/commons/metadata/entities', function (res) {
+  $.get('/commons/metadata/entities?detail=true', function (res) {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
       _entity_data[this.name] = this
