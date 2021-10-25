@@ -117,10 +117,10 @@ public class DataExporter extends SetUser {
         boolean b = true;
         for (String s : line) {
             if (b) b = false;
-            else sb.append(", ");
+            else sb.append(",");
 
             if (s.contains(",")) {
-                s = s.replace(",", "，");
+                s = s.replace(",", "，");  // 转义 ,
             }
             sb.append(s);
         }
