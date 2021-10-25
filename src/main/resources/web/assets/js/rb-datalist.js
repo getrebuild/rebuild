@@ -1135,8 +1135,7 @@ const ChartsWidget = {
 }
 
 $(document).ready(() => {
-  // eslint-disable-next-line no-undef
-  RbListCommon.init(wpc)
+  window.RbListCommon && window.RbListCommon.init(wpc)
 
   const viewHash = (location.hash || '').split('/')
   if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {

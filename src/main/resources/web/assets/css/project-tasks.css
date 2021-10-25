@@ -45,6 +45,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 99px;
   color: #777;
   padding: 0 8px;
+  margin-left: 5px;
+}
+
+.project-head .badge + .badge {
+  margin-left: 0;
 }
 
 .project-right .btn-group {
