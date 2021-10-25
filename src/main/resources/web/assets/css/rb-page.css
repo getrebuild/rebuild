@@ -3150,7 +3150,7 @@ form {
   top: 12px;
 }
 
-.search-container > .global-create > a {
+.search-container > .global-create > .dropdown > a {
   display: inline-block;
   width: 35px;
   line-height: 35px;
@@ -3161,8 +3161,8 @@ form {
   font-size: 1.73rem;
 }
 
-.search-container > .global-create > a:hover,
-.search-container > .global-create.show > a {
+.search-container > .global-create > .dropdown > a:hover,
+.search-container > .global-create > .dropdown.show > a {
   background: #4285f4;
   color: #fff;
 }
