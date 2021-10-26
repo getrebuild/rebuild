@@ -281,7 +281,8 @@ public class ProjectTaskController extends BaseController {
         JSONArray alist = new JSONArray();
 
         for (ConfigBean p : ps) {
-            if (p.getInteger("status") == ProjectManager.STATUS_ARCHIVED) continue;
+            if (p.getInteger("status") == ProjectManager.STATUS_ARCHIVED) continue;  // 已归档
+            if (!p.get("members", Set.class).contains(user)) continue;  // 非成员
 
             JSONObject item = (JSONObject) p.toJSON("id", "projectName");
 
