@@ -140,9 +140,14 @@ $(document).ready(() => {
     filesList && filesList.loadData()
   })
 
-  const $btn = $('.input-search .btn').click(() => {
+  // 搜索
+  const $btn = $('.input-search .input-group-btn .btn').on('click', () => {
     currentSearch = $('.input-search input').val()
     filesList && filesList.loadData()
   })
-  $('.input-search input').keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+  const $input = $('.input-search input').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
+  $('.input-search .btn-input-clear').on('click', () => {
+    $input.val('')
+    $btn.trigger('click')
+  })
 })

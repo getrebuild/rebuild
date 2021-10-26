@@ -386,6 +386,37 @@ a.btn {
   border-radius: 2px;
 }
 
+.input-search input + .btn-input-clear {
+  position: absolute;
+  right: 35px;
+  top: 3px;
+  border: 0 none;
+  padding: 0;
+  min-width: auto;
+  min-height: auto;
+  width: 1.4rem;
+  height: 2.4rem;
+  background: #fff;
+  color: #737373;
+  z-index: 10;
+  display: none;
+}
+
+.input-search input + .btn-input-clear:hover {
+  color: #5a5a5a;
+}
+
+.input-search input + .btn-input-clear::before {
+  font-family: 'Material-Design-Iconic-Font';
+  font-size: 1.308rem;
+  content: '\f135';
+  content: '\f136';
+}
+
+.input-search input:not(:placeholder-shown) + .btn-input-clear {
+  display: block;
+}
+
 .form-control.search {
   border-color: #d5d8de;
 }

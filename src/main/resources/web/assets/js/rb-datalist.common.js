@@ -545,10 +545,14 @@ const RbListCommon = {
     if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
 
     // 快速查询
-    const $btn = $('.input-search .btn'),
+    const $btn = $('.input-search .input-group-btn .btn'),
       $input = $('.input-search input')
-    $btn.click(() => RbListPage._RbList.searchQuick())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $btn.on('click', () => RbListPage._RbList.searchQuick())
+    $input.on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $('.input-search .btn-input-clear').on('click', () => {
+      $input.val('')
+      $btn.trigger('click')
+    })
 
     // via 过滤
     const via = $urlp('via', location.hash)
