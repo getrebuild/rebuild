@@ -831,6 +831,15 @@ const RbViewPage = {
 $(document).ready(function () {
   // 无关闭按钮
   if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+  // 回退按钮
+  if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+    $('.J_back')
+      .removeClass('hide')
+      .on('click', () => {
+        // parent.RbViewModal.holder(this.__id, 'LOADING')
+        history.back()
+      })
+  }
 
   // iframe 点击穿透
   if (parent) {
