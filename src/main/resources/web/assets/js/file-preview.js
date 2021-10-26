@@ -182,7 +182,8 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
-        const previewUrl = rb.commercial < 10 ? `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}` : `${rb.baseUrl}/filex/access/pdf-preview?src=${$encode(url)}`
+        // const previewUrl = rb.commercial < 10 ? `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}` : `${rb.baseUrl}/filex/access/pdf-preview?src=${$encode(url)}`
+        const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}`
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
