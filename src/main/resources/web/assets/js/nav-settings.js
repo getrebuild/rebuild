@@ -7,15 +7,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const UNICON_NAME = 'texture'
 let _Share2
-let _entity_data = {}
+let _entityInfos = {}
 
 $(document).ready(function () {
   $('.J_add-menu').click(() => render_item({}, true))
 
+  // 系统内置
+  $('#sys-built > option').each(function () {
+    const $this = $(this)
+    _entityInfos[$this.attr('value')] = { icon: $this.attr('data-icon'), label: $this.text() }
+  })
+
   $.get('/commons/metadata/entities?detail=true', function (res) {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
-      _entity_data[this.name] = this
+      _entityInfos[this.name] = this
     })
 
     const $ref = $('.J_menuEntity')
@@ -25,7 +31,7 @@ $(document).ready(function () {
       })
       .on('change', () => {
         if (item_current_isNew === true) {
-          const d = _entity_data[$ref.val()]
+          const d = _entityInfos[$ref.val()]
           if (d) {
             $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${d.icon}`)
             $('.J_menuName').val(d.label)

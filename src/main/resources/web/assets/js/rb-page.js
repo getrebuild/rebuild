@@ -420,6 +420,7 @@ var _initGlobalCreate = function () {
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
     var $gc = $('.global-create .dropdown-menu')
+    $gc.perfectScrollbar()
     $(res.data || []).each(function () {
       var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
       var _this = this

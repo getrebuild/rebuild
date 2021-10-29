@@ -43,12 +43,15 @@ $(document).ready(() => {
 
   // 搜索
   const $search = $('.J_search .input-search')
-  $search.find('.btn').click(() => {
-    const s = $search.find('input').val()
-    __PlanBoxes.setState({ search: s })
+  const $btn2 = $search.find('.input-group-btn .btn').on('click', () => {
+    __PlanBoxes.setState({ search: $search.find('input').val() || null })
   })
-  $search.find('input').keydown((e) => {
-    e.keyCode === 13 && $search.find('.btn').trigger('click')
+  const $input2 = $search.find('input').on('keydown', (e) => {
+    e.keyCode === 13 && $btn2.trigger('click')
+  })
+  $search.find('.btn-input-clear').on('click', () => {
+    $input2.val('')
+    $btn2.trigger('click')
   })
 
   $unhideDropdown('.J_search').on({

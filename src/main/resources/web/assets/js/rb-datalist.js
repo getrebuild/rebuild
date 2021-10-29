@@ -1074,7 +1074,9 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_load-charts').on('click', () => {
+      this.chartLoaded !== true && this.loadWidget()
+    })
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
