@@ -105,6 +105,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
   })
 
+  rb.commercial = ~~rb.commercial
   if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
   if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
 
@@ -283,8 +284,8 @@ var $regex = {
   _Mail: /^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
   _Number: /^[-+]?[0-9]+$/, // 数字
   _Decimal: /^[-+]?\d*\.?\d+$/, // 包括小数点的数字
-  _Mobile: /^(13[0-9]|15[0-9]|18[0-9]|17[0-9])\d{8}$/,
-  _Tel: /^[0-9-]{7,18}$/,
+  _Mobile: /^(1[356789])\d{9}$/, // CN Mobile
+  _Tel: /^(\(\d{1,5}\))?(\d{3,4}-)?\d{7,8}(-\d{1,6})?$/, // (国际码)区号-号码-分机
   _Text: /^[a-z\d\u4E00-\u9FA5]+$/i, // 不含特殊字符和标点
   isDate: function (val) {
     return this._Date.test(val)

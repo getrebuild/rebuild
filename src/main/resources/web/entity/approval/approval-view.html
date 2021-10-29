@@ -12,6 +12,7 @@
       <h3 class="title">[[${bundle.L('审批流程图')}]]</h3>
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_back hide" th:title="${bundle.L('回退')}"><i class="zmdi zmdi-arrow-left"></i></a>
       </span>
     </div>
     <div class="main-content container-fluid p-0">
@@ -30,6 +31,18 @@
       window.$addResizeHandler__calls = []
 
       $(document).ready(function () {
+        // 无关闭按钮
+        if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+        // 回退按钮
+        if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+          $('.J_back')
+            .removeClass('hide')
+            .on('click', () => {
+              // parent.RbViewModal.holder(this.__id, 'LOADING')
+              history.back()
+            })
+        }
+
         const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(window.__PageConfig.id) : null
         if (ph) $('.J_close').click(() => ph.hide())
         else $('.J_close').remove()

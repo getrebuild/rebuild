@@ -77,20 +77,7 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${comments}" th:placeholder="${bundle.L('可选')}">[[${comments}]]</textarea>
-                  </div>
-                </div>
-                <div class="form-group row bosskey-show">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('高级配置')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="advListHideFilters" />
-                      <span class="custom-control-label"> [[${bundle.L('隐藏列表页侧栏常用查询')}]]</span>
-                    </label>
-                    <label class="custom-control custom-control-sm custom-checkbox mb-0">
-                      <input class="custom-control-input" type="checkbox" id="advListHideCharts" />
-                      <span class="custom-control-label"> [[${bundle.L('隐藏列表页侧栏图表')}]]</span>
-                    </label>
+                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${comments}" th:placeholder="${bundle.L('(选填)')}">[[${comments}]]</textarea>
                   </div>
                 </div>
                 <div class="form-group row footer">

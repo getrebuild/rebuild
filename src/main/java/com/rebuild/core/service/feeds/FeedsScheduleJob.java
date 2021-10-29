@@ -131,7 +131,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             if (fullUrl) {
                 url = RebuildConfiguration.getHomeUrl(url);
             } else {
-                url = AppUtils.getContextPath() + url;
+                url = AppUtils.getContextPath(url);
             }
             sb.append("](").append(url).append(")");
 

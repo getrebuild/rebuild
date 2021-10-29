@@ -30,21 +30,28 @@ public abstract class BaseTaskService extends ObservableService {
     }
 
     /**
-     * 是否成员，非成员禁止操作
+     * 是否成员；是否已归档
      *
      * @param user
      * @param taskOrProject
      * @return
      */
-    protected boolean checkInMembers(ID user, ID taskOrProject) {
+    protected boolean checkModifications(ID user, ID taskOrProject) {
         if (user == null) user = UserContextHolder.getUser();
         Assert.notNull(taskOrProject, "taskOrProject");
 
         ConfigBean c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask
-                ? ProjectManager.instance.getProjectByTask(taskOrProject, null)
+                ? ProjectManager.instance.getProjectByX(taskOrProject, null)
                 : ProjectManager.instance.getProject(taskOrProject, null);
-        if (c != null && c.get("members", Set.class).contains(user)) return true;
 
-        throw new DataSpecificationException(Language.L("非项目成员禁止操作"));
+        if (c == null || !c.get("members", Set.class).contains(user)) {
+            throw new DataSpecificationException(Language.L("非项目成员禁止操作"));
+        }
+
+        if (c.getInteger("status") == ProjectManager.STATUS_ARCHIVED) {
+            throw new DataSpecificationException(Language.L("已归档项目禁止操作"));
+        }
+
+        return true;
     }
 }

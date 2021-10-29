@@ -9,14 +9,11 @@ package com.rebuild.utils;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.TimeZone;
-
 /**
  */
 public class Tests {
 
     @Test
     void test() {
-        System.out.println(TimeZone.getDefault().getRawOffset());
     }
 }

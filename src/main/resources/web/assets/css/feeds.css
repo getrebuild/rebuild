@@ -448,11 +448,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 #collapseSearch .card-body .input-group .append > a {
   height: 32px;
   width: 16px;
-  font-size: 1.2rem;
+  font-size: 1.308rem;
   transform: translateY(-1px);
-  color: #404040;
+  color: #737373;
   display: none;
   text-align: center;
+}
+
+#collapseSearch .card-body .input-group .append > a:hover {
+  color: #5a5a5a;
 }
 
 #collapseSearch .card-body .input-group .append > a.show {
@@ -591,9 +595,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #666;
 }
 
-.rich-content > .appends .badge {
+.rich-content > .appends span.badge {
+  padding: 3px 5px;
+  line-height: 1;
+  color: #fff;
   font-weight: normal;
-  padding: 0.07692rem 0.3154rem;
+  transform: translateY(-1px);
+}
+
+.rich-content > .appends span.badge.badge-light {
+  color: #404040;
 }
 
 .search-member {

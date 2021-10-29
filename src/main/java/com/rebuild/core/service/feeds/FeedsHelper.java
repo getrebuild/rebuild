@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -152,7 +153,7 @@ public class FeedsHelper {
     }
 
     /**
-     * URL 提取
+     * URL 提取 FIXME 会匹配 " 符号
      */
     public static final Pattern URL_PATTERN = Pattern.compile("((www|https?://)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
 
@@ -163,26 +164,24 @@ public class FeedsHelper {
      * @return
      */
     public static String formatContent(String content) {
-        return formatContent(content, false);
+        return formatContent(content, true);
     }
 
     /**
      * 格式化动态内容
      *
      * @param content
-     * @param xss     是否处理 XSS
+     * @param xss 是否处理 XSS
      * @return
      * @see MessageBuilder#formatMessage(String, boolean, boolean)
      */
     public static String formatContent(String content, boolean xss) {
-        if (xss) {
-            content = MessageBuilder.escapeHtml(content);
-        }
+        if (xss) content = CommonsUtils.escapeHtml(content);
 
         Matcher urlMatcher = URL_PATTERN.matcher(content);
         while (urlMatcher.find()) {
             String url = urlMatcher.group();
-            String safeUrl = AppUtils.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(url);
+            String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(url));
             content = content.replace(url,
                     String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, url));
         }
@@ -194,7 +193,7 @@ public class FeedsHelper {
             if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
                 String fullName = Application.getUserStore().getUser(user).getFullName();
                 content = content.replace(at,
-                        String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+                        String.format("<a data-uid=\"%s\">@%s</a>", user, fullName));
             }
         }
 

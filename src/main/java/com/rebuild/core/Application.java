@@ -37,6 +37,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
+import com.rebuild.utils.OshiUtils;
 import com.rebuild.utils.RebuildBanner;
 import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
@@ -62,11 +63,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.5.2";
+    public static final String VER = "2.6.0-beta";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2050205;
+    public static final int BUILD = 2060000;
 
     static {
         // Driver for DB
@@ -93,9 +94,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     // 系统状态
-    private static boolean _READY;
+    volatile private static boolean _READY = false;
     // 业务组件已装载
-    private static boolean _WAITLOAD = true;
+    volatile private static boolean _WAITLOAD = true;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -131,7 +132,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "    License : " + License.queryAuthority(false).values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
-                                    "   External : " + localUrl.replace("localhost", ServerStatus.getLocalIp()));
+                                    "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
+                                    "     Public : " + RebuildConfiguration.getHomeUrl());
                             log.info(banner);
                         }
                     }, 1500);

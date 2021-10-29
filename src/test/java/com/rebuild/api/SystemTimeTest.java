@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class SystemTimeTest extends TestSupport {
 
     @Test
-    public void execute() {
+    void execute() {
         JSON ret = new SystemTime().execute(null);
         System.out.println(ret);
     }

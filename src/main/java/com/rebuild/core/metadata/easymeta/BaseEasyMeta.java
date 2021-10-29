@@ -96,6 +96,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
      * @param name
      * @return
      * @see EasyFieldConfigProps
+     * @see com.rebuild.core.metadata.impl.EasyEntityConfigProps
      */
     public String getExtraAttr(String name) {
         return getExtraAttrs(false).getString(name);

@@ -30,7 +30,7 @@ public class HeavyTaskTest extends TestSupport {
 
         ThreadPool.waitFor(1000);
 
-        HeavyTask<?> task = TaskExecutors.getTask(taskid1);
+        HeavyTask<?> task = TaskExecutors.get(taskid1);
         System.out.println("getElapsedTime " + task.getElapsedTime());
         System.out.println("getCompletedPercent " + task.getCompletedPercent());
         System.out.println("getErrorMessage " + task.getErrorMessage());

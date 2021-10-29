@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -16,18 +15,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
-import eu.bitwalker.useragentutils.DeviceType;
-import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.file.AccessDeniedException;
-import java.sql.DataTruncation;
 
 /**
  * 封裝一些有用的工具方法
@@ -50,11 +42,25 @@ public class AppUtils {
     public static final String HF_LOCALE = "X-ClientLocale";
 
     /**
+     * 获取相对地址
+     *
      * @return
      * @see BootApplication#getContextPath()
+     * @see RebuildConfiguration#getHomeUrl()
      */
     public static String getContextPath() {
         return BootApplication.getContextPath();
+    }
+
+    /**
+     * 获取相对地址
+     *
+     * @return
+     * @see RebuildConfiguration#getHomeUrl(String)
+     */
+    public static String getContextPath(String path) {
+        if (!path.startsWith("/")) path = "/" + path;
+        return BootApplication.getContextPath() + path;
     }
 
     /**
@@ -131,53 +137,7 @@ public class AppUtils {
     }
 
     /**
-     * 获取后台抛出的错误消息
-     *
-     * @param request
-     * @param exception
-     * @return
-     */
-    public static String getErrorMessage(HttpServletRequest request, Throwable exception) {
-        if (exception == null && request != null) {
-            String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
-            if (StringUtils.isNotBlank(errorMsg)) {
-                return errorMsg;
-            }
-
-            Integer code = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
-            if (code != null && code == 404) {
-                return Language.L("访问的页面/资源不存在");
-            } else if (code != null && code == 403) {
-                return Language.L("权限不足，访问被阻止");
-            } else if (code != null && code == 401) {
-                return Language.L("未授权访问");
-            }
-
-            exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
-        }
-
-        // 已知异常
-        if (exception != null) {
-            Throwable known = ThrowableUtils.getRootCause(exception);
-            if (known instanceof DataTruncation) {
-                return Language.L("字段长度超出限制");
-            } else if (known instanceof AccessDeniedException) {
-                return Language.L("权限不足，访问被阻止");
-            }
-        }
-
-        if (exception == null) {
-            return Language.L("系统繁忙，请稍后重试");
-        } else {
-            exception = ThrowableUtils.getRootCause(exception);
-            String errorMsg = exception.getLocalizedMessage();
-            if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
-            return errorMsg;
-        }
-    }
-
-    /**
-     * 是否 RBMOB 请求
+     * 是否移动端请求
      *
      * @param request
      * @return
@@ -185,32 +145,6 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader(HF_CLIENT);
         return UA != null && UA.startsWith("RB/Mobile-");
-    }
-
-    /**
-     * 请求类型
-     *
-     * @param request
-     * @return
-     * @see MimeTypeUtils#parseMimeType(String)
-     */
-    public static MimeType parseMimeType(HttpServletRequest request) {
-        try {
-            String acceptType = request.getHeader("Accept");
-            if (acceptType == null || "*/*".equals(acceptType)) acceptType = request.getContentType();
-
-            // Via Spider?
-            if (StringUtils.isBlank(acceptType)) return MimeTypeUtils.TEXT_HTML;
-
-            acceptType = acceptType.split("[,;]")[0];
-            // Accpet ALL?
-            if ("*/*".equals(acceptType)) return MimeTypeUtils.TEXT_HTML;
-
-            return MimeTypeUtils.parseMimeType(acceptType);
-
-        } catch (Exception ignore) {
-        }
-        return null;
     }
 
     /**
@@ -232,7 +166,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isMobile(HttpServletRequest request) {
-        UserAgent ua = UserAgent.parseUserAgentString(request.getHeader("user-agent"));
-        return ua.getOperatingSystem().getDeviceType() == DeviceType.MOBILE;
+        String ua = request.getHeader("user-agent");
+        return ua != null && (ua.contains("Mobile") || ua.contains("iPhone") || ua.contains("Android"));
     }
 }

@@ -45,6 +45,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 99px;
   color: #777;
   padding: 0 8px;
+  margin-left: 5px;
+}
+
+.project-head .badge + .badge {
+  margin-left: 0;
 }
 
 .project-right .btn-group {
@@ -184,9 +189,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 4px;
 }
 
+.task-content .task-extras > .avatar,
+.task-content .task-extras > .icon {
+  float: left;
+  cursor: default;
+}
+
 .task-content .task-extras > .avatar img {
   width: 24px;
   height: 24px;
+}
+
+.task-content .task-extras > .icon {
+  font-size: 1.3rem;
+  color: #999;
+  margin-top: 5px;
 }
 
 .task-content .task-extras > .badge {

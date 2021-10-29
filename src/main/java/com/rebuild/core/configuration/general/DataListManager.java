@@ -78,15 +78,15 @@ public class DataListManager extends BaseLayoutManager {
         if (config == null) {
             columnList.add(formatField(namedField));
 
-            String namedFieldName = namedField.getName();
-            if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedBy)
+            if (!StringUtils.equalsIgnoreCase(namedField.getName(), EntityHelper.CreatedBy)
                     && entityMeta.containsField(EntityHelper.CreatedBy)) {
                 columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedBy)));
             }
-            if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedOn)
+            if (!StringUtils.equalsIgnoreCase(namedField.getName(), EntityHelper.CreatedOn)
                     && entityMeta.containsField(EntityHelper.CreatedOn)) {
                 columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedOn)));
             }
+
         } else {
             for (Object o : (JSONArray) config.getJSON("config")) {
                 JSONObject item = (JSONObject) o;
@@ -201,5 +201,22 @@ public class DataListManager extends BaseLayoutManager {
             return null;
         }
         return e.clone();
+    }
+
+    /**
+     * TODO 自定义字段 MODE2
+     *
+     * @param entity
+     * @return
+     */
+    public JSON getFieldsLayoutMode2(Entity entity) {
+        JSONObject emptyConfig = (JSONObject) formatFieldsLayout(entity.getName(), null, true, null);
+        JSONArray fields = emptyConfig.getJSONArray("fields");
+
+        if (entity.containsField(EntityHelper.ApprovalState)) {
+            fields.add(formatField(entity.getField(EntityHelper.ApprovalState)));
+        }
+
+        return emptyConfig;
     }
 }

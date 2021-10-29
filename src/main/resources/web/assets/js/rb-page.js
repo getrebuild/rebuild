@@ -151,7 +151,7 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1)
+    if (rb.commercial < 10)
       return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
         type: 'danger',
         html: true,
@@ -414,12 +414,13 @@ var _initGlobalCreate = function () {
   var entities = []
   $('.sidebar-elements li').each(function () {
     var e = $(this).data('entity')
-    if (e && !entities.contains(e)) entities.push(e)
+    if (e && e !== '$PARENT$' && !entities.contains(e)) entities.push(e)
   })
   if (entities.length === 0) return
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
     var $gc = $('.global-create .dropdown-menu')
+    $gc.perfectScrollbar()
     $(res.data || []).each(function () {
       var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
       var _this = this
@@ -569,29 +570,35 @@ var $initUploader = $createUploader
  * 卸载 React 组件
  */
 var $unmount = function (container, delay, keepContainer) {
-  if (container && container[0]) {
-    setTimeout(function () {
-      ReactDOM.unmountComponentAtNode(container[0])
-      if (keepContainer !== true && container.prop('tagName') !== 'BODY') container.remove()
-    }, delay || 1000)
-  }
+  if (!container) return
+  const $c = container[0] ? container : $(container)
+  setTimeout(function () {
+    ReactDOM.unmountComponentAtNode($c[0])
+    if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
+  }, delay || 1000)
 }
 
 /**
  * 初始化引用字段（搜索）
  */
-var $initReferenceSelect2 = function (el, field) {
+var $initReferenceSelect2 = function (el, options) {
   var search_input = null
   return $(el).select2({
-    placeholder: field.placeholder || $L('选择%s', field.label),
+    placeholder: options.placeholder || $L('选择%s', options.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
-      url: '/commons/search/' + (field.searchType || 'reference'),
+      url: '/commons/search/' + (options.searchType || 'reference'),
       delay: 300,
       data: function (params) {
         search_input = params.term
-        return { entity: field.entity, field: field.name, q: params.term }
+        const query = {
+          entity: options.entity,
+          field: options.name,
+          q: params.term,
+        }
+        if (options && typeof options.wrapQuery === 'function') return options.wrapQuery(query)
+        else return query
       },
       processResults: function (data) {
         return { results: data.data }
@@ -614,7 +621,7 @@ var $initReferenceSelect2 = function (el, field) {
         return $L('清除')
       },
     },
-    theme: 'default ' + (field.appendClass || ''),
+    theme: 'default ' + (options.appendClass || ''),
   })
 }
 
@@ -770,6 +777,14 @@ var $moment = function (date) {
   return moment(date.split('UTC')[0].trim())
 }
 /**
+ * 是否过期
+ */
+var $expired = function (date, offset) {
+  var m = $moment(date)
+  if (offset) m.add(offset, 's')
+  return m.isBefore(moment())
+}
+/**
  * 友好时间显示
  */
 var $fromNow = function (date) {
@@ -777,12 +792,11 @@ var $fromNow = function (date) {
   return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
 /**
- * 是否过期
+ * 友好时间显示
  */
-var $expired = function (date, offset) {
+var $toNow = function (date) {
   var m = $moment(date)
-  if (offset) m.add(offset, 's')
-  return m.isBefore(moment())
+  return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.toNow()
 }
 
 /**

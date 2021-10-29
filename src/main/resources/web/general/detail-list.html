@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
     <title th:text="${entityLabel}"></title>
   </head>
@@ -66,6 +67,7 @@
                       </div>
                       <div class="input-group input-search float-left">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
+                        <button class="btn btn-input-clear" type="button"></button>
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
                         ></span>
@@ -113,14 +115,15 @@
     </script>
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
   </body>
 </html>

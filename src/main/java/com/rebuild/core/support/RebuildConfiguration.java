@@ -132,6 +132,8 @@ public class RebuildConfiguration extends KVStorage {
     }
 
     /**
+     * 获取绝对 URL
+     *
      * @return
      */
     public static String getHomeUrl() {

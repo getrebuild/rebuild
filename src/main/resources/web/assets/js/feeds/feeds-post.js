@@ -85,7 +85,7 @@ class FeedsPost extends React.Component {
     const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       $btn.button('reset')
-      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
 
       this._FeedsEditor.reset()
       typeof this.props.call === 'function' && this.props.call()
@@ -141,6 +141,7 @@ class FeedsScope extends React.Component {
     const $target = e.target
     this.setState({ scope: $target.dataset.scope }, () => {
       $(this._$btn).html($($target).html())
+
       if (this.state.scope === 'GROUP') {
         if (this.__group) this._renderGroupScope(this.__group)
         const that = this
@@ -206,6 +207,7 @@ class FeedsEditor extends React.Component {
             maxLength="2000"
             onFocus={() => this.setState({ focus: true })}
             onBlur={() => this.setState({ focus: false })}
+            onKeyDown={(e) => this._handleInputAt(e)}
             defaultValue={this.props.initValue}
           />
           <div className="action-btns">
@@ -218,10 +220,10 @@ class FeedsEditor extends React.Component {
               </li>
               <li className="list-inline-item">
                 <UserSelector
-                  hideDepartment={true}
-                  hideRole={true}
-                  hideTeam={true}
-                  hideSelection={true}
+                  hideDepartment
+                  hideRole
+                  hideTeam
+                  hideSelection
                   multiple={false}
                   ref={(c) => (this._UserSelector = c)}
                   compToggle={
@@ -229,6 +231,7 @@ class FeedsEditor extends React.Component {
                       <i className="zmdi at-text">@</i>
                     </a>
                   }
+                  targetInput={this._$editor}
                   onSelectItem={this._selectAtUser}
                 />
               </li>
@@ -245,10 +248,13 @@ class FeedsEditor extends React.Component {
             </ul>
           </div>
         </div>
+        <span className="hide">
+          <input type="file" ref={(c) => (this._$fileInput = c)} />
+          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
+        </span>
 
-        {this.state.type === 4 && (
-          <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />
-        )}
+        {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
+
         {(this.state.type === 2 || this.state.type === 4) && (
           <div className="feed-options related">
             <dl className="row">
@@ -259,7 +265,9 @@ class FeedsEditor extends React.Component {
             </dl>
           </div>
         )}
+
         {this.state.type === 3 && <AnnouncementOptions ref={(c) => (this._announcementOptions = c)} initValue={this.state.contentMore} />}
+
         {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && (
           <div className="attachment">
             <div className="img-field">
@@ -292,10 +300,6 @@ class FeedsEditor extends React.Component {
             </div>
           </div>
         )}
-        <span className="hide">
-          <input type="file" ref={(c) => (this._$fileInput = c)} />
-          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
-        </span>
       </React.Fragment>
     )
   }
@@ -349,8 +353,21 @@ class FeedsEditor extends React.Component {
   }
 
   _selectAtUser = (s) => {
-    $(this._$editor).insertAtCursor(`@${s.text} `)
+    const text = this.__lastInputKey === '@' ? `${s.text} ` : `@${s.text} `
+    $(this._$editor).insertAtCursor(text)
     this.setState({ showAtUser: false })
+  }
+
+  _handleInputAt(e) {
+    if (this._handleInput__Timer) {
+      clearTimeout(this._handleInput__Timer)
+      this._handleInput__Timer = null
+    }
+
+    this.__lastInputKey = e.key
+    if (e.key === '@') {
+      this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
+    }
   }
 
   _removeImage(image) {
@@ -375,18 +392,22 @@ class FeedsEditor extends React.Component {
       images: this.state.images,
       attachments: this.state.files,
     }
+
     if ((this.state.type === 2 || this.state.type === 4) && this._selectRelated) {
       vals.relatedRecord = this._selectRelated.val()
     }
+
     if (this.state.type === 3 && this._announcementOptions) {
       vals.contentMore = this._announcementOptions.val()
       if (!vals.contentMore) return
     }
+
     if (this.state.type === 4 && this._scheduleOptions) {
       vals.contentMore = this._scheduleOptions.val()
       if (!vals.contentMore) return
       vals.scheduleTime = vals.contentMore.scheduleTime + ':00'
     }
+
     return vals
   }
 
@@ -657,7 +678,7 @@ class FeedsEditDlg extends RbModalHandler {
     const scope = (this.props.scopeRaw || '').length > 10 /*ID*/ ? this.props.scope : this.props.scopeRaw
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide>
         <div className="feeds-post p-0 m-1">
           {!this.props.id && (
             <React.Fragment>
@@ -728,7 +749,7 @@ class FeedsEditDlg extends RbModalHandler {
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       $btn.button('reset')
-      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
 
       this.hide()
       typeof this.props.call === 'function' && this.props.call()

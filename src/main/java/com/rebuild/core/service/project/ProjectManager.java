@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.project;
 
 import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -34,31 +35,25 @@ public class ProjectManager implements ConfigManager {
 
     public static final ProjectManager instance = new ProjectManager();
 
+
     private ProjectManager() {
     }
 
-    private static final String CKEY_PROJECTS = "ProjectManager";
-    private static final String CKEY_PLAN = "ProjectPlan-";
-    private static final String CKEY_TASK = "Task2Project-";
+    // 已归档
+    public static final int STATUS_ARCHIVED = 2;
 
-    /**
-     * @param user
-     * @return
-     * @see #getAvailable(ID, boolean)
-     */
-    public ConfigBean[] getAvailable(ID user) {
-        return getAvailable(user, false);
-    }
+    private static final String CKEY_PROJECTS = "ProjectManager2";
+    private static final String CKEY_PLANS = "ProjectPlan-";
+    private static final String CKEY_TP2P = "TP2Project-";
 
     /**
      * 获取指定用户可用项目
      *
      * @param user
-     * @param onlyMember
      * @return
      */
-    public ConfigBean[] getAvailable(ID user, boolean onlyMember) {
-        ConfigBean[] projects = getAllProjects();
+    public ConfigBean[] getAvailable(ID user) {
+        ConfigBean[] projects = getProjects();
 
         // 管理员可见全部
         boolean isAdmin = UserHelper.isAdmin(user);
@@ -66,10 +61,16 @@ public class ProjectManager implements ConfigManager {
         List<ConfigBean> alist = new ArrayList<>();
         for (ConfigBean e : projects) {
             boolean isMember = e.get("members", Set.class).contains(user);
-            if (onlyMember) {
-                if (isMember) alist.add(e.clone());
-            } else if (isAdmin || isMember || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
-                alist.add(e.clone());
+            boolean isPublic = e.getInteger("scope") == ProjectConfigService.SCOPE_ALL;
+            if (isAdmin || isMember || isPublic) {
+                boolean isArchived = e.getInteger("status") == STATUS_ARCHIVED;
+                if (isArchived) {
+                    // 仅负责人
+                    boolean isPrincipal = user.equals(e.getID("principal"));
+                    if (isAdmin || isPrincipal) alist.add(e.clone());
+                } else {
+                    alist.add(e.clone());
+                }
             }
         }
         return alist.toArray(new ConfigBean[0]);
@@ -80,12 +81,12 @@ public class ProjectManager implements ConfigManager {
      *
      * @return
      */
-    private ConfigBean[] getAllProjects() {
+    private ConfigBean[] getProjects() {
         ConfigBean[] projects = (ConfigBean[]) Application.getCommonsCache().getx(CKEY_PROJECTS);
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition from ProjectConfig")
+                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition,status from ProjectConfig")
                     .array();
 
             List<ConfigBean> alist = new ArrayList<>();
@@ -102,7 +103,8 @@ public class ProjectManager implements ConfigManager {
                         .set("iconName", StringUtils.defaultIfBlank((String) o[3], "texture"))
                         .set("scope", o[4])
                         .set("_members", members)
-                        .set("principal", o[6]);
+                        .set("principal", o[6])
+                        .set("status", ObjectUtils.toInt(o[8], 1));
 
                 // 扩展配置
                 String extraDefinition = (String) o[7];
@@ -139,47 +141,13 @@ public class ProjectManager implements ConfigManager {
      * @throws ConfigurationException If not found
      */
     public ConfigBean getProject(ID projectId, ID checkUser) throws ConfigurationException {
-        ConfigBean[] ee = checkUser == null ? getAllProjects() : getAvailable(checkUser);
+        ConfigBean[] ee = checkUser == null ? getProjects() : getAvailable(checkUser);
         for (ConfigBean e : ee) {
             if (projectId.equals(e.getID("id"))) {
                 return e.clone();
             }
         }
         throw new ConfigurationException(Language.L("无权访问该项目或项目已删除"));
-    }
-
-    /**
-     * @param taskId
-     * @param user
-     * @return
-     * @throws ConfigurationException
-     * @throws AccessDeniedException
-     */
-    public ConfigBean getProjectByTask(ID taskId, ID user) throws ConfigurationException, AccessDeniedException {
-        final String ckey = CKEY_TASK + taskId;
-        ID projectId = (ID) Application.getCommonsCache().getx(ckey);
-
-        if (projectId == null) {
-            Object[] task = Application.createQueryNoFilter(
-                    "select projectId from ProjectTask where taskId = ?")
-                    .setParameter(1, taskId)
-                    .unique();
-
-            projectId = task == null ? null : (ID) task[0];
-            if (projectId != null) {
-                Application.getCommonsCache().putx(ckey, projectId);
-            }
-        }
-
-        if (projectId == null) {
-            throw new ConfigurationException(Language.L("任务不存在或已被删除"));
-        }
-
-        try {
-            return getProject(projectId, user);
-        } catch (ConfigurationException ex) {
-            throw new AccessDeniedException(Language.L("无权访问该任务"), ex);
-        }
     }
 
     /**
@@ -191,7 +159,7 @@ public class ProjectManager implements ConfigManager {
     public ConfigBean[] getPlansOfProject(ID projectId) {
         Assert.notNull(projectId, "[projectId] cannot be null");
 
-        final String ckey = CKEY_PLAN + projectId;
+        final String ckey = CKEY_PLANS + projectId;
         ConfigBean[] cache = (ConfigBean[]) Application.getCommonsCache().getx(ckey);
 
         if (cache == null) {
@@ -240,20 +208,50 @@ public class ProjectManager implements ConfigManager {
         throw new ConfigurationException(Language.L("无效任务面板 (%s)", planId));
     }
 
+    /**
+     * @param taskOrPlan
+     * @param checkUser
+     * @return
+     */
+    public ConfigBean getProjectByX(ID taskOrPlan, ID checkUser) {
+        final String ckey = CKEY_TP2P + taskOrPlan;
+        ID projectId = (ID) Application.getCommonsCache().getx(ckey);
+
+        if (projectId == null) {
+            Object[] x = Application.getQueryFactory().uniqueNoFilter(taskOrPlan, "projectId");
+            projectId = x == null ? null : (ID) x[0];
+            if (projectId != null) {
+                Application.getCommonsCache().putx(ckey, projectId);
+            }
+        }
+
+        if (projectId == null) {
+            throw new ConfigurationException(Language.L("任务/面板不存在或已被删除"));
+        }
+
+        try {
+            return getProject(projectId, checkUser);
+        } catch (ConfigurationException ex) {
+            throw new AccessDeniedException(Language.L("无权访问该项目"), ex);
+        }
+    }
+
+
     @Override
     public void clean(Object nullOrAnyProjectId) {
-        int ec = nullOrAnyProjectId == null ? -1 : ((ID) nullOrAnyProjectId).getEntityCode();
+        int e = nullOrAnyProjectId == null ? -1 : ((ID) nullOrAnyProjectId).getEntityCode();
         // 清理项目
-        if (ec == -1) {
+        if (e == -1) {
             Application.getCommonsCache().evict(CKEY_PROJECTS);
         }
         // 清理面板
-        else if (ec == EntityHelper.ProjectConfig) {
-            Application.getCommonsCache().evict(CKEY_PLAN + nullOrAnyProjectId);
+        else if (e == EntityHelper.ProjectConfig) {
+            Application.getCommonsCache().evict(CKEY_PLANS + nullOrAnyProjectId);
         }
         // 清理任务
-        else if (ec == EntityHelper.ProjectTask) {
-            Application.getCommonsCache().evict(CKEY_TASK + nullOrAnyProjectId);
+        else if (e == EntityHelper.ProjectTask || e == EntityHelper.ProjectPlanConfig) {
+            Application.getCommonsCache().evict(CKEY_TP2P + nullOrAnyProjectId);
+            Application.getCommonsCache().evict(CKEY_TP2P + nullOrAnyProjectId);
         }
     }
 }

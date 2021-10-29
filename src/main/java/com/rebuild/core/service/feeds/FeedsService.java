@@ -76,6 +76,7 @@ public class FeedsService extends BaseFeedsService {
      * @param record
      * @return
      */
+    @Override
     public Set<ID> awareMentionCreate(Record record) {
         return super.awareMentionCreate(record);
     }

@@ -60,12 +60,13 @@
       }
     </script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
     <script type="text/babel">
       RbList.renderAfter = function () {
         parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
       }
       $(document).ready(function () {
-        $('.J_select').click(function () {
+        $('.J_select').on('click', () => {
           const ss = RbListPage._RbList.getSelectedIds()
           if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
         })

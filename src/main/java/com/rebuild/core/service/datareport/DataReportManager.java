@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -31,19 +32,22 @@ public class DataReportManager implements ConfigManager {
 
     public static final DataReportManager instance = new DataReportManager();
 
-    private DataReportManager() {
-    }
+    private DataReportManager() { }
+
+    public static final int TYPE_RECORD = 1;
+    public static final int TYPE_LIST = 2;
 
     /**
      * 获取报表列表
      *
      * @param entity
+     * @param type
      * @return
      */
-    public JSONArray getReports(Entity entity) {
+    public JSONArray getReports(Entity entity, int type) {
         JSONArray list = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
-            if (!e.getBoolean("disabled")) {
+            if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
                 list.add(e.toJSON());
             }
         }
@@ -57,28 +61,29 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public ConfigBean[] getReportsRaw(Entity entity) {
-        final String cKey = "DataReportManager-" + entity.getName();
+        final String cKey = "DataReportManager2-" + entity.getName();
         ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return cached;
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,templateFile from DataReportConfig where belongEntity = ?")
+                "select configId,name,isDisabled,templateFile,templateType from DataReportConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
                 .array();
 
-        List<ConfigBean> list = new ArrayList<>();
+        List<ConfigBean> alist = new ArrayList<>();
         for (Object[] o : array) {
-            ConfigBean e = new ConfigBean();
-            e.set("id", o[0]);
-            e.set("name", o[1]);
-            e.set("disabled", o[2]);
-            e.set("template", o[3]);
-            list.add(e);
+            ConfigBean cb = new ConfigBean()
+                    .set("id", o[0])
+                    .set("name", o[1])
+                    .set("disabled", o[2])
+                    .set("template", o[3])
+                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD));
+            alist.add(cb);
         }
 
-        cached = list.toArray(new ConfigBean[0]);
+        cached = alist.toArray(new ConfigBean[0]);
         Application.getCommonsCache().putx(cKey, cached);
         return cached;
     }
@@ -128,7 +133,7 @@ public class DataReportManager implements ConfigManager {
 
     @Override
     public void clean(Object entity) {
-        final String cKey = "DataReportManager-" + ((Entity) entity).getName();
+        final String cKey = "DataReportManager2-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
 }

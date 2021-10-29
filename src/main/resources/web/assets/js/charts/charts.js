@@ -161,7 +161,7 @@ class ChartTable extends BaseChart {
 
     const chartdata = (
       <div className="chart ctable">
-        <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
+        <div dangerouslySetInnerHTML={{ __html: data.html }} />
       </div>
     )
 
@@ -220,8 +220,7 @@ const ECHART_BASE = {
     position: 'top',
   },
   textStyle: {
-    fontFamily:
-      'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
 }
 
@@ -306,7 +305,7 @@ class ChartLine extends BaseChart {
     }
 
     const elid = 'echarts-line-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart line" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart line" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -369,7 +368,7 @@ class ChartBar extends BaseChart {
     }
 
     const elid = 'echarts-bar-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart bar" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart bar" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -426,7 +425,7 @@ class ChartPie extends BaseChart {
     }
 
     const elid = 'echarts-pie-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart pie" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart pie" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
 
@@ -463,7 +462,7 @@ class ChartFunnel extends BaseChart {
     }
 
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart funnel" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart funnel" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
 
@@ -510,7 +509,7 @@ class ChartTreemap extends BaseChart {
     }
 
     const elid = 'echarts-treemap-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart treemap" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
 
       const option = {
@@ -611,7 +610,7 @@ class ApprovalList extends BaseChart {
     const table =
       (data.data || []).length === 0 ? (
         <div className="chart-undata must-center">
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有审批')}
+          <i className="zmdi zmdi-check icon text-success" /> {$L('你已完成所有审批')}
         </div>
       ) : (
         <div>
@@ -620,7 +619,7 @@ class ApprovalList extends BaseChart {
               <tr>
                 <th style={{ minWidth: 140 }}>{$L('提交人')}</th>
                 <th style={{ minWidth: 140 }}>{$L('审批记录')}</th>
-                <th width="90"></th>
+                <th width="90" />
               </tr>
             </thead>
             <tbody>
@@ -714,7 +713,7 @@ class FeedsSchedule extends BaseChart {
     const table =
       (data || []).length === 0 ? (
         <div className="chart-undata must-center" style={{ marginTop: -15 }}>
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('暂无待办日程')}
+          <i className="zmdi zmdi-check icon text-success" /> {$L('暂无待办日程')}
           <br />
           {$L('过期超过 30 天的日程将不再显示')}
         </div>
@@ -725,28 +724,29 @@ class FeedsSchedule extends BaseChart {
               <tr>
                 <th style={{ minWidth: 140 }}>{$L('日程内容')}</th>
                 <th style={{ minWidth: 140 }}>{$L('日程时间')}</th>
-                <th width="90"></th>
+                <th width="90" />
               </tr>
             </thead>
             <tbody>
               {data.map((item, idx) => {
                 // 过期
-                const _expired = $expired(item.scheduleTime)
+                let scheduleTimeTip
+                if ($expired(item.scheduleTime)) {
+                  scheduleTimeTip = <span className="badge badge-danger">{$L('已过期')}</span>
+                } else if ($expired(item.scheduleTime, -60 * 60 * 24 * 3)) {
+                  scheduleTimeTip = <span className="badge badge-warning">{$fromNow(item.scheduleTime)}</span>
+                } else {
+                  scheduleTimeTip = <span className="badge badge-primary">{$fromNow(item.scheduleTime)}</span>
+                }
+
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a
-                        href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`}
-                        className="content text-break"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
-                      />
+                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
-                      <span className={`cell-detail-description ${_expired && 'text-warning'}`}>
-                        {$fromNow(item.scheduleTime)}
-                        {_expired && ` (${$L('已过期')})`}
-                      </span>
+                      <span className="cell-detail-description">{scheduleTimeTip}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
                       <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
@@ -814,7 +814,7 @@ class ChartRadar extends BaseChart {
     }
 
     const elid = 'echarts-radar-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart radar" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart radar" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
 
@@ -890,7 +890,7 @@ class ChartScatter extends BaseChart {
     }
 
     const elid = 'echarts-scatter-' + (this.state.id || 'id')
-    this.setState({ chartdata: <div className="chart scatter" id={elid}></div> }, () => {
+    this.setState({ chartdata: <div className="chart scatter" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -974,26 +974,37 @@ class ProjectTasks extends BaseChart {
     const table =
       (data || []).length === 0 ? (
         <div className="chart-undata must-center">
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有任务')}
+          <i className="zmdi zmdi-check icon text-success" /> {$L('你已完成所有任务')}
         </div>
       ) : (
         <div>
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th width="40"></th>
+                <th width="40" />
                 <th>{$L('任务')}</th>
                 <th style={{ minWidth: 150 }}>{$L('时间')}</th>
               </tr>
             </thead>
             <tbody>
               {data.map((item) => {
+                let deadlineClass
+                if (item.deadline && !item.endTime) {
+                  if ($expired(item.deadline)) {
+                    deadlineClass = 'badge-danger'
+                  } else if ($expired(item.deadline, -60 * 60 * 24 * 3)) {
+                    deadlineClass = 'badge-warning'
+                  } else {
+                    deadlineClass = 'badge-primary'
+                  }
+                }
+
                 return (
                   <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
                     <td className="align-text-top">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                         <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
-                        <span className="custom-control-label"></span>
+                        <span className="custom-control-label" />
                       </label>
                     </td>
                     <td>
@@ -1007,23 +1018,20 @@ class ProjectTasks extends BaseChart {
                       </p>
                     </td>
                     <td className="text-muted">
-                      {!item.deadline && !item.endTime && (
-                        <React.Fragment>
-                          <span className="mr-1">{$L('创建时间')}</span>
-                          <DateShow date={item.createdOn} />
-                        </React.Fragment>
-                      )}
+                      <div>
+                        <span className="mr-1">{$L('创建时间')}</span>
+                        <DateShow date={item.createdOn} />
+                      </div>
                       {item.endTime && (
-                        <React.Fragment>
+                        <div>
                           <span className="mr-1">{$L('完成时间')}</span>
                           <DateShow date={item.endTime} />
-                        </React.Fragment>
+                        </div>
                       )}
-                      {!item.endTime && item.deadline && (
-                        <React.Fragment>
-                          <span className="mr-1">{$L('到期时间')}</span>
-                          <DateShow date={item.deadline} />
-                        </React.Fragment>
+                      {deadlineClass && (
+                        <span className={`badge ${deadlineClass}`} title={item.deadline}>
+                          {$L('到期时间')} {$fromNow(item.deadline)}
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -1146,7 +1154,7 @@ class ChartSelect extends RbModalHandler {
                 return (
                   <div key={`chart-${item.id}`}>
                     <span className="float-left chart-icon">
-                      <i className={item.type}></i>
+                      <i className={item.type} />
                     </span>
                     <span className="float-left title">
                       <strong>{item.title}</strong>
@@ -1170,7 +1178,7 @@ class ChartSelect extends RbModalHandler {
                         </a>
                       </span>
                     )}
-                    <div className="clearfix"></div>
+                    <div className="clearfix" />
                   </div>
                 )
               })}

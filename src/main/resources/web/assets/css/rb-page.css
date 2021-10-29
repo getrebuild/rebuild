@@ -244,6 +244,10 @@ a.link.inline {
   transform: translateY(5px);
 }
 
+.hide-empty:empty {
+  display: none;
+}
+
 .btn {
   min-height: 2.8rem;
   min-width: 98px;
@@ -254,7 +258,7 @@ a.link.inline {
 }
 
 a.btn {
-  line-height: 2.7rem;
+  line-height: 2.68rem;
 }
 
 .input-group .btn,
@@ -322,6 +326,16 @@ a.btn {
   font-size: 18px;
 }
 
+.rb-left-sidebar .sidebar-elements .sub-menu-ul .divider {
+  padding: 0 15px 0 47px;
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements .sub-menu-ul .divider {
+  padding: 0 15px 0 25px;
+  height: auto;
+  text-indent: unset;
+}
+
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
   color: rgba(255, 255, 255, 0.7);
 }
@@ -370,6 +384,37 @@ a.btn {
 
 .input-search input {
   border-radius: 2px;
+}
+
+.input-search input + .btn-input-clear {
+  position: absolute;
+  right: 35px;
+  top: 3px;
+  border: 0 none;
+  padding: 0;
+  min-width: auto;
+  min-height: auto;
+  width: 1.4rem;
+  height: 2.4rem;
+  background: #fff;
+  color: #737373;
+  z-index: 10;
+  display: none;
+}
+
+.input-search input + .btn-input-clear:hover {
+  color: #5a5a5a;
+}
+
+.input-search input + .btn-input-clear::before {
+  font-family: 'Material-Design-Iconic-Font';
+  font-size: 1.308rem;
+  content: '\f135';
+  content: '\f136';
+}
+
+.input-search input:not(:placeholder-shown) + .btn-input-clear {
+  display: block;
 }
 
 .form-control.search {
@@ -612,6 +657,11 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .modal.rbmodal .modal-header > .icon {
   color: #fff;
+}
+
+.rbalert.modal {
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .rbmodal.show,
@@ -1896,7 +1946,7 @@ th.column-fixed {
 
 .aside-tree li > a {
   display: block;
-  padding: 7px 10px;
+  padding: 8px 10px;
   cursor: pointer;
   color: #444;
 }
@@ -2001,31 +2051,39 @@ th.column-fixed {
 }
 
 .aside-2tree ul li > span {
-  width: 22px;
   cursor: pointer;
 }
 
 .aside-2tree li span.collapse-icon {
   padding-left: 6px;
   padding-top: 7px;
-  font-size: 1.22rem;
+  font-size: 1.4rem;
   color: #999;
+  width: 18px;
+}
+
+.aside-2tree li span.collapse-icon .zmdi {
+  transition: transform 0.2s ease-in-out;
+}
+
+.aside-2tree li span.collapse-icon .zmdi-chevron-right.open {
+  transform: rotate(90deg);
+}
+
+.aside-2tree li span.collapse-icon:hover {
+  color: #4285f4;
 }
 
 .aside-2tree li.active span.collapse-icon {
   color: #fff;
 }
 
-.aside-2tree li span.collapse-icon:not(.no-child):hover {
-  color: #4285f4;
-}
-
 .aside-2tree li.active span.collapse-icon:hover {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.aside-2tree li span.collapse-icon.no-child .zmdi::before {
-  content: '\f273';
+.aside-2tree li span.collapse-icon.no-child .zmdi {
+  display: none;
 }
 
 .aside-2tree li span.action {
@@ -2034,6 +2092,7 @@ th.column-fixed {
   text-align: center;
   font-size: 1.2rem;
   border-radius: 2px;
+  width: 22px;
   display: none;
 }
 
@@ -2652,9 +2711,8 @@ form {
 }
 
 .card-list .card-body > a {
-  display: inline-block;
-  overflow: hidden;
-  padding-top: 3px;
+  display: block;
+  padding: 3px 0 5px;
 }
 
 .card-list .card-body > p {
@@ -3056,6 +3114,23 @@ form {
   display: none;
 }
 
+.search-container .dropdown-menu {
+  border-radius: 2px;
+  margin-top: 0;
+  width: auto;
+  min-width: 220px;
+}
+
+.search-container .dropdown-menu:empty {
+  padding: 15px;
+}
+
+.search-container .dropdown-menu:empty::after {
+  content: attr(_title);
+  font-style: italic;
+  color: #999;
+}
+
 .search-container > .global-search > .icon {
   position: absolute;
   left: 160px;
@@ -3072,26 +3147,9 @@ form {
 }
 
 .search-container > .global-search > .dropdown-menu {
-  width: auto;
   min-width: 320px;
   max-width: 600px;
   padding: 15px 20px 10px;
-}
-
-.search-container .dropdown-menu {
-  box-shadow: 0 3px 0.6rem rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  margin-top: 0;
-}
-
-.search-container .dropdown-menu:empty {
-  padding: 15px;
-}
-
-.search-container .dropdown-menu:empty::after {
-  content: attr(_title);
-  font-style: italic;
-  color: #999;
 }
 
 .search-container > .global-search > .dropdown-menu a.badge {
@@ -3123,7 +3181,7 @@ form {
   top: 12px;
 }
 
-.search-container > .global-create > a {
+.search-container > .global-create > .dropdown > a {
   display: inline-block;
   width: 35px;
   line-height: 35px;
@@ -3134,8 +3192,8 @@ form {
   font-size: 1.73rem;
 }
 
-.search-container > .global-create > a:hover,
-.search-container > .global-create.show > a {
+.search-container > .global-create > .dropdown > a:hover,
+.search-container > .global-create > .dropdown.show > a {
   background: #4285f4;
   color: #fff;
 }
@@ -3521,7 +3579,7 @@ form {
 }
 
 #asideFilters .dropdown-item {
-  padding: 7px 10px;
+  padding: 8px 10px;
   border-radius: 2px;
   font-size: 1rem;
   cursor: pointer;
@@ -3625,7 +3683,7 @@ form {
 
 a.icon-link {
   position: relative;
-  padding-left: 16px;
+  padding-left: 14px;
 }
 
 a.icon-link > .zmdi {
@@ -4169,7 +4227,7 @@ html.external-auth body {
 }
 
 html.external-auth .auth-body {
-  max-width: 441px;
+  max-width: 461px;
   margin: 0 auto;
 }
 
@@ -4266,4 +4324,76 @@ html.external-auth .auth-body.must-center .login {
 
 .btn.btn-light:hover {
   background-color: #e6e6e6;
+}
+
+.user-popup {
+  position: fixed;
+  z-index: 1;
+  width: 300px;
+  max-height: 90px;
+  background-color: #fff;
+  left: 0;
+  right: 0;
+  display: none;
+}
+
+.user-popup .avatar {
+  width: 90px;
+  height: 90px;
+  float: left;
+  background-color: #ccc;
+}
+
+.user-popup .avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.user-popup .infos {
+  margin-left: 90px;
+  padding: 10px 15px 0;
+}
+
+.user-popup .infos strong {
+  font-size: 1.1rem;
+}
+
+.user-popup .infos p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.user-popup .infos p.phone,
+.user-popup .infos p.email {
+  font-family: 'Material-Design-Iconic-Font';
+}
+
+.user-popup .infos p.phone::after,
+.user-popup .infos p.email::after {
+  color: #999;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.user-popup .infos p.phone::after {
+  content: '\f2d4';
+}
+
+.user-popup .infos p.email::after {
+  content: '\f15a';
+  transform: translateY(1px);
+}
+
+.copied-check > .zmdi-copy::before {
+  content: '\f26b' !important;
+  color: #34a853;
+  font-weight: bold;
+}
+
+pre.unstyle {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  font-size: 1rem;
+  font-family: inherit;
 }

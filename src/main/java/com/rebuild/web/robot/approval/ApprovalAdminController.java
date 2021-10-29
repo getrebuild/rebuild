@@ -116,26 +116,44 @@ public class ApprovalAdminController extends BaseController {
     public JSON approvalUserFields(@EntityParam Entity entity) {
         final String textSubmitor = Language.L("发起人") + ".";
         final String textApprover = Language.L("审批人") + ".";
+        final String textDept = Language.L("部门") + ".";
 
         List<String[]> fields = new ArrayList<>();
 
         // 虚拟字段
         Field[] userRefFields = MetadataSorter.sortFields(
                 MetadataHelper.getEntity(EntityHelper.User), DisplayType.REFERENCE);
+        Field[] deptRefFields = MetadataSorter.sortFields(
+                MetadataHelper.getEntity(EntityHelper.Department), DisplayType.REFERENCE);
+
         // 发起人
         for (Field field : userRefFields) {
-            if (!MetadataHelper.isCommonsField(field)
-                    && field.getReferenceEntity().getEntityCode() == EntityHelper.User) {
+            if (isRefUserField(field)) {
                 fields.add(new String[] {
-                        ApprovalHelper.APPROVAL_SUBMITOR + field.getName(), textSubmitor + EasyMetaFactory.getLabel(field)} );
+                        ApprovalHelper.APPROVAL_SUBMITOR + field.getName(),
+                        textSubmitor + EasyMetaFactory.getLabel(field)} );
             }
         }
-        // 上一审批人
-        for (Field field : userRefFields) {
-            if (!MetadataHelper.isCommonsField(field)
-                    && field.getReferenceEntity().getEntityCode() == EntityHelper.User) {
+        for (Field field : deptRefFields) {
+            if (isRefUserField(field)) {
                 fields.add(new String[] {
-                        ApprovalHelper.APPROVAL_APPROVER + field.getName(), textApprover + EasyMetaFactory.getLabel(field)} );
+                        ApprovalHelper.APPROVAL_SUBMITOR + "deptId." + field.getName(),
+                        textSubmitor + textDept + EasyMetaFactory.getLabel(field)} );
+            }
+        }
+        // （上一）审批人
+        for (Field field : userRefFields) {
+            if (isRefUserField(field)) {
+                fields.add(new String[] {
+                        ApprovalHelper.APPROVAL_APPROVER + field.getName(),
+                        textApprover + EasyMetaFactory.getLabel(field)} );
+            }
+        }
+        for (Field field : deptRefFields) {
+            if (isRefUserField(field)) {
+                fields.add(new String[] {
+                        ApprovalHelper.APPROVAL_APPROVER + "deptId." + field.getName(),
+                        textApprover + textDept + EasyMetaFactory.getLabel(field)} );
             }
         }
 
@@ -152,12 +170,18 @@ public class ApprovalAdminController extends BaseController {
                 new String[] {  "id", "text" }, fields.toArray(new String[0][]));
     }
 
+    private boolean isRefUserField(Field field) {
+        return field.getReferenceEntity().getEntityCode() == EntityHelper.User
+                && !MetadataHelper.isCommonsField(field);
+    }
+
     @PostMapping("approval/user-fields-show")
     public JSON approvalUserFieldsShow(@EntityParam Entity entity, HttpServletRequest request) {
         final JSON users = ServletUtils.getRequestJson(request);
 
         final String textSubmitor = Language.L("发起人") + ".";
         final String textApprover = Language.L("审批人") + ".";
+        final String textDept = Language.L("部门") + ".";
 
         List<String[]> shows = new ArrayList<>();
 
@@ -174,7 +198,12 @@ public class ApprovalAdminController extends BaseController {
                 Field userField = ApprovalHelper.checkVirtualField(idOrField);
                 if (userField != null) {
                     String fieldText = EasyMetaFactory.getLabel(userField);
-                    fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR) ? textSubmitor : textApprover) + fieldText;
+                    if (userField.getOwnEntity().getEntityCode() == EntityHelper.Department) {
+                        fieldText = textDept + fieldText;
+                    }
+                    fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR) ? textSubmitor : textApprover)
+                            + fieldText;
+
                     shows.add(new String[] { idOrField, fieldText });
                 }
 

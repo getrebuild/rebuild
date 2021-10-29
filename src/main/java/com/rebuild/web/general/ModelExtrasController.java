@@ -173,6 +173,8 @@ public class ModelExtrasController extends BaseController {
             if (!MetadataHelper.containsEntity(e)) continue;
 
             EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
+            if (!MetadataHelper.hasPrivilegesField(easyEntity.getRawMeta())) continue;
+
             if (Application.getPrivilegesManager()
                     .allow(user, easyEntity.getRawMeta().getEntityCode(), BizzPermission.CREATE)) {
                 allowed.add(easyEntity.toJSON());

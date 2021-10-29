@@ -41,6 +41,7 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -129,7 +130,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
-     * @see ControllerResponseBodyAdvice
+     * @see ControllerRespBodyAdvice
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
@@ -144,7 +145,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
 
         int errorCode = status.value();
-        String errorMsg = AppUtils.getErrorMessage(request, ex);
+        String errorMsg = ex == null ? null : KnownExceptionConverter.convert2ErrorMsg(ex);
+        if (errorMsg == null) errorMsg = getErrorMessage(request, ex);
 
         String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
                 "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
@@ -189,5 +191,50 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (refUrl == null) return reqUrl;
         else if (reqUrl.endsWith("/error")) return refUrl;
         else return reqUrl + " via " + refUrl;
+    }
+
+    /**
+     * 获取后台抛出的错误消息
+     *
+     * @param request
+     * @param exception
+     * @return
+     * @see KnownExceptionConverter
+     */
+    protected static String getErrorMessage(HttpServletRequest request, Throwable exception) {
+        if (exception == null && request != null) {
+            String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
+            if (StringUtils.isNotBlank(errorMsg)) {
+                return errorMsg;
+            }
+
+            Integer code = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
+            if (code != null && code == 404) {
+                return Language.L("访问的页面/资源不存在");
+            } else if (code != null && code == 403) {
+                return Language.L("权限不足，访问被阻止");
+            } else if (code != null && code == 401) {
+                return Language.L("未授权访问");
+            }
+
+            exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
+        }
+
+        // 已知异常
+        if (exception != null) {
+            Throwable known = ThrowableUtils.getRootCause(exception);
+            if (known instanceof AccessDeniedException) {
+                return Language.L("权限不足，访问被阻止");
+            }
+        }
+
+        if (exception == null) {
+            return Language.L("系统繁忙，请稍后重试");
+        } else {
+            exception = ThrowableUtils.getRootCause(exception);
+            String errorMsg = exception.getLocalizedMessage();
+            if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
+            return errorMsg;
+        }
     }
 }

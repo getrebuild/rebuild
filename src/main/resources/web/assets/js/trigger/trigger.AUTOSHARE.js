@@ -75,7 +75,7 @@ class ContentAutoShare extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('选择关联实体')} (${$L('可选')})`,
+            placeholder: `${$L('选择关联实体')} ${$L('(可选)')}`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')

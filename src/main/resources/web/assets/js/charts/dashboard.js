@@ -200,12 +200,7 @@ const render_dashboard = function (init) {
   gridstack_serialize = init
   $(init).each((idx, item) => add_widget(item))
   if (rendered_charts.length === 0) {
-    const gsi =
-      '<div class="grid-stack-item">' +
-      '<div id="chart-add" class="grid-stack-item-content">' +
-      `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a>` +
-      '</div>' +
-      '</div>'
+    const gsi = `<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a></div></div>`
     const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
     $gsi.find('a').click(() => {
       if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
@@ -342,22 +337,15 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                value={this.state.title || ''}
-                placeholder={$L('默认仪表盘')}
-                data-id="title"
-                onChange={this.handleChange}
-                maxLength="40"
-              />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('默认仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           {rb.isAdminUser && (
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch={true} shareTo={this.props.shareTo} />
                 </div>
               </div>
             </div>
@@ -379,10 +367,13 @@ class DlgDashSettings extends RbFormHandler {
 
   save() {
     const _data = {
-      shareTo: this._shareTo ? this._shareTo.getData().shareTo : 'SELF',
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
       title: this.state.title || $L('默认仪表盘'),
     }
-    _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
+    _data.metadata = {
+      id: this.props.dashid,
+      entity: 'DashboardConfig',
+    }
 
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
@@ -426,18 +417,11 @@ class DlgDashAdd extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                value={this.state.title || ''}
-                placeholder={$L('我的仪表盘')}
-                data-id="title"
-                onChange={this.handleChange}
-                maxLength="40"
-              />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('我的仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <label className="col-sm-3 col-form-label text-sm-right" />
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.copy === true} data-id="copy" onChange={this.handleChange} />
@@ -498,7 +482,7 @@ class DashSelect extends React.Component {
                       <li key={'dash-' + item[0]}>
                         <a href={'?d=' + item[0]}>
                           {item[4]}
-                          <i className="icon zmdi zmdi-arrow-right"></i>
+                          <i className="icon zmdi zmdi-arrow-right" />
                         </a>
                       </li>
                     )

@@ -451,7 +451,7 @@ class ModelConf extends React.Component {
       <div className="rb-model">
         <h3>
           {$L('选择初始业务实体')}
-          <small>{$L('你可以选择需要的业务实体使用，或在安装完成后再进行添加')}</small>
+          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择来自 [RB 仓库](https://github.com/getrebuild/rebuild-datas/) 的业务实体使用，或在安装完成后自行添加') }} />
         </h3>
 
         {DatabaseConf_mount ? (

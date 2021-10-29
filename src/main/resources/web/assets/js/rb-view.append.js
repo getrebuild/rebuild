@@ -25,7 +25,11 @@ class LightFeedsList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-chart-donut" />
-        <p>{$L('暂无动态')}</p>
+        <p>
+          {$L('暂无数据')}
+          <br />
+          {$L('私密动态不支持在相关项中显示')}
+        </p>
       </div>
     )
   }
@@ -97,7 +101,11 @@ class LightTaskList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-shape" />
-        <p>{$L('暂无任务')}</p>
+        <p>
+          {$L('暂无数据')}
+          <br />
+          {$L('可能存在当前用户无访问权限的任务')}
+        </p>
       </div>
     )
   }
@@ -119,18 +127,14 @@ class LightTaskList extends RelatedList {
   }
 
   renderItem(item) {
+    const readonly = item.planFlow === 2 || !item.projectMember || item.projectStatus === 2
+
     return (
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
           <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input
-                className="custom-control-input"
-                type="checkbox"
-                defaultChecked={item.status > 0}
-                disabled={item.planFlow === 2 || !item.projectMember}
-                onClick={() => this._toggleStatus(item)}
-              />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
@@ -139,14 +143,7 @@ class LightTaskList extends RelatedList {
           </div>
           <div className="col-5 task-meta">
             <div className="row">
-              <div className="col-2">
-                {item.executor && (
-                  <a className="avatar" title={$L('执行人')}>
-                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
-                  </a>
-                )}
-              </div>
-              <div className="col-5 text-ellipsis">{item.planName}</div>
+              <div className="col-7 pr-0 text-ellipsis">{item.planName}</div>
               <div className="col-5 text-ellipsis">
                 {!item.deadline && !item.endTime && (
                   <React.Fragment>
@@ -179,20 +176,15 @@ class LightTaskList extends RelatedList {
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    $.get(
-      `/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}&search=${$encode(
-        this.__searchKey
-      )}`,
-      (res) => {
-        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}&search=${$encode(this.__searchKey)}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-        const data = res.data || []
-        const list = append ? (this.state.dataList || []).concat(data) : data
-        this.setState({ dataList: list, showMore: data.length >= pageSize })
+      const data = res.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-        if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-      }
-    )
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
   }
 
   _toggleStatus(item) {

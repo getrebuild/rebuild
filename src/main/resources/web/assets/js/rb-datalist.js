@@ -15,6 +15,7 @@ const COLUMN_DEF_WIDTH = 130
 const supportFixedColumns = !($.browser.msie || $.browser.msedge) && $(window).width() > 767
 
 // ~~ 数据列表
+
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -115,7 +116,7 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
+        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._Pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>
     )
@@ -191,9 +192,12 @@ class RbList extends React.Component {
       fields.push(item.field)
       if (item.sort) fieldSort = item.field + ':' + item.sort.replace('sort-', '')
     })
+    this.lastFilter = filter || this.lastFilter
 
     const entity = this.props.config.entity
-    this.lastFilter = filter || this.lastFilter
+    const reload = this._forceReload || this.pageNo === 1
+    this._forceReload = false
+
     const query = {
       entity: entity,
       fields: fields,
@@ -203,7 +207,7 @@ class RbList extends React.Component {
       advFilter: this.advFilterId,
       protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
-      reload: this.pageNo === 1,
+      reload: reload,
     }
     this.__lastQueryEntry = query
 
@@ -219,8 +223,8 @@ class RbList extends React.Component {
           $(this._rblistScroller).scrollTop(0)
         })
 
-        if (res.data.total > 0) {
-          this._pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
+        if (reload && this._Pagination) {
+          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -308,7 +312,7 @@ class RbList extends React.Component {
     }
 
     // 分页组件
-    this._pagination && this._pagination.setState({ selectedTotal: chkSelected })
+    this._Pagination && this._Pagination.setState({ selectedTotal: chkSelected })
   }
 
   _clearSelected() {
@@ -387,6 +391,14 @@ class RbList extends React.Component {
   }
 
   /**
+   * 重新加载
+   */
+  reload() {
+    this._forceReload = true
+    this.fetchList()
+  }
+
+  /**
    * 搜索
    */
   search(filter, fromAdv) {
@@ -400,9 +412,6 @@ class RbList extends React.Component {
       if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')
     }
   }
-
-  // Alias `fetchList`
-  reload = () => this.fetchList()
 
   // @el - search element
   searchQuick = (el) => this.search(this.__buildQuick(el))
@@ -439,7 +448,7 @@ class RbList extends React.Component {
    * 获取最后查询记录总数
    */
   getLastQueryTotal() {
-    return this._pagination ? this._pagination.state.rowsTotal : 0
+    return this._Pagination ? this._Pagination.state.rowsTotal : 0
   }
 
   /**
@@ -697,6 +706,7 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
 })
 
 // ~ 分页组件
+
 class RbListPagination extends React.Component {
   constructor(props) {
     super(props)
@@ -816,7 +826,8 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表页操作类
+// ~~ 列表操作
+
 const RbListPage = {
   _RbList: null,
 
@@ -835,7 +846,6 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     $('.J_edit').click(() => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
@@ -859,6 +869,7 @@ const RbListPage = {
         RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
+
     $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
 
     // 权限实体才有
@@ -878,12 +889,6 @@ const RbListPage = {
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
 
-    // in `rb-datalist.append.js`
-    // eslint-disable-next-line react/jsx-no-undef
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
-    // eslint-disable-next-line react/jsx-no-undef
-    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
-
     // Privileges
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
@@ -893,12 +898,6 @@ const RbListPage = {
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
-
-    // Quick search
-    const $btn = $('.input-search .btn'),
-      $input = $('.input-search input')
-    $btn.click(() => this._RbList.searchQuick())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
   },
 
   reload() {
@@ -906,191 +905,8 @@ const RbListPage = {
   },
 }
 
-// 高级查询操作类
-const AdvFilters = {
-  /**
-   * @param {Element} el 控件
-   * @param {String} entity 实体
-   */
-  init(el, entity) {
-    this.__el = $(el)
-    this.__entity = entity
+// ~~ 视图
 
-    this.__el.find('.J_advfilter').click(() => {
-      this.showAdvFilter(null, this.current)
-      this.current = null
-    })
-    const $all = $('.adv-search .dropdown-item:eq(0)')
-    $all.click(() => this.__effectFilter($all, 'aside'))
-
-    this.loadFilters()
-  },
-
-  loadFilters() {
-    const lastFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
-
-    const that = this
-    let $defaultFilter
-
-    $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
-      $('.adv-search .J_custom').each(function () {
-        $(this).remove()
-      })
-
-      const $menu = $('.adv-search .dropdown-menu')
-      $(res.data).each(function () {
-        const item = this
-        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
-        $item.click(() => that.__effectFilter($item, 'aside'))
-
-        if (lastFilter === item.id) $defaultFilter = $item
-
-        // 可修改
-        if (item.editable) {
-          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
-
-          $action.find('a:eq(0)').click(function () {
-            that.showAdvFilter(item.id)
-            $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
-            return false
-          })
-
-          $action.find('a:eq(1)').click(function () {
-            RbAlert.create($L('确认删除此高级查询？'), {
-              type: 'danger',
-              confirmText: $L('删除'),
-              confirm: function () {
-                this.disabled(true)
-                $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-                  if (res.error_code === 0) {
-                    this.hide()
-                    that.loadFilters()
-                    if (lastFilter === item.id) {
-                      RbListPage._RbList.setAdvFilter(null)
-                      $('.adv-search .J_name').text($L('全部数据'))
-                    }
-                  } else {
-                    RbHighbar.error(res.error_msg)
-                  }
-                })
-              },
-            })
-            return false
-          })
-        }
-      })
-
-      // ASIDE
-      if ($('#asideFilters').length > 0) {
-        const $ghost = $('.adv-search .dropdown-menu').clone()
-        $ghost.removeAttr('class')
-        $ghost.removeAttr('style')
-        $ghost.removeAttr('data-ps-id')
-        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
-        $ghost.find('.dropdown-item').click(function () {
-          $ghost.find('.dropdown-item').removeClass('active')
-          $(this).addClass('active')
-          that.__effectFilter($(this), 'aside')
-        })
-        $ghost.appendTo($('#asideFilters').empty())
-      }
-
-      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
-      $defaultFilter.trigger('click')
-    })
-  },
-
-  __effectFilter(item, rel) {
-    this.current = item.data('id')
-    $('.adv-search .J_name').text(item.find('>a').text())
-    if (rel === 'aside') {
-      const current_id = this.current
-      $('#asideFilters .dropdown-item')
-        .removeClass('active')
-        .each(function () {
-          if ($(this).data('id') === current_id) {
-            $(this).addClass('active')
-            return false
-          }
-        })
-    }
-
-    if (this.current === '$ALL$') this.current = null
-    RbListPage._RbList.setAdvFilter(this.current)
-  },
-
-  showAdvFilter(id, useCopyId) {
-    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
-    if (!id) {
-      if (this.__customAdv) {
-        this.__customAdv.show()
-      } else {
-        const that = this
-        if (useCopyId) {
-          this.__getFilter(useCopyId, (res) => {
-            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () {
-              that.__customAdv = this
-            })
-          })
-        } else {
-          renderRbcomp(<AdvFilter {...props} />, null, function () {
-            that.__customAdv = this
-          })
-        }
-      }
-    } else {
-      this.current = id
-      this.__getFilter(id, (res) => {
-        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
-      })
-    }
-  },
-
-  saveFilter(filter, name, shareTo) {
-    if (!filter) return
-    const that = AdvFilters
-    let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
-    if (name) url += '&name=' + $encode(name)
-    if (shareTo) url += '&shareTo=' + $encode(shareTo)
-
-    $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) {
-        $storage.set(RbListPage._RbList.__defaultFilterKey, res.data.id)
-        that.loadFilters()
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  },
-
-  __getFilter(id, call) {
-    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
-  },
-}
-
-// init: DataList
-$(document).ready(() => {
-  const via = $urlp('via', location.hash)
-  if (via) {
-    wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
-    $cleanVia.find('a').click(() => {
-      wpc.protocolFilter = null
-      RbListPage.reload()
-      $cleanVia.remove()
-    })
-  }
-
-  const gs = $urlp('gs', location.hash)
-  if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
-  if (wpc.entity) {
-    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', wpc.entity[0])
-  }
-})
-
-// -- for View
-// ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
@@ -1244,6 +1060,7 @@ class RbViewModal extends React.Component {
   }
 }
 
+// 复写
 window.chart_remove = function (box) {
   box.parent().animate({ opacity: 0 }, function () {
     box.parent().remove()
@@ -1257,7 +1074,9 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_load-charts').on('click', () => {
+      this.chartLoaded !== true && this.loadWidget()
+    })
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
@@ -1318,17 +1137,11 @@ const ChartsWidget = {
 }
 
 $(document).ready(() => {
-  // 自动打开 View
-  let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'DetailList')) {
-    viewHash = viewHash.split('/')
-    if (viewHash.length === 4 && viewHash[3].length === 20) {
-      setTimeout(() => {
-        RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
-      }, 500)
-    }
-  } else if (viewHash === '#!/New') {
-    $('.J_new').trigger('click')
+  window.RbListCommon && window.RbListCommon.init(wpc)
+
+  const viewHash = (location.hash || '').split('/')
+  if ((wpc.type === 'RecordList' || wpc.type === 'DetailList') && viewHash.length === 4 && viewHash[1] === 'View' && viewHash[3].length === 20) {
+    setTimeout(() => RbViewModal.create({ entity: viewHash[2], id: viewHash[3] }), 500)
   }
 
   // ASIDE

@@ -11,11 +11,14 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -222,7 +225,7 @@ public class ParseHelper {
 
         // 未指定则使用系统配置的
         if (StringUtils.isBlank(quickFields)) {
-            quickFields = EasyMetaFactory.valueOf(entity).getExtraAttr("quickFields");
+            quickFields = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.QUICK_FIELDS);
         }
 
         // 验证
@@ -266,5 +269,18 @@ public class ParseHelper {
             log.warn("No fields of search found : " + usesFields);
         }
         return usesFields;
+    }
+
+    /**
+     * 是否为有效的高级查询
+     *
+     * @param advFilter
+     * @return
+     */
+    public static boolean validAdvFilter(JSONObject advFilter) {
+        if (advFilter == null || advFilter.isEmpty()) return false;
+
+        JSONArray items = advFilter.getJSONArray("items");
+        return items != null && !items.isEmpty();
     }
 }

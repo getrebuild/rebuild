@@ -28,16 +28,18 @@
           <i class="icon zmdi zmdi-search"></i>
           <div class="dropdown-menu" th:_title="${bundle.L('无可搜索项')}"></div>
         </div>
-        <div class="global-create dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" th:title="${bundle.L('新建')}"><i class="zmdi zmdi-plus icon"></i></a>
-          <div class="dropdown-menu auto-scroller" th:_title="${bundle.L('无可新建项')}"></div>
+        <div class="global-create">
+          <div class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" th:title="${bundle.L('新建')}"><i class="zmdi zmdi-plus icon"></i></a>
+            <div class="dropdown-menu auto-scroller" th:_title="${bundle.L('无可新建项')}"></div>
+          </div>
         </div>
       </div>
       <div class="rb-right-navbar">
         <ul class="nav navbar-nav float-right rb-user-nav">
           <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
-              <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime}|" alt="Avatar" />
+              <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime ?:''}|" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('姓名')}]]</span>
             </a>
             <div class="dropdown-menu">

@@ -70,7 +70,7 @@ public class MetaEntityController extends BaseController {
         }
 
         ModelAndView mv = createModelAndView("/admin/metadata/entity-edit");
-        setEntityBase(mv, entity);
+        EasyEntity easyEntity = setEntityBase(mv, entity);
 
         mv.getModel().put("nameField", metaEntity.getNameField().getName());
 
@@ -83,7 +83,7 @@ public class MetaEntityController extends BaseController {
         }
 
         // 扩展配置
-        mv.getModel().put("entityExtConfig", EasyMetaFactory.valueOf(metaEntity).getExtraAttrs(true));
+        mv.getModel().put("entityExtConfig", easyEntity.getExtraAttrs(true));
 
         return mv;
     }
@@ -92,7 +92,11 @@ public class MetaEntityController extends BaseController {
     public ModelAndView pageAdvanced(@PathVariable String entity, HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/entity-advanced");
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
-        setEntityBase(mv, entity);
+        EasyEntity easyEntity = setEntityBase(mv, entity);
+
+        // 扩展配置
+        mv.getModel().put("entityExtConfig", easyEntity.getExtraAttrs(true));
+
         return mv;
     }
 

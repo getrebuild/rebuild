@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig || {}
+const TYPE_DIVIDER = '$DIVIDER$'
 
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -41,11 +42,13 @@ class RbViewForm extends React.Component {
         hadApproval = null
       }
 
+      const viewData = {}
       const VFORM = (
         <div>
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
+              if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
               item.$$$parent = this
               return detectViewElement(item)
             })}
@@ -58,6 +61,8 @@ class RbViewForm extends React.Component {
           window.FrontJS.View._trigger('open', [res.data])
         }
       })
+
+      this.__ViewData = viewData
       this.__lastModified = res.data.lastModified || 0
     })
   }
@@ -124,11 +129,12 @@ class RbViewForm extends React.Component {
       [fieldName]: fieldValue.value,
     }
 
-    const $btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
+    const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
     $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
-      $btns.button('reset')
+      $btn.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
+        this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload()
@@ -147,7 +153,7 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = `col-${item.field === '$DIVIDER$' ? $random() : item.field}`
+  item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
   return (
     <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
       {window.detectElement(item)}
@@ -301,7 +307,7 @@ class EntityRelatedList extends RelatedList {
     this.__entity = props.entity.split('.')[0]
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-link w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
         <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
@@ -437,7 +443,7 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(item.name)}`
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     return (
                       <li key={'r-' + item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
@@ -556,7 +562,7 @@ const RbViewPage = {
     }
 
     // Clean buttons
-    that.cleanViewActionButton()
+    that._cleanViewActionButton()
 
     that.initRecordMeta()
     that.initHistory()
@@ -579,13 +585,13 @@ const RbViewPage = {
         if ($el.length === 0) continue
 
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this._clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
           const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
           $(v).each(function () {
             const _this = this
             const $item = $('<li class="list-inline-item"></li>').appendTo($list)
-            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that.clickViewUser(_this[0])} />, $item[0])
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that._clickViewUser(_this[0])} />, $item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
@@ -773,12 +779,12 @@ const RbViewPage = {
     return false
   },
 
-  clickViewUser(id) {
+  _clickViewUser(id) {
     return this.clickView('#!/View/User/' + id)
   },
 
   // 清理操作按钮
-  cleanViewActionButton() {
+  _cleanViewActionButton() {
     $setTimeout(
       () => {
         $cleanMenu('.view-action .J_mores')
@@ -790,11 +796,11 @@ const RbViewPage = {
         if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
       },
       100,
-      'cleanViewActionButton'
+      '_cleanViewActionButton'
     )
   },
 
-  // 隐藏划出的 View
+  // 隐藏
   hide(reload) {
     if (parent && parent !== window) {
       parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
@@ -817,12 +823,30 @@ const RbViewPage = {
   setReadonly() {
     $(this._RbViewForm._viewForm).addClass('readonly')
     $('.J_edit, .J_delete, .J_add-detail').remove()
-    this.cleanViewActionButton()
+    this._cleanViewActionButton()
   },
 }
 
 // init
 $(document).ready(function () {
+  // 无关闭按钮
+  if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+  // 回退按钮
+  if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+    $('.J_back')
+      .removeClass('hide')
+      .on('click', () => {
+        // parent.RbViewModal.holder(this.__id, 'LOADING')
+        history.back()
+      })
+  }
+
+  // iframe 点击穿透
+  if (parent) {
+    $(document).on('click', () => parent.$(parent.document).trigger('_clickEventHandler'))
+    window._clickEventHandler = () => $(document).trigger('click')
+  }
+
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)

@@ -31,7 +31,7 @@ useEditComp = function (name) {
     )
   } else if ('DefaultLanguage' === name) {
     // 借用贵宝地
-    if (rb.commercial > 0) _toggleLogo()
+    if (rb.commercial >= 10) _toggleLogo()
 
     const options = []
     for (let k in wpc._LANGS) {

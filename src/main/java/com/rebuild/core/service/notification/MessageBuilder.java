@@ -12,8 +12,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,7 +94,8 @@ public class MessageBuilder {
      */
     public static String formatMessage(String message, boolean md2html, boolean xss) {
         if (xss) {
-            message = escapeHtml(message);
+            message = CommonsUtils.escapeHtml(message);
+            message = message.replace("&gt;", ">");  // for MD quote
         }
 
         // 匹配 `@ID`
@@ -132,26 +133,7 @@ public class MessageBuilder {
         }
 
         String recordLabel = FieldValueHelper.getLabelNotry(id);
-        String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + id;
+        String recordUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
         return String.format("[%s](%s)", recordLabel, recordUrl);
-    }
-
-    /**
-     * @param text
-     * @return
-     * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
-     */
-    public static String escapeHtml(Object text) {
-        if (text == null || StringUtils.isBlank(text.toString())) {
-            return StringUtils.EMPTY;
-        }
-
-        // https://www.php.net/htmlspecialchars
-        return text.toString()
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("'", "&apos;")
-//                .replace(">", "&gt;")  // for MD quote
-                .replace("<", "&lt;");
     }
 }

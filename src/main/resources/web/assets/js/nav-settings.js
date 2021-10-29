@@ -6,30 +6,43 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const UNICON_NAME = 'texture'
-let shareToComp
+let _Share2
+let _entityInfos = {}
 
 $(document).ready(function () {
   $('.J_add-menu').click(() => render_item({}, true))
 
-  $.get('/commons/metadata/entities', function (res) {
-    $(res.data).each(function () {
-      $(`<option value="${this.name}" data-icon="${this.icon}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
-    })
+  // 系统内置
+  $('#sys-built > option').each(function () {
+    const $this = $(this)
+    _entityInfos[$this.attr('value')] = { icon: $this.attr('data-icon'), label: $this.text() }
   })
 
-  $('.J_menuEntity').change(function () {
-    if (item_current_isNew === true) {
-      const $option = $('.J_menuEntity option:selected')
-      if (!$option.val()) return
+  $.get('/commons/metadata/entities?detail=true', function (res) {
+    $(res.data).each(function () {
+      $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
+      _entityInfos[this.name] = this
+    })
 
-      $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${$option.data('icon')}`)
-      $('.J_menuName').val($option.text())
-    }
+    const $ref = $('.J_menuEntity')
+      .select2({
+        placeholder: $L('选择关联项'),
+        allowClear: false,
+      })
+      .on('change', () => {
+        if (item_current_isNew === true) {
+          const d = _entityInfos[$ref.val()]
+          if (d) {
+            $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${d.icon}`)
+            $('.J_menuName').val(d.label)
+          }
+        }
+      })
   })
 
   $('.J_menuIcon').click(function () {
     parent.clickIcon = function (s) {
-      $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
+      $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${s}`)
       parent.RbModal.hide()
     }
     parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
@@ -42,16 +55,25 @@ $(document).ready(function () {
     const type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
-      value = $val('.J_menuEntity')
+      value = $('.J_menuEntity').val()
       if (!value) return RbHighbar.create($L('请选择关联项'))
     } else {
       value = $val('.J_menuUrl')
-      if (!value) return RbHighbar.create($L('请输入外部地址'))
-      else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) return RbHighbar.create($L('请输入有效的外部地址'))
+      if (!value) {
+        return RbHighbar.create($L('请输入外部地址'))
+      } else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) {
+        return RbHighbar.create($L('请输入有效的外部地址'))
+      }
     }
 
     const icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
-    render_item({ id: item_currentid, text: name, type: type, value: value, icon: icon })
+    render_item({
+      id: item_currentid,
+      text: name,
+      type: type,
+      value: value,
+      icon: icon,
+    })
 
     item_currentid = null
     $('.J_config li').removeClass('active')
@@ -63,15 +85,11 @@ $(document).ready(function () {
   let cfgid = $urlp('id')
   const _save = function (navs) {
     const $btn = $('.J_save').button('loading')
-    const std = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
-    $.post(
-      `/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`,
-      JSON.stringify(navs),
-      function (res) {
-        $btn.button('reset')
-        if (res.error_code === 0) parent.location.reload()
-      }
-    )
+    const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
+    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), function (res) {
+      $btn.button('reset')
+      if (res.error_code === 0) parent.location.reload()
+    })
   }
 
   $('.J_save').click(function () {
@@ -110,6 +128,7 @@ $(document).ready(function () {
           use_sortable($subUl)
         }
       })
+
       // 覆盖自有配置
       overwriteMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
     }
@@ -118,13 +137,9 @@ $(document).ready(function () {
     $.get('/app/settings/nav-settings/alist', (res) => {
       const cc = res.data.find((x) => x[0] === _current.id)
       if (rb.isAdminUser) {
-        renderRbcomp(
-          <Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />,
-          'shareTo',
-          function () {
-            shareToComp = this
-          }
-        )
+        renderRbcomp(<Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
+          _Share2 = this
+        })
       } else {
         // overSelf = cc && cc[3] !== rb.currentUser
         // eslint-disable-next-line no-undef
@@ -174,6 +189,7 @@ const build_item = function (item) {
 let item_currentid
 let item_current_isNew
 let item_randomid = new Date().getTime()
+
 const render_item = function (data, isNew, append2) {
   data.id = data.id || item_randomid++
   data.text = data.text || $L('未命名')
@@ -182,13 +198,9 @@ const render_item = function (data, isNew, append2) {
 
   let $item = $('.J_config').find(`li[attr-id='${data.id}']`)
   if ($item.length === 0) {
-    $item = $(
-      '<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>'
-    ).appendTo(append2)
+    $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
     const $action = $(
-      `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L(
-        '移除'
-      )}"><i class="zmdi zmdi-close"></i></a></div>`
+      `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a></div>`
     ).appendTo($item)
 
     $action
@@ -234,7 +246,7 @@ const render_item = function (data, isNew, append2) {
     $('.J_edit-menu').removeClass('hide')
 
     $('.J_menuName').val(data.text)
-    $('.J_menuIcon i').attr('class', 'zmdi zmdi-' + data.icon)
+    $('.J_menuIcon i').attr('class', `zmdi zmdi-${data.icon}`)
     $('.J_menuUrl, .J_menuEntity').val('')
     if (data.type === 'URL') {
       $('.J_menuType').eq(1).click()
@@ -242,10 +254,12 @@ const render_item = function (data, isNew, append2) {
     } else {
       $('.J_menuType').eq(0).click()
       data.value = $item.attr('attr-value') // force renew
-      const $me = $('.J_menuEntity').val(data.value)
+      const $me = $('.J_menuEntity').val(data.value).trigger('change')
       $me.attr('disabled', data.value === '$PARENT$')
-      if (!$me.find('option:selected').text()) $me.val('').addClass('is-invalid')
-      else $me.removeClass('is-invalid')
+
+      // 实体已经不存在
+      // if (_entity_data[data.value]) $me.removeClass('is-invalid')
+      // else $me.addClass('is-invalid')
     }
 
     item_currentid = data.id

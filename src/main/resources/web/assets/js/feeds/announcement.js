@@ -27,7 +27,7 @@ class AnnouncementModal extends React.Component {
                 <span className="float-right">
                   <a href={`${rb.baseUrl}/app/list-and-view?id=${this.props.id}`}>{$L('前往动态查看')}</a>
                 </span>
-                <span className="clearfix"></span>
+                <span className="clearfix" />
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@ const $showAnnouncement = function () {
       return (
         <div className="bg-warning" key={idx} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
-          <p dangerouslySetInnerHTML={{ __html: item.content }}></p>
+          <p dangerouslySetInnerHTML={{ __html: item.content }} />
         </div>
       )
     })

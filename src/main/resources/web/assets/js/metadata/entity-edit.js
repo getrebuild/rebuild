@@ -35,12 +35,11 @@ $(document).ready(function () {
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
 
-    const extConfigNew = {
+    let extConfig = {
       quickFields: $('#quickFields').val().join(','),
-      advListHideFilters: $val('#advListHideFilters'),
-      advListHideCharts: $val('#advListHideCharts'),
     }
-    if (!$same(extConfigNew, wpc.extConfig)) data.extConfig = extConfigNew
+    extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
+    if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
 
     data = $cleanMap(data)
     if (Object.keys(data).length === 0) {
@@ -144,7 +143,4 @@ $(document).ready(function () {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
     }
   })
-
-  if (wpc.extConfig.advListHideFilters) $('#advListHideFilters').attr('checked', true)
-  if (wpc.extConfig.advListHideCharts) $('#advListHideCharts').attr('checked', true)
 })

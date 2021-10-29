@@ -12,7 +12,9 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -153,12 +155,12 @@ public class FlowNode {
         List<String> defsList = new ArrayList<>();
         for (Object o : userDefs) {
             String def = (String) o;
-            if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
-                    || def.startsWith(ApprovalHelper.APPROVAL_APPROVER)) {
+            if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR) || def.startsWith(ApprovalHelper.APPROVAL_APPROVER)) {
                 ApprovalState state = ApprovalHelper.getApprovalState(record);
                 boolean isSubmitted = state == ApprovalState.PROCESSING || state == ApprovalState.APPROVED;
 
                 ID whichUser = operator;
+
                 if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)) {
                     if (isSubmitted) {
                         whichUser = ApprovalHelper.getSubmitter(record);
@@ -176,7 +178,15 @@ public class FlowNode {
                 if (whichUser != null) {
                     Field userField = ApprovalHelper.checkVirtualField(def);
                     if (userField != null) {
-                        Object[] refUser = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
+                        Object[] refUser;
+                        if (userField.getOwnEntity().getEntityCode() == EntityHelper.Department) {
+                            Department refDept = Application.getUserStore().getUser(whichUser).getOwningDept();
+                            refUser = Application.getQueryFactory().uniqueNoFilter(
+                                    (ID) refDept.getIdentity(), userField.getName());
+                        } else {
+                            refUser = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
+                        }
+
                         if (refUser != null && refUser[0] != null) users.add((ID) refUser[0]);
                     }
                 }

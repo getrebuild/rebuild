@@ -320,6 +320,7 @@
         <field name="name" type="string" max-length="100" nullable="false" description="报表名称"/>
         <field name="templateFile" type="string" max-length="200" description="模板文件"/>
         <field name="templateContent" type="text" description="模板内容"/>
+        <field name="templateType" type="small-int" default-value="1" description="模板类型 (1=记录, 2=列表)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
@@ -437,6 +438,7 @@
         <field name="members" type="string" max-length="420" description="项目成员 ($MemberID)"/>
         <field name="scope" type="small-int" default-value="1" description="可见范围 (1=公开 2=成员)"/>
         <field name="extraDefinition" type="text" description="扩展配置 (JSON Map)"/>
+        <field name="status" type="small-int" default-value="1" description="状态 (1=正常 2=归档)" />
         <index field-list="projectCode" type="unique"/>
     </entity>
 

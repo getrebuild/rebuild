@@ -9,6 +9,7 @@ package com.rebuild.web.project;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -41,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -73,11 +75,12 @@ public class ProjectTaskController extends BaseController {
             return null;
         }
 
-        ConfigBean project = ProjectManager.instance.getProjectByTask(taskId2, user);
+        ConfigBean project = ProjectManager.instance.getProjectByX(taskId2, user);
 
         ModelAndView mv = createModelAndView("/project/task-view");
         mv.getModel().put("id", taskId2.toLiteral());
         mv.getModel().put("projectIcon", project.getString("iconName"));
+        mv.getModel().put("projectStatus", project.getInteger("status"));
         mv.getModel().put("isMember", project.get("members", Set.class).contains(user));
         return mv;
     }
@@ -85,7 +88,7 @@ public class ProjectTaskController extends BaseController {
     @RequestMapping("tasks/list")
     public JSON taskList(@IdParam(name = "plan") ID planId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String queryWhere = "projectPlanId = ?";
+        String queryWhere = "projectPlanId = '" + planId + "'";
 
         // 关键词搜索
         String search = getParameter(request, "search");
@@ -108,9 +111,7 @@ public class ProjectTaskController extends BaseController {
         int count = -1;
         if (pageNo == 1) {
             String countSql = "select count(taskId) from ProjectTask where " + queryWhere;
-            Object[] count2 = Application.createQueryNoFilter(countSql)
-                    .setParameter(1, planId)
-                    .unique();
+            Object[] count2 = Application.createQueryNoFilter(countSql).unique();
             count = ObjectUtils.toInt(count2[0]);
 
             if (count == 0) {
@@ -119,19 +120,7 @@ public class ProjectTaskController extends BaseController {
         }
 
         queryWhere += " order by " +  buildQuerySort(request);
-        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
-
-        Object[][] tasks = Application.createQueryNoFilter(querySql)
-                .setParameter(1, planId)
-                .setLimit(pageSize, pageNo * pageSize - pageSize)
-                .array();
-
-        JSONArray alist = new JSONArray();
-        for (Object[] o : tasks) {
-            JSONObject item = formatTask(o, user);
-            item.remove("planName");
-            alist.add(item);
-        }
+        JSONArray alist = queryCardDatas(planId, user, queryWhere, new int[] { pageSize, pageNo * pageSize - pageSize });
 
         return JSONUtils.toJSONObject(
                 new String[] { "count", "tasks" },
@@ -139,12 +128,72 @@ public class ProjectTaskController extends BaseController {
     }
 
     @GetMapping("tasks/get")
-    public JSON taskGet(@IdParam(name = "task") ID taskId) {
-        Object[] task = Application.createQueryNoFilter(
-                "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
-                .setParameter(1, taskId)
-                .unique();
-        return formatTask(task, null);
+    public JSON taskGet(@IdParam(name = "task") ID taskId, HttpServletRequest request) {
+        String where = "taskId = '" + taskId + "'";
+        JSONArray a = queryCardDatas(taskId, getRequestUser(request), where, null);
+        return (JSON) a.get(0);
+    }
+
+    private JSONArray queryCardDatas(ID taskOrPlan, ID user, String queryWhere, int[] limits) {
+        // 卡片显示字段
+        ConfigBean project = ProjectManager.instance.getProjectByX(taskOrPlan, user);
+        JSON cardFields = project.getJSON("cardFields");
+
+        final Set<String> fields2show = new HashSet<>();
+        if (cardFields == null) {
+            fields2show.add("createdOn");
+            fields2show.add("endTime");
+            fields2show.add("_tag");
+        } else {
+            for (Object o : (JSONArray) cardFields) {
+                fields2show.add(o.toString());
+            }
+        }
+
+        String queryFields = FMT_FIELDS11 + ",";
+        if (fields2show.contains("createdBy")) queryFields += "createdBy,";
+        else queryFields += "taskId,";
+        if (fields2show.contains("modifiedOn")) queryFields += "modifiedOn,";
+        else queryFields += "taskId,";
+        if (fields2show.contains("description")) queryFields += "description,";
+        else queryFields += "taskId,";
+        if (fields2show.contains("attachments")) queryFields += "attachments,";
+        else queryFields += "taskId,";
+
+        queryFields = queryFields.substring(0, queryFields.length() - 1);
+        String querySql = String.format("select %s from ProjectTask where %s", queryFields, queryWhere);
+        Query query = Application.createQueryNoFilter(querySql);
+        if (limits != null) query.setLimit(limits[0], limits[1]);
+
+        Object[][] tasks = query.array();
+
+        JSONArray alist = new JSONArray();
+        for (Object[] o : tasks) {
+            JSONObject item = formatTask(o, user, fields2show.contains("_tag"));
+
+            if (fields2show.contains("createdBy")) {
+                item.put("createdBy", new Object[] { o[12], UserHelper.getName((ID) o[12]) });
+            }
+            if (!fields2show.contains("createdOn")) {
+                item.remove("createdOn");
+            }
+            if (fields2show.contains("modifiedOn")) {
+                item.put("modifiedOn", I18nUtils.formatDate((Date) o[13]));
+            }
+            if (!fields2show.contains("endTime")) {
+                item.remove("endTime");
+            }
+            if (fields2show.contains("description")) {
+                item.put("description", StringUtils.isNotBlank((String) o[14]));
+            }
+            if (fields2show.contains("attachments")) {
+                item.put("attachments", o[15] != null && ((String) o[15]).length() > 10);
+            }
+
+            item.remove("planName");
+            alist.add(item);
+        }
+        return alist;
     }
 
     @GetMapping("tasks/details")
@@ -152,10 +201,10 @@ public class ProjectTaskController extends BaseController {
         final ID user = getRequestUser(request);
 
         Object[] task = Application.createQueryNoFilter(
-                "select " + BASE_FIELDS + ",description,attachments,relatedRecord from ProjectTask where taskId = ?")
+                String.format("select %s,description,attachments,relatedRecord from ProjectTask where taskId = ?", FMT_FIELDS11))
                 .setParameter(1, taskId)
                 .unique();
-        JSONObject details = formatTask(task, user);
+        JSONObject details = formatTask(task, user, true);
 
         details.put("description", task[12]);
         String attachments = (String) task[13];
@@ -172,24 +221,33 @@ public class ProjectTaskController extends BaseController {
         return details;
     }
 
-    private static final String BASE_FIELDS =
+    private static final String FMT_FIELDS11 =
             "projectId,projectPlanId,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
-
-    private JSONObject formatTask(Object[] o, ID user) {
-        final ConfigBean project =  ProjectManager.instance.getProject((ID) o[0], user);
+    /**
+     * @param o
+     * @param user
+     * @param putTags
+     * @return
+     * @throws ConfigurationException 如果指定用户无权限
+     * @see #FMT_FIELDS11
+     */
+    private JSONObject formatTask(Object[] o, ID user, boolean putTags) throws ConfigurationException {
+        final ConfigBean project = ProjectManager.instance.getProject((ID) o[0], user);
 
         String taskNumber = String.format("%s-%s", project.getString("projectCode"), o[2]);
         String createdOn = I18nUtils.formatDate((Date) o[5]);
         String deadline = I18nUtils.formatDate((Date) o[6]);
         String endTime = I18nUtils.formatDate((Date) o[11]);
-
         Object[] executor = o[7] == null ? null : new Object[]{o[7], UserHelper.getName((ID) o[7])};
 
         JSONObject data = JSONUtils.toJSONObject(
-                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime", "projectId" },
-                new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0] });
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime", "projectId", "projectStatus" },
+                new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0], project.getInteger("status") });
+
         // 标签
-        data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
+        if (putTags) {
+            data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
+        }
 
         if (user != null) {
             // 项目信息
@@ -213,15 +271,19 @@ public class ProjectTaskController extends BaseController {
         return sort;
     }
 
-    // for View of Entity
+    // -- for General Entity
+
     @GetMapping("alist")
     public RespBody getProjectAndPlans(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        ConfigBean[] ps = ProjectManager.instance.getAvailable(user, true);
+        ConfigBean[] ps = ProjectManager.instance.getAvailable(user);
         JSONArray alist = new JSONArray();
 
         for (ConfigBean p : ps) {
+            if (p.getInteger("status") == ProjectManager.STATUS_ARCHIVED) continue;  // 已归档
+            if (!p.get("members", Set.class).contains(user)) continue;  // 非成员
+
             JSONObject item = (JSONObject) p.toJSON("id", "projectName");
 
             // 面板
@@ -263,16 +325,15 @@ public class ProjectTaskController extends BaseController {
             queryWhere = String.format("taskId = '%s'", taskId);
         }
 
-        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
-
-        Object[][] tasks = Application.createQueryNoFilter(querySql)
+        Object[][] tasks = Application.createQueryNoFilter(
+                String.format("select %s from ProjectTask where %s", FMT_FIELDS11, queryWhere))
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
         JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
             try {
-                array.add(formatTask(o, user));
+                array.add(formatTask(o, user, false));
             } catch (ConfigurationException ex) {
                 // FIXME 无项目权限会报错（考虑任务在相关项中是否无权限也显示）
                 log.warn(ex.getLocalizedMessage());

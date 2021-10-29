@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
@@ -67,7 +68,8 @@ public class NavBuilder extends NavManager {
     );
 
     // URL 绑定实体权限
-    private static final String URL_BIND_PRIVI = "::";
+    // 如 https://www.baidu.com/$$Account
+    private static final String URL_BIND_EP = "\\$\\$";
 
     /**
      * 获取指定用户的导航菜单
@@ -79,7 +81,7 @@ public class NavBuilder extends NavManager {
         ConfigBean config = getLayoutOfNav(user);
         if (config == null) {
             JSONArray useDefault = replaceLang(NAVS_DEFAULT);
-            ((JSONObject) useDefault.get(1)).put("sub", getAvailableProjects(user));
+            ((JSONObject) useDefault.get(1)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
 
@@ -104,7 +106,7 @@ public class NavBuilder extends NavManager {
             } else if (isFilterNavItem(nav, user)) {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
-                nav.put("sub", getAvailableProjects(user));
+                nav.put("sub", buildAvailableProjects(user));
             }
         }
         return navs;
@@ -135,14 +137,14 @@ public class NavBuilder extends NavManager {
                     MetadataHelper.getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
-            String[] split = value.split(URL_BIND_PRIVI);
+            String[] split = value.split(URL_BIND_EP);
             if (split.length != 2) return false;
 
-            String bindPriviEntity = split[1];
-            if (MetadataHelper.containsEntity(bindPriviEntity)) {
+            String bindEntity = split[1];
+            if (MetadataHelper.containsEntity(bindEntity)) {
                 nav.put("value", split[0]);
                 return !Application.getPrivilegesManager().allowRead(user,
-                        MetadataHelper.getEntity(bindPriviEntity).getEntityCode());
+                        MetadataHelper.getEntity(bindEntity).getEntityCode());
             }
         }
 
@@ -155,14 +157,27 @@ public class NavBuilder extends NavManager {
      * @param user
      * @return
      */
-    private JSONArray getAvailableProjects(ID user) {
+    private JSONArray buildAvailableProjects(ID user) {
         ConfigBean[] projects = ProjectManager.instance.getAvailable(user);
 
         JSONArray navsOfProjects = new JSONArray();
+        JSONArray navsOfProjects2 = new JSONArray();
         for (ConfigBean e : projects) {
+            JSONObject item = JSONUtils.toJSONObject(
+                    NAV_ITEM_PROPS,
+                    new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") });
+            if (e.getInteger("status") == ProjectManager.STATUS_ARCHIVED) {
+                navsOfProjects2.add(item);
+            } else {
+                navsOfProjects.add(item);
+            }
+        }
+
+        if (!navsOfProjects2.isEmpty()) {
             navsOfProjects.add(JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,
-                    new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") }));
+                    new String[] { null, Language.L("已归档"), NAV_DIVIDER, "ARCHIVED" }));
+            navsOfProjects.addAll(navsOfProjects2);
         }
 
         // 管理员显示新建项目入口
@@ -225,6 +240,8 @@ public class NavBuilder extends NavManager {
         return navsHtml.toString();
     }
 
+    private static final ThreadLocal<String> RBTOKEN = new ThreadLocal<>();
+
     /**
      * 渲染导航菜單
      *
@@ -243,23 +260,36 @@ public class NavBuilder extends NavManager {
         boolean isOutUrl = isUrlType && navUrl.startsWith("http");
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
+
+            String rbtoken = RBTOKEN.get();
+            if (rbtoken == null) {
+                rbtoken = PageTokenVerify.generate(UserContextHolder.getUser());
+                RBTOKEN.set(rbtoken);
+            }
+
+            if (navUrl.contains("$RBTOKEN$")) {
+                navUrl = navUrl.replace("$RBTOKEN$", rbtoken);
+            } else if (navUrl.contains("%24RBTOKEN%24")) {
+                navUrl = navUrl.replace("%24RBTOKEN%24", rbtoken);
+            }
+
             if (isOutUrl) {
-                navUrl = AppUtils.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+                navUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl));
             } else {
-                navUrl = AppUtils.getContextPath() + navUrl;
+                navUrl = AppUtils.getContextPath(navUrl);
             }
 
         } else if (NAV_FEEDS.equals(navName)) {
             navName = "nav_entity-FEEDS";
-            navUrl = AppUtils.getContextPath() + "/feeds/home";
+            navUrl = AppUtils.getContextPath("/feeds/home");
 
         } else if (NAV_FILEMRG.equals(navName)) {
             navName = "nav_entity-ATTACHMENT";
-            navUrl = AppUtils.getContextPath() + "/files/home";
+            navUrl = AppUtils.getContextPath("/files/home");
 
         } else if (NAV_PROJECT.equals(navName)) {
             navName = "nav_entity-PROJECT";
-            navUrl = AppUtils.getContextPath() + "/project/search";
+            navUrl = AppUtils.getContextPath("/project/search");
 
         } else if (NAV_PROJECT.equals(navType)) {
             navName = "nav_project-" + navName;
@@ -267,12 +297,12 @@ public class NavBuilder extends NavManager {
 
         } else if (navName.startsWith(NAV_PROJECT)) {
             navName = "nav_project--add";
-            navUrl = AppUtils.getContextPath() + "/admin/projects";
+            navUrl = AppUtils.getContextPath("/admin/projects");
 
         } else {
             navEntity = navName;
             navName = "nav_entity-" + navName;
-            navUrl = AppUtils.getContextPath() + "/app/" + navUrl + "/list";
+            navUrl = AppUtils.getContextPath("/app/" + navUrl + "/list");
         }
 
         String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
@@ -286,14 +316,19 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        String navItemHtml = String.format(
-                "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
-                navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-                navEntity == null ? StringUtils.EMPTY : navEntity,
-                subNavs == null ? navUrl : "###",
-                isOutUrl ? "_blank" : "_self",
-                navIcon,
-                navText);
+        String navItemHtml;
+        if (NAV_DIVIDER.equals(navType)) {
+            navItemHtml = "<li class=\"divider\">" + navText;
+        } else {
+            navItemHtml = String.format(
+                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                    navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                    navEntity == null ? StringUtils.EMPTY : navEntity,
+                    subNavs == null ? navUrl : "###",
+                    isOutUrl ? "_blank" : "_self",
+                    navIcon,
+                    navText);
+        }
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
         if (subNavs != null) {

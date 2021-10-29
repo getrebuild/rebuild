@@ -6,6 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global SimpleMDE */
 
+const TYPE_DIVIDER = '$DIVIDER$'
+
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
   constructor(props) {
@@ -205,7 +207,7 @@ class RbForm extends React.Component {
       <div className="rbform">
         <div className="form" ref={(c) => (this._form = c)}>
           {this.props.children.map((fieldComp) => {
-            const refid = `fieldcomp-${fieldComp.props.field}`
+            const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
           {this.renderFormAction()}
@@ -278,13 +280,12 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
-    const that = this
     data.forEach((item) => {
       // eslint-disable-next-line react/no-string-refs
-      const fieldComp = that.refs[`fieldcomp-${item.target}`]
+      const fieldComp = this.refs[`fieldcomp-${item.target}`]
       if (fieldComp) {
         if (!item.fillinForce && fieldComp.getValue()) return
-        if ((that.isNew && item.whenCreate) || (!that.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
+        if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
   }
@@ -336,7 +337,7 @@ class RbForm extends React.Component {
         RbHighbar.success($L('保存成功'))
         setTimeout(() => {
           this.props.$$$parent.hide(true)
-          RbForm.postAfter(res.data, next)
+          RbForm.postAfter({ ...res.data, _isNew: !this.state.id }, next)
 
           if (next === RbForm.__NEXT_ADD) {
             const pstate = this.props.$$$parent.state
@@ -368,8 +369,7 @@ class RbForm extends React.Component {
     return true
   }
 
-  // 保存前调用，返回 false 则不继续保存
-  // eslint-disable-next-line no-unused-vars
+  // 保存前调用（返回 false 则不继续保存）
   static postBefore(data) {
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
@@ -1198,6 +1198,7 @@ class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
     this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
+    this._hasCascadingField = !!(props._cascadingFieldParent || props._cascadingFieldChild)
   }
 
   renderElement() {
@@ -1255,20 +1256,20 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
         // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
+        wrapQuery: (query) => {
+          const cascadingValue = this._getCascadingFieldValue()
+          return cascadingValue ? { cascadingValue, ...query } : query
+        },
       })
 
       const val = this.state.value
-      if (val) {
-        this.setValue(val)
-        // const o = new Option(val.text, val.id, true, true)
-        // this.__select2.append(o).trigger('change')
-      }
+      if (val) this.setValue(val)
 
       const that = this
       this.__select2.on('change', function (e) {
         const v = $(e.target).val()
         if (v && typeof v === 'string') {
-          $.post(`/commons/search/recently-add?id=${v}`)
+          __addRecentlyUse(v)
           that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
@@ -1278,12 +1279,31 @@ class RbFormReference extends RbFormElement {
     }
   }
 
+  _getCascadingFieldValue() {
+    let cascadingField
+    if (this.props._cascadingFieldParent) {
+      cascadingField = this.props._cascadingFieldParent.split('$$$$')[0]
+    } else if (this.props._cascadingFieldChild) {
+      cascadingField = this.props._cascadingFieldChild.split('$$$$')[0]
+    }
+    if (!cascadingField) return null
+
+    if (this.props.onView) {
+      const v = (this.props.$$$parent.__ViewData || {})[cascadingField]
+      return v ? v.id : null
+    } else {
+      const fieldComp = this.props.$$$parent.refs[`fieldcomp-${cascadingField}`]
+      return fieldComp ? fieldComp.getValue() : null
+    }
+  }
+
   // 字段回填
   triggerAutoFillin(value) {
     if (this.props.onView) return
 
     const $$$parent = this.props.$$$parent
-    $.get(`/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+    const url = `/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`
+    $.get(url, (res) => {
       res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
     })
   }
@@ -1296,8 +1316,7 @@ class RbFormReference extends RbFormElement {
   setValue(val) {
     if (val) {
       const o = new Option(val.text, val.id, true, true)
-      this.__select2.append(o)
-      this.handleChange({ target: { value: val.id } }, true)
+      this.__select2.append(o).trigger('change')
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -1307,27 +1326,27 @@ class RbFormReference extends RbFormElement {
     const that = this
     window.referenceSearch__call = function (selected) {
       that.showSearcher_call(selected, that)
-      that.__searcher.hide()
+      that._ReferenceSearcher.hide()
     }
 
-    if (this.__searcher) {
-      this.__searcher.show()
+    if (this._ReferenceSearcher && !this._hasCascadingField) {
+      this._ReferenceSearcher.show()
     } else {
-      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}`
+      const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', this.props.label)} />, function () {
-        that.__searcher = this
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} disposeOnHide={this._hasCascadingField} />, function () {
+        that._ReferenceSearcher = this
       })
     }
   }
 
   showSearcher_call(selected, that) {
-    const first = selected[0]
-    if ($(that._fieldValue).find(`option[value="${first}"]`).length > 0) {
-      that.__select2.val(first).trigger('change')
+    const s = selected[0]
+    if ($(that._fieldValue).find(`option[value="${s}"]`).length > 0) {
+      that.__select2.val(s).trigger('change')
     } else {
-      $.get(`/commons/search/read-labels?ids=${first}`, (res) => {
-        const o = new Option(res.data[first], first, true, true)
+      $.get(`/commons/search/read-labels?ids=${s}`, (res) => {
+        const o = new Option(res.data[s], s, true, true)
         that.__select2.append(o).trigger('change')
       })
     }
@@ -1402,19 +1421,14 @@ class RbFormN2NReference extends RbFormReference {
       }
       that.setValue(val, true)
     })
-    this._recentlyAdd(ids)
+    __addRecentlyUse(ids)
   }
 
   onEditModeChanged(destroy) {
     super.onEditModeChanged(destroy)
     if (!destroy && this.__select2) {
-      this.__select2.on('select2:select', (e) => this._recentlyAdd(e.params.data.id))
+      this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
-  }
-
-  _recentlyAdd(id) {
-    if (!id) return
-    $.post(`/commons/search/recently-add?id=${id}`)
   }
 }
 
@@ -1761,8 +1775,6 @@ class RbFormDivider extends React.Component {
   }
 }
 
-const TYPE_DIVIDER = '$DIVIDER$'
-
 // 确定元素类型
 var detectElement = function (item) {
   if (!item.key) item.key = 'field-' + (item.field === TYPE_DIVIDER ? $random() : item.field)
@@ -1829,6 +1841,12 @@ const __findMultiTexts = function (options, maskValue) {
     if ((maskValue & item.mask) !== 0) texts.push(item.text)
   })
   return texts
+}
+
+// 最近使用
+const __addRecentlyUse = function (id) {
+  if (!id) return
+  $.post(`/commons/search/recently-add?id=${id}`)
 }
 
 // ~ 重复记录查看

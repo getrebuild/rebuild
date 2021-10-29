@@ -282,7 +282,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
      * @throws IOException
      */
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
-        String fullUrl = AppUtils.getContextPath() + url;
+        String fullUrl = AppUtils.getContextPath(url);
         if (nexturl != null) fullUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
         response.sendRedirect(fullUrl);
     }
