@@ -22,7 +22,7 @@ class RbModal extends React.Component {
 
     return (
       <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} style={styles} ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog" style={{ maxWidth: `${this.props.width || 680}px` }}>
+        <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>

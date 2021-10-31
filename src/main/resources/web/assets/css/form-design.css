@@ -77,13 +77,57 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 4px;
 }
 
-.dd-list .dd-item .dd-action a .zmdi-unfold-more {
+.dd-list .dd-item .dd-action a.colspan > .zmdi {
   font-size: 1.55rem;
-  transform: translateY(1px) rotate(90deg);
+  transform: translateY(2px);
 }
 
-.dd-list .dd-item.w-100 a .zmdi-unfold-more::before {
-  content: '\f311';
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu {
+  padding: 6px 0;
+  margin: 0;
+  width: 180px;
+  min-width: 180px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 0;
+  line-height: 1;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a {
+  width: 21%;
+  display: inline-block;
+  background-color: #eee;
+  padding: 0;
+  height: 18px;
+  text-align: left;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a:hover {
+  outline: 2px solid #4285f4;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a::after {
+  content: ' ';
+  display: inline-block;
+  background-color: #ccc;
+  height: 100%;
+  width: 50%;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='1']::after {
+  width: 25%;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='2']::after {
+  width: 50%;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='3']::after {
+  width: 75%;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='4']::after {
+  width: 100%;
 }
 
 .form-preview .dd-item,
@@ -98,6 +142,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
   margin-bottom: 5px;
   height: 36px;
+}
+
+.form-preview .dd-item.w-25 {
+  width: 24% !important;
+}
+
+.form-preview .dd-item.w-50 {
+  width: 49% !important;
+}
+
+.form-preview .dd-item.w-75 {
+  width: 74% !important;
 }
 
 .form-preview .dd-item.w-100 {

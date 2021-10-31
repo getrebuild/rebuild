@@ -17,12 +17,14 @@ class RbFormModal extends React.Component {
   }
 
   render() {
+    const maxWidth = { maxWidth: this.props.width || 1064 }
+
     return (
       this.state.isDestroy !== true && (
         <div className="modal-wrapper">
           <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
+            <div className="modal-dialog" style={maxWidth}>
+              <div className="modal-content" style={maxWidth}>
                 <div className="modal-header modal-header-colored">
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
                   <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
@@ -204,14 +206,14 @@ class RbForm extends React.Component {
 
   render() {
     return (
-      <div className="rbform">
-        <div className="form" ref={(c) => (this._form = c)}>
+      <div className="rbform form-layout">
+        <div className="form row" ref={(c) => (this._form = c)}>
           {this.props.children.map((fieldComp) => {
             const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
-          {this.renderFormAction()}
         </div>
+        {this.renderFormAction()}
       </div>
     )
   }
@@ -242,24 +244,22 @@ class RbForm extends React.Component {
     }
 
     return (
-      <div className="form-group row footer">
-        <div className="col-12 col-sm-8 offset-sm-3" ref={(c) => (this._formAction = c)}>
-          <div className="btn-group dropup btn-space">
-            <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-              {$L('保存')}
-            </button>
-            {moreActions.length > 0 && (
-              <React.Fragment>
-                <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
-                  <i className="icon zmdi zmdi-chevron-up" />
-                </button>
-                <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
-              </React.Fragment>
-            )}
-          </div>
-          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
-            {$L('取消')}
+      <div className="dialog-footer">
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+          {$L('取消')}
+        </button>
+        <div className="btn-group dropup btn-space">
+          <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+            {$L('保存')}
           </button>
+          {moreActions.length > 0 && (
+            <React.Fragment>
+              <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-up" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
+            </React.Fragment>
+          )}
         </div>
       </div>
     )
@@ -384,7 +384,7 @@ class RbForm extends React.Component {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
     const rlp = window.RbListPage || parent.RbListPage
-    if (rlp) rlp.reload()
+    if (rlp) rlp.reload(data.id)
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
   }
 
@@ -409,20 +409,19 @@ class RbFormElement extends React.Component {
   render() {
     const props = this.props
 
-    let colWidths = [3, 8]
-    if (props.onView) {
-      colWidths[0] = 4
-      if (props.isFull === true) colWidths = [2, 10]
-    }
+    let colspan = 6 // default
+    if (props.colspan === 4 || props.isFull === true) colspan = 12
+    else if (props.colspan === 1) colspan = 3
+    else if (props.colspan === 3) colspan = 9
 
     const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
     return (
-      <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
-        <label ref={(c) => (this._fieldLabel = c)} className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${!props.onView && !props.nullable ? 'required' : ''}`}>
+      <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
+        <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !props.nullable ? 'required' : ''}`}>
           {props.label}
         </label>
-        <div ref={(c) => (this._fieldText = c)} className={'col-12 col-sm-' + colWidths[1]}>
+        <div ref={(c) => (this._fieldText = c)} className="col-form-control">
           {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
           {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
@@ -1752,25 +1751,23 @@ class RbFormDivider extends React.Component {
 
   render() {
     return (
-      <div className="form-line hover" ref={(c) => (this._element = c)}>
-        <fieldset>{this.props.label && <legend onClick={() => this.toggle()}>{this.props.label}</legend>}</fieldset>
+      <div className="form-line hover" ref={(c) => (this._$formLine = c)}>
+        <fieldset>
+          {this.props.label && (
+            <legend onClick={() => this.toggle()} className="text-bold">
+              {this.props.label}
+            </legend>
+          )}
+        </fieldset>
       </div>
     )
   }
 
   toggle() {
-    if (this.props.onView) {
-      let $next = $(this._element).parent()
-      while (($next = $next.next()).length > 0) {
-        if ($next.find('>.form-line').length > 0) break
-        $next.toggleClass('hide')
-      }
-    } else {
-      let $next = $(this._element)
-      while (($next = $next.next()).length > 0) {
-        if ($next.hasClass('form-line') || $next.hasClass('footer')) break
-        $next.toggleClass('hide')
-      }
+    let $next = $(this._$formLine)
+    while (($next = $next.next()).length > 0) {
+      if ($next.hasClass('form-line') || $next.hasClass('footer')) break
+      $next.toggleClass('hide')
     }
   }
 }
