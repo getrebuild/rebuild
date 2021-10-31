@@ -566,9 +566,6 @@ const RbListCommon = {
       })
     }
 
-    // 自动打开新建
-    if (location.hash === '#!/New') $('.J_new').trigger('click')
-
     const entity = wpc.entity
 
     // 新建
@@ -581,5 +578,8 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
 
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
+
+    // 自动打开新建
+    if (location.hash === '#!/New') $('.J_new').trigger('click')
   },
 }

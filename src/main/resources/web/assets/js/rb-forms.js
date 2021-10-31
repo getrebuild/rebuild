@@ -384,7 +384,7 @@ class RbForm extends React.Component {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
     const rlp = window.RbListPage || parent.RbListPage
-    if (rlp) rlp.reload()
+    if (rlp) rlp.reload(data.id)
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
   }
 
