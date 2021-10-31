@@ -20,7 +20,7 @@ class RbViewForm extends React.Component {
 
   render() {
     return (
-      <div className="rbview-form" ref={(c) => (this._viewForm = c)}>
+      <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent}
       </div>
     )
@@ -44,7 +44,7 @@ class RbViewForm extends React.Component {
 
       const viewData = {}
       const VFORM = (
-        <div>
+        <React.Fragment>
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
@@ -53,8 +53,9 @@ class RbViewForm extends React.Component {
               return detectViewElement(item)
             })}
           </div>
-        </div>
+        </React.Fragment>
       )
+
       this.setState({ formComponent: VFORM }, () => {
         this.hideLoading()
         if (window.FrontJS) {
@@ -153,12 +154,8 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
-  return (
-    <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
-      {window.detectElement(item)}
-    </div>
-  )
+  // item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+  return window.detectElement(item)
 }
 
 const _renderError = (message) => {
@@ -328,7 +325,7 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+        <div className="rbview-form form-layout inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }

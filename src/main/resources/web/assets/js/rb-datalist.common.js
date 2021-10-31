@@ -566,10 +566,10 @@ const RbListCommon = {
       })
     }
 
-    // 自动打开新建
-    if (location.hash === '#!/New') $('.J_new').trigger('click')
-
     const entity = wpc.entity
+
+    RbListPage.init(wpc.listConfig, entity, wpc.privileges)
+    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
     $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
@@ -578,8 +578,9 @@ const RbListCommon = {
     // 批量修改
     $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
-    RbListPage.init(wpc.listConfig, entity, wpc.privileges)
-
-    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
+    // 自动打开新建
+    if (location.hash === '#!/New') {
+      setTimeout(() => $('.J_new').trigger('click'), 200)
+    }
   },
 }
