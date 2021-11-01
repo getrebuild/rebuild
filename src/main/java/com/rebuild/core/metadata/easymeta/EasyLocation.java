@@ -8,8 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.metadata.MetadataHelper;
 
 /**
+ * ADDRESS$$$$LNG,LAT
+ *
  * @author devezhao
  * @since 2020/11/17
  */
@@ -21,17 +24,9 @@ public class EasyLocation extends EasyField {
     }
 
     @Override
-    public Object convertCompatibleValue(Object value, EasyField targetField) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object wrapValue(Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object exprDefaultValue() {
-        throw new UnsupportedOperationException();
+        if (value == null) return null;
+        String[] vals = value.toString().split(MetadataHelper.SPLITER_RE);
+        return new String[] { vals[0], vals.length >= 2 ? vals[vals.length - 1] : "0,0" };
     }
 }

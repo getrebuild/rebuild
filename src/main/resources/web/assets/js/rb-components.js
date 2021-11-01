@@ -392,7 +392,7 @@ function RbSpinner(props) {
   const spinner = (
     <div className="rb-spinner">
       {$.browser.msie ? (
-        <span className="spinner-border spinner-border-xl text-primary"></span>
+        <span className="spinner-border spinner-border-xl text-primary" />
       ) : (
         <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
           <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
@@ -977,6 +977,99 @@ UserPopup.create = function (el) {
     },
     mouseleave: _leave,
   })
+}
+
+// 百度地图
+class BaiduMap extends React.Component {
+  render() {
+    return <div className="map-container" ref={(c) => (this._$container = c)} />
+  }
+
+  componentDidMount() {
+    const that = this
+
+    $useMap(() => {
+      const _BMapGL = window.BMapGL
+      const map = new _BMapGL.Map(that._$container)
+      map.enableScrollWheelZoom(true) // 开启鼠标滚轮缩放
+      that._map = map
+
+      // 初始位置
+      const latlng = that.props.latlng
+      if (latlng) {
+        const point = new _BMapGL.Point(latlng.lng, latlng.lat)
+        map.centerAndZoom(point, 12)
+        map.addOverlay(new _BMapGL.Marker(point))
+      } else {
+        map.centerAndZoom('北京市', 12)
+
+        // 初始定位
+        const geo = new _BMapGL.Geolocation()
+        geo.getCurrentPosition(function (r) {
+          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+            map.addOverlay(new _BMapGL.Marker(r.point))
+            map.panTo(r.point)
+          } else {
+            console.log('Geolocation failed :', this.getStatus())
+          }
+        })
+      }
+
+      // 点选
+      if (that.props.canPin) {
+        map.addEventListener('click', function (e) {
+          map.clearOverlays()
+          const latlng = e.latlng
+          const marker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat), {
+            enableDragging: false,
+          })
+          map.addOverlay(marker)
+          that.geoc(latlng, (val) => {
+            typeof that.props.onPin === 'function' && that.props.onPin(val)
+          })
+        })
+      }
+
+      // 搜索
+      that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
+        renderOptions: { map: map },
+        onSearchComplete: function (r) {
+          console.log('onSearchComplete', r)
+        },
+      })
+      that.props.s && that.search(that.props.s)
+
+      // 地址解析
+      that._mapGeoc = new _BMapGL.Geocoder()
+    })
+  }
+
+  geoc(latlng, call) {
+    this._mapGeoc.getLocation(latlng, (r) => {
+      const val = { address: r.address, lat: latlng.lat, lng: latlng.lng }
+      typeof call === 'function' ? call(val) : console.log(val)
+    })
+  }
+
+  search(s) {
+    this._mapLocalSearch.search(s)
+  }
+
+  // ~~ Usage
+
+  /**
+   * @param {object} latlng
+   */
+  static view(latlng) {
+    const title = latlng.address ? `${$L('位置')} : ${latlng.address}` : $L('地图')
+    renderRbcomp(
+      <RbModal title={title} noPadding ref={(c) => (this._dlg = c)} width={880}>
+        <div style={{ height: 600 }}>
+          <BaiduMap ref={(c) => (this._BaiduMap = c)} latlng={{ lat: latlng.lat, lng: latlng.lng }} />
+        </div>
+      </RbModal>
+    )
+  }
 }
 
 /**

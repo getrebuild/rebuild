@@ -705,6 +705,24 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('LOCATION', function (v, s, k) {
+  return (
+    <td key={k}>
+      <div style={s} title={v[0]}>
+        <a
+          href={`#!/Map:${v[1]}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
+            const latlng = v[1].split(',')
+            BaiduMap.view({ lng: latlng[0], lat: latlng[1], address: v[0] })
+          }}>
+          {v[0]}
+        </a>
+      </div>
+    </td>
+  )
+})
+
 // ~ 分页组件
 
 class RbListPagination extends React.Component {

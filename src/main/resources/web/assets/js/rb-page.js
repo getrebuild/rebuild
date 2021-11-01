@@ -818,3 +818,20 @@ var _getLang = function (key) {
   }
   return lang
 }
+
+/**
+ * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
+ */
+var $useMap = function (onLoad) {
+  if (window.BMapGL) {
+    typeof onLoad === 'function' && onLoad()
+  } else {
+    var callback = $random('__$bdmapCallback', true, 20)
+    window[callback] = function () {
+      typeof onLoad === 'function' && onLoad()
+    }
+
+    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=' + callback
+    $.getScript(scriptUrl)
+  }
+}

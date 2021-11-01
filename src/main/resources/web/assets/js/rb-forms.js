@@ -1728,6 +1728,84 @@ class RbFormAvatar extends RbFormElement {
   }
 }
 
+class RbFormLocation extends RbFormElement {
+  renderElement() {
+    const value = this.state.value || []
+    const address = typeof value === 'object' ? value[0] : value.split('$$$$')[0]
+
+    return (
+      <div className="input-group">
+        <input
+          type="text"
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
+          title={this.state.hasError}
+          value={address || ''}
+          onChange={this.handleChange}
+        />
+        <div className="input-group-append">
+          <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+            <i className="icon zmdi zmdi-pin-drop" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    const value = this.state.value
+    if (!value) return super.renderViewElement()
+
+    const vals = typeof value === 'object' ? value : value.split('$$$$')
+    const latlng = vals[1].split(',')
+
+    return !this.props.locationMapOnView ? (
+      <div>
+        <div className="form-control-plaintext">{vals[0]}</div>
+        <div className="map-show">
+          <BaiduMap latlng={{ lng: latlng[0], lat: latlng[1] }} />
+        </div>
+      </div>
+    ) : (
+      <div className="form-control-plaintext">
+        <a
+          href={`#!/Map:${vals[1]}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
+            BaiduMap.view({ lng: latlng[0], lat: latlng[1], address: vals[0] })
+          }}>
+          {vals[0]}
+        </a>
+      </div>
+    )
+  }
+
+  _search() {
+    if (this._BaiduMapModal) {
+      this._BaiduMapModal.show()
+    } else {
+      const that = this
+      renderRbcomp(
+        <RbModal noPadding ref={(c) => (this._dlg = c)}>
+          <div style={{ height: 500 }}>
+            <BaiduMap
+              canPin
+              onPin={(val) => {
+                val = val && val.address ? `${val.address}$$$$${val.lng},${val.lat}` : null
+                that.handleChange({ target: { value: val } }, true)
+              }}
+            />
+          </div>
+        </RbModal>,
+        null,
+        function () {
+          that._BaiduMapModal = this
+        }
+      )
+    }
+  }
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -1814,6 +1892,8 @@ var detectElement = function (item) {
     return <RbFormBarcode {...item} readonly={true} />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
+  } else if (item.type === 'LOCATION') {
+    return <RbFormLocation {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
