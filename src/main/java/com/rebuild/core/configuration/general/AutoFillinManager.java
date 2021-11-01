@@ -62,7 +62,7 @@ public class AutoFillinManager implements ConfigManager {
         // 利用表单回填做父级级联字段回填
         String cascadingField = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
         if (StringUtils.isNotBlank(cascadingField)) {
-            String[] fs = cascadingField.split(MetadataHelper.SPLITER2);
+            String[] fs = cascadingField.split(MetadataHelper.SPLITER_RE);
             ConfigBean fake = new ConfigBean()
                     .set("source", fs[1])
                     .set("target", fs[0])

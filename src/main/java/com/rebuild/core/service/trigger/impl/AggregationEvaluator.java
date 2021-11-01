@@ -82,7 +82,7 @@ public class AggregationEvaluator {
 
         List<String[]> fields = new ArrayList<>();
         for (String m : matchsVars) {
-            String[] fieldAndFunc = m.split(MetadataHelper.SPLITER2);
+            String[] fieldAndFunc = m.split(MetadataHelper.SPLITER_RE);
             if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
                 throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }

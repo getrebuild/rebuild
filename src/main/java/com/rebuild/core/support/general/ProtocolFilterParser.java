@@ -128,11 +128,11 @@ public class ProtocolFilterParser {
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
 
             if (StringUtils.isNotBlank(cascadingFieldParent)) {
-                String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER2);
+                String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
                 sqls.add(String.format("%s = '%s'", fs[1], cascadingValue));
             }
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
-                String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER2);
+                String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
 
                 String sql = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",

@@ -39,7 +39,7 @@ public class MetadataHelper {
 
     // 通用分隔符
     public static final String SPLITER = "$$$$";
-    public static final String SPLITER2 = "\\$\\$\\$\\$";
+    public static final String SPLITER_RE = "\\$\\$\\$\\$";
 
     /**
      * 元数据工厂
