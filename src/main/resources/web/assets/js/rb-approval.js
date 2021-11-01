@@ -419,6 +419,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
         <EditableForm $$$parent={fake} entity={this.props.entity} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
+            item.isFull = true
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}

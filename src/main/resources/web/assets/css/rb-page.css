@@ -2840,19 +2840,25 @@ form {
   margin: 0 -5px;
 }
 
-.form.approval-form .form-group {
+.form.approval-form > .form-group {
   padding: 0 20px;
 }
 
-.form.approval-form .form-group .zicon {
+.form.approval-form > .form-group .zicon {
   float: left;
   padding-right: 6px;
   width: 18px;
 }
 
-.form.approval-form .form-group .zicon.zmdi-mail-send {
+.form.approval-form > .form-group .zicon.zmdi-mail-send {
   font-size: 1.1rem;
   margin-top: 2px;
+}
+
+.form.approval-form .rbform {
+  background-color: #f5f5f5;
+  border-radius: 2px;
+  padding: 15px;
 }
 
 .form.approval-form .approval-list {
@@ -3009,16 +3015,6 @@ form {
   margin-left: -57px;
   margin-top: 8px;
   text-align: center;
-}
-
-.form.approval-form .rbform {
-  background-color: #f5f5f5;
-  border-radius: 3px;
-  padding: 12px 0;
-}
-
-.form.approval-form .rbform .form-group.row {
-  padding: 10px 0;
 }
 
 .notification-page {

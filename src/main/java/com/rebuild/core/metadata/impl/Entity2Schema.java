@@ -93,7 +93,7 @@ public class Entity2Schema extends Field2Schema {
                 "select min(typeCode) from MetaEntity").unique();
         int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0
                 ? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
-        if (typeCode <= (License.isCommercial() ? 500 : 900)) {
+        if (typeCode <= (License.isCommercial() ? 399 : 949)) {
             throw new MetadataModificationException("ENTITY CODE EXCEEDS SYSTEM LIMIT : " + typeCode);
         }
 
@@ -116,7 +116,7 @@ public class Entity2Schema extends Field2Schema {
         }
         record.setString("nameField", nameFiled);
         record = Application.getCommonsService().create(record);
-        tempMetaId.add(record.getPrimary());
+        recordedMetaId.add(record.getPrimary());
 
         Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, nameFiled);
         try {
@@ -151,13 +151,13 @@ public class Entity2Schema extends Field2Schema {
             }
         } catch (Throwable ex) {
             log.error(null, ex);
-            Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库 : %s", ex.getLocalizedMessage()));
         }
 
         boolean schemaReady = schema2Database(tempEntity);
         if (!schemaReady) {
-            Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 

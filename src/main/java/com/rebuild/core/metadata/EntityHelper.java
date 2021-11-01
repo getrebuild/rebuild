@@ -165,6 +165,7 @@ public class EntityHelper {
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
+    public static final String ApprovalLastUser = "approvalLastUser";
 
     // 权限
 

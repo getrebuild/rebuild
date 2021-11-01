@@ -40,10 +40,15 @@ public class ApprovalFields2Schema extends Field2Schema {
      */
     public boolean createFields(Entity approvalEntity) throws MetadataModificationException {
         if (MetadataHelper.hasApprovalField(approvalEntity)) {
+            if (!approvalEntity.containsField(EntityHelper.ApprovalLastUser)) {
+                return createApporvalLastUser(approvalEntity);
+            }
             return false;
         }
-        if (!(MetadataHelper.hasPrivilegesField(approvalEntity) || EasyMetaFactory.valueOf(approvalEntity).isPlainEntity())) {
-            throw new RebuildException("Unsupported entity : " + approvalEntity.getName());
+
+        if (!(MetadataHelper.hasPrivilegesField(approvalEntity)
+                || EasyMetaFactory.valueOf(approvalEntity).isPlainEntity())) {
+            throw new RebuildException("UNSUPPORTED ENTITY : " + approvalEntity.getName());
         }
 
         Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, Language.L("审批流程"),
@@ -52,16 +57,36 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.STATE, true, false, false, true, true, null, null, null, null, ApprovalState.DRAFT.getState());
         Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, Language.L("审批步骤"),
                 DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
+        Field apporvalLastUser = buildApporvalLastUser(approvalEntity);
 
         boolean schemaReady = schema2Database(approvalEntity,
-                new Field[] { apporvalId, apporvalState, apporvalStepId });
+                new Field[] { apporvalId, apporvalState, apporvalStepId, apporvalLastUser });
 
         if (!schemaReady) {
-            Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);
         return true;
+    }
+
+    // v2.7 最后审批人
+    private boolean createApporvalLastUser(Entity approvalEntity) {
+        Field apporvalLastUser = buildApporvalLastUser(approvalEntity);
+        boolean schemaReady = schema2Database(approvalEntity, new Field[] { apporvalLastUser });
+
+        if (!schemaReady) {
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
+            throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
+        }
+
+        MetadataHelper.getMetadataFactory().refresh(false);
+        return true;
+    }
+
+    private Field buildApporvalLastUser(Entity approvalEntity) {
+        return createUnsafeField(approvalEntity, EntityHelper.ApprovalLastUser, Language.L("最后审批人"),
+                DisplayType.REFERENCE, true, false, false, true, true, null, "User", CascadeModel.Ignore, null, null);
     }
 }

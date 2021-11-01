@@ -36,15 +36,21 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
+      let hadAlert = null
       if (wpc.type === 'DetailView') {
-        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('主记录正在审批中') })
-        else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
+        if (hadApproval === 2 || hadApproval === 10) {
+          if (window.RbViewPage) window.RbViewPage.setReadonly()
+          else $('.J_edit, .J_delete').remove()
+
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+        }
         hadApproval = null
       }
 
       const viewData = {}
       const VFORM = (
         <React.Fragment>
+          {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
