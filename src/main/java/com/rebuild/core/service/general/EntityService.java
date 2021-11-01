@@ -114,7 +114,8 @@ public interface EntityService extends ServiceSpec {
      *
      * @param record
      * @param state 只接受通过或撤销
+     * @param approvalUser 审批人
      * @see com.rebuild.core.service.approval.ApprovalStepService
      */
-    void approve(ID record, ApprovalState state);
+    void approve(ID record, ApprovalState state, ID approvalUser);
 }

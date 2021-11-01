@@ -223,13 +223,7 @@ public class ApprovalStepService extends BaseService {
 
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
-            if (MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
-                Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
-                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
-                super.update(recordOfMain);
-            }
-
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
             return;
         }
 
@@ -283,7 +277,7 @@ public class ApprovalStepService extends BaseService {
 
         // 撤销
         if (isRevoke) {
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED, null);
         } else {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
@@ -419,12 +413,9 @@ public class ApprovalStepService extends BaseService {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
-                recordOfMain.setID(EntityHelper.ApprovalLastUser, useApprover);
-            }
             super.update(recordOfMain);
 
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
             return true;
 
         } else {
