@@ -52,7 +52,7 @@ public class Field2Schema {
     private static final int DECIMAL_SCALE = 8;
 
     final protected ID user;
-    final protected Set<ID> tempMetaId = new HashSet<>();
+    final protected Set<ID> recordedMetaId = new HashSet<>();
 
     /**
      * @param user
@@ -91,7 +91,7 @@ public class Field2Schema {
 
         boolean schemaReady = schema2Database(entity, new Field[]{field});
         if (!schemaReady) {
-            Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
@@ -292,7 +292,7 @@ public class Field2Schema {
         }
 
         recordOfField = Application.getCommonsService().create(recordOfField);
-        tempMetaId.add(recordOfField.getPrimary());
+        recordedMetaId.add(recordOfField.getPrimary());
 
         // 以下会改变一些属性，因为并不想他们保存在元数据中
 

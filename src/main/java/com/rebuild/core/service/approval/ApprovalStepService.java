@@ -23,6 +23,7 @@ import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -36,6 +37,7 @@ import java.util.Set;
  * @author devezhao
  * @since 07/11/2019
  */
+@Slf4j
 @Service
 public class ApprovalStepService extends BaseService {
 
@@ -167,6 +169,9 @@ public class ApprovalStepService extends BaseService {
             // 更新主记录状态
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
+                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
+            }
             super.update(recordOfMain);
 
             String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批", approver, entityLabel);
@@ -218,6 +223,12 @@ public class ApprovalStepService extends BaseService {
 
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
+            if (MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
+                Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
+                super.update(recordOfMain);
+            }
+
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
             return;
         }
@@ -226,6 +237,9 @@ public class ApprovalStepService extends BaseService {
         if (goNextNode) {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
+                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
+            }
             super.update(recordOfMain);
         }
 
@@ -387,8 +401,10 @@ public class ApprovalStepService extends BaseService {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
 
         // 其他状态不能自动审批
-        if (currentState == ApprovalState.DRAFT || currentState == ApprovalState.REJECTED
+        if (currentState == ApprovalState.DRAFT
+                || currentState == ApprovalState.REJECTED
                 || currentState == ApprovalState.REVOKED) {
+
             if (useApprover == null) useApprover = UserService.SYSTEM_USER;
             if (useApproval == null) useApproval = APPROVAL_NOID;
 
@@ -403,11 +419,17 @@ public class ApprovalStepService extends BaseService {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
+            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
+                recordOfMain.setID(EntityHelper.ApprovalLastUser, useApprover);
+            }
             super.update(recordOfMain);
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
 
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
             return true;
+
+        } else {
+            log.warn("Invalid state {} for auto approval", currentState);
+            return false;
         }
-        return false;
     }
 }

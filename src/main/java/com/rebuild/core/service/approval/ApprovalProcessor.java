@@ -93,11 +93,14 @@ public class ApprovalProcessor extends SetUser {
         Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
         Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
 
-        Record mainRecord = EntityHelper.forUpdate(this.record, this.getUser(), false);
-        mainRecord.setID(EntityHelper.ApprovalId, this.approval);
-        mainRecord.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-        mainRecord.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-        Application.getBean(ApprovalStepService.class).txSubmit(mainRecord, ccs, nextApprovers);
+        Record recordOfMain = EntityHelper.forUpdate(this.record, this.getUser(), false);
+        recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
+        recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+        recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
+        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
+            recordOfMain.setNull(EntityHelper.ApprovalLastUser);
+        }
+        Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 
         // 非主事物
         shareIfNeed(this.record, ccs4share);
