@@ -40,8 +40,6 @@ class PreviewTable extends React.Component {
     // last
     if (crtRow.length > 0) rows.push(crtRow)
 
-    console.log(rows)
-
     return (
       <table className="table table-bordered table-sm table-fixed">
         <tbody>
@@ -193,6 +191,8 @@ class PreviewTable extends React.Component {
           })}
         </ul>
       )
+    } else if (item.type === 'LOCATION') {
+      return item.value[0]
     } else if (typeof item.value === 'object') {
       return this._formatRefValue(item.value)
     } else {

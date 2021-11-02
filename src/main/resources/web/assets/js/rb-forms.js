@@ -1730,21 +1730,21 @@ class RbFormAvatar extends RbFormElement {
 
 class RbFormLocation extends RbFormElement {
   renderElement() {
-    const value = this.state.value || []
-    const address = typeof value === 'object' ? value[0] : value.split('$$$$')[0]
-
+    const lnglat = this._parseLnglat(this.state.value)
     return (
-      <div className="input-group">
+      <div className="input-group has-append">
         <input
           type="text"
           ref={(c) => (this._fieldValue = c)}
           className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
           title={this.state.hasError}
-          value={address || ''}
+          value={lnglat ? lnglat.address || '' : ''}
           onChange={this.handleChange}
+          readOnly
         />
+        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} />
         <div className="input-group-append">
-          <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+          <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
             <i className="icon zmdi zmdi-pin-drop" />
           </button>
         </div>
@@ -1753,20 +1753,12 @@ class RbFormLocation extends RbFormElement {
   }
 
   renderViewElement() {
-    const value = this.state.value
-    if (!value) return super.renderViewElement()
+    if (!this.state.value) return super.renderViewElement()
 
-    const vals = typeof value === 'object' ? value : value.split('$$$$')
-    let lnglat = vals[1].split(',')
-    lnglat = {
-      lng: lnglat[0],
-      lat: lnglat[1],
-      address: vals[0],
-    }
-
+    const lnglat = this._parseLnglat(this.state.value)
     return this.props.locationMapOnView ? (
       <div>
-        <div className="form-control-plaintext">{vals[0]}</div>
+        <div className="form-control-plaintext">{lnglat.address}</div>
         <div className="map-show">
           <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} />
         </div>
@@ -1774,34 +1766,42 @@ class RbFormLocation extends RbFormElement {
     ) : (
       <div className="form-control-plaintext">
         <a
-          href={`#!/Map:${vals[1]}`}
+          href={`#!/Map:${lnglat.lng || 0}:${lnglat.lat || 0}`}
           onClick={(e) => {
             $stopEvent(e, true)
             BaiduMapModal.view(lnglat)
           }}>
-          {vals[0]}
+          {lnglat.address}
         </a>
       </div>
     )
   }
 
-  _search() {
+  _parseLnglat(value) {
+    if (!value) return null
+    const vals = typeof value === 'object' ? value : value.split('$$$$')
+    let lnglat = vals[1].split(',')
+    return {
+      address: vals[0],
+      lng: lnglat ? lnglat[0] : null,
+      lat: lnglat ? lnglat[1] : null,
+    }
+  }
+
+  _showMap(lnglat) {
     if (this._BaiduMapModal) {
       this._BaiduMapModal.show()
     } else {
       const that = this
       renderRbcomp(
-        <RbModal noPadding ref={(c) => (this._dlg = c)}>
-          <div style={{ height: 500 }}>
-            <BaiduMap
-              canPin
-              onPin={(val) => {
-                val = val && val.address ? `${val.address}$$$$${val.lng},${val.lat}` : null
-                that.handleChange({ target: { value: val } }, true)
-              }}
-            />
-          </div>
-        </RbModal>,
+        <BaiduMapModal
+          canPin
+          lnglat={lnglat}
+          onConfirm={(lnglat) => {
+            const val = lnglat && lnglat.address ? `${lnglat.address}$$$$${lnglat.lng},${lnglat.lat}` : null
+            that.handleChange({ target: { value: val } }, true)
+          }}
+        />,
         null,
         function () {
           that._BaiduMapModal = this

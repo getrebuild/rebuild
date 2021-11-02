@@ -991,7 +991,9 @@ class BaiduMap extends React.Component {
     $useMap(() => {
       const _BMapGL = window.BMapGL
       const map = new _BMapGL.Map(that._$container)
-      map.enableScrollWheelZoom(true)
+      // map.enableScrollWheelZoom() // 滚动缩放
+      map.addControl(new _BMapGL.ScaleControl())
+      map.addControl(new _BMapGL.ZoomControl())
 
       that._map = map
 
@@ -1010,41 +1012,35 @@ class BaiduMap extends React.Component {
         })
       }
 
-      // 允许点选
       if (that.props.canPin) {
+        // 地址解析
+        const geoc = new _BMapGL.Geocoder()
+
+        let lastMarker = null
+        // 允许点选
         map.addEventListener('click', function (e) {
-          map.clearOverlays()
+          if (lastMarker) map.removeOverlay(lastMarker)
+
           const latlng = e.latlng
-          const marker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
-          map.addOverlay(marker)
-          that._geoc(latlng, (val) => {
-            typeof that.props.onPin === 'function' && that.props.onPin(val)
+          lastMarker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
+          map.addOverlay(lastMarker)
+
+          geoc.getLocation(latlng, (r) => {
+            const v = {
+              lng: latlng.lng,
+              lat: latlng.lat,
+              address: r.address,
+            }
+            typeof that.props.onPin === 'function' && that.props.onPin(v)
           })
         })
+
+        // 搜索
+        that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
+          renderOptions: { map: map },
+          onSearchComplete: function () {},
+        })
       }
-
-      // 搜索
-      that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
-        renderOptions: { map: map },
-        onSearchComplete: function (r) {
-          console.log('onSearchComplete', r)
-        },
-      })
-      // that.props.s && that.search(that.props.s)
-
-      // 地址解析
-      that._mapGeoc = new _BMapGL.Geocoder()
-    })
-  }
-
-  _geoc(latlng, call) {
-    this._mapGeoc.getLocation(latlng, (r) => {
-      const v = {
-        lng: latlng.lng,
-        lat: latlng.lat,
-        address: r.address,
-      }
-      typeof call === 'function' ? call(v) : console.log(v)
     })
   }
 
@@ -1084,11 +1080,54 @@ class BaiduMapModal extends React.Component {
     return this.state && this.state.destroy === true ? null : (
       <div className="modal map-modal" ref={(c) => (this._$modal = c)}>
         <div className="modal-dialog">
-          <div className="modal-content">
+          <div className="modal-content shadow-lg">
             <div className="modal-body p-0">
               <div style={{ height: 500 }}>
-                <BaiduMap ref={(c) => (this._BaiduMap = c)} lnglat={this.props.lnglat} />
+                <BaiduMap
+                  ref={(c) => (this._BaiduMap = c)}
+                  lnglat={this.props.lnglat}
+                  canPin={this.props.canPin}
+                  onPin={(latlng) => {
+                    if (this._searchValue) {
+                      this._latlngValue = latlng
+                      $(this._searchValue).val(latlng.address)
+                    }
+                  }}
+                />
               </div>
+              {this.props.canPin && (
+                <div className="map-oper">
+                  <div className="row">
+                    <div className="col-6">
+                      <div className="input-group w-100">
+                        <input
+                          type="text"
+                          ref={(c) => (this._searchValue = c)}
+                          className="form-control form-control-sm"
+                          placeholder={$L('查找位置')}
+                          onKeyDown={(e) => {
+                            e.which === 13 && this._search()
+                          }}
+                          defaultValue={this.props.lnglat ? this.props.lnglat.address || '' : ''}
+                        />
+                        <div className="input-group-append">
+                          <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                            <i className="icon zmdi zmdi-search" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-6 text-right">
+                      <button className="btn btn-primary btn-outline btn-space" type="button" onClick={() => this._onConfirm()}>
+                        <i className="icon zmdi zmdi-check" /> {$L('确定')}
+                      </button>
+                      <button className="btn btn-secondary btn-space mr-0" type="button" onClick={() => this.hide()}>
+                        {$L('取消')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1112,9 +1151,28 @@ class BaiduMapModal extends React.Component {
     setTimeout(() => this._BaiduMap.center(lnglat), 100)
   }
 
+  hide() {
+    $(this._$modal).modal('hide')
+  }
+
   destroy() {
     this._BaiduMap.destroy()
     this.setState({ destroy: true })
+  }
+
+  _search() {
+    this._BaiduMap.search($val(this._searchValue))
+  }
+
+  _onConfirm() {
+    if (!this._latlngValue) {
+      RbHighbar.create($L('请选取位置'))
+      return
+    }
+
+    const val = { ...this._latlngValue, address: $val(this._searchValue) }
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
+    this.hide()
   }
 
   // ~~ Usage

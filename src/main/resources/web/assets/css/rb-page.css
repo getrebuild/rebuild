@@ -994,6 +994,11 @@ select.form-control:not([disabled]) {
   display: inline-block;
 }
 
+.type-LOCATION .form-control {
+  background-color: #fff;
+  cursor: text;
+}
+
 .img-field {
   line-height: 1;
   font-size: 0;
@@ -4432,4 +4437,9 @@ pre.unstyle {
 .map-modal.modal .modal-content {
   max-width: 1000px;
   box-shadow: none;
+}
+
+.map-modal.modal .map-oper {
+  padding: 10px 15px;
+  background-color: #eee;
 }

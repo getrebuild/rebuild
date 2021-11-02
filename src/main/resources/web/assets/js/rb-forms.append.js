@@ -80,8 +80,8 @@ class ClassificationSelector extends React.Component {
                 </div>
               )}
               <div>
-                <button className="btn btn-primary w-100" onClick={() => this.confirm()}>
-                  {$L('确定')}
+                <button className="btn btn-primary btn-outline w-100" onClick={() => this.confirm()}>
+                  <i className="icon zmdi zmdi-check" /> {$L('确定')}
                 </button>
               </div>
             </div>
