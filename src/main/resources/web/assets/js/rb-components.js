@@ -980,6 +980,7 @@ UserPopup.create = function (el) {
 }
 
 // 百度地图
+// https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
 class BaiduMap extends React.Component {
   render() {
     return <div className="map-container" ref={(c) => (this._$container = c)} />
@@ -987,44 +988,36 @@ class BaiduMap extends React.Component {
 
   componentDidMount() {
     const that = this
-
     $useMap(() => {
       const _BMapGL = window.BMapGL
       const map = new _BMapGL.Map(that._$container)
-      map.enableScrollWheelZoom(true) // 开启鼠标滚轮缩放
+      map.enableScrollWheelZoom(true)
+
       that._map = map
 
       // 初始位置
-      const latlng = that.props.latlng
-      if (latlng) {
-        const point = new _BMapGL.Point(latlng.lng, latlng.lat)
-        map.centerAndZoom(point, 12)
-        map.addOverlay(new _BMapGL.Marker(point))
+      if (that.props.lnglat) {
+        that.center(that.props.lnglat)
       } else {
         map.centerAndZoom('北京市', 12)
-
-        // 初始定位
         const geo = new _BMapGL.Geolocation()
-        geo.getCurrentPosition(function (r) {
+        geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
-            map.addOverlay(new _BMapGL.Marker(r.point))
-            map.panTo(r.point)
+            map.panTo(e.point)
           } else {
             console.log('Geolocation failed :', this.getStatus())
           }
         })
       }
 
-      // 点选
+      // 允许点选
       if (that.props.canPin) {
         map.addEventListener('click', function (e) {
           map.clearOverlays()
           const latlng = e.latlng
-          const marker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat), {
-            enableDragging: false,
-          })
+          const marker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
           map.addOverlay(marker)
-          that.geoc(latlng, (val) => {
+          that._geoc(latlng, (val) => {
             typeof that.props.onPin === 'function' && that.props.onPin(val)
           })
         })
@@ -1037,38 +1030,105 @@ class BaiduMap extends React.Component {
           console.log('onSearchComplete', r)
         },
       })
-      that.props.s && that.search(that.props.s)
+      // that.props.s && that.search(that.props.s)
 
       // 地址解析
       that._mapGeoc = new _BMapGL.Geocoder()
     })
   }
 
-  geoc(latlng, call) {
+  _geoc(latlng, call) {
     this._mapGeoc.getLocation(latlng, (r) => {
-      const val = { address: r.address, lat: latlng.lat, lng: latlng.lng }
-      typeof call === 'function' ? call(val) : console.log(val)
+      const v = {
+        lng: latlng.lng,
+        lat: latlng.lat,
+        address: r.address,
+      }
+      typeof call === 'function' ? call(v) : console.log(v)
     })
+  }
+
+  center(lnglat) {
+    const _BMapGL = window.BMapGL
+    const map = this._map
+
+    const point = new _BMapGL.Point(lnglat.lng, lnglat.lat)
+    if (map.isLoaded()) {
+      map.clearOverlays()
+      // map.panTo(point)
+      map.flyTo(point)
+    }
+
+    map.addOverlay(
+      new _BMapGL.Marker(point, {
+        title: lnglat.address || '',
+      })
+    )
+
+    if (!map.isLoaded()) {
+      map.centerAndZoom(point, 12)
+    }
   }
 
   search(s) {
     this._mapLocalSearch.search(s)
   }
 
-  // ~~ Usage
+  destroy() {
+    this._map.destroy()
+  }
+}
 
-  /**
-   * @param {object} latlng
-   */
-  static view(latlng) {
-    const title = latlng.address ? `${$L('位置')} : ${latlng.address}` : $L('地图')
-    renderRbcomp(
-      <RbModal title={title} noPadding ref={(c) => (this._dlg = c)} width={880}>
-        <div style={{ height: 600 }}>
-          <BaiduMap ref={(c) => (this._BaiduMap = c)} latlng={{ lat: latlng.lat, lng: latlng.lng }} />
+class BaiduMapModal extends React.Component {
+  render() {
+    return this.state && this.state.destroy === true ? null : (
+      <div className="modal map-modal" ref={(c) => (this._$modal = c)}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body p-0">
+              <div style={{ height: 500 }}>
+                <BaiduMap ref={(c) => (this._BaiduMap = c)} lnglat={this.props.lnglat} />
+              </div>
+            </div>
+          </div>
         </div>
-      </RbModal>
+      </div>
     )
+  }
+
+  componentDidMount() {
+    $(this._$modal)
+      .modal({
+        show: true,
+        keyboard: false,
+      })
+      .on('hidden.bs.modal', () => {
+        $keepModalOpen()
+      })
+  }
+
+  show(lnglat) {
+    $(this._$modal).modal('show')
+    setTimeout(() => this._BaiduMap.center(lnglat), 100)
+  }
+
+  destroy() {
+    this._BaiduMap.destroy()
+    this.setState({ destroy: true })
+  }
+
+  // ~~ Usage
+  /**
+   * @param {object} lnglat
+   */
+  static view(lnglat) {
+    if (BaiduMapModal._ViewModal) {
+      BaiduMapModal._ViewModal.show(lnglat)
+    } else {
+      renderRbcomp(<BaiduMapModal lnglat={lnglat} />, null, function () {
+        BaiduMapModal._ViewModal = this
+      })
+    }
   }
 }
 

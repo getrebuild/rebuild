@@ -1757,13 +1757,18 @@ class RbFormLocation extends RbFormElement {
     if (!value) return super.renderViewElement()
 
     const vals = typeof value === 'object' ? value : value.split('$$$$')
-    const latlng = vals[1].split(',')
+    let lnglat = vals[1].split(',')
+    lnglat = {
+      lng: lnglat[0],
+      lat: lnglat[1],
+      address: vals[0],
+    }
 
-    return !this.props.locationMapOnView ? (
+    return this.props.locationMapOnView ? (
       <div>
         <div className="form-control-plaintext">{vals[0]}</div>
         <div className="map-show">
-          <BaiduMap latlng={{ lng: latlng[0], lat: latlng[1] }} />
+          <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} />
         </div>
       </div>
     ) : (
@@ -1772,7 +1777,7 @@ class RbFormLocation extends RbFormElement {
           href={`#!/Map:${vals[1]}`}
           onClick={(e) => {
             $stopEvent(e, true)
-            BaiduMap.view({ lng: latlng[0], lat: latlng[1], address: vals[0] })
+            BaiduMapModal.view(lnglat)
           }}>
           {vals[0]}
         </a>
@@ -1802,6 +1807,15 @@ class RbFormLocation extends RbFormElement {
           that._BaiduMapModal = this
         }
       )
+    }
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      if (this._BaiduMap) {
+        this._BaiduMap.destroy()
+        this._BaiduMap = null
+      }
     }
   }
 }

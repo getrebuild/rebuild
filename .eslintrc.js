@@ -114,5 +114,6 @@ module.exports = {
     AsideTree: true,
     $useMap: true,
     BaiduMap: true,
+    BaiduMapModal: true,
   },
 }

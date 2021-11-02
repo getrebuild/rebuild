@@ -713,8 +713,8 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
           href={`#!/Map:${v[1]}`}
           onClick={(e) => {
             $stopEvent(e, true)
-            const latlng = v[1].split(',')
-            BaiduMap.view({ lng: latlng[0], lat: latlng[1], address: v[0] })
+            const lnglat = v[1].split(',')
+            BaiduMapModal.view({ lng: lnglat[0], lat: lnglat[1], address: v[0] })
           }}>
           {v[0]}
         </a>
