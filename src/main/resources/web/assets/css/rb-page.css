@@ -639,7 +639,11 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .modal-xl,
 .modal-xl .modal-content {
-  max-width: 1100px;
+  max-width: 1000px;
+}
+
+.modal-xl .modal-content .modal-header .close {
+  margin-top: -10px;
 }
 
 .modal-header .close + .close {
@@ -849,7 +853,7 @@ select.form-control:not([disabled]) {
 }
 
 .form-layout > .row .form-group > .col-form-label {
-  width: 140px;
+  width: 150px;
   padding-right: 17px;
   text-align: right;
 }
@@ -4429,17 +4433,13 @@ pre.unstyle {
 .map-show {
   width: 100%;
   height: 100%;
-  background-color: #eee;
+  background-color: #f7f7f7;
   position: relative;
 }
 
-.map-modal.modal .modal-dialog,
-.map-modal.modal .modal-content {
-  max-width: 1000px;
-  box-shadow: none;
-}
-
-.map-modal.modal .map-oper {
+.map-pin {
   padding: 10px 15px;
-  background-color: #eee;
+  padding-left: 19px;
+  background-color: #f7f7f7;
+  border-top: 1px solid #dee2e6;
 }

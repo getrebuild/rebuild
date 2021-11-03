@@ -1278,6 +1278,14 @@ class RbFormReference extends RbFormElement {
     }
   }
 
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    if (this._ReferenceSearcher) {
+      this._ReferenceSearcher.destroy()
+      this._ReferenceSearcher = null
+    }
+  }
+
   _getCascadingFieldValue() {
     let cascadingField
     if (this.props._cascadingFieldParent) {
@@ -1780,7 +1788,7 @@ class RbFormLocation extends RbFormElement {
   _parseLnglat(value) {
     if (!value) return null
     const vals = typeof value === 'object' ? value : value.split('$$$$')
-    let lnglat = vals[1].split(',')
+    const lnglat = vals[1] ? vals[1].split(',') : null // 无坐标
     return {
       address: vals[0],
       lng: lnglat ? lnglat[0] : null,
@@ -1797,6 +1805,7 @@ class RbFormLocation extends RbFormElement {
         <BaiduMapModal
           canPin
           lnglat={lnglat}
+          title={$L('选取位置')}
           onConfirm={(lnglat) => {
             const val = lnglat && lnglat.address ? `${lnglat.address}$$$$${lnglat.lng},${lnglat.lat}` : null
             that.handleChange({ target: { value: val } }, true)
@@ -1812,10 +1821,15 @@ class RbFormLocation extends RbFormElement {
 
   onEditModeChanged(destroy) {
     if (destroy) {
-      if (this._BaiduMap) {
-        this._BaiduMap.destroy()
-        this._BaiduMap = null
-      }
+      // Auto destroy by BaiduMap#componentWillUnmount
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    if (this._BaiduMapModal) {
+      this._BaiduMapModal.destroy()
+      this._BaiduMapModal = null
     }
   }
 }
