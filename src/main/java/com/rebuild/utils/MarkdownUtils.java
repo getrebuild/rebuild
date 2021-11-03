@@ -15,10 +15,7 @@ import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * MD 转换工具
@@ -46,6 +43,7 @@ public class MarkdownUtils {
      */
     public static String render(String md) {
         md = CommonsUtils.escapeHtml(md);
+        md = md.replace("&gt; ", "> ");
         Node document = PARSER.parse(md);
         return RENDERER.render(document);
     }

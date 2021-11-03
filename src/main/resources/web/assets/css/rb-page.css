@@ -2522,14 +2522,6 @@ form {
   margin: 0;
 }
 
-.notification-info blockquote {
-  font-size: 1rem;
-  border-left: 3px solid #ccc;
-  padding-left: 6px;
-  margin: 4px 0 6px 1px;
-  color: #777;
-}
-
 .user-selector .dropdown-menu {
   padding: 0;
   margin: 0;
@@ -3024,98 +3016,6 @@ form {
   margin-left: -57px;
   margin-top: 8px;
   text-align: center;
-}
-
-.notification-page {
-  padding: 0 10px;
-}
-
-.notification-tab {
-  position: relative;
-}
-
-.notification-tab .read-all {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-@media (max-width: 768px) {
-  .float-right .rb-notifications {
-    right: 0;
-  }
-}
-
-.notification-type {
-  min-height: 198px;
-  position: sticky;
-  top: 61px;
-}
-
-.notification-type .list-group-item {
-  padding: 10px 15px;
-}
-
-.notification-list .list-nodata {
-  padding-top: 45px;
-}
-
-.notification-list .notification > .a {
-  cursor: default;
-  padding-left: 10px;
-}
-
-.notification-list .notification:hover {
-  background-color: #ebf2fe !important;
-}
-
-.notification-list .notification.notification-unread:hover {
-  background-color: #dce9fd !important;
-}
-
-.notification-list .notification .text {
-  color: #404040 !important;
-  font-size: 1rem !important;
-}
-
-.notification-list .notification .date {
-  color: #8a8a8a !important;
-  margin-top: 6px !important;
-}
-
-.notification-list .notification .text a {
-  cursor: pointer;
-}
-
-.notification-list .notification .text a.record {
-  text-decoration: underline;
-  padding: 0 1px;
-}
-
-.notification-list .notification.append {
-  padding-right: 70px;
-}
-
-.notification-list .notification.append .badge {
-  position: absolute;
-  right: 15px;
-  top: 11px;
-  font-weight: normal;
-}
-
-.notification-list .notification.notification-unread > .a::after {
-  right: 8px;
-  background-color: #4285f4 !important;
-}
-
-.notification-list .notification .text > ul {
-  padding-left: 18px;
-}
-
-.notification-list .notification.focus {
-  outline: 2px solid #fbbc05;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-  z-index: 1;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,
