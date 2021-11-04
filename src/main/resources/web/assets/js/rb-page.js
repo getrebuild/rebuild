@@ -505,7 +505,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
 
-      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
+      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpe', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
       $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
