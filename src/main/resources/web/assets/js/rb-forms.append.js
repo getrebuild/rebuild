@@ -373,6 +373,8 @@ class BaiduMap extends React.Component {
   }
 
   center(lnglat) {
+    if (!lnglat.lng || !lnglat.lat) return
+
     const _BMapGL = window.BMapGL
     const map = this._map
 

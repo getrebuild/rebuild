@@ -462,6 +462,10 @@ class RbList extends React.Component {
   static renderAfter() {}
 }
 
+function _isFullUrl(urlKey) {
+  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
+}
+
 // 列表（单元格）渲染
 const CellRenders = {
   __renders: {},
@@ -540,11 +544,11 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
       <div className="column-imgs" style={s} title={$L('共 %d 项', vLen)}>
         {v.map((item, idx) => {
           if (idx > 2) return null
-          const imgUrl = `${rb.baseUrl}/filex/img/${item}`
           const imgName = $fileCutName(item)
+          const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
             <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
-              <img alt="Image" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
+              <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
             </a>
           )
         })}
@@ -697,7 +701,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
 })
 
 CellRenders.addRender('AVATAR', function (v, s, k) {
-  const imgUrl = `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
+  const imgUrl = _isFullUrl(v) ? v : `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
   return (
     <td key={k} className="user-avatar">
       <img src={imgUrl} alt="Avatar" />
@@ -708,15 +712,14 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
 CellRenders.addRender('LOCATION', function (v, s, k) {
   return (
     <td key={k}>
-      <div style={s} title={v[0]}>
+      <div style={s} title={v.text}>
         <a
-          href={`#!/Map:${v[1]}`}
+          href={`#!/Map:${v.lng || ''},${v.lat || ''}`}
           onClick={(e) => {
             $stopEvent(e, true)
-            const lnglat = v[1].split(',')
-            BaiduMapModal.view({ lng: lnglat[0], lat: lnglat[1], address: v[0] })
+            BaiduMapModal.view(v)
           }}>
-          {v[0]}
+          {v.text}
         </a>
       </div>
     </td>

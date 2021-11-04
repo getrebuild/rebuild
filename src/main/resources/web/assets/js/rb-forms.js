@@ -977,7 +977,7 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
+                <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
                   <b title={$L('移除')} onClick={() => this.removeItem(item)}>
                     <span className="zmdi zmdi-close" />
@@ -1010,13 +1010,18 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
+                <img src={this._formatUrl(item)} alt="IMG" />
               </a>
             </span>
           )
         })}
       </div>
     )
+  }
+
+  _formatUrl(urlKey) {
+    if (urlKey.startsWith('http://') || urlKey.startsWith('https://')) return urlKey
+    else return `${rb.baseUrl}/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100`
   }
 
   onEditModeChanged(destroy) {
@@ -1687,13 +1692,12 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderElement() {
-    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-            <img src={aUrl} alt="Avatar" />
+            <img src={this._formatUrl(this.state.value)} alt="Avatar" />
           </label>
         </span>
       </div>
@@ -1701,14 +1705,18 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderViewElement() {
-    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <a className="img-thumbnail img-upload">
-          <img src={aUrl} alt="Avatar" />
+          <img src={this._formatUrl(this.state.value)} alt="Avatar" />
         </a>
       </div>
     )
+  }
+
+  _formatUrl(urlKey) {
+    if (urlKey && (urlKey.startsWith('http://') || urlKey.startsWith('https://'))) return urlKey
+    else return rb.baseUrl + (urlKey ? `/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
   }
 
   onEditModeChanged(destroy) {
@@ -1774,7 +1782,7 @@ class RbFormLocation extends RbFormElement {
     ) : (
       <div className="form-control-plaintext">
         <a
-          href={`#!/Map:${lnglat.lng || 0}:${lnglat.lat || 0}`}
+          href={`#!/Map:${lnglat.lng || ''}:${lnglat.lat || ''}`}
           onClick={(e) => {
             $stopEvent(e, true)
             BaiduMapModal.view(lnglat)
