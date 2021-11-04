@@ -336,7 +336,7 @@ body {
 
 .rbview-form .form-group.editable a.edit {
   position: absolute;
-  right: 15px;
+  right: 0;
   top: 0;
   color: #aaa;
   width: 22px;
@@ -596,4 +596,20 @@ body {
 
 .tasks-list.inview .card.status-1 .title a {
   color: #8c8c8c;
+}
+
+.map-show {
+  height: 100px;
+}
+
+.type-LOCATION.col-sm-6 .map-show {
+  height: 200px;
+}
+
+.type-LOCATION.col-sm-9 .map-show {
+  height: 300px;
+}
+
+.type-LOCATION.col-sm-12 .map-show {
+  height: 400px;
 }

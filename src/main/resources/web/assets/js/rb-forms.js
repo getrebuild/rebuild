@@ -977,7 +977,7 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
+                <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
                   <b title={$L('移除')} onClick={() => this.removeItem(item)}>
                     <span className="zmdi zmdi-close" />
@@ -1010,13 +1010,18 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
+                <img src={this._formatUrl(item)} alt="IMG" />
               </a>
             </span>
           )
         })}
       </div>
     )
+  }
+
+  _formatUrl(urlKey) {
+    if (urlKey.startsWith('http://') || urlKey.startsWith('https://')) return urlKey
+    else return `${rb.baseUrl}/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100`
   }
 
   onEditModeChanged(destroy) {
@@ -1275,6 +1280,14 @@ class RbFormReference extends RbFormElement {
       })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    if (this._ReferenceSearcher) {
+      this._ReferenceSearcher.destroy()
+      this._ReferenceSearcher = null
     }
   }
 
@@ -1679,13 +1692,12 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderElement() {
-    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-            <img src={aUrl} alt="Avatar" />
+            <img src={this._formatUrl(this.state.value)} alt="Avatar" />
           </label>
         </span>
       </div>
@@ -1693,14 +1705,18 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderViewElement() {
-    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <a className="img-thumbnail img-upload">
-          <img src={aUrl} alt="Avatar" />
+          <img src={this._formatUrl(this.state.value)} alt="Avatar" />
         </a>
       </div>
     )
+  }
+
+  _formatUrl(urlKey) {
+    if (urlKey && (urlKey.startsWith('http://') || urlKey.startsWith('https://'))) return urlKey
+    else return rb.baseUrl + (urlKey ? `/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
   }
 
   onEditModeChanged(destroy) {
@@ -1724,6 +1740,106 @@ class RbFormAvatar extends RbFormElement {
         },
         () => mp_end()
       )
+    }
+  }
+}
+
+class RbFormLocation extends RbFormElement {
+  renderElement() {
+    const lnglat = this._parseLnglat(this.state.value)
+    return (
+      <div className="input-group has-append">
+        <input
+          type="text"
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
+          title={this.state.hasError}
+          value={lnglat ? lnglat.text || '' : ''}
+          onChange={this.handleChange}
+          readOnly
+        />
+        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} />
+        <div className="input-group-append">
+          <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
+            <i className="icon zmdi zmdi-pin-drop" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    const lnglat = this._parseLnglat(this.state.value)
+    return this.props.locationMapOnView ? (
+      <div>
+        <div className="form-control-plaintext">{lnglat.text}</div>
+        <div className="map-show">
+          <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} />
+        </div>
+      </div>
+    ) : (
+      <div className="form-control-plaintext">
+        <a
+          href={`#!/Map:${lnglat.lng || ''}:${lnglat.lat || ''}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
+            BaiduMapModal.view(lnglat)
+          }}>
+          {lnglat.text}
+        </a>
+      </div>
+    )
+  }
+
+  _parseLnglat(value) {
+    if (!value) return null
+    if (typeof value === 'object') return value
+
+    const vals = value.split('$$$$')
+    const lnglat = vals[1] ? vals[1].split(',') : null // 无坐标
+    return {
+      text: vals[0],
+      lng: lnglat ? lnglat[0] : null,
+      lat: lnglat ? lnglat[1] : null,
+    }
+  }
+
+  _showMap(lnglat) {
+    if (this._BaiduMapModal) {
+      this._BaiduMapModal.show()
+    } else {
+      const that = this
+      renderRbcomp(
+        <BaiduMapModal
+          canPin
+          lnglat={lnglat}
+          title={$L('选取位置')}
+          onConfirm={(lnglat) => {
+            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng},${lnglat.lat}` : null
+            that.handleChange({ target: { value: val } }, true)
+          }}
+        />,
+        null,
+        function () {
+          that._BaiduMapModal = this
+        }
+      )
+    }
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      // Auto destroy by BaiduMap#componentWillUnmount
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    if (this._BaiduMapModal) {
+      this._BaiduMapModal.destroy()
+      this._BaiduMapModal = null
     }
   }
 }
@@ -1814,6 +1930,8 @@ var detectElement = function (item) {
     return <RbFormBarcode {...item} readonly={true} />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
+  } else if (item.type === 'LOCATION') {
+    return <RbFormLocation {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {

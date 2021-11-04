@@ -40,8 +40,6 @@ class PreviewTable extends React.Component {
     // last
     if (crtRow.length > 0) rows.push(crtRow)
 
-    console.log(rows)
-
     return (
       <table className="table table-bordered table-sm table-fixed">
         <tbody>
@@ -189,18 +187,18 @@ class PreviewTable extends React.Component {
       return (
         <ul className="m-0 p-0 pl-3">
           {item.value.map((x) => {
-            return <li key={x.id}>{this._formatRefValue(x)}</li>
+            return <li key={x.id}>{this._findMixValue(x)}</li>
           })}
         </ul>
       )
     } else if (typeof item.value === 'object') {
-      return this._formatRefValue(item.value)
+      return this._findMixValue(item.value)
     } else {
       return item.value
     }
   }
 
-  _formatRefValue(value) {
+  _findMixValue(value) {
     const text = value.text
     if (!text && value.id) return `@${value.id.toUpperCase()}`
     else return text

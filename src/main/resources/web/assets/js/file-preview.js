@@ -182,11 +182,11 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
-        const previewUrl = (window.officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        const previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
-      if (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) {
+      if (_isFullUrl(currentUrl)) {
         setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
@@ -195,7 +195,7 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this._isText(fileName)) {
-      const textUrl = currentUrl.startsWith('http://') || currentUrl.startsWith('https://') ? currentUrl : `/filex/download/${currentUrl}`
+      const textUrl = _isFullUrl(currentUrl) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
         url: textUrl,
         type: 'GET',
@@ -231,9 +231,8 @@ class RbPreview extends React.Component {
 
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
-    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-      url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
-    }
+    url = _isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
+
     if (params) {
       url += url.contains('?') ? '&' : '?'
       url += params
@@ -380,4 +379,8 @@ class FileShare extends RbModalHandler {
       })
     })
   }
+}
+
+function _isFullUrl(urlKey) {
+  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
 }

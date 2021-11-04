@@ -79,6 +79,7 @@ $(document).ready(function () {
     'URL': $L('链接'),
     'NUMBER': $L('整数'),
     'DECIMAL': $L('货币'),
+    'SERIES': $L('自动编号'),
     'DATE': $L('日期'),
     'DATETIME': $L('日期时间'),
     'PICKLIST': $L('下拉列表'),
@@ -89,8 +90,8 @@ $(document).ready(function () {
     'FILE': $L('附件'),
     'IMAGE': $L('图片'),
     'AVATAR': $L('头像'),
-    'SERIES': $L('自动编号'),
     'BARCODE': $L('二维码'),
+    'LOCATION': $L('位置'),
     'BOOL': $L('布尔'),
   }
   for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })

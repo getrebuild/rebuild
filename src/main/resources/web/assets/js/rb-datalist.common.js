@@ -548,7 +548,9 @@ const RbListCommon = {
     const $btn = $('.input-search .input-group-btn .btn'),
       $input = $('.input-search input')
     $btn.on('click', () => RbListPage._RbList.searchQuick())
-    $input.on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $input.on('keydown', (e) => {
+      e.which === 13 && $btn.trigger('click')
+    })
     $('.input-search .btn-input-clear').on('click', () => {
       $input.val('')
       $btn.trigger('click')

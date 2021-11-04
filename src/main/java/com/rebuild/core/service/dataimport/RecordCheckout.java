@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
@@ -28,10 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 从 Cell[] 中解析结果 Record
@@ -44,21 +42,19 @@ public class RecordCheckout {
 
     final private Map<Field, Integer> fieldsMapping;
 
-    /**
-     * @param fieldsMapping
-     */
     protected RecordCheckout(Map<Field, Integer> fieldsMapping) {
         this.fieldsMapping = fieldsMapping;
     }
 
     /**
+     * @param record
      * @param row
      * @return
      */
     public Record checkout(Record record, Cell[] row) {
         for (Map.Entry<Field, Integer> e : this.fieldsMapping.entrySet()) {
             int cellIndex = e.getValue();
-            if (cellIndex > row.length) continue;
+            if (cellIndex >= row.length) continue;
 
             Field field = e.getKey();
             Cell cellValue = row[cellIndex];
@@ -99,34 +95,27 @@ public class RecordCheckout {
             return checkoutStateValue(field, cell);
         } else if (dt == DisplayType.MULTISELECT) {
             return checkoutMultiSelectValue(field, cell);
+        } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+            return checkoutFileOrImage(field, cell);
         }
 
-        String string = cell.asString();
-        if (string != null) string = string.trim();
+        String text = cell.asString();
+        if (text != null) text = text.trim();
 
         // 格式验证
         if (validate) {
             if (dt == DisplayType.EMAIL) {
-                string = cell.asString();
-                return EasyEmail.isEmail(string) ? string : null;
-            } else if (dt == DisplayType.URL) {
-                string = cell.asString();
-                return EasyUrl.isUrl(string) ? string : null;
+                return EasyEmail.isEmail(text) ? text : null;
+            } else if (dt == DisplayType.URL || dt == DisplayType.AVATAR) {
+                return EasyUrl.isUrl(text) ? text : null;
             } else if (dt == DisplayType.PHONE) {
-                string = cell.asString();
-                return EasyPhone.isPhone(string) ? string : null;
+                return EasyPhone.isPhone(text) ? text : null;
             }
         }
 
-        return string;
+        return text;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see PickListManager
-     */
     protected ID checkoutPickListValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -145,12 +134,6 @@ public class RecordCheckout {
         }
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see StateManager
-     */
     protected Integer checkoutStateValue(Field field, Cell cell) {
         final String val = cell.asString();
         if (StringUtils.isBlank(val)) {
@@ -169,12 +152,6 @@ public class RecordCheckout {
         return null;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see ClassificationManager
-     */
     protected ID checkoutClassificationValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -193,11 +170,6 @@ public class RecordCheckout {
         }
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     */
     protected ID checkoutReferenceValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -243,11 +215,6 @@ public class RecordCheckout {
         return found != null ? (ID) found[0] : null;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     */
     protected Date checkoutDateValue(Field field, Cell cell) {
         Date date = cell.asDate();
         if (date != null) return date;
@@ -262,22 +229,25 @@ public class RecordCheckout {
         return null;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     */
     protected Long checkoutMultiSelectValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
 
-        String[] vals = val.split("[,，;；]");
-
         long mVal = 0;
-        for (String s : vals) {
+        for (String s : val.split("[,，;；]")) {
             mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
         }
-
         return mVal == 0 ? null : mVal;
+    }
+
+    protected String checkoutFileOrImage(Field field, Cell cell) {
+        String val = cell.asString();
+        if (StringUtils.isBlank(val)) return null;
+
+        List<String> urls = new ArrayList<>();
+        for (String s : val.split("[,，;；]")) {
+            if (EasyUrl.isUrl(s)) urls.add(s);
+        }
+        return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
     }
 }

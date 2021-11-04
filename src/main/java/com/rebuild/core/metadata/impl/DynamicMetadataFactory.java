@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.rebuild.core.metadata.MetadataHelper.SPLITER;
-import static com.rebuild.core.metadata.MetadataHelper.SPLITER2;
+import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 
 /**
  * @author zhaofang123@gmail.com
@@ -172,7 +172,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             if (StringUtils.isNotBlank(cascadingField)
                     && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                 extraAttrs.put("_cascadingFieldParent", cascadingField);
-                String[] fs = cascadingField.split(SPLITER2);
+                String[] fs = cascadingField.split(SPLITER_RE);
                 cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);
             }
 
@@ -181,7 +181,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
         // 处理父级级联的父子级关系
         for (String child : cascadingFieldsChild) {
-            String[] fs = child.split(SPLITER2);
+            String[] fs = child.split(SPLITER_RE);
             Element fieldElement = (Element) rootElement.selectSingleNode(
                     String.format("entity[@name='%s']/field[@name='%s']", fs[0], fs[1]));
             if (fieldElement == null) {

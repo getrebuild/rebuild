@@ -475,7 +475,8 @@ var $fileCutName = function (fileName) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
-  return fileName.substr(fileName.indexOf('__') + 2)
+  var splitIndex = fileName.indexOf('__')
+  return splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
 }
 
 /**
@@ -817,4 +818,21 @@ var _getLang = function (key) {
     return key
   }
   return lang
+}
+
+/**
+ * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
+ */
+var $useMap = function (onLoad) {
+  if (window.BMapGL) {
+    typeof onLoad === 'function' && onLoad()
+  } else {
+    var callback = $random('__$bdmapCallback', true, 20)
+    window[callback] = function () {
+      typeof onLoad === 'function' && onLoad()
+    }
+
+    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=' + callback
+    $.getScript(scriptUrl)
+  }
 }

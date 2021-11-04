@@ -71,9 +71,8 @@ public class EasyExcelGenerator extends SetUser {
                 System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
 
         List<Map<String, Object>> datas = buildData();
-        if (datas.isEmpty()) {
-            return null;
-        }
+        // 无数据
+        if (datas.isEmpty()) return null;
 
         Map<String, Object> main = null;
         if (this.hasMain) {
@@ -154,9 +153,7 @@ public class EasyExcelGenerator extends SetUser {
         }
 
         // 无明细
-        if (fieldsOfDetail.isEmpty()) {
-            return datas;
-        }
+        if (fieldsOfDetail.isEmpty()) return datas;
 
         String sql = String.format(baseSql + " order by modifiedOn desc",
                 StringUtils.join(fieldsOfDetail, ","),
@@ -201,8 +198,7 @@ public class EasyExcelGenerator extends SetUser {
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
             DisplayType dt = easyMeta.getDisplayType();
 
-            if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-                    || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
+            if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.AVATAR) {
                 data.put(fieldName, unsupportFieldTip);
                 continue;
             }

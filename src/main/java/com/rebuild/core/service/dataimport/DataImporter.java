@@ -76,7 +76,7 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
             } catch (Exception ex) {
                 eachLogs.put(firstCell.getRowNo(), ex.getLocalizedMessage());
-                log.error(firstCell.getRowNo() + " > " + ex);
+                log.error("ROW#{} > {}", firstCell.getRowNo(), ex);
             }
             this.addCompleted();
         }
