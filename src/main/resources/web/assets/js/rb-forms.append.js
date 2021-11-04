@@ -319,7 +319,7 @@ class BaiduMap extends React.Component {
       that._map = map
 
       // 初始位置
-      if (that.props.lnglat) {
+      if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
         map.centerAndZoom('北京市', 12)
