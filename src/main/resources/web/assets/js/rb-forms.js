@@ -1746,7 +1746,7 @@ class RbFormLocation extends RbFormElement {
           ref={(c) => (this._fieldValue = c)}
           className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
           title={this.state.hasError}
-          value={lnglat ? lnglat.address || '' : ''}
+          value={lnglat ? lnglat.text || '' : ''}
           onChange={this.handleChange}
           readOnly
         />
@@ -1766,7 +1766,7 @@ class RbFormLocation extends RbFormElement {
     const lnglat = this._parseLnglat(this.state.value)
     return this.props.locationMapOnView ? (
       <div>
-        <div className="form-control-plaintext">{lnglat.address}</div>
+        <div className="form-control-plaintext">{lnglat.text}</div>
         <div className="map-show">
           <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} />
         </div>
@@ -1779,7 +1779,7 @@ class RbFormLocation extends RbFormElement {
             $stopEvent(e, true)
             BaiduMapModal.view(lnglat)
           }}>
-          {lnglat.address}
+          {lnglat.text}
         </a>
       </div>
     )
@@ -1787,10 +1787,12 @@ class RbFormLocation extends RbFormElement {
 
   _parseLnglat(value) {
     if (!value) return null
-    const vals = typeof value === 'object' ? value : value.split('$$$$')
+    if (typeof value === 'object') return value
+
+    const vals = value.split('$$$$')
     const lnglat = vals[1] ? vals[1].split(',') : null // 无坐标
     return {
-      address: vals[0],
+      text: vals[0],
       lng: lnglat ? lnglat[0] : null,
       lat: lnglat ? lnglat[1] : null,
     }
@@ -1807,7 +1809,7 @@ class RbFormLocation extends RbFormElement {
           lnglat={lnglat}
           title={$L('选取位置')}
           onConfirm={(lnglat) => {
-            const val = lnglat && lnglat.address ? `${lnglat.address}$$$$${lnglat.lng},${lnglat.lat}` : null
+            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng},${lnglat.lat}` : null
             that.handleChange({ target: { value: val } }, true)
           }}
         />,

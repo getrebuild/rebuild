@@ -352,7 +352,7 @@ class BaiduMap extends React.Component {
             const v = {
               lng: latlng.lng,
               lat: latlng.lat,
-              address: r.address,
+              text: r.address,
             }
             typeof that.props.onPin === 'function' && that.props.onPin(v)
           })
@@ -385,7 +385,7 @@ class BaiduMap extends React.Component {
 
     map.addOverlay(
       new _BMapGL.Marker(point, {
-        title: lnglat.address || '',
+        title: lnglat.text || lnglat.address || '',
       })
     )
 
@@ -430,7 +430,7 @@ class BaiduMapModal extends RbModal {
                           onKeyDown={(e) => {
                             e.which === 13 && this._search()
                           }}
-                          defaultValue={this.props.lnglat ? this.props.lnglat.address || '' : ''}
+                          defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
                         />
                         <div className="input-group-append">
                           <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
@@ -455,7 +455,7 @@ class BaiduMapModal extends RbModal {
                   onPin={(latlng) => {
                     if (this._searchValue) {
                       this._latlngValue = latlng
-                      $(this._searchValue).val(latlng.address)
+                      $(this._searchValue).val(latlng.text)
                     }
                   }}
                 />
@@ -488,7 +488,7 @@ class BaiduMapModal extends RbModal {
       return
     }
 
-    const val = { ...this._latlngValue, address: $val(this._searchValue) }
+    const val = { ...this._latlngValue, text: $val(this._searchValue) }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
     this.hide()
   }
