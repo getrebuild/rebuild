@@ -141,6 +141,7 @@ const step3_import = () => {
     }
   })
   if (!fsMapping) return
+
   _Config.fields_mapping = fsMapping
 
   RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {

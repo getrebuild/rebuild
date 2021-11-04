@@ -96,7 +96,7 @@ public class RecordCheckout {
         } else if (dt == DisplayType.MULTISELECT) {
             return checkoutMultiSelectValue(field, cell);
         } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
-            return checkoutFile(field, cell);
+            return checkoutFileOrImage(field, cell);
         }
 
         String text = cell.asString();
@@ -116,9 +116,6 @@ public class RecordCheckout {
         return text;
     }
 
-    /**
-     * @see PickListManager
-     */
     protected ID checkoutPickListValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -137,9 +134,6 @@ public class RecordCheckout {
         }
     }
 
-    /**
-     * @see StateManager
-     */
     protected Integer checkoutStateValue(Field field, Cell cell) {
         final String val = cell.asString();
         if (StringUtils.isBlank(val)) {
@@ -158,9 +152,6 @@ public class RecordCheckout {
         return null;
     }
 
-    /**
-     * @see ClassificationManager
-     */
     protected ID checkoutClassificationValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -249,7 +240,7 @@ public class RecordCheckout {
         return mVal == 0 ? null : mVal;
     }
 
-    protected String checkoutFile(Field field, Cell cell) {
+    protected String checkoutFileOrImage(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
 

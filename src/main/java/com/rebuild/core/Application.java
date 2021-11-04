@@ -109,7 +109,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        if (_CONTEXT != null) throw new IllegalStateException("Rebuild already started");
+        if (_CONTEXT != null) throw new IllegalStateException("REBUILD ALREADY STARTED");
 
         _CONTEXT = event.getApplicationContext();
 
@@ -240,7 +240,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     public static ApplicationContext getContext() {
-        if (_CONTEXT == null) throw new IllegalStateException("Rebuild unstarted");
+        if (_CONTEXT == null) throw new IllegalStateException("REBUILD UNSTARTED");
         else return _CONTEXT;
     }
 
