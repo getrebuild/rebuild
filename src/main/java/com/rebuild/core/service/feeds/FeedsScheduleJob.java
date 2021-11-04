@@ -116,7 +116,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
      * @return
      */
     protected String mergeContents(List<Object[]> msgs, boolean fullUrl) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("\n");
         int num = 0;
         for (Object[] o : msgs) {
             sb.append("\n- [");

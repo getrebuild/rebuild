@@ -58,7 +58,7 @@ public class RecordCheckout {
     public Record checkout(Record record, Cell[] row) {
         for (Map.Entry<Field, Integer> e : this.fieldsMapping.entrySet()) {
             int cellIndex = e.getValue();
-            if (cellIndex > row.length) continue;
+            if (cellIndex >= row.length) continue;
 
             Field field = e.getKey();
             Cell cellValue = row[cellIndex];
