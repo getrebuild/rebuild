@@ -116,10 +116,10 @@ public class FeedsScheduleJob extends DistributedJobLock {
      * @return
      */
     protected String mergeContents(List<Object[]> msgs, boolean fullUrl) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("\n");
         int num = 0;
         for (Object[] o : msgs) {
-            sb.append("\n\n - [");
+            sb.append("\n- [");
 
             String c = (String) o[2];
             if (c.length() > 100) {
@@ -141,7 +141,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
         }
 
         if (msgs.size() > num) {
-            sb.append("\n\n - ... ").append(msgs.size());
+            sb.append("\n- ... ").append(msgs.size());
         }
 
         return sb.toString();
