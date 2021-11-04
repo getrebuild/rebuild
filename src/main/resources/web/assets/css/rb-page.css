@@ -4093,8 +4093,14 @@ a.select-lang:hover {
   min-height: 130px;
 }
 
-.cm-formatting {
+.CodeMirror .cm-formatting {
   display: none !important;
+}
+
+.CodeMirror .cm-formatting.cm-formatting-list,
+.CodeMirror .cm-formatting.cm-url,
+.CodeMirror .cm-formatting.cm-link {
+  display: inline !important;
 }
 
 .CodeMirror .CodeMirror-code,

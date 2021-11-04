@@ -46,6 +46,7 @@ public class MarkdownUtils {
      */
     public static String render(String md) {
         md = CommonsUtils.escapeHtml(md);
+        md = md.replace("&gt; ", "> ");  // for MD quote
         Node document = PARSER.parse(md);
         return RENDERER.render(document);
     }

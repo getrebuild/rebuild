@@ -12,7 +12,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.MarkdownUtils;
 
 import java.util.regex.Matcher;
@@ -93,10 +92,10 @@ public class MessageBuilder {
      * @see MarkdownUtils#render(String)
      */
     public static String formatMessage(String message, boolean md2html, boolean xss) {
-        if (xss) {
-            message = CommonsUtils.escapeHtml(message);
-            message = message.replace("&gt;", ">");  // for MD quote
-        }
+//        if (xss) {
+//            message = CommonsUtils.escapeHtml(message);
+//            message = message.replace("&gt;", ">");  // for MD quote
+//        }
 
         // 匹配 `@ID`
         Matcher atMatcher = AT_PATTERN.matcher(message);
