@@ -322,7 +322,7 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        map.centerAndZoom('北京市', 12)
+        map.centerAndZoom('北京市', 14)
 
         const geo = new _BMapGL.Geolocation()
         geo.enableSDKLocation()
@@ -392,7 +392,7 @@ class BaiduMap extends React.Component {
     )
 
     if (!map.isLoaded()) {
-      map.centerAndZoom(point, 12)
+      map.centerAndZoom(point, 14)
     }
   }
 
