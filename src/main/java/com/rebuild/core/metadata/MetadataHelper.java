@@ -183,19 +183,10 @@ public class MetadataHelper {
      *
      * @param field
      * @return
+     * @see #getDetailToMainField(Entity) DMT 字段也属于系统字段，但此方法未做处理
      */
     public static boolean isSystemField(Field field) {
-        boolean is = isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
-        if (is || field.getType() != FieldType.REFERENCE) return is;
-
-        // DTM 字段
-        if (field.getOwnEntity().getMainEntity() != null) {
-            try {
-                return field.equals(getDetailToMainField(field.getOwnEntity()));
-            } catch (MetadataException ignored) {
-            }
-        }
-        return false;
+        return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
     }
 
     /**
