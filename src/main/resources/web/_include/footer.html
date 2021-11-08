@@ -34,7 +34,7 @@
     gtag('js', new Date())
     gtag('config', 'UA-70670864-2')
   </script>
-  <th:block th:if="${user != null && showTour != null}">
+  <th:block th:if="${user != null && startTour != null}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/introjs.min.css}" />
     <script th:src="@{/assets/lib/intro.min.js}"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />

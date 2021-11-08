@@ -94,9 +94,4 @@ public class WebConstants {
      * @see com.rebuild.core.privileges.bizz.User
      */
     public static final String $USER = "user";
-
-    /**
-     * 显示向导
-     */
-    public static final String $SHOW_TOUR = "showTour";
 }

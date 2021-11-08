@@ -7,10 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.*;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
@@ -221,12 +218,17 @@ public class LoginController extends BaseController {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
 
-        createLoginLog(request, user);
+        ThreadPool.exec(() -> createLoginLog(request, user));
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME,
-                KVStorage.getCustomValue("THEME." + user));
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
+
+        // Tour
+        String tourEnd = KVStorage.getCustomValue("TOUREND." + user);
+        if (tourEnd == null) {
+            ServletUtils.addCookie(response, "rb.startTour", "true", -1, null, "/");
+        }
     }
 
     private void createLoginLog(HttpServletRequest request, ID user) {

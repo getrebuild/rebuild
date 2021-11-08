@@ -17,7 +17,6 @@ body.rebuild-tour-body {
   width: 280px;
   min-width: 280px;
   max-width: 280px;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px 0px;
 }
 
 .introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-tooltip-title {
@@ -77,7 +76,7 @@ body.rebuild-tour-body {
 }
 
 .introjs-tooltipbuttons {
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .introjs-tooltipbuttons a > i {
