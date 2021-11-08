@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global RbForm */
 
 let RbForm_postAfter = RbForm.postAfter
-RbForm.postAfter = function () {
-  RbForm_postAfter()
+RbForm.postAfter = function (data, next) {
+  RbForm_postAfter(data, next)
   if (parent && parent.loadDeptTree) parent.loadDeptTree()
 }
 
