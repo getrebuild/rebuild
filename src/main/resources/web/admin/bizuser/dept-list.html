@@ -87,8 +87,8 @@
     <script th:src="@{/assets/js/bizuser/dept-tree.js}" type="text/babel"></script>
     <script type="text/babel">
       const RbForm_postAfter = RbForm.postAfter
-      RbForm.postAfter = function () {
-        RbForm_postAfter()
+      RbForm.postAfter = function (data, next) {
+        RbForm_postAfter(data, next)
         loadDeptTree()
       }
     </script>
