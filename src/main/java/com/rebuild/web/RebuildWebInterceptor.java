@@ -135,6 +135,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
 
+                request.setAttribute(WebConstants.$SHOW_TOUR, true);
             }
 
         } else if (!isIgnoreAuth(requestUri)) {

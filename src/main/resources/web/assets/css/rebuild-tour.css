@@ -1,0 +1,85 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+body.rebuild-tour-body {
+  overflow: hidden !important;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip {
+  background-color: #4285f4;
+  color: #fff;
+  border-radius: 0;
+  border: 0 none;
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px 0px;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-tooltip-title {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-skipbutton {
+  color: #fff;
+  opacity: 0.6;
+  padding: 5px 0;
+  font-weight: normal;
+  font-size: 1.6rem;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-skipbutton:hover {
+  opacity: 0.8;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-tooltiptext {
+  padding-bottom: 10px;
+  line-height: 1.6;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.left {
+  border-right-color: #4285f4;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.bottom {
+  border-top-color: #4285f4;
+}
+
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.top-middle,
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.top-right,
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.top {
+  border-bottom-color: #4285f4;
+}
+
+.introjs-helperLayer.rebuild-tour-highlight {
+  border-radius: unset !important;
+  box-shadow: unset !important;
+}
+
+.introjs-button {
+  border: 0 none !important;
+  font-size: 1rem;
+}
+
+.introjs-bullets ul li a {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.introjs-bullets ul li a.active,
+.introjs-bullets ul li a:focus,
+.introjs-bullets ul li a:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.introjs-tooltipbuttons {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.introjs-tooltipbuttons a > i {
+  font: normal normal normal 17px/1 'Material-Design-Iconic-Font';
+}
