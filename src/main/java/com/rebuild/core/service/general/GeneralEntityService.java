@@ -32,8 +32,6 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +49,8 @@ import java.util.*;
  *
  * 如有需要，其他实体可根据自身业务继承并复写
  *
+ * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
+ *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
@@ -58,7 +58,6 @@ import java.util.*;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
-    @SuppressWarnings("deprecation")
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -66,11 +65,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         addObserver(new NotificationObserver());
         // 触发器
         addObserver(new RobotTriggerObserver());
-
-        // Redis 队列（Redis 可用才有效）
-        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
-            addObserver(new RedisQueueObserver());
-        }
     }
 
     @Override
@@ -102,17 +96,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int delete(ID record, String[] cascades) {
         final ID currentUser = UserContextHolder.getUser();
+        final RecycleStore recycleBin = useRecycleStore(record);
 
-        RecycleStore recycleBin = null;
-        if (RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0) {
-            recycleBin = new RecycleStore(currentUser);
-        } else {
-            log.warn("RecycleBin inactivated : " + record + " by " + currentUser);
-        }
-
-        if (recycleBin != null) {
-            recycleBin.add(record);
-        }
         this.deleteInternal(record);
         int affected = 1;
 
@@ -124,9 +109,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             for (ID id : e.getValue()) {
                 if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
-                    if (recycleBin != null) {
-                        recycleBin.add(id, record);
-                    }
+                    if (recycleBin != null) recycleBin.add(id, record);
 
                     int deleted = 0;
                     try {
@@ -137,7 +120,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         if (deleted > 0) {
                             affected++;
                         } else if (recycleBin != null) {
-                            recycleBin.removeLast();
+                            recycleBin.removeLast();  // If not delete
                         }
                     }
                 } else {
@@ -146,9 +129,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
-        if (recycleBin != null) {
-            recycleBin.store();
-        }
+        if (recycleBin != null) recycleBin.store();
 
         return affected;
     }
@@ -295,6 +276,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return 1;
     }
 
+    // FIXME Transaction rolled back because it has been marked as rollback-only
+    // 20210722 删除时出错会报以上错误
     @Override
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);
@@ -558,13 +541,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public void approve(ID record, ApprovalState state) {
+    public void approve(ID record, ApprovalState state, ID approvalUser) {
         Assert.isTrue(
                 state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
                 "Only REVOKED or APPROVED allowed");
 
         Record approvalRecord = EntityHelper.forUpdate(record, UserService.SYSTEM_USER, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
+        if (state == ApprovalState.APPROVED
+                && approvalUser != null
+                && MetadataHelper.getEntity(record.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
+            approvalRecord.setID(EntityHelper.ApprovalLastUser, approvalUser);
+        }
+
         delegateService.update(approvalRecord);
 
         // 触发器

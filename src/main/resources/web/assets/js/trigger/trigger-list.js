@@ -13,8 +13,8 @@ $(document).ready(function () {
 
 const WHENS = {
   1: $L('新建'),
-  2: $L('删除'),
   4: $L('更新'),
+  2: $L('删除'),
   16: $L('分派'),
   32: $L('共享'),
   64: $L('取消共享'),
@@ -26,6 +26,7 @@ const WHENS = {
 const RBV_TRIGGERS = {
   'HOOKURL': $L('回调 URL'),
   'AUTOTRANSFORM': $L('自动记录转换'),
+  'DATAVALIDATE': $L('数据校验'),
 }
 
 const formatWhen = function (maskVal) {
@@ -223,7 +224,7 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
+    if (rb.commercial < 10 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
       return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), {
         type: 'danger',
         html: true,

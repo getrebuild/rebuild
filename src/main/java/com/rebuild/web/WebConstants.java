@@ -31,6 +31,11 @@ public class WebConstants {
     public static final String BASE_URL = "baseUrl";
 
     /**
+     * 绝对地址 URL
+     */
+    public static final String HOME_URL = "homeUrl";
+
+    /**
      * 系统名称
      */
     public static final String APP_NAME = "appName";
@@ -49,6 +54,11 @@ public class WebConstants {
      * 是否开启页面水印
      */
     public static final String MARK_WATERMARK = "markWatermark";
+
+    /**
+     * 页脚
+     */
+    public static final String PAGE_FOOTER = "pageFooter";
 
     // Per-Request
 

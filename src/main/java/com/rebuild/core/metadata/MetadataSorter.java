@@ -30,6 +30,7 @@ import java.util.Locale;
  * @see MetadataHelper
  * @since 09/30/2018
  */
+@SuppressWarnings("SuspiciousToArrayCall")
 public class MetadataSorter {
 
     /**

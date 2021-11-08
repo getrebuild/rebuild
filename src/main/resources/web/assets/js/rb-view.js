@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig || {}
+const TYPE_DIVIDER = '$DIVIDER$'
 
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -19,7 +20,7 @@ class RbViewForm extends React.Component {
 
   render() {
     return (
-      <div className="rbview-form" ref={(c) => (this._viewForm = c)}>
+      <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent}
       </div>
     )
@@ -35,24 +36,40 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
+      let hadAlert = null
       if (wpc.type === 'DetailView') {
-        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('主记录正在审批中') })
-        else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
+        if (hadApproval === 2 || hadApproval === 10) {
+          if (window.RbViewPage) window.RbViewPage.setReadonly()
+          else $('.J_edit, .J_delete').remove()
+
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+        }
         hadApproval = null
       }
 
+      const viewData = {}
       const VFORM = (
-        <div>
+        <React.Fragment>
+          {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
+              if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
               item.$$$parent = this
               return detectViewElement(item)
             })}
           </div>
-        </div>
+        </React.Fragment>
       )
-      this.setState({ formComponent: VFORM }, () => this.hideLoading())
+
+      this.setState({ formComponent: VFORM }, () => {
+        this.hideLoading()
+        if (window.FrontJS) {
+          window.FrontJS.View._trigger('open', [res.data])
+        }
+      })
+
+      this.__ViewData = viewData
       this.__lastModified = res.data.lastModified || 0
     })
   }
@@ -119,14 +136,15 @@ class RbViewForm extends React.Component {
       [fieldName]: fieldValue.value,
     }
 
-    const $btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
+    const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
     $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
-      $btns.button('reset')
+      $btn.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
+        this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
-        parent && parent.RbListPage && parent.RbListPage.reload()
+        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -142,21 +160,17 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = `col-${item.field === '$DIVIDER$' ? $random() : item.field}`
-  return (
-    <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
-      {window.detectElement(item)}
-    </div>
-  )
+  // item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+  return window.detectElement(item)
 }
 
 const _renderError = (message) => {
   return (
     <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
       <div className="icon">
-        <i className="zmdi zmdi-alert-triangle"></i>
+        <i className="zmdi zmdi-alert-triangle" />
       </div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }}></div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }} />
     </div>
   )
 }
@@ -191,14 +205,7 @@ class RelatedList extends React.Component {
             <div className="row">
               <div className="col">
                 <div className="input-group input-search float-left">
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder={$L('快速查询')}
-                    maxLength="40"
-                    ref={(c) => (this._$quickSearch = c)}
-                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
-                  />
+                  <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
                   <span className="input-group-btn">
                     <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
                       <i className="icon zmdi zmdi-search" />
@@ -210,7 +217,7 @@ class RelatedList extends React.Component {
               <div className="col text-right">
                 <div className="btn-group">
                   <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
                   </button>
                   {this.renderSorts()}
                 </div>
@@ -303,8 +310,8 @@ class EntityRelatedList extends RelatedList {
     this.__entity = props.entity.split('.')[0]
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-link" href={openListUrl} target="_blank">
-        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('列表页查看')}
+      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+        <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
   }
@@ -324,7 +331,7 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+        <div className="rbview-form form-layout inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
@@ -335,9 +342,7 @@ class EntityRelatedList extends RelatedList {
     const pageSize = 20
 
     $.get(
-      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${
-        this.__searchSort || ''
-      }&q=${$encode(this.__searchKey)}`,
+      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`,
       (res) => {
         if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
@@ -433,7 +438,7 @@ class SelectReport extends React.Component {
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
                     <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('点击配置')}
+                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}
                 </p>
@@ -441,14 +446,12 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(
-                      item.name
-                    )}`
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     return (
                       <li key={'r-' + item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
                           {item.name}
-                          <i className="zmdi zmdi-download"></i>
+                          <i className="zmdi zmdi-download" />
                         </a>
                       </li>
                     )
@@ -562,7 +565,7 @@ const RbViewPage = {
     }
 
     // Clean buttons
-    that.cleanViewActionButton()
+    that._cleanViewActionButton()
 
     that.initRecordMeta()
     that.initHistory()
@@ -585,13 +588,13 @@ const RbViewPage = {
         if ($el.length === 0) continue
 
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this._clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
           const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
           $(v).each(function () {
             const _this = this
             const $item = $('<li class="list-inline-item"></li>').appendTo($list)
-            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that.clickViewUser(_this[0])} />, $item[0])
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that._clickViewUser(_this[0])} />, $item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
@@ -666,15 +669,12 @@ const RbViewPage = {
 
       const tabId = 'tab-' + entity.replace('.', '--') // `.` is JS keyword
       const $tabNav = $(
-        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${
-          this.entityLabel
-        }">${this.entityLabel}</a></li>`
+        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
       $tabNav.find('a').click(function () {
-        $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()
@@ -716,9 +716,8 @@ const RbViewPage = {
       $item.click(function () {
         if (e.entity === 'Feeds.relatedRecord') {
           const data = {
-            content: '',
             type: 2,
-            relatedRecord: { id: that.__id, entity: that.__entity[0] },
+            relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
@@ -783,12 +782,12 @@ const RbViewPage = {
     return false
   },
 
-  clickViewUser(id) {
+  _clickViewUser(id) {
     return this.clickView('#!/View/User/' + id)
   },
 
   // 清理操作按钮
-  cleanViewActionButton() {
+  _cleanViewActionButton() {
     $setTimeout(
       () => {
         $cleanMenu('.view-action .J_mores')
@@ -800,11 +799,11 @@ const RbViewPage = {
         if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
       },
       100,
-      'cleanViewActionButton'
+      '_cleanViewActionButton'
     )
   },
 
-  // 隐藏划出的 View
+  // 隐藏
   hide(reload) {
     if (parent && parent !== window) {
       parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
@@ -827,12 +826,30 @@ const RbViewPage = {
   setReadonly() {
     $(this._RbViewForm._viewForm).addClass('readonly')
     $('.J_edit, .J_delete, .J_add-detail').remove()
-    this.cleanViewActionButton()
+    this._cleanViewActionButton()
   },
 }
 
 // init
 $(document).ready(function () {
+  // 无关闭按钮
+  if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+  // 回退按钮
+  if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+    $('.J_back')
+      .removeClass('hide')
+      .on('click', () => {
+        // parent.RbViewModal.holder(this.__id, 'LOADING')
+        history.back()
+      })
+  }
+
+  // iframe 点击穿透
+  if (parent) {
+    $(document).on('click', () => parent.$(parent.document).trigger('_clickEventHandler'))
+    window._clickEventHandler = () => $(document).trigger('click')
+  }
+
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)

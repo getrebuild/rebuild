@@ -27,6 +27,6 @@ public class ProtocolFilterParserTest extends TestSupport {
     @Test
     public void parseRef() {
         System.out.println(new ProtocolFilterParser(null)
-                .parseRef("REFERENCE.TESTALLFIELDS"));
+                .parseRef("REFERENCE.TESTALLFIELDS", null));
     }
 }

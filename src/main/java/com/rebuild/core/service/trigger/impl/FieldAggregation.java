@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -36,11 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 字段归集可能存在的问题。
+ * 字段聚合。问题：
  * - 目标记录可能不允许修改（如审批已完成），此时会抛出异常
  *
  * @author devezhao zhaofang123@gmail.com
- * @see com.rebuild.core.service.trigger.RobotTriggerObserver
  * @since 2019/05/29
  */
 @Slf4j
@@ -67,9 +67,9 @@ public class FieldAggregation implements TriggerAction {
     protected Entity targetEntity;
 
     // 目标记录
-    private ID targetRecordId;
-    // 关联字段
-    private String followSourceField;
+    protected ID targetRecordId;
+    // 关联字段条件
+    protected String followSourceWhere;
 
     /**
      * @param context
@@ -94,6 +94,11 @@ public class FieldAggregation implements TriggerAction {
         return ActionType.FIELDAGGREGATION;
     }
 
+    /**
+     * 检查调用链
+     *
+     * @return
+     */
     protected List<ID> checkTriggerChain() {
         List<ID> tschain = TRIGGER_CHAIN_DEPTH.get();
         if (tschain == null) {
@@ -128,11 +133,14 @@ public class FieldAggregation implements TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        List<ID> tschain = checkTriggerChain();
+        final List<ID> tschain = checkTriggerChain();
         if (tschain == null) return;
 
         this.prepare(operatingContext);
-        if (targetRecordId == null) return;  // 无目标记录
+        if (targetRecordId == null) {
+            log.warn("No target record found");
+            return;
+        }
 
         // 如果当前用户对目标记录无修改权限
         if (!allowNoPermissionUpdate
@@ -158,11 +166,13 @@ public class FieldAggregation implements TriggerAction {
                 continue;
             }
 
-            Object evalValue = new AggregationEvaluator(item, sourceEntity, followSourceField, dataFilterSql)
-                    .eval(targetRecordId);
-            if (evalValue == null) {
-                continue;
+            String filterSql = followSourceWhere;
+            if (dataFilterSql != null) {
+                filterSql = String.format("( %s ) and ( %s )", followSourceWhere, dataFilterSql);
             }
+
+            Object evalValue = new AggregationEvaluator(item, sourceEntity, filterSql).eval();
+            if (evalValue == null) continue;
 
             DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
@@ -182,11 +192,10 @@ public class FieldAggregation implements TriggerAction {
             tschain.add(context.getConfigId());
             TRIGGER_CHAIN_DEPTH.set(tschain);
 
-            if (MetadataHelper.isBusinessEntity(targetEntity)) {
-                Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
-            } else {
-                Application.getService(targetEntity.getEntityCode()).update(targetRecord);
-            }
+            ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
+                    ? Application.getEntityService(targetEntity.getEntityCode())
+                    : Application.getService(targetEntity.getEntityCode());
+            useService.update(targetRecord);
         }
     }
 
@@ -198,6 +207,8 @@ public class FieldAggregation implements TriggerAction {
         String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
+
+        String followSourceField;
 
         // 自己
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
@@ -217,6 +228,8 @@ public class FieldAggregation implements TriggerAction {
                 targetRecordId = (ID) o[0];
             }
         }
+
+        this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 
     @Override

@@ -22,10 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * Root Controller
+ * Base Controller
  *
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
+ *
+ * @see com.rebuild.api.RespBody
+ * @see ControllerRespBodyAdvice
  */
 public abstract class BaseController extends Controller {
 

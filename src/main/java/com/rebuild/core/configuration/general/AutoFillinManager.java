@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyFile;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
@@ -50,15 +51,39 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public JSONArray getFillinValue(Field field, ID source) {
-        // @see field-edit.html 内置字段无配置
-        if (EasyMetaFactory.valueOf(field).isBuiltin()) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
+        final EasyField easyField = EasyMetaFactory.valueOf(field);
+
+        // 内置字段无配置 @see field-edit.html
+        if (easyField.isBuiltin()) return JSONUtils.EMPTY_ARRAY;
 
         final List<ConfigBean> config = getConfig(field);
-        if (config.isEmpty()) {
-            return JSONUtils.EMPTY_ARRAY;
+
+        // 父级级联
+        // 利用表单回填做父级级联字段回填
+        String cascadingField = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
+        if (StringUtils.isNotBlank(cascadingField)) {
+            String[] fs = cascadingField.split(MetadataHelper.SPLITER_RE);
+            ConfigBean fake = new ConfigBean()
+                    .set("source", fs[1])
+                    .set("target", fs[0])
+                    .set("whenCreate", true)
+                    .set("whenUpdate", true)
+                    .set("fillinForce", true);
+            
+            // 移除冲突的表单回填配置
+            for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+                ConfigBean cb = iter.next();
+                if (cb.getString("source").equals(fake.getString("source"))
+                        && cb.getString("target").equals(fake.getString("target"))) {
+                    iter.remove();
+                    break;
+                }
+            }
+
+            config.add(fake);
         }
+
+        if (config.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
         Entity sourceEntity = MetadataHelper.getEntity(source.getEntityCode());
         Entity targetEntity = field.getOwnEntity();

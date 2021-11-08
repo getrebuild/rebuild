@@ -76,7 +76,7 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
             } catch (Exception ex) {
                 eachLogs.put(firstCell.getRowNo(), ex.getLocalizedMessage());
-                log.error(firstCell.getRowNo() + " > " + ex);
+                log.error("ROW#{} > {}", firstCell.getRowNo(), ex);
             }
             this.addCompleted();
         }
@@ -111,7 +111,7 @@ public class DataImporter extends HeavyTask<Integer> {
 
         // 检查重复
         if (rule.getRepeatOpt() < ImportRule.REPEAT_OPT_IGNORE) {
-            final ID repeat = getRepeatedRecordId(rule.getRepeatFields(), recordNew);
+            final ID repeat = findRepeatedRecordId(rule.getRepeatFields(), recordNew);
 
             if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_SKIP) {
                 return null;
@@ -135,6 +135,7 @@ public class DataImporter extends HeavyTask<Integer> {
             EntityRecordCreator verifier = new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
             verifier.verify(record);
         }
+
         return record;
     }
 
@@ -143,7 +144,7 @@ public class DataImporter extends HeavyTask<Integer> {
      * @param data
      * @return
      */
-    protected ID getRepeatedRecordId(Field[] repeatFields, Record data) {
+    protected ID findRepeatedRecordId(Field[] repeatFields, Record data) {
         Map<String, Object> wheres = new HashMap<>();
         for (Field c : repeatFields) {
             String cName = c.getName();
@@ -153,9 +154,7 @@ public class DataImporter extends HeavyTask<Integer> {
         }
 
         log.info("Checking repeated : " + wheres);
-        if (wheres.isEmpty()) {
-            return null;
-        }
+        if (wheres.isEmpty()) return null;
 
         Entity entity = data.getEntity();
         StringBuilder sql = new StringBuilder(String.format("select %s from %s where (1=1)",

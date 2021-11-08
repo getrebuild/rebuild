@@ -12,9 +12,20 @@
         padding: 10px 15px 5px;
         text-align: right;
       }
+      .preview-content {
+        margin: 0 20px 20px;
+      }
+      @media print {
+        .preview-content {
+          margin: 0;
+        }
+      }
       .table th {
         background-color: #eee !important;
-        width: 17.5%;
+        width: 14%;
+      }
+      .table th.divider {
+        width: 100%;
       }
       .table th,
       .table td {
@@ -36,14 +47,6 @@
       .table td > p {
         margin: 0;
         line-height: 1.428571;
-      }
-      .preview-content {
-        margin: 0 20px 20px;
-      }
-      @media print {
-        .preview-content {
-          margin: 0;
-        }
       }
     </style>
   </head>

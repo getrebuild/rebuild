@@ -4,24 +4,10 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FormulaAggregation, ActionContentSpec */
 
-const CALC_MODES = {
-  SUM: $L('求和'),
-  COUNT: $L('计数'),
-  COUNT2: $L('去重计数'),
-  AVG: $L('平均值'),
-  MAX: $L('最大值'),
-  MIN: $L('最小值'),
-  FORMULA: $L('计算公式'),
-}
-
-// ~~ 数据聚合
-// eslint-disable-next-line no-undef
+// ~~ 字段聚合
 class ContentFieldAggregation extends ActionContentSpec {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div className="field-aggregation">
@@ -45,12 +31,13 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
                   {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
                 </div>
               )}
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合规则')}</label>
             <div className="col-md-12 col-lg-9">
@@ -64,15 +51,17 @@ class ContentFieldAggregation extends ActionContentSpec {
                             <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.state.targetFields)}</span>
                           </div>
                           <div className="col-2">
-                            <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                            <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                            <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
+                            <span className="badge badge-warning">{FormulaAggregation.CALC_MODES[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
+                              {item.calcMode === 'FORMULA'
+                                ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
+                                : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <span className="zmdi zmdi-close"></span>
+                              <i className="zmdi zmdi-close" />
                             </a>
                           </div>
                         </div>
@@ -94,12 +83,12 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-2 pr-0">
-                  <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                  <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
-                    {Object.keys(CALC_MODES).map((item) => {
+                    {Object.keys(FormulaAggregation.CALC_MODES).map((item) => {
                       return (
                         <option key={item} value={item}>
-                          {CALC_MODES[item]}
+                          {FormulaAggregation.CALC_MODES[item]}
                         </option>
                       )
                     })}
@@ -111,8 +100,9 @@ class ContentFieldAggregation extends ActionContentSpec {
                     <div
                       className="form-control-plaintext formula"
                       _title={$L('计算公式')}
-                      ref={(c) => (this._$formula = c)}
-                      onClick={() => this.showFormula()}></div>
+                      ref={(c) => (this._$sourceFormula = c)}
+                      onClick={() => this.showFormula()}
+                    />
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -125,7 +115,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('源字段')}</p>
+                    <p>{$L('聚合字段')}</p>
                   </div>
                 </div>
               </div>
@@ -136,8 +126,9 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
             </div>
           </div>
+
           <div className="form-group row pb-0">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
+            <label className="col-md-12 col-lg-3 col-form-label" />
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
@@ -148,10 +139,11 @@ class ContentFieldAggregation extends ActionContentSpec {
               </label>
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合数据条件')}</label>
             <div className="col-md-12 col-lg-9">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={this._dataAdvFilter}>
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.dataAdvFilter()}>
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
               <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
@@ -165,6 +157,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   componentDidMount() {
     const content = this.props.content
     this.__select2 = []
+
     $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const $s2te = $(this._$targetEntity)
@@ -183,7 +176,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
-      this._saveAdvFilter(content.dataFilter)
+      this.saveAdvFilter(content.dataFilter)
     }
   }
 
@@ -194,14 +187,13 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.setState({ items: [] })
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
-      this.setState({ hadApproval: res.data.hadApproval })
       this.__sourceFieldsCache = res.data.source
+      this.setState({ hadApproval: res.data.hadApproval })
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => {
-          $(this._$calcMode).trigger('change')
-        })
+        this.setState({ targetFields: res.data.target }, () => $(this._$calcMode).trigger('change'))
       } else {
+        // init
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
           const $s2cm = $(this._$calcMode)
@@ -235,17 +227,21 @@ class ContentFieldAggregation extends ActionContentSpec {
 
   showFormula() {
     const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
-    renderRbcomp(<FormulaCalc2 fields={fs} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+    renderRbcomp(
+      <FormulaAggregation
+        fields={fs}
+        onConfirm={(v) => {
+          $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
+        }}
+      />
+    )
   }
 
-  textFormula(formula) {
-    return FormulaCalc2.textFormula(formula, this.__sourceFieldsCache)
-  }
-
-  _dataAdvFilter = () => {
-    const that = this
-    if (that._advFilter) that._advFilter.show()
-    else
+  dataAdvFilter() {
+    if (this._advFilter) {
+      this._advFilter.show()
+    } else {
+      const that = this
       renderRbcomp(
         <AdvFilter
           title={$L('数据过滤条件')}
@@ -253,16 +249,17 @@ class ContentFieldAggregation extends ActionContentSpec {
           canNoFilters={true}
           entity={this.props.sourceEntity}
           filter={that._advFilter__data}
-          confirm={that._saveAdvFilter}
+          confirm={(f) => that.saveAdvFilter(f)}
         />,
         null,
         function () {
           that._advFilter = this
         }
       )
+    }
   }
 
-  _saveAdvFilter = (filter) => {
+  saveAdvFilter(filter) {
     this._advFilter__data = filter
     this.setState({ dataFilterItems: filter && filter.items ? filter.items.length : 0 })
   }
@@ -271,7 +268,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     const tf = $(this._$targetField).val()
     const calc = $(this._$calcMode).val()
     const sf = calc === 'FORMULA' ? null : $(this._$sourceField).val()
-    const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
+    const formula = calc === 'FORMULA' ? $(this._$sourceFormula).attr('data-v') : null
 
     if (!tf) return RbHighbar.create($L('请选择目标字段'))
     if (calc === 'FORMULA') {
@@ -286,23 +283,21 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
-    if (exists) return RbHighbar.create($L('目标字段重复'))
+    if (exists) return RbHighbar.create($L('目标字段已添加'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
-    this.setState({ items: items })
+    this.setState({ items: items }, () => $(this._$sourceFormula).empty())
   }
 
   delItem(targetField) {
-    const itemsNew = (this.state.items || []).filter((item) => {
-      return item.targetField !== targetField
-    })
+    const itemsNew = (this.state.items || []).filter((x) => x.targetField !== targetField)
     this.setState({ items: itemsNew })
   }
 
   buildContent() {
     const content = {
       targetEntity: $(this._$targetEntity).val(),
-      items: this.state.items,
+      items: this.state.items || [],
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       dataFilter: this._advFilter__data,
     }
@@ -315,80 +310,14 @@ class ContentFieldAggregation extends ActionContentSpec {
       RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
     }
+
     return content
   }
 }
 
 const _getFieldLabel = function (field, fields) {
-  let found = fields.find((x) => x[0] === field)
-  if (found) found = found[1]
-  return found || '[' + field.toUpperCase() + ']'
-}
-
-// ~ 公式编辑器
-// eslint-disable-next-line no-undef
-class FormulaCalc2 extends FormulaCalc {
-  constructor(props) {
-    super(props)
-  }
-
-  handleInput(v) {
-    if (typeof v === 'object') {
-      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
-      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
-        $a.click(function () {
-          _changeCalcMode(this)
-        })
-      })
-      $field.appendTo(this._$formula)
-    } else {
-      super.handleInput(v)
-    }
-  }
-
-  confirm() {
-    let expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        const $this = $(this)
-        const v = $this.data('v')
-        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else expr.push(v)
-      })
-
-    expr = expr.join('')
-    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
-
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
-    this.hide()
-  }
-
-  // 公式文本化
-  static textFormula(formula, fields) {
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
-      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
-    }
-
-    const keys = Object.keys(CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
-    })
-    return formula.toUpperCase()
-  }
-}
-
-const _changeCalcMode = function (el) {
-  el = $(el)
-  const $field = el.parent().prev()
-  const mode = el.data('mode')
-  const modeText = mode ? ` (${CALC_MODES[mode]})` : ''
-  $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
+  const x = fields.find((x) => x[0] === field)
+  return x ? x[1] : `[${field.toUpperCase()}]`
 }
 
 // eslint-disable-next-line no-undef

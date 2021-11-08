@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-dingtalk" />
+    <title>[[${bundle.L('钉钉')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-dingtalk')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">
+                  [[${bundle.L('钉钉')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.L('应用凭证')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">AgentId</td>
+                        <td data-id="DingtalkAgentid" th:data-value="${DingtalkAgentid ?:''}">[[${DingtalkAgentid ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>AppKey</td>
+                        <td data-id="DingtalkAppkey" th:data-value="${DingtalkAppkey ?:''}">[[${DingtalkAppkey ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>AppSecret</td>
+                        <td data-id="DingtalkAppsecret" th:data-value="${DingtalkAppsecret ?:''}">[[${DingtalkAppsecret ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>CorpId</td>
+                        <td data-id="DingtalkCorpid" th:data-value="${DingtalkCorpid ?:''}">[[${DingtalkCorpid ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('钉钉侧配置')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('应用首页地址')}]]</td>
+                        <td class="click-copy">
+                          [[${_DingtalkHomeUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_DingtalkHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('回调域名')}]]</td>
+                        <td class="click-copy">
+                          [[${_DingtalkAuthCallUrl}]]
+                          <a th:title="${bundle.L('复制')}" class="ml-1 link" th:data-clipboard-text="${_DingtalkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+  </body>
+</html>

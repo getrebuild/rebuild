@@ -10,21 +10,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-const SHOW_DEFAULTVALUE = [
-  'TEXT',
-  'NTEXT',
-  'EMAIL',
-  'PHONE',
-  'URL',
-  'NUMBER',
-  'DECIMAL',
-  'DATE',
-  'DATETIME',
-  'BOOL',
-  'CLASSIFICATION',
-  'REFERENCE',
-  'N2NREFERENCE',
-]
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -70,6 +56,9 @@ $(document).ready(function () {
       extConfigNew[k] = $val(this)
     })
     delete extConfigNew['undefined'] // bugfix
+
+    extConfigNew['advDesensitized'] = $val('#advDesensitized')
+    extConfigNew['advPattern'] = $val('#advPattern')
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
@@ -118,6 +107,9 @@ $(document).ready(function () {
   $('#fieldUpdatable').attr('checked', $isTrue($('#fieldUpdatable').data('o')))
   $('#fieldRepeatable').attr('checked', $isTrue($('#fieldRepeatable').data('o')))
   $('#fieldQueryable').attr('checked', $isTrue($('#fieldQueryable').data('o')))
+
+  if (extConfig.advDesensitized) $('#advDesensitized').attr('checked', true)
+  if (extConfig.advPattern) $('#advPattern').val(extConfig.advPattern)
 
   // 设置扩展值
   for (let k in extConfig) {
@@ -235,24 +227,29 @@ const _handlePicklist = function (dt) {
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').click(() =>
-    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置'))
-  )
+  $('.J_picklist-edit').click(() => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
 }
 
 const _handleSeries = function () {
-  $('.J_fieldAttrs input').attr('disabled', true)
-  $('.J_series-reindex').click(() => {
-    RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
-          this.hide()
-          RbHighbar.success($L('补充编号成功'))
-        })
-      },
-    })
+  $('.J_fieldAttrs input').attr({
+    checked: false,
+    disabled: true,
   })
+
+  $('.J_action .dropdown-toggle').removeClass('hide')
+  $(`<a class="dropdown-item">${$L('补充编号')}</a>`)
+    .appendTo('.J_action .dropdown-menu')
+    .on('click', () => {
+      RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success($L('补充编号成功'))
+          })
+        },
+      })
+    })
 }
 
 const _handleDate = function (dt) {
@@ -329,9 +326,7 @@ const _handleClassification = function (useClassification) {
     }
   }
 
-  const $append = $(
-    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
-  ).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
 
   $.get(`/admin/metadata/classification/info?id=${useClassification}`, (res) => {
     $('#useClassification a')
@@ -347,6 +342,15 @@ const _handleClassification = function (useClassification) {
 
 const _handleReference = function (isN2N) {
   const referenceEntity = $('.J_referenceEntity').data('refentity')
+
+  // 父级字段
+  $.get(`/admin/entity/field-cascading-fields?entity=${wpc.entityName}&field=${wpc.fieldName}`, (res) => {
+    res.data &&
+      res.data.forEach((item) => {
+        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#referenceCascadingField')
+      })
+    wpc.extConfig.referenceCascadingField && $('#referenceCascadingField').val(wpc.extConfig.referenceCascadingField)
+  })
 
   // 数据过滤
   let dataFilter = (wpc.extConfig || {}).referenceDataFilter
@@ -367,13 +371,9 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(
-        <AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />,
-        null,
-        function () {
-          advFilter = this
-        }
-      )
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+        advFilter = this
+      })
     }
   })
 
@@ -397,9 +397,7 @@ const _handleReference = function (isN2N) {
     }
   }
 
-  const $append = $(
-    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
-  ).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
   $append.click(() => _showSearcher())
 

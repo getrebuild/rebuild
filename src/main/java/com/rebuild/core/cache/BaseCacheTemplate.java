@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.cache;
 
 import com.rebuild.core.support.distributed.UseRedis;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
@@ -21,6 +22,7 @@ import java.io.Serializable;
  * @author devezhao
  * @since 01/02/2019
  */
+@Slf4j
 public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V>, UseRedis {
 
     /**
@@ -49,7 +51,7 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
     }
 
     @Override
-    public boolean refreshJedisPool(JedisPool pool) {
+    public boolean reinjectJedisPool(JedisPool pool) {
         if (testJedisPool(pool)) {
             this.delegate = new RedisDriver<>(pool);
             return true;
@@ -70,7 +72,7 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
     @Override
     public void put(String key, String value, int seconds) {
         if (value == null) {
-            LOG.warn("Cannot set `" + key + "` to null");
+            log.warn("Cannot set `{}` to null", key);
             return;
         }
         delegate.put(unityKey(key), value, seconds);
@@ -89,7 +91,7 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
     @Override
     public void putx(String key, V value, int seconds) {
         if (value == null) {
-            LOG.warn("Cannot set `" + key + "` to null");
+            log.warn("Cannot set `{}` to null", key);
             return;
         }
         delegate.putx(unityKey(key), value, seconds);

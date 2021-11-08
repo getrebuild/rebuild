@@ -1,6 +1,25 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #39 (v2.6)
+alter table `project_config`
+  add column `STATUS` smallint(6) default '1' comment '状态 (1=正常 2=归档)';
+
+-- #38 (v2.6)
+alter table `data_report_config`
+  add column `TEMPLATE_TYPE` smallint(6) default '1' comment '模板类型 (1=记录, 2=列表)';
+
+-- #37 (v2.5)
+-- ************ Entity [ExternalUser] DDL ************
+create table if not exists `external_user` (
+  `USER_ID`            char(20) not null,
+  `APP_USER`           varchar(100) not null,
+  `APP_ID`           varchar(100) not null,
+  `BIND_USER`          char(20) not null,
+  primary key  (`USER_ID`),
+  unique index UIX0_external_user (`APP_USER`, `APP_ID`)
+)Engine=InnoDB;
+
 -- #36 (v2.4)
 -- ************ Entity [FrontjsCode] DDL ************
 create table if not exists `frontjs_code` (

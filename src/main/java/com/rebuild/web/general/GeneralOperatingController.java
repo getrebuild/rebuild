@@ -37,6 +37,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
+import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.DataTruncation;
 import java.util.*;
 
 /**
@@ -99,9 +99,8 @@ public class GeneralOperatingController extends BaseController {
             return RespBody.error(known.getLocalizedMessage());
 
         } catch (GenericJdbcException ex) {
-            if (ex.getCause() instanceof DataTruncation) {
-                return RespBody.errorl("字段长度超出限制");
-            }
+            String known = KnownExceptionConverter.convert2ErrorMsg(ex);
+            if (known != null) return RespBody.error(known);
 
             log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
@@ -119,7 +118,8 @@ public class GeneralOperatingController extends BaseController {
                     continue;
                 }
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta));
+                Object newValue = FormsBuilder.instance.wrapFieldValue(
+                        record, EasyMetaFactory.valueOf(fieldMeta), null);
                 ret.put(field, newValue);
             }
         }

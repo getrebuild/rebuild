@@ -18,13 +18,14 @@ import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.DataMasking;
+import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +83,8 @@ public class ConfigurationController extends BaseController {
         ConfigurationItem[] validNumbers = new ConfigurationItem[] {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
-                ConfigurationItem.DBBackupsKeepingDays
+                ConfigurationItem.DBBackupsKeepingDays,
+                ConfigurationItem.PasswordExpiredDays
         };
         for (ConfigurationItem item : validNumbers) {
             String number = defaultIfBlank(data, item);
@@ -255,7 +257,7 @@ public class ConfigurationController extends BaseController {
         if (account == null || account.length == 0) return null;
 
         for (int i : index) {
-            account[i] = DataMasking.masking(account[i]);
+            account[i] = DataDesensitized.any(account[i]);
         }
         return account;
     }
@@ -270,8 +272,103 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
                 RebuildConfiguration.set(item, e.getValue());
             } catch (Exception ex) {
-                log.error("Invalid item : " + e.getKey() + " = " + e.getValue());
+                log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
             }
         }
+    }
+
+    // DingTalk
+
+    @GetMapping("integration/dingtalk")
+    public ModelAndView pageIntegrationDingtalk() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持钉钉集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/dingtalk");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Dingtalk")) {
+                String value = RebuildConfiguration.get(item);
+
+                if (value != null && item == ConfigurationItem.DingtalkAppsecret) {
+                    value = DataDesensitized.any(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/dingtalk");
+        mv.getModel().put("_DingtalkHomeUrl", homeUrl);
+        String[] authCallUrl = homeUrl.split("/");
+        mv.getModel().put("_DingtalkAuthCallUrl", authCallUrl[0] + "//" + authCallUrl[2] + "/");
+
+        return mv;
+    }
+
+    @PostMapping("integration/dingtalk")
+    public RespBody postIntegrationDingtalk(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    // WxWork
+
+    @GetMapping("integration/wxwork")
+    public ModelAndView pageIntegrationWxwork() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持企业微信集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/wxwork");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Wxwork")) {
+                String value = RebuildConfiguration.get(item);
+
+                if (value != null && item == ConfigurationItem.WxworkSecret) {
+                    value = DataDesensitized.any(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/wxwork");
+        mv.getModel().put("_WxworkHomeUrl", homeUrl);
+        mv.getModel().put("_WxworkAuthCallUrl", homeUrl.split("//")[1].split("/")[0]);
+
+        return mv;
+    }
+
+    @PostMapping("integration/wxwork")
+    public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    // SAML
+
+    @GetMapping("integration/sso-saml")
+    public ModelAndView pageIntegrationSsoSaml() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持企业身份认证 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/sso-saml");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Saml")) {
+                mv.getModel().put(name, RebuildConfiguration.get(item));
+            }
+        }
+
+        mv.getModel().put("_SamlSpEndpoint", RebuildConfiguration.getHomeUrl("/user/sso-saml2-login"));
+        mv.getModel().put("_SamlSpSloEndpoint", RebuildConfiguration.getHomeUrl("/user/logout"));
+        mv.getModel().put("_SamlSpEntityid", RebuildConfiguration.getHomeUrl());
+
+        return mv;
+    }
+
+    @PostMapping("integration/sso-saml")
+    public RespBody postIntegrationSsoSaml(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
     }
 }

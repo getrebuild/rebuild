@@ -35,12 +35,11 @@ $(document).ready(function () {
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
 
-    const quickFields = $('#quickFields').val().join(',')
-    if (quickFields !== wpc.extConfig.quickFields) {
-      data.extConfig = {
-        quickFields: quickFields,
-      }
+    let extConfig = {
+      quickFields: $('#quickFields').val().join(','),
     }
+    extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
+    if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
 
     data = $cleanMap(data)
     if (Object.keys(data).length === 0) {
@@ -134,7 +133,7 @@ $(document).ready(function () {
     })
 
     $('#quickFields').select2({
-      placeholder: $L('选择字段'),
+      placeholder: $L('默认'),
       allowClear: true,
       data: sortFields(cQuickFields),
       multiple: true,

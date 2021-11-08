@@ -37,7 +37,7 @@ public class FieldWritebackTest extends TestSupport {
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.FIELDWRITEBACK.name());
         // 更新自己，新建时将修改时间改为：createdOn+1天
-        String content = "{targetEntity:'$PRIMARY$.Account999', items:[{targetField:'modifiedOn', updateMode:'FORMULA', sourceField:'dateadd(`{createdOn}`, `1D`)' }]}";
+        String content = "{targetEntity:'$PRIMARY$.Account999', items:[{targetField:'modifiedOn', updateMode:'FORMULA', sourceField:'DATEADD(`{createdOn}`, `1D`)' }]}";
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 

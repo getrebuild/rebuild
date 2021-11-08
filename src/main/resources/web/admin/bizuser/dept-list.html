@@ -60,7 +60,7 @@
                     </div>
                   </div>
                 </div>
-                <div id="react-list" class="rb-loading rb-loading-active data-list">
+                <div id="react-list" class="rb-loading rb-loading-active data-list data-list-unstats">
                   <th:block th:replace="~{/_include/spinner}" />
                 </div>
               </div>
@@ -79,6 +79,7 @@
         advFilter: false,
       }
     </script>
+    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
@@ -86,8 +87,8 @@
     <script th:src="@{/assets/js/bizuser/dept-tree.js}" type="text/babel"></script>
     <script type="text/babel">
       const RbForm_postAfter = RbForm.postAfter
-      RbForm.postAfter = function () {
-        RbForm_postAfter()
+      RbForm.postAfter = function (data, next) {
+        RbForm_postAfter(data, next)
         loadDeptTree()
       }
     </script>

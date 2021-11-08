@@ -5,7 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const _ENTITIES = {}
+const _ENTITIES = {
+  'Feeds': $L('动态'),
+  'ProjectTask': $L('任务'),
+}
+
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
@@ -32,16 +36,12 @@ const ListConfig = {
 }
 
 class DataList extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig}></RbList>
+    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
   }
 
   componentDidMount() {
-    const select2 = $('#belongEntity')
+    const $s2 = $('#belongEntity')
       .select2({
         placeholder: $L('选择实体'),
         width: 220,
@@ -49,30 +49,33 @@ class DataList extends React.Component {
       })
       .val('$ALL$')
       .trigger('change')
-    select2.on('change', () => this.queryList())
+    $s2.on('change', () => this.queryList())
 
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
     $btn.click(() => this.queryList())
     $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
 
-    this._belongEntity = select2
-    this._recordName = $input
+    this._$belongEntity = $s2
+    this._$recordName = $input
 
     $('.J_restore').click(() => this.restore())
   }
 
   queryList() {
-    let e = this._belongEntity.val(),
-      n = this._recordName.val()
+    let e = this._$belongEntity.val(),
+      n = this._$recordName.val()
     if (e === '$ALL$') e = null
 
     const qs = []
-    if (e) qs.push({ field: 'belongEntity', op: 'EQ', value: e })
+    if (e) {
+      qs.push({ field: 'belongEntity', op: 'EQ', value: e })
+    }
     if (n) {
       if ($regex.isId(n)) qs.push({ field: 'recordId', op: 'EQ', value: n })
       else qs.push({ field: 'recordName', op: 'LK', value: n })
     }
+
     const q = {
       entity: 'RecycleBin',
       equation: 'AND',
@@ -85,7 +88,7 @@ class DataList extends React.Component {
     const ids = this._List.getSelectedIds()
     if (!ids || ids.length === 0) return
 
-    const cont =
+    const alertMsg =
       `<div class="text-bold mb-2">${$L('是否恢复选中的 %d 条记录？', ids.length)}</div>` +
       '<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">' +
       '<input class="custom-control-input" type="checkbox">' +
@@ -93,11 +96,12 @@ class DataList extends React.Component {
       '</label>'
 
     const that = this
-    RbAlert.create(cont, {
+    RbAlert.create(alertMsg, {
       html: true,
       confirm: function () {
         this.disabled(true)
-        let c = $(this._dlg).find('input').prop('checked')
+
+        const c = $(this._dlg).find('input').prop('checked')
         $.post(`/admin/audit/recycle-bin/restore?cascade=${c}&ids=${ids.join(',')}`, (res) => {
           this.hide()
           this.disabled()

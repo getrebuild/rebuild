@@ -27,10 +27,13 @@ import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
+import com.rebuild.core.service.trigger.ActionFactory;
+import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,7 @@ import java.util.Map;
  * @see MetaSchemaGenerator
  * @since 2019/04/28
  */
+@Slf4j
 public class MetaschemaImporter extends HeavyTask<String> {
 
     private JSONObject data;
@@ -347,6 +351,20 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
+
+        String actionType = config.getString("actionType");
+        boolean available = false;
+        for (ActionType type : ActionFactory.getAvailableActions()) {
+            if (type.name().equalsIgnoreCase(actionType)) {
+                available = true;
+                break;
+            }
+        }
+
+        if (!available) {
+            log.warn("Trigger `{}` unavailable", actionType);
+            return;
+        }
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();

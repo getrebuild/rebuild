@@ -33,7 +33,7 @@ class ApprovalProcessor extends React.Component {
           {$L('提交')}
         </button>
         <div className="icon">
-          <span className="zmdi zmdi-info-outline"></span>
+          <span className="zmdi zmdi-info-outline" />
         </div>
         <div className="message"> {$L('当前记录尚未提交审批，请在信息完善后尽快提交')}</div>
       </div>
@@ -66,7 +66,7 @@ class ApprovalProcessor extends React.Component {
           </button>
         )}
         <div className="icon">
-          <span className="zmdi zmdi-hourglass-alt"></span>
+          <span className="zmdi zmdi-hourglass-alt" />
         </div>
         <div className="message">{aMsg}</div>
       </div>
@@ -87,7 +87,7 @@ class ApprovalProcessor extends React.Component {
           </button>
         )}
         <div className="icon">
-          <span className="zmdi zmdi-check"></span>
+          <span className="zmdi zmdi-check" />
         </div>
         <div className="message">{$L('当前记录已审批完成')}</div>
       </div>
@@ -104,7 +104,7 @@ class ApprovalProcessor extends React.Component {
           {$L('再次提交')}
         </button>
         <div className="icon">
-          <span className="zmdi zmdi-close-circle-o"></span>
+          <span className="zmdi zmdi-close-circle-o" />
         </div>
         <div className="message">{$L('审批被驳回，可在信息完善后再次提交')}</div>
       </div>
@@ -121,7 +121,7 @@ class ApprovalProcessor extends React.Component {
           {$L('再次提交')}
         </button>
         <div className="icon">
-          <span className="zmdi zmdi-rotate-left"></span>
+          <span className="zmdi zmdi-rotate-left" />
         </div>
         <div className="message">{$L('审批已撤回，请在信息完善后再次提交')}</div>
       </div>
@@ -138,7 +138,7 @@ class ApprovalProcessor extends React.Component {
           {$L('再次提交')}
         </button>
         <div className="icon">
-          <span className="zmdi zmdi-rotate-left"></span>
+          <span className="zmdi zmdi-rotate-left" />
         </div>
         <div className="message">{$L('审批已撤销，请在信息完善后再次提交')}</div>
       </div>
@@ -151,20 +151,24 @@ class ApprovalProcessor extends React.Component {
 
   submit = () => {
     const that = this
-    if (this._SubmitForm) this._SubmitForm.show(null, () => that._SubmitForm.reload())
-    else
+    if (this._SubmitForm) {
+      this._SubmitForm.show(null, () => that._SubmitForm.reload())
+    } else {
       renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, null, function () {
         that._SubmitForm = this
       })
+    }
   }
 
   approve = () => {
     const that = this
-    if (this._ApproveForm) this._ApproveForm.show()
-    else
+    if (this._ApproveForm) {
+      this._ApproveForm.show()
+    } else {
       renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} />, null, function () {
         that._ApproveForm = this
       })
+    }
   }
 
   cancel = () => {
@@ -198,11 +202,13 @@ class ApprovalProcessor extends React.Component {
 
   viewSteps = () => {
     const that = this
-    if (this._stepViewer) this._stepViewer.show()
-    else
+    if (this._stepViewer) {
+      this._stepViewer.show()
+    } else {
       renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () {
         that._stepViewer = this
       })
+    }
   }
 }
 
@@ -225,7 +231,7 @@ class ApprovalUsersForm extends RbFormHandler {
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
-                return <UserShow key={'AU' + item[0]} id={item[0]} name={item[1]} showName={true} />
+                return <UserShow key={'AU' + item[0]} id={item[0]} name={item[1]} showName />
               })}
             </div>
             {this.state.approverSelfSelecting && (
@@ -248,7 +254,7 @@ class ApprovalUsersForm extends RbFormHandler {
             </label>
             <div>
               {(this.state.nextCcs || []).map((item) => {
-                return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName={true} />
+                return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName />
               })}
             </div>
             {this.state.ccSelfSelecting && (
@@ -278,9 +284,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   getNextStep(approval) {
-    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
-      this.setState(res.data)
-    })
+    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => this.setState(res.data))
   }
 }
 
@@ -292,6 +296,8 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   render() {
+    const approvals = this.state.approvals || []
+
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('提交审批')} width="600" disposeOnHide={this.props.disposeOnHide === true}>
         <div className="form approval-form">
@@ -303,34 +309,27 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                   {$L('无适用流程')}
                   {rb.isAdminUser && (
                     <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('点击配置')}
+                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}
                 </p>
               )}
-              {(this.state.approvals || []).map((item) => {
+              {approvals.map((item) => {
                 return (
                   <div key={'A' + item.id}>
                     <label className="custom-control custom-control-sm custom-radio mb-0">
-                      <input
-                        className="custom-control-input"
-                        type="radio"
-                        name="useApproval"
-                        value={item.id}
-                        onChange={this.handleChange}
-                        checked={this.state.useApproval === item.id}
-                      />
+                      <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {$L('审批流程图')}
+                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180" /> {$L('审批流程图')}
                     </a>
                   </div>
                 )
               })}
             </div>
           </div>
-          {this.renderUsers()}
+          {approvals.length > 0 && this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
             <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>
               {$L('提交')}
@@ -395,14 +394,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.state.aform && this._renderEditableForm()}
           <div className="form-group">
             <label>{$L('批注')}</label>
-            <textarea
-              className="form-control form-control-sm row2x"
-              name="remark"
-              placeholder={$L('输入批注 (可选)')}
-              value={this.state.remark || ''}
-              onChange={this.handleChange}
-              maxLength="600"
-            />
+            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
           </div>
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
@@ -427,6 +419,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
         <EditableForm $$$parent={fake} entity={this.props.entity} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
+            item.isFull = true
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}
@@ -509,6 +502,7 @@ class ApprovalStepViewer extends React.Component {
 
   render() {
     const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
+
     return (
       <div className="modal" ref={(c) => (this._dlg = c)} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
@@ -519,7 +513,7 @@ class ApprovalStepViewer extends React.Component {
               </button>
             </div>
             <div className="modal-body approved-steps-body">
-              {!this.state.steps && <RbSpinner fully={true} />}
+              {!this.state.steps && <RbSpinner fully />}
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
                   return idx === 0 ? this.renderSubmitter(item) : this.renderApprover(item, stateLast)
@@ -551,7 +545,7 @@ class ApprovalStepViewer extends React.Component {
               <blockquote className="blockquote timeline-blockquote mb-0">
                 <p>
                   <a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}>
-                    <i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {s.approvalName}
+                    <i className="zmdi zmdi-usb zmdi-hc-rotate-180" /> {s.approvalName}
                   </a>
                 </p>
               </blockquote>

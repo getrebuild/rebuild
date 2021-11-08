@@ -27,6 +27,10 @@ import java.io.IOException;
 @Configuration
 public class BootConfiguration implements InstallState {
 
+    /**
+     * Fake instance
+     * FIXME 直接 `==` 比较不安全 ???
+     */
     public static final JedisPool USE_EHCACHE = new JedisPool();
 
     @Bean

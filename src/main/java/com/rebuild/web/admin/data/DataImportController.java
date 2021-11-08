@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -30,14 +31,15 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +51,7 @@ import java.util.Map;
  * @since 01/03/2019
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/admin/data/")
 public class DataImportController extends BaseController {
 
@@ -60,12 +62,11 @@ public class DataImportController extends BaseController {
 
     // 检查导入文件
     @RequestMapping("/data-imports/check-file")
-    public void checkFile(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody checkFile(HttpServletRequest request) {
         String file = getParameterNotNull(request, "file");
         File tmp = getFileOfImport(file);
         if (tmp == null) {
-            writeFailure(response, Language.L("数据文件无效"));
-            return;
+            return RespBody.error(Language.L("数据文件无效"));
         }
 
         DataFileParser parser;
@@ -76,35 +77,28 @@ public class DataImportController extends BaseController {
             preview = parser.parse(11);
         } catch (Exception ex) {
             log.error("Parse excel error : " + file, ex);
-            writeFailure(response, Language.L("无法解析数据，请检查数据文件格式"));
-            return;
+            return RespBody.error(Language.L("无法解析数据，请检查数据文件格式"));
         }
 
-        JSON ret = JSONUtils.toJSONObject(
-                new String[]{"count", "preview"}, new Object[]{count, preview});
-        writeSuccess(response, ret);
+        return RespBody.ok(JSONUtils.toJSONObject(
+                new String[]{"count", "preview"}, new Object[]{count, preview}));
     }
 
     // 检查所属用户权限
     @RequestMapping("/data-imports/check-user")
-    public void checkUserPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    public JSON checkUserPrivileges(@EntityParam Entity entity, HttpServletRequest request) {
         ID user = getIdParameterNotNull(request, "user");
-        String entity = getParameterNotNull(request, "entity");
+        boolean canCreated = Application.getPrivilegesManager().allowCreate(user, entity.getEntityCode());
+        boolean canUpdated = Application.getPrivilegesManager().allowUpdate(user, entity.getEntityCode());
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        boolean canCreated = Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode());
-        boolean canUpdated = Application.getPrivilegesManager().allowUpdate(user, entityMeta.getEntityCode());
-
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[]{"canCreate", "canUpdate"}, new Object[]{canCreated, canUpdated});
-        writeSuccess(response, ret);
     }
 
+    // 可用字段
     @RequestMapping("/data-imports/import-fields")
-    public void importFields(HttpServletRequest request, HttpServletResponse response) {
-        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
-
-        List<Map<String, Object>> list = new ArrayList<>();
+    public RespBody importFields(@EntityParam Entity entity) {
+        List<Map<String, Object>> alist = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entity)) {
             String fieldName = field.getName();
             if (EntityHelper.OwningDept.equals(fieldName)
@@ -113,13 +107,9 @@ public class DataImportController extends BaseController {
                 continue;
             }
 
-            // TODO 开放媒体字段导入
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyMeta.getDisplayType();
-            if (dt == DisplayType.FILE
-                    || dt == DisplayType.IMAGE
-                    || dt == DisplayType.AVATAR
-                    || dt == DisplayType.BARCODE
+            if (dt == DisplayType.BARCODE
                     || dt == DisplayType.ID
                     || dt == DisplayType.ANYREFERENCE
                     || dt == DisplayType.N2NREFERENCE) {
@@ -147,37 +137,32 @@ public class DataImportController extends BaseController {
             if (defaultValue != null) {
                 map.put("defaultValue", defaultValue);
             }
-            list.add(map);
+            alist.add(map);
         }
-        writeSuccess(response, list);
+
+        return RespBody.ok(alist);
     }
 
     // 开始导入
-    @RequestMapping("/data-imports/import-submit")
-    public void importSubmit(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
+    @PostMapping("/data-imports/import-submit")
+    public RespBody importSubmit(HttpServletRequest request) {
         ImportRule irule;
         try {
-            irule = ImportRule.parse(idata);
+            irule = ImportRule.parse((JSONObject) ServletUtils.getRequestJson(request));
         } catch (IllegalArgumentException ex) {
-            writeFailure(response, ex.getLocalizedMessage());
-            return;
+            return RespBody.error(ex.getLocalizedMessage());
         }
 
         DataImporter importer = new DataImporter(irule);
         if (getBoolParameter(request, "preview")) {
             // TODO 导入预览
+            return RespBody.error("TODO");
         } else {
             String taskid = TaskExecutors.submit(importer, getRequestUser(request));
-            JSON ret = JSONUtils.toJSONObject("taskid", taskid);
-            writeSuccess(response, ret);
+            return RespBody.ok(JSONUtils.toJSONObject("taskid", taskid));
         }
     }
 
-    /**
-     * @param file
-     * @return
-     */
     private File getFileOfImport(String file) {
         if (file.contains("%")) {
             file = CodecUtils.urlDecode(file);

@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.CheckDangers;
+import com.rebuild.core.support.AdminDiagnosis;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -80,7 +80,7 @@ public class AdminVerfiyController extends BaseController {
 
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
-        return RespBody.ok(CheckDangers.getAdminDanger());
+        return RespBody.ok(AdminDiagnosis.getAdminDanger());
     }
 
     // -- CLI

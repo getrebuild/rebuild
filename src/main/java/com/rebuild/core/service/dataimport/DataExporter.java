@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
@@ -16,10 +17,11 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
-import com.rebuild.core.support.general.DataListWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
@@ -59,10 +61,26 @@ public class DataExporter extends SetUser {
      * @return
      */
     public File export() {
-        File tmp = RebuildConfiguration.getFileOfTemp(
-                String.format("EXPORT-%d.csv", System.currentTimeMillis()));
-        export(tmp);
-        return tmp;
+        return export(null);
+    }
+
+    /**
+     * 通过模板导出
+     *
+     * @param useReport
+     * @return
+     * @see com.rebuild.core.service.datareport.EasyExcelListGenerator
+     */
+    public File export(ID useReport) {
+        if (useReport == null) {
+            File tmp = RebuildConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
+            exportCsv(tmp);
+            return tmp;
+        } else {
+            EasyExcelListGenerator generator = new EasyExcelListGenerator(useReport, this.queryData);
+            generator.setUser(getUser());
+            return generator.generate();
+        }
     }
 
     /**
@@ -70,7 +88,7 @@ public class DataExporter extends SetUser {
      *
      * @param dest
      */
-    public void export(File dest) {
+    protected void exportCsv(File dest) {
         DataListBuilderImpl control = new DataListBuilderImpl(queryData, getUser());
 
         List<String> head = this.buildHead(control);
@@ -99,10 +117,10 @@ public class DataExporter extends SetUser {
         boolean b = true;
         for (String s : line) {
             if (b) b = false;
-            else sb.append(", ");
+            else sb.append(",");
 
             if (s.contains(",")) {
-                s = s.replace(",", "，");
+                s = s.replace(",", "，");  // 转义 ,
             }
             sb.append(s);
         }
@@ -155,7 +173,7 @@ public class DataExporter extends SetUser {
                     cellVal = StringUtils.EMPTY;
                 }
 
-                if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = Language.L("[无权限]");
 
                 } else if (dt == DisplayType.FILE

@@ -15,10 +15,14 @@ class RbModal extends React.Component {
   }
 
   render() {
-    const inFrame = !this.props.children
+    const styles = {}
+    if (this.props.zIndex) styles.zIndex = this.props.zIndex
+
+    const iframe = !this.props.children // No child
+
     return (
-      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog" style={{ maxWidth: `${this.props.width || 680}px` }}>
+      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} style={styles} ref={(c) => (this._rbmodal = c)}>
+        <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
@@ -26,9 +30,9 @@ class RbModal extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${inFrame ? 'iframe rb-loading' : ''} ${inFrame && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
+            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
               {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
-              {inFrame && <RbSpinner />}
+              {iframe && <RbSpinner />}
             </div>
           </div>
         </div>
@@ -100,7 +104,7 @@ class RbModal extends React.Component {
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} />, null, function () {
+      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} zIndex={options.zIndex} />, null, function () {
         that.__HOLDER = this
         if (options.disposeOnHide === false) that.__HOLDERs[url] = this
       })
@@ -236,8 +240,8 @@ class RbAlert extends React.Component {
       <p>{this.props.message || 'INMESSAGE'}</p>
     )
 
-    const cancel = (this.props.cancel || this.hide).bind(this)
-    const confirm = (this.props.confirm || this.hide).bind(this)
+    const _onCancel = (this.props.onCancel || this.props.cancel || this.hide).bind(this)
+    const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
       <div className="text-center ml-6 mr-6">
@@ -247,10 +251,10 @@ class RbAlert extends React.Component {
         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
         <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
         <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>
+          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
             {this.props.cancelText || $L('取消')}
           </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>
+          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
             {this.props.confirmText || $L('确定')}
           </button>
         </div>
@@ -310,11 +314,7 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    const content = this.props.htmlMessage ? (
-      <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-    ) : (
-      <div className="message pl-0">{this.props.message}</div>
-    )
+    const content = this.props.htmlMessage ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message pl-0">{this.props.message}</div>
 
     return (
       <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
@@ -392,7 +392,7 @@ function RbSpinner(props) {
   const spinner = (
     <div className="rb-spinner">
       {$.browser.msie ? (
-        <span className="spinner-border spinner-border-xl text-primary"></span>
+        <span className="spinner-border spinner-border-xl text-primary" />
       ) : (
         <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
           <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
@@ -431,16 +431,16 @@ class UserSelector extends React.Component {
     } else {
       inResult = this.state.items.map((item) => {
         return (
-          <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
-            <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
-            {this.state.tabType === 'User' && <img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+          <li key={item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+            <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`} />
+            {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
             <span className="text">{item.text}</span>
           </li>
         )
       })
     }
 
-    const _DropdownMenu = (
+    const dropdownMenu = (
       <div className="dropdown-menu">
         <div className="selector-search">
           <div>
@@ -449,8 +449,8 @@ class UserSelector extends React.Component {
               className="form-control search"
               placeholder={$L('输入关键词搜索')}
               value={this.state.query || ''}
-              ref={(c) => (this._input = c)}
-              onChange={(e) => this.searchItems(e)}
+              ref={(c) => (this._$input = c)}
+              onChange={(e) => this.search(e)}
               onKeyDown={(e) => this._keyEvent(e)}
             />
           </div>
@@ -469,7 +469,7 @@ class UserSelector extends React.Component {
           </ul>
           <div className="tab-content">
             <div className="tab-pane active">
-              <div className="rb-scroller" ref={(c) => (this._scroller = c)}>
+              <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
                 <ul className="select2-results__options">{inResult}</ul>
               </div>
             </div>
@@ -484,13 +484,13 @@ class UserSelector extends React.Component {
       <span className="select2 select2-container select2-container--default user-selector">
         <span className="selection">
           {this.props.compToggle ? (
-            <span ref={(c) => (this._dropdownParent = c)}>
+            <span ref={(c) => (this._$dropdownParent = c)}>
               {this.props.compToggle}
-              {_DropdownMenu}
+              {dropdownMenu}
             </span>
           ) : (
             <div className="select2-selection select2-selection--multiple">
-              <div className="select2-selection__rendered" ref={(c) => (this._dropdownParent = c)}>
+              <div className="select2-selection__rendered" ref={(c) => (this._$dropdownParent = c)}>
                 {this.state.selected.length > 0 && (
                   <span className="select2-selection__clear" onClick={() => this.clearSelection()}>
                     &times;
@@ -498,7 +498,7 @@ class UserSelector extends React.Component {
                 )}
                 {this.state.selected.map((item) => {
                   return (
-                    <span key={`s-${item.id}`} className="select2-selection__choice">
+                    <span key={item.id} className="select2-selection__choice">
                       <span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>
                         &times;
                       </span>
@@ -511,7 +511,7 @@ class UserSelector extends React.Component {
                     <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('选择') : $L('添加')}
                   </a>
                 </span>
-                {_DropdownMenu}
+                {dropdownMenu}
               </div>
             </div>
           )}
@@ -521,17 +521,15 @@ class UserSelector extends React.Component {
   }
 
   componentDidMount() {
-    $(this._scroller).perfectScrollbar()
+    $(this._$scroller).perfectScrollbar()
 
     const that = this
-    $(this._dropdownParent).on({
-      'show.bs.dropdown': function () {
+    $(this._$dropdownParent).on({
+      'shown.bs.dropdown': function () {
         // 初始化
         if (!that.state.items) that.switchTab()
-      },
-      'shown.bs.dropdown': function () {
-        that._input && that._input.focus()
-        $(that._scroller).find('li.active').removeClass('active')
+        that._$input && that._$input.focus()
+        $(that._$scroller).find('li.active').removeClass('active')
       },
       'hide.bs.dropdown': function (e) {
         if (!e.clickEvent || !e.clickEvent.target) return
@@ -559,7 +557,7 @@ class UserSelector extends React.Component {
   }
 
   componentWillUnmount() {
-    $(this._scroller).perfectScrollbar('destroy')
+    $(this._$scroller).perfectScrollbar('destroy')
   }
 
   UNSAFE_componentWillReceiveProps(props) {
@@ -588,7 +586,7 @@ class UserSelector extends React.Component {
           this.switchTab(type)
         })
       }
-      $(this._scroller).perfectScrollbar('update')
+      $(this._$scroller).perfectScrollbar('update')
     })
   }
 
@@ -597,38 +595,47 @@ class UserSelector extends React.Component {
       $active.removeClass('active')
       $el.addClass('active')
 
-      const st = $(this._scroller).scrollTop()
+      const st = $(this._$scroller).scrollTop()
       const et = $el.position().top
       if (et >= 0) {
         const top = et + st - (222 - 36) // maxHeight - elementHeight
-        if (top > 0) $(this._scroller).scrollTop(top)
+        if (top > 0) $(this._$scroller).scrollTop(top)
       } else {
         const top = st + et
-        if (top >= 0) $(this._scroller).scrollTop(top)
+        if (top >= 0) $(this._$scroller).scrollTop(top)
       }
     }
   }
 
   _keyEvent(e) {
     if (e.keyCode === 40) {
-      const $active = $(this._scroller).find('li.active')
-      const $next = $active.length === 0 ? $(this._scroller).find('li:eq(0)') : $active.next()
+      // DOWN
+      const $active = $(this._$scroller).find('li.active')
+      const $next = $active.length === 0 ? $(this._$scroller).find('li:eq(0)') : $active.next()
       this._tryActive($active, $next)
     } else if (e.keyCode === 38) {
-      const $active = $(this._scroller).find('li.active')
+      // UP
+      const $active = $(this._$scroller).find('li.active')
       const $prev = $active.length === 0 ? null : $active.prev()
       this._tryActive($active, $prev)
     } else if (e.keyCode === 13) {
+      // ENTER
       e.preventDefault()
-      const $active = $(this._scroller).find('li.active')
+      const $active = $(this._$scroller).find('li.active')
       if ($active.length === 1) {
         $active.trigger('click')
         $stopEvent(e)
       }
+    } else if (e.keyCode === 27) {
+      // ESC
+      e.preventDefault()
+      this.toggle() // hide
+      // Auto focus for textarea
+      this.props.targetInput && this.props.targetInput.focus()
     }
   }
 
-  searchItems(e) {
+  search(e) {
     this.setState({ query: e.target.value }, () => {
       $setTimeout(() => this.switchTab(), 300, 'us-search-items')
     })
@@ -681,6 +688,11 @@ class UserSelector extends React.Component {
   val() {
     return this.getSelected()
   }
+
+  toggle() {
+    // $(this._$dropdownParent).dropdown('toggle')
+    $(this._$dropdownParent).find('[data-toggle="dropdown"]').dropdown('toggle')
+  }
 }
 
 // ~~ 用户显示
@@ -690,9 +702,7 @@ const UserShow = function (props) {
 
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>
-        {props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}
-      </div>
+      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
       {props.showName && (
         <div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>
           {props.name}
@@ -704,8 +714,8 @@ const UserShow = function (props) {
 }
 
 // ~~ 日期显示
-const DateShow = function (props) {
-  return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
+const DateShow = function ({ date }) {
+  return date ? <span title={date}>{$fromNow(date)}</span> : null
 }
 
 // ~~ 任意记录选择
@@ -823,81 +833,152 @@ class AnyRecordSelector extends React.Component {
 }
 
 // ~~ 默认 SimpleMDE 工具栏
-const DEFAULT_MDE_TOOLBAR = [
-  {
-    name: 'bold',
-    action: SimpleMDE.toggleBold,
-    className: 'zmdi zmdi-format-bold',
-    title: $L('粗体'),
-  },
-  {
-    name: 'italic',
-    action: SimpleMDE.toggleItalic,
-    className: 'zmdi zmdi-format-italic',
-    title: $L('斜体'),
-  },
-  {
-    name: 'strikethrough',
-    action: SimpleMDE.toggleStrikethrough,
-    className: 'zmdi zmdi-format-strikethrough',
-    title: $L('删除线'),
-  },
-  {
-    name: 'heading',
-    action: SimpleMDE.toggleHeadingSmaller,
-    className: 'zmdi zmdi-format-size',
-    title: $L('标题'),
-  },
-  {
-    name: 'unordered-list',
-    action: SimpleMDE.toggleUnorderedList,
-    className: 'zmdi zmdi-format-list-bulleted',
-    title: $L('列表'),
-  },
-  {
-    name: 'ordered-list',
-    action: SimpleMDE.toggleOrderedList,
-    className: 'zmdi zmdi-format-list-numbered',
-    title: $L('数字列表'),
-  },
-  {
-    name: 'link',
-    action: SimpleMDE.drawLink,
-    className: 'zmdi zmdi-link',
-    title: $L('链接'),
-  },
-  {
-    name: 'image',
-    action: () => this._fieldValue__upload.click(),
-    className: 'zmdi zmdi-image-o',
-    title: $L('图片'),
-  },
-  {
-    name: 'table',
-    action: SimpleMDE.drawTable,
-    className: 'zmdi zmdi-border-all',
-    title: $L('表格'),
-  },
-  '|',
-  {
-    name: 'fullscreen',
-    action: SimpleMDE.toggleFullScreen,
-    className: 'zmdi zmdi-fullscreen no-disable',
-    title: $L('全屏'),
-  },
-  {
-    name: 'preview',
-    action: SimpleMDE.togglePreview,
-    className: 'zmdi zmdi-eye no-disable',
-    title: $L('预览'),
-  },
-  {
-    name: 'guide',
-    action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-    className: 'zmdi zmdi-help-outline no-disable',
-    title: $L('编辑器帮助'),
-  },
-]
+const DEFAULT_MDE_TOOLBAR = (c) => {
+  return [
+    {
+      name: 'bold',
+      action: SimpleMDE.toggleBold,
+      className: 'zmdi zmdi-format-bold',
+      title: $L('粗体'),
+    },
+    {
+      name: 'italic',
+      action: SimpleMDE.toggleItalic,
+      className: 'zmdi zmdi-format-italic',
+      title: $L('斜体'),
+    },
+    {
+      name: 'strikethrough',
+      action: SimpleMDE.toggleStrikethrough,
+      className: 'zmdi zmdi-format-strikethrough',
+      title: $L('删除线'),
+    },
+    {
+      name: 'heading',
+      action: SimpleMDE.toggleHeadingSmaller,
+      className: 'zmdi zmdi-format-size',
+      title: $L('标题'),
+    },
+    {
+      name: 'unordered-list',
+      action: SimpleMDE.toggleUnorderedList,
+      className: 'zmdi zmdi-format-list-bulleted',
+      title: $L('列表'),
+    },
+    {
+      name: 'ordered-list',
+      action: SimpleMDE.toggleOrderedList,
+      className: 'zmdi zmdi-format-list-numbered',
+      title: $L('数字列表'),
+    },
+    {
+      name: 'link',
+      action: SimpleMDE.drawLink,
+      className: 'zmdi zmdi-link',
+      title: $L('链接'),
+    },
+    {
+      name: 'image',
+      action: () => c && c._fieldValue__upload && c._fieldValue__upload.click(),
+      className: 'zmdi zmdi-image-o',
+      title: $L('图片'),
+    },
+    {
+      name: 'table',
+      action: SimpleMDE.drawTable,
+      className: 'zmdi zmdi-border-all',
+      title: $L('表格'),
+    },
+    '|',
+    {
+      name: 'preview',
+      action: SimpleMDE.togglePreview,
+      className: 'zmdi zmdi-eye no-disable',
+      title: $L('预览'),
+    },
+    {
+      name: 'fullscreen',
+      action: SimpleMDE.toggleFullScreen,
+      className: 'zmdi zmdi-fullscreen no-disable',
+      title: $L('全屏'),
+    },
+    {
+      name: 'guide',
+      action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+      className: 'zmdi zmdi-help-outline no-disable',
+      title: $L('编辑器帮助'),
+    },
+  ]
+}
+
+function UserPopup({ info }) {
+  return (
+    <div className="user-popup shadow">
+      <div className="avatar">
+        <img src={`${rb.baseUrl}/account/user-avatar/${info.id}`} alt="Avatar" />
+      </div>
+      <div className="infos">
+        <strong>{info.name}</strong>
+        {info.dept && <p className="text-muted fs-12">{info.dept}</p>}
+        {info.email && <p className="email">{info.email}</p>}
+        {info.phone && <p className="phone">{info.phone}</p>}
+      </div>
+    </div>
+  )
+}
+
+UserPopup.create = function (el) {
+  const uid = $(el).data('uid')
+  if (!uid) {
+    console.warn('No attr `data-id` defined')
+    return
+  }
+
+  function _clear() {
+    if (UserPopup.__timer) {
+      clearTimeout(UserPopup.__timer)
+      UserPopup.__timer = null
+    }
+  }
+
+  function _leave() {
+    _clear()
+    UserPopup.__timer2 = setTimeout(() => {
+      if (UserPopup.__$target) {
+        $unmount(UserPopup.__$target, 20)
+        UserPopup.__$target = null
+      }
+    }, 200)
+  }
+
+  $(el).on({
+    mouseover: function (e) {
+      _clear()
+      const pos = { top: Math.max(e.clientY - 90, 0), left: e.clientX, display: 'block' }
+
+      UserPopup.__timer = setTimeout(function () {
+        $.get(`/account/user-info?id=${uid}`, (res) => {
+          if (UserPopup.__timer) {
+            UserPopup.__$target = renderRbcomp(<UserPopup info={{ ...res.data, id: uid }} />)
+
+            const $popup = $(UserPopup.__$target).find('.user-popup').css(pos)
+            $popup.on({
+              mouseover: function () {
+                if (UserPopup.__timer2) {
+                  clearTimeout(UserPopup.__timer2)
+                  UserPopup.__timer2 = null
+                }
+              },
+              mouseleave: _leave,
+            })
+          }
+        })
+      }, 400)
+    },
+    mouseleave: _leave,
+  })
+}
+
 /**
  * JSX 组件渲染
  *
@@ -925,4 +1006,5 @@ const renderRbcomp = function (jsx, target, call) {
     target = target[0]
   }
   ReactDOM.render(jsx, target, call)
+  return target
 }

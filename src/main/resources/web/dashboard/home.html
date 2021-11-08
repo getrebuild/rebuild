@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/custom-layouts#%E9%A6%96%E9%A1%B5%E4%BB%AA%E8%A1%A8%E7%9B%98" />
     <title>[[${bundle.L('首页')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/charts/gridstack.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
@@ -69,6 +70,7 @@
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>

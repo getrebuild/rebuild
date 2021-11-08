@@ -103,7 +103,7 @@ public class QueryParser {
     /**
      * @return
      */
-    protected int[] getSqlLimit() {
+    public int[] getSqlLimit() {
         doParseIfNeed();
         return limit;
     }
@@ -215,15 +215,13 @@ public class QueryParser {
 
         String sortNode = queryExpr.getString("sort");
         if (StringUtils.isNotBlank(sortNode)) {
-            sqlSort.append(parseSort(sortNode));
+            sqlSort.append(StringUtils.defaultString(parseSort(sortNode), ""));
         } else if (entity.containsField(EntityHelper.ModifiedOn)) {
             sqlSort.append(EntityHelper.ModifiedOn + " desc");
         } else if (entity.containsField(EntityHelper.CreatedOn)) {
             sqlSort.append(EntityHelper.CreatedOn + " desc");
         }
-        if (sqlSort.length() > 10) {
-            fullSql.append(sqlSort);
-        }
+        if (sqlSort.length() >= 18) fullSql.append(sqlSort);
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + sqlWhere;
@@ -242,9 +240,10 @@ public class QueryParser {
      * @return
      */
     private String parseSort(String sort) {
-        String[] sort_s = sort.split(":");
-        String sortField = sort_s[0];
-        return sortField + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
+        String[] sorts = sort.split(":");
+        if (sorts.length != 2) return null;
+        String sortField = sorts[0];
+        return sortField + ("desc".equalsIgnoreCase(sorts[1]) ? " desc" : " asc");
     }
 
     /**

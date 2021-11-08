@@ -2,32 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
     <title th:text="${entityLabel}"></title>
   </head>
   <body>
-    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside" th:classappend="${sideCollapsedClazz}">
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz + (hideAside ? '' : ' rb-aside')}">
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left(active=${'nav_entity-' + entityName})}" />
       <div class="rb-content">
-        <aside class="page-aside widgets">
+        <aside class="page-aside widgets" th:if="${!hideAside}">
           <a class="side-toggle" th:title="${bundle.L('展开/收缩')}"><i class="zmdi zmdi-arrow-left"></i></a>
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">[[${bundle.L('常用查询')}]]</a></li>
-              <li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">[[${bundle.L('图表')}]]</a></li>
+              <li class="nav-item" th:if="${advListHideFilters != 'true'}"><a class="nav-link" href="#asideFilters" data-toggle="tab">[[${bundle.L('常用查询')}]]</a></li>
+              <li class="nav-item" th:if="${advListHideCharts != 'true'}"><a class="nav-link J_load-charts" href="#asideWidgets" data-toggle="tab">[[${bundle.L('图表')}]]</a></li>
             </ul>
             <div class="tab-content rb-scroller">
-              <div class="tab-pane active" id="asideFilters">
-                <div class="ph-item rb">
-                  <div class="ph-col-12 p-0">
-                    <div class="ph-row">
-                      <div class="ph-col-12 big"></div>
-                      <div class="ph-col-12 big"></div>
-                    </div>
+              <div class="ph-item rb">
+                <div class="ph-col-12 p-0">
+                  <div class="ph-row">
+                    <div class="ph-col-12 big"></div>
+                    <div class="ph-col-12 big"></div>
                   </div>
                 </div>
               </div>
+              <div class="tab-pane" id="asideFilters"></div>
               <div class="tab-pane" id="asideWidgets">
                 <div class="charts-wrap"></div>
                 <div class="text-center">
@@ -67,6 +67,7 @@
                       </div>
                       <div class="input-group input-search float-left">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
+                        <button class="btn btn-input-clear" type="button"></button>
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
                         ></span>
@@ -118,15 +119,15 @@
     </script>
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
   </body>
 </html>

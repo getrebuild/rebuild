@@ -13,20 +13,9 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(
-        <AdvFilter
-          title={$L('附加过滤条件')}
-          inModal={true}
-          canNoFilters={true}
-          entity={wpc.sourceEntity.entity}
-          filter={advFilter_data}
-          confirm={_saveFilter}
-        />,
-        null,
-        function () {
-          advFilter = this
-        }
-      )
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
+        advFilter = this
+      })
     }
   })
 
@@ -52,7 +41,7 @@ $(document).ready(() => {
 
   $('#fillbackField')
     .select2({
-      placeholder: `(${$L('可选')})`,
+      placeholder: `${$L('(可选)')}`,
       data: fillbackFields,
       allowClear: true,
       language: {

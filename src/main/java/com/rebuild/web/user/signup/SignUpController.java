@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -98,15 +99,13 @@ public class SignUpController extends BaseController {
 
         String loginName = data.getString("loginName");
         String fullName = data.getString("fullName");
-        String passwd = VerfiyCode.generate(loginName, 2) + "!8";
-        VerfiyCode.clean(loginName);
+        String passwd = CodecUtils.randomCode(8) + "!8";
 
         Record userNew = EntityHelper.forNew(EntityHelper.User, UserService.SYSTEM_USER);
         userNew.setString("email", email);
         userNew.setString("loginName", loginName);
         userNew.setString("fullName", fullName);
         userNew.setString("password", passwd);
-        userNew.setBoolean("isDisabled", true);
         try {
             Application.getBean(UserService.class).txSignUp(userNew);
 

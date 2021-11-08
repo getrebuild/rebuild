@@ -18,7 +18,7 @@ import lombok.Data;
  * 统一请求返回消息体
  *
  * @author ZHAO
- * @see com.rebuild.web.ControllerResponseBodyAdvice
+ * @see com.rebuild.web.ControllerRespBodyAdvice
  * @since 2020/8/28
  */
 @Data

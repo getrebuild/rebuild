@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
@@ -35,6 +36,10 @@ import java.util.List;
  */
 @Slf4j
 public class MetadataHelper {
+
+    // 通用分隔符
+    public static final String SPLITER = "$$$$";
+    public static final String SPLITER_RE = "\\$\\$\\$\\$";
 
     /**
      * 元数据工厂
@@ -178,6 +183,7 @@ public class MetadataHelper {
      *
      * @param field
      * @return
+     * @see #getDetailToMainField(Entity) DMT 字段也属于系统字段，但此方法未做处理
      */
     public static boolean isSystemField(Field field) {
         return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
@@ -205,7 +211,7 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
-        return isCommonsField(field.getName());
+        return isSystemField(field) || isCommonsField(field.getName());
     }
 
     /**
@@ -234,7 +240,8 @@ public class MetadataHelper {
     public static boolean isApprovalField(String fieldName) {
         return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
-                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
+                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName);
     }
 
     /**
@@ -355,11 +362,9 @@ public class MetadataHelper {
      * @return
      */
     public static boolean checkAndWarnField(Entity entity, String fieldName) {
-        if (entity.containsField(fieldName)) {
-            return true;
-        }
-
-        log.warn("Unknown field `" + fieldName + "` in `" + entity.getName() + "`");
+        if (entity.containsField(fieldName)) return true;
+        log.warn("Unknown field `{}` in `{}`", fieldName, entity.getName());
+        CommonsUtils.printStackTrace();
         return false;
     }
 

@@ -23,6 +23,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -100,6 +101,15 @@ public class SMSender {
             htmlContent = htmlContent.replace("%TO%", to);
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
+
+            String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
+            if (StringUtils.isNotBlank(pageFooter)) {
+                pageFooter = MarkdownUtils.render(pageFooter);
+                htmlContent = htmlContent.replace("%PAGE_FOOTER%", pageFooter);
+            } else {
+                htmlContent = htmlContent.replace("%PAGE_FOOTER%", "");
+            }
+
             content = htmlContent;
         }
 
@@ -174,9 +184,11 @@ public class SMSender {
         email.setAuthentication(specAccount[0], specAccount[1]);
         email.setFrom(specAccount[2], specAccount[3]);
 
-        String[] hostPort = specAccount[4].split(":");
-        email.setHostName(hostPort[0]);
-        if (hostPort.length > 1) email.setSmtpPort(Integer.parseInt(hostPort[1]));
+        // host:port:ssl
+        String[] hostPortSsl = specAccount[4].split(":");
+        email.setHostName(hostPortSsl[0]);
+        if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
+        if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
         email.setCharset("UTF-8");
         return email.send();

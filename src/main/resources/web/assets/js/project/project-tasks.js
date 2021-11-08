@@ -18,7 +18,8 @@ $(document).ready(() => {
     $('.J_search .indicator-primary').removeClass('hide')
   }
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes', function () {
+  const readonly = !wpc.isMember || ~~wpc.status === 2
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()
     $('.J_project-load').remove()
@@ -42,12 +43,15 @@ $(document).ready(() => {
 
   // 搜索
   const $search = $('.J_search .input-search')
-  $search.find('.btn').click(() => {
-    const s = $search.find('input').val()
-    __PlanBoxes.setState({ search: s })
+  const $btn2 = $search.find('.input-group-btn .btn').on('click', () => {
+    __PlanBoxes.setState({ search: $search.find('input').val() || null })
   })
-  $search.find('input').keydown((e) => {
-    e.keyCode === 13 && $search.find('.btn').trigger('click')
+  const $input2 = $search.find('input').on('keydown', (e) => {
+    e.keyCode === 13 && $btn2.trigger('click')
+  })
+  $search.find('.btn-input-clear').on('click', () => {
+    $input2.val('')
+    $btn2.trigger('click')
   })
 
   $unhideDropdown('.J_search').on({
@@ -64,7 +68,7 @@ $(document).ready(() => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal canNoFilters confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
     }
@@ -182,7 +186,7 @@ class PlanBoxes extends React.Component {
       $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
     }
 
-    if (this.state.search || this.state.filter) {
+    if (this.state.search || (this.state.filter && this.state.filter.items.length > 0)) {
       $('.J_search .indicator-primary').removeClass('hide')
     } else {
       $('.J_search .indicator-primary').addClass('hide')
@@ -240,7 +244,7 @@ class PlanBox extends React.Component {
                   <div>
                     <label className="mb-1">{$L('执行人')}</label>
                     <div>
-                      <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => (this._executor = c)} />
+                      <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._executor = c)} />
                     </div>
                   </div>
                   <div>
@@ -289,7 +293,7 @@ class PlanBox extends React.Component {
     const $boxes = document.getElementById('plan-boxes')
     $addResizeHandler(() => {
       let mh = $(window).height() - 210 + (this.creatableTask ? 0 : 44)
-      if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 5 // 横向滚动条高度
+      if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 13 // 横向滚动条高度
 
       $scroller.css({ 'max-height': mh })
       $scroller.perfectScrollbar('update')
@@ -309,9 +313,7 @@ class PlanBox extends React.Component {
       this.pageSize = Math.max(this.state.tasks.length + 1, __DEFAULT_PAGE_SIZE)
     }
 
-    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${
-      this.pageNo
-    }&pageSize=${this.pageSize}`
+    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}`
     $.post(url, JSON.stringify(this.props.filter), (res) => {
       if (res.error_code === 0) {
         const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
@@ -397,15 +399,16 @@ class PlanBox extends React.Component {
   }
 }
 
-// 任务
+// 任务卡
 class Task extends React.Component {
   state = { ...this.props }
 
   render() {
     let deadlineState = -1
-    if (!this.state.endTime && this.state.deadline) {
+    // 未完成且设置了到期时间
+    if (this.state.status !== 1 && this.state.deadline) {
       if ($expired(this.state.deadline)) deadlineState = 2
-      else if ($expired(this.state.deadline, -60 * 60 * 24)) deadlineState = 1
+      else if ($expired(this.state.deadline, -60 * 60 * 24 * 3)) deadlineState = 1
       else deadlineState = 0
     }
 
@@ -426,21 +429,29 @@ class Task extends React.Component {
                   defaultChecked={this.state.status === 1}
                   onChange={(e) => this._toggleStatus(e)}
                   disabled={!this.props.$$$parent.performableTask}
-                  ref={(c) => (this._status = c)}
+                  ref={(c) => (this._$status = c)}
                 />
                 <span className="custom-control-label" />
               </label>
             </div>
             <div className="task-content">
               <div className="task-title text-wrap">{this.state.taskName}</div>
+
               {this.state.endTime && (
                 <div className="task-time">
                   {$L('完成时间')} <DateShow date={this.state.endTime} />
                 </div>
               )}
-              <div className="task-time">
-                {$L('创建时间')} <DateShow date={this.state.createdOn} />
-              </div>
+              {this.state.modifiedOn && (
+                <div className="task-time">
+                  {$L('更新时间')} <DateShow date={this.state.modifiedOn} />
+                </div>
+              )}
+              {this.state.createdOn && (
+                <div className="task-time">
+                  {$L('创建时间')} <DateShow date={this.state.createdOn} />
+                </div>
+              )}
               {deadlineState > -1 && (
                 <div className="task-time">
                   <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
@@ -448,6 +459,7 @@ class Task extends React.Component {
                   </span>
                 </div>
               )}
+
               {(this.state.tags || []).length > 0 && (
                 <div className="task-tags">
                   {this.state.tags.map((item) => {
@@ -461,12 +473,22 @@ class Task extends React.Component {
                   })}
                 </div>
               )}
+
               <div className="task-extras">
+                {this.state.createdBy && (
+                  <a className="avatar mr-1" title={`${$L('创建人')} ${this.state.createdBy[1]}`}>
+                    <img src={`${rb.baseUrl}/account/user-avatar/${this.state.createdBy[0]}`} alt="Avatar" />
+                  </a>
+                )}
                 {this.state.executor && (
-                  <a className="avatar float-left" title={`${$L('执行人')} ${this.state.executor[1]}`}>
+                  <a className="avatar mr-1" title={`${$L('执行人')} ${this.state.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} alt="Avatar" />
                   </a>
                 )}
+
+                {this.state.description && <i className="ml-2 icon zmdi zmdi-comment-more" title={$L('详情')} />}
+                {this.state.attachments && <i className="ml-3 icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45" title={$L('附件')} />}
+
                 <span className="badge float-right">{this.state.taskNumber}</span>
                 <div className="clearfix" />
               </div>
@@ -483,7 +505,7 @@ class Task extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState && prevState.status !== this.state.status) {
-      $(this._status).prop('checked', this.state.status === 1)
+      $(this._$status).prop('checked', this.state.status === 1)
     }
     // __TaskRefs[this.props.id] = this
   }
@@ -576,13 +598,7 @@ class TaskViewModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-              <iframe
-                ref={(c) => (this._iframe = c)}
-                className={this.state.isHide ? 'invisible' : ''}
-                src={this.state._taskUrl || ''}
-                frameBorder="0"
-                scrolling="no"
-              />
+              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no" />
               <RbSpinner />
             </div>
           </div>

@@ -50,9 +50,7 @@ public class EntityHelper {
         }
 
         EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-        Record record = creator.create(false);
-        bindCommonsFieldsValue(record, record.getPrimary() == null);
-        return record;
+        return creator.create(false);
     }
 
     /**
@@ -167,6 +165,7 @@ public class EntityHelper {
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
+    public static final String ApprovalLastUser = "approvalLastUser";
 
     // 权限
 
@@ -177,6 +176,7 @@ public class EntityHelper {
     public static final int RoleMember = 5;
     public static final int Team = 6;
     public static final int TeamMember = 7;
+    public static final int ExternalUser = 8;
 
     // 配置
 

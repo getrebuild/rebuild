@@ -38,13 +38,13 @@ public enum DisplayType {
     BOOL(EasyBool.class, "布尔", FieldType.BOOL, -1, null),
     BARCODE(EasyBarCode.class, "二维码", FieldType.STRING, 300, null),
     N2NREFERENCE(EasyN2NReference.class, "多引用", FieldType.REFERENCE_LIST, -1, null),
+    LOCATION(EasyLocation.class, "位置", FieldType.STRING, 100, null),
 
     // 内部
 
     ID(EasyID.class, "主键", FieldType.PRIMARY, -1, null),
     STATE(EasyState.class, "状态", FieldType.SMALL_INT, -1, null),
     ANYREFERENCE(EasyAnyReference.class, "任意引用", FieldType.ANY_REFERENCE, -1, null),
-    LOCATION(EasyLocation.class, "位置", FieldType.STRING, 70, null),
 
     ;
 
@@ -80,7 +80,7 @@ public enum DisplayType {
         return defaultFormat;
     }
 
-    protected Class<? extends EasyField> getEasyClass() {
+    Class<? extends EasyField> getEasyClass() {
         return easyClass;
     }
 

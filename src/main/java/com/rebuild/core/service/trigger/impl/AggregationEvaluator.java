@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -32,30 +31,28 @@ public class AggregationEvaluator {
 
     final private Entity sourceEntity;
     final private JSONObject item;
-    final private String followSourceField;
     final private String filterSql;
 
     /**
      * @param item
      * @param sourceEntity
-     * @param followSourceField
      * @param filterSql
      */
-    protected AggregationEvaluator(JSONObject item, Entity sourceEntity, String followSourceField, String filterSql) {
+    protected AggregationEvaluator(JSONObject item, Entity sourceEntity, String filterSql) {
         this.sourceEntity = sourceEntity;
         this.item = item;
-        this.followSourceField = followSourceField;
         this.filterSql = filterSql;
     }
 
     /**
-     * @param triggerRecord
+     * 计算
+     *
      * @return
      */
-    public Object eval(ID triggerRecord) {
+    public Object eval() {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
-            return evalFormula(triggerRecord);
+            return evalFormula();
         }
 
         String sourceField = item.getString("sourceField");
@@ -69,25 +66,23 @@ public class AggregationEvaluator {
             funcAndField = String.format("COUNT(DISTINCT %s)", sourceField);
         }
 
-        String sql = String.format("select %s from %s where %s = ?",
-                funcAndField, sourceEntity.getName(), followSourceField);
-        if (filterSql != null) {
-            sql += " and " + filterSql;
-        }
-
-        Object[] o = Application.createQueryNoFilter(sql)
-                .setParameter(1, triggerRecord)
-                .unique();
+        String ql = String.format("select %s from %s where %s", funcAndField, sourceEntity.getName(), filterSql);
+        Object[] o = Application.createQueryNoFilter(ql).unique();
         return o == null || o[0] == null ? 0 : o[0];
     }
 
-    private Object evalFormula(ID triggerRecord) {
+    /**
+     * 计算公式
+     *
+     * @return
+     */
+    private Object evalFormula() {
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
         List<String[]> fields = new ArrayList<>();
         for (String m : matchsVars) {
-            String[] fieldAndFunc = m.split("\\$\\$\\$\\$");
+            String[] fieldAndFunc = m.split(MetadataHelper.SPLITER_RE);
             if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
                 throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }
@@ -106,14 +101,9 @@ public class AggregationEvaluator {
         }
         sql.deleteCharAt(sql.length() - 1)
                 .append(" from ").append(sourceEntity.getName())
-                .append(" where ").append(followSourceField).append(" = ?");
-        if (filterSql != null) {
-            sql.append(" and ").append(filterSql);
-        }
+                .append(" where ").append(filterSql);
 
-        final Object[] useSourceData = Application.createQueryNoFilter(sql.toString())
-                .setParameter(1, triggerRecord)
-                .unique();
+        final Object[] useSourceData = Application.createQueryNoFilter(sql.toString()).unique();
         if (useSourceData == null) return null;
 
         String clearFormual = formula.toUpperCase()
@@ -124,7 +114,7 @@ public class AggregationEvaluator {
             String[] field = fields.get(i);
             Object value = useSourceData[i] == null ? "0" : useSourceData[i];
 
-            String replace = "{" + StringUtils.join(field, "$$$$") + "}";
+            String replace = "{" + StringUtils.join(field, MetadataHelper.SPLITER) + "}";
             clearFormual = clearFormual.replace(replace.toUpperCase(), value.toString());
         }
 

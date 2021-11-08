@@ -75,6 +75,14 @@
         <index field-list="teamId,userId" type="unique"/>
     </entity>
 
+    <entity name="ExternalUser" type-code="008" description="外部用户" queryable="false" parent="false">
+        <field name="userId" type="primary"/>
+        <field name="appUser" type="string" max-length="100" nullable="false" updatable="false"/>
+        <field name="appId" type="string" max-length="100" nullable="false" updatable="false" />
+        <field name="bindUser" type="reference" ref-entity="User" cascade="delete" nullable="false" updatable="false"/>
+        <index field-list="appUser,appId" type="unique"/>
+    </entity>
+
     <entity name="MetaEntity" type-code="010" description="实体" name-field="entityName" queryable="false">
         <field name="entityId" type="primary"/>
         <field name="typeCode" type="small-int" nullable="false" updatable="false"/>
@@ -312,6 +320,7 @@
         <field name="name" type="string" max-length="100" nullable="false" description="报表名称"/>
         <field name="templateFile" type="string" max-length="200" description="模板文件"/>
         <field name="templateContent" type="text" description="模板内容"/>
+        <field name="templateType" type="small-int" default-value="1" description="模板类型 (1=记录, 2=列表)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
@@ -429,6 +438,7 @@
         <field name="members" type="string" max-length="420" description="项目成员 ($MemberID)"/>
         <field name="scope" type="small-int" default-value="1" description="可见范围 (1=公开 2=成员)"/>
         <field name="extraDefinition" type="text" description="扩展配置 (JSON Map)"/>
+        <field name="status" type="small-int" default-value="1" description="状态 (1=正常 2=归档)" />
         <index field-list="projectCode" type="unique"/>
     </entity>
 
@@ -443,7 +453,7 @@
         <index field-list="projectId,seq"/>
     </entity>
 
-    <entity name="ProjectTask" type-code="052" description="任务" extra-attrs="{icon:'calendar-check'}">
+    <entity name="ProjectTask" type-code="052" description="任务" name-field="taskName" extra-attrs="{icon:'calendar-check'}">
         <field name="taskId" type="primary"/>
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="项目" queryable="false"/>
         <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="任务面板" queryable="false"/>

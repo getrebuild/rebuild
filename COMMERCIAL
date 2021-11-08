@@ -1,5 +1,5 @@
-更新时间：2021-04-15
-生效时间：2021-04-15
+更新时间：2021-10-25
+生效时间：2021-10-25
 
 
 REBUILD 商业授权协议
@@ -7,26 +7,27 @@ REBUILD 商业授权协议
 概述
 
 1. 本协议是对 REBUILD 商业授权的说明。
-2. 在您使用 REBUILD 前应当认真阅读并同意本协议之内容/条款。如不同意应该立即停止使用，继续使用 REBUILD 则视为同意本协议之全部内容/条款。
-3. REBUILD 为上海锐昉科技有限公司旗下产品，已通过中国版权保护中心/中华版权代理中心著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护。
-4. 本协议带有英文译本，如中英文本存在歧义，以中文文本为准。
+2. REBUILD 为上海锐昉科技有限公司旗下产品，已通过中国版权保护中心/中华版权代理中心著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护。
+3. 在您使用 REBUILD 前应当认真阅读并同意本协议之内容/条款。如不同意应该立即停止使用，继续使用 REBUILD 则视为同意本协议之全部内容/条款。
+4. 不得使用 REBUILD 从事违反中华人民共和国法律法规，宗教信仰的活动。因使用 REBUILD 所产生的一切法律责任、法律后果由用户自行承担。
+5. 本协议带有英文译本，如中英文本存在歧义，以中文文本为准。
 
 双重授权
 
-1. REBUILD 有两种授权，"免费授权"和"商业授权"。
+1. REBUILD 采用双重授权许可，即"免费授权"和"商业授权"。
 2. 免费授权即 REBUILD 的开源社区版本（遵循 GPL-3.0 协议）。
 3. 商业授权即 REBUILD 的商业收费版本。
 4. 无论使用何种授权，都不得使用任何形式中断/破坏 REBUILD 的授权检测机制。
-5. 免费授权用户不得使用任何形式破解商业版功能。
+5. 免费授权用户不得以任何形式破解商业版功能。
 
 商业授权的权利和义务
 
 1. 商业授权可享有本协议及 REBUILD 官网（getrebuild.com）所列之权利，包括但不限于：
-1.1. 增值安装包。
-1.2. 商业授权用户服务手册。
-1.3. 官方专业技术支持。
+1.1. 商业安装包。
+1.2. 商业用户服务手册。
+1.3. 官方专业技术支持服务（如有）、开发支持服务（如有）。
 1.4. 所购商业授权（企业版、旗舰版等）之对应权利（以 REBUILD 官网公布为准）。
-2. 商业授权用户明确同意其所拥有的权利不可共享给第三方，否则将视为违反协议之行为，一切后果需自行承担。
+2. 商业授权用户明确同意其所拥有的权利不可共享、转让、转卖给第三方，否则将视为违反协议之行为，一切后果自行承担。
 3. 介于软件产品的可复制等特性，一经购买无法办理退款。
 4. 如有未尽事宜，本着友好的原则协商解决。
 
@@ -34,8 +35,9 @@ REBUILD 商业授权协议
 
 1. 仍旧作为开源项目（需采用 GPL-3.0 开源协议）。
 2. 出于非商业/非盈利目的的使用（如 NPO 组织）。
-3. 个人学习/企业内部使用，不限制是否出于商业目的。但禁止对 REBUILD 进行任何形式的分发（包括但不限于销售、赠与、转卖）。
+3. 个人学习/企业内部使用，不限制是否出于商业目的。但禁止对 REBUILD （包括副本或派生产品）进行任何形式的分发（包括但不限于销售、赠予、转卖、转让等行为）。
 4. 不符合上述条件的请购买商业授权使用。
+
 
 如您对本协议有任何异议，请通过 getrebuild.com 联系我们或立即停止使用。REBUILD 及其所属公司上海锐昉科技有限公司对本协议拥有最终解释权。
 
@@ -51,18 +53,18 @@ Overview
 
 Dual License
 
-1. REBUILD has two licenses, "free license" and "commercial license".
+1. REBUILD uses dual licenses, namely "free licenses" and "commercial licenses".
 2. The free license is the open source community version of REBUILD (following the GPL-3.0 agreement).
 3. Commercial license is the commercial charged version of REBUILD.
 4. No matter what kind of license is used, no form of interruption/damage of REBUILD's license detection mechanism shall be used.
-5. Free authorized users are not allowed to use any form to crack the commercial version features.
+5. Free authorized users are not allowed to crack the commercial version features in any form.
 
 Rights and Obligations of Commercial License
 
 1. Commercial license can enjoy the rights listed in this agreement and REBUILD official website (getrebuild.com), including but not limited to:
-1.1. Value-added installation package.
-1.2. Commercial authorized user service manual.
-1.3. Official professional technical support.
+1.1. Commercial installation package.
+1.2. Commercial user service manual.
+1.3. Official professional technical support services (if any), development support services (if any).
 1.4. The corresponding rights of the purchased commercial license (Enterprise Edition, Ultimate Edition, etc.) (subject to the announcement on the REBUILD official website).
 2. Commercial authorized users clearly agree that their rights cannot be shared with third parties, otherwise they will be regarded as a violation of the agreement, and all consequences must be borne by themselves.
 3. Due to the reproducibility of software products, refunds cannot be processed once purchased.

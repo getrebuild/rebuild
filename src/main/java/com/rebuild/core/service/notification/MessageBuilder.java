@@ -13,8 +13,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +28,10 @@ public class MessageBuilder {
     /**
      * @param toUser
      * @param message
-     * @param recordId
      * @return
      */
-    public static Message createMessage(ID toUser, String message, ID recordId) {
-        return new Message(null, toUser, message, recordId, Message.TYPE_DEFAULT);
+    public static Message createMessage(ID toUser, String message) {
+        return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
     }
 
     /**
@@ -50,22 +47,22 @@ public class MessageBuilder {
     /**
      * @param toUser
      * @param message
-     * @param type
-     * @param recordId
+     * @param relatedRecord
      * @return
      */
-    public static Message createMessage(ID toUser, String message, int type, ID recordId) {
-        return new Message(null, toUser, message, recordId, type);
+    public static Message createApproval(ID toUser, String message, ID relatedRecord) {
+        return new Message(null, toUser, message, relatedRecord, Message.TYPE_APPROVAL);
     }
 
     /**
      * @param toUser
      * @param message
-     * @param recordId
+     * @param type
+     * @param relatedRecord
      * @return
      */
-    public static Message createApproval(ID toUser, String message, ID recordId) {
-        return new Message(null, toUser, message, recordId, Message.TYPE_APPROVAL);
+    public static Message createMessage(ID toUser, String message, int type, ID relatedRecord) {
+        return new Message(null, toUser, message, relatedRecord, type);
     }
 
     // --
@@ -82,7 +79,7 @@ public class MessageBuilder {
      * @return
      */
     public static String formatMessage(String message) {
-        return formatMessage(message, true, false);
+        return formatMessage(message, true);
     }
 
     /**
@@ -90,15 +87,10 @@ public class MessageBuilder {
      *
      * @param message
      * @param md2html
-     * @param xss
      * @return
      * @see MarkdownUtils#render(String)
      */
-    public static String formatMessage(String message, boolean md2html, boolean xss) {
-        if (xss) {
-            message = escapeHtml(message);
-        }
-
+    public static String formatMessage(String message, boolean md2html) {
         // 匹配 `@ID`
         Matcher atMatcher = AT_PATTERN.matcher(message);
         while (atMatcher.find()) {
@@ -134,20 +126,7 @@ public class MessageBuilder {
         }
 
         String recordLabel = FieldValueHelper.getLabelNotry(id);
-        String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + id;
+        String recordUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
         return String.format("[%s](%s)", recordLabel, recordUrl);
-    }
-
-    /**
-     * @param text
-     * @return
-     * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
-     */
-    public static String escapeHtml(Object text) {
-        if (text == null || StringUtils.isBlank(text.toString())) {
-            return StringUtils.EMPTY;
-        }
-        String escape = StringEscapeUtils.escapeHtml(text.toString());
-        return escape.replace("&gt;", ">");  // `>` for MD
     }
 }

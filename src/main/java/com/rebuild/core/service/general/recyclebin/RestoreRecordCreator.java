@@ -55,4 +55,9 @@ public class RestoreRecordCreator extends JsonRecordCreator {
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
         return true;
     }
+
+    @Override
+    public void verify(Record record) {
+        log.warn("Restore record ignore verification : {}", record.getPrimary());
+    }
 }

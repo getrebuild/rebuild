@@ -8,8 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.core.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -71,6 +73,25 @@ public class CommonsUtils {
     }
 
     /**
+     * @param text
+     * @return
+     * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
+     */
+    public static String escapeHtml(Object text) {
+        if (text == null || StringUtils.isBlank(text.toString())) {
+            return StringUtils.EMPTY;
+        }
+
+        // https://www.php.net/htmlspecialchars
+        return text.toString()
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+                .replace(">", "&gt;")
+                .replace("<", "&lt;");
+    }
+
+    /**
      * 获取 classpath 下的配置文件流
      *
      * @param file
@@ -125,9 +146,11 @@ public class CommonsUtils {
      * @return
      */
     public static void printStackTrace() {
-        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement traceElement : trace) {
-            System.err.println("\tat " + traceElement);
+        if (Application.devMode() || log.isDebugEnabled()) {
+            StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+            for (StackTraceElement traceElement : trace) {
+                System.err.println("\tat " + traceElement);
+            }
         }
     }
 }

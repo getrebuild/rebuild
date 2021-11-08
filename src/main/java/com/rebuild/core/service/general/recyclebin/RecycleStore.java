@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
@@ -59,7 +60,7 @@ public class RecycleStore {
      */
     public void add(ID recordId, ID with) {
         JSON s = new RecycleBean(recordId).serialize();
-        data.add(new Object[]{recordId, s, with});
+        data.add(new Object[] { recordId, s, with });
     }
 
     /**
@@ -93,7 +94,7 @@ public class RecycleStore {
             }
 
             clone.setID("recordId", recordId);
-            clone.setString("recordName", recordName);
+            clone.setString("recordName", CommonsUtils.maxstr(recordName, 100));
             clone.setString("recordContent", recordContent.toJSONString());
             if (o[2] != null) {
                 clone.setID("channelWith", (ID) o[2]);

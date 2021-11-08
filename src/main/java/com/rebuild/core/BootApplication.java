@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -46,7 +47,8 @@ import java.util.Set;
         JdbcRepositoriesAutoConfiguration.class,
         JdbcTemplateAutoConfiguration.class,
         RedisAutoConfiguration.class,
-        CacheAutoConfiguration.class})
+        CacheAutoConfiguration.class,
+        H2ConsoleAutoConfiguration.class})
 @ImportResource("classpath:application-bean.xml")
 @EnableScheduling
 @Slf4j
@@ -56,6 +58,8 @@ public class BootApplication extends SpringBootServletInitializer {
     private static String TOMCAT_PORT;
 
     /**
+     * 获取上下文地址，注意此地址尾部不含 `/`
+     *
      * @return
      */
     public static String getContextPath() {
@@ -74,7 +78,7 @@ public class BootApplication extends SpringBootServletInitializer {
             // USE BOOT
             TOMCAT_PORT = BootEnvironmentPostProcessor.getProperty("server.port", "18080");
         }
-        return String.format("http://localhost:%s%s", TOMCAT_PORT, getContextPath());
+        return String.format("http://localhost:%s%s", TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
     }
 
     /**

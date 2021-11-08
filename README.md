@@ -1,5 +1,6 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
+[![Package](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml)
 [![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
@@ -14,18 +15,19 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 
 > **福利：欢迎加入 REBUILD QQ 交流群 819865721**
 
-## V2.4 新特性
+## V2.6 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] Hello RBMOB! 移动端发布（Beta）
-2. [新增] Hello FrontJS! 前端接口发布
-3. [新增] 内置图表“我的任务”
-4. [优化] 触发器-自动更新支持自定义编写计算公式
-5. [优化] 数据导入自动识别表头并映射
-6. ...
+1. [新增] 项目任务卡片支持配置显示字段
+2. [新增] 数据列表多种显示模式
+3. [新增] 数据列表导出可配置 Excel 模板
+4. [新增] 动态中可通过输入 @ 拉起用户提及组件
+5. [新增] 移动端钉钉/企业微信支持分享记录给他人
+6. [优化] 多项安全性更新
+7. ..
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.4)
+更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.6)
 
 ## 在线体验
 
@@ -70,7 +72,7 @@ RB 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种
 
 #### 启动参数
 
-RB 中有几个非常重要的启动参数需要了解，无论是开发还是运行都非常重要。
+RB 中有几个非常重要地启动参数需要了解，无论是开发还是运行都非常重要。
 
 | 参数       | 说明                                                 | 默认值        |
 | ---------- | ---------------------------------------------------- | ------------- |

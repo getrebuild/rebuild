@@ -70,7 +70,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation .col-2 > .zmdi,
-.field-writeback .col-5 > .zmdi {
+.field-writeback .col-5 > .zmdi,
+.group-aggregation .col-5 > .zmdi {
   position: absolute;
   left: -5px;
   color: #fbbc05;
@@ -91,7 +92,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 3px 0;
 }
 
-.field-aggregation .items > div .badge {
+.field-aggregation .items > div .badge,
+.group-aggregation .badge-primary {
   font-weight: normal;
   font-size: 1rem;
   padding: 3px 10px;
@@ -129,6 +131,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .field-aggregation .items > div:hover a.del {
   display: inline-block;
 }
+
+.group-aggregation .col-5 > .zmdi {
+  color: #4285f4;
+  font-size: 1.25rem;
+}
+
+.group-aggregation .items > div .col-5 > .zmdi {
+  margin-top: 5px;
+}
+
+/* formula */
 
 .formula-calc {
   position: relative;
@@ -355,4 +368,49 @@ textarea.formula-code {
 .fields ul li.flag-DATE > a::before,
 .fields ul li.flag-DATETIME > a::before {
   content: 'D';
+}
+
+.badge.badge-square {
+  border: 0 none;
+  background-color: #4285f4;
+  position: relative;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: normal;
+  border-radius: 0;
+  padding: 2px 8px;
+}
+
+.badge.badge-square::before {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: '';
+  transform: rotate(45deg);
+  border: 4px solid #f7f7f7;
+  top: -4px;
+  right: -4px;
+}
+
+.badge.badge-close {
+  padding-right: 20px;
+}
+
+.badge.badge-close a.close {
+  position: absolute;
+  font-size: 1rem;
+  font-weight: normal;
+  opacity: 0.8;
+  margin-left: 5px;
+  margin-top: 3px;
+  text-shadow: unset;
+  display: none;
+}
+
+.badge.badge-close:hover a.close {
+  display: inline-block;
+}
+
+.badge.badge-close a.close:hover {
+  opacity: 1;
 }

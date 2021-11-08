@@ -13,17 +13,17 @@ $(document).ready(() => {
   $L.text(wpc._LANGS[$L.text()] || 'UNKONWN')
 })
 
-useEditComp = function (name, value) {
+useEditComp = function (name) {
   if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
     return (
-      <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+      <select className="form-control form-control-sm">
         <option value="true">{$L('是')}</option>
         <option value="false">{$L('否')}</option>
       </select>
     )
   } else if ('PasswordPolicy' === name) {
     return (
-      <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+      <select className="form-control form-control-sm">
         <option value="1">{$L('低 (最低6位，无字符类型限制)')}</option>
         <option value="2">{$L('中 (最低6位，必须同时包含数字、字母)')}</option>
         <option value="3">{$L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}</option>
@@ -31,7 +31,7 @@ useEditComp = function (name, value) {
     )
   } else if ('DefaultLanguage' === name) {
     // 借用贵宝地
-    if (rb.commercial > 0) _toggleLogo()
+    if (rb.commercial >= 10) _toggleLogo()
 
     const options = []
     for (let k in wpc._LANGS) {
@@ -41,18 +41,16 @@ useEditComp = function (name, value) {
         </option>
       )
     }
-    return (
-      <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-        {options}
-      </select>
-    )
+    return <select className="form-control form-control-sm">{options}</select>
   } else if ('LoginCaptchaPolicy' === name) {
     return (
-      <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+      <select className="form-control form-control-sm">
         <option value="1">{$L('自动')}</option>
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
+  } else if ('PageFooter' === name) {
+    return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
   }
 }
 

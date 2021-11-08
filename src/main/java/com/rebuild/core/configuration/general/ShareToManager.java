@@ -168,14 +168,15 @@ public abstract class ShareToManager implements ConfigManager {
         if (SHARE_ALL.equals(shareTo)) {
             return true;
 
-        } else if (shareTo.length() >= 20) {
+        } else if (shareTo != null && shareTo.length() >= 20) {
             Set<String> userDefs = new HashSet<>();
             CollectionUtils.addAll(userDefs, shareTo.split(","));
             Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
             return sharedUsers.contains(user);
 
+        } else {  // SELF
+            return false;
         }
-        return false;
     }
 
     /**

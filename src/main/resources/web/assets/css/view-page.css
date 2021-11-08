@@ -67,8 +67,9 @@ body {
   opacity: 0.8;
 }
 
-.rbview-form .form-group.row {
-  padding: 4px 0;
+.rbview-form > .row .form-group {
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .rbview-form .form-control-plaintext {
@@ -182,6 +183,10 @@ body {
   padding-bottom: 13px;
 }
 
+.view-operating {
+  margin-top: 33px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }
@@ -193,10 +198,6 @@ body {
 
 .view-operating dt {
   font-weight: normal;
-}
-
-.view-action {
-  margin-top: 33px;
 }
 
 .view-action .col-lg-6 {
@@ -331,9 +332,11 @@ body {
   border-radius: 99px;
 }
 
-.rbview-form .form-group.row.editable a.edit {
+/* editable */
+
+.rbview-form .form-group.editable a.edit {
   position: absolute;
-  right: 15px;
+  right: 0;
   top: 0;
   color: #aaa;
   width: 22px;
@@ -345,35 +348,31 @@ body {
   display: none;
 }
 
-.rbview-form .form-group.row.editable a.edit::before {
+.rbview-form .form-group.editable a.edit::before {
   font-family: 'Material-Design-Iconic-Font';
   content: '\f158';
   font-size: 16px;
   display: inline-block;
 }
 
-.rbview-form .form-group.row.editable a.edit:hover {
+.rbview-form .form-group.editable a.edit:hover {
   color: #4285f4;
 }
 
-.rbview-form .form-group.row.editable a.edit:active {
+.rbview-form .form-group.editable a.edit:active {
   box-shadow: inset 0 2px 0 #e6e6e6;
   background-color: #f0f0f0;
 }
 
-.rbview-form .form-group.row.editable > div {
-  position: relative;
-}
-
-.rbview-form .form-group.row.editable > div:hover > a.edit {
+.rbview-form .form-group.editable > div:hover > a.edit {
   display: block;
 }
 
-.rbview-form .form-group.row.editable > div .edit-oper {
+.rbview-form .form-group.editable > div .edit-oper {
   text-align: right;
 }
 
-.rbview-form .form-group.row.editable > div .edit-oper .btn {
+.rbview-form .form-group.editable > div .edit-oper .btn {
   width: 28px;
   height: 28px;
   overflow: hidden;
@@ -382,6 +381,12 @@ body {
   min-width: 0;
   min-height: 0;
   font-weight: bold;
+}
+
+.rbview-form.readonly .form-group.editable a.edit {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .type-AVATAR .edit-oper,
@@ -406,12 +411,6 @@ body {
 
 .type-MULTISELECT .edit-oper {
   margin-top: -1px;
-}
-
-.rbview-form.readonly .form-group.row.editable a.edit {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
 }
 
 .rbview-form .img-field .img-upload.img-thumbnail.zoom-in {
@@ -527,14 +526,6 @@ body {
   margin: -32px 0 0;
 }
 
-.feeds-list.inview .feeds > .content .rich-content {
-  font-size: 1rem;
-}
-
-.feeds-list.inview .feeds > .content .rich-content > .appends {
-  font-size: 12px;
-}
-
 .feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
   cursor: default;
 }
@@ -605,4 +596,20 @@ body {
 
 .tasks-list.inview .card.status-1 .title a {
   color: #8c8c8c;
+}
+
+.map-show {
+  height: 100px;
+}
+
+.type-LOCATION.col-sm-6 .map-show {
+  height: 200px;
+}
+
+.type-LOCATION.col-sm-9 .map-show {
+  height: 300px;
+}
+
+.type-LOCATION.col-sm-12 .map-show {
+  height: 400px;
 }

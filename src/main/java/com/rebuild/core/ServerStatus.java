@@ -9,17 +9,12 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.runtime.MemoryInformationBean;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.NetworkIF;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -187,67 +182,5 @@ public final class ServerStatus {
         private static Status error(String name, String error) {
             return new Status(name, false, error);
         }
-    }
-
-    // --
-
-    private static final SystemInfo SI = new SystemInfo();
-
-    /**
-     * OS 内存用量
-     *
-     * @return [总计M, 已用%]
-     */
-    public static double[] getOsMemoryUsed() {
-        GlobalMemory memory = SI.getHardware().getMemory();
-        long memoryTotal = memory.getTotal();
-        double memoryUsage = (memoryTotal - memory.getAvailable()) * 1.0 / memoryTotal;
-        return new double[] {
-                (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
-                ObjectUtils.round(memoryUsage * 100, 2)
-        };
-    }
-
-    /**
-     * JVM 内存用量
-     *
-     * @return [总计M, 已用%]
-     */
-    public static double[] getJvmMemoryUsed() {
-        Runtime runtime = Runtime.getRuntime();
-        long memoryTotal = runtime.totalMemory();
-        long memoryFree = runtime.freeMemory();
-        double memoryUsage = (memoryTotal - memoryFree) * 1.0 / memoryTotal;
-        return new double[] {
-                (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
-                ObjectUtils.round(memoryUsage * 100, 2)
-        };
-    }
-
-
-    /**
-     * CPU 负载
-     *
-     * @return
-     */
-    public static double getSystemLoad() {
-        double[] loadAverages = SI.getHardware().getProcessor().getSystemLoadAverage(2);
-        return ObjectUtils.round(loadAverages[1], 2);
-    }
-
-    /**
-     * 本机 IP
-     *
-     * @return
-     */
-    public static String getLocalIp() {
-        List<NetworkIF> nets = SI.getHardware().getNetworkIFs();
-        if (nets.isEmpty()) return "localhost";
-
-        for (NetworkIF net : nets) {
-            String[] ipsv4 = net.getIPv4addr();
-            if (ipsv4.length > 0) return ipsv4[0];
-        }
-        return "127.0.0.1";
     }
 }

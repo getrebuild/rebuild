@@ -12,60 +12,97 @@ $(document).ready(() => {
 })
 
 class PreviewTable extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
-    const rows = []
-    for (let i = 0; i < this.props.data.elements.length; i++) {
-      let c = this.props.data.elements[i]
-      let cNext = this.props.data.elements[i + 1]
-      if (c.isFull || c.field === '$DIVIDER$' || (cNext && cNext.field === '$DIVIDER$')) {
-        rows.push([c])
+    const rows = [] // [[]]
+    let crtRow = []
+    let crtSpan = 0
+
+    this.props.data.elements.forEach((c) => {
+      let colspan = c.colspan || 2
+      if (c.isFull || c.colspan === 4 || c.field === '$DIVIDER$') colspan = 4
+      // set
+      c.colspan = colspan
+
+      if (crtSpan + colspan > 4) {
+        rows.push(crtRow)
+        crtRow = [c]
+        crtSpan = colspan
+      } else if (crtSpan + colspan === 4) {
+        crtRow.push(c)
+        rows.push(crtRow)
+        crtRow = []
+        crtSpan = 0
       } else {
-        rows.push([c, cNext])
-        i++
+        crtRow.push(c)
+        crtSpan += colspan
       }
-    }
+    })
+    // last
+    if (crtRow.length > 0) rows.push(crtRow)
 
     return (
       <table className="table table-bordered table-sm table-fixed">
         <tbody>
+          <tr className="hide">
+            <td />
+            <td />
+            <td />
+            <td />
+            <td />
+            <td />
+            <td />
+            <td />
+          </tr>
           {rows.map((row, idx) => {
-            const c1 = row[0]
-            const c2 = row[1] || {}
-            if (row.length === 1) {
-              if (c1.field === '$DIVIDER$') {
-                return (
-                  <tr key={'k-' + idx}>
-                    <th colSpan="4" className="divider">
-                      {c1.label}
-                    </th>
-                  </tr>
-                )
-              }
-
-              return (
-                <tr key={'k-' + idx}>
-                  <th>{c1.label}</th>
-                  <td colSpan="3">{this.formatValue(c1)}</td>
-                </tr>
-              )
-            }
-
-            return (
-              <tr key={'k-' + idx}>
-                <th>{c1.label}</th>
-                <td>{this.formatValue(c1)}</td>
-                <th>{c2.label}</th>
-                <td>{this.formatValue(c2)}</td>
-              </tr>
-            )
+            const k = `row-${idx}-`
+            return <tr key={k}>{this._renderRow(row).map((c, idx2) => React.cloneElement(c, { key: `${k}${idx2}` }))}</tr>
           })}
         </tbody>
       </table>
     )
+  }
+
+  _renderRow(row) {
+    const c1 = row[0]
+    const c2 = row[1]
+    const c3 = row[2]
+    const c4 = row[3]
+    const cells = []
+
+    if (c1.field === '$DIVIDER$') {
+      cells.push(
+        <th colSpan="8" className="divider">
+          {c1.label}
+        </th>
+      )
+      return cells
+    }
+
+    function _colSpan(n) {
+      if (n === 4) return 7
+      else if (n === 3) return 5
+      else if (n === 2) return 3
+      else return 1
+    }
+
+    cells.push(<th>{c1.label}</th>)
+    let colSpan = _colSpan(c2 ? c1.colspan : 4)
+    cells.push(<td colSpan={colSpan}>{this.formatValue(c1)}</td>)
+    if (!c2) return cells
+
+    cells.push(<th>{c2.label}</th>)
+    colSpan = _colSpan(c3 ? c2.colspan : 4 - c1.colspan)
+    cells.push(<td colSpan={colSpan}>{this.formatValue(c2)}</td>)
+    if (!c3) return cells
+
+    cells.push(<th>{c3.label}</th>)
+    colSpan = _colSpan(c4 ? c3.colspan : 4 - c1.colspan - c2.colspan)
+    cells.push(<td colSpan={colSpan}>{this.formatValue(c3)}</td>)
+    if (!c4) return cells
+
+    cells.push(<th>{c4.label}</th>)
+    colSpan = 1
+    cells.push(<td colSpan={colSpan}>{this.formatValue(c4)}</td>)
   }
 
   componentDidMount = () => $('.font-italic.hide').removeClass('hide')
@@ -150,20 +187,20 @@ class PreviewTable extends React.Component {
       return (
         <ul className="m-0 p-0 pl-3">
           {item.value.map((x) => {
-            return <li key={x.id}>{__formatRefText(x)}</li>
+            return <li key={x.id}>{this._findMixValue(x)}</li>
           })}
         </ul>
       )
     } else if (typeof item.value === 'object') {
-      return __formatRefText(item.value)
+      return this._findMixValue(item.value)
     } else {
       return item.value
     }
   }
-}
 
-const __formatRefText = function (value) {
-  const text = value.text
-  if (!text && value.id) return `@${value.id.toUpperCase()}`
-  else return text
+  _findMixValue(value) {
+    const text = value.text
+    if (!text && value.id) return `@${value.id.toUpperCase()}`
+    else return text
+  }
 }

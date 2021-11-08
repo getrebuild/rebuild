@@ -15,9 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,10 +34,11 @@ public class RevisionHistoryObserver extends OperatingObserver {
         if (isIgnore(ctx)) return;
 
         // 激活
-        if (RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0) {
+        if (RecycleBinCleanerJob.isEnableRevisionHistory()) {
             super.updateByAction(ctx);
         } else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
-            log.warn("RevisionHistory inactivated : " + ctx.getAnyRecord().getPrimary() + " by " + ctx.getOperator());
+            log.warn("RevisionHistory inactivated! {} {} by {}",
+                    ctx.getAction().getName().toLowerCase(), ctx.getAnyRecord().getPrimary(), ctx.getOperator());
         }
     }
 

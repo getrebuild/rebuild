@@ -19,8 +19,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -132,8 +131,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
                 .array();
         if (array.length == 0) return;
 
-        // 回收站开启，不物理删除附件
-        final boolean rbEnable = RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0;
+        // 标记删除，以便记录从回收站恢复后可用
+        final boolean rbEnable = RecycleBinCleanerJob.isEnableRecycleBin();
 
         List<Record> updates = new ArrayList<>();
         List<ID> deletes = new ArrayList<>();

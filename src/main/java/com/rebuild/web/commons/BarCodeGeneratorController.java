@@ -37,7 +37,7 @@ public class BarCodeGeneratorController extends BaseController {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
         if (!MetadataHelper.checkAndWarnField(entity, field)) {
-            response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/s.gif"));
             return;
         }
 

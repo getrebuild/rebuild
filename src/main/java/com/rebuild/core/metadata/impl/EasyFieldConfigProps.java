@@ -26,7 +26,7 @@ public class EasyFieldConfigProps {
     /**
      * 表单公式
      */
-    public static final String NUMBER_CALC_FORMULA = "calcFormula";
+    public static final String NUMBER_CALCFORMULA = "calcFormula";
 
     /**
      * 是否允许负数
@@ -39,7 +39,7 @@ public class EasyFieldConfigProps {
     /**
      * 表单公式
      */
-    public static final String DECIMAL_CALC_FORMULA = NUMBER_CALC_FORMULA;
+    public static final String DECIMAL_CALCFORMULA = NUMBER_CALCFORMULA;
 
     /**
      * 日期格式
@@ -89,15 +89,40 @@ public class EasyFieldConfigProps {
      * 引用字段数据过滤
      */
     public static final String REFERENCE_DATAFILTER = "referenceDataFilter";
+    /**
+     * 父级级联字段
+     */
+    public static final String REFERENCE_CASCADINGFIELD = "referenceCascadingField";
 
     /**
      * 多引用字段数据过滤
      * @see #REFERENCE_DATAFILTER
      */
     public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
+    /**
+     * 父级级联字段
+     * @see #REFERENCE_CASCADINGFIELD
+     */
+    public static final String N2NREFERENCE_CASCADINGFIELD = REFERENCE_CASCADINGFIELD;
 
     /**
      * 多行文本使用 MD 编辑器
      */
-    public static final String NTEXT_USE_MDEDIT = "useMdedit";
+    public static final String NTEXT_USEMDEDIT = "useMdedit";
+
+    /**
+     * 信息脱敏
+     */
+
+    public static final String ADV_DESENSITIZED = "advDesensitized";
+
+    /**
+     * 正则表达式
+     */
+    public static final String ADV_PATTERN = "advPattern";
+
+    /**
+     * 视图直接显示地图
+     */
+    public static final String LOCATION_MAPONVIEW = "locationMapOnView";
 }

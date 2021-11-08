@@ -219,6 +219,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-right: 23px;
 }
 
+.chart.FeedsSchedule span.badge,
+.chart.ProjectTasks span.badge {
+  display: inline-block;
+  font-weight: normal;
+  padding: 3px 5px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
 .chart-box.ApprovalList .progress-wrap {
   padding: 10px 25px 15px;
   background-color: #fff;

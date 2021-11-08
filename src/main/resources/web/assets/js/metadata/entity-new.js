@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global InitModels */
 
 $(document).ready(function () {
   const $btn = $('.btn-primary').click(function () {
@@ -27,7 +28,7 @@ $(document).ready(function () {
     }
 
     $btn.button('loading')
-    $.post('/admin/entity/entity-new?nameField=' + $val('#nameField'), JSON.stringify(data), function (res) {
+    $.post(`/admin/entity/entity-new?nameField=${$val('#nameField')}`, JSON.stringify(data), function (res) {
       if (res.error_code === 0) parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
       else RbHighbar.error(res.error_msg)
     })
@@ -49,102 +50,53 @@ $(document).ready(function () {
 
   $('.nav-tabs a').click(() => parent.RbModal.resize())
 
-  let indexLoaded = false
+  let _MetaschemaList
   $('.J_imports').click(() => {
-    if (indexLoaded) return
-    renderRbcomp(<MetaschemaList />, 'metaschemas')
-    // eslint-disable-next-line react/jsx-no-undef
-    // renderRbcomp(<BusinessModelBuilder />, 'metaschemas')
-    indexLoaded = true
+    if (_MetaschemaList) return
+    renderRbcomp(<MetaschemaList />, 'metaschemas', function () {
+      _MetaschemaList = this
+    })
   })
 })
 
 class MetaschemaList extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
-
   render() {
     return (
       <div>
-        {this.state.indexes ? (
-          <div className="rbs-indexes ">
-            {this.state.indexes.map((item) => {
-              return (
-                <div key={'data-' + item.file}>
-                  <div className="float-left" style={{ width: '80%' }}>
-                    <h5>{item.name}</h5>
-                    <div className="text-muted text-ellipsis" title={item.desc}>
-                      {item.desc}
-                    </div>
-                  </div>
-                  <div className="float-right">
-                    {item.exists ? (
-                      <button disabled className="btn btn-sm btn-primary">
-                        {$L('已存在')}
-                      </button>
-                    ) : (
-                      <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" onClick={() => this.imports(item)}>
-                        {$L('导入')}
-                      </button>
-                    )}
-                  </div>
-                  <div className="clearfix"></div>
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <RbSpinner fully={true} />
-        )}
+        <InitModels ref={(c) => (this._InitModels = c)} onLoad={() => parent.RbModal.resize()} />
+        <div className="dialog-footer">
+          <button className="btn btn-primary" onClick={() => this.imports()} ref={(c) => (this._$btn = c)}>
+            {$L('开始导入')}
+          </button>
+          <p className="protips mt-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
+        </div>
       </div>
     )
   }
 
   componentDidMount() {
-    $.get('/admin/rbstore/load-metaschemas', (res) => {
+    parent.RbModal.resize()
+  }
+
+  imports() {
+    const s = this._InitModels.getSelected()
+    if (s.length < 1) {
+      return RbHighbar.create($L('请选择要导入的实体'))
+    }
+
+    const $btn = $(this._$btn).button('loading')
+    const $mp2 = parent && parent.$mp ? parent.$mp : $mp
+    $mp2.start()
+    $.post(`/admin/metadata/imports?key=${s.join(',')}`, (res) => {
+      $mp2.end()
+      $btn.button('reset')
+
       if (res.error_code === 0) {
-        this.setState({ indexes: res.data }, () => {
-          parent.RbModal.resize()
-        })
+        RbHighbar.success($L('导入成功'))
+        setTimeout(() => parent.location.reload(), 1500)
       } else {
         RbHighbar.error(res.error_msg)
       }
-    })
-  }
-
-  imports(item) {
-    const tips = [`<strong>${$L('导入')} [ ${item.name} ]</strong>`]
-    if ((item.refs || []).length > 0) {
-      const refNames = []
-      this.state.indexes.forEach((bar) => {
-        if (item.refs.includes(bar.key) && !bar.exists) refNames.push(bar.name)
-      })
-      if (refNames.length > 0) tips.push($L('导入本实体将同时导入 **%s** 等依赖实体。', `[ ${refNames.join(', ')} ]`))
-    }
-    tips.push($L('你可在导入后进行适当调整。开始导入吗？'))
-
-    const that = this
-    const $mp2 = parent && parent.$mp ? parent.$mp : $mp
-    parent.RbAlert.create(tips.join('<br>'), {
-      html: true,
-      confirm: function () {
-        this.hide()
-        that.setState({ inProgress: true })
-
-        $mp2.start()
-        $.post(`/admin/metadata/imports?key=${item.key}`, (res) => {
-          $mp2.end()
-          that.setState({ inProgress: false })
-          if (res.error_code === 0) {
-            RbHighbar.success($L('导入成功'))
-            setTimeout(() => (parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`), 1500)
-          } else {
-            RbHighbar.error(res.error_msg)
-          }
-        })
-      },
     })
   }
 }

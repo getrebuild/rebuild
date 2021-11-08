@@ -13,6 +13,7 @@
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
+        <a class="close sm J_back hide" th:title="${bundle.L('回退')}"><i class="zmdi zmdi-arrow-left"></i></a>
         <a class="close sm admin-show" th:title="${bundle.L('表单设计')}" th:href="|${baseUrl}/admin/entity/${entityName}/form-design|" target="_blank">
           <i class="zmdi zmdi-settings"></i>
         </a>
@@ -23,7 +24,7 @@
         <div class="col-12 col-md-9">
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('明细视图')}]]</a></li>
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('明细详情')}]]</a></li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active" id="tab-rbview"></div>

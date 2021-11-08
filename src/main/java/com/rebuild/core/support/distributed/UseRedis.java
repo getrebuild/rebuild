@@ -21,7 +21,8 @@ import redis.clients.jedis.JedisPool;
  */
 public interface UseRedis {
 
-    Logger LOG = LoggerFactory.getLogger(UseRedis.class);
+    // private
+    Logger _log = LoggerFactory.getLogger(UseRedis.class);
 
     /**
      * @param pool
@@ -30,20 +31,23 @@ public interface UseRedis {
     default boolean testJedisPool(JedisPool pool) {
         if (pool == BootConfiguration.USE_EHCACHE) return false;
 
+        Jedis jedis = null;
         try {
-            Jedis jedis = pool.getResource();
-            IOUtils.closeQuietly(jedis);
+            jedis = pool.getResource();
+            _log.debug("Use redis server : {}", jedis.info("server"));  // test NOAUTH
             return true;
         } catch (Exception ex) {
-            LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
+            _log.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
                     + " !!! falling back to EhCache");
+            return false;
+        } finally {
+            IOUtils.closeQuietly(jedis);
         }
-        return false;
     }
 
     /**
      * @param pool
      * @return
      */
-    boolean refreshJedisPool(JedisPool pool);
+    boolean reinjectJedisPool(JedisPool pool);
 }

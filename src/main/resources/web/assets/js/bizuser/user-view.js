@@ -25,7 +25,7 @@ $(document).ready(function () {
           RbAlert.create($L('此用户已被使用过，因此不能删除。如不再使用可将其禁用'), $L('无法删除'), {
             icon: 'alert-circle-o',
             type: 'danger',
-            confirmText: $L('无法删除选中记录'),
+            confirmText: $L('禁用'),
             confirm: function () {
               toggleDisabled(true, this)
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
     })
 
   $('.J_disable').click(() => {
-    RbAlert.create($L('确定要禁用此用户吗？'), {
+    RbAlert.create($L('确认要禁用此用户吗？'), {
       confirmText: $L('禁用'),
       confirm: function () {
         toggleDisabled(true, this)
@@ -79,17 +79,7 @@ $(document).ready(function () {
           $('.J_enable')
             .off('click')
             .click(() =>
-              renderRbcomp(
-                <DlgEnableUser
-                  user={userId}
-                  enable={true}
-                  roleSet={!res.data.role}
-                  role={res.data.role}
-                  roleAppends={res.data.roleAppends}
-                  deptSet={!res.data.dept}
-                  dept={res.data.dept}
-                />
-              )
+              renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />)
             )
         }
       } else {
@@ -161,14 +151,7 @@ class DlgEnableUser extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择所属部门')}</label>
               <div className="col-sm-7">
-                <UserSelector
-                  hideUser={true}
-                  hideRole={true}
-                  hideTeam={true}
-                  multiple={false}
-                  defaultValue={this.props.dept}
-                  ref={(c) => (this._deptNew = c)}
-                />
+                <UserSelector hideUser={true} hideRole={true} hideTeam={true} multiple={false} defaultValue={this.props.dept} ref={(c) => (this._deptNew = c)} />
               </div>
             </div>
           )}
@@ -177,28 +160,15 @@ class DlgEnableUser extends RbModalHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('选择角色')}</label>
                 <div className="col-sm-7">
-                  <UserSelector
-                    hideUser={true}
-                    hideDepartment={true}
-                    hideTeam={true}
-                    multiple={false}
-                    defaultValue={this.props.role}
-                    ref={(c) => (this._roleNew = c)}
-                  />
+                  <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} multiple={false} defaultValue={this.props.role} ref={(c) => (this._roleNew = c)} />
                 </div>
               </div>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">
-                  {$L('附加角色')} ({$L('可选')}) <sup className="rbv"></sup>
+                  {$L('附加角色')} {$L('(可选)')} <sup className="rbv" />
                 </label>
                 <div className="col-sm-7">
-                  <UserSelector
-                    hideUser={true}
-                    hideDepartment={true}
-                    hideTeam={true}
-                    defaultValue={this.props.roleAppends}
-                    ref={(c) => (this._roleAppends = c)}
-                  />
+                  <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
                   <p className="form-text">{$L('选择的多个角色权限将被合并，高权限优先')}</p>
                 </div>
               </div>
@@ -237,7 +207,7 @@ class DlgEnableUser extends RbModalHandler {
     }
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
-      if (data.roleAppends && rb.commercial < 1) {
+      if (data.roleAppends && rb.commercial < 10) {
         return RbHighbar.create($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
           type: 'danger',
           html: true,

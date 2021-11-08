@@ -51,11 +51,12 @@ class AsideTree extends React.Component {
               this.setState({ expandItems: expandItemsNew })
             }
           }}>
-          <i className={`zmdi ${this.state.expandItems.contains(item.id) ? 'zmdi-chevron-down' : 'zmdi-chevron-right'} `} />
+          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) && 'open'} `} />
         </span>
         <a
           data-id={item.id}
           className={`text-ellipsis ${item.disabled && 'text-disabled'}`}
+          title={item.disabled ? $L('已禁用') : null}
           onClick={() => {
             this.setState({ activeItem: item.id }, () => {
               typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)

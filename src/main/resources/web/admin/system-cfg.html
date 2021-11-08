@@ -54,6 +54,13 @@
                         <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
+                        <td>
+                          [[${bundle.L('页脚')}]]
+                          <p class="link">[(${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide)')})]</p>
+                        </td>
+                        <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true"><pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre></td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('默认语言')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
@@ -67,6 +74,13 @@
                         <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('登录验证码显示模式')}]]</td>
+                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
+                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('总是显示')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('登录密码等级')}]]</td>
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
                           <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('低 (最低6位，无字符类型限制)')}]]</th:block>
@@ -75,11 +89,11 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('登录验证码显示模式')}]]</td>
-                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
-                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
-                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('总是显示')}]]</th:block>
+                        <td>
+                          [[${bundle.L('登录密码过期时间')}]] <sup class="rbv"></sup>
+                          <p>[[${bundle.L('设为 0 表示永不过期')}]]</p>
                         </td>
+                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
@@ -119,9 +133,7 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('变更历史保留时间')}]]</td>
-                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">
-                          [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
-                        </td>
+                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回收站保留时间')}]]</td>
@@ -140,7 +152,7 @@
               <div class="alert alert-danger alert-dismissible rbv-hide">
                 <button class="close" type="button" data-dismiss="alert"><i class="zmdi zmdi-close"></i></button>
                 <div class="icon"><i class="zmdi zmdi-thumb-up animated tada infinite"></i></div>
-                <div class="message" style="line-height:1.3">
+                <div class="message" style="line-height: 1.3">
                   <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多增值功能与专业技术支持</a>
                 </div>
               </div>

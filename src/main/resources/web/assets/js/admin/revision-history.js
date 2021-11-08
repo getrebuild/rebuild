@@ -52,11 +52,11 @@ class DataList extends React.Component {
   state = { ...this.props }
 
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig}></RbList>
+    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
   }
 
   componentDidMount() {
-    const select2 = $('#belongEntity')
+    const $s2 = $('#belongEntity')
       .select2({
         placeholder: $L('选择实体'),
         width: 220,
@@ -64,32 +64,37 @@ class DataList extends React.Component {
       })
       .val('$ALL$')
       .trigger('change')
-    select2.on('change', () => this.queryList())
+    $s2.on('change', () => this.queryList())
 
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
     $btn.click(() => this.queryList())
     $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
 
-    this._belongEntity = select2
-    this._recordName = $input
+    this._$belongEntity = $s2
+    this._$recordName = $input
 
     $('.J_details').click(() => this.showDetails())
   }
 
   queryList() {
-    let e = this._belongEntity.val(),
-      n = this._recordName.val()
+    let e = this._$belongEntity.val(),
+      n = this._$recordName.val()
     if (e === '$ALL$') e = null
 
     const qs = []
-    if (e) qs.push({ field: 'belongEntity', op: 'EQ', value: e })
-    if (n && $regex.isId(n)) qs.push({ field: 'recordId', op: 'EQ', value: n })
+    if (e) {
+      qs.push({ field: 'belongEntity', op: 'EQ', value: e })
+    }
+    if (n && $regex.isId(n)) {
+      qs.push({ field: 'recordId', op: 'EQ', value: n })
+    }
     const q = {
       entity: 'RevisionHistory',
       equation: 'AND',
       items: qs,
     }
+
     this._List.search(JSON.stringify(q))
   }
 
@@ -127,10 +132,6 @@ CellRenders.renderSimple = function (v, s, k) {
 
 // ~~ 变更详情
 class DlgDetails extends RbAlert {
-  constructor(props) {
-    super(props)
-  }
-
   renderContent() {
     const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
     if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('无变更详情')}</div>

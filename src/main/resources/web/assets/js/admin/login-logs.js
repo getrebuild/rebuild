@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(function () {
   renderRbcomp(<DataList />, 'react-list')
+
   $('.J_view-online').click(() => renderRbcomp(<OnlineUserViewer />))
 })
 
@@ -23,12 +24,8 @@ const ListConfig = {
 }
 
 class DataList extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} uncheckbox={true}></RbList>
+    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
   }
 
   componentDidMount() {
@@ -39,20 +36,21 @@ class DataList extends React.Component {
   }
 }
 
-let pageIps = []
+const _pageIps = []
 const CellRenders_renderSimple = CellRenders.renderSimple
+
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   let comp = CellRenders_renderSimple(v, s, k)
   if (k.endsWith('.ipAddr')) {
-    if (!pageIps.contains(v)) pageIps.push(v)
+    if (!_pageIps.contains(v)) _pageIps.push(v)
     comp = React.cloneElement(comp, { className: `J_ip-${v.replace(/\./g, '-')}` })
   }
   return comp
 }
 
 RbList.renderAfter = function () {
-  pageIps.forEach(function (ip) {
+  _pageIps.forEach(function (ip) {
     $.get(`/commons/ip-location?ip=${ip}`, (res) => {
       if (res.error_code === 0 && res.data.country !== 'N') {
         let L = res.data.country === 'R' ? $L('局域网') : [res.data.region, res.data.country].join(', ')
@@ -68,10 +66,6 @@ RbList.renderAfter = function () {
 
 // ~ 在线用户
 class OnlineUserViewer extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('查看在线用户')} disposeOnHide={true}>
@@ -88,7 +82,7 @@ class OnlineUserViewer extends RbModalHandler {
               return (
                 <tr key={`user-${item.user}`}>
                   <td className="user-avatar cell-detail user-info">
-                    <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} />
+                    <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
                     <span className="pt-1">{item.fullName}</span>
                   </td>
                   <td className="cell-detail">

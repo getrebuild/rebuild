@@ -7,30 +7,29 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.state.StateManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 从 Cell[] 中解析结果 Record
@@ -38,29 +37,24 @@ import java.util.Map;
  * @author devezhao
  * @since 2019/12/4
  */
+@Slf4j
 public class RecordCheckout {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RecordCheckout.class);
 
     final private Map<Field, Integer> fieldsMapping;
 
-    /**
-     * @param fieldsMapping
-     */
     protected RecordCheckout(Map<Field, Integer> fieldsMapping) {
         this.fieldsMapping = fieldsMapping;
     }
 
     /**
+     * @param record
      * @param row
      * @return
      */
     public Record checkout(Record record, Cell[] row) {
         for (Map.Entry<Field, Integer> e : this.fieldsMapping.entrySet()) {
             int cellIndex = e.getValue();
-            if (cellIndex > row.length) {
-                continue;
-            }
+            if (cellIndex >= row.length) continue;
 
             Field field = e.getKey();
             Cell cellValue = row[cellIndex];
@@ -69,7 +63,7 @@ public class RecordCheckout {
             if (value != null) {
                 record.setObjectValue(field.getName(), value);
             } else if (cellValue != Cell.NULL && !cellValue.isEmpty()) {
-                LOG.warn("Invalid value of cell : " + cellValue + " > " + field.getName());
+                log.warn("Invalid value of cell : " + cellValue + " > " + field.getName());
             }
         }
         return record;
@@ -99,39 +93,32 @@ public class RecordCheckout {
             return cell.asBool();
         } else if (dt == DisplayType.STATE) {
             return checkoutStateValue(field, cell);
+        } else if (dt == DisplayType.MULTISELECT) {
+            return checkoutMultiSelectValue(field, cell);
+        } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+            return checkoutFileOrImage(field, cell);
         }
 
-        String string = cell.asString();
-        if (string != null) string = string.trim();
+        String text = cell.asString();
+        if (text != null) text = text.trim();
 
         // 格式验证
         if (validate) {
             if (dt == DisplayType.EMAIL) {
-                string = cell.asString();
-                return RegexUtils.isEMail(string) ? string : null;
-            } else if (dt == DisplayType.URL) {
-                string = cell.asString();
-                return RegexUtils.isUrl(string) ? string : null;
+                return EasyEmail.isEmail(text) ? text : null;
+            } else if (dt == DisplayType.URL || dt == DisplayType.AVATAR) {
+                return EasyUrl.isUrl(text) ? text : null;
             } else if (dt == DisplayType.PHONE) {
-                string = cell.asString();
-                return RegexUtils.isCNMobile(string) || RegexUtils.isTel(string) ? string : null;
+                return EasyPhone.isPhone(text) ? text : null;
             }
         }
 
-        return string;
+        return text;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see PickListManager
-     */
     protected ID checkoutPickListValue(Field field, Cell cell) {
         String val = cell.asString();
-        if (StringUtils.isBlank(val)) {
-            return null;
-        }
+        if (StringUtils.isBlank(val)) return null;
 
         // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
@@ -139,7 +126,7 @@ public class RecordCheckout {
             if (PickListManager.instance.getLabel(iid) != null) {
                 return iid;
             } else {
-                LOG.warn("No item of PickList found by ID : " + iid);
+                log.warn("No item of PickList found by ID : " + iid);
                 return null;
             }
         } else {
@@ -147,12 +134,6 @@ public class RecordCheckout {
         }
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see StateManager
-     */
     protected Integer checkoutStateValue(Field field, Cell cell) {
         final String val = cell.asString();
         if (StringUtils.isBlank(val)) {
@@ -171,17 +152,9 @@ public class RecordCheckout {
         return null;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     * @see ClassificationManager
-     */
     protected ID checkoutClassificationValue(Field field, Cell cell) {
         String val = cell.asString();
-        if (StringUtils.isBlank(val)) {
-            return null;
-        }
+        if (StringUtils.isBlank(val)) return null;
 
         // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
@@ -189,7 +162,7 @@ public class RecordCheckout {
             if (ClassificationManager.instance.getName(iid) != null) {
                 return iid;
             } else {
-                LOG.warn("No item of Classification found by ID : " + iid);
+                log.warn("No item of Classification found by ID : " + iid);
                 return null;
             }
         } else {
@@ -197,16 +170,9 @@ public class RecordCheckout {
         }
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     */
     protected ID checkoutReferenceValue(Field field, Cell cell) {
         String val = cell.asString();
-        if (StringUtils.isBlank(val)) {
-            return null;
-        }
+        if (StringUtils.isBlank(val)) return null;
 
         final Entity refEntity = field.getReferenceEntity();
 
@@ -221,35 +187,39 @@ public class RecordCheckout {
         }
 
         Query query;
+        // 用户特殊处理
         if (refEntity.getEntityCode() == EntityHelper.User) {
             String sql = MessageFormat.format(
                     "select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",
                     StringEscapeUtils.escapeSql(val2Text.toString()));
             query = Application.createQueryNoFilter(sql);
         } else {
-            // 查找引用实体的名称字段
-            String sql = String.format("select %s from %s where %s = ?",
-                    refEntity.getPrimaryField().getName(), refEntity.getName(), refEntity.getNameField().getName());
-            query = Application.createQueryNoFilter(sql).setParameter(1, val2Text);
+            // 查找引用实体的名称字段和自动编号字段
+            Set<String> queryFields = new HashSet<>();
+            queryFields.add(refEntity.getNameField().getName());
+            for (Field s : MetadataSorter.sortFields(refEntity, DisplayType.SERIES)) {
+                queryFields.add(s.getName());
+            }
+
+            String sql = String.format("select %s from %s where ",
+                    refEntity.getPrimaryField().getName(), refEntity.getName());
+            for (String qf : queryFields) {
+                sql += String.format("%s = '%s' or ", qf, StringEscapeUtils.escapeSql((String) val2Text));
+            }
+            sql = sql.substring(0, sql.length() - 4);
+
+            query = Application.createQueryNoFilter(sql);
         }
 
         Object[] found = query.unique();
         return found != null ? (ID) found[0] : null;
     }
 
-    /**
-     * @param field
-     * @param cell
-     * @return
-     */
     protected Date checkoutDateValue(Field field, Cell cell) {
         Date date = cell.asDate();
-        if (date != null) {
-            return date;
-        }
-        if (cell.isEmpty()) {
-            return null;
-        }
+        if (date != null) return date;
+
+        if (cell.isEmpty()) return null;
 
         String date2str = cell.asString();
         // 2017/11/19 11:07
@@ -257,5 +227,27 @@ public class RecordCheckout {
             return cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
         }
         return null;
+    }
+
+    protected Long checkoutMultiSelectValue(Field field, Cell cell) {
+        String val = cell.asString();
+        if (StringUtils.isBlank(val)) return null;
+
+        long mVal = 0;
+        for (String s : val.split("[,，;；]")) {
+            mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
+        }
+        return mVal == 0 ? null : mVal;
+    }
+
+    protected String checkoutFileOrImage(Field field, Cell cell) {
+        String val = cell.asString();
+        if (StringUtils.isBlank(val)) return null;
+
+        List<String> urls = new ArrayList<>();
+        for (String s : val.split("[,，;；]")) {
+            if (EasyUrl.isUrl(s)) urls.add(s);
+        }
+        return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
     }
 }

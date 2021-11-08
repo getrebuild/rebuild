@@ -42,25 +42,60 @@
         z-index: 1;
         background: rgba(0, 0, 0, 0.1);
       }
-      .o-platform a > i.zmdi {
+      .h5-mobile .icon {
         background-color: #fc9a00;
         color: #fff;
         border-radius: 50%;
         width: 25px;
         height: 25px;
-        line-height: 26px;
+        line-height: 25px;
         font-size: 1.2rem;
-        padding-left: 9px;
+        text-align: center;
+        overflow: hidden;
       }
-      .o-platform a > span {
-        color: #666;
-        display: inline-block;
-        margin-left: 2px;
+      .h5-mobile span {
+        float: right;
+        color: rgb(64, 64, 64);
+        margin-left: 6px;
+        margin-top: 6px;
+        font-size: 13px;
       }
-      .o-platform .dropdown-menu {
+      .h5-mobile.dropup .dropdown-menu {
         min-width: 0;
         width: 160px;
         padding: 6px;
+      }
+      .h5-mobile.dropup:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; /* remove the gap so it doesn't close */
+      }
+      .login-with {
+        text-align: center;
+        border-top: 1px solid #ebebeb;
+        position: relative;
+        padding-top: 25px;
+        margin: 25px 0 20px;
+      }
+      .login-with > span {
+        position: absolute;
+        font-size: 13px;
+        color: #777;
+        background-color: #fff;
+        top: -9px;
+        width: 88px;
+        left: 50%;
+        margin-left: -44px;
+      }
+      .login-with > a {
+        display: inline-block;
+        margin: 0 8px;
+      }
+      .login-with > a > img {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background-color: #eee;
       }
     </style>
   </head>
@@ -109,15 +144,28 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
+                  <div class="login-with d-none d-md-block" th:if="${ssoDingtalk != null || ssoWxwork != null || ssoSaml != null}">
+                    <span>[[${bundle.L('第三方登录')}]]</span>
+                    <a href="login/sso?protocol=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
+                      <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" />
+                    </a>
+                    <a href="login/sso?protocol=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
+                      <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" />
+                    </a>
+                    <a href="login/sso?protocol=saml2" th:if="${ssoSaml != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
+                      <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
+                    </a>
+                  </div>
                   <div class="row mb-2">
-                    <div class="col" th:if="${mobileQrUrl != null}">
-                      <div class="btn-group dropup o-platform">
-                        <a class="hover-opacity dropdown-toggle" data-toggle="dropdown">
-                          <i class="icon zmdi zmdi-smartphone-iphone"></i> <span class="up-1">[[${bundle.L('手机版')}]]</span>
+                    <div class="col">
+                      <div class="btn-group dropup h5-mobile fs-0">
+                        <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
+                          <i class="icon zmdi zmdi-smartphone-iphone"></i>
+                          <span class="up-1">[[${bundle.L('手机版')}]]</span>
                         </a>
                         <div class="dropdown-menu">
                           <div>
-                            <img class="w-100" th:src="${mobileQrUrl}" alt="Mobile QR" />
+                            <img class="w-100" alt="Mobile QR" />
                           </div>
                         </div>
                       </div>
@@ -125,7 +173,8 @@
                     <div class="col text-right">
                       <div class="btn-group">
                         <a class="select-lang dropdown-toggle" data-toggle="dropdown">
-                          <i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span>
+                          <i class="icon zmdi zmdi-globe-alt"></i>
+                          <span>[[${currentLang}]]</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
                           <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
@@ -138,13 +187,15 @@
             </div>
             <div class="splash-footer">
               <div class="copyright link">
-                &copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" />
+                &copy;
+                <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" />
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
     <script type="text/babel">
@@ -154,10 +205,15 @@
           return
         }
 
-        $('.o-platform .dropdown-toggle').on('mouseenter', function () {
-          $(this).trigger('click')
-          // $(this).dropdown('show')
-        })
+        $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?t=${$encode($('.h5-mobile a').attr('href'))}`)
+
+        if ($.browser.mobile) {
+          setTimeout(function () {
+            $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
+              .appendTo('.announcement-wrapper')
+              .on('click', () => (location.href = $('.h5-mobile>a').attr('href')))
+          }, 1000)
+        }
 
         $('.vcode-row img').on('click', function () {
           $(this).attr('src', 'captcha?' + $random())
@@ -183,8 +239,11 @@
 
           $.post(url, passwd, function (res) {
             if (res.error_code === 0) {
-              if (res.data && res.data.danger) alert(res.data.danger)
-              location.replace($decode($urlp('nexturl') || '../dashboard/home'))
+              let nexturl = $decode($urlp('nexturl') || '../dashboard/home')
+              if (res.data && res.data.passwdExpiredDays < 8) {
+                nexturl = '../settings/passwd-expired?d=' + res.data.passwdExpiredDays
+              }
+              location.replace(nexturl)
             } else if (res.error_msg === 'VCODE') {
               location.reload()
             } else {

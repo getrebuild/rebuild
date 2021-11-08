@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/feeds" />
     <title>[[${bundle.L('动态')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
   </head>
@@ -107,5 +108,7 @@
     <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds-list.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
   </body>
 </html>

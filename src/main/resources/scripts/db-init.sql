@@ -112,6 +112,16 @@ create table if not exists `team_member` (
   unique index UIX0_team_member (`TEAM_ID`, `USER_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [ExternalUser] DDL ************
+create table if not exists `external_user` (
+  `USER_ID`            char(20) not null,
+  `APP_USER`           varchar(100) not null,
+  `APP_ID`           varchar(100) not null,
+  `BIND_USER`          char(20) not null,
+  primary key  (`USER_ID`),
+  unique index UIX0_external_user (`APP_USER`, `APP_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [MetaEntity] DDL ************
 create table if not exists `meta_entity` (
   `ENTITY_ID`          char(20) not null,
@@ -464,6 +474,7 @@ create table if not exists `data_report_config` (
   `NAME`               varchar(100) not null comment '报表名称',
   `TEMPLATE_FILE`      varchar(200) comment '模板文件',
   `TEMPLATE_CONTENT`   text(21845) comment '模板内容',
+  `TEMPLATE_TYPE`      smallint(6) default '1' comment '模板类型 (1=记录, 2=列表)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -608,6 +619,7 @@ create table if not exists `project_config` (
   `MEMBERS`            varchar(420) comment '项目成员 ($MemberID)',
   `SCOPE`              smallint(6) default '1' comment '可见范围 (1=公开 2=成员)',
   `EXTRA_DEFINITION`   text(21845) comment '扩展配置 (JSON Map)',
+  `STATUS`             smallint(6) default '1' comment '状态 (1=正常 2=归档)',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -790,4 +802,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 36);
+  values ('021-9000000000000001', 'DBVer', 39);

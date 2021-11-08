@@ -10,7 +10,8 @@ package com.rebuild.core.privileges;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
-import cn.devezhao.bizz.security.member.User;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -20,6 +21,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.notification.Message;
@@ -33,6 +35,8 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -44,6 +48,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
+@Slf4j
 @Service
 public class UserService extends BaseServiceImpl {
 
@@ -95,6 +100,14 @@ public class UserService extends BaseServiceImpl {
         saveBefore(record);
         Record r = super.update(record);
         Application.getUserStore().refreshUser(record.getPrimary());
+
+        // @see #getPasswdExpiredDayLeft
+        if (record.hasValue("password")) {
+            String key = ConfigurationItem.PasswordExpiredDays.name() + r.getPrimary();
+            RebuildConfiguration.setCustomValue(key,
+                    CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+        }
+
         return r;
     }
 
@@ -145,7 +158,7 @@ public class UserService extends BaseServiceImpl {
             try {
                 UserHelper.generateAvatar(record.getString("fullName"), true);
             } catch (Exception ex) {
-                LOG.error(null, ex);
+                log.error(null, ex);
             }
         }
     }
@@ -227,11 +240,6 @@ public class UserService extends BaseServiceImpl {
         }
     }
 
-    /**
-     * @param newUser
-     * @param passwd
-     * @return
-     */
     private boolean notifyNewUser(Record newUser, String passwd) {
         if (RebuildConfiguration.getMailAccount() == null || !newUser.hasValue("email")) {
             return false;
@@ -259,11 +267,15 @@ public class UserService extends BaseServiceImpl {
      * @param enableNew   激活状态
      */
     public void updateEnableUser(ID user, ID deptNew, ID roleNew, ID[] roleAppends, Boolean enableNew) {
-        User u = Application.getUserStore().getUser(user);
+        User enUser = Application.getUserStore().getUser(user);
+        // 当前是从未激活状态
+        final boolean beforeUnEnabled = enUser.isDisabled()
+                && (enUser.getOwningDept() == null || enUser.getOwningRole() == null);
+
         ID deptOld = null;
         // 检查是否需要更新部门
         if (deptNew != null) {
-            deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+            deptOld = enUser.getOwningBizUnit() == null ? null : (ID) enUser.getOwningBizUnit().getIdentity();
             if (deptNew.equals(deptOld)) {
                 deptNew = null;
                 deptOld = null;
@@ -271,7 +283,7 @@ public class UserService extends BaseServiceImpl {
         }
 
         // 检查是否需要更新角色
-        if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
+        if (enUser.getOwningRole() != null && enUser.getOwningRole().getIdentity().equals(roleNew)) {
             roleNew = null;
         }
 
@@ -302,6 +314,42 @@ public class UserService extends BaseServiceImpl {
         if (deptOld != null) {
             TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), UserContextHolder.getUser());
         }
+
+        // 是否需要发送激活通知
+        if (beforeUnEnabled) {
+            notifyEnableUser(Application.getUserStore().getUser(enUser.getId()));
+        }
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public boolean notifyEnableUser(User user) {
+        // 未激活
+        if (!user.isActive()) return false;
+
+        // 登录过
+        Object did = Application.createQueryNoFilter(
+                "select logId from LoginLog where user = ?")
+                .setParameter(1, user.getId())
+                .unique();
+        if (did != null) return false;
+
+        // 站内信
+        String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。如有任何登陆或使用问题，请与系统管理员联系。",
+                user.getFullName());
+        Application.getNotifications().send(MessageBuilder.createMessage(user.getId(), content));
+
+        // 邮件
+        if (SMSender.availableMail() && user.getEmail() != null) {
+            String homeUrl = RebuildConfiguration.getHomeUrl();
+            content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
+                    user.getFullName(), homeUrl, homeUrl);
+            String subject = Language.L("你的账户已激活");
+            SMSender.sendMailAsync(user.getEmail(), subject, content);
+        }
+        return true;
     }
 
     /**
@@ -356,6 +404,13 @@ public class UserService extends BaseServiceImpl {
      * @throws DataSpecificationException
      */
     public ID txSignUp(Record record) throws DataSpecificationException {
+        if (!record.hasValue("password")) {
+            record.setString("password", CodecUtils.randomCode(8) + "!8");
+        }
+        if (!record.hasValue("isDisabled")) {
+            record.setBoolean("isDisabled", Boolean.TRUE);
+        }
+
         UserContextHolder.setUser(SYSTEM_USER);
         try {
             record = this.create(record, false);
@@ -365,15 +420,32 @@ public class UserService extends BaseServiceImpl {
 
         // 通知管理员
         ID newUserId = record.getPrimary();
-        String viewUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + newUserId;
+        String viewUrl = AppUtils.getContextPath("/app/list-and-view?id=" + newUserId);
         String content = Language.L(
                 "用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。",
                 newUserId);
         content += String.format("[%s](%s)", Language.L("点击开始激活"), viewUrl);
 
-        Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
+        Message message = MessageBuilder.createMessage(ADMIN_USER, content, Message.TYPE_DEFAULT, newUserId);
         Application.getNotifications().send(message);
 
         return newUserId;
+    }
+
+    /**
+     * 密码过期时间（剩余天数）
+     *
+     * @param user
+     * @return
+     */
+    public static Integer getPasswdExpiredDayLeft(ID user) {
+        int peDays = RebuildConfiguration.getInt(ConfigurationItem.PasswordExpiredDays);
+        if (peDays > 0) {
+            String key = ConfigurationItem.PasswordExpiredDays.name() + user;
+            String lastChanged = StringUtils.defaultIfBlank(RebuildConfiguration.getCustomValue(key), "2021-06-30");
+            int peLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
+            return peDays - peLeft;
+        }
+        return null;
     }
 }

@@ -12,6 +12,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
@@ -42,11 +43,12 @@ import org.apache.commons.lang.StringUtils;
 import java.util.*;
 
 /**
- * 数据转写（自动更新）
+ * 字段更新
  *
  * @author devezhao
- * @see AutoFillinManager
  * @since 2020/2/7
+ *
+ * @see AutoFillinManager
  */
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
@@ -68,11 +70,18 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        List<ID> tschain = checkTriggerChain();
+        final List<ID> tschain = checkTriggerChain();
         if (tschain == null) return;
 
         this.prepare(operatingContext);
-        if (targetRecordData.getAvailableFields().isEmpty()) return;
+        if (targetRecordIds.isEmpty()) {
+            log.warn("No target record(s) found");
+            return;
+        }
+        if (targetRecordData.getAvailableFields().isEmpty()) {
+            log.warn("No data of target record available");
+            return;
+        }
 
         final ServiceSpec targetService = MetadataHelper.isBusinessEntity(targetEntity)
                 ? Application.getEntityService(targetEntity.getEntityCode())
@@ -245,12 +254,19 @@ public class FieldWriteback extends FieldAggregation {
                             Object value = useSourceData.getObjectValue(fieldName);
                             if (value instanceof Date) {
                                 value = CalendarUtils.getUTCDateTimeFormat().format(value);
+                            } else if (value == null) {
+                                // 数字字段置 `0`
+                                Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                                if (isNumberField != null
+                                        && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
+                                    value = "0";
+                                } else {
+                                    value = StringUtils.EMPTY;
+                                }
                             } else {
-                                value = value == null ? StringUtils.EMPTY : value.toString();
+                                value = value.toString();
                             }
                             clearFormual = clearFormual.replace(replace, (String) value);
-                        } else {
-                            log.warn("No replace of field found : {}", replace);
                         }
                     }
 

@@ -97,7 +97,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             if (SMSender.availableMail() && RegexUtils.isEMail(emailAddr) && !emails.isEmpty()) {
                 String subject = bundle.L("你有 %d 条日程提醒", emails.size());
                 String contents = mergeContents(emails, true);
-                contents = MessageBuilder.formatMessage(contents, true, false);
+                contents = MessageBuilder.formatMessage(contents);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
             }
 
@@ -116,7 +116,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
      * @return
      */
     protected String mergeContents(List<Object[]> msgs, boolean fullUrl) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("\n");
         int num = 0;
         for (Object[] o : msgs) {
             sb.append("\n- [");
@@ -131,15 +131,13 @@ public class FeedsScheduleJob extends DistributedJobLock {
             if (fullUrl) {
                 url = RebuildConfiguration.getHomeUrl(url);
             } else {
-                url = AppUtils.getContextPath() + url;
+                url = AppUtils.getContextPath(url);
             }
             sb.append("](").append(url).append(")");
 
             num++;
             // 最多列出 N 条
-            if (num >= 5) {
-                break;
-            }
+            if (num >= 5) break;
         }
 
         if (msgs.size() > num) {

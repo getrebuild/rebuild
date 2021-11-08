@@ -110,11 +110,13 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             // 明细实体
             if (entity.getMainEntity() != null) {
                 Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()),
-                        "FIRST ARGUMENT MUST BE RECORD!");
+                        "FIRST ARGUMENT MUST BE RECORD");
 
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
                 ID mainid = ((Record) idOrRecord).getID(dtmField.getName());
-                if (mainid == null || !Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
+                Assert.notNull(mainid, "DETAIL RECORD MUST HAVE `MAINID`");
+
+                if (!Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
                     throw new AccessDeniedException(Language.L("你没有添加明细权限"));
                 }
                 allowed = true;

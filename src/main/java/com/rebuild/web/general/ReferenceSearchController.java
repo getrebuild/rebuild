@@ -28,6 +28,7 @@ import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
@@ -73,7 +74,8 @@ public class ReferenceSearchController extends EntityController {
 
         // 引用字段数据过滤
         // 启用数据过滤后最近搜索将不可用
-        String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity.getName());
+        String protocolFilter = new ProtocolFilterParser(null)
+                .parseRef(field + "." + entity.getName(), request.getParameter("cascadingValue"));
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
@@ -86,7 +88,7 @@ public class ReferenceSearchController extends EntityController {
             if (recently == null || recently.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(recently, null);
+                return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
             }
         }
 
@@ -175,7 +177,7 @@ public class ReferenceSearchController extends EntityController {
     private List<Object> resultSearch(String sqlWhere, Entity entity, int maxResults) {
         Field nameField = entity.getNameField();
 
-        String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
+        String sql = MessageFormat.format("select {0},{1} from {2} where ({3})",
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
 
         if (!sqlWhere.contains(" order by ")) {
@@ -211,29 +213,33 @@ public class ReferenceSearchController extends EntityController {
     // 获取记录的名称字段值
     @GetMapping("read-labels")
     public RespBody referenceLabel(HttpServletRequest request) {
-        String ids = getParameter(request, "ids", null);
+        final String ids = getParameter(request, "ids", null);
         if (StringUtils.isBlank(ids)) {
             return RespBody.ok();
         }
 
+        final ID user = getRequestUser(request);
+
         // 不存在的记录不返回
         boolean ignoreMiss = getBoolParameter(request, "ignoreMiss", false);
+        // 检查权限，无权限的不返回
+        boolean checkPrivileges = getBoolParameter(request, "checkPrivileges", false);
 
         Map<String, String> labels = new HashMap<>();
         for (String id : ids.split("[|,]")) {
             if (!ID.isId(id)) continue;
 
-            String label;
+            ID recordId = ID.valueOf(id);
+            if (checkPrivileges && !Application.getPrivilegesManager().allowRead(user, recordId)) continue;
+
             if (ignoreMiss) {
                 try {
-                    label = FieldValueHelper.getLabel(ID.valueOf(id));
-                    labels.put(id, label);
+                    labels.put(id, FieldValueHelper.getLabel(recordId));
                 } catch (NoRecordFoundException ignored) {
                 }
 
             } else {
-                label = FieldValueHelper.getLabelNotry(ID.valueOf(id));
-                labels.put(id, label);
+                labels.put(id, FieldValueHelper.getLabelNotry(recordId));
             }
         }
 
@@ -267,8 +273,12 @@ public class ReferenceSearchController extends EntityController {
         mv.getModel().put("canCreate",
                 Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
-        if (ProtocolFilterParser.getFieldDataFilter(field) != null) {
-            mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
+        if (ProtocolFilterParser.getFieldDataFilter(field) != null
+                || ProtocolFilterParser.hasFieldCascadingField(field)) {
+            String protocolExpr = String.format("ref:%s:%s",
+                    getParameterNotNull(request, "field"),
+                    StringUtils.defaultString(getParameter(request, "cascadingValue"), ""));
+            mv.getModel().put("referenceFilter", protocolExpr);
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }

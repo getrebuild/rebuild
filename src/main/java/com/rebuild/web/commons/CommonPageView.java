@@ -8,14 +8,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
+import org.apache.commons.io.FileUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -27,8 +34,12 @@ import java.io.IOException;
 public class CommonPageView extends BaseController {
 
     @GetMapping("/")
-    public void index(HttpServletResponse response) throws IOException {
-        response.sendRedirect("user/login");
+    public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (AppUtils.isMobile(request) && License.isRbvAttached()) {
+            response.sendRedirect(RebuildConfiguration.getMobileUrl("/"));
+        } else {
+            response.sendRedirect("user/login");
+        }
     }
 
     @GetMapping("/*.txt")
@@ -36,10 +47,21 @@ public class CommonPageView extends BaseController {
         String url = request.getRequestURI();
         url = url.substring(url.lastIndexOf("/") + 1);
 
-        String content = CommonsUtils.getStringOfRes("web/" + url);
+        String content;
+
+        // WXWORK
+        if (url.startsWith("WW_verify_")) {
+            String fileKey = RebuildConfiguration.get(ConfigurationItem.WxworkAuthFile);
+            File file = RebuildConfiguration.getFileOfData(fileKey);
+            content = FileUtils.readFileToString(file);
+        }
+        // OTHERS
+        else {
+            content = CommonsUtils.getStringOfRes("web/" + url);
+        }
 
         if (content == null) {
-            response.sendError(404);
+            response.sendError(HttpStatus.NOT_FOUND.value());
         } else {
             ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
             ServletUtils.write(response, content);

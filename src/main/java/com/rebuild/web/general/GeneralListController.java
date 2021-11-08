@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -15,11 +16,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
+import org.apache.commons.lang.BooleanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -42,18 +47,21 @@ public class GeneralListController extends EntityController {
                                  HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         final ID user = getRequestUser(request);
-        final Entity useEntity = checkPageOfEntity(user, entity, response);
-        if (useEntity == null) return null;
+        final Entity listEntity = checkPageOfEntity(user, entity, response);
+        if (listEntity == null) return null;
 
-        ModelAndView mv;
-        if (useEntity.getMainEntity() != null) {
-            mv = createModelAndView("/general/detail-list", entity, user);
-        } else {
-            mv = createModelAndView("/general/record-list", entity, user);
+        final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
+
+        String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
+        Integer listMode = getIntParameter(request, "forceListMode");
+        if (listMode == null) {
+            listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
+        }
+        if (listMode == 2) {
+            listPage = "/general/record-list-2";  // Mode2
         }
 
-        JSON config = DataListManager.instance.getFieldsLayout(entity, user);
-        mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+        ModelAndView mv = createModelAndView(listPage, entity, user);
 
         // 列表相关权限
         mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
@@ -62,6 +70,28 @@ public class GeneralListController extends EntityController {
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
+
+        JSON listConfig = null;
+
+        if (listMode == 1) {
+            listConfig = DataListManager.instance.getFieldsLayout(entity, user);
+
+            // 扩展配置
+            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
+            mv.getModel().put("hideAside",
+                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
+
+        } else if (listMode == 2) {
+            listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);
+
+            // 明细列表
+            if (listEntity.getMainEntity() != null) mv.getModel().put("DataListType", "DetailList");
+        }
+
+        mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
 
         return mv;
     }

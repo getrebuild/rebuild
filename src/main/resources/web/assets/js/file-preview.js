@@ -57,19 +57,19 @@ class RbPreview extends React.Component {
             <div className="float-right">
               {rb.fileSharable && (
                 <a onClick={this.share} title={$L('分享')}>
-                  <i className="zmdi zmdi-share fs-17"></i>
+                  <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
               <a title={$L('下载')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
-                <i className="zmdi zmdi-download"></i>
+                <i className="zmdi zmdi-download" />
               </a>
               {!this.props.unclose && (
                 <a title={`${$L('关闭')} (ESC)`} onClick={this.hide}>
-                  <i className="zmdi zmdi-close"></i>
+                  <i className="zmdi zmdi-close" />
                 </a>
               )}
             </div>
-            <div className="clearfix"></div>
+            <div className="clearfix" />
           </div>
           <div className="preview-body" onClick={HIDE_ONCLICK ? this.hide : () => {}} ref={(c) => (this._previewBody = c)}>
             {previewContent}
@@ -125,13 +125,7 @@ class RbPreview extends React.Component {
               <RbSpinner fully={true} />
             </div>
           )}
-          <iframe
-            className={!this.state.docRendered ? 'hide' : ''}
-            src={this.state.previewUrl || ''}
-            onLoad={() => this.setState({ docRendered: true })}
-            frameBorder="0"
-            scrolling="no"
-          />
+          <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
         </div>
       </div>
     )
@@ -188,11 +182,11 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
-        const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}`
+        const previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
-      if (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) {
+      if (_isFullUrl(currentUrl)) {
         setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
@@ -201,7 +195,7 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this._isText(fileName)) {
-      const textUrl = currentUrl.startsWith('http://') || currentUrl.startsWith('https://') ? currentUrl : `/filex/download/${currentUrl}`
+      const textUrl = _isFullUrl(currentUrl) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
         url: textUrl,
         type: 'GET',
@@ -217,8 +211,9 @@ class RbPreview extends React.Component {
 
     $(document)
       .unbind('keyup')
-      .keyup(function (event) {
-        if (event.keyCode === 27) that.hide()
+      .keyup(function (e) {
+        // ESC
+        if (e.keyCode === 27) that.hide()
       })
     $(that._previewBody)
       .find('>div.fp-content')
@@ -236,9 +231,8 @@ class RbPreview extends React.Component {
 
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
-    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-      url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
-    }
+    url = _isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
+
     if (params) {
       url += url.contains('?') ? '&' : '?'
       url += params
@@ -332,8 +326,8 @@ class FileShare extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._btn = c)}>
-                {$L('复制')}
+              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
           </div>
@@ -362,13 +356,12 @@ class FileShare extends RbModalHandler {
     const that = this
     const initCopy = function () {
       // eslint-disable-next-line no-undef
-      new ClipboardJS(that._btn, {
+      new ClipboardJS(that._$copy, {
         text: function () {
           return that.state.shareUrl
         },
-      }).on('success', function () {
-        RbHighbar.success($L('分享链接已复制'))
-      })
+      }).on('success', () => $(that._$copy).addClass('copied-check'))
+      $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
     }
     if (!window.ClipboardJS) {
       $.getScript('/assets/lib/clipboard.min.js', initCopy)
@@ -386,4 +379,8 @@ class FileShare extends RbModalHandler {
       })
     })
   }
+}
+
+function _isFullUrl(urlKey) {
+  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
 }
