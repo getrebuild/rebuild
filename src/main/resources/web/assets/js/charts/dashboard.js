@@ -20,6 +20,8 @@ $(document).ready(function () {
 
   let dash_list = null
   $.get('/dashboard/dash-gets', (res) => {
+    typeof window.startTour === 'function' && window.startTour(1000)
+
     dash_list = res.data
     if (!dash_list || dash_list.length === 0) {
       $('.chart-grid').removeClass('invisible')

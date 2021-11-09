@@ -134,10 +134,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                     if (!"false".equals(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
-
-                // Tour
-                String startTour = ServletUtils.readCookie(request, "rb.startTour");
-                if ("true".equals(startTour)) request.setAttribute("startTour", true);
             }
 
         } else if (!isIgnoreAuth(requestUri)) {

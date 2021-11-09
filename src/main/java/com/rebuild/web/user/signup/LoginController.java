@@ -43,10 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhaofang123@gmail.com
@@ -60,6 +57,7 @@ public class LoginController extends BaseController {
     public static final String CK_AUTOLOGIN = "rb.alt";
     public static final String SK_USER_THEME = "currentUseTheme";
     private static final String SK_NEED_VCODE = "needLoginVCode";
+    private static final String SK_START_TOUR = "needStartTour";
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -224,10 +222,15 @@ public class LoginController extends BaseController {
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
 
-        // Tour
-        String tourEnd = KVStorage.getCustomValue("TOUREND." + user);
-        if (tourEnd == null) {
-            ServletUtils.addCookie(response, "rb.startTour", "true", -1, null, "/");
+        // TODO Tour 显示规则
+        Object[] initLoginTime = Application.createQueryNoFilter(
+                "select min(loginTime) from LoginLog where user = ?")
+                .setParameter(1, user)
+                .unique();
+        int dayLeft = initLoginTime == null || initLoginTime[0] == null ? 0
+                : CalendarUtils.getDayLeft((Date) initLoginTime[0]);
+        if (dayLeft >= -30 || "true".equals(System.getProperty("ForceTour"))) {  // 30d
+            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
         }
     }
 
