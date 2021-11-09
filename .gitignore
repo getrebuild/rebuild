@@ -45,5 +45,4 @@ test.*
 
 # Build
 
-**/public/h5app/
 /.deploy/build/

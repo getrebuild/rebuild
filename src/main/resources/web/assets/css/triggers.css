@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-/* Page of editor  */
+/* Editor  */
 
 .timeline.spare {
   max-width: 2000px;
@@ -141,7 +141,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
 }
 
-/* formula */
+/* Formula */
 
 .formula-calc {
   position: relative;

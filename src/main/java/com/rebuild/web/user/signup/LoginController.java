@@ -7,10 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.*;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
@@ -46,10 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhaofang123@gmail.com
@@ -63,6 +57,7 @@ public class LoginController extends BaseController {
     public static final String CK_AUTOLOGIN = "rb.alt";
     public static final String SK_USER_THEME = "currentUseTheme";
     private static final String SK_NEED_VCODE = "needLoginVCode";
+    private static final String SK_START_TOUR = "needStartTour";
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -221,12 +216,22 @@ public class LoginController extends BaseController {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
 
-        createLoginLog(request, user);
+        ThreadPool.exec(() -> createLoginLog(request, user));
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME,
-                KVStorage.getCustomValue("THEME." + user));
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
+
+        // TODO Tour 显示规则
+        Object[] initLoginTime = Application.createQueryNoFilter(
+                "select min(loginTime) from LoginLog where user = ? and loginTime > '2021-12-31'")
+                .setParameter(1, user)
+                .unique();
+        int dayLeft = initLoginTime == null || initLoginTime[0] == null ? 0
+                : CalendarUtils.getDayLeft((Date) initLoginTime[0]);
+        if (dayLeft >= -30 || "true".equals(System.getProperty("ForceTour"))) {  // 30d
+            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
+        }
     }
 
     private void createLoginLog(HttpServletRequest request, ID user) {
