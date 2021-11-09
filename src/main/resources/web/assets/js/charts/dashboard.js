@@ -20,6 +20,8 @@ $(document).ready(function () {
 
   let dash_list = null
   $.get('/dashboard/dash-gets', (res) => {
+    typeof window.startTour === 'function' && window.startTour(1000)
+
     dash_list = res.data
     if (!dash_list || dash_list.length === 0) {
       $('.chart-grid').removeClass('invisible')
@@ -67,12 +69,12 @@ $(document).ready(function () {
       $('.chart-grid').addClass('uneditable')
     }
 
-    $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
-    $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
-    $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
+    $('.J_dash-new').on('click', () => dlgShow('DlgDashAdd'))
+    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
+    $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
+    $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
-    $('.J_dash-refresh .dropdown-item').click(function () {
+    $('.J_dash-refresh .dropdown-item').on('click', function () {
       const $this = $(this)
       $('.J_dash-refresh .btn span').text($this.text())
       refresh_timeout = ~~$this.data('time')
@@ -89,7 +91,7 @@ $(document).ready(function () {
       }
     })
 
-    $('.J_dash-fullscreen').click(() => {
+    $('.J_dash-fullscreen').on('click', () => {
       const $body = $(document.body)
       if ($body.hasClass('fullscreen')) exitFullscreen()
       else fullScreen()
@@ -98,7 +100,7 @@ $(document).ready(function () {
     })
 
     let dlgChartSelect
-    $('.J_chart-select').click(() => {
+    $('.J_chart-select').on('click', () => {
       const appended = []
       $('.grid-stack-item-content').each(function () {
         appended.push($(this).attr('id').substr(6))
@@ -202,7 +204,7 @@ const render_dashboard = function (init) {
   if (rendered_charts.length === 0) {
     const gsi = `<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a></div></div>`
     const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
-    $gsi.find('a').click(() => {
+    $gsi.find('a').on('click', () => {
       if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
       else dlgShow('DlgAddChart')
     })
@@ -233,7 +235,7 @@ const add_widget = function (item) {
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  const gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div></div>'
+  const gsi = `<div class="grid-stack-item"><div id="${chid}" class="grid-stack-item-content"></div></div>`
   // Use gridstar
   if (item.size_x || item.size_y) {
     gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, 2, 12, 2, 12)
@@ -267,7 +269,7 @@ const save_dashboard = function () {
   gridstack_serialize = s
   $setTimeout(
     () => {
-      $.post('/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
+      $.post(`/dashboard/dash-config?id=${dashid}`, JSON.stringify(gridstack_serialize), () => {
         if (rb.env === 'dev') console.log('Saved dashboard : ' + JSON.stringify(gridstack_serialize))
       })
     },
@@ -320,7 +322,7 @@ class DlgAddChart extends RbFormHandler {
   next() {
     const e = this.__select2.val()
     if (!e) return
-    location.href = rb.baseUrl + '/dashboard/chart-design?source=' + e + '&dashid=' + this.props.dashid
+    location.href = `${rb.baseUrl}/dashboard/chart-design?source=${e}&dashid=${this.props.dashid}`
   }
 }
 
@@ -394,7 +396,7 @@ class DlgDashSettings extends RbFormHandler {
       confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
-        $.post('/app/entity/common-delete?id=' + dashid, function (res) {
+        $.post(`/app/entity/common-delete?id=${dashid}`, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
           else RbHighbar.error(res.error_msg)
