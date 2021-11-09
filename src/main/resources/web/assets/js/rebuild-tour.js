@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global introJs */
 
 window.startTour = function (delay) {
+  if ($(window).width() < 1000) return
   setTimeout(startTour123, delay || 100)
 }
 
