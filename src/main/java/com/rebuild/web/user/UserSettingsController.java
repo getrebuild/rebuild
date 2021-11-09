@@ -18,7 +18,6 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -190,15 +189,6 @@ public class UserSettingsController extends EntityController {
             Application.getCommonsService().delete((ID) externalUser[0]);
         }
 
-        return RespBody.ok();
-    }
-
-    @PostMapping("/end-tour")
-    public RespBody endTour(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-        boolean restart = getBoolParameter(request, "restart");
-
-        KVStorage.setCustomValue("TOUREND." + user, restart ? null : "true");
         return RespBody.ok();
     }
 }

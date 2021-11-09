@@ -224,7 +224,7 @@ public class LoginController extends BaseController {
 
         // TODO Tour 显示规则
         Object[] initLoginTime = Application.createQueryNoFilter(
-                "select min(loginTime) from LoginLog where user = ?")
+                "select min(loginTime) from LoginLog where user = ? and loginTime > '2021-12-31'")
                 .setParameter(1, user)
                 .unique();
         int dayLeft = initLoginTime == null || initLoginTime[0] == null ? 0
