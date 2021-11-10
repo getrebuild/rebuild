@@ -19,6 +19,10 @@ body.rebuild-tour-body {
   max-width: 280px;
 }
 
+.introjs-showElement {
+  z-index: auto !important;
+}
+
 .introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-tooltip-title {
   font-size: 1.2rem;
   margin: 0;
@@ -41,11 +45,16 @@ body.rebuild-tour-body {
   line-height: 1.6;
 }
 
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.right {
+  border-left-color: #4285f4;
+}
+
 .introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.left {
   border-right-color: #4285f4;
 }
 
-.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.bottom {
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.bottom,
+.introjs-tooltip.rebuild-tour-tooltip .introjs-arrow.bottom-right {
   border-top-color: #4285f4;
 }
 
@@ -63,6 +72,7 @@ body.rebuild-tour-body {
 .introjs-button {
   border: 0 none !important;
   font-size: 1rem;
+  text-shadow: unset;
 }
 
 .introjs-bullets ul li a {

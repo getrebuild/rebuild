@@ -569,6 +569,11 @@ const RbViewPage = {
 
     that.initRecordMeta()
     that.initHistory()
+
+    setTimeout(() => {
+      if (window.parent && window.parent.tourStarted) return
+      typeof window.startTour === 'function' && window.startTour()
+    }, 1200)
   },
 
   // 元数据

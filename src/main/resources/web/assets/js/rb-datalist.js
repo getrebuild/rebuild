@@ -919,6 +919,8 @@ const RbListPage = {
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
+
+    typeof window.startTour === 'function' && window.startTour(1000)
   },
 
   reload() {
