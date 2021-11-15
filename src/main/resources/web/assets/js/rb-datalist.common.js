@@ -124,7 +124,13 @@ const AdvFilters = {
   },
 
   showAdvFilter(id, useCopyId) {
-    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    const props = {
+      entity: this.__entity,
+      inModal: true,
+      fromList: true,
+      confirm: this.saveFilter,
+    }
+
     if (!id) {
       if (this.__customAdv) {
         this.__customAdv.show()
