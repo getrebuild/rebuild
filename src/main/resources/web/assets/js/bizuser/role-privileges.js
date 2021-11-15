@@ -7,11 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // eslint-disable-next-line no-undef
 RbForm.postAfter = function (data) {
-  location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
+  location.href = `${rb.baseUrl}/admin/bizuser/role/${data.id}`
 }
 
-// 当前编辑
-const roleId = window.__PageConfig.recordId
+const wpc = window.__PageConfig
+const roleId = wpc.recordId
+
+// 自定义
+let advFilters = {}
+let advFilterSettings = {}
 
 $(document).ready(function () {
   $('.J_new-role').click(() => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
@@ -33,7 +37,7 @@ $(document).ready(function () {
   // 批量操作
   $('#priv-entity thead th>a').click(function () {
     const action = $(this).data('action')
-    const $items = $('#priv-entity tbody .priv[data-action="' + action + '"]')
+    const $items = $(`#priv-entity tbody .priv[data-action="${action}"]`)
     clickPriv($items, action)
   })
   // 批量操作
@@ -55,6 +59,39 @@ $(document).ready(function () {
   $('#priv-zero tbody .name>a').click(function () {
     const $el = $(this).parent().next().find('i.priv')
     clickPriv($el, 'Z')
+  })
+
+  // CUSTOM
+
+  $('#priv-entity tbody td>a.cp').click(function () {
+    const entity = $(this).parent().parent().find('.name>a').data('entity')
+    const action = $(this).prev().data('action')
+    const filterKey = `${entity}:${action}`
+
+    if (advFilters[filterKey]) {
+      advFilters[filterKey].show()
+    } else {
+      renderRbcomp(
+        <AdvFilter
+          entity={entity}
+          filter={advFilterSettings[filterKey]}
+          title={$L('自定义权限')}
+          inModal
+          canNoFilters
+          confirm={(set) => {
+            advFilterSettings[filterKey] = set
+
+            const $active = $(`.table-priv tbody td.name>a[data-entity="${entity}"]`).parent().parent().find(`a[data-action="${action}9"]`)
+            if (set && set.items && set.items.length > 0) $active.addClass('active')
+            else $active.removeClass('active')
+          }}
+        />,
+        null,
+        function () {
+          advFilters[filterKey] = this
+        }
+      )
+    }
   })
 })
 
@@ -125,21 +162,33 @@ const loadPrivileges = function () {
   $.get(`/admin/bizuser/privileges-list?role=${roleId}`, function (res) {
     if (res.error_code === 0) {
       $(res.data).each(function () {
-        let $tr = $('.table-priv tbody td.name>a[data-name="' + this.name + '"]')
-        $tr = $tr.parent().parent()
-        let defi = {}
+        let defs = {}
         try {
-          defi = JSON.parse(this.definition)
+          defs = JSON.parse(this.definition)
         } catch (ignored) {
           // NOOP
         }
-        for (let k in defi) {
-          $tr
-            .find('.priv[data-action="' + k + '"]')
-            .removeClass('R0 R1 R2 R3 R4')
-            .addClass('R' + defi[k])
+
+        let $tr = $(`.table-priv tbody td.name>a[data-name="${this.name}"]`)
+        const entity = $tr.data('entity')
+        $tr = $tr.parent().parent()
+
+        for (let k in defs) {
+          // filter
+          if (k.substr(1, 1) === '9') {
+            // set
+            if (defs[k] && defs[k].items && defs[k].items.length > 0) {
+              const filterKey = `${entity}:${k.substr(0, 1)}`
+              advFilterSettings[filterKey] = defs[k]
+              $tr.find(`a[data-action="${k}"]`).addClass('active')
+            }
+          } else {
+            $tr.find(`i.priv[data-action="${k}"]`).removeClass('R0 R1 R2 R3 R4').addClass(`R${defs[k]}`)
+          }
         }
       })
+
+      console.log(advFilterSettings)
     } else {
       $('.J_save').attr('disabled', true)
       $('.J_tips').removeClass('hide').find('.message p').text(res.error_msg)
@@ -151,7 +200,8 @@ const updatePrivileges = function () {
   const privEntity = {}
   $('#priv-entity tbody>tr').each(function () {
     const $tr = $(this)
-    const name = $tr.find('td.name a').data('name')
+    const name = $tr.find('td.name>a').data('name')
+    const entity = $tr.find('td.name>a').data('entity')
 
     const definition = {}
     $tr.find('i.priv').each(function () {
@@ -163,19 +213,26 @@ const updatePrivileges = function () {
       else if ($this.hasClass('R3')) deep = 3
       else if ($this.hasClass('R4')) deep = 4
       definition[action] = deep
+
+      const filterKey = `${entity}:${action}`
+      const filter = advFilterSettings[filterKey]
+      if (filter) definition[`${action}9`] = filter
     })
     privEntity[name] = definition
   })
 
   const privZero = {}
   $('#priv-zero tbody>tr').each(function () {
-    const etr = $(this)
-    const name = etr.find('td.name a').data('name')
-    const definition = etr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
-    privZero[name] = definition
+    const $tr = $(this)
+    const name = $tr.find('td.name>a').data('name')
+    privZero[name] = $tr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
   })
 
-  const _data = { entity: privEntity, zero: privZero }
+  const _data = {
+    entity: privEntity,
+    zero: privZero,
+  }
+
   $.post(`/admin/bizuser/privileges-update?role=${roleId}`, JSON.stringify(_data), (res) => {
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)

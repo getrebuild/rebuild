@@ -17,6 +17,7 @@
         text-align: center;
         line-height: 1;
         font-weight: normal;
+        position: relative;
       }
       .table.table-priv th {
         border-top: 0 none;
@@ -30,7 +31,7 @@
         text-align: left;
       }
       .priv {
-        width: 36px;
+        width: 30px;
         height: 18px;
         display: inline-block;
         background: url([[${baseUrl}]]/assets/img/role/role_0.gif) no-repeat center center;
@@ -67,6 +68,23 @@
       .legend-wrap {
         padding: 10px 0 5px;
         text-align: right;
+      }
+      .table.table-priv td > a.cp {
+        position: absolute;
+        left: 50%;
+        margin-left: 20px;
+        margin-top: -1px;
+        font-size: 19px;
+        color: #777;
+        display: none;
+      }
+      .table.table-priv tr:hover > td > a.cp,
+      .table.table-priv td > a.cp.active {
+        display: inline-block;
+      }
+      .table.table-priv td > a.cp.active,
+      .table.table-priv td > a.cp:hover {
+        color: #4285f4;
       }
     </style>
   </head>
@@ -122,13 +140,28 @@
                   </thead>
                   <tbody>
                     <tr th:each="entity : ${Entities}">
-                      <td class="name"><a th:data-name="${entity[0]}" th:title="${bundle.L('批量选择')}">[[${entity[1]}]]</a></td>
-                      <td><i data-action="C" class="priv R0"></i></td>
-                      <td><i data-action="R" class="priv R0"></i></td>
-                      <td><i data-action="U" class="priv R0"></i></td>
-                      <td><i data-action="D" class="priv R0"></i></td>
-                      <td><i data-action="A" class="priv R0"></i></td>
-                      <td><i data-action="S" class="priv R0"></i></td>
+                      <td class="name"><a th:data-name="${entity[0]}" th:data-entity="${entity[1]}" th:title="${bundle.L('批量选择')}">[[${entity[2]}]]</a></td>
+                      <td><i data-action="C" class="priv R0"></i><a></a></td>
+                      <td>
+                        <i data-action="R" class="priv R0"></i>
+                        <a data-action="R9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="zmdi zmdi-sort-amount-asc"></i></a>
+                      </td>
+                      <td>
+                        <i data-action="U" class="priv R0"></i>
+                        <a data-action="U9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="zmdi zmdi-sort-amount-asc"></i></a>
+                      </td>
+                      <td>
+                        <i data-action="D" class="priv R0"></i>
+                        <a data-action="D9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="zmdi zmdi-sort-amount-asc"></i></a>
+                      </td>
+                      <td>
+                        <i data-action="A" class="priv R0"></i>
+                        <a data-action="A9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="zmdi zmdi-sort-amount-asc"></i></a>
+                      </td>
+                      <td>
+                        <i data-action="S" class="priv R0"></i>
+                        <a data-action="S9" class="cp" th:title="${bundle.L('自定义权限')}"><i class="zmdi zmdi-sort-amount-asc"></i></a>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -222,6 +255,7 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/role-view.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/role-privileges.js}" type="text/babel"></script>
   </body>
 </html>

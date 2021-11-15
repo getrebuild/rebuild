@@ -75,7 +75,7 @@ create table if not exists `role_privileges` (
   `ROLE_ID`            char(20) not null,
   `ENTITY`             int(11) not null default '0' comment '哪个实体',
   `ZERO_KEY`           varchar(50) comment '扩展权限',
-  `DEFINITION`         varchar(100) comment '实体权限',
+  `DEFINITION`         varchar(2000) comment '实体权限',
   primary key  (`PRIVILEGES_ID`),
   unique index UIX0_role_privileges (`ROLE_ID`, `ENTITY`, `ZERO_KEY`)
 )Engine=InnoDB;
@@ -802,4 +802,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 39);
+  values ('021-9000000000000001', 'DBVer', 40);

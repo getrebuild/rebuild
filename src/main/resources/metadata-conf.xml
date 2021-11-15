@@ -49,7 +49,7 @@
         <field name="roleId" type="reference" ref-entity="Role" nullable="false" updatable="false" cascade="delete"/>
         <field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体"/>
         <field name="zeroKey" type="string" max-length="50" description="扩展权限"/>
-        <field name="definition" type="string" max-length="100" description="实体权限"/>
+        <field name="definition" type="string" max-length="2000" description="实体权限"/>
         <index type="unique" field-list="roleId,entity,zeroKey"/>
     </entity>
 
