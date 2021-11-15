@@ -88,16 +88,18 @@ class DataList extends React.Component {
     const ids = this._List.getSelectedIds()
     if (!ids || ids.length === 0) return
 
-    const alertMsg =
-      `<div class="text-bold mb-2">${$L('是否恢复选中的 %d 条记录？', ids.length)}</div>` +
-      '<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">' +
-      '<input class="custom-control-input" type="checkbox">' +
-      `<span class="custom-control-label">${$L('同时恢复关联删除的记录 (如有)')}</span>` +
-      '</label>'
+    const alertMsg = (
+      <React.Fragment>
+        <div className="text-bold mb-2">{$L('是否恢复选中的 %d 条记录？', ids.length)}</div>
+        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+          <input className="custom-control-input" type="checkbox" />
+          <span className="custom-control-label">{$L('同时恢复关联删除的记录 (如有)')}</span>
+        </label>
+      </React.Fragment>
+    )
 
     const that = this
     RbAlert.create(alertMsg, {
-      html: true,
       confirm: function () {
         this.disabled(true)
 

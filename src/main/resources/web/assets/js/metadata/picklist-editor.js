@@ -97,8 +97,7 @@ $(document).ready(function () {
     }
 
     if (force_del > 0) {
-      RbAlert.create($L('将删除部分选项，使用了这些选项的数据 (字段) 将无法显示。[] 确定要删除吗？'), {
-        html: true,
+      RbAlert.create(WrapHtml($L('将删除部分选项，使用了这些选项的数据 (字段) 将无法显示。[] 确定要删除吗？')), {
         type: 'danger',
         confirm: delConfirm,
       })

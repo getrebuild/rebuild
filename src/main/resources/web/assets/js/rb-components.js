@@ -234,12 +234,6 @@ class RbAlert extends React.Component {
     let icon = this.props.icon
     if (!icon) icon = type === 'danger' ? 'alert-triangle' : type === 'primary' ? 'help-outline' : 'alert-circle-o'
 
-    const content = this.props.htmlMessage ? (
-      <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-    ) : (
-      <p>{this.props.message || 'INMESSAGE'}</p>
-    )
-
     const _onCancel = (this.props.onCancel || this.props.cancel || this.hide).bind(this)
     const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
@@ -249,7 +243,9 @@ class RbAlert extends React.Component {
           <i className={`modal-main-icon zmdi zmdi-${icon}`} />
         </div>
         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
-        <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
+        <div className={this.props.title ? '' : 'mt-3'}>
+          <div>{this.props.message}</div>
+        </div>
         <div className="mt-4 mb-3">
           <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
             {this.props.cancelText || $L('取消')}
@@ -297,9 +293,7 @@ class RbAlert extends React.Component {
     }
 
     options = options || {}
-    const props = { ...options, title: titleOrOptions }
-    if (options.html === true) props.htmlMessage = message
-    else props.message = message
+    const props = { ...options, title: titleOrOptions, message: message }
     renderRbcomp(<RbAlert {...props} />, null, options.call)
   }
 }
@@ -314,7 +308,6 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    const content = this.props.htmlMessage ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message pl-0">{this.props.message}</div>
 
     return (
       <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
@@ -325,7 +318,7 @@ class RbHighbar extends React.Component {
           <div className="icon">
             <i className={`zmdi zmdi-${icon}`} />
           </div>
-          {content}
+          <div className="message pl-0">{this.props.message}</div>
         </div>
       </div>
     )
@@ -347,8 +340,7 @@ class RbHighbar extends React.Component {
       parent.RbHighbar.create(message, options)
     } else {
       options = options || {}
-      if (options.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={options.type} timeout={options.timeout} />)
-      else renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
+      renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
     }
   }
 

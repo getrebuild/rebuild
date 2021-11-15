@@ -105,15 +105,7 @@ class LevelBox extends React.Component {
         <div className="clearfix"></div>
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input
-              className="form-control"
-              type="text"
-              maxLength="60"
-              placeholder={$L('添加分类项')}
-              value={this.state.itemName || ''}
-              data-id="itemName"
-              onChange={this.changeVal}
-            />
+            <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
             {this.state.itemId && this.state.itemHide && (
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                 <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
@@ -366,14 +358,7 @@ class DlgImports extends RbModalHandler {
                   <div className="col-sm-7">
                     <div className="float-left">
                       <div className="file-select">
-                        <input
-                          type="file"
-                          className="inputfile"
-                          id="upload-input"
-                          accept=".xlsx,.xls,.csv"
-                          data-local="temp"
-                          ref={(c) => (this._uploadInput = c)}
-                        />
+                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
                           <i className="zmdi zmdi-upload"></i>
                           <span>{$L('选择文件')}</span>
@@ -418,12 +403,7 @@ class DlgImports extends RbModalHandler {
                         </div>
                       </div>
                       <div className="float-right">
-                        <button
-                          disabled={this.state.inProgress === true}
-                          className="btn btn-sm btn-primary"
-                          data-file={item.file}
-                          data-name={item.name}
-                          onClick={this.import4Rbstore}>
+                        <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
                           {$L('导入')}
                         </button>
                       </div>
@@ -488,8 +468,7 @@ class DlgImports extends RbModalHandler {
     const name = e.currentTarget.dataset.name
     const url = `/admin/metadata/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>${$L('此导入为增量导入，不会对现有数据造成影响。开始导入吗？')}`, {
-      html: true,
+    RbAlert.create(WrapHtml(`<strong>${name}</strong><br>${$L('此导入为增量导入，不会对现有数据造成影响。开始导入吗？')}`), {
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })

@@ -46,8 +46,7 @@ $(document).ready(function () {
 
   $('.J_resetpwd').click(() => {
     const newpwd = $random(null, true, 8) + '!8'
-    RbAlert.create($L('密码将重置为 **%s** 是否确认？', newpwd), {
-      html: true,
+    RbAlert.create(WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd)), {
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
