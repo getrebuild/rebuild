@@ -49,11 +49,7 @@ $(document).ready(() => {
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 10 && (when & 512) !== 0) {
-      RbHighbar.create($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
-        type: 'danger',
-        html: true,
-        timeout: 6000,
-      })
+      RbHighbar.error(WrapHtml($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 

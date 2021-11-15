@@ -64,6 +64,11 @@ $(document).ready(function () {
   // CUSTOM
 
   $('#priv-entity tbody td>a.cp').click(function () {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持自定义权限功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     const entity = $(this).parent().parent().find('.name>a').data('entity')
     const action = $(this).prev().data('action')
     const filterKey = `${entity}:${action}`

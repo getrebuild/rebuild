@@ -115,5 +115,6 @@ module.exports = {
     $useMap: true,
     BaiduMap: true,
     BaiduMapModal: true,
+    WrapHtml: true,
   },
 }

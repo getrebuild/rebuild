@@ -165,7 +165,7 @@ $(document).ready(function () {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.create($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
+      RbHighbar.error(WrapHtml($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 

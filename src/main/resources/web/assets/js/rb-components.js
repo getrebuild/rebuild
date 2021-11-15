@@ -979,6 +979,9 @@ UserPopup.create = function (el) {
   })
 }
 
+// ~~ HTML 内容
+const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+
 /**
  * JSX 组件渲染
  *
