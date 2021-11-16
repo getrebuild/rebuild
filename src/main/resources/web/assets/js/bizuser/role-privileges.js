@@ -63,6 +63,14 @@ $(document).ready(function () {
 
   // CUSTOM
 
+  const ACTION_NAMES = {
+    'R': $L('读取'),
+    'U': $L('更新'),
+    'D': $L('删除'),
+    'A': $L('分派'),
+    'S': $L('共享'),
+  }
+
   $('#priv-entity tbody td>a.cp').click(function () {
     if (rb.commercial < 1) {
       RbHighbar.error(WrapHtml($L('免费版不支持自定义权限功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
@@ -80,7 +88,7 @@ $(document).ready(function () {
         <AdvFilter
           entity={entity}
           filter={advFilterSettings[filterKey]}
-          title={$L('自定义权限')}
+          title={$L('自定义%s权限', ACTION_NAMES[action] || '')}
           inModal
           canNoFilters
           confirm={(set) => {
