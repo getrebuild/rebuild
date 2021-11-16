@@ -54,7 +54,9 @@ $(document).ready(function () {
 
 function modeAction() {
   if (rb.commercial < 10) {
-    $('.mode-select .btn').on('click', () => RbHighbar.create($L('免费版不支持列表模式功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    $('.mode-select .btn').on('click', () => {
+      RbHighbar.error(WrapHtml($L('免费版不支持列表模式功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    })
     return
   }
 

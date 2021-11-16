@@ -17,11 +17,15 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.query.AdvFilterParser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -97,6 +101,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             // NOTE BIZZ 实体全部用户可见
             if (MetadataHelper.isBizzEntity(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
                 return ALLOWED.evaluate(null);
+
             } else if (entity.getMainEntity() != null) {
                 useMainEntity = entity.getMainEntity();
             } else {
@@ -117,7 +122,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         DepthEntry de = ep.superlative(useAction);
         if (de == BizzDepthEntry.GLOBAL) {
-            return ALLOWED.evaluate(null);
+            return appendCustomFilter(ep, ALLOWED.evaluate(null));
         }
 
         String ownFormat = "%s = '%s'";
@@ -128,15 +133,16 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         }
 
         if (de == BizzDepthEntry.PRIVATE) {
-            return appendShareFilter(entity, dtmField,
-                    String.format(ownFormat, EntityHelper.OwningUser, user.getIdentity()));
+            return appendCustomFilter(ep,
+                    appendShareFilter(entity, dtmField, String.format(ownFormat, EntityHelper.OwningUser, user.getIdentity())));
         }
 
         Department dept = user.getOwningDept();
         String deptSql = String.format(ownFormat, EntityHelper.OwningDept, dept.getIdentity());
 
         if (de == BizzDepthEntry.LOCAL) {
-            return appendShareFilter(entity, dtmField, deptSql);
+            return appendCustomFilter(ep,
+                    appendShareFilter(entity, dtmField, deptSql));
         } else if (de == BizzDepthEntry.DEEPDOWN) {
             Set<String> sqls = new HashSet<>();
             sqls.add(deptSql);
@@ -144,7 +150,8 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             for (BusinessUnit child : dept.getAllChildren()) {
                 sqls.add(String.format(ownFormat, EntityHelper.OwningDept, child.getIdentity()));
             }
-            return appendShareFilter(entity, dtmField, "(" + StringUtils.join(sqls, " or ") + ")");
+            return appendCustomFilter(ep,
+                    appendShareFilter(entity, dtmField, "(" + StringUtils.join(sqls, " or ") + ")"));
         }
 
         return DENIED.evaluate(null);
@@ -158,7 +165,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      * @param filtered
      * @return
      */
-    protected String appendShareFilter(Entity entity, Field detailToMainField, String filtered) {
+    private String appendShareFilter(Entity entity, Field detailToMainField, String filtered) {
         if (user == null) return filtered;
 
         String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
@@ -173,6 +180,29 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
                     entity.getName(), user.getId(), entity.getPrimaryField().getName());
         }
 
-        return "(" + filtered + " or " + shareFilter + ")";
+        return String.format("((%s) or (%s))", filtered, shareFilter);
+    }
+
+    /**
+     * 自定义权限
+     *
+     * @param ep
+     * @param filtered
+     * @return
+     * @see PrivilegesManager#andViaCustomFilter(ID, ID, Permission, Privileges)
+     */
+    private String appendCustomFilter(Privileges ep, String filtered) {
+        if (!(ep instanceof CustomEntityPrivileges)) return filtered;
+        if (user == null || useAction == null) return filtered;
+
+        JSONObject hasFilter = ((CustomEntityPrivileges) ep).getCustomFilter(useAction);
+        if (hasFilter == null) return filtered;
+
+        AdvFilterParser advFilterParser = new AdvFilterParser(hasFilter);
+        advFilterParser.setUser(user.getId());
+        String customFilter = advFilterParser.toSqlWhere();
+        if (customFilter == null) return filtered;
+
+        return String.format("((%s) and (%s))", filtered, customFilter);
     }
 }

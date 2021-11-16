@@ -998,8 +998,7 @@ select.form-control:not([disabled]) {
   display: inline-block;
 }
 
-.type-LOCATION .form-control {
-  background-color: #fff;
+.type-LOCATION .form-control.bg-white {
   cursor: text;
 }
 

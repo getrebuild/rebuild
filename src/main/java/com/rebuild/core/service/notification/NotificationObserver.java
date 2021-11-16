@@ -13,8 +13,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import com.rebuild.core.support.i18n.Language;
 
 import java.text.MessageFormat;
 
@@ -28,6 +27,7 @@ public class NotificationObserver extends OperatingObserver {
 
     @Override
     protected boolean isAsync() {
+        // NOTE 异步无法使用 NotificationOnce 功能
         return true;
     }
 
@@ -43,7 +43,8 @@ public class NotificationObserver extends OperatingObserver {
         ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 
         String content = buildMessage(context.getAffected(), related, false);
-        content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
+        content = MessageFormat.format(content,
+                from, context.getAffected().length, EasyMetaFactory.valueOf(related.getEntityCode()).getLabel());
         Application.getNotifications().send(
                 MessageBuilder.createMessage(to, content, Message.TYPE_ASSIGN));
     }
@@ -60,13 +61,10 @@ public class NotificationObserver extends OperatingObserver {
         ID to = context.getAfterRecord().getID("shareTo");
 
         String content = buildMessage(context.getAffected(), related, true);
-        content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
+        content = MessageFormat.format(content,
+                from, context.getAffected().length, EasyMetaFactory.valueOf(related.getEntityCode()).getLabel());
         Application.getNotifications().send(
                 MessageBuilder.createMessage(to, content, Message.TYPE_SAHRE));
-    }
-
-    private String getLabel(ID id) {
-        return EasyMetaFactory.valueOf(id.getEntityCode()).getLabel();
     }
 
     /**
@@ -76,28 +74,23 @@ public class NotificationObserver extends OperatingObserver {
      * @return
      */
     private String buildMessage(ID[] affected, ID related, boolean shareType) {
-        String msg = "@{0} 共享了 {1} 条{2}记录给你";
+        String message = Language.L("@{0} 共享了 {1} 条{2}记录给你");
         if (affected.length > 1) {
             for (ID id : affected) {
                 if (id.getEntityCode().intValue() != related.getEntityCode().intValue()) {
-                    msg = "@{0} 共享了{2}及其关联记录共 {1} 条记录给你";
+                    message = Language.L("@{0} 共享了{2}及其关联记录共 {1} 条记录给你", related);
                     break;
                 }
             }
-            msg += "，包括 @";
 
-            String atrs = StringUtils.join(ArrayUtils.subarray(affected, 0, 10), " @");
-            msg += atrs;
-            if (affected.length > 10) {
-                msg += " 等";
-            }
+            message += Language.L("，包括 @%s 等", related);
         } else {
-            msg += " @" + related;
+            message += " @" + related;
         }
 
         if (!shareType) {
-            msg = msg.replace(" 共享", " 分派");
+            message = message.replace(Language.L(" 共享"), Language.L(" 分派"));
         }
-        return msg;
+        return message;
     }
 }

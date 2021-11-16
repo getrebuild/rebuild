@@ -569,6 +569,11 @@ const RbViewPage = {
 
     that.initRecordMeta()
     that.initHistory()
+
+    setTimeout(() => {
+      if (window.parent && window.parent.tourStarted) return
+      typeof window.startTour === 'function' && window.startTour()
+    }, 1200)
   },
 
   // 元数据
@@ -743,9 +748,7 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.click(() => {
-        const alert = $L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)
-        RbAlert.create(alert, {
-          html: true,
+        RbAlert.create(WrapHtml($L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)), {
           confirm: function () {
             this.disabled(true)
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {

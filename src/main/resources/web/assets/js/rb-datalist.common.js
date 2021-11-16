@@ -124,7 +124,13 @@ const AdvFilters = {
   },
 
   showAdvFilter(id, useCopyId) {
-    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    const props = {
+      entity: this.__entity,
+      inModal: true,
+      fromList: true,
+      confirm: this.saveFilter,
+    }
+
     if (!id) {
       if (this.__customAdv) {
         this.__customAdv.show()
@@ -259,7 +265,7 @@ class DataExport extends BatchOperator {
   confirm = () => {
     const useReport = $(this._$report).val()
     if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 

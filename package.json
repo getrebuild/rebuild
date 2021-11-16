@@ -4,13 +4,14 @@
   "description": "Lint .js with eslint",
   "main": ".eslintrc.js",
   "scripts": {
-    "lint": "eslint --ext .js src/main/resources/web/assets/js/* &"
+    "lint": "eslint --ext .js src/main/resources/web/assets/js/* &",
+    "lint2": "eslint --ext .js @rbv/main/resources/web/assets/js/* &"
   },
   "author": "REBUILD",
   "license": "GPL-3.0",
   "dependencies": {
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.7.0",
-    "eslint-plugin-react": "^7.20.6"
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.27.0"
   }
 }

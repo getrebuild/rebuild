@@ -1747,12 +1747,14 @@ class RbFormAvatar extends RbFormElement {
 class RbFormLocation extends RbFormElement {
   renderElement() {
     const lnglat = this._parseLnglat(this.state.value)
+    if (this.props.readonly) return super.renderElement(lnglat ? lnglat.text : null)
+
     return (
       <div className="input-group has-append">
         <input
           type="text"
           ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
+          className={`form-control form-control-sm bg-white ${this.state.hasError ? 'is-invalid' : ''}`}
           title={this.state.hasError}
           value={lnglat ? lnglat.text || '' : ''}
           onChange={this.handleChange}
