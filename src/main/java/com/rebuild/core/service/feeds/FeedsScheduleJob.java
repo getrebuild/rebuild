@@ -20,6 +20,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -59,9 +60,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
         Map<ID, List<Object[]>> map = new HashMap<>();
         for (Object[] o : array) {
             int reminds = JSON.parseObject((String) o[3]).getIntValue("scheduleRemind");
-            if (reminds == 0) {
-                continue;
-            }
+            if (reminds == 0) continue;
 
             List<Object[]> list = map.computeIfAbsent((ID) o[0], k -> new ArrayList<>());
             list.add(o);
@@ -115,35 +114,18 @@ public class FeedsScheduleJob extends DistributedJobLock {
      * @param fullUrl
      * @return
      */
-    protected String mergeContents(List<Object[]> msgs, boolean fullUrl) {
-        StringBuilder sb = new StringBuilder("\n");
-        int num = 0;
-        for (Object[] o : msgs) {
-            sb.append("\n- [");
+    private String mergeContents(List<Object[]> msgs, boolean fullUrl) {
+        Object[] first = msgs.get(0);
 
-            String c = (String) o[2];
-            if (c.length() > 100) {
-                c = c.substring(0, 100) + " ...";
-            }
-            sb.append(c);
+        String clickUrl = "/app/list-and-view?id=" + first[1];
+        if (fullUrl) clickUrl = RebuildConfiguration.getHomeUrl(clickUrl);
+        else clickUrl = AppUtils.getContextPath(clickUrl);
 
-            String url = "/app/list-and-view?id=" + o[1];
-            if (fullUrl) {
-                url = RebuildConfiguration.getHomeUrl(url);
-            } else {
-                url = AppUtils.getContextPath(url);
-            }
-            sb.append("](").append(url).append(")");
-
-            num++;
-            // 最多列出 N 条
-            if (num >= 5) break;
+        String content = String.format("\n\n> [%s](%s)",
+                CommonsUtils.maxstr((String) first[2], 100), clickUrl);
+        if (msgs.size() > 1) {
+            content += String.format("\n\n... (%d)", msgs.size() - 1);
         }
-
-        if (msgs.size() > num) {
-            sb.append("\n- ... ").append(msgs.size());
-        }
-
-        return sb.toString();
+        return content;
     }
 }
