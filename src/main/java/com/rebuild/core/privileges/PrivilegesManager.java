@@ -28,6 +28,8 @@ import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.EntityService;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
+
 /**
  * 实体安全/权限 管理
  *
@@ -35,7 +37,7 @@ import org.springframework.stereotype.Service;
  * @see Role
  * @see BizzPermission
  * @see BizzDepthEntry
- * @since 1.0, 2013-6-21
+ * @see CustomEntityPrivileges
  */
 @Service
 public class PrivilegesManager {
@@ -203,7 +205,7 @@ public class PrivilegesManager {
         if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
-        // 任何人允许读取、创建
+        // 全员允许读取、创建，模块自身有权限体系逻辑
         if ((entity == EntityHelper.Feeds || entity == EntityHelper.ProjectTask)
                 && (action == BizzPermission.READ || action == BizzPermission.CREATE)) {
             return true;
@@ -247,8 +249,8 @@ public class PrivilegesManager {
      * 是否对指定记录有指定权限
      *
      * @param user
-     * @param target
-     * @param action
+     * @param target 目标记录
+     * @param action 权限动作
      * @return
      */
     public boolean allow(ID user, ID target, Permission action) {
@@ -261,12 +263,15 @@ public class PrivilegesManager {
      * @param user
      * @param target 目标记录
      * @param action 权限动作
-     * @param ignoreShareRights 是否忽略通过共享得到的权限
+     * @param ignoreShared 是否忽略通过共享得到的权限
      * @return
      */
-    public boolean allow(ID user, ID target, Permission action, boolean ignoreShareRights) {
+    public boolean allow(ID user, ID target, Permission action, boolean ignoreShared) {
+        final Entity entity = MetadataHelper.getEntity(target.getEntityCode());
+
         // PlainEntity: CRUD
-        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(target.getEntityCode()).isPlainEntity()) {
+        if (action.getMask() <= BizzPermission.READ.getMask()
+                && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
 
@@ -280,25 +285,25 @@ public class PrivilegesManager {
             return true;
         }
 
-        int entity = target.getEntityCode();
-
-        if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
+        // BIZZ 全员可读
+        if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity.getEntityCode())) {
             return true;
         }
+
         // 用户可修改自己
         if (action == BizzPermission.UPDATE && target.equals(user)) {
             return true;
         }
 
-        // 明细无分派/共享
-        if (MetadataHelper.getEntity(entity).getMainEntity() != null) {
+        // 明细无 分派/共享
+        if (entity.getMainEntity() != null) {
             if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
                 return false;
             }
             action = convert2MainAction(action);
         }
 
-        Privileges ep = role.getPrivileges(convert2MainEntity(entity));
+        Privileges ep = role.getPrivileges(convert2MainEntity(entity.getEntityCode()));
 
         boolean allowed = ep.allowed(action);
         if (!allowed) {
@@ -310,7 +315,7 @@ public class PrivilegesManager {
         if (BizzDepthEntry.NONE.equals(depth)) {
             return false;
         } else if (BizzDepthEntry.GLOBAL.equals(depth)) {
-            return true;
+            return andViaCustomFilter(user, target, action, ep);
         }
 
         ID targetUserId = theRecordOwningCache.getOwningUser(target);
@@ -321,9 +326,9 @@ public class PrivilegesManager {
         if (BizzDepthEntry.PRIVATE.equals(depth)) {
             allowed = user.equals(targetUserId);
             if (!allowed) {
-                return !ignoreShareRights && allowViaShare(user, target, action);
+                allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return true;
+            return allowed && andViaCustomFilter(user, target, action, ep);
         }
 
         User accessUser = theUserStore.getUser(user);
@@ -333,21 +338,22 @@ public class PrivilegesManager {
         if (BizzDepthEntry.LOCAL.equals(depth)) {
             allowed = accessUserDept.equals(targetUser.getOwningDept());
             if (!allowed) {
-                return !ignoreShareRights && allowViaShare(user, target, action);
+                allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return true;
+            return allowed && andViaCustomFilter(user, target, action, ep);
 
         } else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
             if (accessUserDept.equals(targetUser.getOwningDept())) {
-                return true;
+                return andViaCustomFilter(user, target, action, ep);
             }
 
             allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
             if (!allowed) {
-                return !ignoreShareRights && allowViaShare(user, target, action);
+                allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return true;
+            return allowed && andViaCustomFilter(user, target, action, ep);
         }
+
         return false;
     }
 
@@ -355,17 +361,16 @@ public class PrivilegesManager {
      * 通过共享取得的操作权限（目前只共享了读取权限）
      *
      * @param user
-     * @param target
-     * @param action
+     * @param target 目标记录
+     * @param action 权限动作
      * @return
      */
     public boolean allowViaShare(ID user, ID target, Permission action) {
-
-        // TODO 性能优化-使用缓存
-
         if (!(action == BizzPermission.READ || action == BizzPermission.UPDATE)) {
             return false;
         }
+
+        // TODO 性能优化
 
         Entity entity = MetadataHelper.getEntity(target.getEntityCode());
         if (entity.getMainEntity() != null) {
@@ -386,6 +391,32 @@ public class PrivilegesManager {
                 .unique();
         int rightsMask = rights == null ? 0 : (int) rights[0];
         return (rightsMask & action.getMask()) != 0;
+    }
+
+    /**
+     * 自定义权限（注意此逻辑是建立在基础权限之上，AND 关系）
+     *
+     * @param user
+     * @param target
+     * @param action
+     * @param ep
+     * @return
+     * @see RoleBaseQueryFilter#appendCustomFilter(Privileges, String)
+     */
+    private boolean andViaCustomFilter(ID user, ID target, Permission action, Privileges ep) {
+        if (!(ep instanceof CustomEntityPrivileges)) return true;
+        if (((CustomEntityPrivileges) ep).getCustomFilter(action) == null) return true;
+
+        // TODO 性能优化
+
+        Entity entity = MetadataHelper.getEntity(target.getEntityCode());
+        Filter customFilter = createQueryFilter(user, action);
+
+        String sql = MessageFormat.format("select {0} from {1} where {0} = ''{2}''",
+                entity.getPrimaryField().getName(), entity.getName(), target);
+
+        Object hasOne = Application.getQueryFactory().createQuery(sql, customFilter).unique();
+        return hasOne != null;
     }
 
     /**
@@ -437,7 +468,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 验证扩展权限
+     * 扩展权限
      *
      * @param user
      * @param entry
@@ -463,6 +494,8 @@ public class PrivilegesManager {
     }
 
     /**
+     * 创建基于角色权限的查询过滤器
+     *
      * @param user
      * @return
      * @see #createQueryFilter(ID, Permission)
