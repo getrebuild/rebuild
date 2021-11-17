@@ -386,6 +386,14 @@
         <field name="es5Code" type="text" description="ES5 代码"/>
     </entity>
 
+    <entity name="NreferenceItem" type-code="039" description="N2NREFERENCE" parent="false" queryable="false">
+        <field name="itemId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
+        <field name="referenceId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="引用 ID"/>
+        <index field-list="belongEntity,recordId,referenceId"/>
+    </entity>
+
     <!-- 动态不涉及审计 -->
     <entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
         <field name="feedsId" type="primary"/>

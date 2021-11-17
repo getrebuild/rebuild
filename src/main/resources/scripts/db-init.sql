@@ -116,7 +116,7 @@ create table if not exists `team_member` (
 create table if not exists `external_user` (
   `USER_ID`            char(20) not null,
   `APP_USER`           varchar(100) not null,
-  `APP_ID`           varchar(100) not null,
+  `APP_ID`             varchar(100) not null,
   `BIND_USER`          char(20) not null,
   primary key  (`USER_ID`),
   unique index UIX0_external_user (`APP_USER`, `APP_ID`)
@@ -551,6 +551,30 @@ create table if not exists `transform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [FrontjsCode] DDL ************
+create table if not exists `frontjs_code` (
+  `CODE_ID`            char(20) not null,
+  `NAME`               varchar(100) not null comment '名称',
+  `APPLY_PATH`         varchar(200) comment '匹配路径',
+  `CODE`               text(21845) comment '代码',
+  `ES5_CODE`           text(21845) comment 'ES5 代码',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`CODE_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [NreferenceItem] DDL ************
+create table if not exists `nreference_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `REFERENCE_ID`       char(20) not null comment '引用 ID',
+  primary key  (`ITEM_ID`),
+  index IX0_nreference_item (`BELONG_ENTITY`, `RECORD_ID`, `REFERENCE_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [Feeds] DDL ************
 create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
@@ -736,19 +760,6 @@ create table if not exists `extform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
--- ************ Entity [FrontjsCode] DDL ************
-create table if not exists `frontjs_code` (
-  `CODE_ID`            char(20) not null,
-  `NAME`               varchar(100) not null comment '名称',
-  `APPLY_PATH`         varchar(200) comment '匹配路径',
-  `CODE`               text(21845) comment '代码',
-  `ES5_CODE`           text(21845) comment 'ES5 代码',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`CODE_ID`)
-)Engine=InnoDB;
 
 -- #3 datas
 
@@ -802,4 +813,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 40);
+  values ('021-9000000000000001', 'DBVer', 41);

@@ -1,6 +1,17 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #41 (v2.7)
+-- ************ Entity [NreferenceItem] DDL ************
+create table if not exists `nreference_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `REFERENCE_ID`       char(20) not null comment '引用 ID',
+  primary key  (`ITEM_ID`),
+  index IX0_nreference_item (`BELONG_ENTITY`, `RECORD_ID`, `REFERENCE_ID`)
+)Engine=InnoDB;
+
 -- #40 (v2.7)
 alter table `role_privileges`
   change column `DEFINITION` `DEFINITION` VARCHAR(2000) NULL DEFAULT NULL COMMENT '权限定义';
