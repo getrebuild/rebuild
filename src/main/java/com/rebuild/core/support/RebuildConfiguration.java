@@ -184,7 +184,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param items
      * @return
      */
-    private static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
+    static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
         List<String> list = new ArrayList<>();
         for (ConfigurationItem item : items) {
             String v = get(item, noCache);
@@ -217,7 +217,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param name
      * @return
      */
-    public static int getInt(ConfigurationItem name) {
+    public static Integer getInt(ConfigurationItem name) {
         String s = get(name);
         return s == null ? (Integer) name.getDefaultValue() : NumberUtils.toInt(s);
     }
@@ -226,7 +226,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param name
      * @return
      */
-    public static long getLong(ConfigurationItem name) {
+    public static Long getLong(ConfigurationItem name) {
         String s = get(name);
         return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
     }
@@ -235,7 +235,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param name
      * @return
      */
-    public static boolean getBool(ConfigurationItem name) {
+    public static Boolean getBool(ConfigurationItem name) {
         String s = get(name);
         return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
     }

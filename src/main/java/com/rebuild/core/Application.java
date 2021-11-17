@@ -222,7 +222,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         for (Initialization bean : ordered) {
             bean.init();
         }
+
         License.isRbvAttached();
+
+        UpgradeDatabase.dataMigrateIfNeed();
 
         return true;
     }
