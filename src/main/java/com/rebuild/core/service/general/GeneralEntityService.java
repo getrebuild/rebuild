@@ -230,8 +230,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 log.debug("The record has been shared and has the same rights, ignore : {}", record);
             }
 
-        } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-            log.debug("Share to the same user as the record, ignore : {}", record);
+            // 可以共享给自己
+//        } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+//            log.debug("Share to the same user as the record, ignore : {}", record);
         } else {
             delegateService.create(sharedAfter);
             affected = 1;
