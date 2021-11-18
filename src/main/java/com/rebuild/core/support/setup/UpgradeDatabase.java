@@ -24,7 +24,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Map;
 
@@ -49,8 +48,7 @@ public final class UpgradeDatabase {
         }
 
         final Map<Integer, String[]> scripts = new UpgradeScriptReader().read();
-        final int currentVer = ObjectUtils.defaultIfNull(
-                RebuildConfiguration.getInt(ConfigurationItem.DBVer), 0);
+        final int currentVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
 
         int upgradeVer = currentVer;
 

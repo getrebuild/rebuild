@@ -33,7 +33,9 @@ import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -222,14 +224,13 @@ public class LoginController extends BaseController {
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
 
-        // TODO Tour 显示规则
-        Object[] initLoginTime = Application.createQueryNoFilter(
-                "select min(loginTime) from LoginLog where user = ? and loginTime > '2021-12-31'")
+        // Tour 显示规则
+        Object[] initLoginTimes = Application.createQueryNoFilter(
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2021-12-01'")
                 .setParameter(1, user)
                 .unique();
-        int dayLeft = initLoginTime == null || initLoginTime[0] == null ? 0
-                : CalendarUtils.getDayLeft((Date) initLoginTime[0]);
-        if (dayLeft >= -30 || "true".equals(System.getProperty("ForceTour"))) {  // 30d
+        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
+                || BooleanUtils.toBoolean(System.getProperty("ForceTour"))) {
             ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
         }
     }
