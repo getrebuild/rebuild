@@ -1120,7 +1120,6 @@ select.form-control:not([disabled]) {
   border: 0 none;
   color: #404040;
   border-left: 2px solid #ccc;
-  width: 239px;
   border-radius: 2px;
   max-height: 38px;
   cursor: default;
