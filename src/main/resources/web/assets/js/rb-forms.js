@@ -244,7 +244,7 @@ class RbForm extends React.Component {
     }
 
     return (
-      <div className="dialog-footer">
+      <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
@@ -330,7 +330,7 @@ class RbForm extends React.Component {
     }
     if (RbForm.postBefore(data) === false) return
 
-    const $btns = $(this._formAction).find('.btn').button('loading')
+    const $btns = $(this._$formAction).find('.btn').button('loading')
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       $btns.button('reset')
       if (res.error_code === 0) {
