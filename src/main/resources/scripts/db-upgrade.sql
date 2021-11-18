@@ -6,11 +6,12 @@
 create table if not exists `nreference_item` (
   `ITEM_ID`            char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
   `RECORD_ID`          char(20) not null comment '记录 ID',
   `REFERENCE_ID`       char(20) not null comment '引用 ID',
   primary key  (`ITEM_ID`),
   index IX0_nreference_item (`BELONG_ENTITY`),
-  unique index UIX1_nreference_item (`RECORD_ID`, `REFERENCE_ID`)
+  unique index UIX1_nreference_item (`BELONG_FIELD`, `RECORD_ID`, `REFERENCE_ID`)
 )Engine=InnoDB;
 
 -- #40 (v2.7)

@@ -56,7 +56,7 @@ public class MetaFieldService extends BaseService implements AdminGuard {
         // 删除此字段的相关配置记录
         // Field: belongEntity, belongField
         String[] whoUsed = field == null ? new String[0] : new String[]{
-                "PickList", "AutoFillinConfig"
+                "PickList", "AutoFillinConfig", "NreferenceItem"
         };
         int del = 0;
         for (String who : whoUsed) {
