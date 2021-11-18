@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
@@ -49,7 +49,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @param aPMFactory
      */
     protected ObservableService(PersistManagerFactory aPMFactory) {
-        this.delegateService = new BaseServiceImpl(aPMFactory);
+        this.delegateService = new BaseService(aPMFactory);
 
         // 默认监听者
         addObserver(new RevisionHistoryObserver());

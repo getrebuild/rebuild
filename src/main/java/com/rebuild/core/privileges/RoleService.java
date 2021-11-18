@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.Map;
  * @since 08/03/2018
  */
 @Service
-public class RoleService extends BaseServiceImpl implements AdminGuard {
+public class RoleService extends BaseService implements AdminGuard {
 
     /**
      * 管理员权限

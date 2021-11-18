@@ -18,8 +18,8 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
+import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
@@ -39,7 +39,7 @@ import java.util.Set;
  */
 @Slf4j
 @Service
-public class ApprovalStepService extends BaseService {
+public class ApprovalStepService extends InternalPersistService {
 
     /**
      * 虚拟审批

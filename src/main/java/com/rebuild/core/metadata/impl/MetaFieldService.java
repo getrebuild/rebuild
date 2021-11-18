@@ -18,7 +18,7 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
-import com.rebuild.core.service.BaseService;
+import com.rebuild.core.service.InternalPersistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class MetaFieldService extends BaseService implements AdminGuard {
+public class MetaFieldService extends InternalPersistService implements AdminGuard {
 
     protected MetaFieldService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

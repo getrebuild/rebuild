@@ -9,68 +9,69 @@ package com.rebuild.core.service;
 
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.general.QuickCodeReindexTask;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
 /**
  * 基础服务类
  *
- * @author zhaofang123@gmail.com
- * @since 05/21/2017
+ * @author devezhao
+ * @since 01/04/2019
  */
-public abstract class BaseService implements ServiceSpec {
+public class BaseService extends InternalPersistService {
 
-    private final PersistManagerFactory aPMFactory;
+    public BaseService(PersistManagerFactory aPMFactory) {
+        super(aPMFactory);
+    }
 
-    protected BaseService(PersistManagerFactory aPMFactory) {
-        this.aPMFactory = aPMFactory;
+    @Override
+    public int getEntityCode() {
+        return 0;
     }
 
     @Override
     public Record create(Record record) {
+        setQuickCodeValue(record);
         Callable2 call = processN2NReference(record, true);
 
-        record = aPMFactory.createPersistManager().save(record);
+        record = super.create(record);
         if (call != null) call.call(record.getPrimary());
         return record;
     }
 
     @Override
     public Record update(Record record) {
+        setQuickCodeValue(record);
         Callable2 call = processN2NReference(record, false);
 
-        record = aPMFactory.createPersistManager().update(record);
+        record = super.update(record);
         if (call != null) call.call(null);
         return record;
     }
 
-    @Override
-    public int delete(ID recordId) {
-        int affected = aPMFactory.createPersistManager().delete(recordId);
-        Application.getRecordOwningCache().cleanOwningUser(recordId);
-        return affected;
-    }
-
-    @Override
-    public String toString() {
-        if (getEntityCode() > 0) {
-            return "service." + aPMFactory.getMetadataFactory().getEntity(getEntityCode()).getName() + "@" + Integer.toHexString(hashCode());
-        } else {
-            return super.toString();
-        }
-    }
-
     /**
-     * @return
+     * 设置助记码
+     *
+     * @param record
      */
-    public PersistManagerFactory getPersistManagerFactory() {
-        return aPMFactory;
+    private void setQuickCodeValue(Record record) {
+        // 已设置则不再设置
+        if (record.hasValue(EntityHelper.QuickCode)) return;
+        // 无助记码字段
+        if (!record.getEntity().containsField(EntityHelper.QuickCode)) return;
+
+        String quickCode = QuickCodeReindexTask.generateQuickCode(record);
+        if (quickCode != null) {
+            if (StringUtils.isBlank(quickCode)) record.setNull(EntityHelper.QuickCode);
+            else record.setString(EntityHelper.QuickCode, quickCode);
+        }
     }
 
     /**
@@ -78,7 +79,7 @@ public abstract class BaseService implements ServiceSpec {
      *
      * @param record
      */
-    private Callable2 processN2NReference(Record record, boolean isNew) {
+    private Callable2 processN2NReference(final Record record, boolean isNew) {
         Entity entity = record.getEntity();
         Field[] n2nFields = MetadataSorter.sortFields(entity, DisplayType.N2NREFERENCE);
         if (n2nFields.length == 0) return null;
@@ -93,8 +94,10 @@ public abstract class BaseService implements ServiceSpec {
             ID[] idRefs = record.getIDArray(n2nField.getName());
             if (idRefs.length == 0 && isNew) continue;
 
-            // 置空自身
-            record.setNull(n2nField.getName());
+            // 仅保留第一个用于标识是否为空
+            if (idRefs.length == 0) record.setNull(n2nField.getName());
+            else record.setIDArray(n2nField.getName(), new ID[] { idRefs[0] });
+
             // 哪个字段
             n2nRecord.setString("belongField", n2nField.getName());
 
@@ -109,8 +112,8 @@ public abstract class BaseService implements ServiceSpec {
             }
             // 更新
             else {
-                Object[][] before = aPMFactory.createQuery(
-                        "select referenceId,itemId from NreferenceItem where belongField = ? and recordId = ?")
+                Object[][] before = getPersistManagerFactory().createQuery(
+                                "select referenceId,itemId from NreferenceItem where belongField = ? and recordId = ?")
                         .setParameter(1, n2nField.getName())
                         .setParameter(2, record.getPrimary())
                         .array();
@@ -152,7 +155,7 @@ public abstract class BaseService implements ServiceSpec {
         if (isNew) {
             // argv = 主键
             return argv -> {
-                PersistManager pm = aPMFactory.createPersistManager();
+                PersistManager pm = getPersistManagerFactory().createPersistManager();
                 for (Record item : addItems) {
                     item.setID("recordId", (ID) argv);
                     pm.save(item);
@@ -164,7 +167,7 @@ public abstract class BaseService implements ServiceSpec {
         // 更新
         else {
             return argv -> {
-                PersistManager pm = aPMFactory.createPersistManager();
+                PersistManager pm = getPersistManagerFactory().createPersistManager();
                 for (Record item : addItems) {
                     pm.save(item);
                 }
