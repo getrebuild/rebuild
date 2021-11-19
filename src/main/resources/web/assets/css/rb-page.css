@@ -1390,6 +1390,8 @@ i.dividing.ui-draggable-dragging {
   font-weight: normal;
   font-size: 12px;
   line-height: 1.5;
+  padding: 1px 6px;
+  border-radius: 99px;
 }
 
 .data-list .table td div .badge.badge-default {
@@ -1409,14 +1411,15 @@ i.dividing.ui-draggable-dragging {
 .column-imgs > a {
   display: inline-block;
   font-size: 0;
-  line-height: 1;
   height: 30px;
+  line-height: 30px;
   cursor: zoom-in;
 }
 
 .column-imgs > a img {
-  max-height: 100%;
-  max-width: 100%;
+  display: inline-block;
+  width: auto;
+  max-height: 30px;
 }
 
 .column-imgs > a + a {
@@ -1433,16 +1436,9 @@ i.dividing.ui-draggable-dragging {
   line-height: 1.3;
 }
 
-.column-files ul > li > a {
-  color: #666 !important;
-  cursor: pointer;
-  text-decoration: none !important;
-  border-bottom: 1px dotted #777;
-}
-
 .column-files ul > li > a:hover {
-  color: #404040 !important;
-  border-bottom: 1px solid #0d5bdd;
+  cursor: pointer;
+  color: #0d5bdd !important;
 }
 
 .column-checkbox {

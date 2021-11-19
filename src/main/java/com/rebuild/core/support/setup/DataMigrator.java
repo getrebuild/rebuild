@@ -17,7 +17,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 
@@ -34,12 +34,12 @@ public class DataMigrator {
      * 辅助数据库升级
      */
     public static void dataMigrateIfNeed() {
-        if (BooleanUtils.toBoolean(RebuildConfiguration.getCustomValue(KEY_41))) {
+        if (BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
             log.info("Data migrating #41 ...");
             ThreadPool.exec(() -> {
                 try {
                     v41();
-                    RebuildConfiguration.setCustomValue(KEY_41, "true");
+                    KVStorage.setCustomValue(KEY_41, "true");
                 } catch (Exception ex) {
                     log.error("Data migrating #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
                 }

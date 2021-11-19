@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -96,8 +97,8 @@ public class FieldValueHelper {
             return DataDesensitized.SECURE_TEXT;
         }
 
-        if (value == null || StringUtils.isBlank(value.toString())) {
-            // 审批
+        // 空值: 默认值
+        if (!hasLength(value)) {
             if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
                 return ApprovalState.DRAFT.getState();
             } else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId)) {
@@ -107,7 +108,7 @@ public class FieldValueHelper {
             return null;
         }
 
-        // 非数组表示为记录主键
+        // 非 ID 数组表示记录主键
         if (field.getDisplayType() == DisplayType.N2NREFERENCE && value instanceof ID) {
             value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
         }
@@ -272,5 +273,17 @@ public class FieldValueHelper {
         } else {
             return value;
         }
+    }
+
+    /**
+     * 是否有值
+     *
+     * @param o
+     * @return
+     */
+    public static boolean hasLength(Object o) {
+        if (o == null || NullValue.is(o)) return false;
+        if (o.getClass().isArray()) return ((Object[]) o).length > 0;
+        else return o.toString().length() > 0;
     }
 }
