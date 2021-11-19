@@ -572,9 +572,11 @@ create table if not exists `nreference_item` (
   `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
   `RECORD_ID`          char(20) not null comment '记录 ID',
   `REFERENCE_ID`       char(20) not null comment '引用 ID',
+  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
   primary key  (`ITEM_ID`),
-  index IX0_nreference_item (`BELONG_ENTITY`),
-  unique index UIX1_nreference_item (`BELONG_FIELD`, `RECORD_ID`, `REFERENCE_ID`)
+  unique index AIX0_nreference_item (`SEQ`),
+  index IX1_nreference_item (`BELONG_ENTITY`),
+  unique index UIX2_nreference_item (`BELONG_FIELD`, `RECORD_ID`, `REFERENCE_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [Feeds] DDL ************

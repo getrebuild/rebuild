@@ -814,7 +814,7 @@ class RbFormTextarea extends RbFormElement {
       return (
         <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
           {this.state.value.split('\n').map((line, idx) => {
-            return <p key={'kl-' + idx}>{line}</p>
+            return <p key={`line-${idx}`}>{line}</p>
           })}
         </div>
       )
@@ -1008,7 +1008,7 @@ class RbFormImage extends RbFormElement {
       <div className="img-field">
         {value.map((item, idx) => {
           return (
-            <span key={'img-' + item}>
+            <span key={`img-${item}`}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
                 <img src={this._formatUrl(item)} alt="IMG" />
               </a>
@@ -1113,7 +1113,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <a key={`file-${item}`} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
             </a>
@@ -1377,10 +1377,10 @@ class RbFormN2NReference extends RbFormReference {
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext multi-values">
         {value.map((item) => {
           return (
-            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
               {item.text}
             </a>
           )
@@ -1546,16 +1546,18 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   renderElement() {
-    const keyName = `checkbox-${this.props.field}-`
+    if (!this.props.options || this.props.options.length === 0) {
+      return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
+    }
+
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('未配置')}</div>}
         {(this.props.options || []).map((item) => {
           return (
-            <label key={keyName + item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={`item-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
-                name={keyName}
+                name={`checkbox-${this.props.field}`}
                 type="checkbox"
                 checked={(this.state.value & item.mask) !== 0}
                 value={item.mask}
@@ -1576,13 +1578,9 @@ class RbFormMultiSelect extends RbFormElement {
     if (typeof value === 'object') value = value.id
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext multi-values">
         {__findMultiTexts(this.props.options, value).map((item) => {
-          return (
-            <span key={'m-' + item} className="badge">
-              {item}
-            </span>
-          )
+          return <span key={item}>{item}</span>
         })}
       </div>
     )
@@ -1616,7 +1614,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={'radio-' + this.props.field}
+            name={`radio-${this.props.field}`}
             type="radio"
             checked={$isTrue(this.state.value)}
             data-value="T"

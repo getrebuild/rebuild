@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -152,5 +153,18 @@ public class CommonsUtils {
                 System.err.println("\tat " + traceElement);
             }
         }
+    }
+
+    /**
+     * 有长度?
+     *
+     * @param o
+     * @return
+     */
+    public static boolean hasLength(Object o) {
+        if (o == null || NullValue.is(o)) return false;
+
+        if (o.getClass().isArray()) return ((Object[]) o).length > 0;
+        else return o.toString().length() > 0;
     }
 }

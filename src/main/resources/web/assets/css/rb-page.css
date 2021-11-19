@@ -937,22 +937,6 @@ select.form-control:not([disabled]) {
   right: 10px;
 }
 
-.type-N2NREFERENCE .form-control-plaintext > a {
-  margin-right: 6px;
-}
-
-.type-N2NREFERENCE .form-control-plaintext > a::after {
-  content: ',';
-  color: #999;
-  font-weight: bold;
-  padding-left: 2px;
-}
-
-.type-N2NREFERENCE .form-control-plaintext > a:last-child {
-  margin-right: 0;
-  padding-right: 0;
-}
-
 .type-N2NREFERENCE .form-control-plaintext > a:last-child::after {
   content: '';
 }
@@ -972,30 +956,6 @@ select.form-control:not([disabled]) {
   min-width: 23%;
   max-width: 100%;
   overflow: hidden;
-}
-
-.type-MULTISELECT .text-danger {
-  padding-top: 4px;
-  margin-bottom: 0.51rem;
-}
-
-.type-MULTISELECT .form-control-plaintext {
-  padding: 4px 0 3px;
-  margin-left: -2px;
-  font-size: 0;
-}
-
-.type-MULTISELECT .form-control-plaintext > .badge {
-  font-size: 1rem;
-  font-weight: normal;
-  margin-bottom: 2px;
-  margin-left: 2px !important;
-}
-
-.type-MULTISELECT .form-control-plaintext > .text-muted {
-  font-size: 1rem;
-  margin: 4px 0 5px;
-  display: inline-block;
 }
 
 .type-LOCATION .form-control.bg-white {

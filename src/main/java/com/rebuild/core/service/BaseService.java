@@ -93,7 +93,8 @@ public class BaseService extends InternalPersistService {
         final Map<String, ID[]> holdN2NValues = new HashMap<>();
 
         for (Field n2nField : n2nFields) {
-            ID[] idRefs = record.getIDArray(n2nField.getName());
+            ID[] idRefs = record.hasValue(n2nField.getName(), false)
+                    ? record.getIDArray(n2nField.getName()) : ID.EMPTY_ID_ARRAY;
             if (idRefs.length == 0 && isNew) continue;
 
             // 保持值

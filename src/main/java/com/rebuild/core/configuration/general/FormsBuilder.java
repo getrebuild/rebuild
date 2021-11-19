@@ -32,8 +32,8 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -468,7 +468,7 @@ public class FormsBuilder extends FormsManager {
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
         if (field.getDisplayType() == DisplayType.BARCODE
-                || (field.getDisplayType() == DisplayType.N2NREFERENCE && ArrayUtils.getLength(value) > 0)) {
+                || (field.getDisplayType() == DisplayType.N2NREFERENCE && CommonsUtils.hasLength(value))) {
             value = data.getPrimary();
         }
 

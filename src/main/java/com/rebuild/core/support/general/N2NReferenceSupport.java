@@ -31,7 +31,7 @@ public class N2NReferenceSupport {
      */
     public static ID[] items(Field field, ID recordId) {
         Object[][] array = Application.createQueryNoFilter(
-                        "select referenceId from NreferenceItem where belongField = ? and recordId = ?")
+                        "select referenceId from NreferenceItem where belongField = ? and recordId = ? order by seq")
                 .setParameter(1, field.getName())
                 .setParameter(2, recordId)
                 .array();
