@@ -107,6 +107,11 @@ public class FieldValueHelper {
             return null;
         }
 
+        // 非数组表示为记录主键
+        if (field.getDisplayType() == DisplayType.N2NREFERENCE && value instanceof ID) {
+            value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
+        }
+
         return field.wrapValue(value);
     }
 

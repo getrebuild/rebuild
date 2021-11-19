@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 /**
  * @author devezhao
  * @since 2020/11/17
+ * @see N2NReferenceSupport
  */
 public class EasyN2NReference extends EasyReference {
     private static final long serialVersionUID = -16180408450167432L;

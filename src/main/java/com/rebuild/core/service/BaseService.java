@@ -42,7 +42,7 @@ public class BaseService extends InternalPersistService {
         Callable2 call = processN2NReference(record, true);
 
         record = super.create(record);
-        if (call != null) call.call(record.getPrimary());
+        if (call != null) call.call(record);
         return record;
     }
 
@@ -52,7 +52,7 @@ public class BaseService extends InternalPersistService {
         Callable2 call = processN2NReference(record, false);
 
         record = super.update(record);
-        if (call != null) call.call(null);
+        if (call != null) call.call(record);
         return record;
     }
 
@@ -90,9 +90,14 @@ public class BaseService extends InternalPersistService {
         final Set<Record> addItems = new HashSet<>();
         final Set<ID> delItems = new HashSet<>();
 
+        final Map<String, ID[]> holdN2NValues = new HashMap<>();
+
         for (Field n2nField : n2nFields) {
             ID[] idRefs = record.getIDArray(n2nField.getName());
             if (idRefs.length == 0 && isNew) continue;
+
+            // 保持值
+            holdN2NValues.put(n2nField.getName(), idRefs);
 
             // 仅保留第一个用于标识是否为空
             if (idRefs.length == 0) record.setNull(n2nField.getName());
@@ -153,29 +158,37 @@ public class BaseService extends InternalPersistService {
 
         // 新建
         if (isNew) {
-            // argv = 主键
             return argv -> {
+                // 还原
+                Record record2 = (Record) argv;
+                for (Map.Entry<String, ID[]> e : holdN2NValues.entrySet()) {
+                    record2.setIDArray(e.getKey(), e.getValue());
+                }
+
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
                 for (Record item : addItems) {
-                    item.setID("recordId", (ID) argv);
+                    item.setID("recordId", record2.getPrimary());
                     pm.save(item);
                 }
                 return addItems.size();
             };
-
         }
         // 更新
         else {
             return argv -> {
+                // 还原
+                Record record2 = (Record) argv;
+                for (Map.Entry<String, ID[]> e : holdN2NValues.entrySet()) {
+                    record2.setIDArray(e.getKey(), e.getValue());
+                }
+
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
                 for (Record item : addItems) {
                     pm.save(item);
                 }
-
                 if (!delItems.isEmpty()) {
                     pm.delete(delItems.toArray(new ID[0]));
                 }
-
                 return addItems.size() + delItems.size();
             };
         }
