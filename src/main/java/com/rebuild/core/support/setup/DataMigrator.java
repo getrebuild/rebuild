@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataMigrator {
 
-    // #41
+    // #41 多引用字段改为三方表
     static void v41() {
         for (Entity entity : MetadataHelper.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;

@@ -51,5 +51,9 @@ public class FormBuilder {
         protected void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
             super.buildModelElements(elements, entity, data, user, false);
         }
+
+        protected Record findRecord(ID id, ID user, JSONArray elements) {
+            return super.findRecord(id, user, elements);
+        }
     }
 }

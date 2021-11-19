@@ -38,7 +38,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
             super.updateByAction(ctx);
         } else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
             log.warn("RevisionHistory inactivated! {} {} by {}",
-                    ctx.getAction().getName().toLowerCase(), ctx.getAnyRecord().getPrimary(), ctx.getOperator());
+                    ctx.getAction().getName(), ctx.getAnyRecord().getPrimary(), ctx.getOperator());
         }
     }
 
