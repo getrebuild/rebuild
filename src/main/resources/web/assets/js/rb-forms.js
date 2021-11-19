@@ -975,7 +975,7 @@ class RbFormImage extends RbFormElement {
       <div className="img-field">
         {value.map((item) => {
           return (
-            <span key={'img-' + item}>
+            <span key={item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
@@ -987,14 +987,12 @@ class RbFormImage extends RbFormElement {
             </span>
           )
         })}
-        {showUpload && (
-          <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)}>
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-            <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-              <span className="zmdi zmdi-image-alt" />
-            </label>
-          </span>
-        )}
+        <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
+          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+            <span className="zmdi zmdi-image-alt" />
+          </label>
+        </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
     )
@@ -1008,7 +1006,7 @@ class RbFormImage extends RbFormElement {
       <div className="img-field">
         {value.map((item, idx) => {
           return (
-            <span key={`img-${item}`}>
+            <span key={item}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
                 <img src={this._formatUrl(item)} alt="IMG" />
               </a>
@@ -1028,6 +1026,11 @@ class RbFormImage extends RbFormElement {
     if (destroy) {
       // NOOP
     } else {
+      if (!this._fieldValue__input) {
+        console.warn('No element `_fieldValue__input` defined')
+        return
+      }
+
       let mp
       const mp_end = function () {
         if (mp) mp.end()
@@ -1079,7 +1082,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <div key={'file-' + item} className="img-thumbnail" title={fileName}>
+            <div key={item} className="img-thumbnail" title={fileName}>
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
@@ -1090,15 +1093,13 @@ class RbFormFile extends RbFormImage {
             </div>
           )
         })}
-        {showUpload && (
-          <div className="file-select">
-            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-            <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
-              <i className="zmdi zmdi-upload" />
-              <span>{$L('上传文件')}</span>
-            </label>
-          </div>
-        )}
+        <div className={`file-select ${showUpload ? '' : 'hide'}`}>
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
+          <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+            <i className="zmdi zmdi-upload" />
+            <span>{$L('上传文件')}</span>
+          </label>
+        </div>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
     )
@@ -1113,7 +1114,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <a key={`file-${item}`} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <a key={item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
             </a>
