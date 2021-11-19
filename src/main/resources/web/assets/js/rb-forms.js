@@ -1540,16 +1540,12 @@ class RbFormClassification extends RbFormElement {
 }
 
 class RbFormMultiSelect extends RbFormElement {
-  constructor(props) {
-    super(props)
-    if (props.value) this.state.value = props.value.id || 0
-  }
-
   renderElement() {
     if (!this.props.options || this.props.options.length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
+    const maskValue = this._getMaskValue()
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {(this.props.options || []).map((item) => {
@@ -1559,7 +1555,7 @@ class RbFormMultiSelect extends RbFormElement {
                 className="custom-control-input"
                 name={`checkbox-${this.props.field}`}
                 type="checkbox"
-                checked={(this.state.value & item.mask) !== 0}
+                checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
                 onChange={this.changeValue}
                 disabled={this.props.readonly}
@@ -1573,13 +1569,12 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   renderViewElement() {
-    let value = this.state.value
-    if (!value) return super.renderViewElement()
-    if (typeof value === 'object') value = value.id
+    if (!this.state.value) return super.renderViewElement()
 
+    const maskValue = this._getMaskValue()
     return (
       <div className="form-control-plaintext multi-values">
-        {__findMultiTexts(this.props.options, value).map((item) => {
+        {__findMultiTexts(this.props.options, maskValue).map((item) => {
           return <span key={item}>{item}</span>
         })}
       </div>
@@ -1595,6 +1590,12 @@ class RbFormMultiSelect extends RbFormElement {
       })
 
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
+  }
+
+  _getMaskValue() {
+    const value = this.state.value
+    if (!value) return 0
+    return typeof value === 'object' ? value.id : value
   }
 }
 
