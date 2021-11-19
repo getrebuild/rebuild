@@ -14,6 +14,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
+import com.rebuild.utils.Callable2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -39,7 +40,7 @@ public class BaseService extends InternalPersistService {
     @Override
     public Record create(Record record) {
         setQuickCodeValue(record);
-        Callable2 call = processN2NReference(record, true);
+        Callable2<Integer, Record> call = processN2NReference(record, true);
 
         record = super.create(record);
         if (call != null) call.call(record);
@@ -49,7 +50,7 @@ public class BaseService extends InternalPersistService {
     @Override
     public Record update(Record record) {
         setQuickCodeValue(record);
-        Callable2 call = processN2NReference(record, false);
+        Callable2<Integer, Record> call = processN2NReference(record, false);
 
         record = super.update(record);
         if (call != null) call.call(record);
@@ -79,7 +80,7 @@ public class BaseService extends InternalPersistService {
      *
      * @param record
      */
-    private Callable2 processN2NReference(final Record record, boolean isNew) {
+    private Callable2<Integer, Record> processN2NReference(final Record record, boolean isNew) {
         Entity entity = record.getEntity();
         Field[] n2nFields = MetadataSorter.sortFields(entity, DisplayType.N2NREFERENCE);
         if (n2nFields.length == 0) return null;
@@ -161,14 +162,13 @@ public class BaseService extends InternalPersistService {
         if (isNew) {
             return argv -> {
                 // 还原
-                Record record2 = (Record) argv;
                 for (Map.Entry<String, ID[]> e : holdN2NValues.entrySet()) {
-                    record2.setIDArray(e.getKey(), e.getValue());
+                    argv.setIDArray(e.getKey(), e.getValue());
                 }
 
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
                 for (Record item : addItems) {
-                    item.setID("recordId", record2.getPrimary());
+                    item.setID("recordId", argv.getPrimary());
                     pm.save(item);
                 }
                 return addItems.size();
@@ -178,9 +178,8 @@ public class BaseService extends InternalPersistService {
         else {
             return argv -> {
                 // 还原
-                Record record2 = (Record) argv;
                 for (Map.Entry<String, ID[]> e : holdN2NValues.entrySet()) {
-                    record2.setIDArray(e.getKey(), e.getValue());
+                    argv.setIDArray(e.getKey(), e.getValue());
                 }
 
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
@@ -193,12 +192,5 @@ public class BaseService extends InternalPersistService {
                 return addItems.size() + delItems.size();
             };
         }
-    }
-
-    /**
-     * @see java.util.concurrent.Callable
-     */
-    interface Callable2 {
-        int call(Object argv);
     }
 }

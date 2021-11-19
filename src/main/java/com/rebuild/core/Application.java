@@ -34,6 +34,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.setup.DataMigrator;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
@@ -225,7 +226,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         License.isRbvAttached();
 
-        UpgradeDatabase.dataMigrateIfNeed();
+        DataMigrator.dataMigrateIfNeed();
 
         return true;
     }

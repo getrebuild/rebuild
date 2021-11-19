@@ -7,8 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.setup;
 
-import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.commons.ThrowableUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -60,9 +58,6 @@ public final class UpgradeDatabase {
             if (currentVer != upgradeVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
                 log.info("Upgrade database version : " + upgradeVer);
-
-                LAST_VERS[0] = currentVer;
-                LAST_VERS[1] = upgradeVer;
             }
         }
     }
@@ -77,25 +72,6 @@ public final class UpgradeDatabase {
             upgrade();
         } catch (Exception ex) {
             log.error("Upgrade database failed! Already upgraded?", ex);
-        }
-    }
-
-    // --
-
-    private static final Integer[] LAST_VERS = new Integer[] { 0, 0 };
-    /**
-     * @return
-     */
-    public static void dataMigrateIfNeed() {
-        if (LAST_VERS[0] < 41 && LAST_VERS[1] >= 41) {
-            log.info("Data migrating #41 ...");
-            ThreadPool.exec(() -> {
-                try {
-                    DataMigrator.v41();
-                } catch (Exception ex) {
-                    log.error("Data migrating #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
-                }
-            });
         }
     }
 }

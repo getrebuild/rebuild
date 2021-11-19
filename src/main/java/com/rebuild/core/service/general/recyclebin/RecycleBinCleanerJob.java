@@ -76,7 +76,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             dels.add(delSql);
 
             int del = Application.getSqlExecutor().executeBatch(dels.toArray(new String[0]), 60 * 15);
-            log.warn("RecycleBin cleaned : " + del);
+            log.warn("RecycleBin cleaned : {}", del);
         }
 
         // 变更历史
@@ -95,7 +95,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     CalendarUtils.getUTCDateFormat().format(before));
 
             int del = Application.getSqlExecutor().execute(delSql, 60 * 3);
-            log.warn("RevisionHistory cleaned : " + del);
+            log.warn("RevisionHistory cleaned : {}", del);
         }
     }
 
