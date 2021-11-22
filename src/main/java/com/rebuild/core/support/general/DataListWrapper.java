@@ -81,18 +81,18 @@ public class DataListWrapper {
         final int selectFieldsLen = selectFields.length - joinFieldsLen;
 
         for (int rowIndex = 0; rowIndex < data.length; rowIndex++) {
-            final Object[] original = data[rowIndex];
+            final Object[] raw = data[rowIndex];
 
-            Object[] row = original;
+            Object[] row = raw;
             if (joinFieldsLen > 0) {
                 row = new Object[selectFieldsLen];
-                System.arraycopy(original, 0, row, 0, selectFieldsLen);
+                System.arraycopy(raw, 0, row, 0, selectFieldsLen);
                 data[rowIndex] = row;
             }
 
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
-                if (!checkHasJoinFieldPrivileges(selectFields[colIndex], original)) {
+                if (!checkHasJoinFieldPrivileges(selectFields[colIndex], raw)) {
                     row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
                 }
@@ -122,7 +122,12 @@ public class DataListWrapper {
                     ((ID) value).setLabel(nameValue);
                 }
 
-                row[colIndex] = wrapFieldValue(value, field);
+                if (field.getType() == FieldType.REFERENCE_LIST) {
+                    ID valueUseRecordId = (ID) raw[raw.length - 1];
+                    row[colIndex] = wrapFieldValue(valueUseRecordId, field);
+                } else {
+                    row[colIndex] = wrapFieldValue(value, field);
+                }
             }
         }
 

@@ -144,12 +144,7 @@ public class QueryFactory {
             fields = new String[]{entity.getPrimaryField().getName()};
         }
 
-        StringBuilder sql = new StringBuilder("select ");
-        sql.append(StringUtils.join(fields, ","))
-                .append(" from ").append(entity.getName())
-                .append(" where ")
-                .append(entity.getPrimaryField().getName())
-                .append(" = ?");
-        return sql.toString();
+        return String.format("select %s from %s where %s = ?",
+                StringUtils.join(fields, ","), entity.getName(), entity.getPrimaryField().getName());
     }
 }

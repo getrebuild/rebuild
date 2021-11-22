@@ -9,21 +9,17 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.support.general.BarCodeGenerator;
+import com.rebuild.core.support.general.BarCodeSupport;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
  * @since 2020/11/17
+ * @see BarCodeSupport
  */
 @Slf4j
 public class EasyBarCode extends EasyField {
     private static final long serialVersionUID = 5175455130040618922L;
-
-    // 二维码（默认）
-    public static final String BT_QRCODE = "QRCODE";
-    // 条码
-    public static final String BT_BARCODE = "BARCODE";
 
     protected EasyBarCode(Field field, DisplayType displayType) {
         super(field, displayType);
@@ -36,8 +32,9 @@ public class EasyBarCode extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
+        // value 是记录主键
         if (value instanceof ID) {
-            return BarCodeGenerator.getBarCodeContent(getRawMeta(), (ID) value);
+            return BarCodeSupport.getBarCodeContent(getRawMeta(), (ID) value);
         }
 
         if (value != null) log.warn("Cannot wrap value of EasyBarCode : " + value);

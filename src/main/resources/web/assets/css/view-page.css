@@ -613,3 +613,24 @@ body {
 .type-LOCATION.col-sm-12 .map-show {
   height: 400px;
 }
+
+.form-control-plaintext.multi-values {
+  padding-top: 6px;
+  padding-bottom: 4px;
+}
+
+.form-control-plaintext.multi-values > a,
+.form-control-plaintext.multi-values > span {
+  border: 1px solid #d9d9d9;
+  border-radius: 99px;
+  padding: 1px 6px;
+  background-color: #fff;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.form-control-plaintext.multi-values > a {
+  border-color: #4285f4;
+}

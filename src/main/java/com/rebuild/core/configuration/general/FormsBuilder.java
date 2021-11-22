@@ -315,10 +315,8 @@ public class FormsBuilder extends FormsManager {
             }
 
             // 字段扩展配置 FieldExtConfigProps
-            JSONObject fieldExt = easyField.getExtraAttrs(true);
-            for (Map.Entry<String, Object> e : fieldExt.entrySet()) {
-                el.put(e.getKey(), e.getValue());
-            }
+            JSONObject fieldExtAttrs = easyField.getExtraAttrs(true);
+            el.putAll(fieldExtAttrs);
 
             // 不同字段类型的处理
 
@@ -421,7 +419,7 @@ public class FormsBuilder extends FormsManager {
      * @param elements
      * @return
      */
-    public Record findRecord(ID id, ID user, JSONArray elements) {
+    protected Record findRecord(ID id, ID user, JSONArray elements) {
         if (elements.isEmpty()) {
             return null;
         }
@@ -468,7 +466,8 @@ public class FormsBuilder extends FormsManager {
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
-        if (field.getDisplayType() == DisplayType.BARCODE) {
+        if (field.getDisplayType() == DisplayType.BARCODE
+                || (field.getDisplayType() == DisplayType.N2NREFERENCE && FieldValueHelper.hasLength(value))) {
             value = data.getPrimary();
         }
 

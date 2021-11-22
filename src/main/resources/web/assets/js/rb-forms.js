@@ -244,7 +244,7 @@ class RbForm extends React.Component {
     }
 
     return (
-      <div className="dialog-footer">
+      <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
         <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
@@ -330,7 +330,7 @@ class RbForm extends React.Component {
     }
     if (RbForm.postBefore(data) === false) return
 
-    const $btns = $(this._formAction).find('.btn').button('loading')
+    const $btns = $(this._$formAction).find('.btn').button('loading')
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       $btns.button('reset')
       if (res.error_code === 0) {
@@ -814,7 +814,7 @@ class RbFormTextarea extends RbFormElement {
       return (
         <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
           {this.state.value.split('\n').map((line, idx) => {
-            return <p key={'kl-' + idx}>{line}</p>
+            return <p key={`line-${idx}`}>{line}</p>
           })}
         </div>
       )
@@ -975,7 +975,7 @@ class RbFormImage extends RbFormElement {
       <div className="img-field">
         {value.map((item) => {
           return (
-            <span key={'img-' + item}>
+            <span key={item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
@@ -987,14 +987,12 @@ class RbFormImage extends RbFormElement {
             </span>
           )
         })}
-        {showUpload && (
-          <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)}>
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-            <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-              <span className="zmdi zmdi-image-alt" />
-            </label>
-          </span>
-        )}
+        <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
+          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+            <span className="zmdi zmdi-image-alt" />
+          </label>
+        </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
     )
@@ -1008,7 +1006,7 @@ class RbFormImage extends RbFormElement {
       <div className="img-field">
         {value.map((item, idx) => {
           return (
-            <span key={'img-' + item}>
+            <span key={item}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
                 <img src={this._formatUrl(item)} alt="IMG" />
               </a>
@@ -1028,6 +1026,11 @@ class RbFormImage extends RbFormElement {
     if (destroy) {
       // NOOP
     } else {
+      if (!this._fieldValue__input) {
+        console.warn('No element `_fieldValue__input` defined')
+        return
+      }
+
       let mp
       const mp_end = function () {
         if (mp) mp.end()
@@ -1079,7 +1082,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <div key={'file-' + item} className="img-thumbnail" title={fileName}>
+            <div key={item} className="img-thumbnail" title={fileName}>
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
@@ -1090,15 +1093,13 @@ class RbFormFile extends RbFormImage {
             </div>
           )
         })}
-        {showUpload && (
-          <div className="file-select">
-            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-            <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
-              <i className="zmdi zmdi-upload" />
-              <span>{$L('上传文件')}</span>
-            </label>
-          </div>
-        )}
+        <div className={`file-select ${showUpload ? '' : 'hide'}`}>
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
+          <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+            <i className="zmdi zmdi-upload" />
+            <span>{$L('上传文件')}</span>
+          </label>
+        </div>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
       </div>
     )
@@ -1113,7 +1114,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <a key={item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
             </a>
@@ -1377,10 +1378,10 @@ class RbFormN2NReference extends RbFormReference {
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
 
     return (
-      <div className="form-control-plaintext">
+      <div className="form-control-plaintext multi-values">
         {value.map((item) => {
           return (
-            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
               {item.text}
             </a>
           )
@@ -1540,24 +1541,22 @@ class RbFormClassification extends RbFormElement {
 }
 
 class RbFormMultiSelect extends RbFormElement {
-  constructor(props) {
-    super(props)
-    if (props.value) this.state.value = props.value.id || 0
-  }
-
   renderElement() {
-    const keyName = `checkbox-${this.props.field}-`
+    if (!this.props.options || this.props.options.length === 0) {
+      return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
+    }
+
+    const maskValue = this._getMaskValue()
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('未配置')}</div>}
         {(this.props.options || []).map((item) => {
           return (
-            <label key={keyName + item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={`item-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
-                name={keyName}
+                name={`checkbox-${this.props.field}`}
                 type="checkbox"
-                checked={(this.state.value & item.mask) !== 0}
+                checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
                 onChange={this.changeValue}
                 disabled={this.props.readonly}
@@ -1571,18 +1570,13 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   renderViewElement() {
-    let value = this.state.value
-    if (!value) return super.renderViewElement()
-    if (typeof value === 'object') value = value.id
+    if (!this.state.value) return super.renderViewElement()
 
+    const maskValue = this._getMaskValue()
     return (
-      <div className="form-control-plaintext">
-        {__findMultiTexts(this.props.options, value).map((item) => {
-          return (
-            <span key={'m-' + item} className="badge">
-              {item}
-            </span>
-          )
+      <div className="form-control-plaintext multi-values">
+        {__findMultiTexts(this.props.options, maskValue).map((item) => {
+          return <span key={item}>{item}</span>
         })}
       </div>
     )
@@ -1597,6 +1591,12 @@ class RbFormMultiSelect extends RbFormElement {
       })
 
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
+  }
+
+  _getMaskValue() {
+    const value = this.state.value
+    if (!value) return 0
+    return typeof value === 'object' ? value.id : value
   }
 }
 
@@ -1616,7 +1616,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={'radio-' + this.props.field}
+            name={`radio-${this.props.field}`}
             type="radio"
             checked={$isTrue(this.state.value)}
             data-value="T"

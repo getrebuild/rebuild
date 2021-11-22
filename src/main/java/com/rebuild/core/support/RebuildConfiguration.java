@@ -11,9 +11,10 @@ import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -184,7 +185,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param items
      * @return
      */
-    private static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
+    static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
         List<String> list = new ArrayList<>();
         for (ConfigurationItem item : items) {
             String v = get(item, noCache);
@@ -219,7 +220,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static int getInt(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Integer) name.getDefaultValue() : NumberUtils.toInt(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Integer) name.getDefaultValue(), 0)
+                : NumberUtils.toInt(s);
     }
 
     /**
@@ -228,7 +231,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static long getLong(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Long) name.getDefaultValue(), 0L)
+                : NumberUtils.toLong(s);
     }
 
     /**
@@ -237,7 +242,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static boolean getBool(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Boolean) name.getDefaultValue(), false)
+                : BooleanUtils.toBoolean(s);
     }
 
     /**

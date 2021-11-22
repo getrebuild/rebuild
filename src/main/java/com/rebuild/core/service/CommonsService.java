@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * @since 11/06/2017
  */
 @Service
-public class CommonsService extends BaseService {
+public class CommonsService extends InternalPersistService {
 
     protected CommonsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

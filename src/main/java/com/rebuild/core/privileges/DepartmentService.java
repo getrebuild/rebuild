@@ -17,7 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.Department;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
  * @since 08/03/2018
  */
 @Service
-public class DepartmentService extends BaseServiceImpl {
+public class DepartmentService extends BaseService {
 
     /**
      * 根级部门

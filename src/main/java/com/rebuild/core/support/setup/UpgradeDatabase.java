@@ -7,13 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.setup;
 
-import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -23,9 +21,8 @@ import java.util.Map;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
+@Slf4j
 public final class UpgradeDatabase {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UpgradeDatabase.class);
 
     /**
      * 开始升级
@@ -34,14 +31,15 @@ public final class UpgradeDatabase {
      */
     public void upgrade() throws Exception {
         if (Installer.isUseH2()) {
-            LOG.error("H2 database unsupported upgrade!");
+            log.error("H2 database unsupported upgrade!");
             return;
         }
 
         final Map<Integer, String[]> scripts = new UpgradeScriptReader().read();
-        final int dbVer = getDbVer();
+        final int currentVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
 
-        int upgradeVer = dbVer;
+        int upgradeVer = currentVer;
+
         try {
             while (true) {
                 String[] sql = scripts.get(upgradeVer + 1);
@@ -52,14 +50,14 @@ public final class UpgradeDatabase {
                     continue;
                 }
 
-                LOG.info("\n>> UPGRADE SQL (#" + (upgradeVer + 1) + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
+                log.info("\n>> UPGRADE SQL (#" + (upgradeVer + 1) + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
                 Application.getSqlExecutor().executeBatch(sql, 60 * 2);
                 upgradeVer++;
             }
         } finally {
-            if (dbVer != upgradeVer) {
+            if (currentVer != upgradeVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
-                LOG.info("Upgrade database version : " + upgradeVer);
+                log.info("Upgrade database version : " + upgradeVer);
             }
         }
     }
@@ -73,15 +71,7 @@ public final class UpgradeDatabase {
         try {
             upgrade();
         } catch (Exception ex) {
-            LOG.error("Upgrade database failed! Already upgraded?", ex);
+            log.error("Upgrade database failed! Already upgraded?", ex);
         }
-    }
-
-    /**
-     * @return
-     */
-    protected int getDbVer() {
-        String dbVer = RebuildConfiguration.get(ConfigurationItem.DBVer, true);
-        return ObjectUtils.toInt(dbVer, 0);
     }
 }

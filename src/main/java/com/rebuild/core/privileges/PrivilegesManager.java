@@ -315,7 +315,7 @@ public class PrivilegesManager {
         if (BizzDepthEntry.NONE.equals(depth)) {
             return false;
         } else if (BizzDepthEntry.GLOBAL.equals(depth)) {
-            return andViaCustomFilter(user, target, action, ep);
+            return andPassCustomFilter(user, target, action, ep);
         }
 
         ID targetUserId = theRecordOwningCache.getOwningUser(target);
@@ -328,7 +328,7 @@ public class PrivilegesManager {
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andViaCustomFilter(user, target, action, ep);
+            return allowed && andPassCustomFilter(user, target, action, ep);
         }
 
         User accessUser = theUserStore.getUser(user);
@@ -340,18 +340,18 @@ public class PrivilegesManager {
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andViaCustomFilter(user, target, action, ep);
+            return allowed && andPassCustomFilter(user, target, action, ep);
 
         } else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
             if (accessUserDept.equals(targetUser.getOwningDept())) {
-                return andViaCustomFilter(user, target, action, ep);
+                return andPassCustomFilter(user, target, action, ep);
             }
 
             allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
             if (!allowed) {
                 allowed = !ignoreShared && allowViaShare(user, target, action);
             }
-            return allowed && andViaCustomFilter(user, target, action, ep);
+            return allowed && andPassCustomFilter(user, target, action, ep);
         }
 
         return false;
@@ -394,17 +394,17 @@ public class PrivilegesManager {
     }
 
     /**
-     * 自定义权限（注意此逻辑是建立在基础权限之上，AND 关系）
+     * 自定义权限（此逻辑是建立在原权限体系之上，AND 关系）
      *
      * @param user
      * @param target
      * @param action
      * @param ep
      * @return
-     * @see RoleBaseQueryFilter#appendCustomFilter(Privileges, String)
+     * @see RoleBaseQueryFilter#buildCustomFilter(Privileges)
      */
-    private boolean andViaCustomFilter(ID user, ID target, Permission action, Privileges ep) {
-        if (!(ep instanceof CustomEntityPrivileges)) return true;
+    private boolean andPassCustomFilter(ID user, ID target, Permission action, Privileges ep) {
+        if (!ep.getClass().isAssignableFrom(CustomEntityPrivileges.class)) return true;
         if (((CustomEntityPrivileges) ep).getCustomFilter(action) == null) return true;
 
         // TODO 性能优化

@@ -11,7 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.support.general.BarCodeGenerator;
+import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -45,7 +45,7 @@ public class BarCodeGeneratorController extends BaseController {
         ID record = getIdParameterNotNull(request, "id");
 
         ServletUtils.setNoCacheHeaders(response);
-        writeTo(BarCodeGenerator.getBarCodeImage(barcodeField, record), response);
+        writeTo(BarCodeSupport.getBarCodeImage(barcodeField, record), response);
     }
 
     @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
@@ -56,9 +56,9 @@ public class BarCodeGeneratorController extends BaseController {
         ServletUtils.addCacheHead(response, 240);
 
         if (request.getRequestURI().endsWith("render-qr")) {
-            writeTo(BarCodeGenerator.createQRCode(content), response);
+            writeTo(BarCodeSupport.createQRCode(content), response);
         } else {
-            writeTo(BarCodeGenerator.createBarCode(content), response);
+            writeTo(BarCodeSupport.createBarCode(content), response);
         }
     }
 

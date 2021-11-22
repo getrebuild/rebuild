@@ -8,14 +8,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.support;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.dialect.MySQL5Dialect;
+import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
-import com.rebuild.core.Application;
-import com.rebuild.core.BootApplication;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.dom4j.Element;
+
+import java.util.Scanner;
 
 /**
  * 根据 METADATA 生成表的创建语句
@@ -25,18 +28,25 @@ import org.dom4j.Element;
  */
 public class SchemaGenerator {
 
-    private static PersistManagerFactory PMF;
+    private static Dialect dialect;
+    private static MetadataFactory metadataFactory;
 
     public static void main(String[] args) {
-        System.setProperty("spring.main.web-application-type", "none");  // No Web
-        System.setProperty("rbdev", "true");  // dev/debug mode
-        BootApplication.main(new String[0]);
+        dialect = new MySQL5Dialect();
+        metadataFactory = new ConfigurationMetadataFactory("metadata-conf.xml", dialect);
 
-        PMF = Application.getPersistManagerFactory();
-
-        // !!! COMMENT DynamicMetadataFactory#appendConfig4Db
-//        generate();
-        generate(EntityHelper.FrontjsCode);
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter the entity code (enter 0 for all) :");
+        if (scanner.hasNext()) {
+            String input = scanner.next();
+            if ("0".equals(input)) {
+                generate();
+            } else if (NumberUtils.isNumber(input)) {
+                generate(NumberUtils.toInt(input));
+            } else {
+                IOUtils.closeQuietly(scanner);
+            }
+        }
 
         System.exit(0);
     }
@@ -45,7 +55,7 @@ public class SchemaGenerator {
      * 生成全部实体
      */
     static void generate() {
-        for (Entity entity : PMF.getMetadataFactory().getEntities()) {
+        for (Entity entity : metadataFactory.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) generate(entity.getEntityCode());
         }
     }
@@ -56,11 +66,11 @@ public class SchemaGenerator {
      * @param entityCode
      */
     static void generate(int entityCode) {
-        Entity entity = PMF.getMetadataFactory().getEntity(entityCode);
-        Element root = ((ConfigurationMetadataFactory) PMF.getMetadataFactory()).getConfigDocument().getRootElement();
+        Entity entity = metadataFactory.getEntity(entityCode);
+        Element root = ((ConfigurationMetadataFactory) metadataFactory).getConfigDocument().getRootElement();
         Table table = new Table(
                 entity,
-                PMF.getDialect(),
+                dialect,
                 root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 
         String[] ddl = table.generateDDL(false, false, false);

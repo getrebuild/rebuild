@@ -14,7 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import java.util.Collection;
  * @since 2019/11/13
  */
 @Service
-public class TeamService extends BaseServiceImpl implements AdminGuard {
+public class TeamService extends BaseService implements AdminGuard {
 
     protected TeamService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
