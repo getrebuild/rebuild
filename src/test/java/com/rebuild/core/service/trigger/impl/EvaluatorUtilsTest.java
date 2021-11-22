@@ -20,7 +20,7 @@ class EvaluatorUtilsTest {
     @Test
     void eval() {
         System.out.println(EvaluatorUtils.eval(
-                "abc12_.abc+123", Collections.singletonMap("abc12_.abc", 100)));
+                "abc12_.abc+123", Collections.singletonMap("abc12_.abc", 100), true));
     }
 
     @Test

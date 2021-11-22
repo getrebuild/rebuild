@@ -19,7 +19,6 @@ import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
 import com.googlecode.aviator.runtime.type.AviatorType;
-import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Calendar;
@@ -56,25 +55,25 @@ public class EvaluatorUtils {
      * @return
      */
     public static Object eval(String expression) {
-        return eval(expression, null);
+        return eval(expression, null, true);
     }
 
     /**
      * 表达式计算
      *
      * @param expression
+     * @param env
+     * @param quietly true 不抛出异常
      * @return
      */
-    public static Object eval(String expression, Map<String, Object> env) {
+    public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
         try {
             return AVIATOR.execute(expression, env);
-        } catch (ArithmeticException ex) {
-            log.error("Bad expression : `{}`", expression, ex);
-            throw new RebuildException("EXPRESSION ERROR : " + ex.getLocalizedMessage().toUpperCase());
-        } catch (ExpressionRuntimeException ex) {
-            log.error("Bad expression : `{}`", expression, ex);
-            return null;
+        } catch (ArithmeticException | ExpressionRuntimeException ex) {
+            if (quietly) log.error("Bad expression : `{}`", expression, ex);
+            else throw ex;
         }
+        return null;
     }
 
     /**

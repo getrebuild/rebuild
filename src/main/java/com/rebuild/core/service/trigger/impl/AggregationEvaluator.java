@@ -52,7 +52,7 @@ public class AggregationEvaluator {
     public Object eval() {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
-            return evalFormula();
+            return evalFormula(true);
         }
 
         String sourceField = item.getString("sourceField");
@@ -74,9 +74,10 @@ public class AggregationEvaluator {
     /**
      * 计算公式
      *
+     * @param quietly
      * @return
      */
-    protected Object evalFormula() {
+    public Object evalFormula(boolean quietly) {
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
@@ -125,6 +126,6 @@ public class AggregationEvaluator {
             clearFormual = clearFormual.replaceAll(replace, value.toString());
         }
 
-        return EvaluatorUtils.eval(clearFormual);
+        return EvaluatorUtils.eval(clearFormual, null, quietly);
     }
 }

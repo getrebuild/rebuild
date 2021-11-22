@@ -175,8 +175,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #ccc;
 }
 
-.formula-calc .numbers ul li > a:active {
-  box-shadow: inset 0 2px 0 rgb(0 0 0 / 6%);
+.formula-calc .numbers li > a:active {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .formula-calc ul li.empty-1 > a {

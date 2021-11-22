@@ -140,12 +140,12 @@ public class FieldWritebackController extends BaseController {
         try {
             Object evalValue = new AggregationEvaluator(
                     item, MetadataHelper.getEntity(sourceEntity), "(1=1)")
-                    .eval();
+                    .evalFormula(false);
             return RespBody.ok(evalValue);
 
         } catch (Exception ex) {
             String errMsg = ex.getLocalizedMessage();
-            log.error("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
+            log.warn("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
             return RespBody.error(errMsg);
         }
     }
