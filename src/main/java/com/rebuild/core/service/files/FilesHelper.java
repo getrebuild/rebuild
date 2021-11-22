@@ -15,7 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,7 +36,7 @@ public class FilesHelper {
     // 私有
     public static final String SCOPE_SELF = "SELF";
 
-    private static final LRUMap FILESIZES = new LRUMap(2000);
+    private static final LRUMap<String, Integer> FILESIZES = new LRUMap<>(2000);
 
     /**
      * 暂存文件大小，以便在创建文件记录时使用
@@ -64,7 +64,7 @@ public class FilesHelper {
             attach.setString("fileType", ext);
         }
         if (FILESIZES.containsKey(filePath)) {
-            attach.setInt("fileSize", (Integer) FILESIZES.remove(filePath));
+            attach.setInt("fileSize", FILESIZES.remove(filePath));
         }
         return attach;
     }
