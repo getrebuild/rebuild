@@ -239,7 +239,7 @@ const _fieldsMapping = (columns, fields) => {
   const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
     const $tr = $(`<tr data-col="${idx}"></tr>`).appendTo($tbody)
-    $(`<td><em>#${idx + 1}</em> ${item}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
+    $(`<td><em>#${idx + 1}</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
     const $td = $('<td></td>').appendTo($tr)
     const $clone = $fieldSelect.clone().appendTo($td)
     $('<td class="pl-3"></td>').appendTo($tr)
