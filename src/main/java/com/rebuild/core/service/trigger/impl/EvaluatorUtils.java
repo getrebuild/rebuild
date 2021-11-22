@@ -19,7 +19,6 @@ import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
 import com.googlecode.aviator.runtime.type.AviatorType;
-import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Calendar;
@@ -56,25 +55,25 @@ public class EvaluatorUtils {
      * @return
      */
     public static Object eval(String expression) {
-        return eval(expression, null);
+        return eval(expression, null, true);
     }
 
     /**
      * 表达式计算
      *
      * @param expression
+     * @param env
+     * @param quietly true 不抛出异常
      * @return
      */
-    public static Object eval(String expression, Map<String, Object> env) {
+    public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
         try {
             return AVIATOR.execute(expression, env);
-        } catch (ArithmeticException ex) {
-            log.error("Bad expression : `{}`", expression, ex);
-            throw new RebuildException("EXPRESSION ERROR : " + ex.getLocalizedMessage().toUpperCase());
-        } catch (ExpressionRuntimeException ex) {
-            log.error("Bad expression : `{}`", expression, ex);
-            return null;
+        } catch (ArithmeticException | ExpressionRuntimeException ex) {
+            if (quietly) log.error("Bad expression : `{}`", expression, ex);
+            else throw ex;
         }
+        return null;
     }
 
     /**
@@ -133,13 +132,13 @@ public class EvaluatorUtils {
         }
     }
 
-    // 日期差值 `number = datediff(date1, date2, [H|D|M|Y])`
+    // 日期差值 `number = DATEDIFF(date1, date2, [H|D|M|Y])`
     static class DateDiffFunction extends AbstractFunction {
         private static final long serialVersionUID = 5778729290544711131L;
 
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-            return call(env, arg1, arg2, new AviatorString("D"));
+            return call(env, arg1, arg2, new AviatorString(DU_DAY));
         }
 
         @Override
@@ -148,14 +147,17 @@ public class EvaluatorUtils {
             Date date1 = o1 instanceof Date ? (Date) o1 : CalendarUtils.parse(o1.toString());
             Object o2 = arg2.getValue(env);
             Date date2 = o2 instanceof Date ? (Date) o2 : CalendarUtils.parse(o2.toString());
-            String dateUnit = arg3.getValue(env).toString();
+            if (arg3.getValue(env) == null) {
+                throw new ExpressionSyntaxErrorException("`dateUnit` cannot be null");
+            }
+            String dateUnit = arg3.getValue(env) .toString();
 
             if (date1 == null) {
-                log.warn("Parseing date1 error : {}. Use default", o1);
+                log.warn("Parseing date1 error : `{}`. Use default", o1);
                 date1 = CalendarUtils.now();
             }
             if (date2 == null) {
-                log.warn("Parseing date2 error : {}. Use default", o2);
+                log.warn("Parseing date2 error : `{}`. Use default", o2);
                 date2 = CalendarUtils.now();
             }
 
@@ -190,7 +192,6 @@ public class EvaluatorUtils {
 
             if (interval.endsWith(DU_DAY)) {
                 interval = interval.substring(0, interval.length() - 1);
-                intervalUnit = Calendar.DATE;
             } else if (interval.endsWith(DU_MONTH)) {
                 interval = interval.substring(0, interval.length() - 1);
                 intervalUnit = Calendar.MONTH;
@@ -216,7 +217,7 @@ public class EvaluatorUtils {
         }
     }
 
-    // 日期减 `date = datesub(date, interval[H|D|M|Y])`
+    // 日期减 `date = DATESUB(date, interval[H|D|M|Y])`
     static class DateSubFunction extends DateAddFunction {
         private static final long serialVersionUID = -1002040162587992573L;
 

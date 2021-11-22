@@ -7,11 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.robot.trigger;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -19,24 +21,27 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.impl.FieldWriteback;
+import com.rebuild.core.service.trigger.impl.AggregationEvaluator;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.BatchUpdateController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author devezhao
  * @see FieldAggregationController
  * @since 2020/2/7
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/robot/trigger/")
 public class FieldWritebackController extends BaseController {
@@ -119,5 +124,29 @@ public class FieldWritebackController extends BaseController {
         return JSONUtils.toJSONObject(
                 new String[]{"source", "target", "hadApproval"},
                 new Object[]{sourceFields, targetFields, hadApproval});
+    }
+
+    // 验证公式
+
+    @PostMapping("verify-formula")
+    public RespBody verifyFormula(HttpServletRequest request) {
+        String formula = ServletUtils.getRequestString(request);
+        String sourceEntity = getParameter(request, "entity");
+
+        JSONObject item = JSONUtils.toJSONObject(
+                new String[] { "calcMode", "sourceFormula" },
+                new String[] { "FORMULA", formula });
+
+        try {
+            Object evalValue = new AggregationEvaluator(
+                    item, MetadataHelper.getEntity(sourceEntity), "(1=1)")
+                    .evalFormula(false);
+            return RespBody.ok(evalValue);
+
+        } catch (Exception ex) {
+            String errMsg = ex.getLocalizedMessage();
+            log.warn("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
+            return RespBody.error(errMsg);
+        }
     }
 }

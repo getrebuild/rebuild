@@ -38,7 +38,7 @@ public class AggregationEvaluator {
      * @param sourceEntity
      * @param filterSql
      */
-    protected AggregationEvaluator(JSONObject item, Entity sourceEntity, String filterSql) {
+    public AggregationEvaluator(JSONObject item, Entity sourceEntity, String filterSql) {
         this.sourceEntity = sourceEntity;
         this.item = item;
         this.filterSql = filterSql;
@@ -52,7 +52,7 @@ public class AggregationEvaluator {
     public Object eval() {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
-            return evalFormula();
+            return evalFormula(true);
         }
 
         String sourceField = item.getString("sourceField");
@@ -74,9 +74,10 @@ public class AggregationEvaluator {
     /**
      * 计算公式
      *
+     * @param quietly
      * @return
      */
-    private Object evalFormula() {
+    public Object evalFormula(boolean quietly) {
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
@@ -88,7 +89,10 @@ public class AggregationEvaluator {
             }
             fields.add(fieldAndFunc);
         }
-        if (fields.isEmpty()) return null;
+        if (fields.isEmpty()) {
+            log.warn("No fields found in formula : {}", formula);
+            fields.add(new String[] { sourceEntity.getPrimaryField().getName() });
+        }
 
         StringBuilder sql = new StringBuilder("select ");
         for (String[] field : fields) {
@@ -104,9 +108,12 @@ public class AggregationEvaluator {
                 .append(" where ").append(filterSql);
 
         final Object[] useSourceData = Application.createQueryNoFilter(sql.toString()).unique();
-        if (useSourceData == null) return null;
+        if (useSourceData == null) {
+            log.warn("No record found by sql : {}", sql);
+            return null;
+        }
 
-        String clearFormual = formula.toUpperCase()
+        String clearFormual = formula
                 .replace("×", "*")
                 .replace("÷", "/");
 
@@ -114,10 +121,11 @@ public class AggregationEvaluator {
             String[] field = fields.get(i);
             Object value = useSourceData[i] == null ? "0" : useSourceData[i];
 
-            String replace = "{" + StringUtils.join(field, MetadataHelper.SPLITER) + "}";
-            clearFormual = clearFormual.replace(replace.toUpperCase(), value.toString());
+            // 忽略大小写
+            String replace = "(?i)\\{" + StringUtils.join(field, MetadataHelper.SPLITER_RE) + "}";
+            clearFormual = clearFormual.replaceAll(replace, value.toString());
         }
 
-        return EvaluatorUtils.eval(clearFormual);
+        return EvaluatorUtils.eval(clearFormual, null, quietly);
     }
 }

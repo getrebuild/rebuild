@@ -72,15 +72,9 @@ class ContentFieldWriteback extends ActionContentSpec {
                             <span className="badge badge-warning">{UPDATE_MODES[item.updateMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
-                            {item.updateMode === 'FIELD' && (
-                              <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>
-                            )}
-                            {item.updateMode === 'VFIXED' && (
-                              <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>
-                            )}
-                            {item.updateMode === 'FORMULA' && (
-                              <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
-                            )}
+                            {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
+                            {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
+                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <i className="zmdi zmdi-close" />
                             </a>
@@ -131,18 +125,13 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </div>
                   <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
                     {this.state.updateMode === 'VFIXED' && this.state.targetField && (
-                      <FieldValueSet
-                        entity={this.state.targetEntity}
-                        field={this.state.targetField}
-                        placeholder={$L('固定值')}
-                        ref={(c) => (this._$sourceValue = c)}
-                      />
+                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('固定值')} ref={(c) => (this._$sourceValue = c)} />
                     )}
                     <p>{$L('固定值')}</p>
                   </div>
                   <div className={this.state.updateMode === 'FORMULA' ? '' : 'hide'}>
                     {this.state.updateMode === 'FORMULA' && this.state.targetField && (
-                      <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._$sourceFormula = c)} />
+                      <FieldFormula entity={this.props.sourceEntity} fields={this.__sourceFieldsCache} targetField={this.state.targetField} ref={(c) => (this._$sourceFormula = c)} />
                     )}
                     <p>{$L('计算公式')}</p>
                   </div>
@@ -326,13 +315,13 @@ class FieldFormula extends React.Component {
   }
 
   render() {
-    const fieldType = this.state.field.type
+    const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (fieldType === 'AVATAR' || fieldType === 'IMAGE' || fieldType === 'FILE') {
+    if (toFieldType === 'AVATAR' || toFieldType === 'IMAGE' || toFieldType === 'FILE') {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
-        <div className="form-control-plaintext formula" _title={$L('计算公式')} onClick={() => this.show(this.state.field.type)}>
+        <div className="form-control-plaintext formula" _title={$L('计算公式')} onClick={() => this.show(toFieldType)}>
           {this.state.valueText}
         </div>
       )
@@ -349,7 +338,7 @@ class FieldFormula extends React.Component {
 
     // 数字、日期支持计算器模式
     const ndType = ['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(ft)
-    renderRbcomp(<FormulaCalcWithCode fields={ndVars} forceCode={!ndType} onConfirm={(expr) => this.onConfirm(expr)} />)
+    renderRbcomp(<FormulaCalcWithCode fields={ndVars} forceCode={!ndType} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula entity={this.state.entity} />)
   }
 
   onConfirm(expr) {
@@ -400,6 +389,8 @@ class FormulaCalcWithCode extends FormulaCalc {
             this.props.onConfirm(`{{{{${code}}}}}`)
             this.hide()
           }}
+          verifyFormula
+          entity={this.props.entity}
         />
       )
     } else {
@@ -486,14 +477,7 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea
-          className="formula-code"
-          ref={(c) => (this._$formulaInput = c)}
-          defaultValue={this.props.initCode || ''}
-          maxLength="2000"
-          placeholder="// Support AviatorScript"
-          autoFocus
-        />
+        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="2000" placeholder="// Support AviatorScript" autoFocus />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
@@ -514,7 +498,19 @@ class FormulaCode extends React.Component {
   }
 
   confirm() {
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm($val(this._$formulaInput))
+    const formula = $val(this._$formulaInput)
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+    }
+
+    if (formula && this.props.verifyFormula) {
+      // in field-formula.js
+      // eslint-disable-next-line no-undef
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
   }
 
   // 格式化显示
