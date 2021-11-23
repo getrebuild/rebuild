@@ -151,11 +151,14 @@ class AdvFilter extends React.Component {
       const validFs = []
       const fields = res.data.map((item) => {
         validFs.push(item.name)
+
+        // 引用字段在引用实体修改了名称字段后可能存在问题
+        // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
+
         if (item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') {
           REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
+          if (item.type === 'N2NREFERENCE') IS_N2NREF.push(item.name)
 
-          // 引用字段在引用实体修改了名称字段后可能存在问题（针对已保存的过滤条件）
-          // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
             item.type = item.ref[1]
@@ -342,7 +345,7 @@ const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW',
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
 const PICKLIST_CACHE = {}
 const REFENTITY_CACHE = {}
-const INPUTVALS_HOLD = {} // 输入值保持
+const IS_N2NREF = []
 
 // 过滤项
 class FilterItem extends React.Component {
@@ -353,8 +356,6 @@ class FilterItem extends React.Component {
     this._searchEntity = props.$$$parent.props.entity
     this._loadedPickList = false
     this._loadedBizzSearch = false
-
-    if (props.field && props.value) INPUTVALS_HOLD[props.field] = props.value
   }
 
   render() {
@@ -416,7 +417,7 @@ class FilterItem extends React.Component {
       }
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
-    } else if (fieldType === 'LOCATION') {
+    } else if (fieldType === 'LOCATION' || IS_N2NREF.includes(this.state.field)) {
       op = ['LK', 'NLK']
     }
 
@@ -464,7 +465,6 @@ class FilterItem extends React.Component {
       valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
     }
 
-    INPUTVALS_HOLD[this.state.field] = this.state.value
     return valComp
   }
 
@@ -472,8 +472,8 @@ class FilterItem extends React.Component {
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
       const ref = REFENTITY_CACHE[`${this._searchEntity}.${this.state.field}`]
-      if (!entity) return BIZZ_ENTITIES.includes(ref[0])
-      else return ref[0] === entity
+      if (entity) return ref[0] === entity
+      else return BIZZ_ENTITIES.includes(ref[0])
     }
     return false
   }
