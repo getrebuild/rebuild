@@ -151,15 +151,15 @@ class AdvFilter extends React.Component {
       const validFs = []
       const fields = res.data.map((item) => {
         validFs.push(item.name)
-        if (item.type === 'REFERENCE') {
-          REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
+        if (item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') {
+          REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
 
-          // Use `NameField` type
+          // 引用字段在引用实体修改了名称字段后可能存在问题（针对已保存的过滤条件）
+          // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
+          // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
             item.type = item.ref[1]
           }
-        } else if (item.type === 'DATETIME') {
-          item.type = 'DATE'
         }
         return item
       })
@@ -235,9 +235,9 @@ class AdvFilter extends React.Component {
   }
 
   renderEquation() {
-    const exp = []
-    for (let i = 1; i <= (this.state.items || []).length; i++) exp.push(i)
-    this.setState({ equationDef: exp.join(' OR ') })
+    const expr = []
+    for (let i = 1; i <= (this.state.items || []).length; i++) expr.push(i)
+    this.setState({ equationDef: expr.join(' OR ') })
   }
 
   toFilterJson(canNoFilters) {
@@ -268,7 +268,7 @@ class AdvFilter extends React.Component {
   }
 
   searchByKey = (e) => {
-    if (this.props.fromList !== true || e.which !== 13) return // Not [enter]
+    if (this.props.fromList !== true || e.which !== 13) return // Not [Enter]
     this.searchNow()
   }
 
@@ -281,8 +281,8 @@ class AdvFilter extends React.Component {
     const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
 
-    const c = this.props.confirm || this.props.onConfirm
-    typeof c === 'function' && c(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
+    const _onConfirm = this.props.confirm || this.props.onConfirm
+    typeof _onConfirm === 'function' && _onConfirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
 
     this.props.inModal && this._dlg.hide()
     this.setState({ filterName: null })
@@ -293,8 +293,8 @@ class AdvFilter extends React.Component {
   }
 
   hide() {
-    const c = this.props.cancel || this.props.onCancel
-    typeof c === 'function' && c()
+    const _onCancel = this.props.cancel || this.props.onCancel
+    typeof _onCancel === 'function' && _onCancel()
 
     this.props.inModal && this._dlg.hide()
   }
@@ -341,7 +341,7 @@ const OP_TYPE = {
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
 const PICKLIST_CACHE = {}
-const REFMETA_CACHE = {}
+const REFENTITY_CACHE = {}
 const INPUTVALS_HOLD = {} // 输入值保持
 
 // 过滤项
@@ -349,10 +349,10 @@ class FilterItem extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.$$$entity = this.props.$$$parent.props.entity
 
-    this.loadedPickList = false
-    this.loadedBizzSearch = false
+    this._searchEntity = props.$$$parent.props.entity
+    this._loadedPickList = false
+    this._loadedBizzSearch = false
 
     if (props.field && props.value) INPUTVALS_HOLD[props.field] = props.value
   }
@@ -411,14 +411,13 @@ class FilterItem extends React.Component {
       } else if (this.isBizzField('Role')) {
         op = ['IN', 'NIN']
       } else {
-        // 引用字段在引用实体修改了名称字段后可能存在问题
-        // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
+        // 引用字段作为名称字段
         // op = []
       }
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
-    } else if (fieldType === 'N2NREFERENCE') {
-      op = []
+    } else if (fieldType === 'LOCATION') {
+      op = ['LK', 'NLK']
     }
 
     op.push('NL', 'NT')
@@ -472,7 +471,7 @@ class FilterItem extends React.Component {
   // 引用 User/Department/Role/Team
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
-      const ref = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
+      const ref = REFENTITY_CACHE[`${this._searchEntity}.${this.state.field}`]
       if (!entity) return BIZZ_ENTITIES.includes(ref[0])
       else return ref[0] === entity
     }
@@ -483,7 +482,7 @@ class FilterItem extends React.Component {
   isNumberValue() {
     if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
       return true
-    } else if (this.state.type === 'DATE' && OP_DATE_NOPICKER.includes(this.state.op)) {
+    } else if ((this.state.type === 'DATE' || this.state.type === 'DATETIME') && OP_DATE_NOPICKER.includes(this.state.op)) {
       return true
     }
     return false
@@ -504,8 +503,8 @@ class FilterItem extends React.Component {
         allowClear: false,
       })
       .on('change', function (e) {
-        const ft = e.target.value.split(NT_SPLIT)
-        that.setState({ field: ft[0], type: ft[1] }, () => $s2op.val(that.__op[0]).trigger('change'))
+        const fieldAndType = e.target.value.split(NT_SPLIT)
+        that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => $s2op.val(that.__op[0]).trigger('change'))
       })
     const $s2op = $(this._filterOp)
       .select2({
@@ -544,21 +543,21 @@ class FilterItem extends React.Component {
       this.removePickList()
     }
 
-    if (state.type === 'DATE') {
+    if (state.type === 'DATE' || state.type === 'DATETIME') {
       this.removeDatepicker()
       if (OP_DATE_NOPICKER.includes(state.op)) {
         // 无需日期组件
       } else {
         this.renderDatepicker()
       }
-    } else if (lastType === 'DATE') {
+    } else if (lastType === 'DATE' || lastType === 'DATETIME') {
       this.removeDatepicker()
     }
 
     if (this.isBizzField()) {
-      let searchEntity = REFMETA_CACHE[this.$$$entity + '.' + state.field]
-      searchEntity = state.op === 'SFT' ? 'Team' : searchEntity[0]
-      this.renderBizzSearch(searchEntity)
+      let ref = REFENTITY_CACHE[`${this._searchEntity}.${state.field}`]
+      ref = state.op === 'SFT' ? 'Team' : ref[0]
+      this.renderBizzSearch(ref)
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
@@ -599,7 +598,7 @@ class FilterItem extends React.Component {
     } else {
       if (this.isNumberValue()) {
         if ($regex.isDecimal(v) === false) $el.addClass('is-invalid')
-      } else if (this.state.type === 'DATE') {
+      } else if (this.state.type === 'DATE' || this.state.type === 'DATETIME') {
         if ($regex.isUTCDate(v) === false) $el.addClass('is-invalid')
       }
     }
@@ -635,10 +634,10 @@ class FilterItem extends React.Component {
     this.__select2_PickList = $s2val
 
     // Load
-    if (this.props.value && this.loadedPickList === false) {
+    if (this.props.value && this._loadedPickList === false) {
       const v = this.props.value.split('|')
       $s2val.val(v).trigger('change')
-      this.loadedPickList = true
+      this._loadedPickList = true
     }
   }
 
@@ -653,6 +652,12 @@ class FilterItem extends React.Component {
   // 用户/部门
 
   renderBizzSearch(entity) {
+    // BIZZ 实体变了
+    if (this.__lastBizzEntity && this.__lastBizzEntity !== entity) {
+      $(this._filterVal).select2('destroy').val(null)
+    }
+    this.__lastBizzEntity = entity
+
     const that = this
     const $s2val = $(this._filterVal)
       .select2({
@@ -661,12 +666,11 @@ class FilterItem extends React.Component {
           url: '/commons/search/search',
           delay: 300,
           data: function (params) {
-            const query = {
+            return {
               entity: entity,
               quickFields: entity === 'User' ? 'loginName,fullName,email,quickCode' : 'name,quickCode',
               q: params.term,
             }
-            return query
           },
           processResults: function (data) {
             const rs = data.data.map((item) => {
@@ -683,14 +687,14 @@ class FilterItem extends React.Component {
     this.__select2_BizzSearch = $s2val
 
     // Load
-    if (this.props.value && this.loadedBizzSearch === false) {
+    if (this.props.value && this._loadedBizzSearch === false) {
       $.get(`/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
         for (let kid in res.data) {
           const o = new Option(res.data[kid], kid, true, true)
           $s2val.append(o)
         }
       })
-      this.loadedBizzSearch = true
+      this._loadedBizzSearch = true
     }
   }
 
@@ -792,11 +796,18 @@ class FilterItem extends React.Component {
     }
     if (s.value) item.value = s.value
     if (s.value2) item.value2 = s.value2
+
     // 引用字段查询名称字段
-    const isRef = REFMETA_CACHE[this.$$$entity + '.' + s.field]
-    if (isRef && !BIZZ_ENTITIES.includes(isRef[0]) && (s.op === 'LK' || s.op === 'NLK' || s.op === 'EQ' || s.op === 'NEQ')) {
-      item.field = NAME_FLAG + item.field
+    const isRefField = REFENTITY_CACHE[`${this._searchEntity}.${s.field}`]
+    if (isRefField && (!BIZZ_ENTITIES.includes(isRefField[0]) || s.type === 'N2NREFERENCE')) {
+      // 仅支持 LK NLK EQ NEQ
+      if (s.op === 'LK' || s.op === 'NLK' || s.op === 'EQ' || s.op === 'NEQ') {
+        item.field = NAME_FLAG + item.field
+      } else {
+        console.log(`Unsupported op '${s.op}' for field '${s.field}'`)
+      }
     }
+
     this.setState({ hasError: false })
     return item
   }

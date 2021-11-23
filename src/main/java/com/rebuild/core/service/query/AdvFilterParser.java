@@ -202,7 +202,7 @@ public class AdvFilterParser extends SetUser {
 
         Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
-            log.warn("Unknown field '" + field + "' in '" + rootEntity.getName() + "'");
+            log.warn("Unknown field '{}' in '{}'", field, rootEntity.getName());
             return null;
         }
 
@@ -211,20 +211,38 @@ public class AdvFilterParser extends SetUser {
                 || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
             field = "&" + field;
         } else if (hasNameFlag) {
-            if (dt != DisplayType.REFERENCE) {
-                log.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
+            if (!(dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+                log.warn("Non reference-field '{}' in '{}'", field, rootEntity.getName());
                 return null;
             }
 
             // 转化为名称字段
-            fieldMeta = fieldMeta.getReferenceEntity().getNameField();
-            dt = EasyMetaFactory.getDisplayType(fieldMeta);
-            field += "." + fieldMeta.getName();
+            if (dt == DisplayType.REFERENCE) {
+                fieldMeta = fieldMeta.getReferenceEntity().getNameField();
+                dt = EasyMetaFactory.getDisplayType(fieldMeta);
+                field += "." + fieldMeta.getName();
+            }
         }
 
         String op = item.getString("op");
         String value = item.getString("value");
         String valueEnd = null;
+
+        // FIXME N2N 特殊处理，仅支持 LK NLK EQ NEQ
+        // exists ( in (...) )
+        if (hasNameFlag && dt == DisplayType.N2NREFERENCE) {
+            Entity refEntity = fieldMeta.getReferenceEntity();
+            String inWhere = String.format("select %s from %s where %s %s %s",
+                    refEntity.getPrimaryField().getName(),
+                    refEntity.getName(),
+                    refEntity.getNameField().getName(),
+                    ParseHelper.convetOperation(op),
+                    quoteValue('%' + value + '%', FieldType.STRING));
+
+            return String.format(
+                    "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
+                    rootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+        }
 
         // 根据字段类型转换 `op`
 

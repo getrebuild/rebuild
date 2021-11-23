@@ -1760,7 +1760,7 @@ class RbFormLocation extends RbFormElement {
           onChange={this.handleChange}
           readOnly
         />
-        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} />
+        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} title={$L('清除')} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
             <i className="icon zmdi zmdi-pin-drop" />
