@@ -821,16 +821,25 @@ var _getLang = function (key) {
 /**
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
+var $useMap__Loaded
 var $useMap = function (onLoad) {
-  if (window.BMapGL) {
+  if ($useMap__Loaded === 2 && window.BMapGL) {
     typeof onLoad === 'function' && onLoad()
+  } else if ($useMap__Loaded === 1) {
+    var _timer = setInterval(function () {
+      if ($useMap__Loaded === 2 && window.BMapGL) {
+        typeof onLoad === 'function' && onLoad()
+        clearInterval(_timer)
+      }
+    }, 500)
   } else {
-    var callback = $random('__$bdmapCallback', true, 20)
-    window[callback] = function () {
+    $useMap__Loaded = 1
+    window['$useMap__callback'] = function () {
+      $useMap__Loaded = 2
       typeof onLoad === 'function' && onLoad()
     }
 
-    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=' + callback
+    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
     $.getScript(scriptUrl)
   }
 }
