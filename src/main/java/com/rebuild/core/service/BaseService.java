@@ -88,8 +88,8 @@ public class BaseService extends InternalPersistService {
         final Record n2nRecord = EntityHelper.forNew(EntityHelper.NreferenceItem, UserService.SYSTEM_USER);
         n2nRecord.setString("belongEntity", entity.getName());
 
-        final Set<Record> addItems = new HashSet<>();
-        final Set<ID> delItems = new HashSet<>();
+        final List<Record> addItems = new ArrayList<>();
+        final List<ID> delItems = new ArrayList<>();
 
         final Map<String, ID[]> holdN2NValues = new HashMap<>();
 
@@ -115,7 +115,6 @@ public class BaseService extends InternalPersistService {
                     clone.setID("referenceId", idRef);
                     addItems.add(clone);
                 }
-
             }
             // 更新
             else {
@@ -130,7 +129,7 @@ public class BaseService extends InternalPersistService {
                     beforeIds.put((ID) o[0], (ID) o[1]);
                 }
 
-                Set<ID> afterIds = new HashSet<>();
+                Set<ID> afterIds = new LinkedHashSet<>();
                 CollectionUtils.addAll(afterIds, idRefs);
 
                 for (Iterator<ID> iter = afterIds.iterator(); iter.hasNext(); ) {

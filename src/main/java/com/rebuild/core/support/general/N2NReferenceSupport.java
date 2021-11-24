@@ -4,7 +4,6 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 
 package com.rebuild.core.support.general;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -23,7 +22,7 @@ import org.springframework.util.Assert;
 public class N2NReferenceSupport {
 
     /**
-     * 获取亿引用项
+     * 获取引用项
      *
      * @param field
      * @param recordId
@@ -45,7 +44,7 @@ public class N2NReferenceSupport {
     }
 
     /**
-     * 填充 N2N 字段真实的值
+     * 补充 N2N 字段真实的值
      *
      * @param record
      * @return
