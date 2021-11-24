@@ -308,10 +308,14 @@ function _checkUserPrivileges() {
 // 渲染重复判断字段
 function _renderRepeatFields(entity) {
   if (!entity) return
+
+  const excludeNames = ['createdBy', 'createdOn', 'modifiedOn', 'modifiedBy']
+  const excludeTypes = ['AVATAR', 'FILE', 'IMAGE', 'MULTISELECT', 'N2NREFERENCE', 'LOCATION']
+
   const $el = $('#repeatFields').empty()
   $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
     $(res.data).each(function () {
-      if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
+      if (excludeNames.includes(this.name) || excludeTypes.includes(this.type)) return
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
     })
 
