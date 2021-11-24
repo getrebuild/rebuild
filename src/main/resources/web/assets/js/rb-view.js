@@ -144,7 +144,7 @@ class RbViewForm extends React.Component {
         this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
-        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id)
+        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
