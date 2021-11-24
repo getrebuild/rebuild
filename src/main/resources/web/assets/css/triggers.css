@@ -418,3 +418,8 @@ textarea.formula-code {
 .badge.badge-close a.close:hover {
   opacity: 1;
 }
+
+/* fix: height */
+.select2-selection.select2-selection--multiple ul.select2-selection__rendered {
+  display: block;
+}

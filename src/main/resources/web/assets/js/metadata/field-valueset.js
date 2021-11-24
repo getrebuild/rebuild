@@ -10,14 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
-    if (
-      field.type === 'ID' ||
-      field.type === 'AVATAR' ||
-      field.type === 'IMAGE' ||
-      field.type === 'FILE' ||
-      field.type === 'BARCODE' ||
-      field.type === 'SERIES'
-    ) {
+    if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
@@ -31,11 +24,7 @@ class FieldValueSet extends React.Component {
       field.type === 'CLASSIFICATION'
     ) {
       return (
-        <select
-          className="form-control form-control-sm"
-          multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'}
-          ref={(c) => (this._value = c)}
-          key={field.name}>
+        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'} ref={(c) => (this._$value = c)} key={field.name}>
           {(field.options || []).map((item) => {
             let value = item.id || item.mask
             // for BOOL
@@ -52,18 +41,16 @@ class FieldValueSet extends React.Component {
       )
     }
 
-    return (
-      <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._value = c)} key={field.name} maxLength="255" />
-    )
+    return <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._$value = c)} key={field.name} maxLength="255" />
   }
 
   componentDidMount() {
-    if (!this._value) return
+    if (!this._$value) return
 
     const field = this.props.field
-    if (this._value.tagName === 'SELECT') {
+    if (this._$value.tagName === 'SELECT') {
       if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
-        this.__$select2 = $initReferenceSelect2(this._value, {
+        this.__$select2 = $initReferenceSelect2(this._$value, {
           entity: this.props.entity,
           name: field.name,
           label: field.label,
@@ -71,13 +58,13 @@ class FieldValueSet extends React.Component {
           placeholder: this.props.placeholder || ' ',
         })
       } else {
-        this.__$select2 = $(this._value).select2({
-          placeholder: this.props.placeholder,
+        this.__$select2 = $(this._$value).select2({
+          placeholder: this.props.placeholder || '',
         })
       }
       this.__$select2.val(null).trigger('change')
     } else if (field.type === 'DATE' || field.type === 'DATETIME') {
-      this.__$datetimepicker = $(this._value).datetimepicker({
+      this.__$datetimepicker = $(this._$value).datetimepicker({
         format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
         minView: field.type === 'DATE' ? 'month' : 0,
       })
@@ -96,18 +83,18 @@ class FieldValueSet extends React.Component {
   }
 
   val() {
-    if (!this._value) return null
+    if (!this._$value) return null
 
     const field = this.props.field
     let value
     if (field.type === 'MULTISELECT') {
-      let masks = 0
-      this.__$select2.val().forEach((mask) => (masks += ~~mask))
-      value = masks
-    } else if (this._value.tagName === 'SELECT') {
+      let maskValue = 0
+      this.__$select2.val().forEach((mask) => (maskValue += ~~mask))
+      value = maskValue
+    } else if (this._$value.tagName === 'SELECT') {
       value = this.__$select2.val()
     } else {
-      value = $(this._value).val()
+      value = $(this._$value).val()
     }
 
     if (!value) return null
