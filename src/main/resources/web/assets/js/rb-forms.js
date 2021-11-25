@@ -1247,7 +1247,7 @@ class RbFormReference extends RbFormElement {
 
     // 新建记录时触发回填
     const props = this.props
-    if (props.$$$parent.isNew && !props.onView && props.value && props.value.id) {
+    if (props.$$$parent.isNew && props.value && props.value.id) {
       setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
     }
   }
@@ -1759,11 +1759,12 @@ class RbFormLocation extends RbFormElement {
           value={lnglat ? lnglat.text || '' : ''}
           onChange={this.handleChange}
           readOnly
+          onClick={() => this._showMap(lnglat)}
         />
         <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} title={$L('清除')} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
-            <i className="icon zmdi zmdi-pin-drop" />
+            <i className="icon zmdi zmdi-pin-drop flash infinite slow" ref={(c) => (this._$icon = c)} />
           </button>
         </div>
       </div>
@@ -1834,6 +1835,21 @@ class RbFormLocation extends RbFormElement {
   onEditModeChanged(destroy) {
     if (destroy) {
       // Auto destroy by BaiduMap#componentWillUnmount
+    }
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    const props = this.props
+    if (props.locationAutoLocation && props.$$$parent.isNew && !props.value) {
+      $(this._$icon).addClass('animated')
+      // eslint-disable-next-line no-undef
+      $autoLocation((v) => {
+        $(this._$icon).removeClass('animated')
+        v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
+        v && this.handleChange({ target: { value: v } }, true)
+      })
     }
   }
 

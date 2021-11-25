@@ -843,3 +843,27 @@ var $useMap = function (onLoad) {
     $.getScript(scriptUrl)
   }
 }
+
+// 自动定位
+var $autoLocation = function (call) {
+  $useMap(function () {
+    var geo = new window.BMapGL.Geolocation()
+    geo.enableSDKLocation()
+
+    geo.getCurrentPosition(function (e) {
+      if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+        var geoc = new window.BMapGL.Geocoder()
+        geoc.getLocation(e.point, (r) => {
+          var v = {
+            lat: e.latitude,
+            lng: e.longitude,
+            text: r ? r.address : null,
+          }
+          typeof call === 'function' && call(v)
+        })
+      } else {
+        console.log('Geolocation failed :', this.getStatus())
+      }
+    })
+  })
+}
