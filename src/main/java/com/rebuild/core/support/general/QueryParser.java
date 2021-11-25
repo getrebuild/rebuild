@@ -136,9 +136,7 @@ public class QueryParser {
      * 解析 SQL
      */
     private void doParseIfNeed() {
-        if (sql != null) {
-            return;
-        }
+        if (sql != null) return;
 
         StringBuilder fullSql = new StringBuilder("select ");
 
@@ -270,15 +268,17 @@ public class QueryParser {
         countFields = new ArrayList<>();
         countFields.add(Collections.emptyMap());
 
-        ConfigBean cb = DataListManager.instance.getListStatsField(UserService.SYSTEM_USER, entity.getName());
-        if (cb != null && cb.getJSON("config") != null) {
-            JSONArray items = ((JSONObject) cb.getJSON("config")).getJSONArray("items");
-            for (Object o : items) {
-                JSONObject item = (JSONObject) o;
-                String field = item.getString("field");
-                if (MetadataHelper.checkAndWarnField(entity, field)) {
-                    counts.add(String.format("%s(%s)", item.getString("calc"), field));
-                    countFields.add(item);
+        if (queryExpr.getBooleanValue("statsField")) {
+            ConfigBean cb = DataListManager.instance.getListStatsField(UserService.SYSTEM_USER, entity.getName());
+            if (cb != null && cb.getJSON("config") != null) {
+                JSONArray items = ((JSONObject) cb.getJSON("config")).getJSONArray("items");
+                for (Object o : items) {
+                    JSONObject item = (JSONObject) o;
+                    String field = item.getString("field");
+                    if (MetadataHelper.checkAndWarnField(entity, field)) {
+                        counts.add(String.format("%s(%s)", item.getString("calc"), field));
+                        countFields.add(item);
+                    }
                 }
             }
         }
