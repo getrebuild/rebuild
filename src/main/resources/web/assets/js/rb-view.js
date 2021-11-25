@@ -437,7 +437,7 @@ class SelectReport extends React.Component {
                 <p className="text-muted">
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
                       <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}

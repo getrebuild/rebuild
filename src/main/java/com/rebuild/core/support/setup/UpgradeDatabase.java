@@ -57,7 +57,7 @@ public final class UpgradeDatabase {
         } finally {
             if (currentVer != upgradeVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
-                log.info("Upgrade database version : " + upgradeVer);
+                log.info("Upgraded database version : " + upgradeVer);
             }
         }
     }

@@ -297,6 +297,17 @@ class DataExport extends BatchOperator {
             )
           })}
         </select>
+
+        {this.state.reports && this.state.reports.length === 0 && (
+          <p className="text-muted mt-1 mb-0">
+            {$L('暂无报表模板')}
+            {rb.isAdminUser && (
+              <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                <i className="zmdi zmdi-settings" /> {$L('点击配置')}
+              </a>
+            )}
+          </p>
+        )}
       </div>
     )
   }
