@@ -10,11 +10,29 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
+
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+const SHOW_ADVDESENSITIZED = ['TEXT', 'EMAIL', 'PHONE']
+const SHOW_ADVPATTERN = [...SHOW_ADVDESENSITIZED, 'URL', 'NTEXT']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
   const extConfig = wpc.extConfig
+
+  // 内置字段
+  if (wpc.fieldBuildin) {
+    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
+  }
+  // 显示重复值选项
+  if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
+    $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
+  }
+  // 默认值
+  if (!SHOW_DEFAULTVALUE.includes(dt)) $('#defaultValue').remove()
+  // 脱敏
+  if (!SHOW_ADVDESENSITIZED.includes(dt)) $('#advDesensitized').parent().remove()
+  // 正则
+  if (!SHOW_ADVPATTERN.includes(dt)) $('#advPattern').parent().remove()
 
   const $btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
@@ -55,10 +73,14 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
     })
-    delete extConfigNew['undefined'] // bugfix
 
-    extConfigNew['advDesensitized'] = $val('#advDesensitized')
-    extConfigNew['advPattern'] = $val('#advPattern')
+    // fix
+    delete extConfigNew['undefined']
+    delete extConfigNew['advDesensitized']
+    delete extConfigNew['advPattern']
+
+    if (SHOW_ADVDESENSITIZED.includes(dt)) extConfigNew['advDesensitized'] = $val('#advDesensitized')
+    if (SHOW_ADVPATTERN.includes(dt)) extConfigNew['advPattern'] = $val('#advPattern')
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
@@ -144,20 +166,6 @@ $(document).ready(function () {
     $('.J_fieldAttrs input').attr('disabled', true)
   } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
     _handleNumber(extConfig.calcFormula)
-  }
-
-  // 显示重复值选项
-  if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
-    $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
-  }
-  // 默认值
-  if (!SHOW_DEFAULTVALUE.includes(dt)) {
-    $('#defaultValue').remove()
-  }
-
-  // 内置字段
-  if (wpc.fieldBuildin) {
-    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }
 
   // // 只读属性
