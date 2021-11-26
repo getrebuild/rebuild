@@ -819,6 +819,7 @@ var _getLang = function (key) {
 }
 
 /**
+ * 加载地图脚本
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
 var $useMap__Loaded
@@ -844,12 +845,11 @@ var $useMap = function (onLoad) {
   }
 }
 
-// 自动定位
+// 自动定位（有误差）
 var $autoLocation = function (call) {
   $useMap(function () {
     var geo = new window.BMapGL.Geolocation()
     geo.enableSDKLocation()
-
     geo.getCurrentPosition(function (e) {
       if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
         var geoc = new window.BMapGL.Geocoder()
