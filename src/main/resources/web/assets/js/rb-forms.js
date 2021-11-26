@@ -337,7 +337,7 @@ class RbForm extends React.Component {
         RbHighbar.success($L('保存成功'))
         setTimeout(() => {
           this.props.$$$parent.hide(true)
-          RbForm.postAfter({ ...res.data, _isNew: !this.state.id }, next)
+          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
           if (next === RbForm.__NEXT_ADD) {
             const pstate = this.props.$$$parent.state
