@@ -31,6 +31,9 @@ const startTour123 = function () {
   } else if (location.href.includes('/view') && wpc.type === 'RecordView') {
     stepName = 'TourEnd-RecordView'
     steps = StepView()
+  } else if (location.href.includes('/dashboard/chart-design')) {
+    stepName = 'TourEnd-Chart'
+    steps = StepChart()
   }
   if (!steps) return
 
@@ -311,6 +314,44 @@ const StepView = () => {
       title: $L('审批状态'),
       intro: $L('当前记录的审批状态，及审批相关操作'),
       rbLeft: 5,
+    },
+  ]
+}
+
+const StepChart = () => {
+  return [
+    {
+      element: '.J_fields',
+      title: $L('加入字段'),
+      intro: $L('长按并拖动字段到上方“维度”或“数值”处，加入你想分析的字段'),
+      position: 'right',
+      rbTop: 5,
+    },
+    {
+      element: '.axis-editor',
+      title: $L('字段选项'),
+      intro: $L('对加入到图表的字段进行设置，如显示样式、位置顺序等'),
+      rbLeft: 5,
+    },
+    {
+      element: '.J_c-type',
+      title: $L('图表类型'),
+      intro: $L('可以选择不同的图表类型，例如反映月度销量时使用柱状图较为合适'),
+      position: 'left',
+      rbTop: 5,
+    },
+    {
+      element: '.J_c-option',
+      title: $L('图表选项'),
+      intro: $L('针对不同图表有不同的选项可供设置'),
+      position: 'left',
+      rbTop: 5,
+    },
+    {
+      element: '.rb-toggle-left-sidebar',
+      title: $L('完成'),
+      intro: $L('图表设计完成后别忘记点击保存'),
+      rbLeft: 23,
     },
   ]
 }

@@ -126,6 +126,7 @@ $(document).ready(() => {
 
   if (!wpc.chartId) {
     $(`<h4 class="chart-undata must-center">${$L('当前图表无数据')}</h4>`).appendTo('#chart-preview')
+    typeof window.startTour === 'function' && window.startTour(500)
   }
 
   $addResizeHandler(() => {
@@ -396,13 +397,7 @@ class DlgAxisProps extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                placeholder={$L('默认')}
-                data-id="label"
-                value={this.state.label || ''}
-                onChange={this.handleChange}
-              />
+              <input className="form-control form-control-sm" placeholder={$L('默认')} data-id="label" value={this.state.label || ''} onChange={this.handleChange} />
             </div>
           </div>
           {this.state.isNumAxis && (
