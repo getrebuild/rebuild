@@ -24,16 +24,6 @@
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
     <script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
   </th:block>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script th:if="${env == 'prodution'}" src="https://www.googletagmanager.com/gtag/js?id=UA-70670864-2" async></script>
-  <script>
-    window.dataLayer = window.dataLayer || []
-    function gtag() {
-      dataLayer.push(arguments)
-    }
-    gtag('js', new Date())
-    gtag('config', 'UA-70670864-2')
-  </script>
   <th:block th:if="${user != null && session.needStartTour != null}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/introjs.min.css}" />
     <script th:src="@{/assets/lib/intro.min.js}"></script>
