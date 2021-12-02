@@ -16,10 +16,13 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.TransactionStatus;
 
@@ -142,14 +145,20 @@ public class RecordTransfomer extends SetUser {
         Record source = Application.createQueryNoFilter(querySource).record();
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
-            String tf = e.getKey();
-            String sf = (String) e.getValue();
+            String targetField = e.getKey();
+            String sourceField = (String) e.getValue();
 
-            Object value = source.getObjectValue(sf);
+            Object value = source.getObjectValue(sourceField);
             if (value != null) {
-                Object compatibleValue = EasyMetaFactory.valueOf(sourceEntity.getField(sf))
-                        .convertCompatibleValue(value, EasyMetaFactory.valueOf(targetEntity.getField(tf)));
-                target.setObjectValue(tf, compatibleValue);
+                EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
+
+                if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
+                    value = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
+                }
+
+                Object compatibleValue = sourceFieldEasy.convertCompatibleValue(value, targetFieldEasy);
+                target.setObjectValue(targetField, compatibleValue);
             }
         }
 

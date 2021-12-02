@@ -312,9 +312,10 @@ class BaiduMap extends React.Component {
     $useMap(() => {
       const _BMapGL = window.BMapGL
       const map = new _BMapGL.Map(that._$container)
-      // map.enableScrollWheelZoom() // 滚动缩放
       map.addControl(new _BMapGL.ZoomControl())
       map.addControl(new _BMapGL.ScaleControl())
+      // 滚动缩放
+      if (that.props.enableScrollWheelZoom) map.enableScrollWheelZoom()
 
       that._map = map
 
@@ -322,9 +323,8 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        map.centerAndZoom('北京市', 14)
-
-        const geo = new _BMapGL.Geolocation()
+        // map.centerAndZoom('北京市', 14)
+        const geo = new window.BMapGL.Geolocation()
         geo.enableSDKLocation()
         geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
@@ -336,11 +336,10 @@ class BaiduMap extends React.Component {
       }
 
       if (that.props.canPin) {
-        // 地址解析
         const geoc = new _BMapGL.Geocoder()
-
         let lastMarker = null
-        // 允许点选
+
+        // 点选
         map.addEventListener('click', function (e) {
           if (lastMarker) map.removeOverlay(lastMarker)
 

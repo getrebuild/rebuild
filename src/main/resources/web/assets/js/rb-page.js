@@ -819,18 +819,51 @@ var _getLang = function (key) {
 }
 
 /**
+ * 加载地图脚本
  * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
  */
+var $useMap__Loaded
 var $useMap = function (onLoad) {
-  if (window.BMapGL) {
+  if ($useMap__Loaded === 2 && window.BMapGL) {
     typeof onLoad === 'function' && onLoad()
+  } else if ($useMap__Loaded === 1) {
+    var _timer = setInterval(function () {
+      if ($useMap__Loaded === 2 && window.BMapGL) {
+        typeof onLoad === 'function' && onLoad()
+        clearInterval(_timer)
+      }
+    }, 500)
   } else {
-    var callback = $random('__$bdmapCallback', true, 20)
-    window[callback] = function () {
+    $useMap__Loaded = 1
+    window['$useMap__callback'] = function () {
+      $useMap__Loaded = 2
       typeof onLoad === 'function' && onLoad()
     }
 
-    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=' + callback
+    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
     $.getScript(scriptUrl)
   }
+}
+
+// 自动定位（有误差）
+var $autoLocation = function (call) {
+  $useMap(function () {
+    var geo = new window.BMapGL.Geolocation()
+    geo.enableSDKLocation()
+    geo.getCurrentPosition(function (e) {
+      if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+        var geoc = new window.BMapGL.Geocoder()
+        geoc.getLocation(e.point, (r) => {
+          var v = {
+            lat: e.latitude,
+            lng: e.longitude,
+            text: r ? r.address : null,
+          }
+          typeof call === 'function' && call(v)
+        })
+      } else {
+        console.log('Geolocation failed :', this.getStatus())
+      }
+    })
+  })
 }

@@ -208,6 +208,7 @@ class RbList extends React.Component {
       protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
       reload: reload,
+      statsField: wpc.statsField === true,
     }
     this.__lastQueryEntry = query
 
@@ -814,7 +815,7 @@ class RbListPagination extends React.Component {
             </span>
           )
         })}
-        {rb.isAdminUser && (
+        {rb.isAdminUser && wpc.statsField && (
           <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计字段'))}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
           </a>

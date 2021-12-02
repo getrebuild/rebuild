@@ -102,7 +102,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .axis-target .item {
   background-color: #4285f4;
-  padding: 4px 4px;
+  padding: 4px 4px 3px;
   color: #fff;
   display: inline-block;
   margin-right: 3px;
@@ -210,20 +210,20 @@ a.ui-draggable.ui-draggable-dragging {
 .data-info .esource a > span {
   float: right;
   display: none;
+  cursor: pointer;
 }
 
 .data-info .esource a > span i.zmdi {
   color: #777;
-  font-size: 1.2rem;
+  font-size: 1.45rem;
+}
+
+.data-info .esource a > span:hover i.zmdi {
+  color: #4285f4;
 }
 
 .data-info .esource a:hover > span {
   display: block;
-  cursor: pointer;
-}
-
-.data-info .esource a:hover > span:hover {
-  opacity: 0.8;
 }
 
 .data-info .input {

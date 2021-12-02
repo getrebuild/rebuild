@@ -35,6 +35,7 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -204,13 +205,18 @@ public class FieldWriteback extends FieldAggregation {
 
             // 字段
             else if ("FIELD".equalsIgnoreCase(updateMode)) {
-                Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, sourceAny);
-                if (sourceField2 == null) continue;
+                Field sourceFieldMeta = MetadataHelper.getLastJoinField(sourceEntity, sourceAny);
+                if (sourceFieldMeta == null) continue;
 
                 Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceAny);
-                Object newValue = value == null ? null : EasyMetaFactory.valueOf(sourceField2)
-                        .convertCompatibleValue(value, targetFieldEasy);
-                if (newValue != null) {
+
+                if (value != null) {
+                    if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
+                        value = N2NReferenceSupport.items(sourceFieldMeta, context.getSourceRecord());
+                    }
+
+                    Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
+                            .convertCompatibleValue(value, targetFieldEasy);
                     record.setObjectValue(targetField, newValue);
                 }
             }

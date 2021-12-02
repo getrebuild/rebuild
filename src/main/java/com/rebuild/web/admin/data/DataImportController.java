@@ -111,15 +111,14 @@ public class DataImportController extends BaseController {
             DisplayType dt = easyMeta.getDisplayType();
             if (dt == DisplayType.BARCODE
                     || dt == DisplayType.ID
-                    || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.N2NREFERENCE) {
+                    || dt == DisplayType.ANYREFERENCE) {
                 continue;
             }
 
             Map<String, Object> map = new HashMap<>();
             map.put("name", fieldName);
             map.put("label", easyMeta.getLabel());
-            map.put("type", easyMeta.getDisplayType().getDisplayName());
+            map.put("type", easyMeta.getDisplayType().name());
             map.put("nullable", field.isNullable());
 
             String defaultValue = null;

@@ -144,7 +144,7 @@ class RbViewForm extends React.Component {
         this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
-        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id)
+        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -437,7 +437,7 @@ class SelectReport extends React.Component {
                 <p className="text-muted">
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
                       <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}

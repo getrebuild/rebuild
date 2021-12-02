@@ -600,6 +600,7 @@ body {
 
 .map-show {
   height: 100px;
+  margin-bottom: 4px;
 }
 
 .type-LOCATION.col-sm-6 .map-show {

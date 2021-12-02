@@ -89,6 +89,8 @@ public class RecordCheckout {
             return checkoutClassificationValue(field, cell);
         } else if (dt == DisplayType.REFERENCE) {
             return checkoutReferenceValue(field, cell);
+        } else if (dt == DisplayType.N2NREFERENCE) {
+            return checkoutN2NReferenceValue(field, cell);
         } else if (dt == DisplayType.BOOL) {
             return cell.asBool();
         } else if (dt == DisplayType.STATE) {
@@ -213,6 +215,18 @@ public class RecordCheckout {
 
         Object[] found = query.unique();
         return found != null ? (ID) found[0] : null;
+    }
+
+    protected ID[] checkoutN2NReferenceValue(Field field, Cell cell) {
+        String val = cell.asString();
+        if (StringUtils.isBlank(val)) return null;
+
+        Set<ID> ids = new LinkedHashSet<>();
+        for (String s : val.split("[,，;；]")) {
+            ID id = checkoutReferenceValue(field, new Cell(s, cell.getRowNo(), cell.getColumnNo()));
+            if (id != null) ids.add(id);
+        }
+        return ids.toArray(new ID[0]);
     }
 
     protected Date checkoutDateValue(Field field, Cell cell) {

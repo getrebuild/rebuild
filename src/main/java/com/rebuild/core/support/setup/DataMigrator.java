@@ -34,12 +34,13 @@ public class DataMigrator {
      * 辅助数据库升级
      */
     public static void dataMigrateIfNeed() {
-        if (BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
+        if (!BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
             log.info("Data migrating #41 ...");
             ThreadPool.exec(() -> {
                 try {
                     v41();
                     KVStorage.setCustomValue(KEY_41, "true");
+                    log.info("Data migrated #41 all succeeded");
                 } catch (Exception ex) {
                     log.error("Data migrating #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
                 }

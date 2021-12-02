@@ -83,9 +83,9 @@ public class DataListBuilderImpl implements DataListBuilder {
             totalRows = ObjectUtils.toInt(count[0]);
 
             // 统计字段
-            if (count.length > 1) {
+            List<Map<String, Object>> countFields = queryParser.getCountFields();
+            if (count.length > 1 && !countFields.isEmpty()) {
                 stats = new ArrayList<>();
-                List<Map<String, Object>> countFields = queryParser.getCountFields();
                 for (int i = 1; i < count.length; i++) {
                     Map<String, Object> cfg = countFields.get(i);
                     Field field = entity.getField((String) cfg.get("field"));
