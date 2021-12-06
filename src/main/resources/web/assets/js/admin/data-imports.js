@@ -245,17 +245,16 @@ const _fieldsMapping = (columns, fields) => {
     $('<td class="pl-3"></td>').appendTo($tr)
 
     // 根据名称自动映射
-    let selected
-    $clone.find('option').each((i, o) => {
-      const value = o.value
-      const text = (o.text || '').replace(canNullText, '')
-      if (!value || !text) return true
-      if (value === item || text === item) {
-        selected = value
+    let matchField
+    $clone.find('option').each(function (i, o) {
+      const name = o.value
+      const label = (o.text || '').replace(canNullText, '')
+      if ((name && name === item) || (label && label === item.trim())) {
+        matchField = name
         return false
       }
     })
-    if (selected) $clone.val(selected)
+    if (matchField) $clone.val(matchField)
   })
 
   $('#fieldsMapping tbody select')
