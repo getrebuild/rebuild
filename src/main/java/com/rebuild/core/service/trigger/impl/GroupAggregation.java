@@ -100,6 +100,11 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
+        if (qFields.isEmpty()) {
+            log.warn("Value(s) of group-field not specified");
+            return;
+        }
+
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
 
         ql = String.format("select %s from %s where ( %s )",
