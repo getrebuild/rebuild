@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Query;
@@ -28,6 +29,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +43,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,9 +90,12 @@ public class ProjectTaskController extends BaseController {
     }
 
     @RequestMapping("tasks/list")
-    public JSON taskList(@IdParam(name = "plan") ID planId, HttpServletRequest request) {
+    public JSON taskList(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String queryWhere = "projectPlanId = '" + planId + "'";
+        final ID projectId = getIdParameterNotNull(request, "project");
+        final String planKey = getParameterNotNull(request, "plan");
+
+        String queryWhere = "(" + buildCustomPlanSql(planKey, projectId) + ")";
 
         // 关键词搜索
         String search = getParameter(request, "search");
@@ -120,23 +127,83 @@ public class ProjectTaskController extends BaseController {
         }
 
         queryWhere += " order by " +  buildQuerySort(request);
-        JSONArray alist = queryCardDatas(planId, user, queryWhere, new int[] { pageSize, pageNo * pageSize - pageSize });
+
+        ConfigBean project = ProjectManager.instance.getProject(projectId, user);
+        JSONArray alist = queryCardDatas(project, user, queryWhere, new int[] { pageSize, pageNo * pageSize - pageSize });
 
         return JSONUtils.toJSONObject(
                 new String[] { "count", "tasks" },
                 new Object[] { count, alist });
     }
 
+    private String buildQuerySort(HttpServletRequest request) {
+        String sort = getParameter(request, "sort");
+        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
+        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
+        else sort = "seq asc";
+        return sort;
+    }
+
+    private String buildCustomPlanSql(String planKey, ID projectId) {
+        if (ID.isId(planKey)) {
+            return "projectPlanId = '" + planKey + "'";
+        }
+
+        String planValue = planKey.split("-")[1];
+        String baseSql = "projectId = '" + projectId + "' and ";
+
+        if (planKey.startsWith(ProjectController.GROUP_PRIORITY)) {
+            return baseSql + "priority = " + planValue;
+        }
+
+        final DateFormat dtf = CalendarUtils.getUTCDateTimeFormat();
+        final String today = dtf.format(CalendarUtils.now());
+
+        if (planKey.startsWith(ProjectController.GROUP_DEADLINE)) {
+            if ("1".equals(planValue)) {
+                return baseSql + String.format("status = 0 and deadline <= '%s'", today);
+            } else if ("2".equals(planValue)) {
+                return baseSql + String.format("status = 0 and (deadline > '%s' and deadline <= '%s 23:59:59')",
+                        today, today.split(" ")[0]);
+            } else if ("3".equals(planValue)) {
+                return baseSql + String.format("status = 0 and (deadline > '%s 23:59:59' and deadline <= '%s')",
+                        today.split(" ")[0], dtf.format(CalendarUtils.addDay(7)));
+            } else if ("4".equals(planValue)) {
+                return baseSql + String.format("status = 0 and (deadline is null or deadline > '%s')",
+                        dtf.format(CalendarUtils.addDay(7)));
+            }
+        }
+        else if (planKey.startsWith(ProjectController.GROUP_MODIFIED)) {
+            if ("1".equals(planValue)) {
+                return baseSql + MessageFormat.format("modifiedOn >= ''{0} 00:00:00'' and modifiedOn <= ''{0} 23:59:59''",
+                        today.split(" ")[0]);
+            } else if ("2".equals(planValue)) {
+                return baseSql + String.format("modifiedOn >= '%s' and modifiedOn < '%s 00:00:00'",
+                        dtf.format(CalendarUtils.addDay(-7)), today.split(" ")[0]);
+            } else if ("3".equals(planValue)) {
+                return baseSql + String.format("modifiedOn > '%s' and modifiedOn < '%s'",
+                        dtf.format(CalendarUtils.addDay(-14)), dtf.format(CalendarUtils.addDay(-7)));
+            } else if ("4".equals(planValue)) {
+                return baseSql + String.format("modifiedOn < '%s'", dtf.format(CalendarUtils.addDay(-14)));
+            }
+        }
+
+        throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", "id", planKey));
+    }
+
     @GetMapping("tasks/get")
     public JSON taskGet(@IdParam(name = "task") ID taskId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        ConfigBean project = ProjectManager.instance.getProjectByX(taskId, user);
+
         String where = "taskId = '" + taskId + "'";
-        JSONArray a = queryCardDatas(taskId, getRequestUser(request), where, null);
+        JSONArray a = queryCardDatas(project, getRequestUser(request), where, null);
+
         return (JSON) a.get(0);
     }
 
-    private JSONArray queryCardDatas(ID taskOrPlan, ID user, String queryWhere, int[] limits) {
+    private JSONArray queryCardDatas(ConfigBean project, ID user, String queryWhere, int[] limits) {
         // 卡片显示字段
-        ConfigBean project = ProjectManager.instance.getProjectByX(taskOrPlan, user);
         JSON cardFields = project.getJSON("cardFields");
 
         final Set<String> fields2show = new HashSet<>();
@@ -162,6 +229,7 @@ public class ProjectTaskController extends BaseController {
 
         queryFields = queryFields.substring(0, queryFields.length() - 1);
         String querySql = String.format("select %s from ProjectTask where %s", queryFields, queryWhere);
+        System.out.println(querySql);
         Query query = Application.createQueryNoFilter(querySql);
         if (limits != null) query.setLimit(limits[0], limits[1]);
 
@@ -261,14 +329,6 @@ public class ProjectTaskController extends BaseController {
         }
 
         return data;
-    }
-
-    private String buildQuerySort(HttpServletRequest request) {
-        String sort = getParameter(request, "sort");
-        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
-        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
-        else sort = "seq asc";
-        return sort;
     }
 
     // -- for General Entity

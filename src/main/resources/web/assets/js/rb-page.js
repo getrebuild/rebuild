@@ -9,6 +9,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
+  // Analytics
+  var __js = function (url) {
+    var el = document.createElement('script')
+    el.src = url
+    el.async = true
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(el, s)
+  }
+  // for GA
+  window.dataLayer = window.dataLayer || []
+  var gtag = function () {
+    window.dataLayer.push(arguments)
+  }
+  gtag('js', new Date())
+  gtag('config', 'G-CC8EXS9BLD')
+  __js('https://www.googletagmanager.com/gtag/js?id=G-CC8EXS9BLD')
+
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()

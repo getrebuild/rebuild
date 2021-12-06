@@ -39,6 +39,7 @@ import java.util.Properties;
 public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, InstallState {
 
     private static final String V2_PREFIX = "rebuild.";
+    private static final String MYSQL_J8_TIMEZONE = "serverTimezone=GMT%2B08:00";
 
     private static ConfigurableEnvironment ENV_HOLD;
 
@@ -106,9 +107,14 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         if (env.getProperty("db.user") == null) confPs.put("db.user", "rebuild");
         if (env.getProperty("db.passwd") == null) confPs.put("db.passwd", "rebuild");
 
-        // start: V2.1
+        // fix: v2.1
         if (dbUrl.contains("jdbc:mysql") && !dbUrl.contains("serverTimezone")) {
-            confPs.put("db.url", dbUrl + "&serverTimezone=UTC");
+            confPs.put("db.url", dbUrl + "&" + MYSQL_J8_TIMEZONE);
+        }
+        // fix: v2.2 ~ v2.6.1
+        else if (dbUrl.contains("serverTimezone=UTC")) {
+            confPs.put("db.url", dbUrl.replace("serverTimezone=UTC", MYSQL_J8_TIMEZONE));
+            log.info("Fix MYSQL_J8_TIMEZONE : {}", confPs.getProperty("db.url"));
         }
 
         aesDecrypt(confPs);

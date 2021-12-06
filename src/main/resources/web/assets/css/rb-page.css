@@ -4299,3 +4299,18 @@ pre.unstyle {
   background-color: #f7f7f7;
   border-top: 1px solid #dee2e6;
 }
+
+.custom-checkbox.bw-bold .custom-control-label::before {
+  border-width: 2px;
+}
+
+.dropdown-item.check {
+  color: #4285f4 !important;
+}
+
+.dropdown-item.check::after {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f26b';
+  float: right;
+  font-size: 1.2rem;
+}

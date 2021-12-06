@@ -125,4 +125,8 @@ public class EasyFieldConfigProps {
      * 视图直接显示地图
      */
     public static final String LOCATION_MAPONVIEW = "locationMapOnView";
+    /**
+     * 自动定位
+     */
+    public static final String LOCATION_AUTOLOCATION = "locationAutoLocation";
 }
