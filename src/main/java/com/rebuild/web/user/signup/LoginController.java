@@ -35,7 +35,6 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +44,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaofang123@gmail.com
@@ -250,7 +252,7 @@ public class LoginController extends BaseController {
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
-        record.setString("ipAddr", ServletUtils.getRemoteAddr(request));
+        record.setString("ipAddr", StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "0.0.0.0"));
         record.setString("userAgent", ua);
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);

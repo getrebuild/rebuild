@@ -10,6 +10,7 @@ package com.rebuild.web.project;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
@@ -17,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.service.project.ProjectPlanConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -47,6 +49,10 @@ public class ProjectController extends BaseController {
     // 项目 ID
     private static final Pattern PATT_CODE = Pattern.compile("[a-zA-Z]{2,6}");
 
+    protected static final String GROUP_PRIORITY = "priority";
+    protected static final String GROUP_DEADLINE = "deadline";
+    protected static final String GROUP_MODIFIED = "modified";
+
     @GetMapping("{projectId}/tasks")
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -75,14 +81,44 @@ public class ProjectController extends BaseController {
         mv.getModel().put("scope", p.getInteger("scope"));
         mv.getModel().put("status", p.getInteger("status"));
 
-        final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
+        // 分组显示
         JSONArray plansList = new JSONArray();
-        for (ConfigBean e : plans) {
-            plansList.add(e.toJSON());
+
+        String group = getParameter(request, "group");
+        if (GROUP_PRIORITY.equalsIgnoreCase(group)) {
+            plansList.add(newCustomPlan(GROUP_PRIORITY + "-3", Language.L("非常紧急")));
+            plansList.add(newCustomPlan(GROUP_PRIORITY + "-2", Language.L("紧急")));
+            plansList.add(newCustomPlan(GROUP_PRIORITY + "-1", Language.L("普通")));
+            plansList.add(newCustomPlan(GROUP_PRIORITY + "-0", Language.L("较低")));
         }
+        else if (GROUP_DEADLINE.equalsIgnoreCase(group)) {
+            plansList.add(newCustomPlan(GROUP_DEADLINE + "-1", Language.L("已逾期")));
+            plansList.add(newCustomPlan(GROUP_DEADLINE + "-2", Language.L("今天")));
+            plansList.add(newCustomPlan(GROUP_DEADLINE + "-3", Language.L("7 天内")));
+            plansList.add(newCustomPlan(GROUP_DEADLINE + "-4", Language.L("以后或未安排")));
+        }
+        else if (GROUP_MODIFIED.equalsIgnoreCase(group)) {
+            plansList.add(newCustomPlan(GROUP_MODIFIED + "-1", Language.L("今天")));
+            plansList.add(newCustomPlan(GROUP_MODIFIED + "-2", Language.L("7 天内")));
+            plansList.add(newCustomPlan(GROUP_MODIFIED + "-3", Language.L("14 天内")));
+            plansList.add(newCustomPlan(GROUP_MODIFIED + "-4", Language.L("更早")));
+        }
+        else {
+            final ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
+            for (ConfigBean e : plans) {
+                plansList.add(e.toJSON());
+            }
+        }
+
         mv.getModel().put("projectPlans", plansList.toJSONString());
 
         return mv;
+    }
+
+    private JSON newCustomPlan(String id, String name) {
+        return JSONUtils.toJSONObject(
+                new String[] { "id", "planName", "flowStatus", "flowNexts" },
+                new Object[] { id, name, ProjectPlanConfigService.FLOW_STATUS_START, JSONUtils.EMPTY_ARRAY });
     }
 
     @GetMapping("{projectId}/details")
