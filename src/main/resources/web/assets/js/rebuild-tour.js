@@ -34,7 +34,11 @@ const startTour123 = function () {
   } else if (location.href.includes('/dashboard/chart-design')) {
     stepName = 'TourEnd-Chart'
     steps = StepChart()
+  } else if (location.href.includes('/project/') && location.href.includes('/tasks')) {
+    stepName = 'TourEnd-Project'
+    steps = StepProject()
   }
+
   if (!steps) return
 
   const isEnd = $storage.get(stepName)
@@ -139,13 +143,12 @@ const StepRebuild = () => {
       element: '.admin-settings',
       title: $L('管理中心'),
       intro: $L('REBUILD 拥有强大的配置管理中心，你可以根据需求自由搭建系统'),
-      rbLeft: 5,
     },
     {
       element: '.page-help',
       title: $L('帮助中心'),
       intro: $L('使用遇到问题可以查阅帮助文档，你也可以通过阅读文档 GET 更多技能'),
-      rbLeft: 5,
+      rbLeft: -2,
     },
     {
       element: '.J_top-notifications',
@@ -352,6 +355,35 @@ const StepChart = () => {
       title: $L('完成'),
       intro: $L('图表设计完成后别忘记点击保存'),
       rbLeft: 23,
+    },
+  ]
+}
+
+const StepProject = () => {
+  return [
+    {
+      element: '.newbtn',
+      title: $L('添加任务'),
+      intro: $L('点击快速向当前任务面板添加任务'),
+      rbLeft: 5,
+    },
+    {
+      element: '.task-card',
+      title: $L('移动任务'),
+      intro: $L('鼠标长按可移动任务到其他任务面板'),
+      position: 'right',
+      rbTop: 5,
+    },
+    {
+      element: '.J_search',
+      title: $L('搜索'),
+      intro: $L('搜索当前项目中的任务'),
+    },
+    {
+      element: '.J_views',
+      title: $L('显示方式'),
+      intro: $L('任务排序，或切换任务排列方式'),
+      rbRight: 5,
     },
   ]
 }

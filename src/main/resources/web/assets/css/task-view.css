@@ -191,8 +191,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
   border: 1px solid transparent;
   padding: 4px 9px 0;
-  margin-right: 5px;
-  margin-top: 5px;
+  margin-right: 4px;
+  margin-top: 1px;
 }
 
 .task-tags > span.tag-value > a {
@@ -218,11 +218,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-tags a.tag-add {
   color: #999;
   display: inline-block;
-  padding: 0 6px;
+  padding: 2px 8px;
   font-size: 1.231rem;
   background-color: #eee;
   border-radius: 50%;
-  margin-top: 3px;
 }
 
 .task-tags a.tag-add:hover {
