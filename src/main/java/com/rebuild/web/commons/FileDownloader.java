@@ -21,6 +21,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -44,6 +45,7 @@ import java.nio.charset.StandardCharsets;
  * @author devezhao
  * @since 01/03/2019
  */
+@Slf4j
 @Controller
 @RequestMapping("/filex/")
 public class FileDownloader extends BaseController {
@@ -96,8 +98,13 @@ public class FileDownloader extends BaseController {
                 }
 
                 BufferedImage bi = ImageIO.read(img);
-                Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
+                if (bi == null) {
+                    log.debug("None image type : {}", filePath);
+                    writeStream(new FileInputStream(img), response);
+                    return;
+                }
 
+                Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
                 if (bi.getWidth() > wh) {
                     builder.size(wh, wh);
                 } else {

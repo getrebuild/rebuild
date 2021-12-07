@@ -183,7 +183,11 @@ class PlanBoxes extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.sort !== this.state.sort) {
-      $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
+      try {
+        $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
+      } catch (ignored) {
+        // ignored
+      }
     }
 
     if (this.state.search || (this.state.filter && this.state.filter.items.length > 0)) {
