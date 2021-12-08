@@ -26,6 +26,7 @@ body.rebuild-tour-body {
 .introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-tooltip-title {
   font-size: 1.2rem;
   margin: 0;
+  text-transform: uppercase;
 }
 
 .introjs-tooltip.rebuild-tour-tooltip .introjs-tooltip-header .introjs-skipbutton {
