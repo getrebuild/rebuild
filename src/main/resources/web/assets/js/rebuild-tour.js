@@ -55,6 +55,7 @@ const startTour123 = function () {
   // 隐藏滚动条
   $(document.body).addClass('rebuild-tour-body')
 
+  let _oncomplete = false
   const $introJs = introJs()
     .setOptions({
       steps: stepsObj,
@@ -93,12 +94,16 @@ const startTour123 = function () {
       // $introJs.refresh()
     })
     .oncomplete(() => {
+      _oncomplete = true
       $storage.set(stepName, 'yes')
     })
     .onexit(() => {
       window.tourStarted = undefined
       $(document.body).removeClass('rebuild-tour-body')
-      $.cookie('rb.TourEnd', 'session', { expires: null })
+      
+      if (!_oncomplete) {
+        $.cookie('rb.TourEnd', 'session', { expires: null })
+      }
     })
 
   // $introJs.goToStep(1)
