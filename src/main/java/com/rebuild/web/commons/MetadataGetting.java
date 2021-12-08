@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
@@ -69,7 +68,7 @@ public class MetadataGetting extends BaseController {
         boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 
         List<JSONObject> data = new ArrayList<>();
-        putFields(data, entityMeta, appendRefFields);
+        putFields(data, entityMeta);
 
         // 追加二级引用字段
         if (appendRefFields) {
@@ -77,42 +76,32 @@ public class MetadataGetting extends BaseController {
                 if (!field.isQueryable()) continue;
 
                 int code = field.getReferenceEntity().getEntityCode();
-                if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
+                if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) {
+                    if (field.getName().equals(EntityHelper.OwningUser)
+                            || field.getName().equals(EntityHelper.OwningDept)
+                            || field.getName().equals(EntityHelper.ApprovalLastUser)) {
+                        // NOTE 特殊放行
+                    } else {
+                        continue;
+                    }
+                }
 
-                data.add(EasyMetaFactory.toJSON(field));
-                putFields(data, field, false);
+                putFields(data, field);
             }
         }
-
-//        // 高级查询追加虚拟字段
-//        if ("VF_USER_TEAMS".equalsIgnoreCase(getParameter(request, "extra"))) {
-//            final JSONObject temp = JSONUtils.toJSONObject(
-//                    new String[] { "name", "label", "type", "ref" },
-//                    new Object[] { null, "." + Language.L("加入团队"), "REFERENCE", new String[] { "Team", "TEXT" } });
-//
-//            List<JSONObject> dataNew = new ArrayList<>();
-//            for (JSONObject item : data) {
-//                dataNew.add(item);
-//                JSONArray ref = item.getJSONArray("ref");
-//                if (ref != null && ref.get(0).equals("User") && !item.getString("name").contains(".")) {
-//                    JSONObject clone = (JSONObject) temp.clone();
-//                    clone.put("name", item.getString("name") + ParseHelper.VF_USER_TEAMS);
-//                    clone.put("label", item.getString("label") + clone.getString("label"));
-//                    dataNew.add(clone);
-//                }
-//            }
-//            data = dataNew;
-//        }
 
         return data;
     }
 
-    private void putFields(List<JSONObject> dest, BaseMeta entityOrField, boolean filterRefField) {
-        Field parentField = null;
+    private void putFields(List<JSONObject> dest, BaseMeta entityOrField) {
         Entity useEntity;
+        Field parentRefField = null;
+        String parentRefFieldLabel = null;
+
         if (entityOrField instanceof Field) {
-            parentField = (Field) entityOrField;
-            useEntity = parentField.getReferenceEntity();
+            parentRefField = (Field) entityOrField;
+            parentRefFieldLabel = EasyMetaFactory.getLabel(parentRefField);
+            useEntity = parentRefField.getReferenceEntity();
         } else {
             useEntity = (Entity) entityOrField;
         }
@@ -120,19 +109,10 @@ public class MetadataGetting extends BaseController {
         for (Field field : MetadataSorter.sortFields(useEntity)) {
             if (!field.isQueryable()) continue;
 
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-
-            // 特殊引用字段处理
-            if (easyField.getDisplayType() == DisplayType.REFERENCE && filterRefField) {
-                boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
-                boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity());
-                if (!(isApprovalId || isBizz)) continue;
-            }
-
-            JSONObject map = (JSONObject) easyField.toJSON();
-            if (parentField != null) {
-                map.put("name", parentField.getName() + "." + map.get("name"));
-                map.put("label", EasyMetaFactory.getLabel(parentField) + "." + map.get("label"));
+            JSONObject map = (JSONObject) EasyMetaFactory.valueOf(field).toJSON();
+            if (parentRefField != null) {
+                map.put("name", parentRefField.getName() + "." + map.get("name"));
+                map.put("label", parentRefFieldLabel + "." + map.get("label"));
             }
 
             dest.add(map);

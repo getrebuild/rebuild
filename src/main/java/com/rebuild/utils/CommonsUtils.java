@@ -153,4 +153,17 @@ public class CommonsUtils {
             }
         }
     }
+
+    /**
+     * @param strs
+     * @param search
+     * @return
+     * @see StringUtils#containsIgnoreCase(String, String)
+     */
+    public static boolean containsIgnoreCase(String[] strs, String search) {
+        for (String s : strs) {
+            if (StringUtils.containsIgnoreCase(s, search)) return true;
+        }
+        return false;
+    }
 }

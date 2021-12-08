@@ -32,6 +32,8 @@ $(document).ready(() => {
       if (viewHash.length === 4 && viewHash[3].length === 20) {
         setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
       }
+    } else {
+      typeof window.startTour === 'function' && window.startTour(1000)
     }
   })
 
