@@ -69,6 +69,8 @@ public class MetadataSorter {
             }
         }
 
+        sortByLabel(entities);
+
         if (usesBizz) {
             entities.add(MetadataHelper.getEntity(EntityHelper.User));
             entities.add(MetadataHelper.getEntity(EntityHelper.Department));
@@ -76,7 +78,6 @@ public class MetadataSorter {
             entities.add(MetadataHelper.getEntity(EntityHelper.Team));
         }
 
-        sortByLabel(entities);
         return entities.toArray(new Entity[0]);
     }
 
@@ -113,20 +114,15 @@ public class MetadataSorter {
             }
         }
 
-        if (usesTypes.length == 0) {
-            return sortByType(fieldsList);
-        } else {
-            sortByLabel(fieldsList);
-            return fieldsList.toArray(new Field[0]);
-        }
+        return sortByLevel(fieldsList);
     }
 
     /**
-     * 字段排序
+     * 按字段分类排序
      *
      * @param fields
      */
-    static Field[] sortByType(List<BaseMeta> fields) {
+    static Field[] sortByLevel(List<BaseMeta> fields) {
         List<BaseMeta> othersFields = new ArrayList<>();
         List<BaseMeta> commonsFields = new ArrayList<>();
         List<BaseMeta> approvalFields = new ArrayList<>();
@@ -154,7 +150,7 @@ public class MetadataSorter {
     }
 
     /**
-     * 按照显示名排序
+     * 按显示名排序
      *
      * @param metas
      */
