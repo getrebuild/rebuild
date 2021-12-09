@@ -4314,3 +4314,7 @@ pre.unstyle {
   float: right;
   font-size: 1.2rem;
 }
+
+.bg-market {
+  background-image: linear-gradient(135deg, #2973d7 0%, #26acb9 100%);
+}

@@ -66,6 +66,9 @@ class Setup extends React.Component {
     }
     this.setState({ installState: 10 })
     $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        $.cookie('install-reg-30d', 'yes', { expires: 30 })
+      }
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
     })
   }

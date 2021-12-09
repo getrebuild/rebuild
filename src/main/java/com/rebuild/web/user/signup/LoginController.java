@@ -339,6 +339,11 @@ public class LoginController extends BaseController {
         }
     }
 
+    @GetMapping("site-register")
+    public void reg(HttpServletResponse response) throws IOException {
+        response.sendRedirect("https://getrebuild.com/market/site-register?sn=" + License.SN());
+    }
+
     // --
 
     /**
