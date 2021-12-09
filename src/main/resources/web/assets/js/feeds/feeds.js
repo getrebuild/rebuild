@@ -56,16 +56,13 @@ class GroupList extends React.Component {
   }
 
   _handleStar(item) {
-    const stars = []
     const newList = this.state.list.map((x) => {
       if (x.id === item.id) x.star = !x.star
-      if (x.star) stars.push(x.id)
       return x
     })
 
-    this.setState({ list: newList }, () => {
-      $.post('/feeds/group/stars', stars.join(','))
-    })
+    this.setState({ list: newList })
+    $.post(`/feeds/group/star-toggle?user=${item.id}`)
   }
 
   val() {

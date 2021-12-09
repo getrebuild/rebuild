@@ -9,7 +9,6 @@ package com.rebuild.web.feeds;
 
 import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.Team;
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -116,11 +115,25 @@ public class FeedsGroupController extends BaseController {
 
     private static final String FEED_STARS = "FeedUserStars.";
 
-    @PostMapping("stars")
+    @PostMapping("star-toggle")
     public RespBody stars(HttpServletRequest request) {
-        String feedStars = ServletUtils.getRequestString(request);
+        ID starUser = getIdParameterNotNull(request, "user");
+
         String key = FEED_STARS + getRequestUser(request);
+        String feedStars = KVStorage.getCustomValue(key);
+
+        if (feedStars != null && feedStars.contains(starUser.toLiteral())) {
+            feedStars = feedStars
+                    .replace("," + starUser, "")
+                    .replace(starUser.toLiteral(), "");
+        } else {
+            if (feedStars == null) feedStars = "";
+            feedStars += "," + starUser;
+        }
         KVStorage.setCustomValue(key, feedStars);
+
+        // FIXME 可能导致值越来越大，因为可能存在删除的 user
+
         return RespBody.ok();
     }
 
@@ -138,7 +151,7 @@ public class FeedsGroupController extends BaseController {
                 else if (type == EntityHelper.Team) set.add(Application.getUserStore().getTeam(id));
             }
         }
+
         return set;
     }
-
 }
