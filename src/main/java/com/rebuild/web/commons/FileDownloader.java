@@ -113,7 +113,7 @@ public class FileDownloader extends BaseController {
                 filePath += "?" + imageView2;
             }
 
-            String privateUrl = QiniuCloud.instance().url(filePath, 30 * 60);
+            String privateUrl = QiniuCloud.instance().makeUrl(filePath, 30 * 60);
             response.sendRedirect(privateUrl);
         }
     }
@@ -162,7 +162,7 @@ public class FileDownloader extends BaseController {
             setDownloadHeaders(request, response, attname);
             writeLocalFile(filePath, temp, response);
         } else {
-            String privateUrl = QiniuCloud.instance().url(filePath);
+            String privateUrl = QiniuCloud.instance().makeUrl(filePath);
             privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         }
