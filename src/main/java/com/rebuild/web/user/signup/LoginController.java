@@ -232,7 +232,7 @@ public class LoginController extends BaseController {
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
-                || BooleanUtils.toBoolean(System.getProperty("ForceTour"))) {
+                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
             ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
         }
     }
