@@ -177,7 +177,7 @@ public class ReferenceSearchController extends EntityController {
     private List<Object> resultSearch(String sqlWhere, Entity entity, int maxResults) {
         Field nameField = entity.getNameField();
 
-        String sql = MessageFormat.format("select {0},{1} from {2} where ({3})",
+        String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
 
         if (!sqlWhere.contains(" order by ")) {
