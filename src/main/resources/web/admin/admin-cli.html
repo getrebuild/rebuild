@@ -57,7 +57,7 @@
             }
 
             cprint(c)
-            $.post('/admin/cli/exec', c, (o) => {
+            $.post('/admin/admin-cli/exec', c, (o) => {
               if (o && o.data) cprint(o.data, true)
             })
           }

@@ -85,12 +85,12 @@ public class AdminVerfiyController extends BaseController {
 
     // -- CLI
 
-    @RequestMapping("/admin/cli/console")
+    @GetMapping("/admin/admin-cli")
     public ModelAndView adminCliConsole() {
         return createModelAndView("/admin/admin-cli");
     }
 
-    @RequestMapping("/admin/cli/exec")
+    @RequestMapping("/admin/admin-cli/exec")
     public RespBody adminCliExec(HttpServletRequest request) {
         String command = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(command)) {

@@ -9,18 +9,17 @@ package com.rebuild.core.support.setup;
 
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.core.BootEnvironmentPostProcessor;
-import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.FileFilterByLastModified;
+import com.rebuild.utils.CompressUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * 数据库备份
@@ -30,15 +29,23 @@ import java.util.zip.ZipOutputStream;
  * @author devezhao
  * @since 2020/2/4
  */
+@Slf4j
 public class DatabaseBackup {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DatabaseBackup.class);
 
     /**
      * @return
      * @throws IOException
      */
     public File backup() throws IOException {
+        return backup(RebuildConfiguration.getFileOfData("_backups"));
+    }
+
+    /**
+     * @param backups
+     * @return
+     * @throws IOException
+     */
+    public File backup(File backups) throws IOException {
         String url = BootEnvironmentPostProcessor.getProperty("db.url");
         String user = BootEnvironmentPostProcessor.getProperty("db.user");
         String passwd = BootEnvironmentPostProcessor.getProperty("db.passwd");
@@ -49,10 +56,6 @@ public class DatabaseBackup {
         String dbname = url.split("/")[1];
 
         String destName = dbname + "." + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
-        File backups = RebuildConfiguration.getFileOfData("_backups");
-        if (!backups.exists()) {
-            FileUtils.forceMkdir(backups);
-        }
         File dest = new File(backups, destName);
 
         String cmd = String.format(
@@ -95,86 +98,26 @@ public class DatabaseBackup {
         try {
             int code = process.waitFor();
             if (code != 0 || isGotError) {
-                LOG.error("Command failed : " + code + " # " + echo);
+                log.error("Command failed : {}\n{}", code, echo);
                 return null;
             }
         } catch (InterruptedException ex) {
-            LOG.error("Command interrupted");
+            log.error("Command interrupted");
             return null;
         }
 
+        File zip = new File(backups, destName + ".zip");
         try {
-            File zip = new File(backups, destName + ".zip");
-            zip(dest, zip);
+            CompressUtils.forceZip(dest, zip, null);
 
             FileUtils.deleteQuietly(dest);
             dest = zip;
-
-        } catch (Exception ex) {
-            LOG.warn(null, ex);
+        } catch (Exception e) {
+            log.warn("Cannot zip backup : {}", zip);
         }
-        LOG.info("Backup succeeded : " + dest + " (" + FileUtils.byteCountToDisplaySize(dest.length()) + ")");
 
-        // 清理
-        deleteOldBackups(backups);
+        log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
 
         return dest;
-    }
-
-    /**
-     * @param backups
-     */
-    protected void deleteOldBackups(File backups) {
-        int keepDays = RebuildConfiguration.getInt(ConfigurationItem.DBBackupsKeepingDays);
-        if (keepDays > 0) {
-            FileFilterByLastModified.deletes(backups, keepDays);
-        }
-    }
-
-    // --
-
-    /**
-     * ZIP 压缩（不支持目录压缩）
-     *
-     * @param file
-     * @param dest
-     */
-    public static void zip(File file, File dest) throws IOException {
-        FileOutputStream fos = null;
-        BufferedOutputStream bos = null;
-        ZipOutputStream zos = null;
-
-        try {
-            fos = new FileOutputStream(dest);
-            bos = new BufferedOutputStream(fos);
-            zos = new ZipOutputStream(bos);
-
-            zos.putNextEntry(new ZipEntry(file.getName()));
-
-            FileInputStream fis = null;
-            BufferedInputStream bis = null;
-
-            try {
-                fis = new FileInputStream(file);
-                bis = new BufferedInputStream(fis);
-
-                byte[] chunk = new byte[1024];
-                int count;
-                while ((count = bis.read(chunk)) != -1) {
-                    zos.write(chunk, 0, count);
-                }
-
-                zos.finish();
-
-            } finally {
-                IOUtils.closeQuietly(bis);
-                IOUtils.closeQuietly(fis);
-            }
-
-        } finally {
-            IOUtils.closeQuietly(zos);
-            IOUtils.closeQuietly(bos);
-            IOUtils.closeQuietly(fos);
-        }
     }
 }
