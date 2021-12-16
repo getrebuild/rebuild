@@ -40,7 +40,7 @@ public class EvaluatorUtils {
         // https://www.yuque.com/boyan-avfmj/aviatorscript/yr1oau
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
         AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, false);
-        AVIATOR.setOption(Options.MAX_LOOP_COUNT, Short.MAX_VALUE);
+        AVIATOR.setOption(Options.MAX_LOOP_COUNT, 32767);
         AVIATOR.setOption(Options.ALLOWED_CLASS_SET, Collections.emptySet());
 
         // 函数（函数名区分大小写）
