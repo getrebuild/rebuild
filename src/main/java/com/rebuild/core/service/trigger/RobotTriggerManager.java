@@ -72,7 +72,7 @@ public class RobotTriggerManager implements ConfigManager {
                     TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
                     actions.add(o);
 
-                    if (Application.devMode() || log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         TRIGGERS_CHAIN_4DEBUG.get().add(o.getType() + "#" + ctx.getConfigId()
                                 + " on " + when[0] + " " + entity.getName() + " with " + record);
                     }
