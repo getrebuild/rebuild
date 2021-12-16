@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
+import com.googlecode.aviator.Feature;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
@@ -22,6 +23,7 @@ import com.googlecode.aviator.runtime.type.AviatorType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
@@ -37,10 +39,10 @@ public class EvaluatorUtils {
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
     static {
         // https://www.yuque.com/boyan-avfmj/aviatorscript/yr1oau
-        // 强制使用 BigDecimal/BigInteger 运算
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
-        // 关闭语法糖
         AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, false);
+        AVIATOR.setOption(Options.MAX_LOOP_COUNT, Short.MAX_VALUE);
+        AVIATOR.setOption(Options.ALLOWED_CLASS_SET, Collections.emptySet());
 
         // 函数（函数名区分大小写）
         AVIATOR.addFunction(new DateDiffFunction());
