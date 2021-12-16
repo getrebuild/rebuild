@@ -14,11 +14,14 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.AdminDiagnosis;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,7 +89,8 @@ public class AdminVerfiyController extends BaseController {
     // -- CLI
 
     @GetMapping("/admin/admin-cli")
-    public ModelAndView adminCliConsole() {
+    public ModelAndView adminCliConsole(HttpServletRequest request) {
+        RbAssert.isAllow(UserService.ADMIN_USER.equals(getRequestUser(request)), "ONLY FOR SUPER ADMIN");
         return createModelAndView("/admin/admin-cli");
     }
 

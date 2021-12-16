@@ -20,8 +20,6 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import com.qiniu.util.UrlSafeBase64;
-import com.qiniu.util.UrlUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
@@ -216,38 +214,6 @@ public class QiniuCloud {
             log.warn(null, e);
         }
         return -1;
-    }
-
-    /**
-     * 打包下载
-     * https://developer.qiniu.com/dora/1667/mkzip
-     * https://developer.qiniu.com/dora/1291/persistent-data-processing-pfop
-     *
-     * @param keys
-     * @return
-     */
-    @SuppressWarnings("deprecation")
-    public String mkzip(String... keys) {
-        String url = String.format("%s/pfop/?bucket=%s&key=%s&fops=",
-                CONFIGURATION.apiHost(), bucketName, UrlUtils.urlEncode(keys[0]));
-        StringMap headers = getAuth().authorization(url);
-
-        StringBuilder fops = new StringBuilder(CodecUtils.urlEncode("mkzip/2"));
-        for (String key : keys) {
-            fops.append(CodecUtils.urlEncode("/url/")).append(UrlSafeBase64.encodeToString(key));
-        }
-        url += fops.toString();
-
-        try {
-            Client client = new Client(CONFIGURATION);
-            Response resp = client.post(url, "", headers);
-            if (resp.isOK()) {
-            }
-
-        } catch (QiniuException e) {
-            log.warn(null, e);
-        }
-        return null;
     }
 
     // --

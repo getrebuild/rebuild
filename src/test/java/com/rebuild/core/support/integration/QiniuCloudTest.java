@@ -65,11 +65,4 @@ public class QiniuCloudTest extends TestSupport {
         if (!QiniuCloud.instance().available()) return;
         System.out.println(QiniuCloud.instance().stats());
     }
-
-    @Test
-    void mkzip() {
-        if (!QiniuCloud.instance().available()) return;
-        // NOTE 测试未通过尚不可用
-        System.out.println(QiniuCloud.instance().mkzip("rb/20190830/170016833__0190815223938.png"));
-    }
 }

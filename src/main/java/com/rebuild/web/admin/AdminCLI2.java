@@ -14,6 +14,7 @@ import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.Installer;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -131,15 +132,15 @@ public class AdminCLI2 {
         List<String> result = new ArrayList<>(2);
         try {
             if (type == null || "database".equals(type)) {
-                new DatabaseBackup().backup();
-                result.add("database : OK");
+                File backup = new DatabaseBackup().backup();
+                result.add("Backup database : " + backup);
             }
             if (type == null || "datafile".equals(type) || "datafiles".equals(type)) {
-                new DataFileBackup().backup();
-                result.add("datafiles : OK");
+                File backup = new DataFileBackup().backup();
+                result.add("Backup datafiles : " + backup);
             }
 
-            return result.isEmpty() ? "Nothing todo" : StringUtils.join(result, "\n");
+            return result.isEmpty() ? "Nothing backup" : StringUtils.join(result, "\n");
 
         } catch (Exception ex) {
             return "Exec failed : " + ex.getLocalizedMessage();

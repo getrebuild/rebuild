@@ -29,23 +29,32 @@
       .rb-console .out {
         margin-top: 20px;
       }
-      .rb-console .out > div::before {
-        content: '> ';
+      .rb-console .out div.cm::before {
+        content: '#';
+        width: 16px;
+        display: inline-block;
+        animation: flash 1s infinite;
       }
-      .rb-console .out > div.o::before {
-        content: '$ ';
+      .rb-console .out div.cm.ok::before {
+        animation: none;
       }
     </style>
   </head>
   <body>
     <div class="rb-console">
       <div class="in">
-        <input type="text" placeholder="> enter command ... eg: help" />
+        <input type="text" placeholder="# enter command ... eg: help" />
       </div>
       <div class="out"></div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
+      function _print(c, o) {
+        const $c = $(`<div class="${o ? '' : 'cm'}">${c.replace(/\n/g, '<br>')}</div>`)
+        $('.out').prepend($c)
+        return $c
+      }
+
       $(document).ready(() => {
         const $in = $('.in>input').keydown((event) => {
           if (event.which === 13 && $in.val()) {
@@ -55,18 +64,16 @@
               $('.out').empty()
               return
             }
-
-            cprint(c)
+            
+            const $c = _print(c)
             $.post('/admin/admin-cli/exec', c, (o) => {
-              if (o && o.data) cprint(o.data, true)
+              $c.addClass('ok')
+              if (o && o.data) _print(o.data, true)
             })
           }
         })
         $in.focus()
       })
-      const cprint = function (c, o) {
-        $('.out').prepend('<div class="' + (o ? 'o' : '') + '">' + c.replace(/\n/g, '<br>') + '</div>')
-      }
     </script>
   </body>
 </html>
