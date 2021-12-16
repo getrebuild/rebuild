@@ -9,7 +9,7 @@ const wpc = window.__PageConfig
 
 $(document).ready(() => {
   let advFilter
-  $('#useFilter').click(() => {
+  $('#useFilter').on('click', () => {
     if (advFilter) {
       advFilter.show()
     } else {
@@ -51,33 +51,52 @@ $(document).ready(() => {
     .val(null)
     .trigger('change')
 
-  const $btn = $('.J_save').click(function () {
+  const $btn = $('.J_save').on('click', function () {
     const fm = fieldsMapping.buildMapping()
-    if (!fm) return
-    let fmd
-    if (fieldsMappingDetail) {
-      fmd = fieldsMappingDetail.buildMapping()
-      if (!fmd) return
+    const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
+
+    function _save() {
+      const config = {
+        fieldsMapping: fm,
+        fieldsMappingDetail: fmd,
+        fillbackField: $('#fillbackField').val(),
+        useFilter: advFilter_data,
+      }
+
+      const _data = {
+        config: config,
+        metadata: {
+          entity: 'TransformConfig',
+          id: wpc.configId,
+        },
+      }
+
+      $btn.button('loading')
+      $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+        if (res.error_code === 0) location.href = '../transforms'
+        else RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      })
     }
 
-    const config = {
-      fieldsMapping: fm,
-      fieldsMappingDetail: fmd,
-      fillbackField: $('#fillbackField').val(),
-      useFilter: advFilter_data,
+    let unset = 0
+    for (let k in fm) {
+      if (fm[k] === null) unset++
+    }
+    for (let k in fmd || {}) {
+      if (fmd[k] === null) unset++
     }
 
-    const _data = {
-      metadata: { entity: 'TransformConfig', id: wpc.configId },
-      config: config,
+    if (unset > 0) {
+      RbAlert.create($L('部分必填字段未映射，可能导致转换失败。是否继续保存？'), {
+        onConfirm: function () {
+          this.disabled(true)
+          _save()
+        },
+      })
+    } else {
+      _save()
     }
-
-    $btn.button('loading')
-    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
-      if (res.error_code === 0) location.href = '../transforms'
-      else RbHighbar.error(res.error_msg)
-      $btn.button('reset')
-    })
   })
 
   // Load
@@ -97,9 +116,10 @@ class FieldsMapping extends React.Component {
   }
 
   componentDidMount() {
+    const mapping = this.props.data || {}
     const that = this
-    const _data = this.props.data || {}
-    $(this._fieldsMapping)
+
+    $(this._$fieldsMapping)
       .find('select')
       .each(function () {
         const $this = $(this)
@@ -127,7 +147,7 @@ class FieldsMapping extends React.Component {
             if ($this.val()) $this.parents('.row').addClass('active')
             else $this.parents('.row ').removeClass('active')
           })
-          .val(_data[fieldName] || null)
+          .val(mapping[fieldName] || null)
           .trigger('change')
       })
   }
@@ -141,7 +161,7 @@ class FieldsMapping extends React.Component {
     }
 
     return (
-      <div ref={(c) => (this._fieldsMapping = c)}>
+      <div ref={(c) => (this._$fieldsMapping = c)}>
         <div className="row mb-0">
           <div className="col-7">
             <div className="form-control-plaintext text-bold">{_source.label}</div>
@@ -167,8 +187,8 @@ class FieldsMapping extends React.Component {
   }
 
   buildMapping() {
-    let mapping = {}
-    $(this._fieldsMapping)
+    const mapping = {}
+    $(this._$fieldsMapping)
       .find('select')
       .each(function () {
         const $this = $(this)
@@ -176,12 +196,8 @@ class FieldsMapping extends React.Component {
         const val = $this.val()
 
         if (req && !val) {
-          const label = $this.parent().next().find('.badge').text()
-          RbHighbar.create($L('请选择 %s 的源字段', label))
-          mapping = null
-          return false
+          mapping[$this.data('field')] = null // tips
         }
-
         if (val) {
           mapping[$this.data('field')] = val
         }
@@ -193,6 +209,9 @@ class FieldsMapping extends React.Component {
 let advFilter_data
 function _saveFilter(res) {
   advFilter_data = res
-  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
-  else $('#useFilter').text($L('点击设置'))
+  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) {
+    $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
+  } else {
+    $('#useFilter').text($L('点击设置'))
+  }
 }
