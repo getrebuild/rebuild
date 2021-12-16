@@ -135,9 +135,18 @@ public final class License {
             String result = HttpUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
-                Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+
+                String hasError = o.getString("error");
+                if (hasError != null) {
+                    log.error("Bad result : {}", result);
+                } else {
+                    Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+                }
                 return o;
+            } else {
+                log.error("Bad result format : {}", result);
             }
+
         } catch (Exception ex) {
             log.error("Call site api `{}` error : {}", api, ex.toString());
         }

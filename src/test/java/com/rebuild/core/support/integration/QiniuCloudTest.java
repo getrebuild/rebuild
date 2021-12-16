@@ -22,21 +22,21 @@ import java.io.File;
 public class QiniuCloudTest extends TestSupport {
 
     @Test
-    public void testUploadAndMakeUrl() throws Exception {
+    void testUploadAndMakeUrl() throws Exception {
         if (!QiniuCloud.instance().available()) return;
 
         File file = ResourceUtils.getFile("classpath:classification-demo.xlsx");
         String uploadKey = QiniuCloud.instance().upload(file);
         System.out.println("uploadKey ... " + uploadKey);
 
-        String downloadUrl = QiniuCloud.instance().url(uploadKey);
+        String downloadUrl = QiniuCloud.instance().makeUrl(uploadKey);
         System.out.println("downloadUrl ... " + downloadUrl);
 
         QiniuCloud.instance().delete(uploadKey);
     }
 
     @Test
-    public void testFormatKey() {
+    void testFormatKey() {
         if (!QiniuCloud.instance().available()) return;
 
         String fileName = "imtestfile.txt";
@@ -51,17 +51,17 @@ public class QiniuCloudTest extends TestSupport {
     }
 
     @Test
-    public void testPrivateUrl() {
+    void makeUrlCache() {
         if (!QiniuCloud.instance().available()) return;
 
         for (int i = 0; i < 10; i++) {
-            System.out.println(i + " = " + QiniuCloud.instance().url("rb/20190830/170016833__0190815223938.png"));
+            System.out.println(i + " = " + QiniuCloud.instance().makeUrl("rb/20190830/170016833__0190815223938.png"));
             ThreadPool.waitFor(300);
         }
     }
 
     @Test
-    public void stats() {
+    void stats() {
         if (!QiniuCloud.instance().available()) return;
         System.out.println(QiniuCloud.instance().stats());
     }

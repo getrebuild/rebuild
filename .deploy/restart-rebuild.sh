@@ -15,7 +15,7 @@ else
 fi
 
 echo "Starting Rebuild-Boot ..."
-nohup java -Xms1001M -Xmx1001M -XX:+UseG1GC -jar $JARFILE >/dev/null 2>&1 &
+nohup java -Xms1001M -Xmx1001M -XX:+UseG1GC -Djava.awt.headless=true -Drbpass= -DDataDirectory= -jar $JARFILE >/dev/null 2>&1 &
 sleep 5
 
 echo "done"

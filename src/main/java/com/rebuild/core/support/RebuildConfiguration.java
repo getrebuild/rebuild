@@ -9,12 +9,13 @@ package com.rebuild.core.support;
 
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,26 +44,27 @@ public class RebuildConfiguration extends KVStorage {
         }
 
         String d = get(ConfigurationItem.DataDirectory);
-        File data = null;
+        File datadir = null;
         if (StringUtils.isNotBlank(d)) {
-            data = new File(d);
-            if (!data.exists() && !data.mkdirs()) {
-                log.error("Cannot mkdirs for data : " + data);
+            datadir = new File(d);
+            if (!datadir.exists() && !datadir.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", datadir);
             }
         }
 
-        if (data == null || !data.exists()) {
-            data = FileUtils.getUserDirectory();
-            data = new File(data, ".rebuild");
-            if (!data.exists() && !data.mkdirs()) {
-                log.error("Cannot mkdirs for data : " + data);
+        if (datadir == null || !datadir.exists()) {
+            datadir = FileUtils.getUserDirectory();
+            datadir = new File(datadir, ".rebuild");
+            if (!datadir.exists() && !datadir.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", datadir);
             }
         }
 
-        if (!data.exists()) {
-            data = FileUtils.getTempDirectory();
+        if (!datadir.exists()) {
+            throw new RebuildException("No data directory exists!");
         }
-        return filepath == null ? data : new File(data, filepath);
+        
+        return filepath == null ? datadir : new File(datadir, filepath);
     }
 
     /**

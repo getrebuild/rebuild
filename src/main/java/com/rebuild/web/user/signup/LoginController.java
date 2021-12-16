@@ -232,7 +232,7 @@ public class LoginController extends BaseController {
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
-                || BooleanUtils.toBoolean(System.getProperty("ForceTour"))) {
+                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
             ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
         }
     }
@@ -337,6 +337,11 @@ public class LoginController extends BaseController {
         } else {
             return RespBody.ok(ret.getString("url"));
         }
+    }
+
+    @GetMapping("site-register")
+    public void reg(HttpServletResponse response) throws IOException {
+        response.sendRedirect("https://getrebuild.com/market/site-register?sn=" + License.SN());
     }
 
     // --
