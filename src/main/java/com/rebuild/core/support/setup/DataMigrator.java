@@ -17,7 +17,9 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
+import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 
@@ -34,7 +36,8 @@ public class DataMigrator {
      * 辅助数据库升级
      */
     public static void dataMigrateIfNeed() {
-        if (!BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
+        if (RebuildConfiguration.getInt(ConfigurationItem.DBVer) == 41
+                && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
             log.info("Data migrating #41 ...");
             ThreadPool.exec(() -> {
                 try {
