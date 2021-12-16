@@ -13,6 +13,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.impl.StaticLoggerBinder;
@@ -54,12 +55,18 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         }
 
         // 从安装文件
-        File file = getInstallFile();
-        if (file != null && file.exists()) {
-            log.info("Use installation file : " + file);
+        File installed;
+        try {
+            installed = getInstallFile();
+        } catch (RebuildException init) {
+            throw new IllegalStateException("GET INSTALL FILE ERROR!", init);
+        }
+
+        if (installed != null && installed.exists()) {
+            log.info("Use installed file : {}", installed);
 
             try {
-                Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
+                Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(installed));
                 Properties filePs = new Properties();
                 // 兼容 V1
                 for (String name : temp.stringPropertyNames()) {
@@ -82,7 +89,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
                 env.getPropertySources().addFirst(new PropertiesPropertySource(".rebuild", filePs));
 
             } catch (IOException ex) {
-                throw new IllegalStateException("Load file of install failed : " + file, ex);
+                throw new IllegalStateException("READ INSTALL FILE FAILED : " + installed, ex);
             }
         }
 
