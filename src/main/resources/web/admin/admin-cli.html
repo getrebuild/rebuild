@@ -64,7 +64,7 @@
               $('.out').empty()
               return
             }
-            
+
             const $c = _print(c)
             $.post('/admin/admin-cli/exec', c, (o) => {
               $c.addClass('ok')
