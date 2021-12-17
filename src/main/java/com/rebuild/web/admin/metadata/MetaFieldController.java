@@ -39,7 +39,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaofang123@gmail.com
@@ -134,7 +137,6 @@ public class MetaFieldController extends BaseController {
 
     @PostMapping("field-new")
     public RespBody fieldNew(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
 
         String entityName = reqJson.getString("entity");
@@ -162,7 +164,7 @@ public class MetaFieldController extends BaseController {
         }
 
         try {
-            String fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
+            String fieldName = new Field2Schema().createField(entity, label, dt, comments, refEntity, extConfig);
             return RespBody.ok(fieldName);
 
         } catch (Exception ex) {
@@ -181,16 +183,14 @@ public class MetaFieldController extends BaseController {
     }
 
     @RequestMapping("field-drop")
-    public RespBody fieldDrop(@IdParam ID fieldId, HttpServletRequest request) {
-        final ID user = getRequestUser(request);
-
+    public RespBody fieldDrop(@IdParam ID fieldId) {
         Object[] fieldRecord = Application.createQueryNoFilter(
                 "select belongEntity,fieldName from MetaField where fieldId = ?")
                 .setParameter(1, fieldId)
                 .unique();
         Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
 
-        boolean drop = new Field2Schema(user).dropField(field, false);
+        boolean drop = new Field2Schema().dropField(field, false);
         return drop ? RespBody.ok() : RespBody.error();
     }
 
