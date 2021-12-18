@@ -20,7 +20,7 @@
   <script th:src="@{/assets/js/rb-page.js}"></script>
   <script th:src="@{/assets/js/rb-components.js}" type="text/babel"></script>
   <script th:src="@{/assets/js/file-preview.js}" type="text/babel"></script>
-  <th:block th:if="${user != null && commercial > 0}">
+  <th:block th:if="${user != null && commercial > 1}">
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
     <script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
   </th:block>
