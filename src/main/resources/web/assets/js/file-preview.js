@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
@@ -94,7 +94,7 @@ class RbPreview extends React.Component {
             alt="Loading"
             onLoad={() => this.setState({ imgRendered: true })}
             onError={() => {
-              RbHighbar.error($L('无法加载图片'))
+              RbHighbar.error($L('无法读取图片'))
               this.hide()
             }}
           />
@@ -203,7 +203,8 @@ class RbPreview extends React.Component {
         success: function (res) {
           that.setState({ previewText: res })
         },
-        error: function () {
+        error: function (res) {
+          if (res.status > 0) RbHighbar.error(`${$L('无法读取文件')} (${res.status})`)
           that.hide()
         },
       })
