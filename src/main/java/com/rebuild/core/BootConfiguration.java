@@ -57,8 +57,10 @@ public class BootConfiguration implements InstallState {
         net.sf.ehcache.CacheManager cacheManager;
 
         String datadir = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.DataDirectory.name());
-        if (StringUtils.isNotBlank(datadir)) {
-            // 修改缓存文件目录
+        if (StringUtils.isBlank(datadir)) {
+            cacheManager = new net.sf.ehcache.CacheManager(CommonsUtils.getStreamOfRes("ehcache.xml"));
+        } else {
+            // 使用数据目录存储缓存文件
             Document config = XMLHelper.createDocument(CommonsUtils.getStreamOfRes("ehcache.xml"));
             Element diskStore = (Element) config.getRootElement().selectSingleNode("//diskStore");
             File tempdir = RebuildConfiguration.getFileOfTemp(".ehcache");
@@ -66,8 +68,6 @@ public class BootConfiguration implements InstallState {
 
             InputStream is = new ByteArrayInputStream(config.asXML().getBytes(StandardCharsets.UTF_8));
             cacheManager = new net.sf.ehcache.CacheManager(is);
-        } else {
-            cacheManager = new net.sf.ehcache.CacheManager(CommonsUtils.getStreamOfRes("ehcache.xml"));
         }
 
         EhCacheCacheManager manager = new EhCacheCacheManager();
