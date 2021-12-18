@@ -65,6 +65,8 @@ public class MetaEntityController extends BaseController {
     @GetMapping("entity/{entity}/base")
     public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
         Entity metaEntity = MetadataHelper.getEntity(entity);
+
+        // 不允许访问
         if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity))) {
             response.sendError(403);
             return null;
@@ -164,7 +166,7 @@ public class MetaEntityController extends BaseController {
 
         Entity sourceEntity = MetadataHelper.getEntity(reqJson.getString("sourceEntity"));
         String entityName = reqJson.getString("entityName");
-        String detailEntityName = reqJson.getString("detailName");
+        String detailEntityName = reqJson.getString("detailEntityName");
 
         try {
             entityName = new CopyEntity(sourceEntity).copy(entityName, detailEntityName);

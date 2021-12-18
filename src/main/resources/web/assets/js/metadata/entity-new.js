@@ -41,7 +41,7 @@ $(document).ready(function () {
     const data = {
       sourceEntity: sourceEntity,
       entityName: entityLabel,
-      detailEntityName: $val('newDetailLabel'),
+      detailEntityName: $val('#newDetailLabel'),
       keepConfig: [],
     }
 
