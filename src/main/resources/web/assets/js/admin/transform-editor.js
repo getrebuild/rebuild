@@ -55,6 +55,8 @@ $(document).ready(() => {
     const fm = fieldsMapping.buildMapping()
     const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
 
+    if (Object.keys(fm).length === 0) return RbHighbar.create($L('请至少添加 1 个字段映射'))
+
     function _save() {
       const config = {
         fieldsMapping: fm,
