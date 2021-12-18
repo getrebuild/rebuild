@@ -61,9 +61,9 @@ public class PickListManager implements ConfigManager {
      */
     public ConfigBean[] getPickListRaw(String entity, String field, boolean includeHide) {
         final String ckey = String.format("PickList-%s.%s", entity, field);
-        ConfigBean[] entries = (ConfigBean[]) Application.getCommonsCache().getx(ckey);
+        ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(ckey);
 
-        if (entries == null) {
+        if (cached == null) {
             Object[][] array = Application.createQueryNoFilter(
                     "select itemId,text,isDefault,isHide,maskValue from PickList where belongEntity = ? and belongField = ? order by seq asc")
                     .setParameter(1, entity)
@@ -80,12 +80,12 @@ public class PickListManager implements ConfigManager {
                 list.add(entry);
             }
 
-            entries = list.toArray(new ConfigBean[0]);
-            Application.getCommonsCache().putx(ckey, entries);
+            cached = list.toArray(new ConfigBean[0]);
+            Application.getCommonsCache().putx(ckey, cached);
         }
 
         List<ConfigBean> ret = new ArrayList<>();
-        for (ConfigBean entry : entries) {
+        for (ConfigBean entry : cached) {
             if (includeHide || !entry.getBoolean("hide")) {
                 ret.add(entry.clone());
             }

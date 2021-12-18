@@ -30,9 +30,9 @@ public class RebuildApiManager implements ConfigManager {
      */
     public ConfigBean getApp(String appid) {
         final String ckey = CKEY_PREFIX + appid;
-        ConfigBean config = (ConfigBean) Application.getCommonsCache().getx(ckey);
-        if (config != null) {
-            return config;
+        ConfigBean cb = (ConfigBean) Application.getCommonsCache().getx(ckey);
+        if (cb != null) {
+            return cb;
         }
 
         Object[] o = Application.createQueryNoFilter(
@@ -41,13 +41,13 @@ public class RebuildApiManager implements ConfigManager {
                 .unique();
         if (o == null) return null;
 
-        config = new ConfigBean()
+        cb = new ConfigBean()
                 .set("appId", appid)
                 .set("appSecret", o[0])
                 .set("bindUser", o[1])
                 .set("bindIps", o[2]);
-        Application.getCommonsCache().putx(ckey, config);
-        return config;
+        Application.getCommonsCache().putx(ckey, cb);
+        return cb;
     }
 
     @Override
