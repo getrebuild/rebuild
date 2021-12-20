@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import lombok.Data;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -19,6 +20,7 @@ public class KnownJedisPool extends JedisPool {
     private String host;
     private int port;
     private String password;
+    private int database;
 
     public KnownJedisPool(String host, int port, String password, int database) {
         super(new JedisPoolConfig(), host, port, 5000, password, database);
@@ -37,5 +39,9 @@ public class KnownJedisPool extends JedisPool {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getDatabase() {
+        return database;
     }
 }
