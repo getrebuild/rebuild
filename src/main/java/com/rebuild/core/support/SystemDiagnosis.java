@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
  * @since 2020/12/7
  */
 @SuppressWarnings("unchecked")
-public class AdminDiagnosis {
+public class SystemDiagnosis {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
@@ -47,7 +47,7 @@ public class AdminDiagnosis {
             dangers.remove(HasUpdate);
         }
 
-        JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE, false);
+        JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
         if (echoValidity != null && !echoValidity.isEmpty()) {
             String adminMsg = echoValidity.getString("adminMsg");
             if (adminMsg == null) dangers.remove(AdminMsg);

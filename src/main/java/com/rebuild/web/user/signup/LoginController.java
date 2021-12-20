@@ -35,6 +35,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -145,7 +146,7 @@ public class LoginController extends BaseController {
             mv.getModel().put("ssoWxwork", "#");
         }
 
-        mv.getModelMap().put("UsersMsg", AdminDiagnosis.getUsersDanger());
+        mv.getModelMap().put("UsersMsg", SystemDiagnosis.getUsersDanger());
         return mv;
     }
 
@@ -250,12 +251,17 @@ public class LoginController extends BaseController {
             ua = "UNKNOW";
         }
 
+        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "0.0.0.0");
+
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
-        record.setString("ipAddr", StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "0.0.0.0"));
+        record.setString("ipAddr", ipAddr);
         record.setString("userAgent", ua);
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
+
+        License.siteApi(
+                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
     @GetMapping("logout")
