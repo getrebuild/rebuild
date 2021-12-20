@@ -13,7 +13,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
-import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.impl.StaticLoggerBinder;
@@ -170,6 +169,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         String value = null;
         // in CLI
         if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)
+                || ConfigurationItem.RedisDatabase.name().equalsIgnoreCase(name)
                 || ConfigurationItem.MobileUrl.name().equalsIgnoreCase(name)
                 || ConfigurationItem.RbStoreUrl.name().equalsIgnoreCase(name)) {
             value = StringUtils.defaultIfBlank(System.getProperty(name), System.getProperty(V2_PREFIX + name));

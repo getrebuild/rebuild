@@ -23,7 +23,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
@@ -39,11 +38,12 @@ import org.apache.commons.lang.math.RandomUtils;
 @Slf4j
 public class Entity2Schema extends Field2Schema {
 
-    /**
-     * @param user
-     */
+    public Entity2Schema() {
+        super();
+    }
+
     public Entity2Schema(ID user) {
-        super(user);
+        super.setUser(user);
     }
 
     /**
@@ -70,7 +70,6 @@ public class Entity2Schema extends Field2Schema {
             if (MetadataHelper.containsEntity(entityName)) {
                 throw new MetadataModificationException(Language.L("实体已存在 : %s", entityName));
             }
-
         } else {
             entityName = toPinyinName(entityLabel);
             for (int i = 0; i < 5; i++) {
@@ -103,7 +102,7 @@ public class Entity2Schema extends Field2Schema {
             nameFiled = entityName + "Name";
         }
 
-        Record record = EntityHelper.forNew(EntityHelper.MetaEntity, user);
+        Record record = EntityHelper.forNew(EntityHelper.MetaEntity, getUser());
         record.setString("entityLabel", entityLabel);
         record.setString("entityName", entityName);
         record.setString("physicalName", physicalName);
@@ -179,9 +178,7 @@ public class Entity2Schema extends Field2Schema {
      * @return
      */
     public boolean dropEntity(Entity entity, boolean force) {
-        if (!user.equals(UserService.ADMIN_USER)) {
-            throw new MetadataModificationException(Language.L("仅超级管理员可删除实体"));
-        }
+        getUser();  // Check admin
 
         EasyEntity easy = EasyMetaFactory.valueOf(entity);
         ID metaRecordId = easy.getMetaId();
@@ -224,7 +221,7 @@ public class Entity2Schema extends Field2Schema {
         // 先删配置
 
         final ID sessionUser = UserContextHolder.getUser(true);
-        if (sessionUser == null) UserContextHolder.setUser(user);
+        if (sessionUser == null) UserContextHolder.setUser(getUser());
 
         try {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);

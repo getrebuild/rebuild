@@ -133,8 +133,8 @@ public class NavBuilder extends NavManager {
                 return true;
             }
 
-            return !Application.getPrivilegesManager().allowRead(user,
-                    MetadataHelper.getEntity(value).getEntityCode());
+            return !Application.getPrivilegesManager().allowRead(
+                    user, MetadataHelper.getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
             String[] split = value.split(URL_BIND_EP);

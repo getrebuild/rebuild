@@ -82,9 +82,10 @@ public class RebuildConfiguration extends KVStorage {
         File temp = getFileOfData("temp");
         if (!temp.exists()) {
             if (!temp.mkdirs()) {
-                throw new RebuildException("Cannot mkdirs for temp : " + temp);
+                throw new RebuildException("Cannot mkdir for temp directory : " + temp);
             }
         }
+
         return filepath == null ? temp : new File(temp, filepath);
     }
 

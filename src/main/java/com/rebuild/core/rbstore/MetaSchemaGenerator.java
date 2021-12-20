@@ -17,10 +17,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.io.FileUtils;
@@ -37,6 +37,13 @@ import java.io.IOException;
  * @since 2019/04/28
  */
 public class MetaSchemaGenerator {
+
+    public static final String CFG_FILLINS = "fillins";
+    public static final String CFG_LAYOUTS = "layouts";
+    public static final String CFG_FILTERS = "filters";
+    public static final String CFG_TRIGGERS = "triggers";
+    public static final String CFG_APPROVALS = "approvals";
+    public static final String CFG_TRANSFORMS = "transforms";
 
     final private Entity mainEntity;
 
@@ -68,12 +75,7 @@ public class MetaSchemaGenerator {
         return schema;
     }
 
-    /**
-     * @param entity
-     * @param isDetail
-     * @return
-     */
-    private JSON performEntity(Entity entity, boolean isDetail) {
+    private JSON performEntity(Entity entity, boolean detail) {
         JSONObject schemaEntity = new JSONObject(true);
 
         // 实体
@@ -92,28 +94,30 @@ public class MetaSchemaGenerator {
         for (Field field : entity.getFields()) {
             if (field.getType() == FieldType.PRIMARY
                     || MetadataHelper.isCommonsField(field)
-                    || (isDetail && MetadataHelper.getDetailToMainField(entity).equals(field))) {
+                    || (detail && MetadataHelper.getDetailToMainField(entity).equals(field))) {
                 continue;
             }
             metaFields.add(performField(field));
         }
         schemaEntity.put("fields", metaFields);
 
-        // 布局
-        schemaEntity.put("layouts", performLayouts(entity));
         // 表单回填
-        schemaEntity.put("fillins", performFillins(entity));
-        // 高级过滤
-        schemaEntity.put("filters", performFilters(entity));
+        schemaEntity.put(CFG_FILLINS, performFillins(entity));
+        // 布局
+        schemaEntity.put(CFG_LAYOUTS, performLayouts(entity));
+        // 高级查询
+        schemaEntity.put(CFG_FILTERS, performFilters(entity));
         // 触发器
-        schemaEntity.put("triggers", performTriggers(entity));
+        schemaEntity.put(CFG_TRIGGERS, performTriggers(entity));
 
-        if (!isDetail) {
+        if (!detail) {
             // 审批流程
-            schemaEntity.put("approvals", performApprovals(entity));
+            schemaEntity.put(CFG_APPROVALS, performApprovals(entity));
             // 字段转换
-            schemaEntity.put("transforms", performTransforms(entity));
+            schemaEntity.put(CFG_TRANSFORMS, performTransforms(entity));
         }
+
+        // TODO 报表模板?
 
         return schemaEntity;
     }

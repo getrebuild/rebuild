@@ -46,8 +46,7 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
             this.delegate = new EhcacheDriver<>(backup);
         }
 
-        String fix = StringUtils.defaultIfBlank(System.getProperty("cache.keyprefix"), "RB.");
-        this.keyPrefix = fix + StringUtils.defaultIfBlank(keyPrefix, StringUtils.EMPTY);
+        this.keyPrefix = "RB." + StringUtils.defaultIfBlank(keyPrefix, StringUtils.EMPTY);
     }
 
     @Override

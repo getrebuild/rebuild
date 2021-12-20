@@ -82,9 +82,9 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     private ConfigBean[] getProjects() {
-        ConfigBean[] projects = (ConfigBean[]) Application.getCommonsCache().getx(CKEY_PROJECTS);
+        ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(CKEY_PROJECTS);
 
-        if (projects == null) {
+        if (cached == null) {
             Object[][] array = Application.createQueryNoFilter(
                     "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition,status from ProjectConfig")
                     .array();
@@ -117,11 +117,11 @@ public class ProjectManager implements ConfigManager {
                 alist.add(e);
             }
 
-            projects = alist.toArray(new ConfigBean[0]);
-            Application.getCommonsCache().putx(CKEY_PROJECTS, projects);
+            cached = alist.toArray(new ConfigBean[0]);
+            Application.getCommonsCache().putx(CKEY_PROJECTS, cached);
         }
 
-        for (ConfigBean p : projects) {
+        for (ConfigBean p : cached) {
             Set<ID> members = Collections.emptySet();
             String userDefs = p.getString("_members");
             if (StringUtils.isNotBlank(userDefs) && userDefs.length() >= 20) {
@@ -129,7 +129,7 @@ public class ProjectManager implements ConfigManager {
             }
             p.set("members", members);
         }
-        return projects;
+        return cached;
     }
 
     /**
@@ -160,9 +160,9 @@ public class ProjectManager implements ConfigManager {
         Assert.notNull(projectId, "[projectId] cannot be null");
 
         final String ckey = CKEY_PLANS + projectId;
-        ConfigBean[] cache = (ConfigBean[]) Application.getCommonsCache().getx(ckey);
+        ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(ckey);
 
-        if (cache == null) {
+        if (cached == null) {
             Object[][] array = Application.createQueryNoFilter(
                     "select configId,planName,flowStatus,flowNexts from ProjectPlanConfig where projectId = ? order by seq")
                     .setParameter(1, projectId)
@@ -185,10 +185,10 @@ public class ProjectManager implements ConfigManager {
                 alist.add(e);
             }
 
-            cache = alist.toArray(new ConfigBean[0]);
-            Application.getCommonsCache().putx(ckey, cache);
+            cached = alist.toArray(new ConfigBean[0]);
+            Application.getCommonsCache().putx(ckey, cached);
         }
-        return cache.clone();
+        return cached.clone();
     }
 
     /**
