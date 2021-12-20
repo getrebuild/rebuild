@@ -14,8 +14,8 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.CommonsUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.cache.CacheManager;
@@ -36,7 +36,6 @@ import java.nio.charset.StandardCharsets;
  * @author devezhao
  * @since 2020/9/23
  */
-@Slf4j
 @Configuration
 public class BootConfiguration implements InstallState {
 
@@ -72,8 +71,6 @@ public class BootConfiguration implements InstallState {
 
         EhCacheCacheManager manager = new EhCacheCacheManager();
         manager.setCacheManager(cacheManager);
-
-        log.info("Create ehcache (May be for backup cache) : {}", manager);
         return manager;
     }
 
@@ -89,9 +86,13 @@ public class BootConfiguration implements InstallState {
         String useHost = BootEnvironmentPostProcessor.getProperty("db.CacheHost");
         if ("0".equals(useHost)) return USE_EHCACHE;
 
+        String spec = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.RedisDatabase.name());
+        int database = NumberUtils.toInt(spec, (Integer) ConfigurationItem.RedisDatabase.getDefaultValue());
+
         return new KnownJedisPool(
                 StringUtils.defaultIfBlank(useHost, "127.0.0.1"),
                 ObjectUtils.toInt(BootEnvironmentPostProcessor.getProperty("db.CachePort"), 6379),
-                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null));
+                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null),
+                database);
     }
 }

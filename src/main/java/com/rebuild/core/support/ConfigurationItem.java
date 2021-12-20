@@ -93,9 +93,10 @@ public enum ConfigurationItem {
     SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 
     // !!! 仅命令行适用
-    DataDirectory,  // 数据目录
-    MobileUrl,      // 移动端地址
-    RbStoreUrl      // 在线仓库地址
+    DataDirectory,                  // 数据目录
+    RedisDatabase(0),     // Redis DB
+    MobileUrl,                      // 移动端地址
+    RbStoreUrl                      // 在线仓库地址
 
     ;
 
