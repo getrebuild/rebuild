@@ -56,14 +56,12 @@ public class FileDownloader extends BaseController {
 
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
-
         filePath = CodecUtils.urlDecode(filePath);
+
         if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
             response.sendRedirect(filePath);
             return;
         }
-
-        ServletUtils.addCacheHead(response, 60);
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
@@ -72,6 +70,8 @@ public class FileDownloader extends BaseController {
         } else {
             imageView2 = null;
         }
+
+        ServletUtils.addCacheHead(response, 60);
 
         // Local storage || temp
         if (!QiniuCloud.instance().available() || temp) {
@@ -116,6 +116,11 @@ public class FileDownloader extends BaseController {
                         .toOutputStream(response.getOutputStream());
             }
         } else {
+            // 特殊字符文件名
+            String[] path = filePath.split("/");
+            path[path.length - 1] = CodecUtils.urlEncode(path[path.length - 1]);
+            filePath = StringUtils.join(path, "/");
+
             if (imageView2 != null) {
                 filePath += "?" + imageView2;
             }
