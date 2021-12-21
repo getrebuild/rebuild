@@ -3857,6 +3857,11 @@ a.select-lang:hover {
   margin-left: -10px;
 }
 
+h3.modal-title > .rbv {
+  margin: 0 3px;
+  top: -10px;
+}
+
 .rb-fullcontent,
 .rb-fullcontent .rb-wrapper,
 .rb-fullcontent .rb-wrapper .rb-content,
