@@ -20,7 +20,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.CopyEntity;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
@@ -156,23 +155,6 @@ public class MetaEntityController extends BaseController {
             return RespBody.ok(entityName);
         } catch (Exception ex) {
             log.error("entity-new", ex);
-            return RespBody.error(ex.getLocalizedMessage());
-        }
-    }
-
-    @PostMapping("entity/entity-copy")
-    public RespBody entityCopy(HttpServletRequest request) {
-        final JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
-
-        Entity sourceEntity = MetadataHelper.getEntity(reqJson.getString("sourceEntity"));
-        String entityName = reqJson.getString("entityName");
-        String detailEntityName = reqJson.getString("detailEntityName");
-
-        try {
-            entityName = new CopyEntity(sourceEntity).copy(entityName, detailEntityName);
-            return RespBody.ok(entityName);
-        } catch (Exception ex) {
-            log.error("entity-copy", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }
