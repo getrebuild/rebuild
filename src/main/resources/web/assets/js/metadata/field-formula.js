@@ -11,15 +11,14 @@ function verifyFormula(formula, entity, onConfirm) {
     if (res.error_code === 0) {
       onConfirm()
     } else {
-      RbAlert.create($L('计算公式可能存在错误，这会导致触发器执行失败。是否修改？'), {
+      RbAlert.create($L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？'), {
         type: 'warning',
-        cancelText: $L('不修改'),
         onConfirm: function () {
           this.hide()
+          onConfirm()
         },
         onCancel: function () {
           this.hide()
-          onConfirm()
         },
       })
     }
