@@ -4095,6 +4095,12 @@ h3.modal-title > .rbv {
   border-top: 1px solid #eee;
 }
 
+.admin-danger-list > div blockquote {
+  margin: 0;
+  border-left: 3px solid #ea4335;
+  padding-left: 6px;
+}
+
 body.fullscreen .rb-wrapper > .rb-top-header,
 body.fullscreen .rb-wrapper > .rb-left-sidebar {
   display: none !important;
