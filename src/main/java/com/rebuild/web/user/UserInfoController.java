@@ -15,11 +15,13 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author devezhao
  * @since 2021/8/23
  */
+@RestController
 public class UserInfoController {
 
     @GetMapping("/account/user-info")
