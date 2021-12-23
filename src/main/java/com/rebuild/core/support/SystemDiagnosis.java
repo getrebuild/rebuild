@@ -20,8 +20,7 @@ import java.util.LinkedHashMap;
  * @author devezhao
  * @since 2020/12/7
  */
-@SuppressWarnings("unchecked")
-public class AdminDiagnosis {
+public class SystemDiagnosis {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
@@ -31,14 +30,14 @@ public class AdminDiagnosis {
     private static final String UsersMsg = "UsersMsg";
     private static final String CommercialNoRbv = "CommercialNoRbv";
 
+    public static final String DatabaseBackupFail = "DatabaseBackupFail";
+    public static final String DataFileBackupFail = "DataFileBackupFail";
+
     public void diagnose() {
         // Status
         ServerStatus.getLastStatus(true);
 
-        LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
-        if (dangers == null) {
-            dangers = new LinkedHashMap<>();
-        }
+        LinkedHashMap<String, String> dangers = getDangersList();
 
         JSONObject checkBuild = License.siteApi("api/authority/check-build", true);
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
@@ -47,7 +46,7 @@ public class AdminDiagnosis {
             dangers.remove(HasUpdate);
         }
 
-        JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE, false);
+        JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
         if (echoValidity != null && !echoValidity.isEmpty()) {
             String adminMsg = echoValidity.getString("adminMsg");
             if (adminMsg == null) dangers.remove(AdminMsg);
@@ -66,24 +65,40 @@ public class AdminDiagnosis {
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
     }
 
+    @SuppressWarnings("unchecked")
+    static LinkedHashMap<String, String> getDangersList() {
+        LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>)
+                Application.getCommonsCache().getx(CKEY_DANGERS);
+        return dangers == null ? new LinkedHashMap<>() : (LinkedHashMap<String, String>) dangers.clone();
+    }
+
+    // --
+
+    /**
+     * @param name
+     * @param message
+     */
+    public static void setItem(String name, String message) {
+        LinkedHashMap<String, String> dangers = getDangersList();
+        if (message == null) dangers.remove(name);
+        else dangers.put(name, message);
+        Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
+    }
+
     // --
 
     /**
      * @return
      */
     public static Collection<String> getAdminDanger() {
-        LinkedHashMap<String, String> dangers =
-                (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
-        if (dangers != null) {
-            dangers = (LinkedHashMap<String, String>) dangers.clone();
-        }
+        LinkedHashMap<String, String> dangers = getDangersList();
 
         if (License.isCommercial() && !License.isRbvAttached()) {
-            if (dangers == null) dangers = new LinkedHashMap<>();
-            dangers.put(CommercialNoRbv, Language.L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
+            dangers.put(CommercialNoRbv,
+                    Language.L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
         }
 
-        if (dangers == null || dangers.isEmpty())  return null;
+        if (dangers.isEmpty())  return null;
 
         dangers.remove(UsersMsg);
 
@@ -95,6 +110,18 @@ public class AdminDiagnosis {
             dangers.put(HasUpdate, hasUpdate);
         }
 
+        String hasDatabaseBackupFail = dangers.get(DatabaseBackupFail);
+        if (hasDatabaseBackupFail != null) {
+            dangers.put(DatabaseBackupFail,
+                    Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDatabaseBackupFail));
+        }
+
+        String hasDataFileBackupFail = dangers.get(DataFileBackupFail);
+        if (hasDataFileBackupFail != null) {
+            dangers.put(DataFileBackupFail,
+                    Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDataFileBackupFail));
+        }
+
         return dangers.values();
     }
 
@@ -102,9 +129,7 @@ public class AdminDiagnosis {
      * @return
      */
     public static String getUsersDanger() {
-        LinkedHashMap<String, String> dangers =
-                (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
-        if (dangers == null || dangers.isEmpty()) return null;
+        LinkedHashMap<String, String> dangers = getDangersList();
         return dangers.get(UsersMsg);
     }
 }

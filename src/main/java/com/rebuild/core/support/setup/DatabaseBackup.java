@@ -63,10 +63,12 @@ public class DatabaseBackup {
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
 
         Process process;
+        String encoding = "UTF-8";
 
         if (SystemUtils.IS_OS_WINDOWS) {
             cmd = cmd.replaceFirst("mysqldump", "cmd /c mysqldump.exe");
             process = Runtime.getRuntime().exec(cmd);
+            encoding = "GBK";
         }
         // for Linux
         else {
@@ -77,8 +79,8 @@ public class DatabaseBackup {
         BufferedReader reader = null;
         StringBuilder echo = new StringBuilder();
         try {
-            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream(), encoding));
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding));
 
             String line;
             while ((line = readerError.readLine()) != null) {
@@ -98,12 +100,11 @@ public class DatabaseBackup {
         try {
             int code = process.waitFor();
             if (code != 0 || isGotError) {
-                log.error("Command failed : {}\n{}", code, echo);
-                return null;
+                throw new RuntimeException(echo.toString());
             }
         } catch (InterruptedException ex) {
-            log.error("Command interrupted");
-            return null;
+            log.error("command interrupted");
+            throw new RuntimeException("COMMAND INTERRUPTED");
         }
 
         File zip = new File(backups, destName + ".zip");

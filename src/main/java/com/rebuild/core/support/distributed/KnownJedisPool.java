@@ -16,15 +16,19 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 public class KnownJedisPool extends JedisPool {
 
+    public static final int TIMEOUT = 5000;
+
     private String host;
     private int port;
     private String password;
+    private int database;
 
     public KnownJedisPool(String host, int port, String password, int database) {
-        super(new JedisPoolConfig(), host, port, 5000, password, database);
+        super(new JedisPoolConfig(), host, port, TIMEOUT, password, database);
         this.host = host;
         this.port = port;
         this.password = password;
+        this.database = database;
     }
 
     public String getHost() {
@@ -37,5 +41,9 @@ public class KnownJedisPool extends JedisPool {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getDatabase() {
+        return database;
     }
 }

@@ -97,12 +97,12 @@ class LevelBox extends React.Component {
             <div className="switch-button switch-button-xs">
               <input type="checkbox" id={forId} onChange={this.turnToggle} checked={this.state.turnOn} />
               <span>
-                <label htmlFor={forId} title={$L('启用/禁用')}></label>
+                <label htmlFor={forId} title={$L('启用/禁用')} />
               </span>
             </div>
           </div>
         )}
-        <div className="clearfix"></div>
+        <div className="clearfix" />
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
@@ -131,13 +131,13 @@ class LevelBox extends React.Component {
                   </div>
                   <div className="dd-action">
                     <a>
-                      <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)}></i>
+                      <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)} />
                     </a>
                     <a>
-                      <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)}></i>
+                      <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)} />
                     </a>
                   </div>
-                  {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
+                  {active && <span className="zmdi zmdi-caret-right arrow hide" />}
                 </li>
               )
             })}
@@ -345,7 +345,7 @@ class DlgImports extends RbModalHandler {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#RBSTORE" data-toggle="tab">
-                <i className="icon zmdi zmdi-cloud-outline-alt"></i>
+                <i className="icon zmdi zmdi-cloud-outline-alt" />
                 {$L('从 RB 仓库导入')}
               </a>
             </li>
@@ -360,7 +360,7 @@ class DlgImports extends RbModalHandler {
                       <div className="file-select">
                         <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
-                          <i className="zmdi zmdi-upload"></i>
+                          <i className="zmdi zmdi-upload" />
                           <span>{$L('选择文件')}</span>
                         </label>
                       </div>
@@ -368,12 +368,13 @@ class DlgImports extends RbModalHandler {
                     <div className="float-left ml-2 pt-1">
                       <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
                     </div>
-                    <div className="clearfix"></div>
+                    <div className="clearfix" />
                     <div
                       className="form-text link"
                       dangerouslySetInnerHTML={{
                         __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)'),
-                      }}></div>
+                      }}
+                    />
                   </div>
                 </div>
                 <div className="form-group row footer">
@@ -407,13 +408,13 @@ class DlgImports extends RbModalHandler {
                           {$L('导入')}
                         </button>
                       </div>
-                      <div className="clearfix"></div>
+                      <div className="clearfix" />
                     </div>
                   )
                 })}
               </div>
               <div className="mt-2 text-right">
-                <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">
+                <a href="https://getrebuild.com/market/go/1220-rb-store" className="link" target="_blank" rel="noopener noreferrer">
                   {$L('提交数据到 RB 仓库')}
                 </a>
               </div>

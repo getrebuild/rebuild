@@ -3857,6 +3857,11 @@ a.select-lang:hover {
   margin-left: -10px;
 }
 
+h3.modal-title > .rbv {
+  margin: 0 3px;
+  top: -10px;
+}
+
 .rb-fullcontent,
 .rb-fullcontent .rb-wrapper,
 .rb-fullcontent .rb-wrapper .rb-content,
@@ -4088,6 +4093,12 @@ a.select-lang:hover {
 
 .admin-danger-list > div + div {
   border-top: 1px solid #eee;
+}
+
+.admin-danger-list > div blockquote {
+  margin: 0;
+  border-left: 3px solid #ea4335;
+  padding-left: 6px;
 }
 
 body.fullscreen .rb-wrapper > .rb-top-header,
