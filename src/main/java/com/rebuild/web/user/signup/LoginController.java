@@ -251,7 +251,7 @@ public class LoginController extends BaseController {
             ua = "UNKNOW";
         }
 
-        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "0.0.0.0");
+        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);

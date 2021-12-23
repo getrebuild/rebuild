@@ -2055,5 +2055,6 @@
 	"无法读取图片":"无法读取图片",
 	"复制哪个实体":"复制哪个实体",
 	"免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)":"免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)",
-	"升级":"升级"
+	"升级":"升级",
+	"数据备份失败":"数据备份失败"
 }
