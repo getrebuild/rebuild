@@ -58,7 +58,7 @@ public class AdminCLI2 {
         String result = null;
         switch (commands[0]) {
             case C_HELP: {
-                result = " Usage : \ncache [clean] \nsyscfg NAME [VALUE] \nbackup [database|datafiles]";
+                result = " Usage : \ncache [clean] \nsyscfg NAME [VALUE] \nbackup [database|datafile]";
                 break;
             }
             case C_CACHE: {
@@ -135,9 +135,9 @@ public class AdminCLI2 {
                 File backup = new DatabaseBackup().backup();
                 result.add("Backup database : " + backup);
             }
-            if (type == null || "datafile".equals(type) || "datafiles".equals(type)) {
+            if (type == null || "datafile".equals(type)) {
                 File backup = new DataFileBackup().backup();
-                result.add("Backup datafiles : " + backup);
+                result.add("Backup datafile : " + backup);
             }
 
             return result.isEmpty() ? "Nothing backup" : StringUtils.join(result, "\n");
