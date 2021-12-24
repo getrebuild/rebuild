@@ -21,8 +21,8 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
-import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 两个 Record 的不同
@@ -32,13 +32,13 @@ import java.util.Map;
  */
 public class RecordDifference {
 
-    final private Record before;
+    final private Record record;
 
     /**
-     * @param before
+     * @param record
      */
-    protected RecordDifference(Record before) {
-        this.before = before;
+    protected RecordDifference(Record record) {
+        this.record = record;
     }
 
     /**
@@ -47,30 +47,31 @@ public class RecordDifference {
      * @param after
      * @return
      */
-    public JSON merge(Record after) {
-        if (before == null && after == null) {
+    public JSON diffMerge(Record after) {
+        return diffMerge(after, false);
+    }
+
+    protected JSON diffMerge(Record after, boolean diffCommons) {
+        if (record == null && after == null) {
             throw new RebuildException("Both records cannot be null");
         }
 
-        if (before != null && after != null && !before.getEntity().equals(after.getEntity())) {
+        if (record != null && after != null && !record.getEntity().equals(after.getEntity())) {
             throw new RebuildException("Both records must be the same entity");
         }
 
-        Entity entity = before != null ? before.getEntity() : after.getEntity();
+        Entity entity = record != null ? record.getEntity() : after.getEntity();
         Map<String, Object[]> merged = new CaseInsensitiveMap<>();
 
-        if (before != null) {
-            JSONObject beforeSerialize = (JSONObject) before.serialize();
-            for (Map.Entry<String, Object> e : beforeSerialize.entrySet()) {
+        if (record != null) {
+            JSONObject recordSerialize = (JSONObject) record.serialize();
+            for (Map.Entry<String, Object> e : recordSerialize.entrySet()) {
                 String field = e.getKey();
-                if (isIgnoreField(entity.getField(field))) {
-                    continue;
-                }
+                if (!diffCommons && isIgnoreField(entity.getField(field))) continue;
 
                 Object beforeVal = e.getValue();
-                if (NullValue.is(beforeVal)) {
-                    beforeVal = null;
-                }
+                if (NullValue.is(beforeVal)) beforeVal = null;
+
                 merged.put(field, new Object[]{beforeVal, null});
             }
         }
@@ -79,51 +80,46 @@ public class RecordDifference {
             JSONObject afterSerialize = (JSONObject) after.serialize();
             for (Map.Entry<String, Object> e : afterSerialize.entrySet()) {
                 String field = e.getKey();
-                if (isIgnoreField(entity.getField(field))) {
-                    continue;
-                }
+                if (!diffCommons && isIgnoreField(entity.getField(field))) continue;
 
                 Object afterVal = e.getValue();
-                if (NullValue.is(afterVal)) {
-                    continue;
-                }
+                if (NullValue.is(afterVal)) continue;
 
                 Object[] mergedValue = merged.computeIfAbsent(field, k -> new Object[]{null, null});
                 mergedValue[1] = afterVal;
             }
         }
 
-        JSONArray array = new JSONArray();
+        JSONArray result = new JSONArray();
+
         for (Map.Entry<String, Object[]> e : merged.entrySet()) {
-            Object[] val = e.getValue();
-            if (val[0] == null && val[1] == null) {
-                continue;
-            }
+            Object[] vals = e.getValue();
+            if (vals[0] == null && vals[1] == null) continue;
+            if (Objects.equals(vals[0], vals[1])) continue;
 
             JSON item = JSONUtils.toJSONObject(
                     new String[]{"field", "before", "after"},
-                    new Object[]{e.getKey(), val[0], val[1]});
-            array.add(item);
+                    new Object[]{e.getKey(), vals[0], vals[1]});
+            result.add(item);
         }
-        return array;
+        return result;
     }
 
     /**
-     * 比较不同
+     * 是否不同
      *
      * @param diff
+     * @param diffCommons
      * @return
+     * @see #diffMerge(Record)
      */
-    public Map<String, Object> diff(Record diff) {
-        if (before == null || diff == null) {
+    public boolean isSame(Record diff, boolean diffCommons) {
+        if (record == null || diff == null) {
             throw new RebuildException("Both records must not be null");
-        } else if (!before.getEntity().equals(diff.getEntity())) {
-            throw new RebuildException("Both records must be the same entity");
         }
 
-        // TODO 记录比较
-
-        return Collections.emptyMap();
+        JSONArray result = (JSONArray) diffMerge(diff, diffCommons);
+        return result.isEmpty();
     }
 
     /**
