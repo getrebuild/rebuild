@@ -229,7 +229,6 @@ public class ProjectTaskController extends BaseController {
 
         queryFields = queryFields.substring(0, queryFields.length() - 1);
         String querySql = String.format("select %s from ProjectTask where %s", queryFields, queryWhere);
-        System.out.println(querySql);
         Query query = Application.createQueryNoFilter(querySql);
         if (limits != null) query.setLimit(limits[0], limits[1]);
 
