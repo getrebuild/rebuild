@@ -61,7 +61,7 @@ $(document).ready(() => {
     const tips = []
 
     const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
-    if (!fmd) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    if (fieldsMappingDetail && !fmd) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
 
     function _save() {
       const config = {

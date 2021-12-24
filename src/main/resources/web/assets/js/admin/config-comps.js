@@ -139,3 +139,7 @@ class ConfigList extends React.Component {
     })
   }
 }
+
+const ShowEnable = (enable) => {
+  return enable ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+}

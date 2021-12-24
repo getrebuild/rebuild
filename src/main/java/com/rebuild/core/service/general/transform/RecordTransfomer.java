@@ -23,6 +23,7 @@ import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.N2NReferenceSupport;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.TransactionStatus;
 
@@ -30,10 +31,14 @@ import java.util.*;
 
 /**
  * 转换记录
+ * 1. 转换主记录
+ * 2. 转换主记录+（多条）明细记录
+ * 3. 转换明细记录 > 主实体
  *
  * @author devezhao
  * @since 2020/10/27
  */
+@Slf4j
 public class RecordTransfomer extends SetUser {
 
     final private Entity targetEntity;
@@ -76,6 +81,9 @@ public class RecordTransfomer extends SetUser {
 
             final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
             final ID newId = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, null);
+            if (newId == null) {
+                throw new ConfigurationException("Cannot transform record of main : " + transConfig);
+            }
 
             // 明细
 
@@ -132,6 +140,11 @@ public class RecordTransfomer extends SetUser {
         }
 
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
+        if (validFields.isEmpty()) {
+            log.warn("No fields for transform");
+            return null;
+        }
+
         String querySource = String.format(
                 "select %s from %s where %s = '%s'",
                 StringUtils.join(validFields, ","), sourceEntity.getName(),
@@ -139,20 +152,22 @@ public class RecordTransfomer extends SetUser {
         Record source = Application.createQueryNoFilter(querySource).record();
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
+            if (e.getValue() == null) continue;
+
             String targetField = e.getKey();
             String sourceField = (String) e.getValue();
 
-            Object value = source.getObjectValue(sourceField);
-            if (value != null) {
+            Object sourceValue = source.getObjectValue(sourceField);
+            if (sourceValue != null) {
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
 
                 if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                    value = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
+                    sourceValue = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
                 }
 
-                Object compatibleValue = sourceFieldEasy.convertCompatibleValue(value, targetFieldEasy);
-                target.setObjectValue(targetField, compatibleValue);
+                Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
+                target.setObjectValue(targetField, targetValue);
             }
         }
 
@@ -163,6 +178,8 @@ public class RecordTransfomer extends SetUser {
     private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
         List<String> valid = new ArrayList<>();
         for (Object field : fieldsName) {
+            if (field == null) continue;
+
             if (MetadataHelper.checkAndWarnField(entity, (String) field)) {
                 valid.add((String) field);
             }
