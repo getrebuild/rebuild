@@ -67,6 +67,7 @@ public class RecordTransfomer extends SetUser {
         TransactionStatus tx = TransactionManual.newTransaction();
 
         try {
+            // 主记录
 
             JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) {
@@ -80,9 +81,6 @@ public class RecordTransfomer extends SetUser {
 
             JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
             if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
-
-                // 获取
-
                 Entity sourceDetailEntity = sourceEntity.getDetailEntity();
                 Field sourceDtf = MetadataHelper.getDetailToMainField(sourceDetailEntity);
 
@@ -91,15 +89,11 @@ public class RecordTransfomer extends SetUser {
                         sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceDtf.getName(), sourceRecordId);
                 Object[][] details = Application.createQueryNoFilter(sql).array();
 
-                // 创建
-
                 Entity targetDetailEntity = targetEntity.getDetailEntity();
                 Map<String, Object> map = null;
                 if (details.length > 0) {
                     Field targetDtf = MetadataHelper.getDetailToMainField(targetDetailEntity);
-
-                    map = new HashMap<>();
-                    map.put(targetDtf.getName(), newId);
+                    map = Collections.singletonMap(targetDtf.getName(), newId);
                 }
 
                 for (Object[] o : details) {

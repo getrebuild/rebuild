@@ -21,10 +21,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
- * 记录两个 Record 的不同
+ * 两个 Record 的不同
  *
  * @author devezhao
  * @since 2019/8/22
@@ -105,6 +106,24 @@ public class RecordDifference {
             array.add(item);
         }
         return array;
+    }
+
+    /**
+     * 比较不同
+     *
+     * @param diff
+     * @return
+     */
+    public Map<String, Object> diff(Record diff) {
+        if (before == null || diff == null) {
+            throw new RebuildException("Both records must not be null");
+        } else if (!before.getEntity().equals(diff.getEntity())) {
+            throw new RebuildException("Both records must be the same entity");
+        }
+
+        // TODO 记录比较
+
+        return Collections.emptyMap();
     }
 
     /**
