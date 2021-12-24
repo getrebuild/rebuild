@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.ConfigurationItem;
@@ -103,7 +104,8 @@ public class OnlineSessionStore implements HttpSessionListener {
      */
     public void storeLastActive(HttpServletRequest request) {
         HttpSession s = request.getSession();
-        s.setAttribute(SK_LASTACTIVE, new Object[]{System.currentTimeMillis(), request.getRequestURI()});
+        s.setAttribute(SK_LASTACTIVE,
+                new Object[]{System.currentTimeMillis(), request.getRequestURI(), ServletUtils.getRemoteAddr(request)});
     }
 
     /**

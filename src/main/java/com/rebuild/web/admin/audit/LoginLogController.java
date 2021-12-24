@@ -57,15 +57,15 @@ public class LoginLogController extends EntityController {
 
             Object[] active = (Object[]) s.getAttribute(OnlineSessionStore.SK_LASTACTIVE);
             if (active == null) {
-                active = new Object[]{ null, "/dashboard/home" };
+                active = new Object[]{ null, "/dashboard/home", null };
             } else {
                 active = active.clone();
                 active[0] = I18nUtils.formatDate(new Date((Long) active[0]));
             }
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "user", "fullName", "activeTime", "activeUrl" },
-                    new Object[] { user, UserHelper.getName(user), active[0], active[1] });
+                    new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp" },
+                    new Object[] { user, UserHelper.getName(user), active[0], active[1], active[2] });
             users.add(item);
         }
         return users;

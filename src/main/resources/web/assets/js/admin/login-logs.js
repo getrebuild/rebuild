@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(function () {
   renderRbcomp(<DataList />, 'react-list')
 
-  $('.J_view-online').click(() => renderRbcomp(<OnlineUserViewer />))
+  $('.J_view-online').on('click', () => renderRbcomp(<OnlineUserViewer />))
 })
 
 // 列表配置
@@ -89,6 +89,7 @@ class OnlineUserViewer extends RbModalHandler {
                     <code className="text-break text-primary">{item.activeUrl || 'n/a'}</code>
                     <span className="cell-detail-description">
                       <DateShow date={item.activeTime} />
+                      <span className="ml-1">{item.activeIp}</span>
                     </span>
                   </td>
                   <td className="actions text-right">
