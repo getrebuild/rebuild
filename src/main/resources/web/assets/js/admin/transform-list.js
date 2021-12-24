@@ -4,10 +4,10 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter */
+/* global dlgActionAfter, ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<TransformEdit />))
+  $('.J_add').click(() => renderRbcomp(<TransformEditor />))
   renderRbcomp(<TransformList />, 'dataList')
 })
 
@@ -29,13 +29,7 @@ class TransformList extends ConfigList {
               </td>
               <td>{item[2]}</td>
               <td>{item[4]}</td>
-              <td>
-                {item[7] ? (
-                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
-                ) : (
-                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
-                )}
-              </td>
+              <td>{ShowEnable(item[7])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -55,7 +49,7 @@ class TransformList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<TransformEdit id={item[0]} name={item[6]} isDisabled={item[7]} />)
+    renderRbcomp(<TransformEditor id={item[0]} name={item[6]} isDisabled={item[7]} />)
   }
 
   handleDelete(id) {
@@ -71,7 +65,7 @@ class TransformList extends ConfigList {
   }
 }
 
-class TransformEdit extends ConfigFormDlg {
+class TransformEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('记录转换映射')
@@ -88,7 +82,7 @@ class TransformEdit extends ConfigFormDlg {
                 <select className="form-control form-control-sm" ref={(c) => (this._source = c)}>
                   {(this.state.entities || []).map((item) => {
                     return (
-                      <option key={'e-' + item.name} value={item.name}>
+                      <option key={item.name} value={item.name}>
                         {item.label}
                       </option>
                     )
@@ -101,8 +95,10 @@ class TransformEdit extends ConfigFormDlg {
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
                   {(this.state.entities || []).map((item) => {
+                    if (item.mainEntity) return null
+
                     return (
-                      <option key={'e-' + item.name} value={item.name}>
+                      <option key={item.name} value={item.name}>
                         {item.label}
                       </option>
                     )
@@ -122,13 +118,7 @@ class TransformEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input
-                  className="custom-control-input"
-                  type="checkbox"
-                  checked={this.state.isDisabled === true}
-                  data-id="isDisabled"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>
@@ -139,7 +129,7 @@ class TransformEdit extends ConfigFormDlg {
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/entities', (res) => {
+    $.get('/commons/metadata/entities?detail=true', (res) => {
       this.setState({ entities: res.data }, () => {
         this._$source = $(this._source).select2({
           placeholder: $L('选择实体'),

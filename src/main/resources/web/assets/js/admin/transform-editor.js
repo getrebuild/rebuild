@@ -53,9 +53,15 @@ $(document).ready(() => {
 
   const $btn = $('.J_save').on('click', function () {
     const fm = fieldsMapping.buildMapping()
-    const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
+    if (!fm) {
+      RbHighbar.create($L('请至少添加 1 个字段映射'))
+      return
+    }
 
-    if (Object.keys(fm).length === 0) return RbHighbar.create($L('请至少添加 1 个字段映射'))
+    const tips = []
+
+    const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
+    if (fieldsMappingDetail && !fmd) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
 
     function _save() {
       const config = {
@@ -89,13 +95,21 @@ $(document).ready(() => {
       if (fmd[k] === null) unset++
     }
 
-    if (unset > 0) {
-      RbAlert.create($L('部分必填字段未映射，可能导致转换失败。是否继续保存？'), {
-        onConfirm: function () {
-          this.disabled(true)
-          _save()
-        },
-      })
+    if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
+
+    if (tips.length > 0) {
+      RbAlert.create(
+        <React.Fragment>
+          <strong>{$L('配置存在以下问题，请确认是否继续保存？')}</strong>
+          <div className="mt-1">{tips.join(' / ')}</div>
+        </React.Fragment>,
+        {
+          onConfirm: function () {
+            this.disabled(true)
+            _save()
+          },
+        }
+      )
     } else {
       _save()
     }
@@ -190,21 +204,24 @@ class FieldsMapping extends React.Component {
 
   buildMapping() {
     const mapping = {}
+    let hasMapping = false
     $(this._$fieldsMapping)
       .find('select')
       .each(function () {
         const $this = $(this)
         const req = $this.data('req')
-        const val = $this.val()
+        const field = $this.val()
 
-        if (req && !val) {
+        if (req && !field) {
           mapping[$this.data('field')] = null // tips
         }
-        if (val) {
-          mapping[$this.data('field')] = val
+        if (field) {
+          mapping[$this.data('field')] = field
+          hasMapping = true
         }
       })
-    return mapping
+
+    return hasMapping ? mapping : null
   }
 }
 

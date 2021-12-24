@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -33,13 +32,15 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 表单/视图 功能扩展
@@ -47,6 +48,7 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/entity/extras/")
 public class ModelExtrasController extends BaseController {
@@ -75,8 +77,13 @@ public class ModelExtrasController extends BaseController {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
-        ID newId = transfomer.transform(sourceRecord);
-        return RespBody.ok(newId);
+        try {
+            ID newId = transfomer.transform(sourceRecord);
+            return RespBody.ok(newId);
+        } catch (Exception ex) {
+            log.warn(">>>>> {}", ex.getLocalizedMessage());
+            return RespBody.errorl("记录转换失败，请检查记录转换映射配置");
+        }
     }
 
     @GetMapping("record-last-modified")

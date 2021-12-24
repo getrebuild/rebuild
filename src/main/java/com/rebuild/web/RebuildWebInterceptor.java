@@ -260,7 +260,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
      * @return
      */
     private boolean isHtmlRequest(HttpServletRequest request) {
-        if (ServletUtils.isAjaxRequest(request) || request.getRequestURI().contains("/assets/")) {
+        String requestUri = request.getRequestURI();
+        if (ServletUtils.isAjaxRequest(request)
+                || requestUri.contains("/assets/")
+                || requestUri.contains("/commons/frontjs/")
+                || requestUri.contains("/commons/theme/")) {
             return false;
         }
 

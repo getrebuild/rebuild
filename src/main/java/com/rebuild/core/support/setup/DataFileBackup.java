@@ -29,7 +29,7 @@ public class DataFileBackup extends DatabaseBackup {
     public File backup(File backups) throws IOException {
         File rbdata = RebuildConfiguration.getFileOfData("");
 
-        String destName = "datafiles." + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()) + ".zip";
+        String destName = "backup_datafile." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".zip";
         File dest = new File(backups, destName);
 
         CompressUtils.forceZip(rbdata, dest, pathname -> {
