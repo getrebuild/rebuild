@@ -328,7 +328,10 @@ class RbForm extends React.Component {
       entity: this.state.entity,
       id: this.state.id,
     }
-    if (RbForm.postBefore(data) === false) return
+    if (RbForm.postBefore(data) === false) {
+      console.log('FrontJS prevented save')
+      return
+    }
 
     const $btns = $(this._$formAction).find('.btn').button('loading')
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
