@@ -9,25 +9,23 @@
 
 REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。通过 REBUILD 可以真正实现零代码快速搭建业务系统，无需编程、无需编译代码，甚至无需了解技术。
 
-「开放式设计」是 REBUILD 的重要设计理念，得益于开发团队超过十年的成熟 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理，无需开发即可使用，有效避免过度依赖高成本研发投入。
-
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
-> **福利：欢迎加入 REBUILD QQ 交流群 819865721**
+> **福利：加入 REBUILD QQ 交流群 819865721 GET 使用技能**
 
-## V2.6 新特性
+## V2.7 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] 项目任务卡片支持配置显示字段
-2. [新增] 数据列表多种显示模式
-3. [新增] 数据列表导出可配置 Excel 模板
-4. [新增] 动态中可通过输入 @ 拉起用户提及组件
-5. [新增] 移动端钉钉/企业微信支持分享记录给他人
+1. [新增] 支持自定义权限
+2. [新增] 位置字段
+3. [新增] 表单支持多列布局
+4. [新增] 项目看板支持多种任务显示方式
+5. [修复] 单机多实例缓存冲突问题
 6. [优化] 多项安全性更新
 7. ..
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.6)
+更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.7)
 
 ## 在线体验
 
@@ -37,13 +35,15 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 
 ## 使用
 
-开始使用 REBUILD 非常简单，你不需要搭建复杂的运行环境，甚至不需要安装 JDK（`standalone` 安装包自带）。零依赖快速部署，就是那么简单！
+开始使用 REBUILD 非常简单，不需要搭建复杂的运行环境，零依赖快速部署，就是那么简单！
 
 #### 1. 使用已发布版本
 
 _生产环境强烈推荐使用此方式 !!!_
 
-进入 [releases](https://github.com/getrebuild/rebuild/releases) 页面选择适合的安装包下载。从 2.0 版本开始，我们同时提供 `boot` 与 `standalone` 两种安装包。`boot` 为 Spring Boot 的 `jar` 独立运行模式，`standalone` 为外置 Tomcat 运行模式，两种模式在功能上并无区别。
+首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包，`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
+
+下载后解压（集成安装包），双击/运行 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验！
 
 更多信息请参考 [安装文档](https://getrebuild.com/docs/admin/install)
 
@@ -62,11 +62,11 @@ mvn package
 java -jar target/rebuild.jar
 ```
 
-打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验。
+打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验！
 
 ## 开发
 
-RB 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无区别。默认情况下使用 Spring Boot 的独立 `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
+RB 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
 如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
