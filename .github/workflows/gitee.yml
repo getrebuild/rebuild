@@ -15,3 +15,5 @@ jobs:
         dst_token: ${{ secrets.GITEE_TOKEN }}
         account_type: user
         white_list: "rebuild,rebuild-datas"
+        force_update: true
+        debug: true
