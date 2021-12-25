@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Hub Mirror Action.
-      uses: Yikun/hub-mirror-action@v0.07
+      uses: Yikun/hub-mirror-action@v1.1
       with:
         src: github/getrebuild
         dst: gitee/getrebuild
