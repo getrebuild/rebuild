@@ -46,7 +46,7 @@ class AdvFilter extends React.Component {
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
           {$L('确定')}
         </button>
-        <button className="btn btn-secondary" type="button" onClick={() => this.hide(true)}>
+        <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
           {$L('取消')}
         </button>
       </div>

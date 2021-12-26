@@ -491,7 +491,7 @@ class ModelConf extends React.Component {
 
   _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps() })
   _next = () => {
-    const ps = this._buildProps(true)
+    const ps = this._buildProps()
     this.props.$$$parent.setState({ stepNo: 10, modelProps: ps }, () => this.props.$$$parent.install())
   }
 }

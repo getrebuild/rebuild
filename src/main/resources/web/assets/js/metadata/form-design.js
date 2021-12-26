@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     $(res.data).each(function () {
       validFields[this.fieldName] = this
-      if (configFields.includes(this.fieldName) === false) render_unset(this, '.field-list')
+      if (configFields.includes(this.fieldName) === false) render_unset(this)
 
       // Adv control
       const $control = $(`<tr data-field="${this.fieldName}">${template}</tr>`).appendTo($advControls)
@@ -41,7 +41,7 @@ $(document).ready(function () {
     $(wpc.formConfig.elements).each(function () {
       const field = validFields[this.field]
       if (this.field === DIVIDER_LINE) {
-        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4 }, '.form-preview')
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4 })
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
           '.form-preview'
@@ -51,7 +51,7 @@ $(document).ready(function () {
           $item.remove()
         })
       } else {
-        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null }, '.form-preview')
+        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null })
         AdvControl.set(this)
       }
     })
@@ -67,7 +67,7 @@ $(document).ready(function () {
 
   $('.J_add-divider').click(function () {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
-    render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 }, '.form-preview')
+    render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 })
   })
 
   // @see field-new.html
@@ -372,7 +372,7 @@ const add2Layout = function (fieldName) {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
-        render_item({ ...this, tip: this.tip || null }, '.form-preview')
+        render_item({ ...this, tip: this.tip || null })
         return false
       }
     })

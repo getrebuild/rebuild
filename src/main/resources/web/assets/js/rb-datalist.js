@@ -499,7 +499,7 @@ const CellRenders = {
    * @param {*} k key of React (contains fieldName)
    */
   renderSimple(v, s, k) {
-    if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
+    if (typeof v === 'string' && v.length > 300) v = v.substr(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
     else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
 

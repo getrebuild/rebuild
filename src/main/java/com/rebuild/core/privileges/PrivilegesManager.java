@@ -459,7 +459,7 @@ public class PrivilegesManager {
 
     /**
      * @param user
-     * @returny
+     * @return
      */
     private Boolean userAllow(ID user) {
         if (UserHelper.isAdmin(user)) return Boolean.TRUE;
