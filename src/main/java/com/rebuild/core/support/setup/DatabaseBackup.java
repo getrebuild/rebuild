@@ -37,7 +37,10 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup() throws IOException {
-        return backup(RebuildConfiguration.getFileOfData("_backups"));
+        File backupdir = RebuildConfiguration.getFileOfData("_backups");
+        if (!backupdir.exists()) FileUtils.forceMkdir(backupdir);
+
+        return backup(backupdir);
     }
 
     /**
