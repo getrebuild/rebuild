@@ -42,7 +42,7 @@ const ListConfig = {
 const RevTypes = {
   1: $L('新建'),
   2: $L('删除'),
-  4: $L('编辑'),
+  4: $L('更新'),
   16: $L('分派'),
   32: $L('共享'),
   64: $L('取消共享'),
@@ -151,10 +151,10 @@ class DlgDetails extends RbAlert {
               <tr key={item.field}>
                 <td>{item.field}</td>
                 <td>
-                  <div>{item.before || <span className="text-muted">{$L('空')}</span>}</div>
+                  <div>{this._formatValue(item.before)}</div>
                 </td>
                 <td>
-                  <div>{item.after || <span className="text-muted">{$L('空')}</span>}</div>
+                  <div>{this._formatValue(item.after)}</div>
                 </td>
               </tr>
             )
@@ -174,5 +174,13 @@ class DlgDetails extends RbAlert {
         this.setState({ data: res.data })
       }
     })
+  }
+
+  _formatValue(v) {
+    if (v) {
+      return typeof v === 'object' ? v.join(', ') : v
+    } else {
+      return <span className="text-muted">{$L('空')}</span>
+    }
   }
 }

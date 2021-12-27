@@ -10,9 +10,6 @@ package com.rebuild.core.support.setup;
 import com.rebuild.TestSupport;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.ResourceUtils;
-
-import java.io.File;
 
 /**
  * @author devezhao
@@ -21,15 +18,12 @@ import java.io.File;
 public class DatabaseBackupTest extends TestSupport {
 
     @Test
-    public void backup() throws Exception {
+    void backup() throws Exception {
         new DatabaseBackup().backup();
     }
 
     @Test
-    public void zip() throws Exception {
-        File file = ResourceUtils.getFile("classpath:metadata-conf.xml");
-        File dest = RebuildConfiguration.getFileOfTemp(file.getName() + ".zip");
-        DatabaseBackup.zip(file, dest);
-        System.out.println("Zip to : " + dest);
+    void backupFile() throws Exception {
+        new DataFileBackup().backup();
     }
 }

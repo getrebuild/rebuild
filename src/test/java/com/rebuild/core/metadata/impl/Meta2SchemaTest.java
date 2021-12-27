@@ -5,15 +5,13 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.metadata.entity;
+package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.impl.Entity2Schema;
-import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +20,7 @@ import org.junit.jupiter.api.Test;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class Meta2SchemaTest extends TestSupport {
+class Meta2SchemaTest extends TestSupport {
 
     @BeforeEach
     public void setUpPerMethod() {
@@ -30,7 +28,7 @@ public class Meta2SchemaTest extends TestSupport {
     }
 
     @Test
-    public void testCreateEntity() {
+    void testCreateEntity() {
         String newEntityName = new Entity2Schema(UserService.ADMIN_USER)
                 .createEntity("测试实体", null, null, false);
         System.out.println("New Entity is created : " + newEntityName);
@@ -41,7 +39,7 @@ public class Meta2SchemaTest extends TestSupport {
     }
 
     @Test
-    public void testCreateField() {
+    void testCreateField() {
         String newEntityName = new Entity2Schema(UserService.ADMIN_USER)
                 .createEntity("测试字段", null, null, false);
         Entity newEntity = MetadataHelper.getEntity(newEntityName);

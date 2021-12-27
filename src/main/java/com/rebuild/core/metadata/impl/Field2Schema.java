@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
@@ -46,20 +47,26 @@ import java.util.Set;
  * @since 08/13/2018
  */
 @Slf4j
-public class Field2Schema {
+public class Field2Schema extends SetUser {
 
     // 小数位真实长度
     private static final int DECIMAL_SCALE = 8;
 
-    final protected ID user;
-    final protected Set<ID> tempMetaId = new HashSet<>();
+    final protected Set<ID> recordedMetaId = new HashSet<>();
 
-    /**
-     * @param user
-     */
+    public Field2Schema() {
+        super();
+    }
+
     public Field2Schema(ID user) {
+        super.setUser(user);
+    }
+
+    @Override
+    public ID getUser() {
+        ID user = super.getUser();
         RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
-        this.user = user;
+        return user;
     }
 
     /**
@@ -91,7 +98,7 @@ public class Field2Schema {
 
         boolean schemaReady = schema2Database(entity, new Field[]{field});
         if (!schemaReady) {
-            Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
@@ -234,7 +241,7 @@ public class Field2Schema {
 
         String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
 
-        Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
+        Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, getUser());
         recordOfField.setString("belongEntity", entity.getName());
         recordOfField.setString("fieldName", fieldName);
         recordOfField.setString("physicalName", physicalName);
@@ -292,7 +299,7 @@ public class Field2Schema {
         }
 
         recordOfField = Application.getCommonsService().create(recordOfField);
-        tempMetaId.add(recordOfField.getPrimary());
+        recordedMetaId.add(recordOfField.getPrimary());
 
         // 以下会改变一些属性，因为并不想他们保存在元数据中
 

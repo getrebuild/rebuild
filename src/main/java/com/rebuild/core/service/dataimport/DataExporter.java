@@ -119,9 +119,6 @@ public class DataExporter extends SetUser {
             if (b) b = false;
             else sb.append(",");
 
-            if (s.contains(",")) {
-                s = s.replace(",", "，");  // 转义 ,
-            }
             sb.append(s);
         }
         return sb.toString();

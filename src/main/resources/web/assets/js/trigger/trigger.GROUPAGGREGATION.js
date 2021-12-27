@@ -103,9 +103,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA'
-                                ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
-                                : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
+                              {item.calcMode === 'FORMULA' ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <i className="zmdi zmdi-close" />
@@ -144,12 +142,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                 </div>
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                    <div
-                      className="form-control-plaintext formula"
-                      _title={$L('计算公式')}
-                      ref={(c) => (this._$sourceFormula = c)}
-                      onClick={() => this.showFormula()}
-                    />
+                    <div className="form-control-plaintext formula" _title={$L('计算公式')} ref={(c) => (this._$sourceFormula = c)} onClick={() => this.showFormula()} />
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -306,6 +299,8 @@ class ContentGroupAggregation extends ActionContentSpec {
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
+        verifyFormula
+        entity={this.props.sourceEntity}
       />
     )
   }
@@ -316,14 +311,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     } else {
       const that = this
       renderRbcomp(
-        <AdvFilter
-          title={$L('数据过滤条件')}
-          inModal={true}
-          canNoFilters={true}
-          entity={this.props.sourceEntity}
-          filter={that._advFilter__data}
-          confirm={(f) => that.saveAdvFilter(f)}
-        />,
+        <AdvFilter title={$L('数据过滤条件')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
         null,
         function () {
           that._advFilter = this

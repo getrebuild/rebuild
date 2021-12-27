@@ -33,6 +33,10 @@ public class EasyReference extends EasyField implements MixValue {
             return FieldValueHelper.getLabelNotry((ID) value);
         }
 
+        if (targetType == DisplayType.N2NREFERENCE) {
+            return new ID[] {(ID) value};
+        }
+
         // ID
         return value;
     }
@@ -49,6 +53,11 @@ public class EasyReference extends EasyField implements MixValue {
         Object text = idValue.getLabelRaw();
         if (text == null) {
             text = FieldValueHelper.getLabelNotry(idValue);
+        }
+        // 名称字段为引用字段，其引用实体的名称字段又是引用字段
+        // 可能死循环
+        else if (text instanceof ID) {
+            text = FieldValueHelper.getLabelNotry((ID) text);
         }
 
         return FieldValueHelper.wrapMixValue(idValue, text == null ? null : text.toString());

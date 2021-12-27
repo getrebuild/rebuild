@@ -15,7 +15,7 @@ import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.cache.CacheManager;
@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * NOTE JRebel reloading error
+ *
  * @author devezhao
  * @since 2020/9/23
  */

@@ -80,8 +80,8 @@ class ClassificationSelector extends React.Component {
                 </div>
               )}
               <div>
-                <button className="btn btn-primary w-100" onClick={() => this.confirm()}>
-                  {$L('确定')}
+                <button className="btn btn-primary btn-outline w-100" onClick={() => this.confirm()}>
+                  <i className="icon zmdi zmdi-check" /> {$L('确定')}
                 </button>
               </div>
             </div>
@@ -168,17 +168,17 @@ class ReferenceSearcher extends RbModal {
   }
 
   render() {
-    return (
-      <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
+    return this.state.destroy === true ? null : (
+      <div className="modal" ref={(c) => (this._rbmodal = c)}>
         <div className="modal-dialog modal-xl">
           <div className="modal-content">
-            <div className="modal-header modal-header-colored">
+            <div className="modal-header">
               <h3 className="modal-title">{this.props.title || $L('查询')}</h3>
               <button className="close" type="button" onClick={() => this.hide()}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body iframe">
+            <div className="modal-body iframe" style={{ borderTop: '1px solid #dee2e6' }}>
               <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 368 }} />
             </div>
           </div>
@@ -191,6 +191,10 @@ class ReferenceSearcher extends RbModal {
     super.componentDidMount()
     // eslint-disable-next-line no-unused-vars
     window.referenceSearch__dlg = this
+  }
+
+  destroy() {
+    this.setState({ destroy: true })
   }
 }
 
@@ -293,5 +297,215 @@ class DeleteConfirm extends RbAlert {
         $btns.button('reset')
       }
     })
+  }
+}
+
+// 百度地图
+// https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
+class BaiduMap extends React.Component {
+  render() {
+    return <div className="map-container" ref={(c) => (this._$container = c)} />
+  }
+
+  componentDidMount() {
+    const that = this
+    $useMap(() => {
+      const _BMapGL = window.BMapGL
+      const map = new _BMapGL.Map(that._$container)
+      map.addControl(new _BMapGL.ZoomControl())
+      map.addControl(new _BMapGL.ScaleControl())
+      // 滚动缩放
+      if (that.props.enableScrollWheelZoom) map.enableScrollWheelZoom()
+
+      that._map = map
+
+      // 初始位置
+      if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
+        that.center(that.props.lnglat)
+      } else {
+        // map.centerAndZoom('北京市', 14)
+        const geo = new window.BMapGL.Geolocation()
+        geo.enableSDKLocation()
+        geo.getCurrentPosition(function (e) {
+          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+            map.panTo(e.point)
+          } else {
+            console.log('Geolocation failed :', this.getStatus())
+          }
+        })
+      }
+
+      if (that.props.canPin) {
+        const geoc = new _BMapGL.Geocoder()
+        let lastMarker = null
+
+        // 点选
+        map.addEventListener('click', function (e) {
+          if (lastMarker) map.removeOverlay(lastMarker)
+
+          const latlng = e.latlng
+          lastMarker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
+          map.addOverlay(lastMarker)
+
+          geoc.getLocation(latlng, (r) => {
+            const v = {
+              lng: latlng.lng,
+              lat: latlng.lat,
+              text: r.address,
+            }
+            typeof that.props.onPin === 'function' && that.props.onPin(v)
+          })
+        })
+
+        // 搜索
+        that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
+          renderOptions: { map: map },
+          onSearchComplete: function () {},
+        })
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this._map && this._map.destroy()
+    this._map = null
+  }
+
+  center(lnglat) {
+    if (!lnglat.lng || !lnglat.lat) return
+
+    const _BMapGL = window.BMapGL
+    const map = this._map
+
+    const point = new _BMapGL.Point(lnglat.lng, lnglat.lat)
+    if (map.isLoaded()) {
+      map.clearOverlays()
+      // map.panTo(point)
+      map.flyTo(point)
+    }
+
+    map.addOverlay(
+      new _BMapGL.Marker(point, {
+        title: lnglat.text || lnglat.address || '',
+      })
+    )
+
+    if (!map.isLoaded()) {
+      map.centerAndZoom(point, 14)
+    }
+  }
+
+  search(s) {
+    this._mapLocalSearch.search(s)
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+class BaiduMapModal extends RbModal {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return this.state.destroy === true ? null : (
+      <div className="modal" ref={(c) => (this._rbmodal = c)}>
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">{this.props.title || $L('位置')}</h3>
+              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+                <span className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body p-0">
+              {this.props.canPin && (
+                <div className="map-pin">
+                  <div className="row">
+                    <div className="col-6">
+                      <div className="input-group w-100">
+                        <input
+                          type="text"
+                          ref={(c) => (this._searchValue = c)}
+                          className="form-control form-control-sm"
+                          placeholder={$L('查找位置')}
+                          onKeyDown={(e) => {
+                            e.which === 13 && this._search()
+                          }}
+                          defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
+                        />
+                        <div className="input-group-append">
+                          <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                            <i className="icon zmdi zmdi-search" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-6 text-right">
+                      <button className="btn btn-primary btn-outline" type="button" onClick={() => this._onConfirm()}>
+                        <i className="icon zmdi zmdi-check" /> {$L('确定')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div style={{ height: 500 }}>
+                <BaiduMap
+                  ref={(c) => (this._BaiduMap = c)}
+                  lnglat={this.props.lnglat}
+                  canPin={this.props.canPin}
+                  onPin={(latlng) => {
+                    if (this._searchValue) {
+                      this._latlngValue = latlng
+                      $(this._searchValue).val(latlng.text)
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // show(lnglat) {
+  //   $(this._$modal).modal('show')
+  //   if (lnglat) {
+  //     setTimeout(() => this._BaiduMap.center(lnglat), 100)
+  //   }
+  // }
+
+  destroy() {
+    this.setState({ destroy: true })
+  }
+
+  _search() {
+    this._BaiduMap.search($val(this._searchValue))
+  }
+
+  _onConfirm() {
+    if (!this._latlngValue) {
+      RbHighbar.create($L('请选取位置'))
+      return
+    }
+
+    const val = { ...this._latlngValue, text: $val(this._searchValue) }
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
+    this.hide()
+  }
+
+  // ~~ Usage
+  /**
+   * @param {object} lnglat
+   */
+  static view(lnglat) {
+    if (BaiduMapModal._ViewModal) {
+      BaiduMapModal._ViewModal.show()
+      if (lnglat) BaiduMapModal._ViewModal._BaiduMap.center(lnglat)
+    } else {
+      renderRbcomp(<BaiduMapModal lnglat={lnglat} />, null, function () {
+        BaiduMapModal._ViewModal = this
+      })
+    }
   }
 }

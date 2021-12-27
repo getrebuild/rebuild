@@ -43,9 +43,9 @@ public class ChartManager implements ConfigManager {
      */
     public ConfigBean getChart(ID chartid) {
         final String ckey = "Chart-" + chartid;
-        ConfigBean entry = (ConfigBean) Application.getCommonsCache().getx(ckey);
-        if (entry != null) {
-            return entry.clone();
+        ConfigBean cb = (ConfigBean) Application.getCommonsCache().getx(ckey);
+        if (cb != null) {
+            return cb.clone();
         }
 
         Object[] o = Application.createQueryNoFilter(
@@ -64,13 +64,13 @@ public class ChartManager implements ConfigManager {
             }
         }
 
-        entry = new ConfigBean()
+        cb = new ConfigBean()
                 .set("title", o[0])
                 .set("type", o[1])
                 .set("config", o[2] instanceof JSON ? o[2] : JSON.parse((String) o[2]))
                 .set("createdBy", o[3]);
-        Application.getCommonsCache().putx(ckey, entry);
-        return entry.clone();
+        Application.getCommonsCache().putx(ckey, cb);
+        return cb.clone();
     }
 
     /**

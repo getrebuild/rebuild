@@ -52,15 +52,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 0;
 }
 
-.project-right .btn-group {
+.project-toolbar > .btn-group {
   margin-top: 7px;
   margin-right: 3px;
 }
 
-.project-right .btn-group > .btn {
+.project-toolbar > .btn-group > .btn {
   min-height: 24px;
   line-height: 24px;
   min-width: 0;
+  text-align: right;
+  padding-right: 0;
+}
+
+.project-toolbar > .btn-group .dropdown-item-text {
+  color: #b0b0b0;
+  text-transform: uppercase;
+  font-size: 0.8462rem;
 }
 
 #plan-boxes {

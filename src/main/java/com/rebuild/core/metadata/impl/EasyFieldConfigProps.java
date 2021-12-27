@@ -120,4 +120,13 @@ public class EasyFieldConfigProps {
      * 正则表达式
      */
     public static final String ADV_PATTERN = "advPattern";
+
+    /**
+     * 视图直接显示地图
+     */
+    public static final String LOCATION_MAPONVIEW = "locationMapOnView";
+    /**
+     * 自动定位
+     */
+    public static final String LOCATION_AUTOLOCATION = "locationAutoLocation";
 }

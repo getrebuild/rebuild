@@ -17,10 +17,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,6 +35,7 @@ public class HttpUtils {
 
     private static final String RB_UA =
             String.format("RB/%s (%s/%s)", Application.VER, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
+    private static final String RB_LANG = Locale.getDefault().toString();  // zh_CN
 
     /**
      * 获取客户端，如本类提供的 GET/POST 方法无法满足需求，可以自己构建然后通过此 Client 调用。
@@ -128,7 +126,7 @@ public class HttpUtils {
         }
         // Text
         else {
-            requestBody = RequestBody.create(reqData.toString(), MediaType.parse("text/plain"));
+            requestBody = RequestBody.create(reqData == null ? "" : reqData.toString(), MediaType.parse("text/plain"));
         }
 
         Request.Builder builder = new Request.Builder().url(url);
@@ -190,6 +188,7 @@ public class HttpUtils {
 
     private static Request.Builder useHeaders(Request.Builder builder, Map<String, String> headers) {
         builder.addHeader(HttpHeaders.USER_AGENT, RB_UA);
+        builder.addHeader(HttpHeaders.ACCEPT_LANGUAGE, RB_LANG);
 
         if (headers != null && !headers.isEmpty()) {
             for (Map.Entry<String, String> e : headers.entrySet()) {

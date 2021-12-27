@@ -19,10 +19,12 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +112,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
-                        if (!isDTF(field)) {
+                        if (!isForceCreateable(field)) {
                             log.warn("Remove non-creatable field : " + field);
                             record.removeValue(field.getName());
                         }
@@ -157,11 +159,23 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 明细关联主记录字段
-    private boolean isDTF(Field field ) {
+    private boolean isDTF(Field field) {
         if (field.getType() == FieldType.REFERENCE && entity.getMainEntity() != null) {
-            Field dtf = MetadataHelper.getDetailToMainField(entity);
-            return field.equals(dtf);
+            return field.equals(MetadataHelper.getDetailToMainField(entity));
         }
+        return false;
+    }
+
+    // 强制可新建
+    private boolean isForceCreateable(Field field) {
+        if (isDTF(field)) return true;
+
+        // 自定定位
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+        if (easyField.getDisplayType() == DisplayType.LOCATION) {
+            return BooleanUtils.toBoolean(easyField.getExtraAttr(EasyFieldConfigProps.LOCATION_AUTOLOCATION));
+        }
+
         return false;
     }
 

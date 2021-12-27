@@ -13,7 +13,7 @@ $(document).ready(() => {
     mList = this
   })
 
-  const $btns = $('.notification-type>a').click(function () {
+  const $btns = $('.notification-type a').click(function () {
     $btns.removeClass('active')
     $(this).addClass('active')
     mList.fetchList(1, $(this).data('type'))
@@ -28,7 +28,7 @@ $(document).ready(() => {
 
 // 消息列表
 class MessageList extends React.Component {
-  state = { ...this.props, page: 1, pageSize: 40 }
+  state = { ...this.props, page: 1, pageSize: 20 }
 
   render() {
     const msglist = this.state.list || []
@@ -120,7 +120,7 @@ class MessageList extends React.Component {
         type: type || this.state.type,
       },
       () => {
-        $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
+        $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}&pageSize=${this.state.pageSize}`, (res) => {
           this.setState({ list: res.data || [] }, () => {
             if (focusItem && $('.notification.focus').length > 0) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
             focusItem = null

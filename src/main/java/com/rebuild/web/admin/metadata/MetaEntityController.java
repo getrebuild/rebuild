@@ -64,6 +64,8 @@ public class MetaEntityController extends BaseController {
     @GetMapping("entity/{entity}/base")
     public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
         Entity metaEntity = MetadataHelper.getEntity(entity);
+
+        // 不允许访问
         if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity))) {
             response.sendError(403);
             return null;
@@ -129,7 +131,6 @@ public class MetaEntityController extends BaseController {
 
     @PostMapping("entity/entity-new")
     public RespBody entityNew(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
         final JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
 
         String label = reqJson.getString("label");
@@ -149,7 +150,7 @@ public class MetaEntityController extends BaseController {
         }
 
         try {
-            String entityName = new Entity2Schema(user)
+            String entityName = new Entity2Schema()
                     .createEntity(label, comments, mainEntity, getBoolParameter(request, "nameField"));
             return RespBody.ok(entityName);
         } catch (Exception ex) {
@@ -193,12 +194,11 @@ public class MetaEntityController extends BaseController {
 
     @RequestMapping("entity/entity-drop")
     public RespBody entityDrop(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
         final Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
         final boolean force = getBoolParameter(request, "force", false);
 
         try {
-            boolean drop = new Entity2Schema(user).dropEntity(entity, force);
+            boolean drop = new Entity2Schema().dropEntity(entity, force);
             return drop ? RespBody.ok() : RespBody.error();
 
         } catch (Exception ex) {

@@ -115,15 +115,14 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             UserContextHolder.setUser(requestUser);
 
-            // 页面变量（登录后）
+            // User
+            request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
+            request.setAttribute(ZeroEntry.AllowCustomNav.name(),
+                    Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
+
             if (isHtmlRequest(request)) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
-
-                // User
-                request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
-                request.setAttribute(ZeroEntry.AllowCustomNav.name(),
-                        Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
 
                 // Side collapsed
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
@@ -134,7 +133,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                     if (!"false".equals(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
-
             }
 
         } else if (!isIgnoreAuth(requestUri)) {
@@ -262,13 +260,20 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
      * @return
      */
     private boolean isHtmlRequest(HttpServletRequest request) {
-        if (ServletUtils.isAjaxRequest(request) || request.getRequestURI().contains("/assets/")) {
+        String requestUri = request.getRequestURI();
+        if (ServletUtils.isAjaxRequest(request)
+                || requestUri.contains("/assets/")
+                || requestUri.contains("/commons/frontjs/")
+                || requestUri.contains("/commons/theme/")) {
             return false;
         }
 
         try {
-            MimeType mimeType = MimeTypeUtils.parseMimeType(
-                    StringUtils.defaultIfBlank(request.getHeader("Accept"), MimeTypeUtils.TEXT_HTML_VALUE).split("[,;]")[0]);
+            String accept = StringUtils.defaultIfBlank(
+                    request.getHeader("Accept"), MimeTypeUtils.TEXT_HTML_VALUE).split("[,;]")[0];
+            if (MimeTypeUtils.ALL_VALUE.equals(accept) || MimeTypeUtils.TEXT_HTML_VALUE.equals(accept)) return true;
+
+            MimeType mimeType = MimeTypeUtils.parseMimeType(accept);
             return MimeTypeUtils.TEXT_HTML.equals(mimeType);
         } catch (Exception ignored) {
             return false;

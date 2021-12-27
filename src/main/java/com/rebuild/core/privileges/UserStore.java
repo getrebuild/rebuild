@@ -17,10 +17,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.bizz.CombinedRole;
-import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroPrivileges;
+import com.rebuild.core.privileges.bizz.*;
 import com.rebuild.core.support.License;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -518,7 +516,7 @@ public class UserStore implements Initialization {
                 .array();
         Set<Role> actived = new HashSet<>();
         for (Object[] a : appends) {
-            Role role = ROLES.get(a[0]);
+            Role role = ROLES.get((ID) a[0]);
             if (role != null && !role.isDisabled()) {
                 actived.add(role);
             }
@@ -647,7 +645,8 @@ public class UserStore implements Initialization {
             if (entity == 0) {
                 p = new ZeroPrivileges((String) d[2], (String) d[1]);
             } else {
-                p = new EntityPrivileges(entity, converEntityPrivilegesDefinition((String) d[1]));
+                JSONObject def = JSON.parseObject((String) d[1]);
+                p = new CustomEntityPrivileges(entity, converEntityPrivilegesDefinition(def), def);
             }
             role.addPrivileges(p);
         }
@@ -661,14 +660,13 @@ public class UserStore implements Initialization {
      * @see EntityPrivileges
      * @see BizzPermission
      */
-    private String converEntityPrivilegesDefinition(String definition) {
-        JSONObject defJson = JSON.parseObject(definition);
-        int C = defJson.getIntValue("C");
-        int D = defJson.getIntValue("D");
-        int U = defJson.getIntValue("U");
-        int R = defJson.getIntValue("R");
-        int A = defJson.getIntValue("A");
-        int S = defJson.getIntValue("S");
+    private String converEntityPrivilegesDefinition(JSONObject definition) {
+        int C = definition.getIntValue("C");
+        int D = definition.getIntValue("D");
+        int U = definition.getIntValue("U");
+        int R = definition.getIntValue("R");
+        int A = definition.getIntValue("A");
+        int S = definition.getIntValue("S");
 
         int deepP = 0;
         int deepL = 0;

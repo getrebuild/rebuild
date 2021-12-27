@@ -12,8 +12,8 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.support.i18n.Language;
 
 /**
@@ -22,7 +22,7 @@ import com.rebuild.core.support.i18n.Language;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/27
  */
-public abstract class BaseConfigurationService extends BaseService {
+public abstract class BaseConfigurationService extends InternalPersistService {
 
     protected BaseConfigurationService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

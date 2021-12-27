@@ -107,23 +107,18 @@ public class DataImportController extends BaseController {
                 continue;
             }
 
-            // TODO 开放媒体字段导入
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyMeta.getDisplayType();
-            if (dt == DisplayType.FILE
-                    || dt == DisplayType.IMAGE
-                    || dt == DisplayType.AVATAR
-                    || dt == DisplayType.BARCODE
+            if (dt == DisplayType.BARCODE
                     || dt == DisplayType.ID
-                    || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.N2NREFERENCE) {
+                    || dt == DisplayType.ANYREFERENCE) {
                 continue;
             }
 
             Map<String, Object> map = new HashMap<>();
             map.put("name", fieldName);
             map.put("label", easyMeta.getLabel());
-            map.put("type", easyMeta.getDisplayType().getDisplayName());
+            map.put("type", easyMeta.getDisplayType().name());
             map.put("nullable", field.isNullable());
 
             String defaultValue = null;

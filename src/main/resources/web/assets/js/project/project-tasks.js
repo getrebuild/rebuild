@@ -11,17 +11,18 @@ let __PlanBoxes
 let __AdvFilter
 
 $(document).ready(() => {
-  // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
   const gs = $decode($urlp('gs', location.hash))
   if (gs) {
     $('.search-input-gs, .J_search .input-search input').val(gs)
     $('.J_search .indicator-primary').removeClass('hide')
   }
 
+  const viewGroup = $urlp('group') || 'plan'
+
   const readonly = !wpc.isMember || ~~wpc.status === 2
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} />, 'plan-boxes', function () {
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={readonly} search={gs} projectId={wpc.id} sortable={viewGroup === 'plan'} />, 'plan-boxes', function () {
     __PlanBoxes = this
-    __draggable()
+    __pageDraggable()
     $('.J_project-load').remove()
 
     // 自动打开
@@ -31,15 +32,26 @@ $(document).ready(() => {
       if (viewHash.length === 4 && viewHash[3].length === 20) {
         setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
       }
+    } else {
+      typeof window.startTour === 'function' && window.startTour(1000)
     }
   })
 
   // 排序
-  $('.J_sorts .dropdown-item').click(function () {
+  const $sorts = $('.J_views .dropdown-item[data-sort]').on('click', function () {
     const $this = $(this)
     $('.J_sorts .btn span').text($this.text())
     __PlanBoxes.setState({ sort: $this.data('sort') })
+
+    $sorts.removeClass('check')
+    $this.addClass('check')
   })
+  // 分组
+  const $d = $(`.J_views .dropdown-item[data-group="${viewGroup}"]`)
+  if ($d.length > 0) {
+    $('.J_groups .btn span').text($d.text())
+    $d.addClass('check')
+  }
 
   // 搜索
   const $search = $('.J_search .input-search')
@@ -64,7 +76,7 @@ $(document).ready(() => {
   const confirmFilter = function (s) {
     __PlanBoxes.setState({ filter: s })
   }
-  $('.J_filter').click(() => {
+  $('.J_filter').on('click', () => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
@@ -99,6 +111,7 @@ class PlanBoxes extends React.Component {
               sort={this.state.sort}
               search={this.state.search}
               filter={this.state.filter}
+              projectId={this.props.projectId}
             />
           )
         })}
@@ -108,6 +121,7 @@ class PlanBoxes extends React.Component {
 
   componentDidMount() {
     if (this.props.readonly) return
+    if (this.props.sortable === false) return
 
     let startState = 0
     // 拖动排序&换面板
@@ -203,7 +217,9 @@ const __DEFAULT_PAGE_SIZE = 40
 class PlanBox extends React.Component {
   state = { ...this.props }
 
-  creatableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
+  // 面板下可创建任务
+  creatableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly && this.props.id.startsWith('051-')
+  // 面板下可操作任务
   performableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
 
   pageNo = 0
@@ -317,21 +333,26 @@ class PlanBox extends React.Component {
       this.pageSize = Math.max(this.state.tasks.length + 1, __DEFAULT_PAGE_SIZE)
     }
 
-    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}`
-    $.post(url, JSON.stringify(this.props.filter), (res) => {
-      if (res.error_code === 0) {
-        const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
-        const _state = { tasks: ns }
-        if (res.data.count > -1) _state.taskNum = res.data.count
+    $.post(
+      `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}&project=${
+        this.props.projectId
+      }`,
+      JSON.stringify(this.props.filter),
+      (res) => {
+        if (res.error_code === 0) {
+          const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
+          const _state = { tasks: ns }
+          if (res.data.count > -1) _state.taskNum = res.data.count
 
-        this.setState(_state, () => {
-          $(this._scroller).perfectScrollbar('update')
-          // this._scroller.scrollTop = 99999
-        })
-      } else {
-        RbHighbar.error(res.error_msg)
+          this.setState(_state, () => {
+            $(this._scroller).perfectScrollbar('update')
+            // this._scroller.scrollTop = 99999
+          })
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
       }
-    })
+    )
   }
 
   removeTask(taskid) {
@@ -426,13 +447,13 @@ class Task extends React.Component {
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline bw-bold" onClick={(e) => $stopEvent(e)}>
                 <input
                   className="custom-control-input"
                   type="checkbox"
                   defaultChecked={this.state.status === 1}
                   onChange={(e) => this._toggleStatus(e)}
-                  disabled={!this.props.$$$parent.performableTask}
+                  disabled={!this.props.$$$parent.performableTask || this.props.planFlow === 2}
                   ref={(c) => (this._$status = c)}
                 />
                 <span className="custom-control-label" />
@@ -548,8 +569,8 @@ const __saveTask = function (id, data, call) {
   })
 }
 
-// 面板拖动
-const __draggable = function () {
+// 页面拖动
+const __pageDraggable = function () {
   let flag
   let downX
   let scrollLeft

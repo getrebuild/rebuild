@@ -104,6 +104,7 @@ $(document).ready(function () {
     }
   })
 
+  // via form-design
   const designType = $urlp('type')
   if (designType) {
     $('#type').val(designType).trigger('change').parents('.form-group').addClass('hide')

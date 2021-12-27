@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
@@ -94,7 +94,7 @@ class RbPreview extends React.Component {
             alt="Loading"
             onLoad={() => this.setState({ imgRendered: true })}
             onError={() => {
-              RbHighbar.error($L('无法加载图片'))
+              RbHighbar.error($L('无法读取图片'))
               this.hide()
             }}
           />
@@ -182,11 +182,11 @@ class RbPreview extends React.Component {
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
-        const previewUrl = (window.officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        const previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
-      if (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) {
+      if (_isFullUrl(currentUrl)) {
         setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
@@ -195,7 +195,7 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this._isText(fileName)) {
-      const textUrl = currentUrl.startsWith('http://') || currentUrl.startsWith('https://') ? currentUrl : `/filex/download/${currentUrl}`
+      const textUrl = _isFullUrl(currentUrl) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
         url: textUrl,
         type: 'GET',
@@ -203,7 +203,8 @@ class RbPreview extends React.Component {
         success: function (res) {
           that.setState({ previewText: res })
         },
-        error: function () {
+        error: function (res) {
+          if (res.status > 0) RbHighbar.error(`${$L('无法读取文件')} (${res.status})`)
           that.hide()
         },
       })
@@ -231,9 +232,8 @@ class RbPreview extends React.Component {
 
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
-    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-      url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
-    }
+    url = _isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
+
     if (params) {
       url += url.contains('?') ? '&' : '?'
       url += params
@@ -380,4 +380,8 @@ class FileShare extends RbModalHandler {
       })
     })
   }
+}
+
+function _isFullUrl(urlKey) {
+  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
 }

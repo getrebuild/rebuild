@@ -5,6 +5,26 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// 验证公式有效性
+function verifyFormula(formula, entity, onConfirm) {
+  $.post(`/admin/robot/trigger/verify-formula?entity=${entity}`, formula, (res) => {
+    if (res.error_code === 0) {
+      onConfirm()
+    } else {
+      RbAlert.create($L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？'), {
+        type: 'warning',
+        onConfirm: function () {
+          this.hide()
+          onConfirm()
+        },
+        onCancel: function () {
+          this.hide()
+        },
+      })
+    }
+  })
+}
+
 // ~ 公式编辑器
 const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('回退'), $L('清空')]
 // eslint-disable-next-line no-unused-vars
@@ -85,17 +105,28 @@ class FormulaCalc extends RbAlert {
         expr.push($(this).data('v'))
       })
 
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr.join(''))
-    this.hide()
+    const formula = expr.join('')
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
+    }
+
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
   }
 
   // 公式文本化
   static textFormula(formula, fields) {
     if (!formula) return ''
     for (let i = 0; i < fields.length; i++) {
-      const item = fields[i]
-      formula = formula.replace(new RegExp(`{${item[0]}}`, 'ig'), `{${item[1]}}`)
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{____${field[1]}}`)
     }
+    formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
     return formula.toUpperCase()
   }
 }
@@ -205,7 +236,7 @@ class FormulaAggregation extends FormulaCalc {
   }
 
   confirm() {
-    let expr = []
+    const expr = []
     $(this._$formula)
       .find('i')
       .each(function () {
@@ -215,11 +246,21 @@ class FormulaAggregation extends FormulaCalc {
         else expr.push(v)
       })
 
-    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
-    else expr = expr.join('')
+    let formula
+    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
+    else formula = expr.join('')
 
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
-    this.hide()
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
+    }
+
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
   }
 
   static CALC_MODES = {
@@ -242,8 +283,8 @@ class FormulaAggregation extends FormulaCalc {
   static textFormula(formula, fields) {
     for (let i = 0; i < fields.length; i++) {
       const field = fields[i]
-      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
-      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
+      formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{${field[1]}}`)
+      formula = formula.replace(new RegExp(`\\{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
     }
 
     const keys = Object.keys(FormulaAggregation.CALC_MODES)

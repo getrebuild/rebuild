@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-/* Page of editor  */
+/* Editor  */
 
 .timeline.spare {
   max-width: 2000px;
@@ -141,7 +141,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
 }
 
-/* formula */
+/* Formula */
 
 .formula-calc {
   position: relative;
@@ -173,6 +173,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .formula-calc ul li > a:hover {
   background-color: #ccc;
+}
+
+.formula-calc .numbers li > a:active {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .formula-calc ul li.empty-1 > a {
@@ -213,7 +217,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 1px dotted #4c8bf5 !important;
   border-radius: 4px;
   background-color: #fff;
-  padding: 9px 10px 8px;
+  padding: 8px 10px;
   cursor: text;
 }
 
@@ -413,4 +417,9 @@ textarea.formula-code {
 
 .badge.badge-close a.close:hover {
   opacity: 1;
+}
+
+/* fix: height */
+.select2-selection.select2-selection--multiple ul.select2-selection__rendered {
+  display: block;
 }

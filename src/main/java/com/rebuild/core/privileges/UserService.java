@@ -22,7 +22,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -50,7 +50,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-public class UserService extends BaseServiceImpl {
+public class UserService extends BaseService {
 
     // 系统用户
     public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");

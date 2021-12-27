@@ -130,7 +130,9 @@ class ChartIndex extends BaseChart {
       <div className="chart index" ref={(c) => (this._chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p>{data.index.label || this.label}</p>
-          <strong>{data.index.data}</strong>
+          <a href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+            <strong>{data.index.data}</strong>
+          </a>
         </div>
       </div>
     )
@@ -1002,7 +1004,7 @@ class ProjectTasks extends BaseChart {
                 return (
                   <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
                     <td className="align-text-top">
-                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" title={$L('完成')}>
                         <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
                         <span className="custom-control-label" />
                       </label>

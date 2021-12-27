@@ -25,7 +25,7 @@ import redis.clients.jedis.params.SetParams;
 public abstract class DistributedJobLock {
 
     private static final String LOCK_KEY = "#RBJOBLOCK";
-    private static final int LOCK_TIME = 15;  // 15s offset
+    private static final long LOCK_TIME = 15;  // 15s offset
 
     /**
      * 是否已在运行中，即并发判断（分布式环境）

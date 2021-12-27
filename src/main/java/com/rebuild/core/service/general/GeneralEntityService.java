@@ -230,8 +230,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 log.debug("The record has been shared and has the same rights, ignore : {}", record);
             }
 
-        } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-            log.debug("Share to the same user as the record, ignore : {}", record);
+            // 可以共享给自己
+//        } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+//            log.debug("Share to the same user as the record, ignore : {}", record);
         } else {
             delegateService.create(sharedAfter);
             affected = 1;
@@ -541,13 +542,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public void approve(ID record, ApprovalState state) {
+    public void approve(ID record, ApprovalState state, ID approvalUser) {
         Assert.isTrue(
                 state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
                 "Only REVOKED or APPROVED allowed");
 
         Record approvalRecord = EntityHelper.forUpdate(record, UserService.SYSTEM_USER, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
+        if (state == ApprovalState.APPROVED
+                && approvalUser != null
+                && MetadataHelper.getEntity(record.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
+            approvalRecord.setID(EntityHelper.ApprovalLastUser, approvalUser);
+        }
+
         delegateService.update(approvalRecord);
 
         // 触发器

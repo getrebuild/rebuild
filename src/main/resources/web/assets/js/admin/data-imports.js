@@ -19,10 +19,15 @@ let fields_cached
 let import_inprogress = false
 let import_taskid
 
+const entity = $urlp('entity')
+if (entity) {
+  $('.J_step3-next').attr('href', `${$('.J_step3-next').attr('href')}?entity=${entity}`)
+}
+
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
-      $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
+      $(`<option value="${this.name}">${this.label}</option>`).appendTo('#toEntity')
     })
 
     const $toe = $('#toEntity')
@@ -33,7 +38,8 @@ $(document).ready(() => {
         _renderRepeatFields($(this).val())
         _checkUserPrivileges()
       })
-    if ($urlp('entity')) $toe.val($urlp('entity'))
+
+    if (entity) $toe.val(entity)
     $toe.trigger('change')
   })
 
@@ -118,24 +124,25 @@ const step2_mapping = () => {
 
 // 3. 开始导入
 const step3_import = () => {
-  let fm = {}
+  let fsMapping = {}
   $('#fieldsMapping tbody>tr').each(function () {
     const _this = $(this)
     const col = _this.data('col')
     const field = _this.find('select').val()
-    if (field) fm[field] = col
+    if (field) fsMapping[field] = col
   })
   $(fields_cached).each((idx, item) => {
     if (item.nullable === true || !!item.defaultValue) {
       // Not be must
-    } else if (fm[item.name] === undefined) {
+    } else if (fsMapping[item.name] === undefined) {
       RbHighbar.create($L('%s 为必填字段，请选择', item.label))
-      fm = null
+      fsMapping = null
       return false
     }
   })
-  if (!fm) return
-  _Config.fields_mapping = fm
+  if (!fsMapping) return
+
+  _Config.fields_mapping = fsMapping
 
   RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
     confirm: function () {
@@ -187,7 +194,7 @@ const step3_import_state = (taskid, inLoad) => {
 
     if (_data.isCompleted === true || _data.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true).text($L('导入完成'))
-      $('.J_step3-logs').removeClass('hide')
+      $('.J_step3-next').removeClass('hide')
       import_inprogress = false
       return
     }
@@ -232,7 +239,7 @@ const _fieldsMapping = (columns, fields) => {
   const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
     const $tr = $(`<tr data-col="${idx}"></tr>`).appendTo($tbody)
-    $(`<td><em>#${idx + 1}</em> ${item}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
+    $(`<td><em>#${idx + 1}</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
     const $td = $('<td></td>').appendTo($tr)
     const $clone = $fieldSelect.clone().appendTo($td)
     $('<td class="pl-3"></td>').appendTo($tr)
@@ -300,10 +307,14 @@ function _checkUserPrivileges() {
 // 渲染重复判断字段
 function _renderRepeatFields(entity) {
   if (!entity) return
+
+  const excludeNames = ['createdBy', 'createdOn', 'modifiedOn', 'modifiedBy']
+  const excludeTypes = ['AVATAR', 'FILE', 'IMAGE', 'MULTISELECT', 'N2NREFERENCE', 'LOCATION']
+
   const $el = $('#repeatFields').empty()
   $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
     $(res.data).each(function () {
-      if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
+      if (excludeNames.includes(this.name) || excludeTypes.includes(this.type)) return
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
     })
 

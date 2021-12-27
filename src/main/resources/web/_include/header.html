@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/simplemde.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 0}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 1}" />
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />
@@ -33,7 +33,7 @@
   <!--[if lt IE 10]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${T(com.rebuild.utils.AppUtils).isIE11(#request)}" th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
   <script th:if="${markWatermark == 'true'}" th:src="@{/assets/lib/watermark.js?v=2.3.2.2}"></script>
-  <style th:if="${commercial > 0}" type="text/css">
+  <style th:if="${commercial > 1}" type="text/css">
     .logo-img,
     .rb-top-header .rb-navbar-header .navbar-brand {
       background-image: url('[[${baseUrl}]]/commons/theme/use-logo');

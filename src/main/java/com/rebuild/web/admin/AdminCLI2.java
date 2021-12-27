@@ -9,9 +9,12 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.setup.DataFileBackup;
+import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.Installer;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,6 +29,7 @@ public class AdminCLI2 {
     private static final String C_HELP = "help";
     private static final String C_CACHE = "cache";
     private static final String C_SYSCFG = "syscfg";
+    private static final String C_BACKUP = "backup";
 
     final private String[] commands;
 
@@ -54,7 +58,7 @@ public class AdminCLI2 {
         String result = null;
         switch (commands[0]) {
             case C_HELP: {
-                result = this.execHelp();
+                result = " Usage : \ncache [clean] \nsyscfg NAME [VALUE] \nbackup [database|datafile]";
                 break;
             }
             case C_CACHE: {
@@ -63,6 +67,10 @@ public class AdminCLI2 {
             }
             case C_SYSCFG: {
                 result = this.execSyscfg();
+                break;
+            }
+            case C_BACKUP: {
+                result = this.execBackup();
                 break;
             }
             default: {
@@ -75,15 +83,6 @@ public class AdminCLI2 {
 
     /**
      * @return
-     * @see #C_HELP
-     */
-    protected String execHelp() {
-        return " Usage : \ncache ACTION \nsyscfg NAME [VALUE]";
-    }
-
-    /**
-     * @return
-     * @see #C_CACHE
      */
     protected String execCache() {
         if (commands.length < 2) return "Bad arguments";
@@ -102,7 +101,6 @@ public class AdminCLI2 {
 
     /**
      * @return
-     * @see #C_SYSCFG
      * @see ConfigurationItem
      */
     protected String execSyscfg() {
@@ -122,6 +120,30 @@ public class AdminCLI2 {
 
         } catch (IllegalArgumentException ex) {
             return "Bad arguments [1] : " + name;
+        }
+    }
+
+    /**
+     * @return
+     */
+    protected String execBackup() {
+        String type = commands.length > 1 ? commands[1] : null;
+
+        List<String> result = new ArrayList<>(2);
+        try {
+            if (type == null || "database".equals(type)) {
+                File backup = new DatabaseBackup().backup();
+                result.add("Backup database : " + backup);
+            }
+            if (type == null || "datafile".equals(type)) {
+                File backup = new DataFileBackup().backup();
+                result.add("Backup datafile : " + backup);
+            }
+
+            return result.isEmpty() ? "Nothing backup" : StringUtils.join(result, "\n");
+
+        } catch (Exception ex) {
+            return "Exec failed : " + ex.getLocalizedMessage();
         }
     }
 }

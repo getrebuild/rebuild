@@ -10,10 +10,12 @@ package com.rebuild.core.rbstore;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.*;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
@@ -36,6 +38,7 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +54,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
     private JSONObject data;
 
-    private List<Object[]> picklistHolders = new ArrayList<>();
+    private Map<Field, JSONObject> picklistHolders = new HashMap<>();
 
     private boolean needClearContextHolder = false;
 
@@ -69,9 +72,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
      */
     public String verfiy() {
         String hasError = verfiyEntity(data);
-        if (hasError != null) {
-            return hasError;
-        }
+        if (hasError != null) return hasError;
 
         JSONObject detailData = data.getJSONObject("detail");
         if (detailData == null) detailData = data.getJSONObject("slave");
@@ -93,13 +94,16 @@ public class MetaschemaImporter extends HeavyTask<String> {
         for (Object o : entity.getJSONArray("fields")) {
             JSONObject field = (JSONObject) o;
             String dt = field.getString("displayType");
-            if (DisplayType.REFERENCE.name().equals(dt) || DisplayType.N2NREFERENCE.name().equals(dt)) {
+
+            if (DisplayType.REFERENCE.name().equals(dt)
+                    || DisplayType.N2NREFERENCE.name().equals(dt)) {
                 String refEntity = field.getString("refEntity");
                 if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
                     return Language.L("缺少必要的引用实体 : %s (%s)", field.getString("fieldLabel"), refEntity);
                 }
             }
         }
+
         return null;
     }
 
@@ -136,10 +140,18 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        for (Object[] picklist : picklistHolders) {
-            Field refreshField = (Field) picklist[0];
-            refreshField = MetadataHelper.getField(refreshField.getOwnEntity().getName(), refreshField.getName());
-            Application.getBean(PickListService.class).updateBatch(refreshField, (JSONObject) picklist[1]);
+        final ID sessionUser = UserContextHolder.getUser(true);
+        if (sessionUser == null) UserContextHolder.setUser(getUser());
+
+        // 字段选项
+        try {
+            for (Map.Entry<Field, JSONObject> e : picklistHolders.entrySet()) {
+                Field field = e.getKey();
+                Application.getBean(PickListService.class).updateBatch(
+                        MetadataHelper.getField(field.getOwnEntity().getName(), field.getName()), e.getValue());
+            }
+        } finally {
+            if (sessionUser == null) UserContextHolder.clear();
         }
         setCompleted(100);
 
@@ -156,34 +168,35 @@ public class MetaschemaImporter extends HeavyTask<String> {
     }
 
     /**
-     * @param schemaEntity
-     * @param mainEntityName
+     * @param schema
+     * @param mainEntity
      * @return
      * @throws MetadataModificationException
      */
-    private String performEntity(JSONObject schemaEntity, String mainEntityName) throws MetadataModificationException {
-        final String entityName = schemaEntity.getString("entity");
-        final String entityLabel = schemaEntity.getString("entityLabel");
+    private String performEntity(JSONObject schema, String mainEntity) throws MetadataModificationException {
+        final String entityName = schema.getString("entity");
+        final String entityLabel = schema.getString("entityLabel");
 
         Entity2Schema entity2Schema = new Entity2Schema(this.getUser());
         entity2Schema.createEntity(
-                entityName, entityLabel, schemaEntity.getString("comments"), mainEntityName, false);
-        Entity entity = MetadataHelper.getEntity(entityName);
+                entityName, entityLabel, schema.getString("comments"), mainEntity, false);
+
+        Entity newEntity = MetadataHelper.getEntity(entityName);
         this.setCompleted((int) (this.getCompleted() * 1.5));
 
-        JSONArray fields = schemaEntity.getJSONArray("fields");
+        JSONArray fields = schema.getJSONArray("fields");
         try {
             List<Field> fieldsList = new ArrayList<>();
             for (Object field : fields) {
-                Field unsafe = performField((JSONObject) field, entity);
+                Field unsafe = performField((JSONObject) field, newEntity);
                 if (unsafe != null) fieldsList.add(unsafe);
             }
 
             // 同步字段到数据库
-            new Field2Schema(UserService.ADMIN_USER).schema2Database(entity, fieldsList.toArray(new Field[0]));
+            new Field2Schema(UserService.ADMIN_USER).schema2Database(newEntity, fieldsList.toArray(new Field[0]));
 
         } catch (Exception ex) {
-            entity2Schema.dropEntity(entity, true);
+            entity2Schema.dropEntity(newEntity, true);
 
             if (ex instanceof MetadataModificationException) {
                 throw ex;
@@ -192,17 +205,18 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        Record needUpdate = EntityHelper.forUpdate(EasyMetaFactory.valueOf(entity).getMetaId(), this.getUser(), false);
+        Record needUpdate = EntityHelper.forUpdate(
+                EasyMetaFactory.valueOf(newEntity).getMetaId(), this.getUser(), false);
 
-        String nameField = schemaEntity.getString("nameField");
+        String nameField = schema.getString("nameField");
         if (nameField != null) {
             needUpdate.setString("nameField", nameField);
         }
-        String entityIcon = schemaEntity.getString("entityIcon");
+        String entityIcon = schema.getString("entityIcon");
         if (entityIcon != null) {
             needUpdate.setString("icon", entityIcon);
         }
-        String quickFields = schemaEntity.getString("quickFields");
+        String quickFields = schema.getString("quickFields");
         if (quickFields != null) {
             needUpdate.setString("extConfig", JSONUtils.toJSONObject("quickFields", quickFields).toJSONString());
         }
@@ -214,24 +228,24 @@ public class MetaschemaImporter extends HeavyTask<String> {
         // 刷新元数据
         MetadataHelper.getMetadataFactory().refresh(false);
 
-        // 布局
-        JSONObject layouts = schemaEntity.getJSONObject("layouts");
-        if (layouts != null) {
-            for (Map.Entry<String, Object> e : layouts.entrySet()) {
-                performLayout(entityName, e.getKey(), (JSON) e.getValue());
-            }
-        }
-
         // 表单回填
-        JSONArray fillins = schemaEntity.getJSONArray("fillins");
+        JSONArray fillins = schema.getJSONArray(MetaSchemaGenerator.CFG_FILLINS);
         if (fillins != null) {
             for (Object o : fillins) {
                 performFillin(entityName, (JSONObject) o);
             }
         }
 
+        // 布局
+        JSONObject layouts = schema.getJSONObject(MetaSchemaGenerator.CFG_LAYOUTS);
+        if (layouts != null) {
+            for (Map.Entry<String, Object> e : layouts.entrySet()) {
+                performLayout(entityName, e.getKey(), (JSON) e.getValue());
+            }
+        }
+
         // 高级查询
-        JSONArray filters = schemaEntity.getJSONArray("filters");
+        JSONArray filters = schema.getJSONArray(MetaSchemaGenerator.CFG_FILTERS);
         if (filters != null) {
             for (Object o : filters) {
                 performFilter(entityName, (JSONObject) o);
@@ -239,7 +253,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 触发器
-        JSONArray triggers = schemaEntity.getJSONArray("triggers");
+        JSONArray triggers = schema.getJSONArray(MetaSchemaGenerator.CFG_TRIGGERS);
         if (triggers != null) {
             for (Object o : triggers) {
                 performTrigger(entityName, (JSONObject) o);
@@ -247,7 +261,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 审批流程
-        JSONArray approvals = schemaEntity.getJSONArray("approvals");
+        JSONArray approvals = schema.getJSONArray(MetaSchemaGenerator.CFG_APPROVALS);
         if (approvals != null) {
             for (Object o : approvals) {
                 performApproval(entityName, (JSONObject) o);
@@ -255,7 +269,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 记录转换
-        JSONArray transforms = schemaEntity.getJSONArray("transforms");
+        JSONArray transforms = schema.getJSONArray(MetaSchemaGenerator.CFG_TRANSFORMS);
         if (transforms != null) {
             for (Object o : transforms) {
                 performTransform(entityName, (JSONObject) o);
@@ -277,7 +291,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         Field unsafeField = new Field2Schema(this.getUser()).createUnsafeField(
-                belong, fieldName, fieldLabel, dt,
+                belong,
+                fieldName,
+                fieldLabel,
+                dt,
                 schemaField.getBooleanValue("nullable"),
                 true,
                 schemaField.getBooleanValue("updatable"),
@@ -290,8 +307,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
                 schemaField.getString("defaultValue"));
 
         if (DisplayType.PICKLIST == dt || DisplayType.MULTISELECT == dt) {
-            picklistHolders.add(new Object[] {
-                    unsafeField, performPickList(schemaField.getJSONArray("items")) });
+            picklistHolders.put(unsafeField, performPickList(schemaField.getJSONArray("items")));
         }
 
         return unsafeField;
@@ -300,7 +316,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private JSONObject performPickList(JSONArray items) {
         JSONArray shown = new JSONArray();
         for (Object o : items) {
-            JSONArray item = (JSONArray) o;
+            JSONArray item = o instanceof Object[] ? (JSONArray) JSON.toJSON(o) : (JSONArray) o;
 
             JSONObject option = JSONUtils.toJSONObject(
                     new String[] { "text", "default" },

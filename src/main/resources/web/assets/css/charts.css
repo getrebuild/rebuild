@@ -129,6 +129,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: 400;
 }
 
+.chart.index > .data-item a {
+  color: #404040;
+}
+
+.chart.index > .data-item a:hover {
+  opacity: 0.8;
+}
+
 .chart.ctable {
   position: relative;
   width: 100%;

@@ -165,8 +165,9 @@ public class EntityHelper {
     public static final String ApprovalId = "approvalId";
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
+    public static final String ApprovalLastUser = "approvalLastUser";
 
-    // 权限
+    // 用户
 
     public static final int User = 1;
     public static final int Department = 2;
@@ -177,7 +178,7 @@ public class EntityHelper {
     public static final int TeamMember = 7;
     public static final int ExternalUser = 8;
 
-    // 配置
+    // 系统
 
     public static final int MetaEntity = 10;
     public static final int MetaField = 11;
@@ -207,6 +208,7 @@ public class EntityHelper {
     public static final int Language = 36;
     public static final int TransformConfig = 37;
     public static final int FrontjsCode = 38;
+    public static final int NreferenceItem = 39;
 
     // 动态
 

@@ -42,9 +42,8 @@ $(document).ready(function () {
           },
         })
       } else {
-        RbAlert.create($L('此部门下有 %s [] 需要先将他们转移至其他部门，然后才能安全删除', limits.join(' / ')), $L('无法删除'), {
+        RbAlert.create(WrapHtml($L('此部门下有 %s [] 需要先将他们转移至其他部门，然后才能安全删除', limits.join(' / '))), $L('无法删除'), {
           type: 'danger',
-          html: true,
         })
       }
     })

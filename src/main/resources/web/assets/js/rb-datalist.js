@@ -20,9 +20,9 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
-    this.__defaultFilterKey = 'AdvFilter-' + this.props.config.entity
-    this.__sortFieldKey = 'SortField-' + this.props.config.entity
-    this.__columnWidthKey = 'ColumnWidth-' + this.props.config.entity + '.'
+    this.__defaultFilterKey = `AdvFilter-${this.props.config.entity}`
+    this.__sortFieldKey = `SortField-${this.props.config.entity}`
+    this.__columnWidthKey = `ColumnWidth-${this.props.config.entity}.`
 
     const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
     const fields = props.config.fields
@@ -67,13 +67,13 @@ class RbList extends React.Component {
                     )}
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || that.__defaultColumnWidth
-                      const styles = { width: cWidth + 'px' }
+                      const styles = { width: cWidth }
                       const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
                         <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
-                            <span style={{ width: cWidth - 8 + 'px' }}>{item.label}</span>
-                            <i className={'zmdi ' + (item.sort || '')} />
+                            <span style={{ width: cWidth - 8 }}>{item.label}</span>
+                            <i className={`zmdi ${item.sort || ''}`} />
                             <i className="dividing" />
                           </div>
                         </th>
@@ -85,11 +85,11 @@ class RbList extends React.Component {
                 <tbody ref={(c) => (this._rblistBody = c)}>
                   {this.state.rowsData.map((item) => {
                     const lastPrimary = item[lastIndex]
-                    const rowKey = 'row-' + lastPrimary.id
+                    const rowKey = `row-${lastPrimary.id}`
                     return (
                       <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
                         {this.props.uncheckbox !== true && (
-                          <td key={rowKey + '-checkbox'} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
+                          <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
                                 <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
@@ -208,6 +208,7 @@ class RbList extends React.Component {
       protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
       reload: reload,
+      statsField: wpc.statsField === true && rb.commercial > 0,
     }
     this.__lastQueryEntry = query
 
@@ -462,6 +463,10 @@ class RbList extends React.Component {
   static renderAfter() {}
 }
 
+function _isFullUrl(urlKey) {
+  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
+}
+
 // 列表（单元格）渲染
 const CellRenders = {
   __renders: {},
@@ -494,7 +499,7 @@ const CellRenders = {
    * @param {*} k key of React (contains fieldName)
    */
   renderSimple(v, s, k) {
-    if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
+    if (typeof v === 'string' && v.length > 300) v = v.substr(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
     else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
 
@@ -540,11 +545,11 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
       <div className="column-imgs" style={s} title={$L('共 %d 项', vLen)}>
         {v.map((item, idx) => {
           if (idx > 2) return null
-          const imgUrl = `${rb.baseUrl}/filex/img/${item}`
           const imgName = $fileCutName(item)
+          const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
             <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
-              <img alt="Image" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
+              <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
             </a>
           )
         })}
@@ -564,8 +569,8 @@ CellRenders.addRender('FILE', function (v, s, k) {
             if (idx > 0) return null
             const fileName = $fileCutName(item)
             return (
-              <li key={'k-' + item} className="text-truncate">
-                <a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>
+              <li key={item} className="text-truncate">
+                <a onClick={(e) => CellRenders.clickPreview(item, null, e)}>
                   {fileName}
                   {vLen > 1 ? ` ...[${vLen}]` : null}
                 </a>
@@ -599,7 +604,7 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
         {v.map((item, idx) => {
           if (idx > 0) return null
           return (
-            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
               {vLen > 1 ? ` ...[${vLen}]` : null}
             </a>
@@ -626,7 +631,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>
+        <a href={`mailto:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -638,7 +643,7 @@ CellRenders.addRender('PHONE', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>
+        <a href={`tel:${v}`} className="column-url" onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -657,7 +662,7 @@ CellRenders.addRender('STATE', function (v, s, k) {
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v}>
-          <span className={badge ? 'badge badge-' + badge : ''}>{v}</span>
+          <span className={badge ? `badge badge-${badge}` : ''}>{v}</span>
         </div>
       </td>
     )
@@ -686,7 +691,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
       <div style={s}>
         {(v.text || []).map((item) => {
           return (
-            <span key={'opt-' + item} className="badge" title={item}>
+            <span key={item} className="badge" title={item}>
               {item}
             </span>
           )
@@ -697,10 +702,27 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
 })
 
 CellRenders.addRender('AVATAR', function (v, s, k) {
-  const imgUrl = `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
+  const imgUrl = _isFullUrl(v) ? v : `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
   return (
     <td key={k} className="user-avatar">
       <img src={imgUrl} alt="Avatar" />
+    </td>
+  )
+})
+
+CellRenders.addRender('LOCATION', function (v, s, k) {
+  return (
+    <td key={k}>
+      <div style={s} title={v.text}>
+        <a
+          href={`#!/Map:${v.lng || ''},${v.lat || ''}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
+            BaiduMapModal.view(v)
+          }}>
+          {v.text}
+        </a>
+      </div>
     </td>
   )
 })
@@ -793,8 +815,18 @@ class RbListPagination extends React.Component {
             </span>
           )
         })}
-        {rb.isAdminUser && (
-          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计字段'))}>
+        {rb.isAdminUser && wpc.statsField && (
+          <a
+            className="list-stats-settings"
+            onClick={() =>
+              RbModal.create(
+                `/p/admin/metadata/list-stats?entity=${this._entity}`,
+                <React.Fragment>
+                  {$L('配置统计字段')}
+                  <sup className="rbv" title={$L('增值功能')} />
+                </React.Fragment>
+              )
+            }>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
           </a>
         )}
@@ -898,6 +930,8 @@ const RbListPage = {
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
+
+    typeof window.startTour === 'function' && window.startTour(1000)
   },
 
   reload() {

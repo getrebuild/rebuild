@@ -15,12 +15,13 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.BaseServiceImpl;
+import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -49,7 +50,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @param aPMFactory
      */
     protected ObservableService(PersistManagerFactory aPMFactory) {
-        this.delegateService = new BaseServiceImpl(aPMFactory);
+        this.delegateService = new BaseService(aPMFactory);
 
         // 默认监听者
         addObserver(new RevisionHistoryObserver());
@@ -127,14 +128,19 @@ public abstract class ObservableService extends Observable implements ServiceSpe
             sql.append(iter.next()).append(',');
         }
         sql.deleteCharAt(sql.length() - 1);
-        sql.append(" from ").append(base.getEntity().getName());
-        sql.append(" where ").append(base.getEntity().getPrimaryField().getName()).append(" = ?");
+        sql.append(" from ")
+                .append(base.getEntity().getName())
+                .append(" where ")
+                .append(base.getEntity().getPrimaryField().getName())
+                .append(" = ?");
 
-        Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
-        if (current == null) {
+        Record snap = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
+        if (snap == null) {
             throw new NoRecordFoundException(primaryId);
         }
-        return current;
+
+        N2NReferenceSupport.fillN2NValues(snap);
+        return snap;
     }
 
     /**

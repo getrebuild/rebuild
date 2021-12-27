@@ -9,11 +9,13 @@ package com.rebuild.core.support;
 
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,26 +44,27 @@ public class RebuildConfiguration extends KVStorage {
         }
 
         String d = get(ConfigurationItem.DataDirectory);
-        File data = null;
+        File datadir = null;
         if (StringUtils.isNotBlank(d)) {
-            data = new File(d);
-            if (!data.exists() && !data.mkdirs()) {
-                log.error("Cannot mkdirs for data : " + data);
+            datadir = new File(d);
+            if (!datadir.exists() && !datadir.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", datadir);
             }
         }
 
-        if (data == null || !data.exists()) {
-            data = FileUtils.getUserDirectory();
-            data = new File(data, ".rebuild");
-            if (!data.exists() && !data.mkdirs()) {
-                log.error("Cannot mkdirs for data : " + data);
+        if (datadir == null || !datadir.exists()) {
+            datadir = FileUtils.getUserDirectory();
+            datadir = new File(datadir, ".rebuild");
+            if (!datadir.exists() && !datadir.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", datadir);
             }
         }
 
-        if (!data.exists()) {
-            data = FileUtils.getTempDirectory();
+        if (!datadir.exists()) {
+            throw new RebuildException("No data directory exists!");
         }
-        return filepath == null ? data : new File(data, filepath);
+        
+        return filepath == null ? datadir : new File(datadir, filepath);
     }
 
     /**
@@ -79,9 +82,10 @@ public class RebuildConfiguration extends KVStorage {
         File temp = getFileOfData("temp");
         if (!temp.exists()) {
             if (!temp.mkdirs()) {
-                throw new RebuildException("Cannot mkdirs for temp : " + temp);
+                throw new RebuildException("Cannot mkdir for temp directory : " + temp);
             }
         }
+
         return filepath == null ? temp : new File(temp, filepath);
     }
 
@@ -184,7 +188,7 @@ public class RebuildConfiguration extends KVStorage {
      * @param items
      * @return
      */
-    private static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
+    static String[] getsNoUnset(boolean noCache, ConfigurationItem... items) {
         List<String> list = new ArrayList<>();
         for (ConfigurationItem item : items) {
             String v = get(item, noCache);
@@ -219,7 +223,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static int getInt(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Integer) name.getDefaultValue() : NumberUtils.toInt(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Integer) name.getDefaultValue(), 0)
+                : NumberUtils.toInt(s);
     }
 
     /**
@@ -228,7 +234,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static long getLong(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Long) name.getDefaultValue(), 0L)
+                : NumberUtils.toLong(s);
     }
 
     /**
@@ -237,7 +245,9 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static boolean getBool(ConfigurationItem name) {
         String s = get(name);
-        return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
+        return s == null
+                ? ObjectUtils.defaultIfNull((Boolean) name.getDefaultValue(), false)
+                : BooleanUtils.toBoolean(s);
     }
 
     /**

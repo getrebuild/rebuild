@@ -3,6 +3,11 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('登录日志')}]]</title>
+    <style>
+      .cell-detail-description span {
+        display: inline-block !important;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -30,7 +35,7 @@
                     </div>
                   </div>
                 </div>
-                <div id="react-list" class="rb-loading rb-loading-active data-list data-list-unstats">
+                <div id="react-list" class="rb-loading rb-loading-active data-list">
                   <th:block th:replace="~{/_include/spinner}" />
                 </div>
               </div>

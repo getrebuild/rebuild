@@ -7,10 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.*;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
@@ -36,7 +33,9 @@ import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +62,7 @@ public class LoginController extends BaseController {
     public static final String CK_AUTOLOGIN = "rb.alt";
     public static final String SK_USER_THEME = "currentUseTheme";
     private static final String SK_NEED_VCODE = "needLoginVCode";
+    private static final String SK_START_TOUR = "needStartTour";
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -146,7 +146,7 @@ public class LoginController extends BaseController {
             mv.getModel().put("ssoWxwork", "#");
         }
 
-        mv.getModelMap().put("UsersMsg", AdminDiagnosis.getUsersDanger());
+        mv.getModelMap().put("UsersMsg", SystemDiagnosis.getUsersDanger());
         return mv;
     }
 
@@ -221,12 +221,21 @@ public class LoginController extends BaseController {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
 
-        createLoginLog(request, user);
+        ThreadPool.exec(() -> createLoginLog(request, user));
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME,
-                KVStorage.getCustomValue("THEME." + user));
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
+
+        // Tour 显示规则
+        Object[] initLoginTimes = Application.createQueryNoFilter(
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2021-12-01'")
+                .setParameter(1, user)
+                .unique();
+        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
+                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
+            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
+        }
     }
 
     private void createLoginLog(HttpServletRequest request, ID user) {
@@ -242,12 +251,17 @@ public class LoginController extends BaseController {
             ua = "UNKNOW";
         }
 
+        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
+
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
-        record.setString("ipAddr", ServletUtils.getRemoteAddr(request));
+        record.setString("ipAddr", ipAddr);
         record.setString("userAgent", ua);
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
+
+        License.siteApi(
+                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
     @GetMapping("logout")
@@ -329,6 +343,11 @@ public class LoginController extends BaseController {
         } else {
             return RespBody.ok(ret.getString("url"));
         }
+    }
+
+    @GetMapping("site-register")
+    public void reg(HttpServletResponse response) throws IOException {
+        response.sendRedirect("https://getrebuild.com/market/site-register?sn=" + License.SN());
     }
 
     // --

@@ -27,13 +27,7 @@ class ApprovalList extends ConfigList {
                 <a href={`approval/${item[0]}`}>{item[3]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>
-                {item[4] ? (
-                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
-                ) : (
-                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
-                )}
-              </td>
+              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -58,8 +52,7 @@ class ApprovalList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('若流程正在使用则不能删除，建议你将其禁用。[] 确认删除此审批流程吗？'), {
-      html: true,
+    RbAlert.create(WrapHtml($L('若流程正在使用则不能删除，建议你将其禁用。[] 确认删除此审批流程吗？')), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -105,13 +98,7 @@ class ApprovalEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input
-                  className="custom-control-input"
-                  type="checkbox"
-                  checked={this.state.isDisabled === true}
-                  data-id="isDisabled"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
                 <span className="custom-control-label">
                   {$L('是否禁用')}
                   <i ref={(c) => (this._tooltip = c)} className="zmdi zmdi-help zicon" title={$L('禁用后正在使用此流程的审批记录不受影响')}></i>

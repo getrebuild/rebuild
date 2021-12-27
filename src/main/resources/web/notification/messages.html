@@ -4,6 +4,107 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/manual/notifications" />
     <title>[[${bundle.L('通知')}]]</title>
+    <style>
+      .notification-tab {
+        position: relative;
+      }
+
+      .notification-tab .read-all {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+
+      @media (max-width: 768px) {
+        .float-right .rb-notifications {
+          right: 0;
+        }
+      }
+
+      .notification-type {
+        min-height: 198px;
+        position: sticky;
+        top: 61px;
+      }
+
+      .notification-type .list-group-item {
+        padding: 10px 15px;
+      }
+
+      .notification-list .list-nodata {
+        padding-top: 70px;
+      }
+
+      .notification-list .notification > .a {
+        cursor: default;
+        padding-left: 10px;
+      }
+
+      .notification-list .notification:hover {
+        background-color: #ebf2fe !important;
+      }
+
+      .notification-list .notification.notification-unread:hover {
+        background-color: #dce9fd !important;
+      }
+
+      .notification-list .notification .text {
+        color: #404040 !important;
+        font-size: 1rem !important;
+      }
+
+      .notification-list .notification .date {
+        color: #8a8a8a !important;
+        margin-top: 6px !important;
+      }
+
+      .notification-list .notification .text a {
+        cursor: pointer;
+      }
+
+      .notification-list .notification .text a.record {
+        text-decoration: underline;
+        padding: 0 1px;
+      }
+
+      .notification-list .notification.append {
+        padding-right: 70px;
+      }
+
+      .notification-list .notification.append .badge {
+        position: absolute;
+        right: 15px;
+        top: 11px;
+        font-weight: normal;
+      }
+
+      .notification-list .notification.notification-unread > .a::after {
+        right: 8px;
+        background-color: #4285f4 !important;
+      }
+
+      .notification-list .notification .text > ul {
+        padding-left: 18px;
+      }
+
+      .notification-list .notification .text > ul li > p {
+        margin: 0;
+      }
+
+      .notification-list .notification.focus {
+        outline: 2px solid #fbbc05;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        z-index: 1;
+      }
+
+      .notification-info blockquote {
+        font-size: 1rem;
+        border-left: 3px solid #ccc;
+        padding-left: 6px;
+        margin: 4px 0 6px 1px;
+        color: #777;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
@@ -14,9 +115,9 @@
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic notification-tab">
               <li class="nav-item">
-                <a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('消息')}]]</a>
+                <a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('通知')}]]</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item hide">
                 <a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('待办')}]]</a>
               </li>
               <button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.L('已读全部')}]]</button>
@@ -25,28 +126,32 @@
               <div class="tab-pane active">
                 <div class="row">
                   <div class="col-md-3 col-12">
-                    <div class="list-group notification-type">
-                      <a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('未读消息')}]]</span>
-                      </a>
-                      <a href="#read" data-type="2" class="hide list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('已读消息')}]]</span>
-                      </a>
-                      <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('动态')}]]</span>
-                      </a>
-                      <a href="#project" data-type="40" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('项目')}]]</span>
-                      </a>
-                      <a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('审批')}]]</span>
-                      </a>
-                      <a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('分派&共享')}]]</span>
-                      </a>
-                      <a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.L('全部消息')}]]</span>
-                      </a>
+                    <div class="notification-type">
+                      <div class="list-group mb-2">
+                        <a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('未读消息')}]]</span>
+                        </a>
+                        <a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('全部消息')}]]</span>
+                        </a>
+                      </div>
+                      <div class="list-group">
+                        <a href="#read" data-type="2" class="hide list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('已读消息')}]]</span>
+                        </a>
+                        <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('动态')}]]</span>
+                        </a>
+                        <a href="#project" data-type="40" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('项目')}]]</span>
+                        </a>
+                        <a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('审批')}]]</span>
+                        </a>
+                        <a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
+                          <span class="text">[[${bundle.L('分派&共享')}]]</span>
+                        </a>
+                      </div>
                     </div>
                   </div>
                   <div class="col-md-9 col-12" id="message-list"></div>

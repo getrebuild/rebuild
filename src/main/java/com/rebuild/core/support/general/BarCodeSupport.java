@@ -17,7 +17,6 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.metadata.easymeta.EasyBarCode;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -29,12 +28,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 条形码生成
+ * 二维码字段支持
  *
  * @author devezhao
  * @since 2020/6/5
  */
-public class BarCodeGenerator {
+public class BarCodeSupport {
+
+    // 二维码（默认）
+    public static final String TYPE_QRCODE = "QRCODE";
+    // 条码
+    public static final String TYPE_BARCODE = "BARCODE";
 
     /**
      * @param field
@@ -58,10 +62,11 @@ public class BarCodeGenerator {
         String content = getBarCodeContent(field, record);
         String barcodeType = EasyMetaFactory.valueOf(field).getExtraAttr("barcodeType");
 
-        // 默认为二维码
-        if (EasyBarCode.BT_BARCODE.equalsIgnoreCase(barcodeType)) {
+        if (TYPE_BARCODE.equalsIgnoreCase(barcodeType)) {
             return createBarCode(content);
-        } else {
+        }
+        // 默认为二维码
+        else {
             return createQRCode(content);
         }
     }

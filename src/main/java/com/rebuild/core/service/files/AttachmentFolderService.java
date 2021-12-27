@@ -13,8 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/11/14
  */
 @Service
-public class AttachmentFolderService extends BaseService {
+public class AttachmentFolderService extends InternalPersistService {
 
     protected AttachmentFolderService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

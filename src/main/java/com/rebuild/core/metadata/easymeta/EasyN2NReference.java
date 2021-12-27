@@ -12,15 +12,20 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.general.N2NReferenceSupport;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author devezhao
  * @since 2020/11/17
+ * @see N2NReferenceSupport
  */
+@Slf4j
 public class EasyN2NReference extends EasyReference {
     private static final long serialVersionUID = -16180408450167432L;
 
@@ -44,6 +49,7 @@ public class EasyN2NReference extends EasyReference {
         }
 
         if (targetField.getDisplayType() == DisplayType.REFERENCE) {
+            log.warn("ID array may be lost : {} << {}", idArrayValue[0], Arrays.toString(idArrayValue));
             return idArrayValue[0];
         }
         return idArrayValue;

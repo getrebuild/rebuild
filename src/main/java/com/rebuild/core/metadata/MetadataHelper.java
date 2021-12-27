@@ -39,7 +39,7 @@ public class MetadataHelper {
 
     // 通用分隔符
     public static final String SPLITER = "$$$$";
-    public static final String SPLITER2 = "\\$\\$\\$\\$";
+    public static final String SPLITER_RE = "\\$\\$\\$\\$";
 
     /**
      * 元数据工厂
@@ -240,7 +240,8 @@ public class MetadataHelper {
     public static boolean isApprovalField(String fieldName) {
         return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
-                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
+                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName);
     }
 
     /**

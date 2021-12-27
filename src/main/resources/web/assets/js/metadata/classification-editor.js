@@ -97,23 +97,15 @@ class LevelBox extends React.Component {
             <div className="switch-button switch-button-xs">
               <input type="checkbox" id={forId} onChange={this.turnToggle} checked={this.state.turnOn} />
               <span>
-                <label htmlFor={forId} title={$L('启用/禁用')}></label>
+                <label htmlFor={forId} title={$L('启用/禁用')} />
               </span>
             </div>
           </div>
         )}
-        <div className="clearfix"></div>
+        <div className="clearfix" />
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input
-              className="form-control"
-              type="text"
-              maxLength="60"
-              placeholder={$L('添加分类项')}
-              value={this.state.itemName || ''}
-              data-id="itemName"
-              onChange={this.changeVal}
-            />
+            <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
             {this.state.itemId && this.state.itemHide && (
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                 <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
@@ -139,13 +131,13 @@ class LevelBox extends React.Component {
                   </div>
                   <div className="dd-action">
                     <a>
-                      <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)}></i>
+                      <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)} />
                     </a>
                     <a>
-                      <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)}></i>
+                      <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)} />
                     </a>
                   </div>
-                  {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
+                  {active && <span className="zmdi zmdi-caret-right arrow hide" />}
                 </li>
               )
             })}
@@ -353,7 +345,7 @@ class DlgImports extends RbModalHandler {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#RBSTORE" data-toggle="tab">
-                <i className="icon zmdi zmdi-cloud-outline-alt"></i>
+                <i className="icon zmdi zmdi-cloud-outline-alt" />
                 {$L('从 RB 仓库导入')}
               </a>
             </li>
@@ -366,16 +358,9 @@ class DlgImports extends RbModalHandler {
                   <div className="col-sm-7">
                     <div className="float-left">
                       <div className="file-select">
-                        <input
-                          type="file"
-                          className="inputfile"
-                          id="upload-input"
-                          accept=".xlsx,.xls,.csv"
-                          data-local="temp"
-                          ref={(c) => (this._uploadInput = c)}
-                        />
+                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
-                          <i className="zmdi zmdi-upload"></i>
+                          <i className="zmdi zmdi-upload" />
                           <span>{$L('选择文件')}</span>
                         </label>
                       </div>
@@ -383,12 +368,13 @@ class DlgImports extends RbModalHandler {
                     <div className="float-left ml-2 pt-1">
                       <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
                     </div>
-                    <div className="clearfix"></div>
+                    <div className="clearfix" />
                     <div
                       className="form-text link"
                       dangerouslySetInnerHTML={{
                         __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)'),
-                      }}></div>
+                      }}
+                    />
                   </div>
                 </div>
                 <div className="form-group row footer">
@@ -418,22 +404,17 @@ class DlgImports extends RbModalHandler {
                         </div>
                       </div>
                       <div className="float-right">
-                        <button
-                          disabled={this.state.inProgress === true}
-                          className="btn btn-sm btn-primary"
-                          data-file={item.file}
-                          data-name={item.name}
-                          onClick={this.import4Rbstore}>
+                        <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
                           {$L('导入')}
                         </button>
                       </div>
-                      <div className="clearfix"></div>
+                      <div className="clearfix" />
                     </div>
                   )
                 })}
               </div>
               <div className="mt-2 text-right">
-                <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">
+                <a href="https://getrebuild.com/market/go/1220-rb-store" className="link" target="_blank" rel="noopener noreferrer">
                   {$L('提交数据到 RB 仓库')}
                 </a>
               </div>
@@ -488,8 +469,7 @@ class DlgImports extends RbModalHandler {
     const name = e.currentTarget.dataset.name
     const url = `/admin/metadata/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>${$L('此导入为增量导入，不会对现有数据造成影响。开始导入吗？')}`, {
-      html: true,
+    RbAlert.create(WrapHtml(`<strong>${name}</strong><br>${$L('此导入为增量导入，不会对现有数据造成影响。开始导入吗？')}`), {
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })

@@ -74,12 +74,12 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
     }
 
     /**
-     * @param clearSystem
+     * @param excludeSystem
      * @return
      */
-    public JSONObject getExtraAttrs(boolean clearSystem) {
+    public JSONObject getExtraAttrs(boolean excludeSystem) {
         // see DynamicMetadataFactory
-        if (clearSystem) {
+        if (excludeSystem) {
             JSONObject clone = getExtraAttrs();
             clone.remove("metaId");
             clone.remove("comments");

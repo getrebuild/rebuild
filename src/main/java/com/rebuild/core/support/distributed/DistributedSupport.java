@@ -49,7 +49,9 @@ public class DistributedSupport implements UseRedis {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress(String.format("redis://%s:%d", kjp.getHost(), kjp.getPort()))
-                .setPassword(kjp.getPassword());
+                .setPassword(kjp.getPassword())
+                .setDatabase(kjp.getDatabase())
+                .setTimeout(KnownJedisPool.TIMEOUT);
         return config;
     }
 

@@ -66,6 +66,9 @@ class Setup extends React.Component {
     }
     this.setState({ installState: 10 })
     $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        $.cookie('install-reg-30d', 'yes', { expires: 30 })
+      }
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
     })
   }
@@ -99,22 +102,23 @@ class RbWelcome extends React.Component {
 
   // 开始安装
   _next(type) {
-    const that = this
-    RbAlert.create(
-      `<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L(
-        '如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。'
-      )}</p></div>`,
-      {
-        html: true,
-        type: 'warning',
-        cancelText: $L('不同意'),
-        confirmText: $L('同意'),
-        confirm: function () {
-          this.hide()
-          that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
-        },
-      }
+    const commercialTip = (
+      <div className="text-left link">
+        <div dangerouslySetInnerHTML={{ __html: $('.license').html() }} />
+        <div dangerouslySetInnerHTML={{ __html: $L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。') }} className="text-bold" />
+      </div>
     )
+
+    const that = this
+    RbAlert.create(commercialTip, {
+      type: 'warning',
+      cancelText: $L('不同意'),
+      confirmText: $L('同意'),
+      confirm: function () {
+        this.hide()
+        that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+      },
+    })
   }
 }
 
@@ -451,7 +455,7 @@ class ModelConf extends React.Component {
       <div className="rb-model">
         <h3>
           {$L('选择初始业务实体')}
-          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择来自 [RB 仓库](https://github.com/getrebuild/rebuild-datas/) 的业务实体使用，或在安装完成后自行添加') }} />
+          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择来自 [RB 仓库](https://getrebuild.com/market/go/1220-rb-store) 的业务实体使用，或在安装完成后自行添加') }} />
         </h3>
 
         {DatabaseConf_mount ? (
@@ -487,7 +491,7 @@ class ModelConf extends React.Component {
 
   _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps() })
   _next = () => {
-    const ps = this._buildProps(true)
+    const ps = this._buildProps()
     this.props.$$$parent.setState({ stepNo: 10, modelProps: ps }, () => this.props.$$$parent.install())
   }
 }

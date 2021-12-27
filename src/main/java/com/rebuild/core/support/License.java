@@ -32,9 +32,6 @@ public final class License {
     private static String USE_SN;
     private static Boolean USE_RBV;
 
-    /**
-     * @return
-     */
     public static String SN() {
         if (USE_SN != null) return USE_SN;
 
@@ -46,7 +43,7 @@ public final class License {
 
         if (!Application.isReady()) return TEMP_SN;
 
-        JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER, false);
+        JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER);
         SN = newsn == null ? null : newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.set(ConfigurationItem.SN, SN);
@@ -64,9 +61,6 @@ public final class License {
         return SN;
     }
 
-    /**
-     * @return
-     */
     public static JSONObject queryAuthority(boolean useCache) {
         JSONObject auth = siteApi("api/authority/query", useCache);
         if (auth == null || auth.getString("error") != null) {
@@ -77,27 +71,16 @@ public final class License {
         return auth;
     }
 
-    /**
-     * @return
-     */
     public static int getCommercialType() {
         JSONObject auth = queryAuthority(true);
         Integer authType = auth.getInteger("authTypeInt");
         return authType == null ? 0 : authType;
     }
 
-    /**
-     * @return
-     */
     public static boolean isCommercial() {
         return getCommercialType() > 0;
     }
 
-    /**
-     * 增值模块已装载
-     *
-     * @return
-     */
     public static boolean isRbvAttached() {
         if (USE_RBV != null) return USE_RBV;
         if (!isCommercial()) {
@@ -114,12 +97,10 @@ public final class License {
         return USE_RBV;
     }
 
-    /**
-     * 调用 RB 官方服务 API
-     *
-     * @param api
-     * @return
-     */
+    public static JSONObject siteApi(String api) {
+        return siteApi(api, false);
+    }
+
     public static JSONObject siteApi(String api, boolean useCache) {
         if (useCache) {
             Object o = Application.getCommonsCache().getx(api);
@@ -135,9 +116,18 @@ public final class License {
             String result = HttpUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
-                Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+
+                String hasError = o.getString("error");
+                if (hasError != null) {
+                    log.error("Bad result : {}", result);
+                } else {
+                    Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+                }
                 return o;
+            } else {
+                log.error("Bad result format : {}", result);
             }
+
         } catch (Exception ex) {
             log.error("Call site api `{}` error : {}", api, ex.toString());
         }

@@ -5,13 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.metadata.entity;
+package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyPhone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/30
  */
-public class EasyMetaTest extends TestSupport {
+class EasyMetaTest extends TestSupport {
 
     @Test
     void getLabel() {

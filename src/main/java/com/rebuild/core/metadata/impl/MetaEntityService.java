@@ -15,7 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
-import com.rebuild.core.service.BaseService;
+import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.ServiceSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class MetaEntityService extends BaseService implements AdminGuard {
+public class MetaEntityService extends InternalPersistService implements AdminGuard {
 
     protected MetaEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -52,7 +52,8 @@ public class MetaEntityService extends BaseService implements AdminGuard {
         String[] confEntities = new String[]{
                 "MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig",
                 "Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
-                "DataReportConfig", "TransformConfig", "ExtformConfig"
+                "DataReportConfig", "TransformConfig", "ExtformConfig",
+                "NreferenceItem"
         };
         int del = 0;
         for (String conf : confEntities) {

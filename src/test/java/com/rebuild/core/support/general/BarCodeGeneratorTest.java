@@ -22,12 +22,12 @@ public class BarCodeGeneratorTest extends TestSupport {
     @Test
     public void getBarCodeContent() {
         Field barcodeField = MetadataHelper.getEntity(TestAllFields).getField("barcode");
-        System.out.println(BarCodeGenerator.getBarCodeContent(barcodeField, null));
+        System.out.println(BarCodeSupport.getBarCodeContent(barcodeField, null));
     }
 
     @Test
     public void saveBarCode() {
-        System.out.println(BarCodeGenerator.saveCode("CODE128", BarcodeFormat.CODE_128, 80));
-        System.out.println(BarCodeGenerator.saveCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
+        System.out.println(BarCodeSupport.saveCode("CODE128", BarcodeFormat.CODE_128, 80));
+        System.out.println(BarCodeSupport.saveCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
     }
 }

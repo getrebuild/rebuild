@@ -25,10 +25,9 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.HttpUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -42,14 +41,21 @@ import java.util.UUID;
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
+@Slf4j
 public class QiniuCloud {
-
-    private static final Logger LOG = LoggerFactory.getLogger(QiniuCloud.class);
 
     /**
      * 默认配置
      */
     public static final Configuration CONFIGURATION = new Configuration(Region.autoRegion());
+
+    private static final QiniuCloud INSTANCE = new QiniuCloud();
+
+    public static QiniuCloud instance() {
+        return INSTANCE;
+    }
+
+    // --
 
     private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 
@@ -62,7 +68,7 @@ public class QiniuCloud {
             this.auth = Auth.create(account[0], account[1]);
             this.bucketName = account[2];
         } else {
-            LOG.warn("No QiniuCloud configuration! Using local storage.");
+            log.warn("No QiniuCloud configuration! Using local storage.");
         }
     }
 
@@ -96,7 +102,7 @@ public class QiniuCloud {
         if (resp.isOK()) {
             return key;
         } else {
-            LOG.error("文件上传失败 : " + resp);
+            log.error("Cannot upload file : {}. Resp: {}", file.getName(), resp);
             return null;
         }
     }
@@ -127,18 +133,18 @@ public class QiniuCloud {
      * @param filePath
      * @return
      */
-    public String url(String filePath) {
-        return url(filePath, 60 * 15);
+    public String makeUrl(String filePath) {
+        return makeUrl(filePath, 60 * 15);
     }
 
     /**
      * 生成访问 URL
      *
      * @param filePath
-     * @param seconds  有效期
+     * @param seconds
      * @return
      */
-    public String url(String filePath, int seconds) {
+    public String makeUrl(String filePath, int seconds) {
         String baseUrl = RebuildConfiguration.getStorageUrl() + filePath;
         // default use HTTPS
         if (baseUrl.startsWith("//")) {
@@ -192,8 +198,8 @@ public class QiniuCloud {
     @SuppressWarnings("deprecation")
     public long stats() {
         String time = CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
-        String url = String.format(
-                "%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day", CONFIGURATION.apiHost(), bucketName, time, time);
+        String url = String.format("%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day",
+                CONFIGURATION.apiHost(), bucketName, time, time);
         StringMap headers = getAuth().authorization(url);
 
         try {
@@ -205,18 +211,9 @@ public class QiniuCloud {
             }
 
         } catch (QiniuException e) {
-            LOG.warn(null, e);
+            log.warn(null, e);
         }
         return -1;
-    }
-
-    private static final QiniuCloud INSTANCE = new QiniuCloud();
-
-    /**
-     * @return
-     */
-    public static QiniuCloud instance() {
-        return INSTANCE;
     }
 
     // --
@@ -243,6 +240,7 @@ public class QiniuCloud {
             if (fileNameSplit.length > 1 && StringUtils.isNotBlank(fileNameSplit[fileNameSplit.length - 1])) {
                 fileName += "." + fileNameSplit[fileNameSplit.length - 1];
             }
+
         } else {
             while (fileName.contains("__")) {
                 fileName = fileName.replace("__", "_");

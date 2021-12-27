@@ -112,5 +112,9 @@ module.exports = {
     $unhideDropdown: true,
     AnyRecordSelector: true,
     AsideTree: true,
+    $useMap: true,
+    BaiduMap: true,
+    BaiduMapModal: true,
+    WrapHtml: true,
   },
 }

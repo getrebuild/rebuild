@@ -20,7 +20,7 @@ class RbViewForm extends React.Component {
 
   render() {
     return (
-      <div className="rbview-form" ref={(c) => (this._viewForm = c)}>
+      <div className="rbview-form form-layout" ref={(c) => (this._viewForm = c)}>
         {this.state.formComponent}
       </div>
     )
@@ -36,15 +36,21 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
+      let hadAlert = null
       if (wpc.type === 'DetailView') {
-        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('主记录正在审批中') })
-        else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
+        if (hadApproval === 2 || hadApproval === 10) {
+          if (window.RbViewPage) window.RbViewPage.setReadonly()
+          else $('.J_edit, .J_delete').remove()
+
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+        }
         hadApproval = null
       }
 
       const viewData = {}
       const VFORM = (
-        <div>
+        <React.Fragment>
+          {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
@@ -53,8 +59,9 @@ class RbViewForm extends React.Component {
               return detectViewElement(item)
             })}
           </div>
-        </div>
+        </React.Fragment>
       )
+
       this.setState({ formComponent: VFORM }, () => {
         this.hideLoading()
         if (window.FrontJS) {
@@ -137,7 +144,7 @@ class RbViewForm extends React.Component {
         this.__ViewData[fieldName] = res.data[fieldName]
         fieldComp.toggleEditMode(false, res.data[fieldName])
         // 刷新列表
-        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id)
+        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -153,12 +160,8 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
-  return (
-    <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
-      {window.detectElement(item)}
-    </div>
-  )
+  // item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+  return window.detectElement(item)
 }
 
 const _renderError = (message) => {
@@ -328,7 +331,7 @@ class EntityRelatedList extends RelatedList {
             </span>
           </div>
         </div>
-        <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+        <div className="rbview-form form-layout inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
       </div>
     )
   }
@@ -434,7 +437,7 @@ class SelectReport extends React.Component {
                 <p className="text-muted">
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
                       <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}
@@ -566,6 +569,11 @@ const RbViewPage = {
 
     that.initRecordMeta()
     that.initHistory()
+
+    setTimeout(() => {
+      if (window.parent && window.parent.tourStarted) return
+      typeof window.startTour === 'function' && window.startTour()
+    }, 1200)
   },
 
   // 元数据
@@ -740,9 +748,7 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.click(() => {
-        const alert = $L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)
-        RbAlert.create(alert, {
-          html: true,
+        RbAlert.create(WrapHtml($L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)), {
           confirm: function () {
             this.disabled(true)
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {

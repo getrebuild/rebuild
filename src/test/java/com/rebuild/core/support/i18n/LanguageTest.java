@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
  * @author devezhao
  * @since 2020/8/26
  */
-public class LanguageTest extends TestSupport {
+class LanguageTest extends TestSupport {
 
     @Test
-    public void getLang() {
+    void getLang() {
         System.out.println(Language.L("首页"));
         System.out.println(Language.L("%s首页", "谁的"));
         System.out.println(Language.L("%d条数据", 100));
@@ -37,14 +37,14 @@ public class LanguageTest extends TestSupport {
     }
 
     @Test
-    public void getMdLang() {
+    void getMdLang() {
         System.out.println(Language.L("**加粗**"));
         System.out.println(Language.L("换行 [] 第二行"));
         System.out.println(Language.L("这是一个 [链接](https://getrebuild.com/)"));
     }
 
     @Test
-    public void available() {
+    void available() {
         System.out.println(Application.getLanguage().available(""));
         System.out.println(Application.getLanguage().available("zh"));
         System.out.println(Application.getLanguage().available("zh-cn"));

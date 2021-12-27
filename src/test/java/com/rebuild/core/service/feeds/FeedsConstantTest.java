@@ -19,18 +19,18 @@ import org.junit.jupiter.api.Test;
 public class FeedsConstantTest {
 
     @Test
-    public void testFeedsScope() {
+    void testFeedsScope() {
         System.out.println(FeedsScope.parse("SELF"));
         System.out.println(FeedsScope.parse(ID.newId(EntityHelper.Team).toLiteral()));
     }
 
     @Test
-    public void testFeedsType() {
+    void testFeedsType() {
         System.out.println(FeedsType.parse(1));
     }
 
     @Test
-    public void testFeedsType2() {
+    void testFeedsType2() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> FeedsType.parse(111));
     }

@@ -7,6 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 const DIVIDER_LINE = '$DIVIDER$'
+const COLSPANS = {
+  1: 'w-25',
+  2: 'w-50',
+  3: 'w-75',
+  4: 'w-100',
+}
 
 $(document).ready(function () {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
@@ -22,7 +28,7 @@ $(document).ready(function () {
 
     $(res.data).each(function () {
       validFields[this.fieldName] = this
-      if (configFields.includes(this.fieldName) === false) render_unset(this, '.field-list')
+      if (configFields.includes(this.fieldName) === false) render_unset(this)
 
       // Adv control
       const $control = $(`<tr data-field="${this.fieldName}">${template}</tr>`).appendTo($advControls)
@@ -35,19 +41,17 @@ $(document).ready(function () {
     $(wpc.formConfig.elements).each(function () {
       const field = validFields[this.field]
       if (this.field === DIVIDER_LINE) {
-        render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4 })
       } else if (!field) {
-        const $item = $(
-          `<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L(
-            '字段已删除'
-          )}</span></div></div>`
-        ).appendTo('.form-preview')
+        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
+          '.form-preview'
+        )
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
         })
       } else {
-        render_item({ ...field, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
+        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null })
         AdvControl.set(this)
       }
     })
@@ -63,7 +67,7 @@ $(document).ready(function () {
 
   $('.J_add-divider').click(function () {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
-    render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', isFull: true }, '.form-preview')
+    render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 })
   })
 
   // @see field-new.html
@@ -75,6 +79,7 @@ $(document).ready(function () {
     'URL': $L('链接'),
     'NUMBER': $L('整数'),
     'DECIMAL': $L('货币'),
+    'SERIES': $L('自动编号'),
     'DATE': $L('日期'),
     'DATETIME': $L('日期时间'),
     'PICKLIST': $L('下拉列表'),
@@ -85,8 +90,8 @@ $(document).ready(function () {
     'FILE': $L('附件'),
     'IMAGE': $L('图片'),
     'AVATAR': $L('头像'),
-    'SERIES': $L('自动编号'),
     'BARCODE': $L('二维码'),
+    'LOCATION': $L('位置'),
     'BOOL': $L('布尔'),
   }
   for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })
@@ -119,10 +124,14 @@ $(document).ready(function () {
 
       const item = { field: $this.data('field') }
       if (item.field === DIVIDER_LINE) {
-        item.isFull = true
+        item.colspan = 4
         item.label = $this.find('span').text()
       } else {
-        item.isFull = $this.parent().hasClass('w-100')
+        item.colspan = 2 // default
+        if ($this.parent().hasClass('w-100')) item.colspan = 4
+        if ($this.parent().hasClass('w-75')) item.colspan = 3
+        if ($this.parent().hasClass('w-25')) item.colspan = 1
+
         const tip = $this.find('.J_tip').attr('title')
         if (tip) item.tip = tip
         item.__newLabel = $this.find('span').text()
@@ -156,7 +165,7 @@ $(document).ready(function () {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.create($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
+      RbHighbar.error(WrapHtml($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 
@@ -176,11 +185,11 @@ $(document).ready(function () {
 
 const render_item = function (data) {
   const $item = $('<div class="dd-item"></div>').appendTo('.form-preview')
-  if (data.isFull === true) $item.addClass('w-100')
 
-  const $handle = $(
-    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('分栏')}">${data.fieldLabel}</span></div>`
-  ).appendTo($item)
+  const colspan = data.isFull === true ? 4 : data.colspan || 2
+  $item.addClass(COLSPANS[colspan])
+
+  const $handle = $(`<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('分栏')}">${data.fieldLabel}</span></div>`).appendTo($item)
   if (data.creatable === false) $handle.addClass('readonly')
   else if (data.nullable === false) $handle.addClass('not-nullable')
   // 填写提示
@@ -189,11 +198,15 @@ const render_item = function (data) {
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
   if (data.displayType) {
     $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
-    $(`<a class="rowspan mr-1" title="${$L('单列/双列')}"><i class="zmdi zmdi-unfold-more"></i></a>`)
-      .appendTo($action)
-      .click(function () {
-        $item.toggleClass('w-100')
-      })
+    $(`<a class="mr-1 colspan" title="${$L('宽度')}" data-toggle="dropdown"><i class="zmdi zmdi-view-column"></i></a>`).appendTo($action)
+    const $colspan = $(
+      '<div class="dropdown-menu dropdown-menu-right"><a data-colspan="1" title="1/4"></a><a data-colspan="2" title="2/4"></a><a data-colspan="3" title="3/4"></a><a data-colspan="4" title="4/4"></a></div>'
+    ).appendTo($action)
+    $colspan.find('a').on('click', function () {
+      const colspan = ~~$(this).data('colspan')
+      $item.removeClass('w-25 w-50 w-75 w-100').addClass(COLSPANS[colspan])
+    })
+
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
@@ -341,14 +354,7 @@ class DlgEditDivider extends DlgEditField {
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('分栏名称')}</label>
-          <input
-            type="text"
-            className="form-control form-control-sm"
-            name="dividerName"
-            value={this.state.dividerName || ''}
-            onChange={this.handleChange}
-            placeholder={$L('输入分栏名称')}
-          />
+          <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
@@ -366,7 +372,7 @@ const add2Layout = function (fieldName) {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
-        render_item({ ...this, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
+        render_item({ ...this, tip: this.tip || null })
         return false
       }
     })

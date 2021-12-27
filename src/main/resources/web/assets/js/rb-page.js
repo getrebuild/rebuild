@@ -9,6 +9,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
+  // Analytics
+  var __js = function (url) {
+    var el = document.createElement('script')
+    el.src = url
+    el.async = true
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(el, s)
+  }
+  // for GA
+  window.dataLayer = window.dataLayer || []
+  var gtag = function () {
+    window.dataLayer.push(arguments)
+  }
+  gtag('js', new Date())
+  gtag('config', 'G-CC8EXS9BLD')
+  __js('https://www.googletagmanager.com/gtag/js?id=G-CC8EXS9BLD')
+
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()
@@ -151,12 +168,10 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 10)
-      return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
-        type: 'danger',
-        html: true,
-        timeout: 6000,
-      })
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
 
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
@@ -475,7 +490,8 @@ var $fileCutName = function (fileName) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
-  return fileName.substr(fileName.indexOf('__') + 2)
+  var splitIndex = fileName.indexOf('__')
+  return splitIndex === -1 ? fileName : fileName.substr(splitIndex + 2)
 }
 
 /**
@@ -817,4 +833,54 @@ var _getLang = function (key) {
     return key
   }
   return lang
+}
+
+/**
+ * 加载地图脚本
+ * https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
+ */
+var $useMap__Loaded
+var $useMap = function (onLoad) {
+  if ($useMap__Loaded === 2 && window.BMapGL) {
+    typeof onLoad === 'function' && onLoad()
+  } else if ($useMap__Loaded === 1) {
+    var _timer = setInterval(function () {
+      if ($useMap__Loaded === 2 && window.BMapGL) {
+        typeof onLoad === 'function' && onLoad()
+        clearInterval(_timer)
+      }
+    }, 500)
+  } else {
+    $useMap__Loaded = 1
+    window['$useMap__callback'] = function () {
+      $useMap__Loaded = 2
+      typeof onLoad === 'function' && onLoad()
+    }
+
+    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
+    $.getScript(scriptUrl)
+  }
+}
+
+// 自动定位（有误差）
+var $autoLocation = function (call) {
+  $useMap(function () {
+    var geo = new window.BMapGL.Geolocation()
+    geo.enableSDKLocation()
+    geo.getCurrentPosition(function (e) {
+      if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+        var geoc = new window.BMapGL.Geocoder()
+        geoc.getLocation(e.point, (r) => {
+          var v = {
+            lat: e.latitude,
+            lng: e.longitude,
+            text: r ? r.address : null,
+          }
+          typeof call === 'function' && call(v)
+        })
+      } else {
+        console.log('Geolocation failed :', this.getStatus())
+      }
+    })
+  })
 }

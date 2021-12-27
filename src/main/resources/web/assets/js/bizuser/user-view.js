@@ -46,8 +46,7 @@ $(document).ready(function () {
 
   $('.J_resetpwd').click(() => {
     const newpwd = $random(null, true, 8) + '!8'
-    RbAlert.create($L('密码将重置为 **%s** 是否确认？', newpwd), {
-      html: true,
+    RbAlert.create(WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd)), {
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
@@ -207,12 +206,9 @@ class DlgEnableUser extends RbModalHandler {
     }
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
-      if (data.roleAppends && rb.commercial < 10) {
-        return RbHighbar.create($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
-          type: 'danger',
-          html: true,
-          timeout: 6000,
-        })
+      if (data.roleAppends && rb.commercial < 1) {
+        RbHighbar.error(WrapHtml($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
       }
     }
 

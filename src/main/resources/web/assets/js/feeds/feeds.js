@@ -34,10 +34,11 @@ class GroupList extends React.Component {
         {this.state.list && this.state.list.length === 0 && <li className="nodata">{$L('暂无数据')}</li>}
         {(this.state.list || []).map((item) => {
           return (
-            <li key={'item-' + item.id} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
+            <li key={`item-${item.id}`} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
               <a className="text-truncate" onClick={() => this._handleActive(item.id)}>
                 {item.name}
               </a>
+              <i className={`zmdi zmdi-star-outline ${item.star && 'star'}`} onClick={() => this._handleStar(item)} title={$L('星标')} />
             </li>
           )
         })}
@@ -52,6 +53,16 @@ class GroupList extends React.Component {
   _handleActive(id) {
     if (this.state.active === id) id = null
     this.setState({ active: id }, () => execFilter())
+  }
+
+  _handleStar(item) {
+    const newList = this.state.list.map((x) => {
+      if (x.id === item.id) x.star = !x.star
+      return x
+    })
+
+    this.setState({ list: newList })
+    $.post(`/feeds/group/star-toggle?user=${item.id}`)
   }
 
   val() {
@@ -88,7 +99,11 @@ const execFilter = function () {
   if (date2) items.push({ field: 'createdOn', op: 'LE', value: date2 })
   if (type > 0) items.push({ field: 'type', op: 'EQ', value: type })
 
-  rbFeeds.search({ entity: 'Feeds', equation: 'AND', items: items })
+  rbFeeds.search({
+    entity: 'Feeds',
+    equation: 'AND',
+    items: items,
+  })
 }
 
 $(document).ready(function () {
@@ -107,11 +122,11 @@ $(document).ready(function () {
 
   let rbGroupListLoaded = false,
     rbUserListLoaded = false
-  $('#headingGroup').click(() => {
+  $('#headingGroup').on('click', () => {
     if (!rbGroupListLoaded) rbGroupList.loadData()
     rbGroupListLoaded = true
   })
-  $('#headingUser').click(() => {
+  $('#headingUser').on('click', () => {
     if (!rbUserListLoaded) rbUserList.loadData()
     rbUserListLoaded = true
   })
@@ -136,33 +151,33 @@ $(document).ready(function () {
     )
   }
 
-  $('#collapseSearch .append>a').click(function () {
+  $('#collapseSearch .append>a').on('click', function () {
     const $i = $(this).parent().prev().val('')
     __clear($i)
     setTimeout(execFilter, 100)
   })
 
-  $('.J_search-key').keydown(function (e) {
+  $('.J_search-key').on('keydown', function (e) {
     __clear(this)
     if (e.keyCode === 13) execFilter()
   })
-  const dpcfg = {
-    format: 'yyyy-mm-dd',
-    minView: 2,
-    startView: 'month',
-    endDate: new Date(),
-  }
+
   $('.J_date-begin, .J_date-end')
-    .datetimepicker(dpcfg)
+    .datetimepicker({
+      format: 'yyyy-mm-dd',
+      minView: 2,
+      startView: 'month',
+      endDate: new Date(),
+    })
     .on('changeDate', function () {
       __clear(this)
       execFilter()
     })
 
   let lastType = 0
-  $('#collapseFeedsType li>a').click(function () {
+  $('#collapseFeedsType li>a').on('click', function () {
     $('#collapseFeedsType li').removeClass('active')
-    let $li = $(this).parent()
+    const $li = $(this).parent()
     if (~~$li.data('type') === lastType) {
       lastType = 0
     } else {

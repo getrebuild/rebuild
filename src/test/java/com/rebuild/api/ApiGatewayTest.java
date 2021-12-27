@@ -18,6 +18,7 @@ import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.privileges.UserService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,8 +29,9 @@ import java.io.IOException;
  */
 public class ApiGatewayTest extends TestSupport {
 
+    @Disabled
     @Test
-    public void testOpenApiSDK() {
+    void testOpenApiSDK() {
         final String[] app = createApp();
         final String baseUrl = "http://localhost:18080/rebuild/gw/api/";
 

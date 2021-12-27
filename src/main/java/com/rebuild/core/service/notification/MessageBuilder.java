@@ -79,7 +79,7 @@ public class MessageBuilder {
      * @return
      */
     public static String formatMessage(String message) {
-        return formatMessage(message, true, false);
+        return formatMessage(message, true);
     }
 
     /**
@@ -87,16 +87,10 @@ public class MessageBuilder {
      *
      * @param message
      * @param md2html
-     * @param xss
      * @return
      * @see MarkdownUtils#render(String)
      */
-    public static String formatMessage(String message, boolean md2html, boolean xss) {
-//        if (xss) {
-//            message = CommonsUtils.escapeHtml(message);
-//            message = message.replace("&gt;", ">");  // for MD quote
-//        }
-
+    public static String formatMessage(String message, boolean md2html) {
         // 匹配 `@ID`
         Matcher atMatcher = AT_PATTERN.matcher(message);
         while (atMatcher.find()) {

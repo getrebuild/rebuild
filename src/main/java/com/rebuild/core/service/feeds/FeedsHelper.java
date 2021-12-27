@@ -19,10 +19,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -173,17 +170,40 @@ public class FeedsHelper {
      * @param content
      * @param xss 是否处理 XSS
      * @return
-     * @see MessageBuilder#formatMessage(String, boolean, boolean)
      */
     public static String formatContent(String content, boolean xss) {
         if (xss) content = CommonsUtils.escapeHtml(content);
 
         Matcher urlMatcher = URL_PATTERN.matcher(content);
+        Set<String> urls = new HashSet<>();
         while (urlMatcher.find()) {
             String url = urlMatcher.group();
-            String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(url));
-            content = content.replace(url,
-                    String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, url));
+            urls.add(url);
+        }
+
+        if (!urls.isEmpty()) {
+            // 排序: 长 -> 短
+            List<String> setList = new ArrayList<>(urls);
+            setList.sort((o1, o2) -> {
+                int len1 = o1.length();
+                int len2 = o2.length();
+                return Integer.compare(len2, len1);
+            });
+
+            Map<String, String> xurlMap = new HashMap<>();
+            for (String url : setList) {
+                String x = UUID.randomUUID().toString();
+                xurlMap.put(x, url);
+
+                String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + x);
+                content = content.replace(url, String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, x));
+            }
+
+            for (Map.Entry<String, String> e : xurlMap.entrySet()) {
+                content = content
+                        .replace("url=" + e.getKey(), "url=" + CodecUtils.urlEncode(e.getValue()))
+                        .replace(e.getKey(), e.getValue());
+            }
         }
 
         Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);

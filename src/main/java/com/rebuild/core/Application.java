@@ -34,6 +34,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.setup.DataMigrator;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
@@ -63,11 +64,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.6.2";
+    public static final String VER = "2.7.0-beta1";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2060204;
+    public static final int BUILD = 2070001;
 
     static {
         // Driver for DB
@@ -109,7 +110,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        if (_CONTEXT != null) throw new IllegalStateException("Rebuild already started");
+        if (_CONTEXT != null) throw new IllegalStateException("REBUILD ALREADY STARTED");
 
         _CONTEXT = event.getApplicationContext();
 
@@ -222,7 +223,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         for (Initialization bean : ordered) {
             bean.init();
         }
+
         License.isRbvAttached();
+
+        DataMigrator.dataMigrateIfNeed();
 
         return true;
     }
@@ -240,7 +244,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     public static ApplicationContext getContext() {
-        if (_CONTEXT == null) throw new IllegalStateException("Rebuild unstarted");
+        if (_CONTEXT == null) throw new IllegalStateException("REBUILD UNSTARTED");
         else return _CONTEXT;
     }
 

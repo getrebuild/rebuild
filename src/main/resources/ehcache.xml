@@ -2,10 +2,10 @@
 <ehcache>
     <diskStore path="java.io.tmpdir"/>
     <cache name="rebuild"
-           maxElementsInMemory="100"
+           maxElementsInMemory="10000"
            eternal="false"
            overflowToDisk="true"
-           maxElementsOnDisk="100000000"
+           maxElementsOnDisk="1000000"
            diskPersistent="true"
            timeToIdleSeconds="0"
            timeToLiveSeconds="0"

@@ -124,7 +124,13 @@ const AdvFilters = {
   },
 
   showAdvFilter(id, useCopyId) {
-    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    const props = {
+      entity: this.__entity,
+      inModal: true,
+      fromList: true,
+      confirm: this.saveFilter,
+    }
+
     if (!id) {
       if (this.__customAdv) {
         this.__customAdv.show()
@@ -259,7 +265,7 @@ class DataExport extends BatchOperator {
   confirm = () => {
     const useReport = $(this._$report).val()
     if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
     }
 
@@ -291,6 +297,17 @@ class DataExport extends BatchOperator {
             )
           })}
         </select>
+
+        {this.state.reports && this.state.reports.length === 0 && (
+          <p className="text-muted mt-1 mb-0">
+            {$L('暂无报表模板')}
+            {rb.isAdminUser && (
+              <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                <i className="zmdi zmdi-settings" /> {$L('点击配置')}
+              </a>
+            )}
+          </p>
+        )}
       </div>
     )
   }
@@ -548,7 +565,9 @@ const RbListCommon = {
     const $btn = $('.input-search .input-group-btn .btn'),
       $input = $('.input-search input')
     $btn.on('click', () => RbListPage._RbList.searchQuick())
-    $input.on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $input.on('keydown', (e) => {
+      e.which === 13 && $btn.trigger('click')
+    })
     $('.input-search .btn-input-clear').on('click', () => {
       $input.val('')
       $btn.trigger('click')
@@ -568,6 +587,9 @@ const RbListCommon = {
 
     const entity = wpc.entity
 
+    RbListPage.init(wpc.listConfig, entity, wpc.privileges)
+    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
+
     // 新建
     $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
@@ -575,11 +597,9 @@ const RbListCommon = {
     // 批量修改
     $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
-    RbListPage.init(wpc.listConfig, entity, wpc.privileges)
-
-    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
-
     // 自动打开新建
-    if (location.hash === '#!/New') $('.J_new').trigger('click')
+    if (location.hash === '#!/New') {
+      setTimeout(() => $('.J_new').trigger('click'), 200)
+    }
   },
 }

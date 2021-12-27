@@ -49,7 +49,7 @@
         <field name="roleId" type="reference" ref-entity="Role" nullable="false" updatable="false" cascade="delete"/>
         <field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体"/>
         <field name="zeroKey" type="string" max-length="50" description="扩展权限"/>
-        <field name="definition" type="string" max-length="100" description="实体权限"/>
+        <field name="definition" type="string" max-length="2000" description="实体权限"/>
         <index type="unique" field-list="roleId,entity,zeroKey"/>
     </entity>
 
@@ -384,6 +384,17 @@
         <field name="applyPath" type="string" max-length="200" description="匹配路径"/>
         <field name="code" type="text" description="代码"/>
         <field name="es5Code" type="text" description="ES5 代码"/>
+    </entity>
+
+    <entity name="NreferenceItem" type-code="039" description="N2NREFERENCE" parent="false" queryable="false">
+        <field name="itemId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体"/>
+        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="哪个字段"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
+        <field name="referenceId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="引用 ID"/>
+        <field name="seq" type="long" auto-value="true" description="前后顺序"/>
+        <index field-list="belongEntity"/>
+        <index field-list="belongField,recordId,referenceId" type="unique"/>
     </entity>
 
     <!-- 动态不涉及审计 -->

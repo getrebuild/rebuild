@@ -23,16 +23,16 @@ import java.util.Map;
  * @author devezhao
  * @since 2019/11/7
  */
-public class FeedsHelperTest extends TestSupport {
+class FeedsHelperTest extends TestSupport {
 
     @Test
-    public void findMentions() {
+    void findMentions() {
         Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @没有 @RB 示例用户 @超级管理员\n你还的呵呵我复合 @ @  ");
         System.out.println(map);
     }
 
     @Test
-    public void getNumOfComment() {
+    void getNumOfComment() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
 
         ID feedsId = createFeeds();
@@ -48,8 +48,11 @@ public class FeedsHelperTest extends TestSupport {
     }
 
     @Test
-    public void formatContent() {
-        FeedsHelper.formatContent("123 @" + UserService.ADMIN_USER);
+    void formatContent() {
+        System.out.println(
+                FeedsHelper.formatContent("123 @" + UserService.ADMIN_USER));
+        System.out.println(
+                FeedsHelper.formatContent("如遇问题请加 Q 群 819865721 咨询或 https://getrebuild.com/docs/1 2/ 查阅文档 https://getrebuild.com"));
     }
 
     private ID createFeeds() {

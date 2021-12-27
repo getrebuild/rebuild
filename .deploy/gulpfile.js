@@ -61,12 +61,12 @@ function _useAssetsHex(file) {
   if (!hex) {
     try {
       hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
-    } catch (err0) {
+    } catch (err) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
-      } catch (err) {
+      } catch (err1) {
         if (file.includes('frontjs-sdk.js')) console.log('No `@rbv` exists :', file)
-        else console.log('Cannot #revHash :', file, err)
+        else console.log('Cannot #revHash :', file, err1)
 
         // Use date
         const d = new Date()
@@ -81,7 +81,7 @@ function _useAssetsHex(file) {
 
 function compileHtml(m) {
   return src(`${m || WEB_ROOT}/**/*.html`)
-    .pipe(filter((file) => !/node_modules/.test(file.path)))
+    .pipe(filter((file) => !(/node_modules/.test(file.path) || /lib/.test(file.path))))
     .pipe(
       replace(/<script type="text\/babel">([\s\S]*)<\/script>/gim, (m, p) => {
         if (p.trim().length === 0) return '<!-- No script -->'
@@ -99,7 +99,7 @@ function compileHtml(m) {
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script th:src="@{' + file + '}"></script>'
         } else {
-          file += '?v=' + _useAssetsHex(file.split('?')[0], m)
+          file += '?v=' + _useAssetsHex(file.split('?')[0])
           return '<script th:src="@{' + file + '}"></script>'
         }
       })
@@ -118,7 +118,7 @@ function compileHtml(m) {
           console.log('Using lib :', file)
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         } else {
-          file += '?v=' + _useAssetsHex(file.split('?')[0], m)
+          file += '?v=' + _useAssetsHex(file.split('?')[0])
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         }
       })
