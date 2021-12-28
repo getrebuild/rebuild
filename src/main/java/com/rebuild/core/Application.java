@@ -64,11 +64,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.7.0-beta1";
+    public static final String VER = "2.7.0";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2070001;
+    public static final int BUILD = 2070002;
 
     static {
         // Driver for DB
@@ -135,7 +135,20 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "      Local : " + localUrl,
                                     "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
-                            log.info(banner);
+
+                            if (License.isCommercial()) {
+                                System.out.println(banner);
+                            } else {
+                                System.out.print(banner);
+
+                                String thanks = RebuildBanner.formatSimple(
+                                        "**********",
+                                        "感谢使用 REBUILD！",
+                                        "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
+                                        "查看详情 https://getrebuild.com/#pricing-plans",
+                                        "**********");
+                                System.out.println(thanks);
+                            }
                         }
                     }, 1500);
                 }

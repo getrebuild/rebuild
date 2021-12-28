@@ -49,7 +49,7 @@ public class RebuildBanner {
      * @return
      */
     public static String formatSimple(String... texts) {
-        StringBuilder banner = new StringBuilder("\n\n");
+        StringBuilder banner = new StringBuilder("\n");
         for (String t : texts) {
             banner.append("  ").append(t).append("\n");
         }

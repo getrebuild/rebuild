@@ -17,8 +17,6 @@ const revHash = require('rev-hash')
 const replace = require('gulp-replace')
 const filter = require('gulp-filter')
 
-// const jsObfuscator = require('gulp-javascript-obfuscator')
-
 const BABEL_OPTIONS = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-class-properties'],
@@ -33,7 +31,6 @@ function compileJs(m) {
   return (
     src(`${m || WEB_ROOT}/assets/js/**/*.js`)
       .pipe(babel(BABEL_OPTIONS))
-      // .pipe(jsObfuscator({ compact: true }))
       .pipe(
         debug({
           title: 'Compiled .js : ',
