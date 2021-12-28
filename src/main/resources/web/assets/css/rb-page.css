@@ -3019,6 +3019,7 @@ form {
   top: 9px;
   font-size: 1.55rem;
   color: #878787;
+  color: rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
@@ -3077,6 +3078,7 @@ form {
 .search-container > .global-create > .dropdown.show > a {
   background: #4285f4;
   color: #fff;
+  transition: background-color 0.3s;
 }
 
 .preview-modal {
