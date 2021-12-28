@@ -1,10 +1,10 @@
-/* eslint-disable no-undef */
 /*
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-undef, react/display-name */
 
 const wpc = window.__PageConfig
 
@@ -49,7 +49,7 @@ useEditComp = function (name) {
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
-  } else if ('PageFooter' === name) {
+  } else if ('PageFooter' === name || 'AllowUsesTime' === name || 'AllowUsesIp' === name) {
     return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
   }
 }

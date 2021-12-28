@@ -82,6 +82,11 @@ public enum ConfigurationItem {
     // 登录密码过期时间（0为不过期）
     PasswordExpiredDays(0),
 
+    // 允许使用时间
+    AllowUsesTime,
+    // 允许使用 IP
+    AllowUsesIp,
+
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,

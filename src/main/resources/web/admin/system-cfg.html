@@ -64,11 +64,23 @@
                         <td>[[${bundle.L('默认语言')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('登录页每日一图')}]]</td>
+                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('系统选项')}]]</h5>
+                  <h5>[[${bundle.L('安全使用')}]]</h5>
                   <table class="table">
                     <tbody>
+                      <tr>
+                        <td>[[${bundle.L('显示页面水印')}]]</td>
+                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('允许分享文件')}]]</td>
+                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
                       <tr>
                         <td width="40%">[[${bundle.L('公开注册')}]]</td>
                         <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
@@ -100,20 +112,16 @@
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('登录页每日一图')}]]</td>
-                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td>[[${bundle.L('允许使用时间')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'AllowUsesTime' : ''}" th:data-value="${AllowUsesTime}" data-optional="true">
+                          <pre class="unstyle">[[${AllowUsesTime ?:bundle.L('不限')}]]</pre>
+                        </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('显示页面水印')}]]</td>
-                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('允许分享文件')}]]</td>
-                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('在视图页显示修改历史')}]]</td>
-                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td>[[${bundle.L('允许使用 IP')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'AllowUsesIp' : ''}" th:data-value="${AllowUsesIp}" data-optional="true">
+                          <pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -138,6 +146,16 @@
                       <tr>
                         <td>[[${bundle.L('回收站保留时间')}]]</td>
                         <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('其他')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr></tr>
+                      <tr>
+                        <td width="40%">[[${bundle.L('在视图页显示修改历史')}]]</td>
+                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                     </tbody>
                   </table>
