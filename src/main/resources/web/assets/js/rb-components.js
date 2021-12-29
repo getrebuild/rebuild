@@ -974,6 +974,85 @@ UserPopup.create = function (el) {
 // ~~ HTML 内容
 const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
+class RbGritter extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div id="gritter-notice-wrapper" className="gritter-main-wrapper">
+        {this.state.items}
+      </div>
+    )
+  }
+
+  _addItem(message, options) {
+    const itemid = `gritter-item-${$random()}`
+
+    const type = options.type || 'success'
+    const icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+
+    const item = (
+      <div key={itemid} id={itemid} className={`gritter-item-wrapper color ${type} animated faster fadeInRight`}>
+        <div className="gritter-item">
+          <div className="gritter-img-container">
+            <span className="gritter-image">
+              <i className={`icon zmdi zmdi-${icon}`} />
+            </span>
+          </div>
+          <div className="gritter-content gritter-with-image">
+            <a
+              className="gritter-close"
+              tabIndex="1"
+              onClick={(e) => {
+                $stopEvent(e, true)
+                this._removeItem(itemid)
+              }}
+            />
+            {options.title && <span className="gritter-title">{options.title}</span>}
+            <p>{message}</p>
+          </div>
+        </div>
+      </div>
+    )
+
+    const itemsNew = this.state.items || []
+    itemsNew.push(item)
+    this.setState({ items: itemsNew }, () => {
+      setTimeout(() => this._removeItem(itemid), options.timeout || 6000)
+    })
+  }
+
+  _removeItem(itemid) {
+    const itemsNew = this.state.items.filter((item) => itemid !== item.key)
+    console.log(itemsNew)
+    this.setState({ items: itemsNew })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} message
+   * @param {*} options
+   */
+  static create(message, options = {}) {
+    if (top !== self && parent.RbGritter) {
+      parent.RbGritter.create(message, options)
+    } else {
+      if (this.__$wrapper) {
+        this.__$wrapper._addItem(message, options)
+      } else {
+        const that = this
+        renderRbcomp(<RbGritter />, null, function () {
+          that.__$wrapper = this
+          that.__$wrapper._addItem(message, options)
+        })
+      }
+    }
+  }
+}
+
 /**
  * JSX 组件渲染
  *
