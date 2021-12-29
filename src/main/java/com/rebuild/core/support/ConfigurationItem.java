@@ -43,8 +43,10 @@ public enum ConfigurationItem {
     // 开放注册
     OpenSignUp(true),
 
-    // 登录背景图
+    // 动态登录背景图
     LiveWallpaper(true),
+    // 自定登录背景图
+    CustomWallpaper,
 
     // 启用文件分享
     FileSharable(true),

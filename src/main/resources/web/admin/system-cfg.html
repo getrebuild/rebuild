@@ -3,16 +3,47 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('通用配置')}]]</title>
-    <style type="text/css">
+    <style>
       .syscfg a.img-thumbnail {
         display: inline-block;
         padding: 0.4rem 0.5rem;
         background-color: #fff;
         cursor: default;
+        position: relative;
       }
-      .applogo.edit a.img-thumbnail,
-      .applogo.edit a.img-thumbnail .logo-img {
+      .syscfg.edit a.img-thumbnail {
         cursor: pointer;
+      }
+      .syscfg a.img-thumbnail b {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.4);
+        width: 24px;
+        height: 24px;
+        top: 2px;
+        right: 2px;
+        border-radius: 2px;
+        cursor: pointer;
+        display: none;
+        font-size: 1.4rem;
+        color: #fff;
+        text-align: center;
+        overflow: hidden;
+      }
+      .syscfg.edit a.img-thumbnail:hover b {
+        display: inline-block;
+      }
+
+      .bgimg-img {
+        display: inline-block;
+        width: 192px;
+        height: 108px;
+        background: #eee url(../assets/img/bg.jpg) repeat 0 0;
+        background-size: cover;
+      }
+    </style>
+    <style th:if="${commercial > 1}">
+      .bgimg-img {
+        background-image: url(../commons/theme/use-bgimg);
       }
     </style>
   </head>
@@ -40,10 +71,16 @@
                       <tr>
                         <td>LOGO <sup class="rbv"></sup></td>
                         <td class="fs-0 applogo">
-                          <a class="img-thumbnail"><i class="logo-img"></i></a>
-                          <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
+                          <a class="img-thumbnail" data-id="LOGO">
+                            <i class="logo-img"></i>
+                            <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
+                          </a>
+                          <a class="img-thumbnail bg-primary ml-1" data-id="LOGOWhite">
+                            <i class="logo-img white"></i>
+                            <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
+                          </a>
                           <input type="file" class="hide" accept="image/*" data-maxsize="5000000" data-local="true" />
-                          <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，宽高为 268 × 54')}]]</p>
+                          <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，建议尺寸 268 × 54')}]]</p>
                         </td>
                       </tr>
                       <tr>
@@ -54,6 +91,10 @@
                         <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('默认语言')}]]</td>
+                        <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
+                      </tr>
+                      <tr>
                         <td>
                           [[${bundle.L('页脚')}]]
                           <p class="link">[(${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide)')})]</p>
@@ -61,12 +102,19 @@
                         <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true"><pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre></td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('默认语言')}]]</td>
-                        <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
-                      </tr>
-                      <tr>
                         <td>[[${bundle.L('登录页每日一图')}]]</td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('自定义登录页图')}]] <sup class="rbv"></sup></td>
+                        <td class="fs-0 bgimg">
+                          <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
+                            <i class="bgimg-img"></i>
+                            <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
+                          </a>
+                          <input type="file" class="hide" accept="image/*" data-maxsize="5000000" data-local="true" />
+                          <p class="mt-2 text-dark hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
+                        </td>
                       </tr>
                     </tbody>
                   </table>

@@ -54,6 +54,9 @@ import java.util.Map;
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
 
+    public static final String ETAG_DIMGLOGOTIME = "dimgLogoTime";
+    public static final String ETAG_DIMGBGIMGTIME = "dimgBgimgTime";
+
     @GetMapping("systems")
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
@@ -93,11 +96,14 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        String dLOGO = data.getString("LOGO");
-        String dLOGOWhite = data.getString("LOGOWhite");
+        String dLOGO = data.getString(ConfigurationItem.LOGO.name());
+        String dLOGOWhite = data.getString(ConfigurationItem.LOGOWhite.name());
         if (dLOGO != null || dLOGOWhite != null) {
-            // @see UseThemeController#useLogo
-            Application.getCommonsCache().evict("dimgLogoTime");
+            Application.getCommonsCache().evict(ETAG_DIMGLOGOTIME);
+        }
+        String dCustomWallpaper = data.getString(ConfigurationItem.CustomWallpaper.name());
+        if (dCustomWallpaper != null) {
+            Application.getCommonsCache().evict(ETAG_DIMGBGIMGTIME);
         }
 
         setValues(data);
