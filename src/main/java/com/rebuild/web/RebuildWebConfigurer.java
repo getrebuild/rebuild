@@ -9,7 +9,7 @@ package com.rebuild.web;
 
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
@@ -92,7 +92,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, new FastJsonHttpMessageConverter4());
+//        converters.add(0, new FastJsonHttpMessageConverter4());
+        converters.add(0, new FastJsonHttpMessageConverter());
     }
 
     @Override
