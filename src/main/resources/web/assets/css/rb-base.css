@@ -109,8 +109,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 html,
 body {
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
-    'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
 }
 
 html {
@@ -4020,9 +4019,8 @@ input[type='submit'].btn-block {
   line-height: 1.428571;
   color: #404040;
   vertical-align: middle;
-  background: #fff
-    url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%233d3c3c' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E")
-    no-repeat right 0.75rem center;
+  background: #fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%233d3c3c' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat
+    right 0.75rem center;
   background-size: 8px 10px;
   border: 1px solid #d5d8de;
   border-radius: 2px;
@@ -5637,16 +5635,7 @@ input[type='submit'].btn-block {
 }
 
 .progress-bar-striped {
-  background-image: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.15) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.15) 75%,
-    transparent 75%,
-    transparent
-  );
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-size: 3.077rem 3.077rem;
 }
 
@@ -6124,8 +6113,7 @@ button.close {
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI',
-    'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.428571;
@@ -6253,8 +6241,7 @@ button.close {
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
-    'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.428571;
@@ -12633,7 +12620,7 @@ a.avatar.x48 img {
     padding-left: 55px;
   }
 
-  .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .nav-items .content > ul > li > ul > li > ul> li > ul > li > ul > li> a {
+  .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .nav-items .content > ul > li > ul > li > ul > li > ul > li > ul > li > a {
     padding-left: 65px;
   }
 }
@@ -14313,8 +14300,7 @@ a.avatar.x48 img {
 }
 
 .rb-sub-header .navbar-nav > .nav-item > .nav-link {
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
-    'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1.1rem;
   line-height: 40px;
   min-width: 100px;
@@ -21181,6 +21167,109 @@ fieldset[disabled] .full-calendar .fc-button:hover {
   width: 6px;
 }
 
+/* jquery.gritter.css */
+#gritter-notice-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 301px;
+  z-index: 9999;
+}
+#gritter-notice-wrapper.top-left {
+  left: 20px;
+  right: auto;
+}
+#gritter-notice-wrapper.bottom-right {
+  top: auto;
+  left: auto;
+  bottom: 20px;
+  right: 20px;
+}
+#gritter-notice-wrapper.bottom-left {
+  top: auto;
+  right: auto;
+  bottom: 20px;
+  left: 20px;
+}
+.gritter-item-wrapper {
+  position: relative;
+  margin: 0 0 10px 0;
+  background: url('../images/ie-spacer.gif'); /* ie7/8 fix */
+}
+.gritter-top {
+  background: url(../images/gritter.png) no-repeat left -30px;
+  height: 10px;
+}
+.hover .gritter-top {
+  background-position: right -30px;
+}
+.gritter-bottom {
+  background: url(../images/gritter.png) no-repeat left bottom;
+  height: 8px;
+  margin: 0;
+}
+.hover .gritter-bottom {
+  background-position: bottom right;
+}
+.gritter-item {
+  display: block;
+  background: url(../images/gritter.png) no-repeat left -40px;
+  color: #eee;
+  padding: 2px 11px 8px 11px;
+  font-size: 11px;
+  font-family: verdana;
+}
+.hover .gritter-item {
+  background-position: right -40px;
+}
+.gritter-item p {
+  padding: 0;
+  margin: 0;
+  word-wrap: break-word;
+}
+.gritter-close {
+  display: none;
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  background: url(../images/gritter.png) no-repeat left top;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  text-indent: -9999em;
+}
+.gritter-title {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 0 7px 0;
+  display: block;
+  text-shadow: 1px 1px 0 #000; /* Not supported by IE :( */
+}
+.gritter-image {
+  width: 48px;
+  height: 48px;
+  float: left;
+}
+.gritter-with-image,
+.gritter-without-image {
+  padding: 0;
+}
+.gritter-with-image {
+  width: 220px;
+  float: right;
+}
+/* for the light (white) version of the gritter notice */
+.gritter-light .gritter-item,
+.gritter-light .gritter-bottom,
+.gritter-light .gritter-top,
+.gritter-light .gritter-close {
+  background-image: url(../images/gritter-light.png);
+  color: #222;
+}
+.gritter-light .gritter-title {
+  text-shadow: none;
+}
+
 #gritter-notice-wrapper {
   width: 360px;
   top: 82px;
@@ -21543,8 +21632,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   line-height: 2rem;
   font-family: Roboto, Arial, sans-serif;
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
-    'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1rem;
   color: #999;
 }
@@ -21807,8 +21895,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
   border: 1px dashed #bbb;
   min-height: 100px;
   background-color: #e5e5e5;
-  background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
-    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+  background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
   background-size: 60px 60px;
   background-position: 0 0, 30px 30px;
 }
@@ -22780,15 +22867,7 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   margin-left: -250%;
   -webkit-animation: phAnimation 0.8s linear infinite;
   animation: phAnimation 0.8s linear infinite;
-  background: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      color-stop(46%, rgba(255, 255, 255, 0)),
-      color-stop(50%, rgba(255, 255, 255, 0.35)),
-      color-stop(54%, rgba(255, 255, 255, 0))
-    )
-    50% 50%;
+  background: -webkit-gradient(linear, left top, right top, color-stop(46%, rgba(255, 255, 255, 0)), color-stop(50%, rgba(255, 255, 255, 0.35)), color-stop(54%, rgba(255, 255, 255, 0))) 50% 50%;
   background: linear-gradient(to right, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0) 54%) 50% 50%;
 }
 

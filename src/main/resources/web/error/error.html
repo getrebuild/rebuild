@@ -22,6 +22,11 @@
         color: #fbbc05;
         font-size: 5rem;
       }
+      .zmdi.err610::before {
+        content: '\f1e7';
+        content: '\f21b';
+        color: #fbbc05;
+      }
       .error-description > pre:empty {
         display: none;
       }
@@ -47,7 +52,7 @@
               <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('返回首页')}]]</a>
               <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('重试')}]]</button>
               <div class="mt-4">
-                <a href="https://getrebuild.com/report-issue?title=error-page" target="_blank">[[${bundle.L('报告问题')}]]</a>
+                <a th:href="${'https://getrebuild.com/report-issue?title=error-page-' + error_code}" target="_blank">[[${bundle.L('报告问题')}]]</a>
               </div>
             </div>
           </div>

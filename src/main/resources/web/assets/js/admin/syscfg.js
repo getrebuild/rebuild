@@ -9,13 +9,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 公共部分
 
 $(document).ready(() => {
-  $('.card-header>a').click((e) => {
+  $('.card-header>a').on('click', (e) => {
     $stopEvent(e, true)
     enableEditMode()
   })
 
-  $('.edit-footer>.btn-link').click(() => location.reload())
-  $('.edit-footer>.btn-primary').click(() => post(__data))
+  $('.edit-footer>.btn-link').on('click', () => location.reload())
+  $('.edit-footer>.btn-primary').on('click', () => post(__data))
 
   if (window.ClipboardJS) {
     $('a[data-clipboard-text]').each(function () {
@@ -54,8 +54,8 @@ const enableEditMode = function () {
 const post = function (data) {
   for (let name in data) {
     if (!data[name]) {
-      const $field = $('td[data-id=' + name + ']')
-      if ($field.data('optional')) continue // 可选值
+      const $field = $(`.syscfg td[data-id=${name}]`)
+      if ($field.length === 0 || $field.data('optional')) continue // 可选值
 
       const $c = $field.prev().clone()
       $c.find('p').remove()

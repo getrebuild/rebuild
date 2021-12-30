@@ -488,7 +488,7 @@ const CellRenders = {
   },
 
   render(value, type, width, key) {
-    const style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
+    const style = { width: width || COLUMN_MIN_WIDTH }
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
@@ -955,7 +955,7 @@ class RbViewModal extends React.Component {
         <div className="modal-wrapper">
           <div className="modal rbview" ref={(c) => (this._rbview = c)}>
             <div className="modal-dialog">
-              <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
+              <div className="modal-content" style={{ width: this.mcWidth }}>
                 <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
                   <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                   <RbSpinner />

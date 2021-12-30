@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -16,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
@@ -165,5 +167,29 @@ public class CommonsUtils {
             if (StringUtils.containsIgnoreCase(s, search)) return true;
         }
         return false;
+    }
+
+    /**
+     * @param desc
+     * @param args
+     * @return
+     */
+    public static Object invokeMethod(String desc, Object... args) {
+        String[] classAndMethod = desc.split("#");
+        try {
+            Class<?> clazz = Class.forName(classAndMethod[0]);
+
+            Class<?>[] paramTypes = new Class<?>[args.length];
+            for (int i = 0; i < args.length; i++) {
+                paramTypes[i] = args[i].getClass();
+            }
+
+            Method method = clazz.getMethod(classAndMethod[1], paramTypes);
+            return method.invoke(null, args);
+
+        } catch (ReflectiveOperationException ex) {
+            log.error("Invalid method invoke : {}", desc);
+            throw new RebuildException(ex);
+        }
     }
 }

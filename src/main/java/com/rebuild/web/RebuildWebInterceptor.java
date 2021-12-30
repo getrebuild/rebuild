@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -16,12 +17,16 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.CsrfToken;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -50,16 +55,20 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     private static final ThreadLocal<RequestEntry> REQUEST_ENTRY = new NamedThreadLocal<>("RequestEntry");
 
+    private static final int CODE_STARTING  = 600;
+    private static final int CODE_NOT_ALLOW_USE  = 610;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
 
         if (Application.isWaitLoad()) {
-            throw new DefinedException(600, "Please wait while REBUILD starting up ...");
+            throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
 
-        UserContextHolder.setReqip(ServletUtils.getRemoteAddr(request));
+        final String ipAddr = ServletUtils.getRemoteAddr(request);
+        UserContextHolder.setReqip(ipAddr);
 
         // Locale
         final String locale = detectLocale(request, response);
@@ -100,11 +109,14 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         final ID requestUser = requestEntry.getRequestUser();
 
+        boolean skipCheckSafeUse;
+
         // 用户验证
         if (requestUser != null) {
 
+            boolean adminVerified = AppUtils.isAdminVerified(request);
             // 管理中心
-            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
+            if (requestUri.contains("/admin/") && !adminVerified) {
                 if (isHtmlRequest(request)) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
@@ -135,6 +147,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
             }
 
+            // 超管设置仍可访问
+            skipCheckSafeUse = adminVerified || UserHelper.isSuperAdmin(requestUser);
+
         } else if (!isIgnoreAuth(requestUri)) {
             // 外部表单特殊处理（媒体字段上传/预览）
             if (requestUri.contains("/filex/") && CsrfToken.verify(request, false)) {
@@ -150,7 +165,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             }
 
             return false;
+        } else {
+            skipCheckSafeUse = true;
         }
+
+        if (!skipCheckSafeUse) checkSafeUse(ipAddr);
 
         return true;
     }
@@ -175,14 +194,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         UserContextHolder.clear();
     }
 
-    /**
-     * 语言探测
-     *
-     * @param request
-     * @param response
-     * @return
-     * @see AppUtils#getReuqestLocale(HttpServletRequest)
-     */
     private String detectLocale(HttpServletRequest request, HttpServletResponse response) {
         String rbmobLocale = request.getHeader(AppUtils.HF_LOCALE);
         if (rbmobLocale != null) return rbmobLocale;
@@ -222,12 +233,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         return havingLocale;
     }
 
-    /**
-     * 忽略认证的资源
-     *
-     * @param requestUri
-     * @return
-     */
     private boolean isIgnoreAuth(String requestUri) {
         if (requestUri.contains("/user/") && !requestUri.contains("/user/admin")) {
             return true;
@@ -253,12 +258,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/rbmob/env");
     }
 
-    /**
-     * 是否 HTML 请求
-     *
-     * @param request
-     * @return
-     */
     private boolean isHtmlRequest(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         if (ServletUtils.isAjaxRequest(request)
@@ -280,21 +279,33 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         }
     }
 
-    /**
-     * @param response
-     * @param url
-     * @param nexturl
-     * @throws IOException
-     */
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
         String fullUrl = AppUtils.getContextPath(url);
         if (nexturl != null) fullUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
         response.sendRedirect(fullUrl);
     }
 
-    /**
-     * 请求参数封装
-     */
+    private void checkSafeUse(String ipAddr) throws DefinedException {
+        if (!License.isRbvAttached()) return;
+
+        if (ipAddr.equals("localhost") || ipAddr.equals("127.0.0.1")) {
+            log.warn("Allow localhost uses ");
+            return;
+        }
+
+        Object allowIp = CommonsUtils.invokeMethod(
+                "com.rebuild.rbv.commons.SafeUses#checkIp", ipAddr);
+        if (!(Boolean) allowIp) {
+            throw new DefinedException(CODE_NOT_ALLOW_USE, Language.L("你的 IP 地址不在允许范围内"));
+        }
+
+        Object allowTime = CommonsUtils.invokeMethod(
+                "com.rebuild.rbv.commons.SafeUses#checkTime", CalendarUtils.now());
+        if (!(Boolean) allowTime) {
+            throw new DefinedException(CODE_NOT_ALLOW_USE, Language.L("当前时间不允许使用"));
+        }
+    }
+
     @Data
     private static class RequestEntry {
         final long requestTime;

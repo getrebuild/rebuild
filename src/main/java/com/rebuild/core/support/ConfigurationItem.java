@@ -43,8 +43,10 @@ public enum ConfigurationItem {
     // 开放注册
     OpenSignUp(true),
 
-    // 登录背景图
+    // 动态登录背景图
     LiveWallpaper(true),
+    // 自定登录背景图
+    CustomWallpaper,
 
     // 启用文件分享
     FileSharable(true),
@@ -81,6 +83,11 @@ public enum ConfigurationItem {
 
     // 登录密码过期时间（0为不过期）
     PasswordExpiredDays(0),
+
+    // 允许使用时间
+    AllowUsesTime,
+    // 允许使用 IP
+    AllowUsesIp,
 
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
