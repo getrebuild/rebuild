@@ -20,7 +20,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -68,7 +67,7 @@ public class Entity2Schema extends Field2Schema {
      * @return returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField) {
-        if (License.isCommercial() && MetadataHelper.getEntities().length > 100) {
+        if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
 
