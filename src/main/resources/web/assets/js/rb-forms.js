@@ -337,18 +337,7 @@ class RbForm extends React.Component {
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       $btns.button('reset')
       if (res.error_code === 0) {
-        const message = window.RbViewPage ? (
-          $L('保存成功')
-        ) : (
-          <React.Fragment>
-            {$L('保存成功')}
-            <a target="_blank" className="ml-1 text-underline" href={`${rb.baseUrl}/app/${this.state.entity}/list#!/View/${this.state.entity}/${res.data.id}`}>
-              {$L('打开')}
-            </a>
-          </React.Fragment>
-        )
-        RbHighbar.create(message, { type: 'success', timeout: 2000 })
-
+        RbHighbar.success($L('保存成功'))
         setTimeout(() => {
           this.props.$$$parent.hide(true)
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
