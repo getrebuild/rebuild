@@ -135,7 +135,20 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "      Local : " + localUrl,
                                     "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
-                            log.info(banner);
+
+                            if (License.isCommercial()) {
+                                System.out.println(banner);
+                            } else {
+                                System.out.print(banner);
+
+                                String thanks = RebuildBanner.formatSimple(
+                                        "**********",
+                                        "感谢使用 REBUILD！",
+                                        "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
+                                        "查看详情 https://getrebuild.com/#pricing-plans",
+                                        "**********");
+                                System.out.println(thanks);
+                            }
                         }
                     }, 1500);
                 }

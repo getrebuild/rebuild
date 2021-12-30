@@ -228,7 +228,7 @@ public class LoginController extends BaseController {
 
         // Tour 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
-                "select count(loginTime) from LoginLog where user = ? and loginTime > '2021-12-01'")
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10

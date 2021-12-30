@@ -30,6 +30,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MimeType;
@@ -136,13 +137,13 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
-                // Side collapsed
+                // Nav collapsed
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
-                String sideCollapsedClazz = "false".equals(sidebarCollapsed) ? "" : "rb-collapsible-sidebar-collapsed";
-                // Aside
+                String sideCollapsedClazz = BooleanUtils.toBoolean(sidebarCollapsed) ? "rb-collapsible-sidebar-collapsed" : "";
+                // Aside collapsed
                 if (!(requestEntry.getRequestUri().contains("/admin/") || requestEntry.getRequestUri().contains("/setup/"))) {
                     String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
-                    if (!"false".equals(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
+                    if (BooleanUtils.toBoolean(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
             }

@@ -7,7 +7,7 @@
 
 ## 项目特色
 
-REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。通过 REBUILD 可以真正实现零代码快速搭建业务系统，无需编程、无需编译代码，甚至无需了解技术。
+REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建，无需编程、无需编译代码，甚至无需了解技术。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
@@ -35,13 +35,13 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 
 ## 使用
 
-开始使用 REBUILD 非常简单，不需要搭建复杂的运行环境，零依赖快速部署，就是那么简单！
+开始使用 REBUILD 非常简单，不需要搭建复杂的运行环境，零依赖快速部署，超简单！
 
 #### 1. 使用已发布版本
 
 _生产环境强烈推荐使用此方式 !!!_
 
-首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包，`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
+首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
 下载后解压（集成安装包），双击/运行 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验！
 
@@ -89,4 +89,4 @@ REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) 
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 支持 RB 可持续发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
