@@ -24,7 +24,6 @@ import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,7 +62,9 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+        final boolean temp = getBoolParameter(request, "temp");
+        final boolean local = temp || getBoolParameter(request, "local");  // 强制本地
+
         String imageView2 = request.getQueryString();
         if (imageView2 != null && imageView2.contains("imageView2/")) {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
@@ -73,8 +74,8 @@ public class FileDownloader extends BaseController {
 
         ServletUtils.addCacheHead(response, 60);
 
-        // Local storage || temp
-        if (!QiniuCloud.instance().available() || temp) {
+        // Local storage || temp || local
+        if (!QiniuCloud.instance().available() || local) {
             String fileName = QiniuCloud.parseFileName(filePath);
             String mimeType = request.getServletContext().getMimeType(fileName);
             if (mimeType != null) {
