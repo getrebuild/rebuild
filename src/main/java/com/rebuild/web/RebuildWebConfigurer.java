@@ -81,6 +81,15 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
             thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
         }
 
+        String officePreviewUrl = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
+        if (StringUtils.isNotBlank(officePreviewUrl)) {
+            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalOfficePreviewUrl.name(), officePreviewUrl);
+        }
+        String baiduMapAk = RebuildConfiguration.get(ConfigurationItem.PortalBaiduMapAk);
+        if (StringUtils.isNotBlank(baiduMapAk)) {
+            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalBaiduMapAk.name(), baiduMapAk);
+        }
+
         // 清理缓存
         thymeleafViewResolver.clearCache();
     }
