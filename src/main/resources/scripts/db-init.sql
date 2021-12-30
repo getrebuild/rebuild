@@ -10,6 +10,7 @@
 CREATE DATABASE rebuild20 COLLATE utf8mb4_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
 GRANT ALL PRIVILEGES ON rebuild20.* TO 'rebuild'@'127.0.0.1';
+GRANT RELOAD ON *.* TO 'rebuild'@'127.0.0.1';
 FLUSH PRIVILEGES;
 USE rebuild20;
 */

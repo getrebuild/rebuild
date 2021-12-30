@@ -1,10 +1,10 @@
-/* eslint-disable no-undef */
 /*
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-undef, react/display-name */
 
 const wpc = window.__PageConfig
 
@@ -31,7 +31,12 @@ useEditComp = function (name) {
     )
   } else if ('DefaultLanguage' === name) {
     // 借用贵宝地
-    if (rb.commercial >= 10) _toggleLogo()
+    if (rb.commercial >= 10) {
+      _toggleImage('.applogo')
+      _toggleImage('.bgimg')
+    } else {
+      $('.applogo b, .bgimg b').remove()
+    }
 
     const options = []
     for (let k in wpc._LANGS) {
@@ -49,24 +54,34 @@ useEditComp = function (name) {
         <option value="2">{$L('总是显示')}</option>
       </select>
     )
-  } else if ('PageFooter' === name) {
+  } else if ('PageFooter' === name || 'AllowUsesTime' === name || 'AllowUsesIp' === name) {
     return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
   }
 }
 
-const _toggleLogo = function () {
-  const $logo = $('.applogo').addClass('edit')
-  $logo.find('p').removeClass('hide')
+const _toggleImage = function (el) {
+  const $img = $(el).addClass('edit')
+  $img.find('p').removeClass('hide')
 
   let $current
-  const $input = $logo.find('input')
+  const $input = $img.find('input')
   $initUploader($input, null, (res) => {
-    const $img = $current.find('i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key})`)
-    changeValue({ target: { name: $img.hasClass('white') ? 'LOGOWhite' : 'LOGO', value: res.key } })
+    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
+    changeValue({ target: { name: $current.data('id'), value: res.key } })
   })
 
-  $logo.find('a').click(function () {
-    $current = $(this)
-    $input[0].click()
+  $img
+    .find('a')
+    .attr('title', $L('点击上传'))
+    .on('click', function () {
+      $current = $(this)
+      $input[0].click()
+    })
+  $img.find('a>b').on('click', function (e) {
+    $stopEvent(e, true)
+    $current = $(this).parent()
+
+    $current.find('>i').css('background-image', `url(${rb.baseUrl}/assets/img/s.gif)`)
+    changeValue({ target: { name: $current.data('id'), value: '' } })
   })
 }

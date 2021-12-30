@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('用户登录')}]]</title>
-    <style type="text/css">
+    <style>
       #login-form > .row {
         margin-left: -15px !important;
         margin-right: -15px !important;
@@ -97,6 +97,11 @@
         height: 32px;
         border-radius: 6px;
         background-color: #eee;
+      }
+    </style>
+    <style th:if="${commercial > 1}">
+      .rb-bgimg {
+        background-image: url(../commons/theme/use-bgimg);
       }
     </style>
   </head>

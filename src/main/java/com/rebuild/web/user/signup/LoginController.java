@@ -35,7 +35,6 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -229,7 +228,7 @@ public class LoginController extends BaseController {
 
         // Tour 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
-                "select count(loginTime) from LoginLog where user = ? and loginTime > '2021-12-01'")
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10

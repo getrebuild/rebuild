@@ -20,10 +20,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -66,6 +68,10 @@ public class Entity2Schema extends Field2Schema {
      * @return returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField) {
+        if (License.isCommercial() && MetadataHelper.getEntities().length > 100) {
+            throw new NeedRbvException("实体数量超出免费版限制");
+        }
+
         if (entityName != null) {
             if (MetadataHelper.containsEntity(entityName)) {
                 throw new MetadataModificationException(Language.L("实体已存在 : %s", entityName));
@@ -92,9 +98,6 @@ public class Entity2Schema extends Field2Schema {
                 "select min(typeCode) from MetaEntity").unique();
         int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0
                 ? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
-        if (typeCode <= (License.isCommercial() ? 399 : 949)) {
-            throw new MetadataModificationException("ENTITY CODE EXCEEDS SYSTEM LIMIT : " + typeCode);
-        }
 
         // 名称字段
         String nameFiled = EntityHelper.CreatedOn;

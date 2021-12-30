@@ -3019,6 +3019,7 @@ form {
   top: 9px;
   font-size: 1.55rem;
   color: #878787;
+  color: rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
@@ -3077,6 +3078,7 @@ form {
 .search-container > .global-create > .dropdown.show > a {
   background: #4285f4;
   color: #fff;
+  transition: background-color 0.3s;
 }
 
 .preview-modal {
@@ -4328,4 +4330,23 @@ pre.unstyle {
 
 .bg-market {
   background-image: linear-gradient(135deg, #2973d7 0%, #26acb9 100%);
+}
+
+#gritter-notice-wrapper {
+  position: fixed;
+  right: 20px;
+  z-index: 1099;
+}
+
+.gritter-item-wrapper .gritter-image > .icon {
+  font-size: 3rem;
+}
+
+.gritter-item-wrapper.color .gritter-item .gritter-img-container {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.gritter-item-wrapper.faster {
+  -webkit-animation-duration: 200ms;
+  animation-duration: 200ms;
 }
