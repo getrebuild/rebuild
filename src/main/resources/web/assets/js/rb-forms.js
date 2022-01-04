@@ -1708,7 +1708,7 @@ class RbFormAvatar extends RbFormElement {
 
   renderElement() {
     return (
-      <div className="img-field avatar">
+      <div className={`img-field avatar ${this.props.readonly && 'unmod'}`}>
         <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
@@ -1890,7 +1890,7 @@ class RbFormSign extends RbFormElement {
     }
 
     return (
-      <div className="img-field sign">
+      <div className={`img-field sign ${this.props.readonly ? 'unmod' : 'edit'}`}>
         <span title={this.props.readonly ? null : $L('签名')}>
           <label
             htmlFor={`${this.props.field}-input`}
@@ -1902,7 +1902,7 @@ class RbFormSign extends RbFormElement {
                 })
               }
             }}>
-            {value ? <img src={value} /> : <span className="zmdi zmdi-edit up-2" />}
+            {value ? <img src={value} /> : <span className="zmdi zmdi-edit" />}
           </label>
         </span>
       </div>

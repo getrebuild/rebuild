@@ -727,6 +727,14 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('SIGN', function (v, s, k) {
+  return (
+    <td key={k} className="user-avatar sign">
+      <img alt="SIGN" src={v} />
+    </td>
+  )
+})
+
 // ~ 分页组件
 
 class RbListPagination extends React.Component {

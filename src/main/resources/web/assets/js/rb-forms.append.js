@@ -558,7 +558,7 @@ class SignPad extends React.Component {
       that._$canvas.width = 540
       that._$canvas.height = 180
       that._SignaturePad = new window.SignaturePad(that._$canvas, {
-        backgroundColor: '#eeeeee',
+        backgroundColor: 'rgba(255, 255, 255, 0)',
       })
       that.show()
     }

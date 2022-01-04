@@ -1065,6 +1065,11 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
+.img-field.unmod .img-upload:hover {
+  cursor: default !important;
+  opacity: unset !important;
+}
+
 .file-field .file-select {
   margin-top: 1px;
 }
@@ -1128,8 +1133,16 @@ select.form-control:not([disabled]) {
   border-radius: 0;
 }
 
-.img-field.sign .img-upload:hover {
-  border: 0 none;
+.img-field.sign .img-upload {
+  border: 0 none !important;
+  background-color: transparent;
+}
+
+.img-field.sign.edit {
+  background-color: #eee;
+}
+
+.img-field.sign.edit .img-upload:hover {
   opacity: 0.8;
   cursor: pointer;
 }
@@ -4372,4 +4385,19 @@ pre.unstyle {
 
 .modal.sign-pad .sign-pad-footer {
   text-align: right;
+}
+
+.sign-pad-canvas {
+  background-color: #eee;
+  line-height: 1;
+  font-size: 0;
+}
+
+.sign-pad-canvas canvas {
+  cursor: crosshair;
+}
+
+.table tbody tr td.user-avatar.sign img {
+  width: auto;
+  border-radius: 0;
 }
