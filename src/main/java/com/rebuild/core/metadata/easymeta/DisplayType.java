@@ -23,7 +23,7 @@ public enum DisplayType {
     DATE(EasyDate.class, "日期", FieldType.DATE, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd"),
     DATETIME(EasyDateTime.class, "日期时间", FieldType.TIMESTAMP, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd HH:mm:ss"),
     TEXT(EasyText.class, "文本", FieldType.STRING, 200, null),
-    NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, FieldType.DEFAULT_TEXT_LENGTH, null),
+    NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, 32767, null),
     EMAIL(EasyEmail.class, "邮箱", FieldType.STRING, 100, null),
     URL(EasyUrl.class, "链接", FieldType.STRING, 200, null),
     PHONE(EasyPhone.class, "电话", FieldType.STRING, 40, null),
@@ -39,7 +39,7 @@ public enum DisplayType {
     BARCODE(EasyBarCode.class, "二维码", FieldType.STRING, 300, null, false, true),
     N2NREFERENCE(EasyN2NReference.class, "多引用", FieldType.REFERENCE_LIST, -1, null),
     LOCATION(EasyLocation.class, "位置", FieldType.STRING, 100, null),
-    SIGN(EasySign.class, "签名", FieldType.TEXT, FieldType.DEFAULT_TEXT_LENGTH, null, false, false),
+    SIGN(EasySign.class, "签名", FieldType.TEXT, 32767, null, false, false),
 
     // 内部
 
