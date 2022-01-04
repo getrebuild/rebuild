@@ -26,6 +26,7 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.util.*;
@@ -198,11 +199,11 @@ public class EasyExcelGenerator extends SetUser {
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
             DisplayType dt = easyMeta.getDisplayType();
 
-            if (!dt.canExport()) {
+            if (!dt.canExport() && dt != DisplayType.SIGN) {
                 data.put(fieldName, unsupportFieldTip);
                 continue;
             }
-            
+
             // 替换成变量名
             String varName = fieldName;
             for (Map.Entry<String, String> e : varsMap.entrySet()) {
@@ -219,10 +220,19 @@ public class EasyExcelGenerator extends SetUser {
             if (fieldValue == null) {
                 data.put(varName, StringUtils.EMPTY);
             } else {
-                fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyMeta, true);
+
+                if (dt == DisplayType.SIGN) {
+                    fieldValue = buildImgData((String) fieldValue);
+                } else {
+                    fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyMeta, true);
+                }
                 data.put(varName, fieldValue);
             }
         }
         return data;
+    }
+
+    private byte[] buildImgData(String base64img) {
+        return Base64Utils.decodeFromString(base64img.split("base64,")[1]);
     }
 }
