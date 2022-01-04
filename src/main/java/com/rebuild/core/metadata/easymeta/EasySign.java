@@ -15,11 +15,12 @@ import org.springframework.util.Assert;
  * @since 2021/12/30
  */
 public class EasySign extends EasyField {
+    private static final long serialVersionUID = -1748773030681695060L;
 
     protected EasySign(Field field, DisplayType displayType) {
         super(field, displayType);
     }
-
+    
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");

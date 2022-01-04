@@ -509,3 +509,80 @@ class BaiduMapModal extends RbModal {
     }
   }
 }
+
+// 签名板
+// eslint-disable-next-line no-unused-vars
+class SignPad extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="modal sign-pad" ref={(c) => (this._$dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <h5 className="mt-0 text-bold">{$L('签名区')}</h5>
+              <button className="close" type="button" onClick={this.hide}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body pt-1">
+              <div className="sign-pad-canvas">
+                <canvas ref={(c) => (this._$canvas = c)} />
+              </div>
+              <div className="sign-pad-footer mt-2">
+                <button type="button" className="btn btn-secondary btn-space" onClick={() => this._SignaturePad.clear()}>
+                  {$L('清除')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-outline btn-space mr-0"
+                  onClick={() => {
+                    const data = this._SignaturePad.isEmpty() ? null : this._SignaturePad.toDataURL()
+                    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+                    this.hide()
+                  }}>
+                  {$L('确定')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    function initSign() {
+      that._$canvas.width = 540
+      that._$canvas.height = 180
+      that._SignaturePad = new window.SignaturePad(that._$canvas, {
+        backgroundColor: '#eeeeee',
+      })
+      that.show()
+    }
+
+    if (!window.SignaturePad) {
+      $.ajax({
+        url: '/assets/lib/widget/signature_pad.umd.min.js',
+        dataType: 'script',
+        cache: true,
+        success: initSign,
+      })
+    } else {
+      initSign()
+    }
+  }
+
+  componentWillUnmount() {
+    console.log('SignPad componentWillUnmount')
+    if (this._SignaturePad) this._SignaturePad.off()
+  }
+
+  hide = () => $(this._$dlg).modal('hide')
+  show = (clear) => {
+    if (clear && this._SignaturePad) this._SignaturePad.clear()
+    $(this._$dlg).modal('show')
+  }
+}

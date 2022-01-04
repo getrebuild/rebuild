@@ -115,7 +115,7 @@ public class Field2Schema extends SetUser {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return fieldName;
     }
 
@@ -156,7 +156,7 @@ public class Field2Schema extends SetUser {
         }
 
         Application.getBean(MetaFieldService.class).delete(metaRecordId);
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

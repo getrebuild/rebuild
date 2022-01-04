@@ -1119,6 +1119,21 @@ select.form-control:not([disabled]) {
   vertical-align: middle;
 }
 
+.img-field.sign,
+.img-field.sign .img-upload,
+.img-field.sign > span {
+  margin: 0;
+  padding: 0;
+  width: 180px;
+  border-radius: 0;
+}
+
+.img-field.sign .img-upload:hover {
+  border: 0 none;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
 .input-group.has-append .input-group-append button {
   min-width: 38px;
 }
@@ -4349,4 +4364,12 @@ pre.unstyle {
 .gritter-item-wrapper.faster {
   -webkit-animation-duration: 200ms;
   animation-duration: 200ms;
+}
+
+.modal.sign-pad .modal-content {
+  width: 580px;
+}
+
+.modal.sign-pad .sign-pad-footer {
+  text-align: right;
 }
