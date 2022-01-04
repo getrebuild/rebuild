@@ -50,7 +50,7 @@ public class TestSupport {
 
         try {
             System.setProperty("rbdev", "true");  // dev/debug mode
-//            System.setProperty("spring.main.web-application-type", "none");  // No Web
+            System.setProperty("spring.main.web-application-type", "none");  // No Web
             System.setProperty("server.port", "0");  // random port
             BootApplication.main(new String[0]);
             RebuildReady = true;
@@ -108,6 +108,7 @@ public class TestSupport {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("SameParameterValue")
     protected static boolean addTestEntities(boolean dropExists) throws Exception {
         boolean changed = false;
         if (dropExists) {
@@ -130,11 +131,11 @@ public class TestSupport {
 //        new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TestAllFields), true);
         if (!MetadataHelper.containsEntity(TestAllFields)) {
             Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-            String entityName = entity2Schema.createEntity(TestAllFields.toUpperCase(), null, null, true);
+            String entityName = entity2Schema.createEntity(TestAllFields.toUpperCase(), null, null, false);
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) {
+                if (dt == DisplayType.ID || dt == DisplayType.ANYREFERENCE) {
                     continue;
                 }
 

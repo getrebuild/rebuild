@@ -678,7 +678,7 @@ var $mp = {
   _mp: null,
   // 开始
   start: function () {
-    if ($mp._mp) {
+    if ($mp._timer || $mp._mp) {
       // console.log('Element `$mp._mp` exists')
       return
     }
