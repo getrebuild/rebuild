@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Field;
 import org.springframework.util.Assert;
 
 /**
+ * 签名。png,base64 格式
+ *
  * @author devezhao
  * @since 2021/12/30
  */

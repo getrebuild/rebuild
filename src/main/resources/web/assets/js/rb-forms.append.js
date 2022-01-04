@@ -323,14 +323,14 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        // map.centerAndZoom('北京市', 14)
         const geo = new window.BMapGL.Geolocation()
         geo.enableSDKLocation()
         geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
             map.panTo(e.point)
           } else {
-            console.log('Geolocation failed :', this.getStatus())
+            console.log('Geolocation failed. status :', this.getStatus())
+            map.centerAndZoom('北京市', 14)
           }
         })
       }
@@ -555,7 +555,7 @@ class SignPad extends React.Component {
   componentDidMount() {
     const that = this
     function initSign() {
-      that._$canvas.width = 540
+      that._$canvas.width = Math.min(540, $(window).width() - 40)
       that._$canvas.height = 180
       that._SignaturePad = new window.SignaturePad(that._$canvas, {
         backgroundColor: 'rgba(255, 255, 255, 0)',
@@ -576,7 +576,6 @@ class SignPad extends React.Component {
   }
 
   componentWillUnmount() {
-    console.log('SignPad componentWillUnmount')
     if (this._SignaturePad) this._SignaturePad.off()
   }
 

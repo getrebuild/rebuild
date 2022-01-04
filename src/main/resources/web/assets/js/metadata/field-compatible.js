@@ -6,7 +6,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 // 字段类型兼容
-
 const FT_COMPATIBLE = {
   NUMBER: ['DECIMAL'],
   DECIMAL: ['NUMBER'],
@@ -15,6 +14,9 @@ const FT_COMPATIBLE = {
   TEXT: ['*'],
   NTEXT: ['*'],
 }
+// 字段类型必须对应
+const FT_TYPE2TYPE = ['FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
 /**
  * 字段兼容判断
  * see backend `FieldValueCompatibleConversion.java`
@@ -26,9 +28,7 @@ const FT_COMPATIBLE = {
 // eslint-disable-next-line no-unused-vars
 function $fieldIsCompatible(s, t) {
   // 必须对应
-  if (s.type === 'FILE' && t.type !== 'FILE') return false
-  if (s.type === 'IMAGE' && t.type !== 'IMAGE') return false
-  if (s.type === 'AVATAR' && t.type !== 'AVATAR') return false
+  if (FT_TYPE2TYPE.includes(s.type) && s.type !== t.type) return false
 
   // 判断附加参数
   if (t.type === 'REFERENCE' || t.type === 'N2NREFERENCE' || t.type === 'ID') {
