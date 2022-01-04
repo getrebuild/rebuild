@@ -678,6 +678,10 @@ var $mp = {
   _mp: null,
   // 开始
   start: function () {
+    if ($mp._mp) {
+      // console.log('Element `$mp._mp` exists')
+      return
+    }
     $mp._timer = setTimeout(function () {
       $mp._mp = new Mprogress({ template: 3, start: true })
     }, 600)

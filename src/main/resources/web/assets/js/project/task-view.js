@@ -586,15 +586,9 @@ class ValueAttachments extends ValueComp {
   }
 
   componentDidMount() {
-    let mp = false
     $createUploader(
       this._attachments,
-      () => {
-        if (!mp) {
-          $mp.start()
-          mp = true
-        }
-      },
+      () => $mp.start(),
       (res) => {
         $mp.end()
         const s = (this.state.attachments || []).slice(0)

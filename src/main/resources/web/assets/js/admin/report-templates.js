@@ -156,18 +156,11 @@ class ReporEdit extends ConfigFormDlg {
 
     const that = this
     if (this.__upload) {
-      let mp = false
       $createUploader(
         this.__upload,
-        () => {
-          if (!mp) {
-            $mp.start()
-            mp = true
-          }
-        },
+        () => $mp.start(),
         (res) => {
           $mp.end()
-          mp = false
           that.__lastFile = res.key
           that.checkTemplate()
         }

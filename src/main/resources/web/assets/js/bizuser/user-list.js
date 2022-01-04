@@ -87,18 +87,11 @@ class UserImport extends RbModalHandler {
 
   componentDidMount() {
     const that = this
-    let mp = false
     $createUploader(
       this._upload,
-      function () {
-        if (!mp) {
-          $mp.start()
-          mp = true
-        }
-      },
-      function (res) {
+      () => $mp.start(),
+      (res) => {
         $mp.end()
-        mp = false
         that.setState({ uploadFile: res.key })
       }
     )
