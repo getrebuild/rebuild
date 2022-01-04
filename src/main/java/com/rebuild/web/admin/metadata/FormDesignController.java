@@ -101,7 +101,7 @@ public class FormDesignController extends BaseController {
 
             if (!willUpdate.isEmpty()) {
                 Application.getCommonsService().createOrUpdate(willUpdate.toArray(new Record[0]), false);
-                MetadataHelper.getMetadataFactory().refresh(false);
+                MetadataHelper.getMetadataFactory().refresh();
             }
         }
 

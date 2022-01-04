@@ -41,6 +41,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
         super(configLocation, dialect);
     }
 
+    public void refresh() {
+        refresh(false);
+    }
+
     @Override
     public synchronized void refresh(boolean initState) {
         super.refresh(initState);
@@ -49,6 +53,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             Application.getLanguage().refresh();
         }
     }
+
+
 
     @Override
     protected Document readConfiguration(boolean initState) {
