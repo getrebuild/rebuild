@@ -57,22 +57,22 @@ public enum DisplayType {
     private final int maxLength;
     private final String defaultFormat;
 
-    private final boolean canImport;
-    private final boolean canExport;
+    private final boolean importable;
+    private final boolean exportable;
 
     DisplayType(Class<? extends EasyField> easyClass, String displayName, Type fieldType, int maxLength, String defaultFormat) {
         this(easyClass, displayName, fieldType, maxLength, defaultFormat, true, true);
     }
 
     DisplayType(Class<? extends EasyField> easyClass, String displayName, Type fieldType, int maxLength, String defaultFormat,
-                boolean canImport, boolean canExport) {
+                boolean importable, boolean exportable) {
         this.easyClass = easyClass;
         this.displayName = displayName;
         this.fieldType = fieldType;
         this.maxLength = maxLength;
         this.defaultFormat = defaultFormat;
-        this.canImport = canImport;
-        this.canExport = canExport;
+        this.importable = importable;
+        this.exportable = exportable;
     }
 
     public String getDisplayName() {
@@ -91,12 +91,12 @@ public enum DisplayType {
         return defaultFormat;
     }
 
-    public boolean canExport() {
-        return canExport;
+    public boolean isImportable() {
+        return importable;
     }
 
-    public boolean canImport() {
-        return canImport;
+    public boolean isExportable() {
+        return exportable;
     }
 
     Class<? extends EasyField> getEasyClass() {

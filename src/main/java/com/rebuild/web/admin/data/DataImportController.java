@@ -109,7 +109,7 @@ public class DataImportController extends BaseController {
 
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyMeta.getDisplayType();
-            if (!dt.canImport()) {
+            if (!dt.isImportable()) {
                 continue;
             }
 

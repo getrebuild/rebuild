@@ -199,7 +199,7 @@ public class EasyExcelGenerator extends SetUser {
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
             DisplayType dt = easyMeta.getDisplayType();
 
-            if (!dt.canExport() && dt != DisplayType.SIGN) {
+            if (!dt.isExportable() && dt != DisplayType.SIGN) {
                 data.put(fieldName, unsupportFieldTip);
                 continue;
             }

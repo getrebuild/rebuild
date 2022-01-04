@@ -532,7 +532,7 @@ class SignPad extends React.Component {
               </div>
               <div className="sign-pad-footer mt-2">
                 <button type="button" className="btn btn-secondary btn-space" onClick={() => this._SignaturePad.clear()}>
-                  {$L('清除')}
+                  {$L('擦除')}
                 </button>
                 <button
                   type="button"
