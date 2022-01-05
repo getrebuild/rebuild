@@ -189,6 +189,8 @@ public class Installer implements InstallState {
         Assert.notNull(dbProps, "[databaseProps] cannot be null");
 
         String osTimezone = StringUtils.defaultIfBlank(CalendarUtils.DEFAULT_TIME_ZONE.getID(), "GMT%2B08:00");
+        if (osTimezone.contains("GMT ")) osTimezone = osTimezone.replace("GMT ", "GMT%2B");  // ` ` > `+`
+
         String dbUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=%s",
                 dbProps.getString("dbHost"),
@@ -388,7 +390,7 @@ public class Installer implements InstallState {
             }
 
         } catch (SQLException ex) {
-            log.warn("Check REBUILD database error : " + ex.getLocalizedMessage());
+            log.info("Check REBUILD database error : " + ex.getLocalizedMessage());
         }
         return false;
     }
