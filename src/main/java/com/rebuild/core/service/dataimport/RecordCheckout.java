@@ -180,7 +180,14 @@ public class RecordCheckout {
 
         // 支持ID导入
         if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == refEntity.getEntityCode()) {
-            return ID.valueOf(val);
+            ID checkId = ID.valueOf(val);
+            Object exists = Application.getQueryFactory().uniqueNoFilter(checkId, refEntity.getPrimaryField().getName());
+            if (exists == null) {
+                log.warn("Reference ID `{}` not exists", checkId);
+                return null;
+            } else {
+                return checkId;
+            }
         }
 
         Object val2Text = checkoutFieldValue(refEntity.getNameField(), cell, false);
@@ -203,14 +210,16 @@ public class RecordCheckout {
                 queryFields.add(s.getName());
             }
 
-            String sql = String.format("select %s from %s where ",
-                    refEntity.getPrimaryField().getName(), refEntity.getName());
+            StringBuilder sql = new StringBuilder(
+                    String.format("select %s from %s where ",
+                            refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
-                sql += String.format("%s = '%s' or ", qf, StringEscapeUtils.escapeSql((String) val2Text));
+                sql.append(
+                        String.format("%s = '%s' or ", qf, StringEscapeUtils.escapeSql((String) val2Text)));
             }
-            sql = sql.substring(0, sql.length() - 4);
+            sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 
-            query = Application.createQueryNoFilter(sql);
+            query = Application.createQueryNoFilter(sql.toString());
         }
 
         Object[] found = query.unique();

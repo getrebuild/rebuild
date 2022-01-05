@@ -249,7 +249,7 @@ const _fieldsMapping = (columns, fields) => {
     $clone.find('option').each(function (i, o) {
       const name = o.value
       const label = (o.text || '').replace(canNullText, '')
-      if ((name && name === item) || (label && label === item.trim())) {
+      if ((name && name === item) || (label && label === (item || '').trim())) {
         matchField = name
         return false
       }

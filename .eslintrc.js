@@ -116,5 +116,6 @@ module.exports = {
     BaiduMap: true,
     BaiduMapModal: true,
     WrapHtml: true,
+    SignPad: true,
   },
 }

@@ -986,6 +986,15 @@ select.form-control:not([disabled]) {
   overflow: hidden;
 }
 
+.img-field .img-upload[disabled],
+.img-field .img-upload[disabled]:hover,
+.img-field .img-upload[disabled] .zmdi {
+  opacity: 1 !important;
+  color: #dbdbdb !important;
+  cursor: default !important;
+  cursor: not-allowed !important;
+}
+
 .img-field label.img-upload {
   padding-top: 5px;
 }
@@ -1117,6 +1126,29 @@ select.form-control:not([disabled]) {
   font-size: 12px;
   display: table-cell;
   vertical-align: middle;
+}
+
+.img-field.sign,
+.img-field.sign .img-upload,
+.img-field.sign > span {
+  margin: 0;
+  padding: 0;
+  width: 180px;
+  border-radius: 0;
+}
+
+.img-field.sign .img-upload {
+  border: 0 none !important;
+  background-color: transparent;
+}
+
+.img-field.sign.sign-edit {
+  background-color: #eee;
+}
+
+.img-field.sign.sign-edit .img-upload:hover {
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 .input-group.has-append .input-group-append button {
@@ -1328,7 +1360,7 @@ select.form-control:not([disabled]) {
 
 i.dividing.ui-draggable-dragging {
   border-right-color: #4285f4 !important;
-  z-index: 8;
+  z-index: 101;
   cursor: col-resize;
 }
 
@@ -4349,4 +4381,27 @@ pre.unstyle {
 .gritter-item-wrapper.faster {
   -webkit-animation-duration: 200ms;
   animation-duration: 200ms;
+}
+
+.modal.sign-pad .modal-content {
+  width: 580px;
+}
+
+.modal.sign-pad .sign-pad-footer {
+  text-align: right;
+}
+
+.sign-pad-canvas {
+  background-color: #eee;
+  line-height: 1;
+  font-size: 0;
+}
+
+.sign-pad-canvas canvas {
+  cursor: crosshair;
+}
+
+.table tbody tr td.user-avatar.sign img {
+  width: auto;
+  border-radius: 0;
 }

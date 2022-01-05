@@ -127,11 +127,12 @@ public class ChartDesignController extends EntityController {
                     || dt == DisplayType.AVATAR
                     || dt == DisplayType.ANYREFERENCE
                     || dt == DisplayType.N2NREFERENCE
-                    || dt == DisplayType.LOCATION
                     || dt == DisplayType.MULTISELECT
                     || dt == DisplayType.BARCODE
                     || dt == DisplayType.NTEXT
-                    || dt == DisplayType.SERIES) {
+                    || dt == DisplayType.SERIES
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.SIGN) {
                 continue;
             }
 

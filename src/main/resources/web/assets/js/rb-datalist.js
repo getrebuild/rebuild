@@ -29,8 +29,11 @@ class RbList extends React.Component {
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
+
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
+      if (['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR'].includes(fields[i].type)) fields[i].unsort = true
     }
+
     props.config.fields = null
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
@@ -68,9 +71,9 @@ class RbList extends React.Component {
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || that.__defaultColumnWidth
                       const styles = { width: cWidth }
-                      const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
+                      const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                        <th key={`column-${item.field}`} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
                             <span style={{ width: cWidth - 8 }}>{item.label}</span>
                             <i className={`zmdi ${item.sort || ''}`} />
@@ -723,6 +726,14 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
           {v.text}
         </a>
       </div>
+    </td>
+  )
+})
+
+CellRenders.addRender('SIGN', function (v, s, k) {
+  return (
+    <td key={k} className="user-avatar sign">
+      <img alt="SIGN" src={v} />
     </td>
   )
 })

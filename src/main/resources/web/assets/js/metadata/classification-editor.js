@@ -427,19 +427,12 @@ class DlgImports extends RbModalHandler {
 
   componentDidMount() {
     // FILE
-    let uploadStart = false
     $createUploader(
       this._uploadInput,
-      () => {
-        if (!uploadStart) {
-          uploadStart = true
-          $mp.start()
-        }
-      },
+      () => $mp.start(),
       (res) => {
-        this.setState({ uploadFile: res.key })
         $mp.end()
-        uploadStart = false
+        this.setState({ uploadFile: res.key })
       }
     )
 

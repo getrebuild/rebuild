@@ -86,13 +86,13 @@ public class Field2Schema extends SetUser {
                 throw new NeedRbvException("字段数量超出免费版限制");
             }
 
-            if (type == DisplayType.LOCATION) {
+            if (type == DisplayType.LOCATION || type == DisplayType.SIGN) {
                 Object[] limit = Application.createQueryNoFilter(
                                 "select count(fieldId) from MetaField where displayType = ?")
                         .setParameter(1, type.name())
                         .unique();
                 if (ObjectUtils.toInt(limit[0]) >= 1) {
-                    throw new NeedRbvException("位置字段超出免费版限制");
+                    throw new NeedRbvException(type.getDisplayName() + "字段超出免费版限制");
                 }
             }
         }
@@ -115,7 +115,7 @@ public class Field2Schema extends SetUser {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return fieldName;
     }
 
@@ -156,7 +156,7 @@ public class Field2Schema extends SetUser {
         }
 
         Application.getBean(MetaFieldService.class).delete(metaRecordId);
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

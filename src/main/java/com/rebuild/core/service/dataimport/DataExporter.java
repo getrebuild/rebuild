@@ -173,10 +173,7 @@ public class DataExporter extends SetUser {
                 if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = Language.L("[无权限]");
 
-                } else if (dt == DisplayType.FILE
-                        || dt == DisplayType.IMAGE
-                        || dt == DisplayType.AVATAR
-                        || dt == DisplayType.BARCODE) {
+                } else if (!dt.isExportable()) {
                     cellVal = Language.L("[暂不支持]");
 
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {

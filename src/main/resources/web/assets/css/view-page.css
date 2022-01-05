@@ -393,11 +393,13 @@ body {
 .type-BOOL .edit-oper,
 .type-FILE .edit-oper,
 .type-MULTISELECT .edit-oper,
-.type-IMAGE .edit-oper {
+.type-IMAGE .edit-oper,
+.type-SIGN .edit-oper {
   border-top: 1px solid #dbdbdb;
 }
 
-.type-AVATAR .edit-oper {
+.type-AVATAR .edit-oper,
+.type-SIGN .edit-oper {
   margin-top: 7px;
 }
 

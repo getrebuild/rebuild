@@ -93,7 +93,7 @@ public final class ServerStatus {
      */
     static Status checkDatabase() {
         String name = "Database";
-        if (Installer.isUseH2()) return Status.success(name + "/H2");
+        if (Installer.isUseH2()) name += "/H2";
 
         String url = BootEnvironmentPostProcessor.getProperty("db.url");
         try {

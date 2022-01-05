@@ -974,6 +974,10 @@ class RbFormImage extends RbFormElement {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
+    if (value.length === 0 && !showUpload) {
+      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+    }
+
     return (
       <div className="img-field">
         {value.map((item) => {
@@ -1079,6 +1083,10 @@ class RbFormFile extends RbFormImage {
   renderElement() {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
+
+    if (value.length === 0 && !showUpload) {
+      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+    }
 
     return (
       <div className="file-field">
@@ -1703,7 +1711,7 @@ class RbFormAvatar extends RbFormElement {
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
-          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload" disabled={this.props.readonly}>
             <img src={this._formatUrl(this.state.value)} alt="Avatar" />
           </label>
         </span>
@@ -1869,6 +1877,59 @@ class RbFormLocation extends RbFormElement {
   }
 }
 
+class RbFormSign extends RbFormElement {
+  constructor(props) {
+    super(props)
+  }
+
+  renderElement() {
+    const value = this.state.value
+
+    return (
+      <div className="img-field sign sign-edit">
+        <span title={this.props.readonly ? null : $L('签名')}>
+          <label
+            htmlFor={`${this.props.field}-input`}
+            className="img-thumbnail img-upload"
+            onClick={() => {
+              if (!this.props.readonly) {
+                this._openSignPad((v) => {
+                  this.handleChange({ target: { value: v || null } }, true)
+                })
+              }
+            }}
+            disabled={this.props.readonly}>
+            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-edit" />}
+          </label>
+        </span>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    return (
+      <div className="img-field sign">
+        <a className="img-thumbnail img-upload">
+          <img src={this.state.value} alt="SIGN" />
+        </a>
+      </div>
+    )
+  }
+
+  _openSignPad(onConfirm) {
+    if (this._SignPad) {
+      this._SignPad.show(true)
+    } else {
+      const that = this
+      renderRbcomp(<SignPad onConfirm={onConfirm} />, null, function () {
+        that._SignPad = this
+      })
+    }
+  }
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -1957,6 +2018,8 @@ var detectElement = function (item) {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'LOCATION') {
     return <RbFormLocation {...item} />
+  } else if (item.type === 'SIGN') {
+    return <RbFormSign {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {

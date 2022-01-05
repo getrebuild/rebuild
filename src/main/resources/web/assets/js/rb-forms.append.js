@@ -323,14 +323,14 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        // map.centerAndZoom('北京市', 14)
         const geo = new window.BMapGL.Geolocation()
         geo.enableSDKLocation()
         geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
             map.panTo(e.point)
           } else {
-            console.log('Geolocation failed :', this.getStatus())
+            console.log('Geolocation failed. status :', this.getStatus())
+            map.centerAndZoom('北京市', 14)
           }
         })
       }
@@ -507,5 +507,81 @@ class BaiduMapModal extends RbModal {
         BaiduMapModal._ViewModal = this
       })
     }
+  }
+}
+
+// 签名板
+// eslint-disable-next-line no-unused-vars
+class SignPad extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="modal sign-pad" ref={(c) => (this._$dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <h5 className="mt-0 text-bold">{$L('签名区')}</h5>
+              <button className="close" type="button" onClick={this.hide}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body pt-1">
+              <div className="sign-pad-canvas">
+                <canvas ref={(c) => (this._$canvas = c)} />
+              </div>
+              <div className="sign-pad-footer mt-2">
+                <button type="button" className="btn btn-secondary btn-space" onClick={() => this._SignaturePad.clear()}>
+                  {$L('擦除')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-outline btn-space mr-0"
+                  onClick={() => {
+                    const data = this._SignaturePad.isEmpty() ? null : this._SignaturePad.toDataURL()
+                    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+                    this.hide()
+                  }}>
+                  {$L('确定')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    function initSign() {
+      that._$canvas.width = Math.min(540, $(window).width() - 40)
+      that._$canvas.height = 180
+      that._SignaturePad = new window.SignaturePad(that._$canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+      })
+      that.show()
+    }
+
+    if (!window.SignaturePad) {
+      $.ajax({
+        url: '/assets/lib/widget/signature_pad.umd.min.js',
+        dataType: 'script',
+        cache: true,
+        success: initSign,
+      })
+    } else {
+      initSign()
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._SignaturePad) this._SignaturePad.off()
+  }
+
+  hide = () => $(this._$dlg).modal('hide')
+  show = (clear) => {
+    if (clear && this._SignaturePad) this._SignaturePad.clear()
+    $(this._$dlg).modal('show')
   }
 }

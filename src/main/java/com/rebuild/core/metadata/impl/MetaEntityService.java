@@ -92,7 +92,7 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
     public Record update(Record record) {
         record = super.update(record);
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return record;
     }
 

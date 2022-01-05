@@ -22,6 +22,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Map;
 
@@ -162,7 +163,7 @@ public class DataListWrapper {
 
     private boolean isUseDesensitized(EasyField easyField) {
         return this.useDesensitized
-                && "true".equals(easyField.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
+                && BooleanUtils.toBoolean(easyField.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
     }
 
     /**

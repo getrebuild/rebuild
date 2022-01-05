@@ -99,6 +99,10 @@ public enum ConfigurationItem {
     // SAML (IdP)
     SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 
+    // PORTALs
+    PortalBaiduMapAk,
+    PortalOfficePreviewUrl,
+
     // !!! 仅命令行适用
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB
