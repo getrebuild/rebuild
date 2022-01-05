@@ -986,6 +986,15 @@ select.form-control:not([disabled]) {
   overflow: hidden;
 }
 
+.img-field .img-upload[disabled],
+.img-field .img-upload[disabled]:hover,
+.img-field .img-upload[disabled] .zmdi {
+  opacity: 1 !important;
+  color: #dbdbdb !important;
+  cursor: default !important;
+  cursor: not-allowed !important;
+}
+
 .img-field label.img-upload {
   padding-top: 5px;
 }
@@ -1065,11 +1074,6 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
-.img-field.unmod .img-upload:hover {
-  cursor: default !important;
-  opacity: unset !important;
-}
-
 .file-field .file-select {
   margin-top: 1px;
 }
@@ -1138,11 +1142,11 @@ select.form-control:not([disabled]) {
   background-color: transparent;
 }
 
-.img-field.sign.edit {
+.img-field.sign.sign-edit {
   background-color: #eee;
 }
 
-.img-field.sign.edit .img-upload:hover {
+.img-field.sign.sign-edit .img-upload:hover {
   opacity: 0.8;
   cursor: pointer;
 }
@@ -1356,7 +1360,7 @@ select.form-control:not([disabled]) {
 
 i.dividing.ui-draggable-dragging {
   border-right-color: #4285f4 !important;
-  z-index: 8;
+  z-index: 101;
   cursor: col-resize;
 }
 

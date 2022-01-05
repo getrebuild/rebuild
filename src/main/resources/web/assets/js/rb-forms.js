@@ -1708,10 +1708,10 @@ class RbFormAvatar extends RbFormElement {
 
   renderElement() {
     return (
-      <div className={`img-field avatar ${this.props.readonly && 'unmod'}`}>
+      <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
-          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload" disabled={this.props.readonly}>
             <img src={this._formatUrl(this.state.value)} alt="Avatar" />
           </label>
         </span>
@@ -1885,12 +1885,8 @@ class RbFormSign extends RbFormElement {
   renderElement() {
     const value = this.state.value
 
-    if (!value && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
-    }
-
     return (
-      <div className={`img-field sign ${this.props.readonly ? 'unmod' : 'edit'}`}>
+      <div className="img-field sign sign-edit">
         <span title={this.props.readonly ? null : $L('签名')}>
           <label
             htmlFor={`${this.props.field}-input`}
@@ -1901,8 +1897,9 @@ class RbFormSign extends RbFormElement {
                   this.handleChange({ target: { value: v || null } }, true)
                 })
               }
-            }}>
-            {value ? <img src={value} /> : <span className="zmdi zmdi-edit" />}
+            }}
+            disabled={this.props.readonly}>
+            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-edit" />}
           </label>
         </span>
       </div>
@@ -1915,7 +1912,7 @@ class RbFormSign extends RbFormElement {
     return (
       <div className="img-field sign">
         <a className="img-thumbnail img-upload">
-          <img src={this.state.value} alt="Sign" />
+          <img src={this.state.value} alt="SIGN" />
         </a>
       </div>
     )
