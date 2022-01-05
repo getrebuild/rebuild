@@ -220,25 +220,18 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const pmodel = this.props.$$$parent.state.__formModel
-    const moreActions = []
-    if (pmodel.hadApproval) {
-      moreActions.push(
-        <a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>
-          {$L('保存并提交')}
-        </a>
-      )
-    }
 
-    if (pmodel.isMain === true) {
-      moreActions.push(
-        <a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>
-          {$L('保存并添加明细')}
-        </a>
-      )
-    } else if (pmodel.isDetail === true) {
+    const moreActions = []
+    if (pmodel.isDetail === true) {
       moreActions.push(
         <a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>
           {$L('保存并继续添加')}
+        </a>
+      )
+    } else {
+      moreActions.push(
+        <a key="Action104" className="dropdown-item" onClick={() => this.post(104)}>
+          {$L('保存并打开')}
         </a>
       )
     }
@@ -306,12 +299,10 @@ class RbForm extends React.Component {
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
 
-  // 保存并继续添加
-  static __NEXT_ADD = 101
   // 保存并添加明细
   static __NEXT_ADDDETAIL = 102
-  // 保存并提交审批
-  static __NEXT_APPROVAL = 103
+  // 保存并打开
+  static __NEXT_VIEW = 104
   /**
    * @next {Number}
    */
@@ -328,40 +319,39 @@ class RbForm extends React.Component {
       entity: this.state.entity,
       id: this.state.id,
     }
+
     if (RbForm.postBefore(data) === false) {
       console.log('FrontJS prevented save')
       return
     }
 
-    const $btns = $(this._$formAction).find('.btn').button('loading')
+    const $btn = $(this._$formAction).find('.btn').button('loading')
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
-      $btns.button('reset')
+      $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
+
         setTimeout(() => {
           this.props.$$$parent.hide(true)
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
-          if (next === RbForm.__NEXT_ADD) {
-            const pstate = this.props.$$$parent.state
+          const recordId = res.data.id
+          const pState = this.props.$$$parent.state
+
+          if (next === RbForm.__NEXT_ADDDETAIL) {
+            const iv = { $MAINID$: recordId }
+            const dm = pState.__formModel.detailMeta
             RbFormModal.create({
-              title: pstate.title,
-              entity: pstate.entity,
-              icon: pstate.icon,
-              initialValue: pstate.initialValue,
-            })
-          } else if (next === RbForm.__NEXT_ADDDETAIL) {
-            const iv = { $MAINID$: res.data.id }
-            const sm = this.props.$$$parent.state.__formModel.detailMeta
-            RbFormModal.create({
-              title: $L('添加%s', sm.entityLabel),
-              entity: sm.entity,
-              icon: sm.icon,
+              title: $L('添加%s', dm.entityLabel),
+              entity: dm.entity,
+              icon: dm.icon,
               initialValue: iv,
             })
-          } else if (next === RbForm.__NEXT_APPROVAL) {
-            renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
+          } else if (next === RbForm.__NEXT_VIEW) {
+            window.RbViewPage && window.RbViewPage.clickView(`#!/View/${pState.entity}/${recordId}`)
           }
+
+          // ...
         }, 200)
       } else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
@@ -386,9 +376,11 @@ class RbForm extends React.Component {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
+
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload(data.id)
-    if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
+
+    if (window.RbViewPage && next !== RbForm.__NEXT_ADDDETAIL) window.RbViewPage.reload()
   }
 
   static __FIELDVALUECHANGE_CALLS = []

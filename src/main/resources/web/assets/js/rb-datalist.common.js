@@ -591,11 +591,11 @@ const RbListCommon = {
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
-    $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    $('.J_new').on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
+    $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
     // 批量修改
-    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
+    $('.J_batch').on('click', () => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
     // 自动打开新建
     if (location.hash === '#!/New') {
