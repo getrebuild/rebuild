@@ -16,7 +16,7 @@ class FilesList extends React.Component {
 
   render() {
     return (
-      <div className="file-list">
+      <div className="file-list file-list-striped">
         {(this.state.files || []).map((item) => {
           const checked = this.state.currentActive === item.id
           return (

@@ -44,10 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhaofang123@gmail.com
@@ -246,7 +243,14 @@ public class LoginController extends BaseController {
             if (uas.getOperatingSystem().getDeviceType() == DeviceType.MOBILE) ua += " [Mobile]";
 
         } catch (Exception ex) {
-            log.warn("Unknown user-agent : " + ua);
+            StringBuilder debug4 = new StringBuilder();
+            Enumeration<String> hs = request.getHeaderNames();
+            while (hs.hasMoreElements()) {
+                String name = hs.nextElement();
+                debug4.append("\n").append(name).append("=").append(request.getHeader(name));
+            }
+
+            log.warn("Unknown user-agent : " + ua + "" + debug4);
             ua = "UNKNOW";
         }
 

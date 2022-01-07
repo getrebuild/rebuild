@@ -4405,3 +4405,11 @@ pre.unstyle {
   width: auto;
   border-radius: 0;
 }
+
+.rb-left-sidebar .sidebar-elements li.active > a {
+  background-color: #e0e0e0;
+}
+
+.rb-left-sidebar .sidebar-elements li.active.parent > a {
+  background-color: inherit;
+}
