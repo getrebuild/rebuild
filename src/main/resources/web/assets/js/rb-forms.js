@@ -224,13 +224,13 @@ class RbForm extends React.Component {
     const moreActions = []
     if (pmodel.isDetail === true) {
       moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>
+        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_ADDDETAIL)}>
           {$L('保存并继续添加')}
         </a>
       )
-    } else {
+    } else if (window.RbViewModal) {
       moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(104)}>
+        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_VIEW)}>
           {$L('保存并打开')}
         </a>
       )
@@ -347,8 +347,8 @@ class RbForm extends React.Component {
               icon: dm.icon,
               initialValue: iv,
             })
-          } else if (next === RbForm.__NEXT_VIEW) {
-            window.RbViewPage && window.RbViewPage.clickView(`#!/View/${pState.entity}/${recordId}`)
+          } else if (next === RbForm.__NEXT_VIEW && window.RbViewModal) {
+            window.RbViewModal.create({ id: recordId, entity: pState.entity })
           }
 
           // ...

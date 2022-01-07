@@ -2052,7 +2052,7 @@ th.column-fixed {
 }
 
 .aside-2tree ul li:hover {
-  background-color: #eee;
+  background-color: #f0f0f0;
 }
 
 .aside-2tree ul li.active {
@@ -3888,6 +3888,12 @@ a.select-lang:hover {
   margin-left: -10px;
 }
 
+@media screen and (max-width: 767px) {
+  .rb-collapsible-sidebar-collapsed .left-sidebar-content > .sidebar-elements > li > a .rbv {
+    margin-left: 0;
+  }
+}
+
 h3.modal-title > .rbv {
   margin: 0 3px;
   top: -10px;
@@ -4402,8 +4408,29 @@ pre.unstyle {
   border-radius: 0;
 }
 
+/* v2: Nav styles */
+
+.rb-left-sidebar.v2 .sidebar-elements li > a {
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-left: 6px;
+  margin-right: 6px;
+  border-radius: 2px;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements > li ul li > a {
+  padding-left: 41px;
+}
+
+@media (min-width: 768px) {
+  .rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements > li ul.visible .nav-items .content > ul > li > a {
+    padding-left: 19px;
+  }
+}
+
 .rb-left-sidebar.v2 .sidebar-elements li.active > a {
   background-color: #e3e3e3;
+  font-weight: normal;
 }
 
 .rb-left-sidebar.v2 .sidebar-elements li.active.parent > a {
