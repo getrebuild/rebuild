@@ -76,17 +76,23 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(ConfigurationItem.MarkWatermark));
 
         String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
-        if (StringUtils.isNotBlank(pageFooter)) {
+        if (StringUtils.isBlank(pageFooter)) {
+            thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, null);
+        } else {
             pageFooter = MarkdownUtils.render(pageFooter);
             thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
         }
 
         String officePreviewUrl = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
-        if (StringUtils.isNotBlank(officePreviewUrl)) {
+        if (StringUtils.isBlank(officePreviewUrl)) {
+            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalOfficePreviewUrl.name(), null);
+        } else {
             thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalOfficePreviewUrl.name(), officePreviewUrl);
         }
         String baiduMapAk = RebuildConfiguration.get(ConfigurationItem.PortalBaiduMapAk);
-        if (StringUtils.isNotBlank(baiduMapAk)) {
+        if (StringUtils.isBlank(baiduMapAk)) {
+            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalBaiduMapAk.name(), null);
+        } else {
             thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalBaiduMapAk.name(), baiduMapAk);
         }
 

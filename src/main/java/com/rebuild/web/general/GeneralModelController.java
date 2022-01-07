@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.TransformManager;
@@ -24,6 +25,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 表单/视图
@@ -42,6 +45,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 08/22/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/{entity}/")
 public class GeneralModelController extends EntityController {
@@ -53,6 +57,10 @@ public class GeneralModelController extends EntityController {
         final Entity useEntity = GeneralListController.checkPageOfEntity(user, entity, response);
         if (useEntity == null) return null;
 
+        if (Application.devMode() && !Objects.equals(id.getEntityCode(), MetadataHelper.getEntity(entity).getEntityCode())) {
+            log.warn("Entity and ID do not match : " + request.getRequestURI());
+        }
+        
         boolean isDetail = useEntity.getMainEntity() != null;
         ModelAndView mv;
         if (isDetail) {
