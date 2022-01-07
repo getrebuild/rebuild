@@ -4336,8 +4336,7 @@ pre.unstyle {
 }
 
 .map-pin {
-  padding: 10px 15px;
-  padding-left: 19px;
+  padding: 10px 15px 10px 19px;
   background-color: #f7f7f7;
   border-top: 1px solid #dee2e6;
 }
@@ -4403,10 +4402,10 @@ pre.unstyle {
   border-radius: 0;
 }
 
-.rb-left-sidebar .sidebar-elements li.active > a {
-  background-color: #e0e0e0;
+.rb-left-sidebar.v2 .sidebar-elements li.active > a {
+  background-color: #e3e3e3;
 }
 
-.rb-left-sidebar .sidebar-elements li.active.parent > a {
+.rb-left-sidebar.v2 .sidebar-elements li.active.parent > a {
   background-color: inherit;
 }

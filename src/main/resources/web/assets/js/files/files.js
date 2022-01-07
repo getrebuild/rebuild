@@ -58,7 +58,7 @@ class FilesList extends React.Component {
         )}
         {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>}
         {this.__pageNo === 1 && this.state.files && this.state.files.length === 0 && (
-          <div className="list-nodata pt-8 pb-8">
+          <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
             <p>{$L('暂无数据')}</p>
           </div>
