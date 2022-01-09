@@ -112,13 +112,14 @@ public class FormsBuilder extends FormsManager {
         if (record == null) {
             if (mainEntity != null) {
                 ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
-                Assert.notNull(mainId, "Please calls FormBuilderContextHolder#setMainIdOfDetail first");
+                Assert.notNull(mainId, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
                 approvalState = getHadApproval(entityMeta, null);
 
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     return formatModelError(approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
+                            ? Language.L("主记录已完成审批，不能添加明细")
+                            : Language.L("主记录正在审批中，不能添加明细"));
                 }
 
                 // 明细无需审批

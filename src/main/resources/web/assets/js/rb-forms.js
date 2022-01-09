@@ -216,6 +216,7 @@ class RbForm extends React.Component {
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
         </div>
+
         {this.renderDetailForm()}
         {this.renderFormAction()}
       </div>
@@ -223,11 +224,15 @@ class RbForm extends React.Component {
   }
 
   renderDetailForm() {
-    if (!this.props.rawModel.detailMeta) return null
+    const detailMeta = this.props.rawModel.detailMeta
+    if (!detailMeta || !window.ProTable) return null
 
     return (
-      <div>
-        <ProTable entity={this.props.rawModel.detailMeta} mainid={this.state.id} />
+      <div className="detail-form-table">
+        <h5 className="mt-1">
+          <i className={`icon zmdi zmdi-${detailMeta.icon}`} /> {detailMeta.entityLabel}
+        </h5>
+        <ProTable entity={detailMeta} mainid={this.state.id} />
       </div>
     )
   }
@@ -298,7 +303,8 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error) RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field, value: value }))
+    if (!error && this._onFieldValueChanged_calls) this._onFieldValueChanged_calls.forEach((c) => c({ name: field, value: value }))
+
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
   }
@@ -306,9 +312,17 @@ class RbForm extends React.Component {
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
-    RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field }))
+    if (this._onFieldValueChanged_calls) this._onFieldValueChanged_calls.forEach((c) => c({ name: field }))
+
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
+  }
+
+  // 字段值变化回调
+  onFieldValueChanged(call) {
+    const c = this._onFieldValueChanged_calls || []
+    c.push(call)
+    this._onFieldValueChanged_calls = c
   }
 
   // 保存并添加明细
@@ -394,12 +408,6 @@ class RbForm extends React.Component {
     if (rlp) rlp.reload(data.id)
 
     if (window.RbViewPage && next !== RbForm.__NEXT_ADDDETAIL) window.RbViewPage.reload()
-  }
-
-  static __FIELDVALUECHANGE_CALLS = []
-  // 字段值变化回调
-  static onFieldValueChange(call) {
-    RbForm.__FIELDVALUECHANGE_CALLS.push(call)
   }
 }
 
@@ -574,19 +582,6 @@ class RbFormElement extends React.Component {
    * @param {Boolean} editMode
    */
   toggleEditMode(editMode) {
-    // if (editMode) {
-    //   this.setState({ editMode: editMode }, () => {
-    //     this.onEditModeChanged()
-    //     this._fieldValue && this._fieldValue.focus()
-    //   })
-    // } else {
-    //   const newValue = arguments.length > 1 ? arguments[1] : this.state.newValue === undefined ? this.props.value : this.state.newValue
-    //   const state = { editMode: editMode, value: newValue, newValue: newValue || null }
-    //
-    //   this.onEditModeChanged(true)
-    //   this.setState(state)
-    // }
-
     this.setState({ editMode: editMode }, () => {
       if (this.state.editMode) {
         this.onEditModeChanged()
@@ -954,7 +949,7 @@ class RbFormDateTime extends RbFormElement {
           that.handleChange({ target: { value: val } }, true)
         })
 
-      $(this._fieldValue__icon).click(() => this.__datetimepicker.datetimepicker('show'))
+      $(this._fieldValue__icon).on('click', () => this.__datetimepicker.datetimepicker('show'))
     }
   }
 }

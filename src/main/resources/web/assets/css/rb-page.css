@@ -1153,6 +1153,7 @@ select.form-control:not([disabled]) {
 
 .input-group.has-append .input-group-append button {
   min-width: 38px;
+  box-shadow: none !important;
 }
 
 .input-group.has-append .clean {
@@ -4435,4 +4436,44 @@ pre.unstyle {
 
 .rb-left-sidebar.v2 .sidebar-elements li.active.parent > a {
   background-color: inherit;
+}
+
+/* detail-form-table */
+
+.detail-form-table {
+  margin: 0 15px;
+}
+
+.protable .col-form-label {
+  display: none;
+}
+
+.protable .form-group {
+  margin: 0;
+  padding: 0;
+}
+
+.protable .table {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.protable .table th {
+  background-color: #eceff1;
+  font-weight: normal;
+  border-bottom-width: 1px;
+}
+
+.protable .table .col-index {
+  width: 35px;
+  padding-right: 0;
+}
+
+.protable .table .col-action {
+  width: 100px;
+  padding-right: 0;
+  text-align: right;
+}
+
+.protable .table .col-action .btn {
+  min-width: 38px;
 }

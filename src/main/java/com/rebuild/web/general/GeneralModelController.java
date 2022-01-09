@@ -111,6 +111,11 @@ public class GeneralModelController extends EntityController {
                 if (ID.isId(mainid)) {
                     FormBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
                 }
+                // v2.8
+                else if (FormsBuilder.DV_MAINID.equals(mainid)) {
+                    ID fakeMainid = ID.newId(metaEntity.getMainEntity().getEntityCode());
+                    FormBuilderContextHolder.setMainIdOfDetail(fakeMainid);
+                }
             }
         }
 
