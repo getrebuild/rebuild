@@ -4,10 +4,11 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-unused-vars */
 // 表单附加操作，可在其他页面独立引入
 
-// 分类数据选择
-// eslint-disable-next-line no-unused-vars
+// ~~ 分类数据选择
+
 class ClassificationSelector extends React.Component {
   constructor(props) {
     super(props)
@@ -154,14 +155,12 @@ class ClassificationSelector extends React.Component {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
+// ~~ 引用字段搜索
+
 window.referenceSearch__call = function (selected) {}
-// eslint-disable-next-line no-unused-vars
 window.referenceSearch__dlg
 
-// ~~ 引用字段搜索
 // see `reference-search.html`
-// eslint-disable-next-line no-unused-vars
 class ReferenceSearcher extends RbModal {
   constructor(props) {
     super(props)
@@ -189,7 +188,6 @@ class ReferenceSearcher extends RbModal {
 
   componentDidMount() {
     super.componentDidMount()
-    // eslint-disable-next-line no-unused-vars
     window.referenceSearch__dlg = this
   }
 
@@ -198,8 +196,8 @@ class ReferenceSearcher extends RbModal {
   }
 }
 
-// 删除确认
-// eslint-disable-next-line no-unused-vars
+// ~~ 删除确认
+
 class DeleteConfirm extends RbAlert {
   constructor(props) {
     super(props)
@@ -300,7 +298,8 @@ class DeleteConfirm extends RbAlert {
   }
 }
 
-// 百度地图
+// ~~ 百度地图
+
 // https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
 class BaiduMap extends React.Component {
   render() {
@@ -400,7 +399,6 @@ class BaiduMap extends React.Component {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 class BaiduMapModal extends RbModal {
   constructor(props) {
     super(props)
@@ -510,8 +508,8 @@ class BaiduMapModal extends RbModal {
   }
 }
 
-// 签名板
-// eslint-disable-next-line no-unused-vars
+// ~~ 签名板
+
 class SignPad extends React.Component {
   state = { ...this.props }
 
@@ -583,5 +581,59 @@ class SignPad extends React.Component {
   show = (clear) => {
     if (clear && this._SignaturePad) this._SignaturePad.clear()
     $(this._$dlg).modal('show')
+  }
+}
+
+// ~~ 重复记录查看
+
+class RepeatedViewer extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const data = this.props.data
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在 %d 条重复记录', this.props.data.length - 1)} disposeOnHide={true} colored="warning">
+        <table className="table table-striped table-hover table-sm dialog-table">
+          <thead>
+            <tr>
+              {data[0].map((item, idx) => {
+                if (idx === 0) return null
+                return <th key={`field-${idx}`}>{item}</th>
+              })}
+              <th width="30" />
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, idx) => {
+              if (idx === 0) return null
+              return this.renderRow(item, idx)
+            })}
+          </tbody>
+        </table>
+      </RbModal>
+    )
+  }
+
+  renderRow(item, idx) {
+    return (
+      <tr key={`row-${idx}`}>
+        {item.map((o, i) => {
+          if (i === 0) return null
+          return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
+        })}
+        <td className="actions">
+          <a className="icon" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
+            <i className="zmdi zmdi-open-in-new" />
+          </a>
+        </td>
+      </tr>
+    )
+  }
+
+  openView(id) {
+    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
+    else window.open(`${rb.baseUrl}/app/list-and-view?id=${id}`)
   }
 }

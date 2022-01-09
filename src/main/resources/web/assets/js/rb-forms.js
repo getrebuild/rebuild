@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE */
+/* global SimpleMDE, RepeatedViewer */
 
 const TYPE_DIVIDER = '$DIVIDER$'
 
@@ -17,36 +17,35 @@ class RbFormModal extends React.Component {
   }
 
   render() {
-    const maxWidth = { maxWidth: this.props.width || 1064 }
+    if (this.state.destroy) return null
 
+    const mw = { maxWidth: this.props.width || 1064 }
     return (
-      this.state.isDestroy !== true && (
-        <div className="modal-wrapper">
-          <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-            <div className="modal-dialog" style={maxWidth}>
-              <div className="modal-content" style={maxWidth}>
-                <div className="modal-header modal-header-colored">
-                  {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
-                  <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
-                  {rb.isAdminUser && (
-                    <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
-                      <span className="zmdi zmdi-settings" />
-                    </a>
-                  )}
-                  <button className="close md-close" type="button" onClick={() => this.hide()}>
-                    <span className="zmdi zmdi-close" />
-                  </button>
-                </div>
-                <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
-                  {this.state.alertMessage && <div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>}
-                  {this.state.formComponent}
-                  {this.state.inLoad && <RbSpinner />}
-                </div>
+      <div className="modal-wrapper">
+        <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
+          <div className="modal-dialog" style={mw}>
+            <div className="modal-content" style={mw}>
+              <div className="modal-header modal-header-colored">
+                {this.state.icon && <span className={`icon zmdi zmdi-${this.state.icon}`} />}
+                <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
+                {rb.isAdminUser && (
+                  <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
+                    <span className="zmdi zmdi-settings" />
+                  </a>
+                )}
+                <button className="close md-close" type="button" onClick={() => this.hide()}>
+                  <span className="zmdi zmdi-close" />
+                </button>
+              </div>
+              <div className={`modal-body rb-loading ${this.state.inLoad ? 'rb-loading-active' : ''}`}>
+                {this.state.alertMessage && <div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>}
+                {this.state.formComponent}
+                {this.state.inLoad && <RbSpinner />}
               </div>
             </div>
           </div>
         </div>
-      )
+      </div>
     )
   }
 
@@ -73,29 +72,32 @@ class RbFormModal extends React.Component {
     const id = this.state.id || ''
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
-    const that = this
-    $.post(`/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), function (res) {
+    $.post(`/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg
-        that.renderFromError(error)
+        this.renderFromError(error)
         return
       }
 
+      const formModel = res.data
+
       const FORM = (
-        <RbForm entity={entity} id={id} $$$parent={that}>
-          {res.data.elements.map((item) => {
+        <RbForm entity={entity} id={id} $$$parent={this} rawModel={formModel}>
+          {formModel.elements.map((item) => {
             return detectElement(item)
           })}
         </RbForm>
       )
-      that.setState({ formComponent: FORM, __formModel: res.data }, () => {
-        that.setState({ inLoad: false })
+
+      this.setState({ formComponent: FORM }, () => {
+        this.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [res.data])
         }
       })
-      that.__lastModified = res.data.lastModified || 0
+
+      this.__lastModified = res.data.lastModified || 0
     })
   }
 
@@ -105,7 +107,7 @@ class RbFormModal extends React.Component {
         <div className="icon">
           <i className="zmdi zmdi-alert-triangle" />
         </div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }} />
+        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ${message}` }} />
       </div>
     )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
@@ -119,11 +121,11 @@ class RbFormModal extends React.Component {
     const stateNew = [state.id, state.entity, state.initialValue]
     const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
 
-    if (this.state.isDestroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
+    if (this.state.destroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
       state = { formComponent: null, initialValue: null, inLoad: true, ...state }
-      this.setState(state, () => this.showAfter({ isDestroy: false }, true))
+      this.setState(state, () => this.showAfter({ destroy: false }, true))
     } else {
-      this.showAfter({ ...state, isDestroy: false })
+      this.showAfter({ ...state, destroy: false })
       this.checkDrityData()
     }
   }
@@ -137,10 +139,11 @@ class RbFormModal extends React.Component {
 
   checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
+
     $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
-          // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
+          // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this._refresh()}>点击此处</a>查看最新数据</p> })
           this._refresh()
         }
       } else if (res.error_msg === 'NO_EXISTS') {
@@ -150,15 +153,16 @@ class RbFormModal extends React.Component {
   }
 
   _refresh() {
-    const hold = { id: this.state.id, entity: this.state.entity }
+    const hs = { id: this.state.id, entity: this.state.entity }
     this.setState({ id: null, alertMessage: null }, () => {
-      this.show(hold)
+      this.show(hs)
     })
   }
 
   hide(destroy) {
     $(this._rbmodal).modal('hide')
-    const state = { isDestroy: destroy === true }
+
+    const state = { destroy: destroy === true }
     if (destroy === true) state.id = null
     this.setState(state)
   }
@@ -166,10 +170,10 @@ class RbFormModal extends React.Component {
   // -- Usage
   /**
    * @param {*} props
-   * @param {*} newDlg
+   * @param {*} forceNew
    */
-  static create(props, newDlg) {
-    if (newDlg === true) {
+  static create(props, forceNew) {
+    if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} />)
       return
     }
@@ -192,7 +196,7 @@ class RbForm extends React.Component {
     this.state = { ...props }
 
     this.__FormData = {}
-    const iv = props.$$$parent.state.__formModel.initialValue
+    const iv = props.rawModel.initialValue
     if (iv) {
       for (let k in iv) {
         const val = iv[k]
@@ -201,7 +205,7 @@ class RbForm extends React.Component {
     }
 
     this.isNew = !props.$$$parent.state.id
-    this.setFieldValue = this.setFieldValue.bind(this)
+    // this.setFieldValue = this.setFieldValue.bind(this)
   }
 
   render() {
@@ -219,10 +223,8 @@ class RbForm extends React.Component {
   }
 
   renderFormAction() {
-    const pmodel = this.props.$$$parent.state.__formModel
-
     const moreActions = []
-    if (pmodel.isDetail === true) {
+    if (this.props.rawModel.isDetail === true) {
       moreActions.push(
         <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_ADDDETAIL)}>
           {$L('保存并继续添加')}
@@ -306,7 +308,9 @@ class RbForm extends React.Component {
   /**
    * @next {Number}
    */
-  post = (next) => setTimeout(() => this._post(next), 30)
+  post(next) {
+    setTimeout(() => this._post(next), 30)
+  }
 
   _post(next) {
     const data = {}
@@ -336,11 +340,10 @@ class RbForm extends React.Component {
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
           const recordId = res.data.id
-          const pState = this.props.$$$parent.state
 
           if (next === RbForm.__NEXT_ADDDETAIL) {
-            const iv = { $MAINID$: recordId }
-            const dm = pState.__formModel.detailMeta
+            const iv = { '$MAINID$': recordId }
+            const dm = this.props.rawModel.detailMeta
             RbFormModal.create({
               title: $L('添加%s', dm.entityLabel),
               entity: dm.entity,
@@ -348,7 +351,7 @@ class RbForm extends React.Component {
               initialValue: iv,
             })
           } else if (next === RbForm.__NEXT_VIEW && window.RbViewModal) {
-            window.RbViewModal.create({ id: recordId, entity: pState.entity })
+            window.RbViewModal.create({ id: recordId, entity: this.state.entity })
           }
 
           // ...
@@ -456,6 +459,7 @@ class RbFormElement extends React.Component {
    */
   renderElement() {
     const value = arguments.length > 0 ? arguments[0] : this.state.value
+
     return (
       <input
         ref={(c) => (this._fieldValue = c)}
@@ -477,18 +481,15 @@ class RbFormElement extends React.Component {
   renderViewElement() {
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     if (value && $empty(value)) value = null
-    return (
-      <React.Fragment>
-        <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
-      </React.Fragment>
-    )
+
+    return <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
   }
 
   /**
    * 修改值（表单组件（字段）值变化应调用此方法）
    *
-   * @param {*} e
-   * @param {*} checkValue
+   * @param {Event} e
+   * @param {Boolean} checkValue
    */
   handleChange(e, checkValue) {
     const val = e.target.value
@@ -540,7 +541,7 @@ class RbFormElement extends React.Component {
   /**
    * 视图编辑-编辑状态改变
    *
-   * @param {*} destroy
+   * @param {Boolean} destroy
    */
   onEditModeChanged(destroy) {
     if (destroy) {
@@ -560,7 +561,7 @@ class RbFormElement extends React.Component {
   /**
    * 视图编辑-编辑模式
    *
-   * @param {*} editMode
+   * @param {Boolean} editMode
    */
   toggleEditMode(editMode) {
     // if (editMode) {
@@ -2042,57 +2043,4 @@ const __findMultiTexts = function (options, maskValue) {
 const __addRecentlyUse = function (id) {
   if (!id) return
   $.post(`/commons/search/recently-add?id=${id}`)
-}
-
-// ~ 重复记录查看
-class RepeatedViewer extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    const data = this.props.data
-    return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在 %d 条重复记录', this.props.data.length - 1)} disposeOnHide={true} colored="warning">
-        <table className="table table-striped table-hover table-sm dialog-table">
-          <thead>
-            <tr>
-              {data[0].map((item, idx) => {
-                if (idx === 0) return null
-                return <th key={`field-${idx}`}>{item}</th>
-              })}
-              <th width="30" />
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, idx) => {
-              if (idx === 0) return null
-              return this.renderRow(item, idx)
-            })}
-          </tbody>
-        </table>
-      </RbModal>
-    )
-  }
-
-  renderRow(item, idx) {
-    return (
-      <tr key={`row-${idx}`}>
-        {item.map((o, i) => {
-          if (i === 0) return null
-          return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
-        })}
-        <td className="actions">
-          <a className="icon" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
-            <i className="zmdi zmdi-open-in-new" />
-          </a>
-        </td>
-      </tr>
-    )
-  }
-
-  openView(id) {
-    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
-    else window.open(`${rb.baseUrl}/app/list-and-view?id=${id}`)
-  }
 }

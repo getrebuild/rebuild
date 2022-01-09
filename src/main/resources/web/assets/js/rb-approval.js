@@ -412,7 +412,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
   _renderEditableForm() {
     const fake = {
-      state: { id: this.props.id, __formModel: {} },
+      state: { id: this.props.id },
     }
     return (
       <div className="form-group">
@@ -478,7 +478,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 // eslint-disable-next-line no-undef
 class EditableForm extends RbForm {
   constructor(props) {
-    super(props)
+    super({ ...props, rawModel: {} })
   }
 
   renderFormAction() {

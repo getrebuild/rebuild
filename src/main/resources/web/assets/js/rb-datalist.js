@@ -20,12 +20,12 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
-    this.__defaultFilterKey = `AdvFilter-${this.props.config.entity}`
-    this.__sortFieldKey = `SortField-${this.props.config.entity}`
-    this.__columnWidthKey = `ColumnWidth-${this.props.config.entity}.`
+    this.__defaultFilterKey = `AdvFilter-${props.config.entity}`
+    this.__sortFieldKey = `SortField-${props.config.entity}`
+    this.__columnWidthKey = `ColumnWidth-${props.config.entity}.`
 
     const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
-    const fields = props.config.fields
+    const fields = props.config.fields || []
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
@@ -34,7 +34,7 @@ class RbList extends React.Component {
       if (['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR'].includes(fields[i].type)) fields[i].unsort = true
     }
 
-    props.config.fields = null
+    delete props.config.fields
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = $('#react-list').width() / 10
@@ -955,27 +955,27 @@ const RbListPage = {
 class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
+    this.state = { ...props, inLoad: true, isHide: true, destroy: false }
     this.mcWidth = this.props.subView === true ? 1344 : 1404
     if ($(window).width() < 1464) this.mcWidth -= 184
   }
 
   render() {
+    if (this.state.destroy) return null
+
     return (
-      !this.state.isDestroy && (
-        <div className="modal-wrapper">
-          <div className="modal rbview" ref={(c) => (this._rbview = c)}>
-            <div className="modal-dialog">
-              <div className="modal-content" style={{ width: this.mcWidth }}>
-                <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                  <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
-                  <RbSpinner />
-                </div>
+      <div className="modal-wrapper">
+        <div className="modal rbview" ref={(c) => (this._rbview = c)}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this.mcWidth }}>
+              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
+                <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
+                <RbSpinner />
               </div>
             </div>
           </div>
         </div>
-      )
+      </div>
     )
   }
 
@@ -993,7 +993,7 @@ class RbViewModal extends React.Component {
         // SubView 子视图不保持
         if (that.state.disposeOnHide === true) {
           $root.modal('dispose')
-          that.setState({ isDestroy: true }, () => {
+          that.setState({ destroy: true }, () => {
             RbViewModal.holder(that.state.id, 'DISPOSE')
             $unmount(rootWrap)
           })
@@ -1029,6 +1029,7 @@ class RbViewModal extends React.Component {
     if (url && url === this.state.url) urlChanged = false
     ext = ext || {}
     url = url || this.state.url
+
     this.__urlChanged = urlChanged
     this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
       $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
