@@ -190,10 +190,8 @@ public class FormsBuilder extends FormsManager {
 
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
-            model.set("isDetail", true);
             model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
-            model.set("isMain", true);
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 

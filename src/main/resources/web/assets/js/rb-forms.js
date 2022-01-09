@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer */
+/* global SimpleMDE, RepeatedViewer, ProTable */
 
 const TYPE_DIVIDER = '$DIVIDER$'
 
@@ -81,9 +81,8 @@ class RbFormModal extends React.Component {
       }
 
       const formModel = res.data
-
       const FORM = (
-        <RbForm entity={entity} id={id} $$$parent={this} rawModel={formModel}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this}>
           {formModel.elements.map((item) => {
             return detectElement(item)
           })}
@@ -204,7 +203,7 @@ class RbForm extends React.Component {
       }
     }
 
-    this.isNew = !props.$$$parent.state.id
+    this.isNew = !props.id
     // this.setFieldValue = this.setFieldValue.bind(this)
   }
 
@@ -217,14 +216,25 @@ class RbForm extends React.Component {
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
         </div>
+        {this.renderDetailForm()}
         {this.renderFormAction()}
+      </div>
+    )
+  }
+
+  renderDetailForm() {
+    if (!this.props.rawModel.detailMeta) return null
+
+    return (
+      <div>
+        <ProTable entity={this.props.rawModel.detailMeta} mainid={this.state.id} />
       </div>
     )
   }
 
   renderFormAction() {
     const moreActions = []
-    if (this.props.rawModel.isDetail === true) {
+    if (this.props.rawModel.mainMeta) {
       moreActions.push(
         <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_ADDDETAIL)}>
           {$L('保存并继续添加')}
