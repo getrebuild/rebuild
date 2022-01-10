@@ -18,17 +18,17 @@ class ProTable extends React.Component {
   }
 
   render() {
-    const formFields = this.state.fields || []
+    const formFields = this.state.formFields || []
     const details = this.state.details || []
 
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
     const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COL_WIDTH * formFields.length + (38 + 88) <= fw
+    const fixed = COL_WIDTH * formFields.length + (38 + 88) > fw
 
     return (
-      <div className={`protable rb-scroller ${!fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
-        <table className={`table table-sm ${fixed && 'table-fixed'}`}>
+      <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
+        <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
           <thead>
             <tr>
               <th className="col-index" />
@@ -40,7 +40,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className="col-action column-fixed" />
+              <td className={`col-action ${fixed && 'column-fixed'}`} />
             </tr>
           </thead>
           <tbody>
@@ -51,7 +51,7 @@ class ProTable extends React.Component {
                   <th className="col-index">{details.length + idx + 1}</th>
                   {form}
 
-                  <td className="col-action column-fixed">
+                  <td className={`col-action ${fixed && 'column-fixed'}`}>
                     <button className="btn btn-light" title={$L('编辑')} onClick={() => this.editLine()}>
                       <i className="icon zmdi zmdi-border-color fs-14" />
                     </button>
@@ -76,10 +76,8 @@ class ProTable extends React.Component {
 
     $.post(`/app/${entity.entity}/form-model?id=`, JSON.stringify(initialValue), (res) => {
       this._initModel = res.data // 新建用
-      this.setState({ fields: res.data.elements }, () => {
-        $(this._$scroller).perfectScrollbar({
-          wheelSpeed: 2,
-        })
+      this.setState({ formFields: res.data.elements }, () => {
+        $(this._$scroller).perfectScrollbar()
       })
 
       // 编辑

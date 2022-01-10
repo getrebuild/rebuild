@@ -4439,10 +4439,10 @@ pre.unstyle {
   background-color: inherit;
 }
 
-/* detail-form-table */
+/* detail-form-table protable */
 
 .detail-form-table {
-  margin: 15px;
+  margin: 5px 15px 15px;
 }
 
 .protable.rb-scroller {
@@ -4532,6 +4532,12 @@ pre.unstyle {
 
 .protable .col-action.column-fixed::before {
   display: none;
+}
+
+@-moz-document url-prefix() {
+  .protable .col-action.column-fixed::before {
+    display: block;
+  }
 }
 
 .protable .col-action.column-fixed::after {
