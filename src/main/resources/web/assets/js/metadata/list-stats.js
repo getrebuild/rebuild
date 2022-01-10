@@ -14,6 +14,7 @@ $(document).ready(function () {
 
     const $to = $('.set-fields')
     if (fields.length > 0) $to.empty()
+
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
