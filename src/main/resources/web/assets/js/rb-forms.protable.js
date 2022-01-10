@@ -9,6 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 高级表格
 
+const COL_WIDTH = 160
+
 class ProTable extends React.Component {
   constructor(props) {
     super(props)
@@ -16,24 +18,29 @@ class ProTable extends React.Component {
   }
 
   render() {
-    const showFields = this.state.fields || []
+    const formFields = this.state.fields || []
     const details = this.state.details || []
 
+    // fixed 模式大概 5 个字段
+    const ww = $(window).width()
+    const fw = ww > 1064 ? 994 : ww - 70
+    const fixed = COL_WIDTH * formFields.length + (38 + 88) <= fw
+
     return (
-      <div className="protable">
-        <table className="table table-fixed table-sm" ref={(c) => (this._$table = c)}>
+      <div className={`protable rb-scroller ${!fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
+        <table className={`table table-sm ${fixed && 'table-fixed'}`}>
           <thead>
             <tr>
               <th className="col-index" />
-              {showFields.map((item) => {
+              {formFields.map((item) => {
                 return (
-                  <th key={item.field} data-field={item.field}>
+                  <th key={item.field} data-field={item.field} style={{ minWidth: COL_WIDTH }}>
                     {item.label}
-                    <i className="dividing" />
+                    <i className="dividing hide" />
                   </th>
                 )
               })}
-              <th className="col-action" />
+              <td className="col-action column-fixed" />
             </tr>
           </thead>
           <tbody>
@@ -44,12 +51,12 @@ class ProTable extends React.Component {
                   <th className="col-index">{details.length + idx + 1}</th>
                   {form}
 
-                  <td className="col-action">
+                  <td className="col-action column-fixed">
                     <button className="btn btn-light" title={$L('编辑')} onClick={() => this.editLine()}>
-                      <i className="icon zmdi zmdi-border-color" />
+                      <i className="icon zmdi zmdi-border-color fs-14" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
-                      <i className="icon zmdi zmdi-close fs-18 text-bold" />
+                      <i className="icon zmdi zmdi-close fs-17 text-bold" />
                     </button>
                   </td>
                 </tr>
@@ -69,7 +76,11 @@ class ProTable extends React.Component {
 
     $.post(`/app/${entity.entity}/form-model?id=`, JSON.stringify(initialValue), (res) => {
       this._initModel = res.data // 新建用
-      this.setState({ fields: res.data.elements })
+      this.setState({ fields: res.data.elements }, () => {
+        $(this._$scroller).perfectScrollbar({
+          wheelSpeed: 2,
+        })
+      })
 
       // 编辑
       if (this.props.mainid) {

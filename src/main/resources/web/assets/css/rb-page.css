@@ -1074,16 +1074,16 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
-.file-field .file-select {
-  margin-top: 1px;
+.file-field .file-select label.btn-secondary {
+  line-height: 35px;
 }
 
 .file-field .img-thumbnail {
   display: inline-block;
   padding: 4px;
   max-width: 100%;
-  margin-right: 5px;
-  margin-bottom: 1px;
+  margin-right: 5px !important;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   border: 0 none;
@@ -1143,6 +1143,7 @@ select.form-control:not([disabled]) {
 }
 
 .img-field.sign.sign-edit {
+  border-radius: 2px;
   background-color: #eee;
 }
 
@@ -4442,12 +4443,10 @@ pre.unstyle {
 
 .detail-form-table {
   margin: 15px;
-  margin-bottom: 30px;
 }
 
-.protable .col-form-label,
-.protable .col-form-control > .form-text {
-  display: none;
+.protable.rb-scroller {
+  padding-bottom: 15px;
 }
 
 .protable .form-group {
@@ -4455,12 +4454,31 @@ pre.unstyle {
   padding: 0;
 }
 
+.protable .col-form-label,
+.protable .col-form-control > .form-text {
+  display: none;
+}
+
+.protable .img-field,
+.protable .file-field label {
+  margin-bottom: 0;
+}
+
+.protable .file-field .file-select {
+  margin-top: 0;
+}
+
+.protable .file-field .file-select label.btn-secondary {
+  margin-top: 4px;
+}
+
 .protable .table {
   border-bottom: 1px solid #dee2e6;
   margin: 0;
 }
 
-.protable .table th {
+.protable .table th,
+.protable .table thead td {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
@@ -4468,12 +4486,14 @@ pre.unstyle {
 
 .protable .table .col-index {
   width: 38px;
+  min-width: 38px;
   padding-left: 0;
   text-align: right;
 }
 
 .protable .table .col-action {
   width: 88px;
+  min-width: 88px;
   padding-right: 0;
   text-align: right;
 }
@@ -4502,4 +4522,20 @@ pre.unstyle {
   background-color: #ea4335;
   color: #fff;
   cursor: help;
+}
+
+.protable .col-action.column-fixed {
+  left: unset;
+  right: 0;
+  z-index: 1;
+}
+
+.protable .col-action.column-fixed::before {
+  display: none;
+}
+
+.protable .col-action.column-fixed::after {
+  right: auto;
+  left: -48px;
+  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
 }
