@@ -254,7 +254,7 @@ a.link.inline {
 }
 
 .btn.w-auto {
-  min-width: 36px;
+  min-width: 36px !important;
 }
 
 a.btn {
@@ -4441,10 +4441,12 @@ pre.unstyle {
 /* detail-form-table */
 
 .detail-form-table {
-  margin: 0 15px;
+  margin: 15px;
+  margin-bottom: 30px;
 }
 
-.protable .col-form-label {
+.protable .col-form-label,
+.protable .col-form-control > .form-text {
   display: none;
 }
 
@@ -4455,6 +4457,7 @@ pre.unstyle {
 
 .protable .table {
   border-bottom: 1px solid #dee2e6;
+  margin: 0;
 }
 
 .protable .table th {
@@ -4464,16 +4467,39 @@ pre.unstyle {
 }
 
 .protable .table .col-index {
-  width: 35px;
-  padding-right: 0;
+  width: 38px;
+  padding-left: 0;
+  text-align: right;
 }
 
 .protable .table .col-action {
-  width: 100px;
+  width: 88px;
   padding-right: 0;
   text-align: right;
 }
 
 .protable .table .col-action .btn {
   min-width: 38px;
+}
+
+.protable .table thead th {
+  position: relative;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.protable .table thead th .dividing {
+  width: 10px;
+  border-right: 2px dotted #aaa;
+  cursor: col-resize;
+  position: absolute;
+  height: 18px;
+  top: 8px;
+  right: 0;
+}
+
+.protable .table tbody .col-index[title] {
+  background-color: #ea4335;
+  color: #fff;
+  cursor: help;
 }

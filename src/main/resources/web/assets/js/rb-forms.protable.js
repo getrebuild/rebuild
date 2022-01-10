@@ -21,7 +21,7 @@ class ProTable extends React.Component {
 
     return (
       <div className="protable">
-        <table className="table table-fixed table-sm">
+        <table className="table table-fixed table-sm" ref={(c) => (this._$table = c)}>
           <thead>
             <tr>
               <th className="col-index" />
@@ -29,6 +29,7 @@ class ProTable extends React.Component {
                 return (
                   <th key={item.field} data-field={item.field}>
                     {item.label}
+                    <i className="dividing" />
                   </th>
                 )
               })}
@@ -36,39 +37,19 @@ class ProTable extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {details.map((item, idx) => {
-              const tds = []
-              for (let i = 0; i < showFields.length - 1; i++) {
-                tds.push(<td>{item[i]}</td>)
-              }
-
+            {(this.state.inlineForms || []).map((form, idx) => {
+              const key = form.key
               return (
-                <tr key={`inline-${idx}`}>
-                  <th>{idx + 1}</th>
-                  {tds}
+                <tr key={`inline-${key}`}>
+                  <th className="col-index">{details.length + idx + 1}</th>
+                  {form}
 
                   <td className="col-action">
                     <button className="btn btn-light" title={$L('编辑')} onClick={() => this.editLine()}>
                       <i className="icon zmdi zmdi-border-color" />
                     </button>
-                    <button className="btn btn-light danger-hover" title={$L('删除')} onClick={() => this.deleteLine()}>
-                      <i className="icon zmdi zmdi-delete" />
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-
-            {(this.state.editForms || []).map((inlineForm, idx) => {
-              const key = inlineForm.key
-              return (
-                <tr key={`inline-${key}`}>
-                  <th>{details.length + idx + 1}</th>
-                  {inlineForm}
-
-                  <td className="col-action">
-                    <button className="btn btn-light danger-hover" title={$L('删除')} onClick={() => this.removeLine(key)}>
-                      <i className="icon zmdi zmdi-delete" />
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
+                      <i className="icon zmdi zmdi-close fs-18 text-bold" />
                     </button>
                   </td>
                 </tr>
@@ -76,12 +57,6 @@ class ProTable extends React.Component {
             })}
           </tbody>
         </table>
-
-        <div className="protable-footer">
-          <button className="btn btn-light" onClick={() => this.addNew()}>
-            {$L('添加明细')}
-          </button>
-        </div>
       </div>
     )
   }
@@ -92,38 +67,97 @@ class ProTable extends React.Component {
       '$MAINID$': this.props.mainid || '$MAINID$',
     }
 
-    $.post(`/app/${entity.entity}/form-model`, JSON.stringify(initialValue), (res) => {
-      this._rawModel = res.data
+    $.post(`/app/${entity.entity}/form-model?id=`, JSON.stringify(initialValue), (res) => {
+      this._initModel = res.data // 新建用
       this.setState({ fields: res.data.elements })
+
+      // 编辑
+      if (this.props.mainid) {
+        $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
+          res.data.forEach((item) => this.addLine(item))
+        })
+      }
     })
   }
 
   addNew() {
-    const key = `form-${$random()}`
+    this.addLine(this._initModel)
+  }
+
+  addLine(model) {
+    const key = `form-${model.id ? model.id : $random()}`
+    const ref = React.createRef()
     const FORM = (
-      <ProTableForm entity={this.props.entity.entity} rawModel={this._rawModel} $$$parent={this} key={key}>
-        {this._rawModel.elements.map((item) => {
+      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} key={key} ref={ref}>
+        {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
-      </ProTableForm>
+      </InlineForm>
     )
 
-    const forms = this.state.editForms || []
+    const forms = this.state.inlineForms || []
     forms.push(FORM)
-    this.setState({ editForms: forms })
+    this.setState({ inlineForms: forms }, () => {
+      const refs = this._inlineFormsRefs || []
+      refs.push(ref)
+      this._inlineFormsRefs = refs
+    })
   }
 
   removeLine(key) {
-    const forms = this.state.editForms.filter((c) => c.key !== key)
-    this.setState({ editForms: forms })
+    const forms = this.state.inlineForms.filter((c) => {
+      if (c.key === key) {
+        const d = this._deletes || []
+        d.push(c.props.id)
+        this._deletes = d
+      }
+      return c.key !== key
+    })
+    this.setState({ inlineForms: forms })
   }
 
   editLine(id) {}
 
-  deleteLine(id) {}
+  buildFormData() {
+    const datas = []
+    let error = null
+
+    ;(this._inlineFormsRefs || []).forEach((item) => {
+      const f = item.current
+      if (!f) return
+
+      const d = f.buildFormData()
+      if (!d || typeof d === 'string') {
+        if (!error) error = d
+      } else if (Object.keys(d).length > 0) {
+        datas.push(d)
+      }
+    })
+
+    if (error) {
+      RbHighbar.create(error)
+      return null
+    }
+
+    // 删除
+    if (this._deletes) {
+      this._deletes.forEach((item) => {
+        const d = {
+          metadata: {
+            entity: this.props.entity.entity,
+            id: item,
+            delete: true,
+          },
+        }
+        datas.push(d)
+      })
+    }
+
+    return datas
+  }
 }
 
-class ProTableForm extends RbForm {
+class InlineForm extends RbForm {
   constructor(props) {
     super(props)
   }
@@ -133,13 +167,41 @@ class ProTableForm extends RbForm {
       <React.Fragment>
         {this.props.children.map((fieldComp) => {
           const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
-          return <td key={`td-${refid}`}>{React.cloneElement(fieldComp, { $$$parent: this, ref: refid })}</td>
+          return (
+            <td key={`td-${refid}`} ref={(c) => (this._$ref = c)}>
+              {React.cloneElement(fieldComp, { $$$parent: this, ref: refid })}
+            </td>
+          )
         })}
       </React.Fragment>
     )
   }
 
-  componentDidMount() {
-    // TODO
+  buildFormData() {
+    const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
+
+    const data = {}
+    let error = null
+    for (let k in this.__FormData) {
+      const err = this.__FormData[k].error
+      if (err) {
+        error = err
+        $idx.attr('title', err)
+        break
+      } else {
+        data[k] = this.__FormData[k].value
+      }
+    }
+
+    if (error) return error
+
+    // 未修改
+    if (Object.keys(data).length > 0) {
+      data.metadata = {
+        entity: this.state.entity,
+        id: this.state.id || null,
+      }
+    }
+    return data
   }
 }

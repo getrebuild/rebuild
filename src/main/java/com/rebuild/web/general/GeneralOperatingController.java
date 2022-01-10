@@ -30,6 +30,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -68,7 +69,9 @@ public class GeneralOperatingController extends BaseController {
     @PostMapping("record-save")
     public JSONAware save(HttpServletRequest request) {
         final ID user = getRequestUser(request);
+
         final JSON formJson = ServletUtils.getRequestJson(request);
+        final Object details = ((JSONObject) formJson).remove(GeneralEntityService.HAS_DETAILS);
 
         Record record;
         try {
@@ -78,9 +81,26 @@ public class GeneralOperatingController extends BaseController {
             return RespBody.error(known.getLocalizedMessage());
         }
 
-        // 兼容所有类型的实体
+        // 非业务实体（兼容所有类型的实体）
         if (!MetadataHelper.isBusinessEntity(record.getEntity())) {
             return CommonOperatingController.saveRecord(record);
+        }
+
+        // 明细
+        List<Record> detailsList = new ArrayList<>();
+        if (details != null) {
+            try {
+                for (Object d : (JSONArray) details) {
+                    Record detail = EntityHelper.parse((JSONObject) d, user);
+                    detailsList.add(detail);
+                }
+
+            } catch (DataSpecificationException known) {
+                log.warn(">>>>> {}", known.getLocalizedMessage());
+                return RespBody.error(known.getLocalizedMessage());
+            }
+
+            // TODO 明细检查重复
         }
 
         final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
@@ -89,6 +109,10 @@ public class GeneralOperatingController extends BaseController {
         List<Record> repeated = ies.getAndCheckRepeated(record, 100);
         if (!repeated.isEmpty()) {
             return new RespBody(CODE_REPEATED_VALUES, Language.L("存在重复记录"), buildRepeatedData(repeated));
+        }
+
+        if (!detailsList.isEmpty()) {
+            record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
         }
 
         try {

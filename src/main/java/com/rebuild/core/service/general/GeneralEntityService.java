@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.DeleteRecord;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -58,6 +59,9 @@ import java.util.*;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
+    // 有明细
+    public static final String HAS_DETAILS = "$DETAILS$";
+
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -70,6 +74,33 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int getEntityCode() {
         return 0;
+    }
+
+    // 此方法具备明细实体批处理能力
+    @Override
+    public Record createOrUpdate(Record record) {
+        @SuppressWarnings("unchecked")
+        final List<Record> details = (List<Record>) record.removeValue(HAS_DETAILS);
+
+        record = super.createOrUpdate(record);
+        if (details == null) return record;
+
+        // 明细
+        String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+        ID mainid = record.getPrimary();
+
+        for (Record d : details) {
+            if (d.getPrimary() == null) {
+                d.setID(dtf, mainid);
+                create(d);
+            } else if (d instanceof DeleteRecord) {
+                delete(d.getPrimary());
+            } else {
+                update(d);
+            }
+        }
+
+        return record;
     }
 
     @Override

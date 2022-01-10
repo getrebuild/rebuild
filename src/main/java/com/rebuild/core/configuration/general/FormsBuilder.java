@@ -515,9 +515,7 @@ public class FormsBuilder extends FormsManager {
         for (Map.Entry<String, Object> e : initialVal.entrySet()) {
             final String field = e.getKey();
             final String value = (String) e.getValue();
-            if (StringUtils.isBlank(value)) {
-                continue;
-            }
+            if (StringUtils.isBlank(value)) continue;
 
             // 引用字段值如 `&User`
             if (field.startsWith(DV_REFERENCE_PREFIX)) {
@@ -582,7 +580,11 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON getReferenceMixValue(String idValue) {
-        if (!ID.isId(idValue)) return null;
+        if (DV_MAINID.equals(idValue)) {
+            return FieldValueHelper.wrapMixValue(ID.newId(0), Language.L("新的"));
+        } else if (!ID.isId(idValue)) {
+            return null;
+        }
 
         try {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));

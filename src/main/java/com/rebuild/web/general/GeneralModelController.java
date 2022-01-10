@@ -10,8 +10,10 @@ package com.rebuild.web.general;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormBuilderContextHolder;
@@ -35,9 +37,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 表单/视图
@@ -161,5 +161,25 @@ public class GeneralModelController extends EntityController {
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         mv.getModel().put("printUser", UserHelper.getName(user));
         return mv;
+    }
+
+    @RequestMapping("detail-models")
+    public JSON entityFormDetails(@PathVariable String entity, @IdParam(name = "mainid") ID id,
+                           HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final Entity metaEntity = MetadataHelper.getEntity(entity);
+
+        Field dtf = MetadataHelper.getDetailToMainField(metaEntity);
+        String sql = String.format("select %s from %s where %s = ? order by autoId asc",
+                metaEntity.getPrimaryField().getName(), metaEntity.getName(), dtf.getName());
+        Object[][] ids = Application.createQuery(sql).setParameter(1, id).array();
+        
+        JSONArray details = new JSONArray();
+        for (Object[] o : ids) {
+            JSON model = FormsBuilder.instance.buildForm(entity, user, (ID) o[0]);
+            ((JSONObject) model).put("id", o[0]);
+            details.add(model);
+        }
+        return details;
     }
 }

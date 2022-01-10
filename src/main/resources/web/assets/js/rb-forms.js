@@ -204,7 +204,6 @@ class RbForm extends React.Component {
     }
 
     this.isNew = !props.id
-    // this.setFieldValue = this.setFieldValue.bind(this)
   }
 
   render() {
@@ -227,12 +226,50 @@ class RbForm extends React.Component {
     const detailMeta = this.props.rawModel.detailMeta
     if (!detailMeta || !window.ProTable) return null
 
+    const that = this
+    function _addNew(n = 1) {
+      if (!that._ProTable) return
+      for (let i = 0; i < n; i++) {
+        setTimeout(() => that._ProTable.addNew(), i * 20)
+      }
+    }
+
+    const NADD = [5, 10, 20]
+
     return (
       <div className="detail-form-table">
-        <h5 className="mt-1">
-          <i className={`icon zmdi zmdi-${detailMeta.icon}`} /> {detailMeta.entityLabel}
-        </h5>
-        <ProTable entity={detailMeta} mainid={this.state.id} />
+        <div className="row">
+          <div className="col">
+            <h5 className="mt-3 mb-0 text-bold">
+              <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
+              {detailMeta.entityLabel}
+            </h5>
+          </div>
+          <div className="col text-right">
+            <div className="btn-group">
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+                <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
+                {$L('添加明细')}
+              </button>
+              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                {NADD.map((n) => {
+                  return (
+                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
+                      {$L('添加 %d 个', n)}
+                    </a>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2">
+          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} />
+        </div>
       </div>
     )
   }
@@ -303,7 +340,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error && this._onFieldValueChanged_calls) this._onFieldValueChanged_calls.forEach((c) => c({ name: field, value: value }))
+    if (!error && this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
@@ -312,17 +349,17 @@ class RbForm extends React.Component {
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
-    if (this._onFieldValueChanged_calls) this._onFieldValueChanged_calls.forEach((c) => c({ name: field }))
+    if (this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field }))
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
 
   // 字段值变化回调
-  onFieldValueChanged(call) {
-    const c = this._onFieldValueChanged_calls || []
+  onFieldValueChange(call) {
+    const c = this._onFieldValueChange_calls || []
     c.push(call)
-    this._onFieldValueChanged_calls = c
+    this._onFieldValueChange_calls = c
   }
 
   // 保存并添加明细
@@ -346,6 +383,12 @@ class RbForm extends React.Component {
     data.metadata = {
       entity: this.state.entity,
       id: this.state.id,
+    }
+
+    if (this._ProTable) {
+      const details = this._ProTable.buildFormData()
+      if (!details) return
+      data['$DETAILS$'] = details
     }
 
     if (RbForm.postBefore(data) === false) {
@@ -440,6 +483,7 @@ class RbFormElement extends React.Component {
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
           {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
+
           {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
           {editable && this.state.editMode && (
             <div className="edit-oper">
@@ -745,7 +789,8 @@ class RbFormNumber extends RbFormText {
       // 小数位
       const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
 
-      RbForm.onFieldValueChange((s) => {
+      // 表单计算
+      this.props.$$$parent.onFieldValueChange((s) => {
         if (!watchFields.includes(`{${s.name}}`)) return
         this.calcFormula__values[s.name] = s.value
 
