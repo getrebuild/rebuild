@@ -76,10 +76,10 @@ body {
   min-height: 37px;
 }
 
-.rbview-form .img-field .img-thumbnail:hover,
+/* .rbview-form .img-field .img-thumbnail:hover,
 .rbview-form .file-field .img-thumbnail:hover {
   opacity: 0.8;
-}
+} */
 
 .rbview-form .file-field .img-thumbnail {
   width: 100%;

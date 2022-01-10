@@ -551,6 +551,14 @@ class SignPad extends React.Component {
   }
 
   componentDidMount() {
+    const $root = $(this._$dlg).on('hidden.bs.modal', () => {
+      $keepModalOpen()
+      if (this.props.disposeOnHide === true) {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      }
+    })
+
     const that = this
     function initSign() {
       that._$canvas.width = Math.min(540, $(window).width() - 40)

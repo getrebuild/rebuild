@@ -23,6 +23,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
+.task-form .form-group.row {
+  padding: 4px 0;
+}
+
 .task-form .col-form-label > .icon,
 .label-icon {
   color: #999;

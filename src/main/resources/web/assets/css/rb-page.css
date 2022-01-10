@@ -1000,7 +1000,8 @@ select.form-control:not([disabled]) {
 }
 
 .img-field label.img-upload:hover {
-  border: 1px solid #5f99f5;
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 .img-field label.img-upload .zmdi {
@@ -1147,10 +1148,10 @@ select.form-control:not([disabled]) {
   background-color: #eee;
 }
 
-.img-field.sign.sign-edit .img-upload:hover {
+/* .img-field.sign.sign-edit .img-upload:hover {
   opacity: 0.8;
   cursor: pointer;
-}
+} */
 
 .input-group.has-append .input-group-append button {
   min-width: 38px;
