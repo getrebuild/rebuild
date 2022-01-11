@@ -257,6 +257,8 @@ class ContentFieldWriteback extends ActionContentSpec {
       // 目标字段=源字段
       const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
       if (tfFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+
+      // ...
     } else if (mode === 'FORMULA') {
       sourceField = this._$sourceFormula.val()
       if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
@@ -317,7 +319,7 @@ class FieldFormula extends React.Component {
   render() {
     const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (toFieldType === 'AVATAR' || toFieldType === 'IMAGE' || toFieldType === 'FILE') {
+    if (['AVATAR', 'IMAGE', 'FILE', 'SIGN'].includes(toFieldType)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
