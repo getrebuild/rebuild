@@ -21,6 +21,12 @@ public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<ID> ALLOW_FORCE_UPDATE = new ThreadLocal<>();
 
+    private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new ThreadLocal<>();
+
+    public static final int RCM_SKIP_MAIN = 1;
+    public static final int RCM_SKIP_DETAILS = 2;
+    public static final int RCM_SKIP_ALL = 4;
+
     /**
      * 新建记录时允许跳过自动编号字段
      */
@@ -60,5 +66,24 @@ public class GeneralEntityServiceContextHolder {
             ALLOW_FORCE_UPDATE.remove();
         }
         return recordId != null;
+    }
+
+    /**
+     * @param mode
+     */
+    public static void setRepeatedCheckMode(int mode) {
+        REPEATED_CHECK_MODE.set(mode);
+    }
+
+    /**
+     * @return
+     */
+    public static Integer getRepeatedCheckMode() {
+        Integer mode = REPEATED_CHECK_MODE.get();
+        if (mode != null) {
+            REPEATED_CHECK_MODE.remove();
+            return mode;
+        }
+        return 0;
     }
 }

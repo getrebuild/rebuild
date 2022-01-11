@@ -460,7 +460,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
     this.disabled(true)
     $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
-      if (res.error_code === 499) {
+      if (res.error_code === 498) {
         this.setState({ bizMessage: res.error_msg })
         this.getNextStep()
       } else if (res.error_code > 0) {
