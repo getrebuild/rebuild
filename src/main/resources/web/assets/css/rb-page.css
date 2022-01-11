@@ -969,7 +969,7 @@ select.form-control:not([disabled]) {
 }
 
 .img-field > span {
-  margin-right: 4px;
+  margin-right: 5px;
   margin-bottom: 4px;
   display: inline-block;
 }

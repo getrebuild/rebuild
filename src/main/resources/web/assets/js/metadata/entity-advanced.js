@@ -19,11 +19,11 @@ $(document).ready(function () {
     return
   }
 
-  $('.J_drop-check').click(function () {
+  $('.J_drop-check').on('click', function () {
     $('.J_drop-confirm').attr('disabled', !$(this).prop('checked'))
   })
 
-  const $drop = $('.J_drop-confirm').click(() => {
+  const $drop = $('.J_drop-confirm').on('click', () => {
     if (!$('.J_drop-check').prop('checked')) return
     if (!window.__PageConfig.isSuperAdmin) {
       RbHighbar.error($L('仅超级管理员可删除实体'))

@@ -24,7 +24,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .task-form .form-group.row {
-  padding: 4px 0;
+  padding: 5px 0;
 }
 
 .task-form .col-form-label > .icon,
@@ -153,12 +153,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .file-field.attachments > .img-thumbnail {
-  width: 49.5%;
   display: inline-block;
-}
-
-.file-field.attachments > .img-thumbnail:nth-child(even) {
-  margin-left: 1%;
+  max-width: 100%;
+  width: auto;
 }
 
 .file-field.attachments > .img-thumbnail b {

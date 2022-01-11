@@ -79,12 +79,13 @@ body {
 /* .rbview-form .img-field .img-thumbnail:hover,
 .rbview-form .file-field .img-thumbnail:hover {
   opacity: 0.8;
-} */
+} 
 
 .rbview-form .file-field .img-thumbnail {
   width: 100%;
   margin: 0;
 }
+*/
 
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
