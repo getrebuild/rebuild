@@ -1058,7 +1058,7 @@ class RbGritter extends React.Component {
  *
  * @param {*} jsx
  * @param {*} target id or object of element (or function of callback)
- * @param {*} call callback
+ * @param {*} call callback on mounted
  */
 const renderRbcomp = function (jsx, target, call) {
   if (typeof target === 'function') {
@@ -1079,6 +1079,8 @@ const renderRbcomp = function (jsx, target, call) {
   } else if (target instanceof $) {
     target = target[0]
   }
+
+  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
   ReactDOM.render(jsx, target, call)
   return target
 }

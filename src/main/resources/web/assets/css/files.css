@@ -51,9 +51,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.file-list .file-list-item:hover,
-.file-list-item.active {
+.file-list-striped .file-list-item:nth-of-type(odd) {
   background-color: #f5f5f5;
+}
+
+.file-list .file-list-item:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.file-list .file-list-item.active,
+.file-list .file-list-item.active:hover {
+  background-color: #dee2e6 !important;
 }
 
 .file-list-item > div {

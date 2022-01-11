@@ -112,13 +112,14 @@ public class FormsBuilder extends FormsManager {
         if (record == null) {
             if (mainEntity != null) {
                 ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
-                Assert.notNull(mainId, "Please calls FormBuilderContextHolder#setMainIdOfDetail first");
+                Assert.notNull(mainId, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
                 approvalState = getHadApproval(entityMeta, null);
 
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     return formatModelError(approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
+                            ? Language.L("主记录已完成审批，不能添加明细")
+                            : Language.L("主记录正在审批中，不能添加明细"));
                 }
 
                 // 明细无需审批
@@ -190,10 +191,8 @@ public class FormsBuilder extends FormsManager {
 
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
-            model.set("isDetail", true);
             model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
-            model.set("isMain", true);
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
@@ -516,9 +515,7 @@ public class FormsBuilder extends FormsManager {
         for (Map.Entry<String, Object> e : initialVal.entrySet()) {
             final String field = e.getKey();
             final String value = (String) e.getValue();
-            if (StringUtils.isBlank(value)) {
-                continue;
-            }
+            if (StringUtils.isBlank(value)) continue;
 
             // 引用字段值如 `&User`
             if (field.startsWith(DV_REFERENCE_PREFIX)) {
@@ -583,7 +580,11 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON getReferenceMixValue(String idValue) {
-        if (!ID.isId(idValue)) return null;
+        if (DV_MAINID.equals(idValue)) {
+            return FieldValueHelper.wrapMixValue(ID.newId(0), Language.L("新的"));
+        } else if (!ID.isId(idValue)) {
+            return null;
+        }
 
         try {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));

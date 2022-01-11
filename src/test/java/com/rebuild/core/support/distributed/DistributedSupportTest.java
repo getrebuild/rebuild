@@ -12,7 +12,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ConcurrentMap;
@@ -21,14 +20,13 @@ import java.util.concurrent.ConcurrentMap;
  * @author devezhao
  * @since 2020/9/27
  */
-public class DistributedSupportTest extends TestSupport {
+class DistributedSupportTest extends TestSupport {
 
-    @Disabled
     @Test
-    public void testMap() {
-        DistributedSupport support = Application.getBean(DistributedSupport.class);
+    void testMap() {
+        DistributedSupport distributedSupport = (DistributedSupport) Application.getContext().getBean("DistributedSupport");
 
-        ConcurrentMap<String, User> users = support.getMap("RB_USER");
+        ConcurrentMap<String, User> users = distributedSupport.getMap("RB_USER");
         users.put("User1", Application.getUserStore().getUser(UserService.SYSTEM_USER));
 
         User fromCache = users.get("User1");

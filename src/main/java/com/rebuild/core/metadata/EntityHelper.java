@@ -49,6 +49,11 @@ public class EntityHelper {
             entityName = MetadataHelper.getEntityName(ID.valueOf(id));
         }
 
+        if (metadata.getBooleanValue("delete")) {
+            String id = metadata.getString("id");
+            return new DeleteRecord(ID.valueOf(id), user);
+        }
+
         EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
         return creator.create(false);
     }

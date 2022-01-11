@@ -254,7 +254,7 @@ a.link.inline {
 }
 
 .btn.w-auto {
-  min-width: 36px;
+  min-width: 36px !important;
 }
 
 a.btn {
@@ -969,7 +969,7 @@ select.form-control:not([disabled]) {
 }
 
 .img-field > span {
-  margin-right: 4px;
+  margin-right: 5px;
   margin-bottom: 4px;
   display: inline-block;
 }
@@ -1000,7 +1000,8 @@ select.form-control:not([disabled]) {
 }
 
 .img-field label.img-upload:hover {
-  border: 1px solid #5f99f5;
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 .img-field label.img-upload .zmdi {
@@ -1074,16 +1075,16 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
-.file-field .file-select {
-  margin-top: 1px;
+.file-field .file-select label.btn-secondary {
+  line-height: 35px;
 }
 
 .file-field .img-thumbnail {
   display: inline-block;
   padding: 4px;
   max-width: 100%;
-  margin-right: 5px;
-  margin-bottom: 1px;
+  margin-right: 5px !important;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   border: 0 none;
@@ -1143,16 +1144,18 @@ select.form-control:not([disabled]) {
 }
 
 .img-field.sign.sign-edit {
+  border-radius: 2px;
   background-color: #eee;
 }
 
-.img-field.sign.sign-edit .img-upload:hover {
+/* .img-field.sign.sign-edit .img-upload:hover {
   opacity: 0.8;
   cursor: pointer;
-}
+} */
 
 .input-group.has-append .input-group-append button {
   min-width: 38px;
+  box-shadow: none !important;
 }
 
 .input-group.has-append .clean {
@@ -2052,7 +2055,7 @@ th.column-fixed {
 }
 
 .aside-2tree ul li:hover {
-  background-color: #eee;
+  background-color: #f0f0f0;
 }
 
 .aside-2tree ul li.active {
@@ -2748,9 +2751,6 @@ form {
 
 .card-list .card-footer a:hover {
   color: #666;
-}
-
-.card-list .card-footer a.danger:hover {
 }
 
 .card-list .card-footer .badge {
@@ -3891,6 +3891,12 @@ a.select-lang:hover {
   margin-left: -10px;
 }
 
+@media screen and (max-width: 767px) {
+  .rb-collapsible-sidebar-collapsed .left-sidebar-content > .sidebar-elements > li > a .rbv {
+    margin-left: 0;
+  }
+}
+
 h3.modal-title > .rbv {
   margin: 0 3px;
   top: -10px;
@@ -4339,8 +4345,7 @@ pre.unstyle {
 }
 
 .map-pin {
-  padding: 10px 15px;
-  padding-left: 19px;
+  padding: 10px 15px 10px 19px;
   background-color: #f7f7f7;
   border-top: 1px solid #dee2e6;
 }
@@ -4404,4 +4409,140 @@ pre.unstyle {
 .table tbody tr td.user-avatar.sign img {
   width: auto;
   border-radius: 0;
+}
+
+/* v2: Nav styles */
+
+.rb-left-sidebar.v2 .sidebar-elements li > a {
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-left: 6px;
+  margin-right: 6px;
+  border-radius: 2px;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements > li ul li > a {
+  padding-left: 41px;
+}
+
+@media (min-width: 768px) {
+  .rb-collapsible-sidebar-collapsed .rb-left-sidebar.v2 .sidebar-elements > li ul.visible .nav-items .content > ul > li > a {
+    padding-left: 19px;
+  }
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li.active > a {
+  background-color: #e3e3e3;
+  font-weight: normal;
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li.active.parent > a {
+  background-color: inherit;
+}
+
+/* detail-form-table protable */
+
+.detail-form-table {
+  margin: 5px 15px 15px;
+}
+
+.protable.rb-scroller {
+  padding-bottom: 15px;
+}
+
+.protable .form-group {
+  margin: 0;
+  padding: 0;
+}
+
+.protable .col-form-label,
+.protable .col-form-control > .form-text {
+  display: none;
+}
+
+.protable .img-field,
+.protable .file-field label {
+  margin-bottom: 0;
+}
+
+.protable .file-field .file-select {
+  margin-top: 0;
+}
+
+.protable .file-field .file-select label.btn-secondary {
+  margin-top: 4px;
+}
+
+.protable .table {
+  border-bottom: 1px solid #dee2e6;
+  margin: 0;
+}
+
+.protable .table th,
+.protable .table thead td {
+  background-color: #eceff1;
+  font-weight: normal;
+  border-bottom-width: 1px;
+}
+
+.protable .table .col-index {
+  width: 38px;
+  min-width: 38px;
+  padding-left: 0;
+  text-align: right;
+}
+
+.protable .table .col-action {
+  width: 88px;
+  min-width: 88px;
+  padding-right: 0;
+  text-align: right;
+}
+
+.protable .table .col-action .btn {
+  min-width: 38px;
+}
+
+.protable .table thead th {
+  position: relative;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.protable .table thead th .dividing {
+  width: 10px;
+  border-right: 2px dotted #aaa;
+  cursor: col-resize;
+  position: absolute;
+  height: 18px;
+  top: 8px;
+  right: 0;
+}
+
+.protable .table tbody .col-index[title] {
+  background-color: #ea4335;
+  color: #fff;
+  cursor: help;
+}
+
+.protable .col-action.column-fixed {
+  left: unset;
+  right: 0;
+  z-index: 1;
+}
+
+.protable .col-action.column-fixed::before {
+  display: none;
+}
+
+@-moz-document url-prefix() {
+  .protable .col-action.column-fixed::before {
+    display: block;
+  }
+}
+
+.protable .col-action.column-fixed::after {
+  right: auto;
+  left: -48px;
+  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
 }
