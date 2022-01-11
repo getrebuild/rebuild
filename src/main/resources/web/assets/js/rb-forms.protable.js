@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 高级表格
 
-const COL_WIDTH = 160
+const COL_WIDTH = 170
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -26,6 +26,8 @@ class ProTable extends React.Component {
     const fw = ww > 1064 ? 994 : ww - 70
     const fixed = COL_WIDTH * formFields.length + (38 + 88) > fw
 
+    const colStyles = { minWidth: COL_WIDTH }
+
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
         <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
@@ -34,7 +36,7 @@ class ProTable extends React.Component {
               <th className="col-index" />
               {formFields.map((item) => {
                 return (
-                  <th key={item.field} data-field={item.field} style={{ minWidth: COL_WIDTH }}>
+                  <th key={item.field} data-field={item.field} style={colStyles}>
                     {item.label}
                     <i className="dividing hide" />
                   </th>
@@ -52,11 +54,11 @@ class ProTable extends React.Component {
                   {form}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
-                    <button className="btn btn-light" title={$L('编辑')} onClick={() => this.editLine()}>
+                    <button className="btn btn-light hide" title={$L('编辑')} onClick={() => this.editLine(key)}>
                       <i className="icon zmdi zmdi-border-color fs-14" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
-                      <i className="icon zmdi zmdi-close fs-17 text-bold" />
+                      <i className="icon zmdi zmdi-close fs-16 text-bold" />
                     </button>
                   </td>
                 </tr>
@@ -115,7 +117,7 @@ class ProTable extends React.Component {
 
   removeLine(key) {
     const forms = this.state.inlineForms.filter((c) => {
-      if (c.key === key) {
+      if (c.key === key && c.props.id) {
         const d = this._deletes || []
         d.push(c.props.id)
         this._deletes = d

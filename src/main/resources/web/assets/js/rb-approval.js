@@ -231,7 +231,7 @@ class ApprovalUsersForm extends RbFormHandler {
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
-                return <UserShow key={'AU' + item[0]} id={item[0]} name={item[1]} showName />
+                return <UserShow key={item[0]} id={item[0]} name={item[1]} showName />
               })}
             </div>
             {this.state.approverSelfSelecting && (
@@ -254,7 +254,7 @@ class ApprovalUsersForm extends RbFormHandler {
             </label>
             <div>
               {(this.state.nextCcs || []).map((item) => {
-                return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName />
+                return <UserShow key={item[0]} id={item[0]} name={item[1]} showName />
               })}
             </div>
             {this.state.ccSelfSelecting && (
@@ -316,7 +316,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
               )}
               {approvals.map((item) => {
                 return (
-                  <div key={'A' + item.id}>
+                  <div key={item.id}>
                     <label className="custom-control custom-control-sm custom-radio mb-0">
                       <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
                       <span className="custom-control-label">{item.name}</span>
@@ -474,7 +474,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 }
 
-// @see rb-forms.jsx
+// @see `rb-forms.js`
 // eslint-disable-next-line no-undef
 class EditableForm extends RbForm {
   constructor(props) {
@@ -576,7 +576,7 @@ class ApprovalStepViewer extends React.Component {
       if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
       sss.push(
-        <li className={'timeline-item state' + item.state} key={`step-${$random()}`}>
+        <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
           {this._formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">

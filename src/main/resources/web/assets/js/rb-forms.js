@@ -447,9 +447,12 @@ class RbForm extends React.Component {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
 
+    // TODO 本实体才刷新?
+
+    // 刷新列表
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload(data.id)
-
+    // 刷新视图
     if (window.RbViewPage && next !== RbForm.__NEXT_ADDDETAIL) window.RbViewPage.reload()
   }
 }

@@ -104,18 +104,18 @@ class RbViewForm extends React.Component {
     })
   }
 
-  // see RbForm in `rb-forms.js`
+  // @see RbForm in `rb-forms.js`
 
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
+    if (rb.env === 'dev') console.log('FV ...', JSON.stringify(this.__FormData))
   }
 
   setFieldUnchanged(field) {
     delete this.__FormData[field]
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
+    if (rb.env === 'dev') console.log('FV ...', JSON.stringify(this.__FormData))
   }
 
   // 保存单个字段值
@@ -454,7 +454,7 @@ class SelectReport extends React.Component {
                   {(this.state.reports || []).map((item) => {
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     return (
-                      <li key={'r-' + item.id}>
+                      <li key={item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
                           {item.name}
                           <i className="zmdi zmdi-download" />
@@ -684,7 +684,7 @@ const RbViewPage = {
       const entity = this.entity // Entity.Field
       that.__vtabEntities.push(entity)
 
-      const tabId = 'tab-' + entity.replace('.', '--') // `.` is JS keyword
+      const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
       const $tabNav = $(
         `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
@@ -713,11 +713,11 @@ const RbViewPage = {
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
         if (~~res.data[k] > 0) {
-          const $tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
+          const $tabNav = $(`.nav-tabs a[href="#tab-${k.replace('.', '--')}"]`)
           $tabNav.parent().removeClass('hide')
 
           if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
-          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo($tabNav)
+          else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
         }
       }
     })
@@ -745,7 +745,7 @@ const RbViewPage = {
           const iv = {}
           const entity = e.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
-          else iv['&' + that.__entity[0]] = that.__id
+          else iv[`&${that.__entity[0]}`] = that.__id
           RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
         }
       })
@@ -798,7 +798,7 @@ const RbViewPage = {
   },
 
   _clickViewUser(id) {
-    return this.clickView('#!/View/User/' + id)
+    return this.clickView(`#!/View/User/${id}`)
   },
 
   // 清理操作按钮

@@ -193,7 +193,7 @@ class RbList extends React.Component {
     let fieldSort = null
     this.state.fields.forEach(function (item) {
       fields.push(item.field)
-      if (item.sort) fieldSort = item.field + ':' + item.sort.replace('sort-', '')
+      if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
     this.lastFilter = filter || this.lastFilter
 
@@ -246,7 +246,7 @@ class RbList extends React.Component {
     const field = this.state.fields[index]
     if (!field) return null
 
-    const cellKey = 'row-' + lastPrimary.id + '-' + index
+    const cellKey = `row-${lastPrimary.id}-${index}`
     const width = this.state.fields[index].width || this.__defaultColumnWidth
     let type = field.type
     if (field.field === this.props.config.nameField) {
@@ -256,7 +256,7 @@ class RbList extends React.Component {
       type = cellVal
     }
 
-    const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
+    const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     if (index === 0 && this.fixedColumns) {
       return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
     }
@@ -334,7 +334,7 @@ class RbList extends React.Component {
         else if (fields[i].sort === 'sort-desc') fields[i].sort = null
         else fields[i].sort = 'sort-asc'
 
-        if (fields[i].sort) $storage.set(this.__sortFieldKey, field + ':' + fields[i].sort)
+        if (fields[i].sort) $storage.set(this.__sortFieldKey, `${field}:${fields[i].sort}`)
         else $storage.remove(this.__sortFieldKey)
       } else {
         fields[i].sort = null
@@ -551,7 +551,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
           const imgName = $fileCutName(item)
           const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
-            <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
+            <a key={item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
               <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
             </a>
           )
@@ -792,7 +792,7 @@ class RbListPagination extends React.Component {
                   )
                 else
                   return (
-                    <li key={`pn-${item}`} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}>
+                    <li key={`pn-${item}`} className={`paginate_button page-item ${this.state.pageNo === item && 'active'}`}>
                       <a className="page-link" onClick={this.goto.bind(this, item)}>
                         {item}
                       </a>
@@ -908,7 +908,7 @@ const RbListPage = {
     $('.J_view').click(() => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        location.hash = '!/View/' + entity[0] + '/' + ids[0]
+        location.hash = `!/View/${entity[0]}/${ids[0]}`
         RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
@@ -968,7 +968,7 @@ class RbViewModal extends React.Component {
         <div className="modal rbview" ref={(c) => (this._rbview = c)}>
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth }}>
-              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
+              <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
                 <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                 <RbSpinner />
               </div>
