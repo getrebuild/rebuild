@@ -1786,7 +1786,7 @@ class RbFormLocation extends RbFormElement {
       <div>
         <div className="form-control-plaintext">{lnglat.text}</div>
         <div className="map-show">
-          <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} />
+          <BaiduMap lnglat={lnglat} ref={(c) => (this._BaiduMap = c)} disableScrollWheelZoom />
         </div>
       </div>
     ) : (

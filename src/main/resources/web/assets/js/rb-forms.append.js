@@ -303,19 +303,24 @@ class DeleteConfirm extends RbAlert {
 // 百度地图
 // https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
 class BaiduMap extends React.Component {
+  constructor(props) {
+    super(props)
+    this._mapid = `map-${$random()}`
+  }
+
   render() {
-    return <div className="map-container" ref={(c) => (this._$container = c)} />
+    return <div className="map-container" id={this._mapid} />
   }
 
   componentDidMount() {
     const that = this
     $useMap(() => {
       const _BMapGL = window.BMapGL
-      const map = new _BMapGL.Map(that._$container)
+      const map = new _BMapGL.Map(that._mapid)
       map.addControl(new _BMapGL.ZoomControl())
       map.addControl(new _BMapGL.ScaleControl())
       // 滚动缩放
-      if (that.props.enableScrollWheelZoom) map.enableScrollWheelZoom()
+      if (that.props.disableScrollWheelZoom !== true) map.enableScrollWheelZoom()
 
       that._map = map
 
@@ -323,13 +328,13 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        // map.centerAndZoom('北京市', 14)
         const geo = new window.BMapGL.Geolocation()
         geo.enableSDKLocation()
         geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
-            map.panTo(e.point)
+            map.centerAndZoom(e.point, 14)
           } else {
+            map.centerAndZoom('北京市', 14)
             console.log('Geolocation failed :', this.getStatus())
           }
         })
@@ -381,7 +386,9 @@ class BaiduMap extends React.Component {
     if (map.isLoaded()) {
       map.clearOverlays()
       // map.panTo(point)
-      map.flyTo(point)
+      map.flyTo(point, 14)
+    } else {
+      setTimeout(() => map.centerAndZoom(point, 14), 200)
     }
 
     map.addOverlay(
@@ -389,10 +396,6 @@ class BaiduMap extends React.Component {
         title: lnglat.text || lnglat.address || '',
       })
     )
-
-    if (!map.isLoaded()) {
-      map.centerAndZoom(point, 14)
-    }
   }
 
   search(s) {
