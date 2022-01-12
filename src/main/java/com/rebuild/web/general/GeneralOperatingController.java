@@ -99,7 +99,7 @@ public class GeneralOperatingController extends BaseController {
         final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
 
         // 检查重复值
-        List<Record> repeated = ies.getAndCheckRepeated(record, 100);
+        List<Record> repeated = ies.getAndCheckRepeated(record, 20);
         if (!repeated.isEmpty()) {
             return new RespBody(RepeatedRecordsException.ERROR_CODE, Language.L("存在重复记录"),
                     buildRepeatedData(repeated));
@@ -107,9 +107,9 @@ public class GeneralOperatingController extends BaseController {
 
         if (!detailsList.isEmpty()) {
             record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
 
-        GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_SKIP_MAIN);
         try {
             record = ies.createOrUpdate(record);
 
@@ -129,6 +129,7 @@ public class GeneralOperatingController extends BaseController {
             return RespBody.error(ex.getLocalizedMessage());
 
         } finally {
+            // 确保清除
             GeneralEntityServiceContextHolder.getRepeatedCheckMode();
         }
 

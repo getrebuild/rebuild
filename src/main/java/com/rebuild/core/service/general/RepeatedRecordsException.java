@@ -17,6 +17,7 @@ import java.util.List;
  * @since 2021/01/12
  */
 public class RepeatedRecordsException extends DefinedException {
+    private static final long serialVersionUID = 8769785498603769556L;
 
     // 重复记录错误码
     public static final int ERROR_CODE = 499;
@@ -24,6 +25,7 @@ public class RepeatedRecordsException extends DefinedException {
     private final List<Record> repeatedRecords;
 
     public RepeatedRecordsException(List<Record> repeated) {
+        super("There are " + repeated.size() + " repeated records");
         this.repeatedRecords = repeated;
     }
 

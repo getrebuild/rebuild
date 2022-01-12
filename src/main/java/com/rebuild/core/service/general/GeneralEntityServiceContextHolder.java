@@ -10,8 +10,6 @@ package com.rebuild.core.service.general;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2020/9/29
  */
@@ -22,10 +20,6 @@ public class GeneralEntityServiceContextHolder {
     private static final ThreadLocal<ID> ALLOW_FORCE_UPDATE = new ThreadLocal<>();
 
     private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new ThreadLocal<>();
-
-    public static final int RCM_SKIP_MAIN = 1;
-    public static final int RCM_SKIP_DETAILS = 2;
-    public static final int RCM_SKIP_ALL = 4;
 
     /**
      * 新建记录时允许跳过自动编号字段
@@ -46,6 +40,8 @@ public class GeneralEntityServiceContextHolder {
         }
         return is != null && is;
     }
+
+    // --
 
     /**
      * 允许强制修改（审批中的）记录
@@ -68,7 +64,18 @@ public class GeneralEntityServiceContextHolder {
         return recordId != null;
     }
 
+    // --
+
+    // 检查全部
+    public static final int RCM_CHECK_MAIN = 1;
+    // 检查主记录
+    public static final int RCM_CHECK_DETAILS = 2;
+    // 检查明细记录
+    public static final int RCM_CHECK_ALL = 4;
+
     /**
+     * 设定重复检查模式（仅在需要时设定）
+     *
      * @param mode
      */
     public static void setRepeatedCheckMode(int mode) {
@@ -77,8 +84,9 @@ public class GeneralEntityServiceContextHolder {
 
     /**
      * @return
+     * @see #setRepeatedCheckMode(int)
      */
-    public static Integer getRepeatedCheckMode() {
+    public static int getRepeatedCheckMode() {
         Integer mode = REPEATED_CHECK_MODE.get();
         if (mode != null) {
             REPEATED_CHECK_MODE.remove();

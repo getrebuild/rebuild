@@ -595,28 +595,27 @@ class SignPad extends React.Component {
 // ~~ 重复记录查看
 
 class RepeatedViewer extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
+    // 第一行为字段名
     const data = this.props.data
+
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在 %d 条重复记录', this.props.data.length - 1)} disposeOnHide={true} colored="warning">
-        <table className="table table-striped table-hover table-sm dialog-table">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在重复记录')} disposeOnHide={true} colored="warning">
+        <table className="table table-hover dialog-table">
           <thead>
             <tr>
+              <th width="32" />
               {data[0].map((item, idx) => {
                 if (idx === 0) return null
                 return <th key={`field-${idx}`}>{item}</th>
               })}
-              <th width="30" />
+              <th width="55" />
             </tr>
           </thead>
           <tbody>
             {data.map((item, idx) => {
               if (idx === 0) return null
-              return this.renderRow(item, idx)
+              else return this.renderRow(item, idx)
             })}
           </tbody>
         </table>
@@ -627,14 +626,15 @@ class RepeatedViewer extends RbModalHandler {
   renderRow(item, idx) {
     return (
       <tr key={`row-${idx}`}>
+        <td className="text-right pl-0">{idx}</td>
         {item.map((o, i) => {
           if (i === 0) return null
           return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
         })}
         <td className="actions">
-          <a className="icon" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
-            <i className="zmdi zmdi-open-in-new" />
-          </a>
+          <button type="button" className="btn btn-light btn-sm w-auto" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
+            <i className="zmdi zmdi-open-in-new fs-16 down-2" />
+          </button>
         </td>
       </tr>
     )

@@ -85,9 +85,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         final int rcm = GeneralEntityServiceContextHolder.getRepeatedCheckMode();
 
-        if (!(rcm == GeneralEntityServiceContextHolder.RCM_SKIP_MAIN
-                || rcm == GeneralEntityServiceContextHolder.RCM_SKIP_ALL)) {
-            List<Record> repeated = getAndCheckRepeated(record, 100);
+        if (rcm == GeneralEntityServiceContextHolder.RCM_CHECK_MAIN
+                || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL) {
+            List<Record> repeated = getAndCheckRepeated(record, 20);
             if (!repeated.isEmpty()) {
                 throw new RepeatedRecordsException(repeated);
             }
@@ -100,8 +100,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
         ID mainid = record.getPrimary();
 
-        boolean checkDetailsRepeated = !(rcm == GeneralEntityServiceContextHolder.RCM_SKIP_DETAILS
-                || rcm == GeneralEntityServiceContextHolder.RCM_SKIP_ALL);
+        boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
+                || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
         for (Record d : details) {
             if (d instanceof DeleteRecord) {
@@ -112,7 +112,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (checkDetailsRepeated) {
                 d.setID(dtf, mainid);  // for check
 
-                List<Record> repeated = getAndCheckRepeated(d, 100);
+                List<Record> repeated = getAndCheckRepeated(d, 20);
                 if (!repeated.isEmpty()) {
                     throw new RepeatedRecordsException(repeated);
                 }
