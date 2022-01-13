@@ -30,6 +30,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -108,7 +109,14 @@ public class FieldWriteback extends FieldAggregation {
 
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
-            targetService.update(targetRecord);
+
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+            try {
+                targetService.createOrUpdate(targetRecord);  // Only create
+            } finally {
+                PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+            }
         }
     }
 

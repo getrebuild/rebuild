@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.persist4j.engine.ID;
+import org.springframework.core.NamedThreadLocal;
 
 /**
  * @author devezhao
@@ -15,11 +16,11 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class GeneralEntityServiceContextHolder {
 
-    private static final ThreadLocal<Boolean> SKIP_SERIES_VALUE = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> SKIP_SERIES_VALUE = new NamedThreadLocal<>("Skip series value");
 
-    private static final ThreadLocal<ID> ALLOW_FORCE_UPDATE = new ThreadLocal<>();
+    private static final ThreadLocal<ID> ALLOW_FORCE_UPDATE = new NamedThreadLocal<>("Allow force update");
 
-    private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new ThreadLocal<>();
+    private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new NamedThreadLocal<>("Repeated check mode");
 
     /**
      * 新建记录时允许跳过自动编号字段
@@ -86,7 +87,7 @@ public class GeneralEntityServiceContextHolder {
      * @return
      * @see #setRepeatedCheckMode(int)
      */
-    public static int getRepeatedCheckMode() {
+    public static int getRepeatedCheckModeOnce() {
         Integer mode = REPEATED_CHECK_MODE.get();
         if (mode != null) {
             REPEATED_CHECK_MODE.remove();

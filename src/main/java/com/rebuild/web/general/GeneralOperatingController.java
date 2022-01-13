@@ -130,7 +130,7 @@ public class GeneralOperatingController extends BaseController {
 
         } finally {
             // 确保清除
-            GeneralEntityServiceContextHolder.getRepeatedCheckMode();
+            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
         }
 
         JSONObject ret = new JSONObject();

@@ -83,7 +83,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         @SuppressWarnings("unchecked")
         final List<Record> details = (List<Record>) record.removeValue(HAS_DETAILS);
 
-        final int rcm = GeneralEntityServiceContextHolder.getRepeatedCheckMode();
+        final int rcm = GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
 
         if (rcm == GeneralEntityServiceContextHolder.RCM_CHECK_MAIN
                 || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL) {
