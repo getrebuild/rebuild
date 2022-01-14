@@ -186,7 +186,7 @@ public class ApprovalController extends BaseController {
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {
-            return RespBody.error(ex.getLocalizedMessage(), 499);
+            return RespBody.error(ex.getLocalizedMessage(), 498);
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getLocalizedMessage());
         }

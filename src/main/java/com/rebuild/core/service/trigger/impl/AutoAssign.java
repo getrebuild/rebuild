@@ -123,11 +123,17 @@ public class AutoAssign implements TriggerAction {
         if (allowNoPermissionAssign) {
             PrivilegesGuardContextHolder.setSkipGuard(recordId);
         }
-        Application.getEntityService(context.getSourceEntity().getEntityCode()).assign(recordId, toUser, cascades);
 
-        // 当前分派人
-        if (orderedAssign) {
-            KVStorage.setCustomValue(orderedAssignKey, toUser);
+        try {
+            Application.getEntityService(context.getSourceEntity().getEntityCode())
+                    .assign(recordId, toUser, cascades);
+
+            // 当前分派人
+            if (orderedAssign) {
+                KVStorage.setCustomValue(orderedAssignKey, toUser);
+            }
+        } finally {
+            PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
     }
 }

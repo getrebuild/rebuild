@@ -88,7 +88,12 @@ public class AutoShare extends AutoAssign {
             if (allowNoPermissionShare) {
                 PrivilegesGuardContextHolder.setSkipGuard(recordId);
             }
-            es.share(recordId, toUser, cascades, shareRights);
+
+            try {
+                es.share(recordId, toUser, cascades, shareRights);
+            } finally {
+                PrivilegesGuardContextHolder.getSkipGuardOnce();
+            }
         }
     }
 }

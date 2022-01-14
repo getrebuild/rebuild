@@ -62,7 +62,7 @@ public class SystemDiagnosis {
         }
 
         // 放入缓存
-        Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
+        Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,6 +82,7 @@ public class SystemDiagnosis {
         LinkedHashMap<String, String> dangers = getDangersList();
         if (message == null) dangers.remove(name);
         else dangers.put(name, message);
+
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
     }
 

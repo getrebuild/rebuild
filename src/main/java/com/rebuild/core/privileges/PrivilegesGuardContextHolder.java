@@ -23,9 +23,6 @@ public class PrivilegesGuardContextHolder {
 
     private static final ThreadLocal<ID> SKIP_GUARD = new NamedThreadLocal<>("Skip some check once");
 
-    // 新建记录
-    public static final ID FOR_NEW_RECORD = ID.valueOf("000-0000000000000000");
-
     /**
      * 允许无权限操作一次
      *

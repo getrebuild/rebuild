@@ -29,6 +29,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -581,7 +582,7 @@ public class FormsBuilder extends FormsManager {
      */
     private JSON getReferenceMixValue(String idValue) {
         if (DV_MAINID.equals(idValue)) {
-            return FieldValueHelper.wrapMixValue(ID.newId(0), Language.L("新的"));
+            return FieldValueHelper.wrapMixValue(EntityService.UNSAVED_RECORD, Language.L("新的"));
         } else if (!ID.isId(idValue)) {
             return null;
         }
