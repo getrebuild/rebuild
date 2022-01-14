@@ -299,6 +299,10 @@ class ContentFieldWriteback extends ActionContentSpec {
       RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
     }
+
+    const one2one = this.state.targetEntities.find((x) => `${x[2]}.${x[0]}` === content.targetEntity)
+    if (one2one && one2one[3] === 'one2one') content.one2one = true
+
     return content
   }
 }

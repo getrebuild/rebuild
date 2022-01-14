@@ -42,16 +42,18 @@ public class FieldAggregationController extends BaseController {
     @RequestMapping("field-aggregation-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
+
         // 我引用了谁
-        for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isApprovalField(refField.getName())) {
+
+        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isApprovalField(refFrom.getName())) {
                 continue;
             }
 
-            Entity refEntity = refField.getReferenceEntity();
+            Entity refEntity = refFrom.getReferenceEntity();
             String entityLabel = String.format("%s (%s)",
-                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refField));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
+                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
+            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName() });
         }
 
         sortEntities(entities, sourceEntity);

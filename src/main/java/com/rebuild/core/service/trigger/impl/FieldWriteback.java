@@ -55,6 +55,8 @@ import java.util.*;
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
 
+    public static final String WB_ONE2ONE = "one2one";
+
     private static final String DATE_EXPR = "#";
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
 
@@ -76,8 +78,8 @@ public class FieldWriteback extends FieldAggregation {
         if (tschain == null) return;
 
         this.prepare(operatingContext);
+
         if (targetRecordIds.isEmpty()) {
-            log.warn("No target record(s) found");
             return;
         }
         if (targetRecordData.getAvailableFields().isEmpty()) {
@@ -129,11 +131,22 @@ public class FieldWriteback extends FieldAggregation {
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
+        boolean isOne2One = ((JSONObject) context.getActionContent()).getBooleanValue(WB_ONE2ONE);
+
         targetRecordIds = new HashSet<>();
 
-        // 自己
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
+            // 自己
             targetRecordIds.add(context.getSourceRecord());
+
+        } else if (isOne2One) {
+            // 只会存在一个记录
+            Record afterRecord = operatingContext.getAfterRecord();
+            ID referenceId = afterRecord == null ? null : afterRecord.getID(targetFieldEntity[0]);
+            if (referenceId == null) return;
+
+            targetRecordIds.add(referenceId);
+
         } else {
             String sql = String.format("select %s from %s where %s = ?",
                     targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
@@ -144,13 +157,18 @@ public class FieldWriteback extends FieldAggregation {
             for (Object[] o : array) {
                 targetRecordIds.add((ID) o[0]);
             }
+
+            if (targetRecordIds.isEmpty()) {
+                log.warn("No target record(s) found");
+                return;
+            }
         }
 
-        targetRecordData = prepareTargetRecordData();
+        targetRecordData = buildTargetRecordData();
     }
 
-    private Record prepareTargetRecordData() {
-        final Record record = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
+    private Record buildTargetRecordData() {
+        final Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
         final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
@@ -203,12 +221,12 @@ public class FieldWriteback extends FieldAggregation {
 
             // 置空
             if ("VNULL".equalsIgnoreCase(updateMode)) {
-                record.setNull(targetField);
+                targetRecord.setNull(targetField);
             }
 
             // 固定值
             else if ("VFIXED".equalsIgnoreCase(updateMode)) {
-                RecordVisitor.setValueByLiteral(targetField, sourceAny, record);
+                RecordVisitor.setValueByLiteral(targetField, sourceAny, targetRecord);
             }
 
             // 字段
@@ -225,7 +243,7 @@ public class FieldWriteback extends FieldAggregation {
 
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
                             .convertCompatibleValue(value, targetFieldEasy);
-                    record.setObjectValue(targetField, newValue);
+                    targetRecord.setObjectValue(targetField, newValue);
                 }
             }
 
@@ -249,7 +267,7 @@ public class FieldWriteback extends FieldAggregation {
                     Object newValue = value == null ? null : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2))
                             .convertCompatibleValue(value, targetFieldEasy, sourceAny);
                     if (newValue != null) {
-                        record.setObjectValue(targetField, newValue);
+                        targetRecord.setObjectValue(targetField, newValue);
                     }
                 }
 
@@ -288,22 +306,23 @@ public class FieldWriteback extends FieldAggregation {
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
                         if (dt == DisplayType.NUMBER) {
-                            record.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
+                            targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
                         } else if (dt == DisplayType.DECIMAL) {
-                            record.setDouble(targetField, ObjectUtils.toDouble(newValue));
+                            targetRecord.setDouble(targetField, ObjectUtils.toDouble(newValue));
                         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                            record.setDate(targetField, (Date) newValue);
+                            targetRecord.setDate(targetField, (Date) newValue);
                         } else {
                             newValue = checkoutFieldValue(newValue, targetFieldEasy);
                             if (newValue != null) {
-                                record.setObjectValue(targetField, newValue);
+                                targetRecord.setObjectValue(targetField, newValue);
                             }
                         }
                     }
                 }
             }
         }
-        return record;
+
+        return targetRecord;
     }
 
     /**

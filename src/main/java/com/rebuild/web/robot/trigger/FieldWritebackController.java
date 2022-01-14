@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.impl.AggregationEvaluator;
+import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -49,12 +50,28 @@ public class FieldWritebackController extends BaseController {
     @RequestMapping("field-writeback-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
+
         // 谁引用了我
-        for (Field refto : MetadataHelper.getReferenceToFields(sourceEntity)) {
+
+        for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity)) {
             String entityLabel = String.format("%s (%s)",
-                    EasyMetaFactory.getLabel(refto.getOwnEntity()), EasyMetaFactory.getLabel(refto));
+                    EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
             entities.add(new String[] {
-                    refto.getOwnEntity().getName(), entityLabel, refto.getName() });
+                    refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
+        }
+
+        // 我引用了谁 v2.7.1
+        // 通常用于一对一，如果业务上存在多对一可能冲突（会以最后触发的记录为准）
+
+        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isCommonsField(refFrom)) {
+                continue;
+            }
+
+            Entity refEntity = refFrom.getReferenceEntity();
+            String entityLabel = String.format("%s (%s.%s)",
+                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(sourceEntity), EasyMetaFactory.getLabel(refFrom));
+            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.WB_ONE2ONE});
         }
 
         FieldAggregationController.sortEntities(entities, sourceEntity);
