@@ -53,7 +53,7 @@ public final class License {
             SN = String.format("ZR%d%s-%s",
                     Application.BUILD,
                     Locale.getDefault().getCountry().substring(0, 2),
-                    CodecUtils.randomCode(14).toUpperCase());
+                    CodecUtils.randomCode(14)).toUpperCase();
             RebuildConfiguration.set(ConfigurationItem.SN, SN);
         }
 
