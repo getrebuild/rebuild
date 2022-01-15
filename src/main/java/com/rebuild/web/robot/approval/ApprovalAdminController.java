@@ -28,7 +28,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import com.rebuild.web.admin.data.ReportTemplateController;
+import com.rebuild.web.admin.ConfigCommons;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -81,7 +81,7 @@ public class ApprovalAdminController extends BaseController {
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
-        Object[][] array = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
+        Object[][] array = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         return RespBody.ok(array);
     }
 
