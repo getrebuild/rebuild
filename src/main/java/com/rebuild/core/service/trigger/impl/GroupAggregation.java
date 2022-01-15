@@ -13,9 +13,14 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.dashboard.charts.FormatCalc;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -54,9 +59,9 @@ public class GroupAggregation extends FieldAggregation {
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(actionContent.getString("targetEntity"));
 
-        // 0.分组字段关联 <Source, Target>
+        // 0.分组字段关联 <Source, [Target, GroupMode]>
 
-        Map<String, String> groupFieldsMapping = new HashMap<>();
+        Map<String, String[]> groupFieldsMapping = new HashMap<>();
         for (Object o : actionContent.getJSONArray("groupFields")) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -68,7 +73,7 @@ public class GroupAggregation extends FieldAggregation {
             if (!targetEntity.containsField(targetField)) {
                 throw new MissingMetaExcetion(targetField, targetEntity.getName());
             }
-            groupFieldsMapping.put(sourceField, targetField);
+            groupFieldsMapping.put(sourceField, new String[] { targetField, item.getString("groupMode") });
         }
 
         // 1.源纪录数据
@@ -85,14 +90,59 @@ public class GroupAggregation extends FieldAggregation {
 
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();
-        for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
+        for (Map.Entry<String, String[]> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
-            String targetField = e.getValue();
+            String targetField = e.getValue()[0];
+            String groupMode = e.getValue()[1];
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val != null) {
-                if (val instanceof Date) {
-                    val = CalendarUtils.getUTCDateFormat().format(val);
+                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
+
+                // @see Dimension#getSqlName
+
+                // 日期分组
+                if (sourceFieldEasy.getDisplayType() == DisplayType.DATE
+                        || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME) {
+                    if (FormatCalc.Y.name().equals(groupMode)) {
+                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y");
+                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y");
+                        val = CalendarUtils.format("yyyy", (Date) val);
+                    } else if (FormatCalc.M.name().equals(groupMode)) {
+                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m");
+                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m");
+                        val = CalendarUtils.format("yyyy-MM", (Date) val);
+                    } else /*if (FormatCalc.D.name().equals(groupMode))*/ {
+                        sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m-%d");
+                        targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m-%d");
+                        val = CalendarUtils.format("yyyy-MM-dd", (Date) val);
+                    }
+                }
+
+                // 分类分组
+                else if (sourceFieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
+                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(sourceEntity.getField(sourceField));
+                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(targetEntity.getField(targetField));
+
+//                    // 目标等级必须小于等于源等级
+//                    Assert.isTrue(targetFieldLevel <= sourceFieldLevel,
+//                            "The target level (" + targetFieldLevel + ") must be less-than or equal-to the source level (" + sourceFieldLevel +")");
+
+                    // 需要匹配等级的值
+                    if (sourceFieldLevel != targetFieldLevel) {
+                        ID parent = getItemWithLevel((ID) val, targetFieldLevel);
+                        if (parent == null) {
+                            log.error("Bad source value of classification (Maybe levels?) : {}", val);
+                            return;
+                        }
+
+                        val = parent;
+                        sourceRecord.setID(sourceField, (ID) val);
+
+                        for (int i = 0; i < sourceFieldLevel - targetFieldLevel; i++) {
+                            sourceField += ".parent";
+                        }
+                    }
                 }
 
                 qFields.add(String.format("%s = '%s'", targetField, val));
@@ -124,9 +174,9 @@ public class GroupAggregation extends FieldAggregation {
         // 还可以通过设置字段默认值来完成必填字段的自动填写
 
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
-        for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
+        for (Map.Entry<String, String[]> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
-            String targetField = e.getValue();
+            String targetField = e.getValue()[0];
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val != null) {
@@ -144,5 +194,26 @@ public class GroupAggregation extends FieldAggregation {
         newTargetRecord = Application.getCommonsService().create(newTargetRecord, false);
 
         targetRecordId = newTargetRecord.getPrimary();
+    }
+
+    private ID getItemWithLevel(ID itemId, int specLevel) {
+        ID current = itemId;
+        for (int i = 0; i < 4; i++) {
+            Object[] o = Application.getQueryFactory().createQueryNoFilter(
+                            "select level,parent from ClassificationData where itemId = ?")
+                    .setParameter(1, current)
+                    .unique();
+
+            if (o == null) break;
+            if ((int) o[0] < specLevel) break;
+
+            if ((int) o[0] == specLevel) {
+                return current;
+            } else {
+                current = (ID) o[1];
+            }
+        }
+
+        return null;
     }
 }
