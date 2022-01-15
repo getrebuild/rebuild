@@ -1551,7 +1551,7 @@ class RbFormClassification extends RbFormElement {
 
       this.__select2.on('change', () => {
         const v = this.__select2.val()
-        if (v) $.post(`/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
+        if (v) $.post(`/commons/search/recently-add?id=${v}&type=d${this.props.classification}:${this.props.openLevel}`)
         this.handleChange({ target: { value: v } }, true)
       })
 
