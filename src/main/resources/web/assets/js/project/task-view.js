@@ -957,7 +957,7 @@ class TaskCommentsList extends React.Component {
                       {this.props.editable && (
                         <ul className="list-unstyled m-0">
                           {item.isManageable && (
-                            <li className="list-inline-item mr-2">
+                            <li className="list-inline-item mr-3">
                               <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
                                 <i className="zmdi zmdi-delete" /> {$L('删除')}
                               </a>

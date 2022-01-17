@@ -66,7 +66,7 @@ public class UserAvatar extends BaseController {
         }
 
         User realUser = null;
-        if (ID.isId(user)) {
+        if (ID.isId(user) && Application.getUserStore().existsUser(ID.valueOf(user.toString()))) {
             realUser = Application.getUserStore().getUser(ID.valueOf(user.toString()));
         } else if (Application.getUserStore().existsName(user.toString())) {
             realUser = Application.getUserStore().getUserByName(user.toString());
