@@ -108,10 +108,11 @@ public class GroupAggregationController extends BaseController {
         DisplayType dt = field.getDisplayType();
 
         // 分组字段类型的支持
-        boolean allow = dt == DisplayType.TEXT || dt == DisplayType.DATE
+        boolean allow = dt == DisplayType.TEXT
+                || dt == DisplayType.DATE || dt == DisplayType.DATETIME
                 || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE;
         if (!allow) return null;
-        
+
         String[] build = buildField(field.getRawMeta());
         if (dt == DisplayType.CLASSIFICATION) {
             build[2] += ":" + field.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);

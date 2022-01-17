@@ -37,42 +37,16 @@ class ContentGroupAggregation extends ActionContentSpec {
               {this.state.groupFields && this.state.groupFields.length > 0 && (
                 <div style={{ marginBottom: 12 }}>
                   {this.state.groupFields.map((item) => {
-                    // 目标字段类型和源字段类型排他且一一对应
-                    const fieldType = this.__sourceGroupFieldsCache.find((x) => x[0] === item.sourceField)
-                    const isDATE = fieldType && fieldType[2] === 'DATE'
-
                     return (
                       <span className="mt-1 d-inline-block" key={item.targetField}>
-                        <span className="badge badge-primary badge-close m-0 mr-1" data-toggle={isDATE ? 'dropdown' : ''}>
+                        <span className="badge badge-primary badge-close m-0 mr-1">
                           <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
                           <i className="zmdi zmdi-swap ml-2 mr-2" />
                           <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
-
-                          {item.groupMode === 'Y' && <span className="ml-1">({$L('按年')})</span>}
-                          {item.groupMode === 'M' && <span className="ml-1">({$L('按月')})</span>}
-                          {item.groupMode === 'D' && <span className="ml-1">({$L('按日')})</span>}
-
                           <a className="close" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
                             <i className="zmdi zmdi-close" />
                           </a>
                         </span>
-
-                        {isDATE && (
-                          <div className="dropdown-menu dropdown-menu-sm">
-                            <a className="dropdown-item" onClick={(e) => this.handleGroupMode(e, item.targetField)}>
-                              {$L('默认')}
-                            </a>
-                            <a className="dropdown-item" data-calc="Y" onClick={(e) => this.handleGroupMode(e, item.targetField)}>
-                              {$L('按年')}
-                            </a>
-                            <a className="dropdown-item" data-calc="M" onClick={(e) => this.handleGroupMode(e, item.targetField)}>
-                              {$L('按月')}
-                            </a>
-                            <a className="dropdown-item" data-calc="D" onClick={(e) => this.handleGroupMode(e, item.targetField)}>
-                              {$L('按日')}
-                            </a>
-                          </div>
-                        )}
                       </span>
                     )
                   })}
@@ -82,6 +56,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetGroupField = c)}>
                     {(this.state.targetGroupFields || []).map((item) => {
+                      if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item[0]) || item[2] === 'DATETIME') return null
+
                       return (
                         <option key={item[0]} value={item[0]}>
                           {item[1]}
@@ -250,17 +226,6 @@ class ContentGroupAggregation extends ActionContentSpec {
     }
   }
 
-  handleGroupMode(e, targetField) {
-    const gm = $(e.target).data('calc') || null
-    const groupFieldsNew = []
-    this.state.groupFields.forEach((item) => {
-      if (item.targetField === targetField) item.groupMode = gm
-      groupFieldsNew.push(item)
-    })
-
-    this.setState({ groupFields: groupFieldsNew })
-  }
-
   _changeTargetEntity() {
     const te = $(this._$targetEntity).val()
     if (!te) return
@@ -284,8 +249,13 @@ class ContentGroupAggregation extends ActionContentSpec {
               let stf = $s2tgf.val()
               stf = this.state.targetGroupFields.find((x) => x[0] === stf)
 
-              // FIXME 仅同类型的字段
-              const fs = this.__sourceGroupFieldsCache.filter((x) => x[2] === stf[2])
+              // 仅同类型的字段
+              // DATE DATETIME 兼容
+              const fs = this.__sourceGroupFieldsCache.filter((x) => {
+                if (stf[2] === 'DATE' && x[2] === 'DATETIME') return true
+                if (stf[2] === 'DATETIME' && x[2] === 'DATE') return true
+                return x[2] === stf[2]
+              })
               this.setState({ sourceGroupFields: fs })
             })
           const $s2sgf = $(this._$sourceGroupField).select2({ placeholder: $L('选择源字段') })
@@ -406,8 +376,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     this.setState({ groupFields })
   }
 
-  delGroupField(targetField, e) {
-    e && $stopEvent(e, true)
+  delGroupField(targetField) {
     const groupFields = this.state.groupFields.filter((x) => x.targetField !== targetField)
     this.setState({ groupFields })
   }

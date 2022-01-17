@@ -19,14 +19,16 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.dashboard.charts.FormatCalc;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -59,9 +61,9 @@ public class GroupAggregation extends FieldAggregation {
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(actionContent.getString("targetEntity"));
 
-        // 0.分组字段关联 <Source, [Target, GroupMode]>
+        // 0.分组字段关联 <Source, Target>
 
-        Map<String, String[]> groupFieldsMapping = new HashMap<>();
+        Map<String, String> groupFieldsMapping = new HashMap<>();
         for (Object o : actionContent.getJSONArray("groupFields")) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -73,7 +75,7 @@ public class GroupAggregation extends FieldAggregation {
             if (!targetEntity.containsField(targetField)) {
                 throw new MissingMetaExcetion(targetField, targetEntity.getName());
             }
-            groupFieldsMapping.put(sourceField, new String[] { targetField, item.getString("groupMode") });
+            groupFieldsMapping.put(sourceField, targetField);
         }
 
         // 1.源纪录数据
@@ -90,29 +92,45 @@ public class GroupAggregation extends FieldAggregation {
 
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();
-        for (Map.Entry<String, String[]> e : groupFieldsMapping.entrySet()) {
+        for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
-            String targetField = e.getValue()[0];
-            String groupMode = e.getValue()[1];
+            String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val != null) {
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
+                EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
                 // @see Dimension#getSqlName
 
                 // 日期分组
                 if (sourceFieldEasy.getDisplayType() == DisplayType.DATE
                         || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME) {
-                    if (FormatCalc.Y.name().equals(groupMode)) {
+
+                    String formatKey = sourceFieldEasy.getDisplayType() == DisplayType.DATE
+                            ? EasyFieldConfigProps.DATE_FORMAT : EasyFieldConfigProps.DATETIME_FORMAT;
+                    int sourceFieldLength = StringUtils.defaultIfBlank(
+                            sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat())
+                            .length();
+
+                    // 目标字段仅日期
+                    int targetFieldLength = StringUtils.defaultIfBlank(
+                            targetFieldEasy.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), targetFieldEasy.getDisplayType().getDefaultFormat())
+                            .length();
+
+                    // 目标格式（长度）必须小于等于源格式
+                    Assert.isTrue(targetFieldLength <= sourceFieldLength,
+                            Language.L("日期字段格式不兼容") + String.format(" (%d,%d)", targetFieldLength, sourceFieldLength));
+
+                    if (targetFieldLength == 4) {  // 'Y'
                         sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y");
                         targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y");
                         val = CalendarUtils.format("yyyy", (Date) val);
-                    } else if (FormatCalc.M.name().equals(groupMode)) {
+                    } else if (targetFieldLength == 7) {  // 'M'
                         sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m");
                         targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m");
                         val = CalendarUtils.format("yyyy-MM", (Date) val);
-                    } else /*if (FormatCalc.D.name().equals(groupMode))*/ {
+                    } else {  // 'D' is default
                         sourceField = String.format("DATE_FORMAT(%s,'%s')", sourceField, "%Y-%m-%d");
                         targetField = String.format("DATE_FORMAT(%s,'%s')", targetField, "%Y-%m-%d");
                         val = CalendarUtils.format("yyyy-MM-dd", (Date) val);
@@ -121,12 +139,13 @@ public class GroupAggregation extends FieldAggregation {
 
                 // 分类分组
                 else if (sourceFieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
+
                     int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(sourceEntity.getField(sourceField));
                     int targetFieldLevel = ClassificationManager.instance.getOpenLevel(targetEntity.getField(targetField));
 
-//                    // 目标等级必须小于等于源等级
-//                    Assert.isTrue(targetFieldLevel <= sourceFieldLevel,
-//                            "The target level (" + targetFieldLevel + ") must be less-than or equal-to the source level (" + sourceFieldLevel +")");
+                    // 目标等级必须小于等于源等级
+                    Assert.isTrue(targetFieldLevel <= sourceFieldLevel,
+                            Language.L("分类字段等级不兼容") + String.format(" (%d,%d)", targetFieldLevel, sourceFieldLevel));
 
                     // 需要匹配等级的值
                     if (sourceFieldLevel != targetFieldLevel) {
@@ -174,9 +193,9 @@ public class GroupAggregation extends FieldAggregation {
         // 还可以通过设置字段默认值来完成必填字段的自动填写
 
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
-        for (Map.Entry<String, String[]> e : groupFieldsMapping.entrySet()) {
+        for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
-            String targetField = e.getValue()[0];
+            String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val != null) {

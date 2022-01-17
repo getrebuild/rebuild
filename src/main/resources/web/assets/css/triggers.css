@@ -146,16 +146,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.group-aggregation .badge-primary[data-toggle='dropdown'] {
-  cursor: pointer;
-}
-
-.group-aggregation .badge-primary[data-toggle='dropdown']::before {
-  font-family: 'Material-Design-Iconic-Font';
-  content: '\f2f9';
-  margin-right: 6px;
-}
-
 .group-aggregation .badge-primary::after {
   position: absolute;
   width: 0;
@@ -166,6 +156,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: -4px;
   right: -4px;
 }
+
+/* .group-aggregation .badge-primary[data-toggle='dropdown'] {
+  cursor: pointer;
+}
+
+.group-aggregation .badge-primary[data-toggle='dropdown']::before {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f2f9';
+  margin-right: 6px;
+} */
 
 /* Formula */
 
