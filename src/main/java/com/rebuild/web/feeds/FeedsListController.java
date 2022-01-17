@@ -23,6 +23,7 @@ import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -37,10 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 列表相关
@@ -125,6 +123,15 @@ public class FeedsListController extends BaseController {
                     .unique();
         }
 
+        // 用户置顶动态
+        String userTop = KVStorage.getCustomValue("FEEDS-TOP:" + user);
+        Object[] userTopFeed = null;
+        if (ID.isId(userTop)) {
+            userTopFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                    .setParameter(1, ID.valueOf(userTop))
+                    .unique();
+        }
+
         if ("older".equalsIgnoreCase(sort)) {
             sql += " order by createdOn asc";
         } else if ("modified".equalsIgnoreCase(sort)) {
@@ -137,25 +144,33 @@ public class FeedsListController extends BaseController {
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
-        if (foucsFeed != null) {
-            List<Object[]> newArray = new ArrayList<>();
-            newArray.add(foucsFeed);
-            for (Object[] o : array) {
-                if (foucsFeed[0].equals(o[0])) {
-                    continue;
-                }
-                newArray.add(o);
-            }
-            array = newArray.toArray(new Object[0][]);
-        }
+        array = add2Top(foucsFeed, array);
+        array = add2Top(userTopFeed, array);
 
+        Set<ID> set = new HashSet<>();
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
-            list.add(buildItem(o, user));
+            if (set.contains((ID) o[0])) continue;
+
+            JSONObject feed = buildItem(o, user);
+            if (foucsFeed != null && foucsFeed[0].equals(o[0])) feed.put("isTop", "focus");
+            if (userTopFeed != null && userTopFeed[0].equals(o[0])) feed.put("isTop", "usertop");
+
+            list.add(feed);
+            set.add((ID) o[0]);
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(
                 new String[] { "total", "data" }, new Object[] { count, list }));
+    }
+
+    private Object[][] add2Top(Object[] topFeed, Object[][] array) {
+        if (topFeed == null) return array;
+
+        Object[][] newArray = new Object[array.length + 1][];
+        newArray[0] = topFeed;
+        System.arraycopy(array, 0, newArray, 1, array.length);
+        return newArray;
     }
 
     @GetMapping("/feeds/feeds-details")

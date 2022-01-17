@@ -17,10 +17,12 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -95,6 +97,14 @@ public class FeedsPostController extends BaseController {
         record.removeValue(EntityHelper.ModifiedOn);
         Application.getCommonsService().update(record);
 
+        return RespBody.ok();
+    }
+
+    @PostMapping("feeds-top")
+    public RespBody feedsTop(@IdParam(required = false) ID feedsId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        // null 表示取消
+        KVStorage.setCustomValue("FEEDS-TOP:" + user, ObjectUtils.defaultIfNull(feedsId, null));
         return RespBody.ok();
     }
 }

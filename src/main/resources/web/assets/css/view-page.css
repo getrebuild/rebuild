@@ -507,20 +507,14 @@ body {
 /* over Feeds */
 
 .feeds-list.inview {
-  border-top: 1px solid #ebebeb;
+  border-top: 1px solid #eee;
 }
 
 .feeds-list.inview > div {
-  padding: 12px 1px 0;
   position: relative;
-}
-
-.feeds-list.inview > div:first-child {
-  margin-top: 0;
-}
-
-.feeds-list.inview > div + div {
-  border-top: 1px solid #eee;
+  padding: 12px 1px 2px;
+  border-bottom: 1px solid #eee;
+  margin: 0;
 }
 
 .feeds-list.inview .feeds + .actions {
