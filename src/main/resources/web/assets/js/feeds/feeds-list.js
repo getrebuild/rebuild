@@ -123,7 +123,7 @@ class FeedsList extends React.Component {
           <div className="content">
             <div className="meta">
               <span className="float-right badge">{FeedsTypes[item.type] || FeedsTypes[1]}</span>
-              {item.isTop === 'usertop' && (
+              {item.usertop && (
                 <span className="float-right badge badge-warning mr-1">
                   <i className="icon zmdi zmdi-format-valign-top" /> {$L('置顶')}
                 </span>
@@ -170,8 +170,8 @@ class FeedsList extends React.Component {
                     </a>
                   </React.Fragment>
                 )}
-                {item.isTop === 'usertop' ? (
-                  <a className="dropdown-item" onClick={() => this._handleTop('')}>
+                {item.usertop ? (
+                  <a className="dropdown-item" onClick={() => this._handleTop(item.id)}>
                     <i className="icon zmdi zmdi-close" /> {$L('取消置顶')}
                   </a>
                 ) : (
@@ -273,11 +273,7 @@ class FeedsList extends React.Component {
 
   _handleTop(id) {
     $.post(`/feeds/post/feeds-top?id=${id}`, (res) => {
-      if (res.error_code === 0) {
-        this.fetchFeeds()
-      } else {
-        console.log(res)
-      }
+      if (res.error_code === 0) this.fetchFeeds()
     })
   }
 

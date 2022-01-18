@@ -23,7 +23,6 @@ import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -114,22 +113,27 @@ public class FeedsListController extends BaseController {
 
         String sql = ITEM_SQL + sqlWhere;
 
-        // 焦点动态
-        ID foucs = getIdParameter(request, "foucs");
         Object[] foucsFeed = null;
-        if (foucs != null) {
-            foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
-                    .setParameter(1, foucs)
-                    .unique();
-        }
+        List<ID> userTop = null;
+        List<Object[]> userTopFeeds = null;
+        if (pageNo == 1) {
+            // 焦点动态
+            ID foucs = getIdParameter(request, "foucs");
+            if (foucs != null) {
+                foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                        .setParameter(1, foucs)
+                        .unique();
+            }
 
-        // 用户置顶动态
-        String userTop = KVStorage.getCustomValue("FEEDS-TOP:" + user);
-        Object[] userTopFeed = null;
-        if (ID.isId(userTop)) {
-            userTopFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
-                    .setParameter(1, ID.valueOf(userTop))
-                    .unique();
+            // 用户置顶动态
+            userTop = FeedsPostController.getUserTopFeeds(user);
+            userTopFeeds = new ArrayList<>();
+            for (ID s : userTop) {
+                Object[] o = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                        .setParameter(1, s)
+                        .unique();
+                if (o != null) userTopFeeds.add(o);
+            }
         }
 
         if ("older".equalsIgnoreCase(sort)) {
@@ -145,7 +149,12 @@ public class FeedsListController extends BaseController {
                 .array();
 
         array = add2Top(foucsFeed, array);
-        array = add2Top(userTopFeed, array);
+        if (userTopFeeds != null) {
+            // 最多 3
+            if (userTopFeeds.size() > 2) array = add2Top(userTopFeeds.get(2), array);
+            if (userTopFeeds.size() > 1) array = add2Top(userTopFeeds.get(1), array);
+            if (userTopFeeds.size() > 0) array = add2Top(userTopFeeds.get(0), array);
+        }
 
         Set<ID> set = new HashSet<>();
         List<JSON> list = new ArrayList<>();
@@ -153,8 +162,7 @@ public class FeedsListController extends BaseController {
             if (set.contains((ID) o[0])) continue;
 
             JSONObject feed = buildItem(o, user);
-            if (foucsFeed != null && foucsFeed[0].equals(o[0])) feed.put("isTop", "focus");
-            if (userTopFeed != null && userTopFeed[0].equals(o[0])) feed.put("isTop", "usertop");
+            if (userTop != null && userTop.contains((ID) o[0])) feed.put("usertop", true);
 
             list.add(feed);
             set.add((ID) o[0]);

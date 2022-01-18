@@ -22,12 +22,13 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedList;
 
 /**
  * 操作相关
@@ -101,10 +102,30 @@ public class FeedsPostController extends BaseController {
     }
 
     @PostMapping("feeds-top")
-    public RespBody feedsTop(@IdParam(required = false) ID feedsId, HttpServletRequest request) {
+    public RespBody feedsTop(@IdParam ID feedsId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        // null 表示取消
-        KVStorage.setCustomValue("FEEDS-TOP:" + user, ObjectUtils.defaultIfNull(feedsId, null));
+
+        LinkedList<ID> ids = getUserTopFeeds(user);
+
+        if (ids.contains(feedsId)) {
+            ids.remove(feedsId);
+        } else {
+            if (ids.size() >= 3) ids.removeLast();
+            ids.addFirst(feedsId);
+        }
+
+        KVStorage.setCustomValue("FEEDS-TOP:" + user, StringUtils.join(ids, ","));
+
         return RespBody.ok();
+    }
+
+    protected static LinkedList<ID> getUserTopFeeds(ID user) {
+        String userTop = StringUtils.defaultString(KVStorage.getCustomValue("FEEDS-TOP:" + user), "");
+
+        LinkedList<ID> ids = new LinkedList<>();
+        for (String s : userTop.split(",")) {
+            if (ID.isId(s)) ids.add(ID.valueOf(s));
+        }
+        return ids;
     }
 }
