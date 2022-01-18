@@ -47,6 +47,10 @@ public enum ZeroEntry {
      * 忽略脱敏（即可见明文）
      */
     AllowNoDesensitized(false),
+    /**
+     * 允许 At 所有人（默认仅管理员允许）
+     */
+    AllowAtAllUsers(false),
 
     ;
 

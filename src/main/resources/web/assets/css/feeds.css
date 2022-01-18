@@ -187,6 +187,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1.4;
 }
 
+.feeds-list .feeds > .content .meta .badge.badge-warning {
+  border: 1px solid #fbbc05;
+  color: #fff;
+}
+
 .feeds-list .feeds > .content .rich-content {
   font-size: 1.1rem;
   padding-top: 5px;
@@ -262,6 +267,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .feeds-list .actions li > a > .zmdi {
   left: 6px;
+}
+
+.feeds-list > div .hover-show {
+  display: none;
+}
+
+.feeds-list > div:hover .hover-show {
+  display: inline-block;
 }
 
 .feeds-pages {

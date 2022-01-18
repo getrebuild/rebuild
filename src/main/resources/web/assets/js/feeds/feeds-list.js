@@ -123,6 +123,12 @@ class FeedsList extends React.Component {
           <div className="content">
             <div className="meta">
               <span className="float-right badge">{FeedsTypes[item.type] || FeedsTypes[1]}</span>
+              {item.usertop && (
+                <span className="float-right badge badge-warning mr-1">
+                  <i className="icon zmdi zmdi-format-valign-top" /> {$L('置顶')}
+                </span>
+              )}
+
               <a>{item.createdBy[1]}</a>
               <p className="text-muted fs-12 m-0">
                 <DateShow date={item.createdOn} />
@@ -147,25 +153,35 @@ class FeedsList extends React.Component {
 
         <div className="actions">
           <ul className="list-unstyled m-0">
-            {item.self && (
-              <li className="list-inline-item mr-2">
-                <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                  <i className="zmdi zmdi-more" />
-                  &nbsp;
-                </a>
-                <div className="dropdown-menu dropdown-menu-right">
-                  {this._renderMoreMenu(item)}
-                  <a className="dropdown-item" onClick={() => this._handleEdit(item)}>
-                    <i className="icon zmdi zmdi-edit" /> {$L('编辑')}
+            <li className="list-inline-item mr-3 hover-show">
+              <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
+                <i className="zmdi zmdi-more" />
+                &nbsp;
+              </a>
+              <div className="dropdown-menu dropdown-menu-right">
+                {item.self && (
+                  <React.Fragment>
+                    {this._renderMoreMenu(item)}
+                    <a className="dropdown-item" onClick={() => this._handleEdit(item)}>
+                      <i className="icon zmdi zmdi-edit" /> {$L('编辑')}
+                    </a>
+                    <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
+                      <i className="icon zmdi zmdi-delete" /> {$L('删除')}
+                    </a>
+                  </React.Fragment>
+                )}
+                {item.usertop ? (
+                  <a className="dropdown-item" onClick={() => this._handleTop(item.id)}>
+                    <i className="icon zmdi zmdi-close" /> {$L('取消置顶')}
                   </a>
-                  <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
-                    <i className="icon zmdi zmdi-delete" />
-                    {$L('删除')}
+                ) : (
+                  <a className="dropdown-item" onClick={() => this._handleTop(item.id)}>
+                    <i className="icon zmdi zmdi-format-valign-top" /> {$L('置顶')}
                   </a>
-                </div>
-              </li>
-            )}
-            <li className="list-inline-item mr-3">
+                )}
+              </div>
+            </li>
+            <li className="list-inline-item mr-4">
               <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
                 <i className="zmdi zmdi-thumb-up" /> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
               </a>
@@ -252,6 +268,12 @@ class FeedsList extends React.Component {
           })
         })
       },
+    })
+  }
+
+  _handleTop(id) {
+    $.post(`/feeds/post/feeds-top?id=${id}`, (res) => {
+      if (res.error_code === 0) this.fetchFeeds()
     })
   }
 

@@ -106,8 +106,10 @@ public class GroupAggregationController extends BaseController {
 
     private String[] buildIfGroupField(EasyField field) {
         DisplayType dt = field.getDisplayType();
-        // TODO 更多分组字段类型的支持
-        boolean allow = dt == DisplayType.TEXT || dt == DisplayType.DATE
+
+        // 分组字段类型的支持
+        boolean allow = dt == DisplayType.TEXT
+                || dt == DisplayType.DATE || dt == DisplayType.DATETIME
                 || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE;
         if (!allow) return null;
 

@@ -233,6 +233,7 @@ class FeedsEditor extends React.Component {
                   }
                   targetInput={this._$editor}
                   onSelectItem={this._selectAtUser}
+                  requestAtAll
                 />
               </li>
               <li className="list-inline-item">

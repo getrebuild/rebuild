@@ -11,6 +11,8 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -462,14 +464,25 @@ public class FormsBuilder extends FormsManager {
      * @param field
      * @param user4Desensitized 不传则不脱敏
      * @return
-     * // @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
+     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
+
+        // 特殊字段
         if (field.getDisplayType() == DisplayType.BARCODE
                 || (field.getDisplayType() == DisplayType.N2NREFERENCE && FieldValueHelper.hasLength(value))) {
             value = data.getPrimary();
+        }
+
+        // 处理日期格式
+        if (field.getDisplayType() == DisplayType.REFERENCE && ((ID) value).getLabelRaw() != null) {
+            Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
+            if (nameField.getType() == FieldType.DATE || nameField.getType() == FieldType.TIMESTAMP) {
+                Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(((ID) value).getLabelRaw());
+                ((ID) value).setLabel(newLabel);
+            }
         }
 
         value = FieldValueHelper.wrapFieldValue(value, field);

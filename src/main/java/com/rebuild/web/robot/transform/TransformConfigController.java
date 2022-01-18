@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.web.admin.transform;
+package com.rebuild.web.robot.transform;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -22,7 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.admin.data.ReportTemplateController;
+import com.rebuild.web.admin.ConfigCommons;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,17 +40,17 @@ import java.io.IOException;
  * @since 2020/10/27
  */
 @RestController
-@RequestMapping("/admin/")
+@RequestMapping("/admin/robot/")
 public class TransformConfigController extends BaseController {
 
     @GetMapping("transforms")
     public ModelAndView pageList() {
-        return createModelAndView("/admin/transform/transform-list");
+        return createModelAndView("/admin/robot/transform-list");
     }
 
     @GetMapping("transform/{id}")
     public ModelAndView pageEditor(@PathVariable String id, HttpServletResponse response) throws IOException {
-        ModelAndView mv = createModelAndView("/admin/transform/transform-editor");
+        ModelAndView mv = createModelAndView("/admin/robot/transform-editor");
 
         ID configId = ID.isId(id) ? ID.valueOf(id) : null;
         if (configId == null) {
@@ -118,7 +118,7 @@ public class TransformConfigController extends BaseController {
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
-        Object[][] data = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
+        Object[][] data = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : data) {
             o[4] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[4]));
         }

@@ -568,12 +568,7 @@ class UserSelector extends React.Component {
 
     this.setState({ tabType: type, items: this._cached[ckey] }, () => {
       if (!this._cached[ckey]) {
-        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
-          // // 全部用户
-          // if (this.props.showAllUser && type === 'User' && !this.state.query) {
-          //   res.data.unshift({ id: '001-9999999999999999', text: '全部用户' })
-          // }
-
+        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}&atall=${!!this.props.requestAtAll}`, (res) => {
           this._cached[ckey] = res.data
           this.switchTab(type)
         })

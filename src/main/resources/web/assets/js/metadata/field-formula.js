@@ -214,7 +214,7 @@ class FormulaAggregation extends FormulaCalc {
     if (typeof v === 'object') {
       const that = this
       const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
-      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
+      const $menu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
       $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
         const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
         $a.click(function () {

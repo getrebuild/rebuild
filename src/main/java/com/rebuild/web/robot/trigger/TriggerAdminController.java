@@ -18,7 +18,7 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.admin.data.ReportTemplateController;
+import com.rebuild.web.admin.ConfigCommons;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,7 +107,7 @@ public class TriggerAdminController extends BaseController {
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
-        Object[][] array = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
+        Object[][] array = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
         }

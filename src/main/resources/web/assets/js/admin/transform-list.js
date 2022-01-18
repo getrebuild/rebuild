@@ -7,14 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter, ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<TransformEditor />))
+  $('.J_add').on('click', () => renderRbcomp(<TransformEditor />))
   renderRbcomp(<TransformList />, 'dataList')
 })
 
 class TransformList extends ConfigList {
   constructor(props) {
     super(props)
-    this.requestUrl = '/admin/transform/list'
+    this.requestUrl = '/admin/robot/transform/list'
   }
 
   render() {
