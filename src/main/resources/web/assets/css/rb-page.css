@@ -4017,6 +4017,7 @@ h3.modal-title > .rbv {
 .CodeMirror,
 .CodeMirror-scroll {
   min-height: 130px;
+  position: relative;
 }
 
 .CodeMirror .cm-formatting {
@@ -4037,6 +4038,10 @@ h3.modal-title > .rbv {
 .cm-readonly ~ .CodeMirror {
   background-color: #eee;
   cursor: default;
+}
+
+.CodeMirror-wrap pre {
+  word-break: break-all;
 }
 
 .mdedit-content p,
