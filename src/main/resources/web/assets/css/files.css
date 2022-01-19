@@ -33,7 +33,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .file-header .file-operator {
   padding: 13px 20px;
   background-color: #fff;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #eee;
 }
 
 .file-viewport {

@@ -633,3 +633,16 @@ body {
 .form-control-plaintext.multi-values > a {
   border-color: #4285f4;
 }
+
+.file-list.inview {
+  border-top: 1px solid #eee;
+}
+
+.file-list.inview .file-list-item {
+  padding-left: 10px;
+  padding-right: 1px;
+}
+
+.file-list.inview .file-list-item:hover {
+  background-color: transparent !important;
+}

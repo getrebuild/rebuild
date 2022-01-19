@@ -28,7 +28,8 @@ import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -79,7 +80,7 @@ public class ViewAddonsController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
-        Set<String[]> refs = new HashSet<>();
+        List<String[]> refs = new ArrayList<>();
         for (Field field : entityMeta.getReferenceToFields(true)) {
             Entity e = field.getOwnEntity();
             if (e.getMainEntity() != null) {
@@ -97,6 +98,10 @@ public class ViewAddonsController extends BaseController {
         refs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
         // 任务（项目）
         refs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
+        // 附件
+        if (ViewAddonsManager.TYPE_TAB.equals(applyType)) {
+            refs.add(new String[] { "Attachment.relatedRecord", Language.L("附件") });
+        }
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },

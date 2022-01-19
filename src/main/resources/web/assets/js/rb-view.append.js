@@ -327,3 +327,91 @@ class LightTaskDlg extends RbModalHandler {
     })
   }
 }
+
+// 附件列表
+// eslint-disable-next-line no-unused-vars
+class LightAttachmentList extends RelatedList {
+  constructor(props) {
+    super(props)
+
+    this.__listClass = 'file-list inview'
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-folder-outline" />
+        <p>
+          {$L('暂无数据')}
+          <br />
+          {$L('显示当前记录的所有附件')}
+        </p>
+      </div>
+    )
+  }
+
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
+          {$L('最近上传')}
+        </a>
+        <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
+          {$L('最早上传')}
+        </a>
+      </div>
+    )
+  }
+
+  renderItem(item) {
+    return (
+      <div className="file-list-item" key={item.id}>
+        <div className="type">
+          <i className="file-icon" data-type={item.fileType} />
+        </div>
+        <div className="detail">
+          <a onClick={() => (parent || window).RbPreview.create(item.filePath)} title={$L('预览')}>
+            {$fileCutName(item.filePath)}
+          </a>
+          <div className="extras">
+            <span className="fsize">{item.fileSize}</span>
+            <span className="fop">
+              <a title={$L('下载')} className="fs-15" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+                <i className="icon zmdi zmdi-download" />
+              </a>
+              {rb.fileSharable && (
+                <a
+                  title={$L('分享')}
+                  onClick={(e) => {
+                    $stopEvent(e)
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={item.filePath} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share" />
+                </a>
+              )}
+            </span>
+          </div>
+        </div>
+        <div className="info">
+          <DateShow date={item.uploadOn} />
+        </div>
+        <div className="info">{item.uploadBy[1]}</div>
+      </div>
+    )
+  }
+
+  fetchData(append) {
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+    const pageSize = 20
+
+    const mainid = this.props.mainid
+    $.get(`/files/list-file?entry=${mainid.substr(0, 3)}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}&pageNo=${this.__pageNo}&pageSize=${pageSize}&related=${mainid}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      const data = res.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
+
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+}
