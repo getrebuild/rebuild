@@ -258,7 +258,7 @@ class ValueStatus extends ValueComp {
     return (
       <div className="form-control-plaintext">
         <span className="status-checkbox">
-          <label className="custom-control custom-checkbox custom-control-inline bw-bold" onClick={(e) => $stopEvent(e)}>
+          <label className="custom-control custom-checkbox custom-control-inline ptask" onClick={(e) => $stopEvent(e)}>
             <input className="custom-control-input" type="checkbox" disabled={this.props.readonly} ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
             <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
