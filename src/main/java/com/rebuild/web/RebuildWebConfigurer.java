@@ -83,21 +83,21 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
             thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
         }
 
-        String officePreviewUrl = RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl);
-        if (StringUtils.isBlank(officePreviewUrl)) {
-            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalOfficePreviewUrl.name(), null);
-        } else {
-            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalOfficePreviewUrl.name(), officePreviewUrl);
-        }
-        String baiduMapAk = RebuildConfiguration.get(ConfigurationItem.PortalBaiduMapAk);
-        if (StringUtils.isBlank(baiduMapAk)) {
-            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalBaiduMapAk.name(), null);
-        } else {
-            thymeleafViewResolver.addStaticVariable(ConfigurationItem.PortalBaiduMapAk.name(), baiduMapAk);
-        }
+        setStaticVariable(ConfigurationItem.PortalOfficePreviewUrl);
+        setStaticVariable(ConfigurationItem.PortalBaiduMapAk);
+        setStaticVariable(ConfigurationItem.PortalUploadMaxSize);  // MB
 
         // 清理缓存
         thymeleafViewResolver.clearCache();
+    }
+
+    private void setStaticVariable(ConfigurationItem item) {
+        String value = RebuildConfiguration.get(item);
+        if (StringUtils.isBlank(value)) {
+            thymeleafViewResolver.addStaticVariable(item.name(), null);
+        } else {
+            thymeleafViewResolver.addStaticVariable(item.name(), value);
+        }
     }
 
     @Override

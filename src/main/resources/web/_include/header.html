@@ -32,6 +32,7 @@
   </th:block>
   <meta name="rb._baiduMapAk" th:content="${PortalBaiduMapAk}" />
   <meta name="rb._officePreviewUrl" th:content="${PortalOfficePreviewUrl}" />
+  <meta name="rb._uploadMaxSize" th:content="${PortalUploadMaxSize}" />
   <!--[if lt IE 10]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${T(com.rebuild.utils.AppUtils).isIE11(#request)}" th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
   <script th:if="${markWatermark == 'true'}" th:src="@{/assets/lib/watermark.js?v=2.3.2.2}"></script>

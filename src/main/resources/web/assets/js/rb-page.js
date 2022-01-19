@@ -509,7 +509,7 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imgOnly = $input.attr('accept') === 'image/*'
   var local = $input.data('local')
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 100)) // default 100MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
