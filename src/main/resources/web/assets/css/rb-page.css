@@ -3999,6 +3999,10 @@ h3.modal-title > .rbv {
   cursor: default;
 }
 
+.CodeMirror-wrap pre {
+  word-break: break-all;
+}
+
 .mdedit-content p,
 .mdedit-content ul,
 .mdedit-content ol,

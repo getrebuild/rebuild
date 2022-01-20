@@ -153,7 +153,7 @@ public class ReferenceSearchController extends EntityController {
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
-            String type = "d" + useClassification;
+            String type = "d" + useClassification + ":" + ClassificationManager.instance.getOpenLevel(fieldMeta);
             ID[] recently = RecentlyUsedHelper.gets(user, "ClassificationData", type);
             if (recently.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
