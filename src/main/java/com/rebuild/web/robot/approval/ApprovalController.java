@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -186,7 +187,7 @@ public class ApprovalController extends BaseController {
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {
-            return RespBody.error(ex.getLocalizedMessage(), 498);
+            return RespBody.error(ex.getLocalizedMessage(), DefinedException.CODE_APPROVE_WARN);
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getLocalizedMessage());
         }
