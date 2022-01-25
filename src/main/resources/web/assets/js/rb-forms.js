@@ -462,10 +462,6 @@ class RbFormElement extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-
-    this.handleChange = this.handleChange.bind(this)
-    this.handleClear = this.handleClear.bind(this)
-    this.checkValue = this.checkValue.bind(this)
   }
 
   render() {
@@ -532,8 +528,8 @@ class RbFormElement extends React.Component {
         title={this.state.hasError}
         type="text"
         value={value || ''}
-        onChange={this.handleChange}
-        onBlur={this.props.readonly ? null : this.checkValue}
+        onChange={(e) => this.handleChange(e)}
+        onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
         maxLength={this.props.maxLength || 200}
       />
@@ -739,14 +735,15 @@ class RbFormPhone extends RbFormText {
 class RbFormNumber extends RbFormText {
   constructor(props) {
     super(props)
-    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
     const err = super.isValueError()
     if (err) return err
-    if (!!this.state.value && $regex.isNumber(this.state.value) === false) return $L('格式不正确')
-    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('不能为负数')
+
+    const value = this._removeComma(this.state.value)
+    if (!!value && $regex.isNumber(value) === false) return $L('格式不正确')
+    if (!!value && $isTrue(this.props.notNegative) && parseFloat(value) < 0) return $L('不能为负数')
     return null
   }
   _isValueError() {
@@ -754,17 +751,16 @@ class RbFormNumber extends RbFormText {
   }
 
   renderElement() {
-    let value = arguments.length > 0 ? arguments[0] : this.state.value
-    if (value) value = (value + '').replace(/,/g, '') // 移除千分为位
+    const value = arguments.length > 0 ? arguments[0] : this.state.value
     return (
       <input
         ref={(c) => (this._fieldValue = c)}
         className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
         title={this.state.hasError}
         type="text"
-        value={value || ''}
-        onChange={this.handleChange}
-        onBlur={this.props.readonly ? null : this.checkValue}
+        value={this._removeComma(value) || ''}
+        onChange={(e) => this.handleChange(e)}
+        onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
         maxLength="29"
       />
@@ -813,19 +809,26 @@ class RbFormNumber extends RbFormText {
       })
     }
   }
+
+  // 移除千分为位
+  _removeComma(n) {
+    if (n) return (n + '').replace(/,/g, '')
+    return n
+  }
 }
 
 class RbFormDecimal extends RbFormNumber {
   constructor(props) {
     super(props)
-    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
     const err = super._isValueError()
     if (err) return err
-    if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return $L('格式不正确')
-    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('不能为负数')
+
+    const value = this._removeComma(this.state.value)
+    if (!!value && $regex.isDecimal(value) === false) return $L('格式不正确')
+    if (!!value && $isTrue(this.props.notNegative) && parseFloat(value) < 0) return $L('不能为负数')
     return null
   }
 }
@@ -843,8 +846,8 @@ class RbFormTextarea extends RbFormElement {
           className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
-          onChange={this.handleChange}
-          onBlur={this.props.readonly ? null : this.checkValue}
+          onChange={(e) => this.handleChange(e)}
+          onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           maxLength="6000"
         />
@@ -931,7 +934,7 @@ class RbFormTextarea extends RbFormElement {
       mde.codemirror.on('changes', () => {
         $setTimeout(
           () => {
-            this.setState({ value: mde.value() }, this.checkValue)
+            this.setState({ value: mde.value() }, () => this.checkValue())
           },
           200,
           'mde-update-event'
@@ -957,11 +960,11 @@ class RbFormDateTime extends RbFormElement {
           title={this.state.hasError}
           type="text"
           value={this.state.value || ''}
-          onChange={this.handleChange}
-          onBlur={this.checkValue}
+          onChange={(e) => this.handleChange(e)}
+          onBlur={this.props.readonly ? null : () => this.checkValue()}
           maxLength="20"
         />
-        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear} />
+        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref={(c) => (this._fieldValue__icon = c)}>
             <i className="icon zmdi zmdi-calendar" />
@@ -1212,7 +1215,7 @@ class RbFormPickList extends RbFormElement {
 
     const keyName = `${this.state.field}-opt-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={(e) => this.handleChange(e)}>
         <option value="" />
         {this.state.options.map((item) => {
           return (
@@ -1818,11 +1821,11 @@ class RbFormLocation extends RbFormElement {
           className={`form-control form-control-sm bg-white ${this.state.hasError ? 'is-invalid' : ''}`}
           title={this.state.hasError}
           value={lnglat ? lnglat.text || '' : ''}
-          onChange={this.handleChange}
+          onChange={(e) => this.handleChange(e)}
           readOnly
           onClick={() => this._showMap(lnglat)}
         />
-        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={this.handleClear} title={$L('清除')} />
+        <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={() => this.handleClear()} title={$L('清除')} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
             <i className="icon zmdi zmdi-pin-drop flash infinite slow" ref={(c) => (this._$icon = c)} />

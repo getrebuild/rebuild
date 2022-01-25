@@ -224,7 +224,7 @@ body {
   margin-top: 4px;
 }
 
-@media screen and (max-width: 991px) {
+@media (max-width: 991px) {
   .view-action .col-lg-6 {
     padding-left: 15px !important;
     padding-right: 15px !important;
@@ -254,7 +254,7 @@ body {
   padding-left: 0;
 }
 
-@media screen and (max-width: 991px) {
+@media (max-width: 991px) {
   .view-user .col-lg-8,
   .view-date .col-lg-8 {
     padding-left: 15px;
