@@ -994,6 +994,7 @@ class RbFormDateTime extends RbFormElement {
           format: format || 'yyyy-mm-dd hh:ii:ss',
           minView: minView,
           startView: startView,
+          pickerPosition: this._getAutoPosition(),
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -1002,6 +1003,13 @@ class RbFormDateTime extends RbFormElement {
 
       $(this._fieldValue__icon).on('click', () => this.__datetimepicker.datetimepicker('show'))
     }
+  }
+
+  // https://github.com/smalot/bootstrap-datetimepicker/pull/645
+  _getAutoPosition() {
+    const wh = $('.form-layout').height() || 9999,
+      wt = $(this._fieldValue).offset().top
+    return wh + 120 - wt > 300 ? 'bottom-right' : 'top-right'
   }
 }
 
