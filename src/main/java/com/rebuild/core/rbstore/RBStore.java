@@ -61,7 +61,7 @@ public class RBStore {
      */
     @Deprecated
     public static JSONObject fetchBusinessModel(String fileUri) {
-        return License.siteApi("api/business-model/" + fileUri, true);
+        return License.siteApi("api/business-model/" + fileUri);
     }
 
     /**

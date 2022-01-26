@@ -263,7 +263,7 @@ public class LoginController extends BaseController {
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
 
-        License.siteApi(
+        License.siteApiNoCache(
                 String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
@@ -340,7 +340,7 @@ public class LoginController extends BaseController {
             return RespBody.ok();
         }
 
-        JSONObject ret = License.siteApi("api/misc/bgimg", true);
+        JSONObject ret = License.siteApi("api/misc/bgimg");
         if (ret == null) {
             return RespBody.ok();
         } else {

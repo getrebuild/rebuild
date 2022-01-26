@@ -9,8 +9,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 $(document).ready(() => {
-  const $L = $('#_DefaultLanguage')
-  $L.text(wpc._LANGS[$L.text()] || 'UNKONWN')
+  const $dl = $('#_DefaultLanguage')
+  $dl.text(wpc._LANGS[$dl.text()] || '中文')
+
+  // // 禁用
+  // ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
+  //   const $d = $(`td[data-id=${item}]`)
+  //   if (~~$d.attr('data-value') <= 0) $d.text($L('已禁用')).addClass('text-danger')
+  // })
 })
 
 useEditComp = function (name) {
