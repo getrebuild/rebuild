@@ -8,12 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.rbstore;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.License;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,17 +49,6 @@ public class RBStore {
     public static JSON fetchMetaschema(String fileUri) {
         return fetchRemoteJson("metaschemas/" +
                 StringUtils.defaultIfBlank(fileUri, "index-3.0.json"));
-    }
-
-    /**
-     * for BusinessModel
-     *
-     * @param fileUri
-     * @return
-     */
-    @Deprecated
-    public static JSONObject fetchBusinessModel(String fileUri) {
-        return License.siteApi("api/business-model/" + fileUri);
     }
 
     /**
