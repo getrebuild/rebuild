@@ -130,17 +130,15 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                             String localUrl = BootApplication.getLocalUrl();
                             String banner = RebuildBanner.formatSimple(
                                     "Rebuild (" + VER + ") started successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                                    "    License : " + License.queryAuthority(false).values(),
+                                    "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
                                     "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
 
-                            if (License.isCommercial()) {
-                                System.out.println(banner);
-                            } else {
-                                System.out.print(banner);
+                            System.out.println(banner);
 
+                            if (!License.isCommercial()) {
                                 String thanks = RebuildBanner.formatSimple(
                                         "**********",
                                         "感谢使用 REBUILD！",
@@ -204,7 +202,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         if (lastBuild < BUILD) {
-            log.warn("Clean up the cache once when upgrading : " + BUILD);
+            log.warn("Clean up the cache once when upgrading : {}", BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }

@@ -39,14 +39,20 @@ const enableEditMode = function () {
     const name = $item.data('id')
     const value = $item.data('value')
     const optional = $item.data('optional')
+    const formText = $item.data('form-text')
 
-    const c = useEditComp(name, value)
-    if (c) {
-      renderRbcomp(React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null }), $item)
-    } else {
-      renderRbcomp(<input className="form-control form-control-sm" name={name} onChange={changeValue} defaultValue={value} placeholder={optional ? $L('(选填)') : null} />, $item)
-    }
+    let c = useEditComp(name, value)
+    if (!c) c = <input className="form-control form-control-sm" />
+
+    renderRbcomp(
+      <React.Fragment>
+        {React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null })}
+        {formText && <p className="mt-2 text-dark" dangerouslySetInnerHTML={{ __html: formText }} />}
+      </React.Fragment>,
+      $item
+    )
   })
+
   $('.syscfg').addClass('edit')
 }
 

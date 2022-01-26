@@ -44,6 +44,8 @@ import java.io.IOException;
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
 
+    private static final String AVATAR_DEFAULT = "/assets/img/avatar.png";
+
     @GetMapping("/user-avatar")
     public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(getRequestUser(request), request, response);
@@ -61,7 +63,7 @@ public class UserAvatar extends BaseController {
      */
     private void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (user == null) {
-            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+            response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
             return;
         }
 
@@ -75,11 +77,11 @@ public class UserAvatar extends BaseController {
         }
 
         if (realUser == null) {
-            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+            response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
             return;
         }
 
-        ServletUtils.addCacheHead(response, 10);
+        ServletUtils.addCacheHead(response, 30);
 
         String avatarUrl = realUser.getAvatarUrl();
         avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
@@ -111,7 +113,7 @@ public class UserAvatar extends BaseController {
             } catch (IOException ex) {
                 log.warn("Cannot generate avatar", ex);
 
-                response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+                response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
                 return;
             }
 

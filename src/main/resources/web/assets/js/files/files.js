@@ -31,7 +31,9 @@ class FilesList extends React.Component {
                 <i className="file-icon" data-type={item.fileType} />
               </div>
               <div className="detail">
-                <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
+                <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)} title={$L('预览')}>
+                  {$fileCutName(item.filePath)}
+                </a>
                 <div className="extras">
                   <span className="fsize">{item.fileSize}</span>
                   {this.renderExtras(item)}

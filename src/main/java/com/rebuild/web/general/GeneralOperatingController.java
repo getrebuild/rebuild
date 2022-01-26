@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -101,7 +102,7 @@ public class GeneralOperatingController extends BaseController {
         // 检查重复值
         List<Record> repeated = ies.getAndCheckRepeated(record, 20);
         if (!repeated.isEmpty()) {
-            return new RespBody(RepeatedRecordsException.ERROR_CODE, Language.L("存在重复记录"),
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
                     buildRepeatedData(repeated));
         }
 
@@ -114,7 +115,7 @@ public class GeneralOperatingController extends BaseController {
             record = ies.createOrUpdate(record);
 
         } catch (RepeatedRecordsException know) {
-            return new RespBody(RepeatedRecordsException.ERROR_CODE, Language.L("存在重复记录"),
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
                     buildRepeatedData(know.getRepeatedRecords()));
 
         } catch (AccessDeniedException | DataSpecificationException known) {

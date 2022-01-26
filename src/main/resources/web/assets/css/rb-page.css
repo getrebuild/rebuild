@@ -1298,7 +1298,7 @@ select.form-control:not([disabled]) {
   z-index: 2;
 }
 
-@media screen and (max-width: 767px) {
+@media (max-width: 767px) {
   .dataTables_wrapper .rb-datatable-header {
     top: 0;
   }
@@ -1852,7 +1852,7 @@ th.column-fixed {
   height: 100%;
 }
 
-@media screen and (max-width: 1464px) {
+@media (max-width: 1464px) {
   .modal.rbview .modal-dialog .modal-content {
     width: 1220px;
     margin: 0 -1230px 0 0;
@@ -3586,7 +3586,7 @@ form {
   padding: 0;
 }
 
-@media screen and (max-width: 767px) {
+@media (max-width: 767px) {
   .rb-aside .page-aside.widgets {
     display: none !important;
   }
@@ -3891,7 +3891,7 @@ a.select-lang:hover {
   margin-left: -10px;
 }
 
-@media screen and (max-width: 767px) {
+@media (max-width: 767px) {
   .rb-collapsible-sidebar-collapsed .left-sidebar-content > .sidebar-elements > li > a .rbv {
     margin-left: 0;
   }
@@ -4037,6 +4037,10 @@ h3.modal-title > .rbv {
 .cm-readonly ~ .CodeMirror {
   background-color: #eee;
   cursor: default;
+}
+
+.CodeMirror-wrap pre {
+  word-break: break-all;
 }
 
 .mdedit-content p,
@@ -4350,8 +4354,16 @@ pre.unstyle {
   border-top: 1px solid #dee2e6;
 }
 
-.custom-checkbox.bw-bold .custom-control-label::before {
+.custom-checkbox.ptask .custom-control-label::before {
   border-width: 2px;
+}
+
+.custom-checkbox.ptask:hover .custom-control-input:not(:disabled) ~ .custom-control-label:before {
+  border-color: #4285f4;
+}
+
+.custom-checkbox.ptask .custom-control-input:checked ~ .custom-control-label::after {
+  font-weight: 700;
 }
 
 .dropdown-item.check {

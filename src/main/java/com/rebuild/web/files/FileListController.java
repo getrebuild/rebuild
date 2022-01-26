@@ -144,6 +144,12 @@ public class FileListController extends BaseController {
             }
         }
 
+        // 相关记录
+        ID related = getIdParameter(request, "related");
+        if (related != null) {
+            sqlWhere.add(String.format("relatedRecord = '%s'", related));
+        }
+
         String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord" +
                 " from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));

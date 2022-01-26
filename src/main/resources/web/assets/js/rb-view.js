@@ -241,12 +241,10 @@ class RelatedList extends React.Component {
         )}
 
         {this.state.showMore && (
-          <div className="text-center load-mores">
-            <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchData(1)}>
-                {$L('显示更多')}
-              </button>
-            </div>
+          <div className="text-center mt-2 pb-2">
+            <button type="button" className="btn btn-link" onClick={() => this.fetchData(1)}>
+              {$L('显示更多')}
+            </button>
           </div>
         )}
       </div>
@@ -412,10 +410,13 @@ class MixRelatedList extends React.Component {
     const entity = this.props.entity.split('.')[0]
     if (entity === 'Feeds') {
       // eslint-disable-next-line react/jsx-no-undef
-      return <LightFeedsList {...this.props} fetchNow={true} />
+      return <LightFeedsList {...this.props} fetchNow />
     } else if (entity === 'ProjectTask') {
       // eslint-disable-next-line react/jsx-no-undef
-      return <LightTaskList {...this.props} fetchNow={true} />
+      return <LightTaskList {...this.props} fetchNow />
+    } else if (entity === 'Attachment') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightAttachmentList {...this.props} fetchNow />
     } else {
       return <EntityRelatedList {...this.props} />
     }

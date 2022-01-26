@@ -107,9 +107,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
             }
 
             // 跟进（动态）
-            useRefs.add(getEntityShow(MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
+            useRefs.add(getEntityShow(
+                    MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
             // 任务（项目）
-            useRefs.add(getEntityShow(MetadataHelper.getField("ProjectTask", "relatedRecord"), mfRefs, applyType));
+            useRefs.add(getEntityShow(
+                    MetadataHelper.getField("ProjectTask", "relatedRecord"), mfRefs, applyType));
+            // 附件
+            if (TYPE_TAB.equals(applyType)) {
+                useRefs.add(getEntityShow(
+                        MetadataHelper.getField("Attachment", "relatedRecord"), mfRefs, applyType));
+            }
 
             return JSONUtils.toJSONObject("items", useRefs);
         }
@@ -123,19 +130,19 @@ public class ViewAddonsManager extends BaseLayoutManager {
         JSONArray addons = new JSONArray();
         for (Object o : ((JSONObject) configJson).getJSONArray ("items")) {
             // Entity.Field (v1.9)
-            String[] e = ((String) o).split("\\.");
-            if (!MetadataHelper.containsEntity(e[0])) {
+            String[] ef = ((String) o).split("\\.");
+            if (!MetadataHelper.containsEntity(ef[0])) {
                 continue;
             }
 
-            Entity addonEntity = MetadataHelper.getEntity(e[0]);
-            if (e.length > 1 && !MetadataHelper.checkAndWarnField(addonEntity, e[1])) {
+            Entity addonEntity = MetadataHelper.getEntity(ef[0]);
+            if (ef.length > 1 && !MetadataHelper.checkAndWarnField(addonEntity, ef[1])) {
                 continue;
             }
 
             if (Application.getPrivilegesManager().allow(user, addonEntity.getEntityCode(), useAction)) {
-                if (e.length > 1) {
-                    addons.add(getEntityShow(addonEntity.getField(e[1]), mfRefs, applyType));
+                if (ef.length > 1) {
+                    addons.add(getEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType));
                 } else {
                     addons.add(EasyMetaFactory.toJSON(addonEntity));
                 }

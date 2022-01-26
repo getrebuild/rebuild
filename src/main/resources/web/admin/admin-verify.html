@@ -8,6 +8,15 @@
       .rb-icons-nav {
         display: none !important;
       }
+      @media (max-width: 767px) {
+        .splash-footer,
+        .navbar {
+          display: none;
+        }
+        .rb-wrapper {
+          padding-top: 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -41,11 +50,6 @@
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
       $(document).ready(function () {
-        if (self != top && $(window).width() < 800) {
-          $('.splash-footer, .navbar').remove()
-          $('.rb-wrapper').addClass('pt-0')
-        }
-
         const nexturl = $decode($urlp('nexturl') || '../admin/systems')
         const $btn = $('.J_verify-btn').click(function () {
           const passwd = $val('#admin-passwd')

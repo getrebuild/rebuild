@@ -189,6 +189,11 @@ public class FeedsListController extends BaseController {
 
         JSONObject data = buildItem(o, user);
 
+        LinkedList<ID> usertop = FeedsPostController.getUserTopFeeds(user);
+        if (usertop.contains(feedsId)) {
+            data.put("usertop", true);
+        }
+
         boolean fromEdit = getBoolParameter(request, "edit");
         if (fromEdit) {
             data.put("content", o[4]);

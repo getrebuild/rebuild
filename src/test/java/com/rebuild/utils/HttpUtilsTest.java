@@ -18,7 +18,7 @@ class HttpUtilsTest {
 
     @Test
     void get() throws Exception {
-        System.out.println(HttpUtils.get("http://webhook.site/87ae9186-809e-4d65-a8af-346d0c07e46a"));
-        System.out.println(HttpUtils.post("http://webhook.site/87ae9186-809e-4d65-a8af-346d0c07e46a", null));
+        System.out.println(HttpUtils.get("https://webhook.site/56f4a259-ba64-4f0b-9313-11a64775356a"));
+        System.out.println(HttpUtils.post("https://webhook.site/56f4a259-ba64-4f0b-9313-11a64775356a", "Hello! I'm RB!"));
     }
 }

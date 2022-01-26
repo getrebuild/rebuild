@@ -19,9 +19,6 @@ import java.util.List;
 public class RepeatedRecordsException extends DefinedException {
     private static final long serialVersionUID = 8769785498603769556L;
 
-    // 重复记录错误码
-    public static final int ERROR_CODE = 499;
-
     private final List<Record> repeatedRecords;
 
     public RepeatedRecordsException(List<Record> repeated) {
@@ -31,7 +28,7 @@ public class RepeatedRecordsException extends DefinedException {
 
     @Override
     public int getErrorCode() {
-        return ERROR_CODE;
+        return CODE_RECORDS_REPEATED;
     }
 
     public List<Record> getRepeatedRecords() {

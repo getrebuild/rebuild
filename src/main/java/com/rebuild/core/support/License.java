@@ -8,10 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ExpiresMap;
+import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import java.util.Locale;
 public final class License {
 
     private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
-    private static final String TEMP_SN = "SN-000000-00000000000000";
+    private static final String TEMP_SN = "SN000-00000000-000000000";
 
     private static String USE_SN;
     private static Boolean USE_RBV;
@@ -50,10 +51,11 @@ public final class License {
         }
 
         if (SN == null) {
-            SN = String.format("ZR%d%s-%s",
-                    Application.BUILD,
+            SN = String.format("RB%s%s-%s-%s",
+                    Application.VER.charAt(0),
                     Locale.getDefault().getCountry().substring(0, 2),
-                    CodecUtils.randomCode(14)).toUpperCase();
+                    ComputerIdentifier.generateIdentifierKey(),
+                    CodecUtils.randomCode(9)).toUpperCase();
             RebuildConfiguration.set(ConfigurationItem.SN, SN);
         }
 
@@ -61,8 +63,8 @@ public final class License {
         return SN;
     }
 
-    public static JSONObject queryAuthority(boolean useCache) {
-        JSONObject auth = siteApi("api/authority/query", useCache);
+    public static JSONObject queryAuthority() {
+        JSONObject auth = siteApi("api/authority/query");
         if (auth == null || auth.getString("error") != null) {
             auth = JSONUtils.toJSONObject(
                     new String[] { "sn", "authType", "authObject", "authExpires" },
@@ -72,7 +74,7 @@ public final class License {
     }
 
     public static int getCommercialType() {
-        JSONObject auth = queryAuthority(true);
+        JSONObject auth = queryAuthority();
         Integer authType = auth.getInteger("authTypeInt");
         return authType == null ? 0 : authType;
     }
@@ -98,15 +100,17 @@ public final class License {
     }
 
     public static JSONObject siteApi(String api) {
-        return siteApi(api, false);
+        return siteApi(api, ExpiresMap.HOUR_IN_SECOND * 2);
     }
 
-    public static JSONObject siteApi(String api, boolean useCache) {
-        if (useCache) {
-            Object o = Application.getCommonsCache().getx(api);
-            if (o != null) {
-                return (JSONObject) o;
-            }
+    public static JSONObject siteApiNoCache(String api) {
+        return siteApi(api, 0);
+    }
+
+    private static JSONObject siteApi(String api, int ttl) {
+        if (ttl > 0) {
+            JSONObject c = CACHED.get(api, ttl);
+            if (c != null) return c;
         }
 
         String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
@@ -119,9 +123,9 @@ public final class License {
 
                 String hasError = o.getString("error");
                 if (hasError != null) {
-                    log.error("Bad result : {}", result);
+                    log.error("Error result : {}", result);
                 } else {
-                    Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+                    CACHED.put(api, o);
                 }
                 return o;
             } else {
@@ -133,4 +137,6 @@ public final class License {
         }
         return null;
     }
+    private static final ExpiresMap<String, JSONObject> CACHED = new ExpiresMap<>();
+
 }

@@ -102,6 +102,7 @@ public enum ConfigurationItem {
     // PORTALs
     PortalBaiduMapAk,
     PortalOfficePreviewUrl,
+    PortalUploadMaxSize(100),
 
     // !!! 仅命令行适用
     DataDirectory,                  // 数据目录
