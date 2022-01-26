@@ -62,18 +62,18 @@ $(document).ready(() => {
     render_preview()
   }
 
-  $('.J_filter').click(() => {
+  $('.J_filter').on('click', () => {
     renderRbcomp(<AdvFilter title={$L('数据过滤条件')} entity={wpc.sourceEntity} filter={dataFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
   })
 
-  const $cts = $('.chart-type > a').click(function () {
+  const $cts = $('.chart-type > a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
     $cts.removeClass('select')
     $this.addClass('select')
     render_option()
   })
-  $('.chart-option .custom-control').click(function () {
+  $('.chart-option .custom-control').on('click', function () {
     render_option()
   })
 
@@ -209,7 +209,7 @@ const add_axis = (target, axis) => {
   if ($dropdown.find('li:eq(0)').hasClass('dropdown-divider')) $dropdown.find('.dropdown-divider').remove()
 
   // Click option
-  const aopts = $dropdown.find('.dropdown-menu .dropdown-item').click(function () {
+  const aopts = $dropdown.find('.dropdown-menu .dropdown-item').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('disabled') || $this.parent().hasClass('disabled')) return false
 
@@ -256,7 +256,7 @@ const add_axis = (target, axis) => {
 
   $dropdown.attr({ 'data-type': fieldType, 'data-field': fieldName })
   $dropdown.find('span').text(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
-  $dropdown.find('a.del').click(() => {
+  $dropdown.find('a.del').on('click', () => {
     $dropdown.remove()
     render_option()
   })
