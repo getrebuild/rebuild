@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -24,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -37,7 +37,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -494,8 +493,8 @@ public class FormsBuilder extends FormsManager {
     }
 
     private boolean isUseDesensitized(EasyField field, ID user) {
-        if (user == null) return false;
-        return BooleanUtils.toBoolean(field.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED))
+        if (user == null || !(field instanceof EasyText)) return false;
+        return ((EasyText) field).isDesensitized()
                 && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 

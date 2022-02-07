@@ -17,12 +17,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class DataListWrapper {
     private Map<String, Integer> queryJoinFields;
 
     // 信息脱敏
-    private boolean useDesensitized = true;
+    private boolean useDesensitized = false;
 
     /**
      * @param total
@@ -69,6 +68,9 @@ public class DataListWrapper {
         if (user != null && joinFields != null && !joinFields.isEmpty()) {
             this.user = user;
             this.queryJoinFields = joinFields;
+        }
+
+        if (user != null) {
             this.useDesensitized = !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
         }
     }
@@ -163,7 +165,7 @@ public class DataListWrapper {
 
     private boolean isUseDesensitized(EasyField easyField) {
         return this.useDesensitized
-                && BooleanUtils.toBoolean(easyField.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
+                && easyField instanceof EasyText && ((EasyText) easyField).isDesensitized();
     }
 
     /**

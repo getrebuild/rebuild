@@ -28,7 +28,9 @@ public class EasyPhone extends EasyText {
         return patt == null ? PATT_PHONE : patt;
     }
 
-    // 兼容电话、手机
+    // --
+
+    // 兼容电话、手机，国际区号
     public static Pattern PATT_PHONE = Pattern.compile(
             "((\\(\\d{1,5}\\))?(\\d{3,4}-)?\\d{7,8}(-\\d{1,6})?)|(1[356789]\\d{9})");
 
