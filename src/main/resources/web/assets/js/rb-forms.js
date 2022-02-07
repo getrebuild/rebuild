@@ -1441,6 +1441,7 @@ class RbFormReference extends RbFormElement {
 class RbFormN2NReference extends RbFormReference {
   constructor(props) {
     super(props)
+    this._hasCascadingField = null
     this._multiple = true
   }
 
