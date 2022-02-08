@@ -31,14 +31,14 @@ public class DataDesensitized {
         int textLen = text.length();
         if (textLen == 1) {
             return "*";
-        } else if (textLen <= 3) {
+        } else if (textLen <= 6) {
             return text.charAt(0) + StringUtils.repeat("*", textLen - 1);
         } else {
-            int len3 = Math.min(textLen / 3, 10);
-            int starLen = textLen - len3 * 2;
-            return text.substring(0, len3)
+            int keepLen = textLen <= 8 ? 1 : (textLen <= 16 ? 2 : 3);
+            int starLen = textLen - keepLen * 2;
+            return text.substring(0, keepLen)
                     + StringUtils.repeat("*", Math.min(starLen, 20))
-                    + text.substring(textLen - len3 * 2);
+                    + text.substring(keepLen + starLen);
         }
     }
 

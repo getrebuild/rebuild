@@ -163,6 +163,11 @@ public class DataListWrapper {
         return value;
     }
 
+    /**
+     * @param easyField
+     * @return
+     * @see FieldValueHelper#isUseDesensitized(EasyField, ID)
+     */
     private boolean isUseDesensitized(EasyField easyField) {
         return this.useDesensitized
                 && easyField instanceof EasyText && ((EasyText) easyField).isDesensitized();

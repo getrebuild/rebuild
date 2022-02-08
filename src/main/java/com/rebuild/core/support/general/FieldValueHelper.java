@@ -20,10 +20,8 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
@@ -251,6 +249,24 @@ public class FieldValueHelper {
         }
 
         return null;
+    }
+
+    /**
+     * 是否脱敏
+     *
+     * @param field
+     * @param user
+     * @return
+     */
+    public static boolean isUseDesensitized(EasyField field, ID user) {
+        if (!(field instanceof EasyText)) return false;
+        if (user == null) {
+            log.warn("No [user] spec! Cannot check desensitized");
+            return false;
+        }
+        
+        return ((EasyText) field).isDesensitized()
+                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 
     /**

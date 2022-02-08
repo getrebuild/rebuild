@@ -23,11 +23,9 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
@@ -486,16 +484,10 @@ public class FormsBuilder extends FormsManager {
 
         value = FieldValueHelper.wrapFieldValue(value, field);
 
-        if (value != null && isUseDesensitized(field, user4Desensitized)) {
+        if (value != null && FieldValueHelper.isUseDesensitized(field, user4Desensitized)) {
             value = FieldValueHelper.desensitized(field, value);
         }
         return value;
-    }
-
-    private boolean isUseDesensitized(EasyField field, ID user) {
-        if (user == null || !(field instanceof EasyText)) return false;
-        return ((EasyText) field).isDesensitized()
-                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 
     /**

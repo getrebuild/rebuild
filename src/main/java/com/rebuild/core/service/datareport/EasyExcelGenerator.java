@@ -195,9 +195,9 @@ public class EasyExcelGenerator extends SetUser {
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             final String fieldName = iter.next();
-            EasyField easyMeta = EasyMetaFactory.valueOf(
+            EasyField easyField = EasyMetaFactory.valueOf(
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
-            DisplayType dt = easyMeta.getDisplayType();
+            DisplayType dt = easyField.getDisplayType();
 
             if (!dt.isExportable() && dt != DisplayType.SIGN) {
                 data.put(fieldName, unsupportFieldTip);
@@ -224,7 +224,11 @@ public class EasyExcelGenerator extends SetUser {
                 if (dt == DisplayType.SIGN) {
                     fieldValue = buildImgData((String) fieldValue);
                 } else {
-                    fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyMeta, true);
+                    fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
+
+                    if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
+                        fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
+                    }
                 }
                 data.put(varName, fieldValue);
             }
