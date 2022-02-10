@@ -54,8 +54,6 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
         }
     }
 
-
-
     @Override
     protected Document readConfiguration(boolean initState) {
         Document config = super.readConfiguration(initState);
@@ -175,8 +173,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             extraAttrs.put("displayType", dt.name());
 
             String cascadingField = extraAttrs.getString(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
-            if (StringUtils.isNotBlank(cascadingField)
-                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+            if (StringUtils.isNotBlank(cascadingField) && dt == DisplayType.REFERENCE) {
                 extraAttrs.put("_cascadingFieldParent", cascadingField);
                 String[] fs = cascadingField.split(SPLITER_RE);
                 cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);

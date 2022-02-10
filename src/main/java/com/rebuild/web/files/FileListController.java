@@ -78,6 +78,8 @@ public class FileListController extends BaseController {
 
         String sort = getParameter(request, "sort");
         String q = getParameter(request, "q");
+        // 从相关记录
+        ID related = getIdParameter(request, "related");
 
         // Entity or Folder
         String entry = getParameter(request, "entry");
@@ -89,6 +91,12 @@ public class FileListController extends BaseController {
             useEntity = NumberUtils.toInt(entry);
         } else if (ID.isId(entry)) {
             useFolder = ID.valueOf(entry);
+        }
+
+        // 支持查询 ID
+        if (related == null && ID.isId(q) && useEntity > 0) {
+            related = ID.valueOf(q);
+            q = null;
         }
 
         List<String> sqlWhere = new ArrayList<>();
@@ -144,8 +152,6 @@ public class FileListController extends BaseController {
             }
         }
 
-        // 相关记录
-        ID related = getIdParameter(request, "related");
         if (related != null) {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
