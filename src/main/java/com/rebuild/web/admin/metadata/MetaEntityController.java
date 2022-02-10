@@ -104,10 +104,8 @@ public class MetaEntityController extends BaseController {
 
     @RequestMapping("entity/entity-list")
     public RespBody listEntity(HttpServletRequest request) {
-        // 默认无BIZZ实体
-        final boolean usesBizz = getBoolParameter(request, "bizz", false);
-        // 默认无明细实体
-        final boolean usesDetail = getBoolParameter(request, "detail", false);
+        boolean usesBizz = getBoolParameter(request, "bizz", false);
+        boolean usesDetail = getBoolParameter(request, "detail", false);
 
         List<Map<String, Object>> data = new ArrayList<>();
         for (Entity entity : MetadataSorter.sortEntities(null, usesBizz, usesDetail)) {

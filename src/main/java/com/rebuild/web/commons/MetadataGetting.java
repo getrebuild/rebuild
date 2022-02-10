@@ -46,11 +46,9 @@ public class MetadataGetting extends BaseController {
 
     @GetMapping("entities")
     public List<JSON> entities(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        // 返回明细实体
-        boolean usesDetail = getBoolParameter(request, "detail", false);
-        // 返回组织实体
+        final ID user = getRequestUser(request);
         boolean usesBizz = getBoolParameter(request, "bizz", false);
+        boolean usesDetail = getBoolParameter(request, "detail", false);
 
         List<JSON> data = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(user, usesBizz, usesDetail)) {
