@@ -687,7 +687,7 @@ const RbViewPage = {
 
       const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
       const $tabNav = $(
-        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
+        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 

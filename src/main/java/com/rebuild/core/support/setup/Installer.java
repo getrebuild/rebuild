@@ -102,7 +102,7 @@ public class Installer implements InstallState {
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
-                installProps.store(os, "INSTALL FILE FOR REBUILD (v2). DON'T DELETE OR MODIFY IT!!!");
+                installProps.store(os, "REBUILD (v2) INSTALLER MAGIC !!! DO NOT EDIT !!!");
                 log.info("Saved installation file : " + dest);
             }
 

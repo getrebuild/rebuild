@@ -125,17 +125,16 @@ public class ChartDesignController extends EntityController {
             if (dt == DisplayType.IMAGE
                     || dt == DisplayType.FILE
                     || dt == DisplayType.AVATAR
+                    || dt == DisplayType.BARCODE
+                    || dt == DisplayType.NTEXT
                     || dt == DisplayType.ANYREFERENCE
                     || dt == DisplayType.N2NREFERENCE
                     || dt == DisplayType.MULTISELECT
-                    || dt == DisplayType.BARCODE
-                    || dt == DisplayType.NTEXT
-                    || dt == DisplayType.SERIES
                     || dt == DisplayType.LOCATION
                     || dt == DisplayType.SIGN) {
                 continue;
             }
-
+            
             String type = "text";
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 type = "date";

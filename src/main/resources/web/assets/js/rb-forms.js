@@ -282,7 +282,7 @@ class RbForm extends React.Component {
           {$L('保存并继续添加')}
         </a>
       )
-    } else if (window.RbViewModal) {
+    } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_VIEW)}>
           {$L('保存并打开')}

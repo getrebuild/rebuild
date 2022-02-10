@@ -49,9 +49,11 @@ public class MetadataGetting extends BaseController {
         ID user = getRequestUser(request);
         // 返回明细实体
         boolean usesDetail = getBoolParameter(request, "detail", false);
+        // 返回组织实体
+        boolean usesBizz = getBoolParameter(request, "bizz", false);
 
         List<JSON> data = new ArrayList<>();
-        for (Entity e : MetadataSorter.sortEntities(user, false, usesDetail)) {
+        for (Entity e : MetadataSorter.sortEntities(user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
             item.put("label", item.getString("entityLabel"));
