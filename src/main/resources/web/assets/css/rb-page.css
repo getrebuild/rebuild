@@ -1520,11 +1520,12 @@ a.column-url:hover {
 }
 
 .column-multi .badge {
-  background-color: #fff;
+  background-color: #eee;
+  border: 0 none;
 }
 
 .column-multi .badge + .badge {
-  margin-left: 1px;
+  margin-left: 3px;
 }
 
 .column-fixed {
