@@ -18,7 +18,9 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author ZHAO
@@ -109,15 +111,16 @@ public final class License {
 
     private static JSONObject siteApi(String api, int ttl) {
         if (ttl > 0) {
-            JSONObject c = CACHED.get(api, ttl);
+            JSONObject c = MCACHED.get(api, ttl);
             if (c != null) return c;
         }
 
-        String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
-        if (!api.contains("/authority/new")) apiUrl += "&sn=" + SN();
+        Map<String, String> hs = new HashMap<>();
+        hs.put("X-SiteApi-K", OSA_KEY);
+        if (!api.contains("/authority/new")) hs.put("X-SiteApi-SN", SN());
 
         try {
-            String result = HttpUtils.get(apiUrl);
+            String result = HttpUtils.get("https://getrebuild.com/" + api, hs);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
 
@@ -125,7 +128,7 @@ public final class License {
                 if (hasError != null) {
                     log.error("Error result : {}", result);
                 } else {
-                    CACHED.put(api, o);
+                    MCACHED.put(api, o);
                 }
                 return o;
             } else {
@@ -137,6 +140,6 @@ public final class License {
         }
         return null;
     }
-    private static final ExpiresMap<String, JSONObject> CACHED = new ExpiresMap<>();
 
+    private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();
 }
