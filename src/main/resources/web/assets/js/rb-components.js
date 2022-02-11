@@ -969,6 +969,9 @@ UserPopup.create = function (el) {
 // ~~ HTML 内容
 const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
+// ~~ short React.Fragment
+const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
+
 class RbGritter extends React.Component {
   constructor(props) {
     super(props)
