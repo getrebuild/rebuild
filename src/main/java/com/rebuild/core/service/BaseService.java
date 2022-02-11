@@ -9,6 +9,7 @@ package com.rebuild.core.service;
 
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -94,9 +95,18 @@ public class BaseService extends InternalPersistService {
         final Map<String, ID[]> holdN2NValues = new HashMap<>();
 
         for (Field n2nField : n2nFields) {
-            ID[] idRefs = record.hasValue(n2nField.getName(), false)
-                    ? record.getIDArray(n2nField.getName()) : ID.EMPTY_ID_ARRAY;
-            if (idRefs.length == 0 && isNew) continue;
+            ID[] idRefs;
+            if (isNew) {
+                idRefs = record.getIDArray(n2nField.getName());
+                if (idRefs == null || idRefs.length == 0) continue;
+            } else {
+                if (record.hasValue(n2nField.getName())) {
+                    Object maybeNull = record.getObjectValue(n2nField.getName());
+                    idRefs = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
+                } else {
+                    continue;
+                }
+            }
 
             // 保持值
             holdN2NValues.put(n2nField.getName(), idRefs);
