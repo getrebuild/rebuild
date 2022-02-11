@@ -106,6 +106,7 @@ const AdvFilters = {
           const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
           renderRbcomp(
             <RbAlertBox
+              type="info"
               message={
                 <RF>
                   <a className="mr-1" href="#" onClick={(e) => AdvFilters._showAddCommonQuery(e)}>
