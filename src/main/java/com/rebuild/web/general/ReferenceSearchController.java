@@ -79,7 +79,8 @@ public class ReferenceSearchController extends EntityController {
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
-        if (StringUtils.isBlank(q)) {
+        // 强制返回结果 H5
+        if (StringUtils.isBlank(q) && !getBoolParameter(request, "forceResults")) {
             if (protocolFilter != null) return JSONUtils.EMPTY_ARRAY;
 
             String type = getParameter(request, "type");
@@ -121,15 +122,19 @@ public class ReferenceSearchController extends EntityController {
     }
 
     private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere, int maxResults) {
-        // 查询字段
-        Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
-        if (searchFields.isEmpty()) {
-            return JSONUtils.EMPTY_ARRAY;
+        String searchWhere = "(1=1)";
+
+        if (StringUtils.isNotBlank(q)) {
+            // 查询字段
+            Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
+            if (searchFields.isEmpty()) {
+                return JSONUtils.EMPTY_ARRAY;
+            }
+
+            String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
+            searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
         }
 
-        q = StringEscapeUtils.escapeSql(q);
-        String like = " like '%" + q + "%'";
-        String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
         if (appendWhere != null) {
             searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
         }
