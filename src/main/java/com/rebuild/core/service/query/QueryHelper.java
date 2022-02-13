@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.query;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -41,5 +42,17 @@ public class QueryHelper {
             return m != null;
         }
         return true;
+    }
+
+    /**
+     * @param sql
+     * @param useEntity
+     * @return
+     */
+    public static Query createQuery(String sql, Entity useEntity) {
+        if (MetadataHelper.hasPrivilegesField(useEntity) || useEntity.getMainEntity() != null) {
+            return Application.createQuery(sql);
+        }
+        return Application.createQueryNoFilter(sql);
     }
 }
