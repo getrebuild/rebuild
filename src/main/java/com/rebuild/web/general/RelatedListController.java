@@ -11,7 +11,6 @@ import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -20,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
@@ -63,9 +63,7 @@ public class RelatedListController extends BaseController {
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
-        Query query = MetadataHelper.hasPrivilegesField(relatedEntity)
-                ? Application.createQuery(sql) : Application.createQueryNoFilter(sql);
-        Object[][] array = query.setLimit(ps, pn * ps - ps).array();
+        Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
         for (Object[] o : array) {
             Object nameValue = o[1];
             nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
@@ -94,8 +92,7 @@ public class RelatedListController extends BaseController {
                 // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
 
                 Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
-                Object[] count = MetadataHelper.hasPrivilegesField(relatedEntity)
-                        ? Application.createQuery(sql).unique() : Application.createQueryNoFilter(sql).unique();
+                Object[] count = QueryHelper.createQuery(sql, relatedEntity).unique();
                 countMap.put(related, ObjectUtils.toInt(count[0]));
             }
         }
