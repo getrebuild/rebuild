@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author devezhao
  * @see org.springframework.http.HttpStatus
- * @see org.springframework.http.HttpHeaders
+ * @see HttpHeaders
  * @since 2020/7/15
  */
 @Slf4j
