@@ -61,7 +61,7 @@
           <div class="page-head-title">[[${bundle.L('高级配置')}]]</div>
         </div>
         <div class="main-content container-fluid pt-1">
-          <div class="card">
+          <div th:if="${useListMode}" class="card">
             <div class="card-header">[[${bundle.L('列表模式')}]] <sup class="rbv"></sup></div>
             <div class="card-body mode-select">
               <div class="row">

@@ -9,7 +9,6 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -26,6 +25,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.Language;
@@ -137,6 +137,8 @@ public class ReferenceSearchController extends EntityController {
 
         if (appendWhere != null) {
             searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
+        } else {
+            searchWhere = String.format("(%s)", searchWhere);
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
@@ -194,9 +196,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        Query query = MetadataHelper.hasPrivilegesField(entity)
-                ? Application.createQuery(sql) : Application.createQueryNoFilter(sql);
-        Object[][] array = query.setLimit(maxResults).array();
+        Object[][] array = QueryHelper.createQuery(sql, entity).setLimit(maxResults).array();
 
         List<Object> result = new ArrayList<>();
         for (Object[] o : array) {
@@ -276,7 +276,8 @@ public class ReferenceSearchController extends EntityController {
 
         // 可新建
         mv.getModel().put("canCreate",
-                Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
+                searchEntity.getMainEntity() == null
+                        && Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
         if (ProtocolFilterParser.getFieldDataFilter(field) != null
                 || ProtocolFilterParser.hasFieldCascadingField(field)) {
