@@ -64,7 +64,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
             record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
             record.setString("belongEntity", entity);
             if (StringUtils.isBlank(filterName)) {
-                filterName =  Language.L("筛选") + "-" + CalendarUtils.format("MMddHHmm", CalendarUtils.now());
+                filterName =  Language.L("查询") + "-" + CalendarUtils.format("MMddHHmm", CalendarUtils.now());
             }
         } else {
             record = EntityHelper.forUpdate(filterId, user);
