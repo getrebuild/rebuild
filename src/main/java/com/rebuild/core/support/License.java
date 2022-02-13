@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -27,7 +28,7 @@ import java.util.Locale;
 public final class License {
 
     private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
-    private static final String TEMP_SN = "SN-000000-00000000000000";
+    private static final String TEMP_SN = "SN000-00000000-000000000";
 
     private static String USE_SN;
     private static Boolean USE_RBV;
@@ -50,10 +51,11 @@ public final class License {
         }
 
         if (SN == null) {
-            SN = String.format("ZR%d%s-%s",
-                    Application.BUILD,
+            SN = String.format("RB%s%s-%s-%s",
+                    Application.VER.charAt(0),
                     Locale.getDefault().getCountry().substring(0, 2),
-                    CodecUtils.randomCode(14).toUpperCase());
+                    ComputerIdentifier.generateIdentifierKey(),
+                    CodecUtils.randomCode(9)).toUpperCase();
             RebuildConfiguration.set(ConfigurationItem.SN, SN);
         }
 
@@ -102,7 +104,7 @@ public final class License {
     }
 
     public static JSONObject siteApi(String api, boolean useCache) {
-        if (useCache) {
+        if (useCache && Application.isReady()) {
             Object o = Application.getCommonsCache().getx(api);
             if (o != null) {
                 return (JSONObject) o;
@@ -120,7 +122,7 @@ public final class License {
                 String hasError = o.getString("error");
                 if (hasError != null) {
                     log.error("Bad result : {}", result);
-                } else {
+                } else if (Application.isReady()) {
                     Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
                 }
                 return o;
