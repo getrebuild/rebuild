@@ -685,3 +685,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.25rem;
   margin-top: 7px;
 }
+
+#collapseUser .aside-tree li > a {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#collapseUser .aside-tree li > a .avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  margin-right: 6px;
+  font-size: 0;
+}
+
+#collapseUser .aside-tree li.active > a::before {
+  transform: translateY(2px);
+}
