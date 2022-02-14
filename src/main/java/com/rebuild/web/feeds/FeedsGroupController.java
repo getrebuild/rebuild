@@ -62,8 +62,8 @@ public class FeedsGroupController extends BaseController {
             }
         }
 
-        Set<Team> teams = Application.getUserStore().getUser(user).getOwningTeams();
-        for (Member t : UserHelper.sortMembers(teams.toArray(new Member[0]))) {
+        Team[] teams = Application.getUserStore().getAllTeams();
+        for (Member t : UserHelper.sortMembers(teams)) {
             if (StringUtils.isEmpty(query)
                     || StringUtils.containsIgnoreCase(t.getName(), query)) {
                 if (starsId.contains(t.getIdentity())) continue;
