@@ -80,7 +80,7 @@ $(document).ready(function () {
           // _data.push({ entityName: 'Role', entityLabel: $L('角色') })
 
           $(_data).each(function () {
-            $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo('#refEntity')
+            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo('#refEntity')
           })
           if (_data.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#refEntity')
         })

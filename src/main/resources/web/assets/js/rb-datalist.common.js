@@ -101,6 +101,24 @@ const AdvFilters = {
           that._effectFilter($(this), 'aside')
         })
         $ghost.appendTo($('#asideFilters').empty())
+
+        if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
+          const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
+          renderRbcomp(
+            <RbAlertBox
+              type="info"
+              message={
+                <RF>
+                  <a className="mr-1" href="#" onClick={(e) => AdvFilters._showAddCommonQuery(e)}>
+                    {$L('添加')}
+                  </a>
+                  {$L('常用查询方便以后使用')}
+                </RF>
+              }
+            />,
+            $hub
+          )
+        }
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -125,6 +143,18 @@ const AdvFilters = {
 
     if (this.current === '$ALL$') this.current = null
     _RbList().setAdvFilter(this.current)
+  },
+
+  _showAddCommonQuery(e) {
+    $stopEvent(e, true)
+    if (this._AddCommonQuery) {
+      this._AddCommonQuery.show()
+    } else {
+      const that = this
+      renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
+        that._AddCommonQuery = this
+      })
+    }
   },
 
   showAdvFilter(id, useCopyId) {
@@ -164,8 +194,8 @@ const AdvFilters = {
     if (!filter) return
     const that = AdvFilters
     let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
-    if (name) url += '&name=' + $encode(name)
-    if (shareTo) url += '&shareTo=' + $encode(shareTo)
+    if (name) url += `&name=${$encode(name)}`
+    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
 
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) {
@@ -180,6 +210,66 @@ const AdvFilters = {
   _getFilter(id, call) {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
+}
+
+class AddCommonQuery extends RbFormHandler {
+  render() {
+    const defs = [
+      [$L('今天新增的'), 'DAY_NEW'],
+      [$L('本周新增的'), 'WEEK_NEW'],
+      [$L('本月新增的'), 'MONTH_NEW'],
+      [],
+      [$L('属于我的'), 'MY_OWN'],
+      [$L('我创建的'), 'MY_CREATE'],
+      [$L('我修改的'), 'MY_MODIFY'],
+    ]
+
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
+        <div ref={(c) => (this._$chks = c)}>
+          {defs.map((item, idx) => {
+            if (item.length === 0) return <br key={idx} />
+            return (
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
+                <input className="custom-control-input" type="checkbox" value={item[1]} />
+                <span className="custom-control-label"> {item[0]}</span>
+              </label>
+            )
+          })}
+        </div>
+        <div className="protips mb-3 text-left">{$L('可在添加后修改这些查询，以便更适合自己的使用需要')}</div>
+        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
+            {$L('确定')}
+          </button>
+          <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
+            {$L('取消')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  saveAdd() {
+    const adds = []
+    $(this._$chks)
+      .find('input')
+      .each(function () {
+        const $this = $(this)
+        if ($this.prop('checked')) adds.push($this.val())
+      })
+
+    if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
+
+    this.disabled(true)
+    $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
+      this.disabled()
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      AdvFilters.loadFilters()
+      this.hide()
+    })
+  }
 }
 
 // ~~ 列表记录批量操作

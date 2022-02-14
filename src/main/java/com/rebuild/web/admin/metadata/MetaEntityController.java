@@ -99,6 +99,10 @@ public class MetaEntityController extends BaseController {
         // 扩展配置
         mv.getModel().put("entityExtConfig", easyEntity.getExtraAttrs(true));
 
+        boolean isDetail = easyEntity.getRawMeta().getMainEntity() != null;
+        boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
+        mv.getModel().put("useListMode", !(isDetail || isBizz));
+
         return mv;
     }
 

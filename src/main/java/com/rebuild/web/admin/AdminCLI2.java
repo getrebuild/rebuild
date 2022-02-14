@@ -12,6 +12,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DataFileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.Installer;
+import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -30,6 +31,7 @@ public class AdminCLI2 {
     private static final String C_CACHE = "cache";
     private static final String C_SYSCFG = "syscfg";
     private static final String C_BACKUP = "backup";
+    private static final String C_AES = "aes";
 
     final private String[] commands;
 
@@ -57,8 +59,13 @@ public class AdminCLI2 {
 
         String result = null;
         switch (commands[0]) {
-            case C_HELP: {
-                result = " Usage : \ncache [clean] \nsyscfg NAME [VALUE] \nbackup [database|datafile]";
+            case C_HELP:
+            case "?" : {
+                result = " Usage : " +
+                        " \ncache [clean]" +
+                        " \nsyscfg NAME [VALUE]" +
+                        " \nbackup [database|datafile]" +
+                        " \naes [decrypt] [VALUE]";
                 break;
             }
             case C_CACHE: {
@@ -71,6 +78,10 @@ public class AdminCLI2 {
             }
             case C_BACKUP: {
                 result = this.execBackup();
+                break;
+            }
+            case C_AES: {
+                result = this.execAes();
                 break;
             }
             default: {
@@ -144,6 +155,20 @@ public class AdminCLI2 {
 
         } catch (Exception ex) {
             return "Exec failed : " + ex.getLocalizedMessage();
+        }
+    }
+
+    /**
+     * @return
+     */
+    protected String execAes() {
+        if (commands.length < 2) return "Bad arguments";
+
+        String value = commands.length > 2 ? commands[2] : commands[1];
+        if ("decrypt".equalsIgnoreCase(commands[1])) {
+            return AES.decryptQuietly(value);
+        } else {
+            return AES.encrypt(value);
         }
     }
 }

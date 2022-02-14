@@ -620,18 +620,17 @@ body {
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
-  border: 1px solid #d9d9d9;
   border-radius: 99px;
   padding: 1px 6px;
-  background-color: #fff;
   margin-right: 3px;
   margin-bottom: 3px;
   white-space: nowrap;
   display: inline-block;
+  background-color: #eee;
 }
 
 .form-control-plaintext.multi-values > a {
-  border-color: #4285f4;
+  background-color: #e6eff8;
 }
 
 .file-list.inview {
