@@ -2504,6 +2504,10 @@ form {
   z-index: 1090;
 }
 
+.rb-notifications .rb-scroller {
+  max-height: 422px;
+}
+
 .rb-notifications .notification .text > p {
   margin: 0;
 }
