@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "REBUILD Web",
+  "short_name": "REBUILD",
+  "start_url": "/",
+  "background_color": "#eeeeee",
+  "theme_color": "#4285f4",
+  "display": "standalone",
+  "id": "id-rebuild-web",
+  "icons": [
+    {
+      "src": "img/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
