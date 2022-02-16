@@ -51,16 +51,14 @@ public class GeneralListController extends EntityController {
         if (listEntity == null) return null;
 
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
+        // 使用主实体列表配置
+        final EasyEntity mainEntity = listEntity.getMainEntity() == null
+                ? easyEntity : EasyMetaFactory.valueOf(listEntity.getMainEntity());
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
         Integer listMode = getIntParameter(request, "forceListMode");
         if (listMode == null) {
-            if (listEntity.getMainEntity() == null) {
-                listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
-            } else {
-                listMode = ObjectUtils.toInt(EasyMetaFactory.valueOf(
-                        listEntity.getMainEntity()).getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
-            }
+            listMode = ObjectUtils.toInt(mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
         }
         if (listMode == 2) {
             listPage = "/general/record-list-2";  // Mode2
@@ -82,8 +80,8 @@ public class GeneralListController extends EntityController {
             listConfig = DataListManager.instance.getFieldsLayout(entity, user);
 
             // 扩展配置
-            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
-            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            String advListHideFilters = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+            String advListHideCharts = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
             mv.getModel().put("hideAside",

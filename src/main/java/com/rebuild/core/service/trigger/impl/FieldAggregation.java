@@ -75,7 +75,7 @@ public class FieldAggregation implements TriggerAction {
      * @param context
      */
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.TRUE, 5);
+        this(context, Boolean.TRUE, 9);
     }
 
     /**
