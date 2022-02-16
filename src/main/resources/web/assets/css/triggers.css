@@ -215,6 +215,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff !important;
 }
 
+.formula-calc ul li > a[data-toggle]::after {
+  content: '\f2f9';
+  font-family: 'Material-Design-Iconic-Font';
+  margin-left: 2px;
+}
+
 .formula-calc .fields {
   max-height: 186px;
   margin-top: 1px;

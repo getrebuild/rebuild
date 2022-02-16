@@ -226,6 +226,8 @@ class AddCommonQuery extends RbFormHandler {
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
+        <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
+
         <div ref={(c) => (this._$chks = c)}>
           {defs.map((item, idx) => {
             if (item.length === 0) return <br key={idx} />
@@ -237,7 +239,6 @@ class AddCommonQuery extends RbFormHandler {
             )
           })}
         </div>
-        <div className="protips mb-3 text-left">{$L('可在添加后修改这些查询，以便更适合自己的使用需要')}</div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
             {$L('确定')}
