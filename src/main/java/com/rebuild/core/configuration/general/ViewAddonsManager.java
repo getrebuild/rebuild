@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,7 +122,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
             return JSONUtils.toJSONObject("items", useRefs);
         }
 
-        // fix: v2.2 兼容
+        // compatible: v2.2
         JSON configJson = config.getJSON("config");
         if (configJson instanceof JSONArray) {
             configJson = JSONUtils.toJSONObject("items", configJson);
@@ -129,8 +130,18 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
         JSONArray addons = new JSONArray();
         for (Object o : ((JSONObject) configJson).getJSONArray ("items")) {
+            String key;
+            String label = null;
+            // compatible: v2.8
+            if (o instanceof JSONArray) {
+                key = (String) ((JSONArray) o).get(0);
+                label = (String) ((JSONArray) o).get(1);
+            } else {
+                key = o.toString();
+            }
+
             // Entity.Field (v1.9)
-            String[] ef = ((String) o).split("\\.");
+            String[] ef = key.split("\\.");
             if (!MetadataHelper.containsEntity(ef[0])) {
                 continue;
             }
@@ -141,11 +152,12 @@ public class ViewAddonsManager extends BaseLayoutManager {
             }
 
             if (Application.getPrivilegesManager().allow(user, addonEntity.getEntityCode(), useAction)) {
-                if (ef.length > 1) {
-                    addons.add(getEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType));
-                } else {
-                    addons.add(EasyMetaFactory.toJSON(addonEntity));
-                }
+                JSONObject show = ef.length > 1
+                        ? getEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType)
+                        : EasyMetaFactory.toJSON(addonEntity);
+
+                if (StringUtils.isNotBlank(label)) show.put("entityLabel", label);
+                addons.add(show);
             }
         }
 

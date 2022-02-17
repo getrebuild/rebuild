@@ -23,7 +23,7 @@ class ShowStyles extends React.Component {
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" placeholder={$L('默认')} defaultValue={this.props.label || ''} ref={(c) => (this._$label = c)} />
+                    <input className="form-control form-control-sm" placeholder={$L('默认')} defaultValue={this.props.label || ''} maxLength="50" ref={(c) => (this._$label = c)} />
                   </div>
                 </div>
                 <div className="form-group row footer">

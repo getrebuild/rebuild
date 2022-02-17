@@ -729,7 +729,8 @@ const RbViewPage = {
     const that = this
     $(config).each(function () {
       const e = this
-      const title = $L('新建%s', e.entityLabel)
+      // const title = $L('新建%s', e.entityLabel)
+      const title = e.entityLabel
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>${title}</a>`)
       $item.on('click', function () {
         if (e.entity === 'Feeds.relatedRecord') {

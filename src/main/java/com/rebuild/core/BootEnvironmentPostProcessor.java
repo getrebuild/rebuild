@@ -67,7 +67,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
             try {
                 Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(installed));
                 Properties filePs = new Properties();
-                // 兼容 V1
+                // compatible: v1.x
                 for (String name : temp.stringPropertyNames()) {
                     String value = temp.getProperty(name);
                     if (name.endsWith(".aes")) {
