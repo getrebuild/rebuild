@@ -238,7 +238,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>5.3.15</version>
         </dependency>
 
         <dependency>
