@@ -38,6 +38,7 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/sortable.js}"></script>
+    <script th:src="@{/assets/js/show-styles.js}" type="text/babel"></script>
     <script type="text/babel">
       $(document).ready(function () {
         const entity = $urlp('entity'),
@@ -51,7 +52,7 @@
 
           if (res.data.config) {
             $(res.data.config.items).each(function () {
-              $('.unset-list li[data-key="' + this + '"]').trigger('click')
+              $(`.unset-list li[data-key="${this}"]`).trigger('click')
             })
             $('#relatedAutoExpand').attr('checked', res.data.config.autoExpand === true)
             $('#relatedAutoHide').attr('checked', res.data.config.autoHide === true)
