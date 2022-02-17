@@ -31,7 +31,9 @@ import javax.management.ObjectName;
 import javax.management.Query;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.SessionTrackingMode;
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -123,6 +125,11 @@ public class BootApplication extends SpringBootServletInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         CONTEXT_PATH = StringUtils.defaultIfBlank(servletContext.getContextPath(), "");
+
+        // Remove `jsession`
+        servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
+        servletContext.getSessionCookieConfig().setHttpOnly(true);
+
         super.onStartup(servletContext);
     }
 
