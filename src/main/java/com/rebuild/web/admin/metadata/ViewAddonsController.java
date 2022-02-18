@@ -71,7 +71,7 @@ public class ViewAddonsController extends BaseController {
         String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
         ConfigBean config = ViewAddonsManager.instance.getLayout(user, entity, applyType);
-        // fix: v2.2 兼容
+        // compatible: v2.2
         JSON configJson = config == null ? null : config.getJSON("config");
         if (configJson instanceof JSONArray) {
             configJson = JSONUtils.toJSONObject("items", configJson);

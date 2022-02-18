@@ -108,7 +108,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: 3px;
   margin-bottom: 2px;
   position: relative;
-  cursor: default;
+  cursor: pointer;
   white-space: nowrap;
 }
 
@@ -154,7 +154,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .axis-target .dropdown-menu .dropdown-item {
-  cursor: pointer;
   padding: 6px 14px;
 }
 

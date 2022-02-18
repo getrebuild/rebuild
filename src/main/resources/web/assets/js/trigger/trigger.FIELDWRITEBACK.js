@@ -419,9 +419,9 @@ class FormulaCalcWithCode extends FormulaCalc {
             <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
               DATESUB
             </a>
-            <div className="dropdown-divider"></div>
-            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E5%85%AC%E5%BC%8F%E7%BC%96%E8%BE%91%E5%99%A8">
-              <i className="zmdi zmdi-help icon"></i>
+            <div className="dropdown-divider" />
+            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E5%85%AC%E5%BC%8F%E7%BC%96%E8%BE%91%E5%99%A8">
+              <i className="zmdi zmdi-help icon" />
               {$L('如何使用函数')}
             </a>
           </div>

@@ -36,6 +36,11 @@ code {
   color: #e83e8c;
 }
 
+a,
+button {
+  cursor: pointer;
+}
+
 /* 1280 */
 .container-smart {
   max-width: 1160px;
@@ -46,6 +51,11 @@ code {
   border-width: 0;
   border-radius: 0;
   max-width: 300px;
+}
+
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item > a {
+  cursor: default;
 }
 
 .dropdown-menu.auto-scroller {
@@ -621,7 +631,6 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .adv-search .dropdown-item {
   position: relative;
-  cursor: pointer;
 }
 
 .adv-search .dropdown-item a {
@@ -800,10 +809,6 @@ textarea.row2x {
 textarea.row3x {
   height: 70px !important;
   resize: none;
-}
-
-a {
-  cursor: pointer;
 }
 
 .mlr-auto {
@@ -1968,7 +1973,6 @@ th.column-fixed {
 .aside-tree li > a {
   display: block;
   padding: 8px 10px;
-  cursor: pointer;
   color: #444;
 }
 
@@ -3616,11 +3620,11 @@ a.icon-link > .zmdi {
 .syscfg h5 {
   background-color: #eee;
   margin: 0;
-  padding: 10px;
+  padding: 12px 10px;
 }
 
 .syscfg .table td {
-  padding: 10px;
+  padding: 12px 10px;
 }
 
 .syscfg .table td p {
@@ -4562,4 +4566,8 @@ pre.unstyle {
   right: auto;
   left: -48px;
   box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
+}
+
+.pointer {
+  cursor: pointer !important;
 }

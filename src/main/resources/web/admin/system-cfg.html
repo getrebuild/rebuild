@@ -160,11 +160,19 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('登录密码过期时间')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</td>
+                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">
+                          <th:block th:if="${PasswordExpiredDays == '0'}">[[${bundle.L('不启用')}]]</th:block>
+                          <th:block th:if="${PasswordExpiredDays != '0'}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</th:block>
+                        </td>
                       </tr>
-                      <tr>
-                        <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('启用两步验证')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'Login2FAMode' : ''}" th:data-value="${Login2FAMode}" th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}">
+                          <th:block th:if="${Login2FAMode == '0'}">[[${bundle.L('不启用')}]]</th:block>
+                          <th:block th:if="${Login2FAMode == '1'}">[[${bundle.L('手机或邮箱')}]]</th:block>
+                          <th:block th:if="${Login2FAMode == '2'}">[[${bundle.L('仅手机')}]]</th:block>
+                          <th:block th:if="${Login2FAMode == '3'}">[[${bundle.L('仅邮箱')}]]</th:block>
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('允许使用时间')}]] <sup class="rbv"></sup></td>
@@ -172,7 +180,7 @@
                           th:data-id="${commercial > 1 ? 'AllowUsesTime' : ''}"
                           th:data-value="${AllowUsesTime}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('每个时间（段）一行，如 `10` `9-18`')}"
+                          th:data-form-text="${bundle.L('仅指定时间可使用，每个时间一行，如 `10` `9-18` 等')}"
                         >
                           <pre class="unstyle">[[${AllowUsesTime ?:bundle.L('不限')}]]</pre>
                         </td>
@@ -183,10 +191,14 @@
                           th:data-id="${commercial > 1 ? 'AllowUsesIp' : ''}"
                           th:data-value="${AllowUsesIp}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('每个 IP 一行，如 `192.168.*` `192.168.10.*`')}"
+                          th:data-form-text="${bundle.L('仅指定 IP 可使用，每个 IP 一行，如 `192.168.*` `192.168.10.*` 等')}"
                         >
                           <pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
                         </td>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
                       </tr>
                     </tbody>
                   </table>
@@ -202,15 +214,21 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('备份保留时间')}]]</td>
-                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">
+                          [[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('变更历史保留时间')}]]</td>
-                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">
+                          [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回收站保留时间')}]]</td>
-                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">
+                          [[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]
+                        </td>
                       </tr>
                     </tbody>
                   </table>

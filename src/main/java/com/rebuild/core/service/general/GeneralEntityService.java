@@ -439,7 +439,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
+                            ? Language.L("主记录已完成审批，不能添加明细")
+                            : Language.L("主记录正在审批中，不能添加明细"));
                 }
             }
 
@@ -482,7 +483,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     }
 
                     throw new DataSpecificationException(currentState == ApprovalState.APPROVED
-                            ? Language.L("%s已完成审批，禁止操作", recordType) : Language.L("%s正在审批中，禁止操作", recordType));
+                            ? Language.L("%s已完成审批，禁止操作", recordType)
+                            : Language.L("%s正在审批中，禁止操作", recordType));
                 }
             }
         }

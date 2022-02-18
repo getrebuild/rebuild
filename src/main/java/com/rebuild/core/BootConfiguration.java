@@ -26,6 +26,7 @@ import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -48,7 +49,8 @@ public class BootConfiguration implements InstallState {
      * Fake instance
      * FIXME 直接 `==` 比较不安全 ???
      */
-    public static final JedisPool USE_EHCACHE = new JedisPool();
+    public static final JedisPool USE_EHCACHE = new JedisPool(
+            KnownJedisPool.DEFAULT_CONFIG, "127.0.0.1", 6379);
 
     @Bean
     JedisPool createJedisPool() {

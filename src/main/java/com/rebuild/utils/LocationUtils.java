@@ -13,6 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.regex.Pattern;
+
 /**
  * 位置工具
  *
@@ -21,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class LocationUtils {
+
+    private static final Pattern PRIVATE_IP = Pattern.compile("(localhost)|" +
+            "(^127\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|(^192\\.168\\.)");
 
     /**
      * 获取 IP 所在位置
@@ -40,6 +45,10 @@ public class LocationUtils {
      * @return
      */
     public static JSON getLocation(String ip, boolean useCache) {
+        if (PRIVATE_IP.matcher(ip).find()) {
+            return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
+        }
+
         JSONObject result;
         if (useCache) {
             result = (JSONObject) Application.getCommonsCache().getx("IPLocation2" + ip);

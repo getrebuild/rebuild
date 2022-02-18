@@ -25,6 +25,10 @@
       .set-items .item > span {
         margin: 0 4px;
       }
+      .axis-target .ui-sortable-placeholder.ui-state-highlight {
+        width: 7px;
+        height: 0;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -54,6 +58,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/show-styles.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/list-stats.js}" type="text/babel"></script>
   </body>
 </html>
