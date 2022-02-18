@@ -62,6 +62,15 @@ useEditComp = function (name) {
     )
   } else if ('PageFooter' === name || 'AllowUsesTime' === name || 'AllowUsesIp' === name) {
     return <textarea name={name} className="form-control form-control-sm row3x" maxLength="600" />
+  } else if ('Login2FAMode' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="0">{$L('不启用')}</option>
+        <option value="1">{$L('手机或邮箱')}</option>
+        <option value="2">{$L('仅手机')}</option>
+        <option value="3">{$L('仅邮箱')}</option>
+      </select>
+    )
   }
 }
 

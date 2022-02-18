@@ -140,15 +140,15 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
                 String sideCollapsedClazz = BooleanUtils.toBoolean(sidebarCollapsed) ? "rb-collapsible-sidebar-collapsed" : "";
                 // Aside collapsed
-                if (!(requestEntry.getRequestUri().contains("/admin/") || requestEntry.getRequestUri().contains("/setup/"))) {
+                if (!(requestUri.contains("/admin/") || requestUri.contains("/setup/"))) {
                     String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
                     if (BooleanUtils.toBoolean(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
             }
 
-            // 超管设置仍可访问
-            skipCheckSafeUse = adminVerified || UserHelper.isSuperAdmin(requestUser);
+            // 超管可访问
+            skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
         } else if (!isIgnoreAuth(requestUri)) {
             // 外部表单特殊处理（媒体字段上传/预览）
@@ -169,7 +169,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             skipCheckSafeUse = true;
         }
 
-        if (!skipCheckSafeUse) checkSafeUse(ipAddr);
+        if (!skipCheckSafeUse) checkSafeUse(ipAddr, requestUri);
 
         return true;
     }
@@ -285,11 +285,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         response.sendRedirect(fullUrl);
     }
 
-    private void checkSafeUse(String ipAddr) throws DefinedException {
+    private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {
         if (!License.isRbvAttached()) return;
 
         if (ipAddr.equals("localhost") || ipAddr.equals("127.0.0.1")) {
-            log.warn("Allow localhost uses ");
+            log.warn("Allow localhost/127.0.0.1 use : {}", requestUri);
             return;
         }
 

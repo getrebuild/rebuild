@@ -3620,11 +3620,11 @@ a.icon-link > .zmdi {
 .syscfg h5 {
   background-color: #eee;
   margin: 0;
-  padding: 10px;
+  padding: 12px 10px;
 }
 
 .syscfg .table td {
-  padding: 10px;
+  padding: 12px 10px;
 }
 
 .syscfg .table td p {

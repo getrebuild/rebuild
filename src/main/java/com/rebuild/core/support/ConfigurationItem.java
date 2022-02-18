@@ -64,7 +64,7 @@ public enum ConfigurationItem {
     RecycleBinKeepingDays(180),
 
     // 启用数据库备份
-    DBBackupsEnable(false),
+    DBBackupsEnable(true),
 
     // 数据备份保留时间（0为禁用）
     DBBackupsKeepingDays(180),
@@ -88,6 +88,8 @@ public enum ConfigurationItem {
     AllowUsesTime,
     // 允许使用 IP
     AllowUsesIp,
+    // 2FA
+    Login2FAMode(0),
 
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,

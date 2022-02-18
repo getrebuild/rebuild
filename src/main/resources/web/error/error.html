@@ -22,6 +22,10 @@
         color: #fbbc05;
         font-size: 5rem;
       }
+      .zmdi.err497::before {
+        content: '\f119';
+      }
+
       .error-description > pre:empty {
         display: none;
       }
@@ -48,6 +52,7 @@
               <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('重试')}]]</button>
               <div class="mt-4">
                 <a th:href="${'https://getrebuild.com/report-issue?title=error-page-' + error_code}" target="_blank">[[${bundle.L('报告问题')}]]</a>
+                <span>[[${bundle.L('或联系系统管理员')}]]</span>
               </div>
             </div>
           </div>
