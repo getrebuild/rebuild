@@ -1010,8 +1010,9 @@ select.form-control:not([disabled]) {
 }
 
 .img-field label.img-upload .zmdi {
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: #aaa;
+  font-weight: 300;
 }
 
 .img-field a.img-upload {

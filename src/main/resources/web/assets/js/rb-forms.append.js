@@ -533,7 +533,7 @@ class SignPad extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <h5 className="mt-0 text-bold">{$L('签名区')}</h5>
+              <h5 className="mt-0 text-bold text-uppercase">{$L('签名区')}</h5>
               <button className="close" type="button" onClick={this.hide}>
                 <i className="zmdi zmdi-close" />
               </button>

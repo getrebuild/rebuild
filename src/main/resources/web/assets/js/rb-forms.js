@@ -1957,7 +1957,7 @@ class RbFormSign extends RbFormElement {
               }
             }}
             disabled={this.props.readonly}>
-            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-edit" />}
+            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-border-color" />}
           </label>
         </span>
       </div>
