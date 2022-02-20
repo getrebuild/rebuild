@@ -4430,19 +4430,18 @@ pre.unstyle {
   z-index: 10;
 }
 
-.sign-pad-canvas .colors {
+.sign-pad-canvas .pen-colors {
   position: absolute;
   top: 10px;
   right: 7px;
   z-index: 11;
 }
 
-.sign-pad-canvas .colors > a {
+.sign-pad-canvas .pen-colors > a {
   width: 16px;
   height: 16px;
   border-radius: 50%;
   float: left;
-  display: inline-block;
   text-align: center;
   padding-top: 3px;
   transition: all 0.1s;
@@ -4450,24 +4449,24 @@ pre.unstyle {
   background-color: rgb(0, 0, 0);
 }
 
-.sign-pad-canvas .colors > a.active {
+.sign-pad-canvas .pen-colors > a.active {
   width: 22px;
   height: 22px;
   color: #fff !important;
   margin-top: -3px;
 }
 
-.sign-pad-canvas .colors > a.active::after {
+.sign-pad-canvas .pen-colors > a.active::after {
   font-family: 'Material-Design-Iconic-Font';
   content: '\f26b';
   font-size: 1.3rem;
 }
 
-.sign-pad-canvas .colors > a.color-blue {
+.sign-pad-canvas .pen-colors > a.color-blue {
   background-color: rgb(26, 97, 204);
 }
 
-.sign-pad-canvas .colors > a.color-red {
+.sign-pad-canvas .pen-colors > a.color-red {
   background-color: rgb(202, 51, 51);
 }
 

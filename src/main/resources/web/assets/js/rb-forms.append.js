@@ -540,7 +540,7 @@ class SignPad extends React.Component {
             </div>
             <div className="modal-body pt-1">
               <div className="sign-pad-canvas">
-                <div className="colors">
+                <div className="pen-colors">
                   {Object.keys(SignPad_PenColors).map((item) => {
                     return <a className={`color-${item} && ${this.state.penColor === item && 'active'}`} onClick={() => this._selectPenColor(item)} key={item} />
                   })}
