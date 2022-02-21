@@ -364,10 +364,11 @@ class FileShare extends RbModalHandler {
       }).on('success', () => $(that._$copy).addClass('copied-check'))
       $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
     }
-    if (!window.ClipboardJS) {
-      $.getScript('/assets/lib/clipboard.min.js', initCopy)
-    } else {
+    if (window.ClipboardJS) {
       initCopy()
+    } else {
+      // eslint-disable-next-line no-undef
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
     }
   }
 

@@ -859,8 +859,7 @@ var $useMap = function (onLoad) {
       typeof onLoad === 'function' && onLoad()
     }
 
-    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
-    $.getScript(scriptUrl)
+    $getScript('https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback')
   }
 }
 
@@ -884,5 +883,16 @@ var $autoLocation = function (call) {
         console.log('Geolocation failed :', this.getStatus())
       }
     })
+  })
+}
+
+// $.getScript use cache
+var $getScript = function (url, callback) {
+  $.ajax({
+    type: 'GET',
+    url: url,
+    success: callback,
+    dataType: 'script',
+    cache: true,
   })
 }
