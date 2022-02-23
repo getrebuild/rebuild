@@ -25,7 +25,7 @@ public class InstallerTest {
             System.currentTimeMillis()));
 
     @Test
-    public void getDbInitScript() throws Exception {
+    void getDbInitScript() throws Exception {
         String[] scripts = new Installer(USE_H2).getDbInitScript();
         for (String s : scripts) {
             System.out.println(s);
@@ -33,7 +33,7 @@ public class InstallerTest {
     }
 
     @Test
-    public void getConnection() throws Exception {
+    void getConnection() throws Exception {
         try (Connection conn = new Installer(USE_H2).getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             System.out.println(dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
@@ -41,9 +41,14 @@ public class InstallerTest {
     }
 
     @Test
-    public void install() {
+    void install() {
         Installer installer = new Installer(USE_H2);
         installer.installDatabase();
         installer.installAdmin();
+    }
+
+    @Test
+    void getTimeZoneId() {
+        System.out.println(new Installer(USE_H2).getTimeZoneId());
     }
 }
