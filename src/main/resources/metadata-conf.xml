@@ -366,7 +366,7 @@
         <field name="locale" type="string" max-length="10" nullable="false" description="Locale"/>
         <field name="name" type="string" max-length="500" nullable="false" description="语言名"/>
         <field name="value" type="string" max-length="500" nullable="false" description="语言值"/>
-        <index field-list="locale,name"/>
+        <index field-list="locale"/>
     </entity>
 
     <entity name="TransformConfig" type-code="037" description="记录转换" queryable="false">

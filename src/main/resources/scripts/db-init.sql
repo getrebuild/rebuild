@@ -533,7 +533,7 @@ create table if not exists `language` (
   `NAME`               varchar(500) not null comment '语言名',
   `VALUE`              varchar(500) not null comment '语言值',
   primary key  (`LANG_ID`),
-  index IX0_language (`LOCALE`, `NAME`)
+  index IX0_language (`LOCALE`)
 )Engine=InnoDB;
 
 -- ************ Entity [TransformConfig] DDL ************
