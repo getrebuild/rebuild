@@ -89,6 +89,8 @@ $(document).ready(function () {
         e.forEach(function (item) {
           if (!item.detailEntity) $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
         })
+
+        if (e.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#mainEntity')
       })
     }
   })

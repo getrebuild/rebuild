@@ -32,6 +32,7 @@ $(document).ready(() => {
 
     const $toe = $('#toEntity')
       .select2({
+        placeholder: $L('选择实体'),
         allowClear: false,
       })
       .on('change', function () {
@@ -306,12 +307,18 @@ function _checkUserPrivileges() {
 
 // 渲染重复判断字段
 function _renderRepeatFields(entity) {
-  if (!entity) return
+  const $el = $('#repeatFields').empty()
+
+  if (!entity) {
+    $el.select2({
+      placeholder: $L('选择字段'),
+    })
+    return
+  }
 
   const excludeNames = ['createdBy', 'createdOn', 'modifiedOn', 'modifiedBy']
   const excludeTypes = ['AVATAR', 'FILE', 'IMAGE', 'MULTISELECT', 'N2NREFERENCE', 'LOCATION']
 
-  const $el = $('#repeatFields').empty()
   $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
     $(res.data).each(function () {
       if (excludeNames.includes(this.name) || excludeTypes.includes(this.type)) return
