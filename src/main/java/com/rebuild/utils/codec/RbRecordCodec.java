@@ -8,11 +8,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils.codec;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 
 import java.io.IOException;
@@ -43,7 +45,12 @@ public class RbRecordCodec implements ObjectSerializer {
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String field = iter.next();
             Object value = record.getObjectValue(field);
-            value = FieldValueHelper.wrapFieldValue(value, entity.getField(field), false);
+
+            // Join field
+            Field fieldForValue = field.contains(".")
+                    ? MetadataHelper.getLastJoinField(entity, field) : entity.getField(field);
+
+            value = FieldValueHelper.wrapFieldValue(value, fieldForValue, false);
             map.put(field, value);
         }
         out.write(map.toJSONString());
