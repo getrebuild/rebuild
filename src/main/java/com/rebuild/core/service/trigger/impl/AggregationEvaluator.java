@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +53,7 @@ public class AggregationEvaluator {
     public Object eval() {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
-            return evalFormula(true);
+            return evalFormula();
         }
 
         String sourceField = item.getString("sourceField");
@@ -74,10 +75,9 @@ public class AggregationEvaluator {
     /**
      * 计算公式
      *
-     * @param quietly
      * @return
      */
-    public Object evalFormula(boolean quietly) {
+    public Object evalFormula() {
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
@@ -126,6 +126,6 @@ public class AggregationEvaluator {
             clearFormual = clearFormual.replaceAll(replace, value.toString());
         }
 
-        return EvaluatorUtils.eval(clearFormual, null, quietly);
+        return AviatorUtils.eval(clearFormual, null, false);
     }
 }

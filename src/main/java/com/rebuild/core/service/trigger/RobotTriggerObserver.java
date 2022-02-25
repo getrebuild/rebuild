@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
@@ -130,7 +131,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                     log.error("Trigger execution failed : {} << {}", action, context, ex);
 
                     // FIXME 触发器执行失败是否抛出
-                    if (ex instanceof MissingMetaExcetion) {
+                    if (ex instanceof MissingMetaExcetion || ex instanceof ExpressionRuntimeException) {
                         throw new TriggerException(Language.L("触发器执行失败 : %s", ex.getLocalizedMessage()));
                     } else if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;

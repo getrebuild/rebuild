@@ -157,7 +157,7 @@ public class FieldWritebackController extends BaseController {
         try {
             Object evalValue = new AggregationEvaluator(
                     item, MetadataHelper.getEntity(sourceEntity), "(1=1)")
-                    .evalFormula(false);
+                    .evalFormula();
             return RespBody.ok(evalValue);
 
         } catch (Exception ex) {
