@@ -10,8 +10,11 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorObject;
+import com.googlecode.aviator.runtime.type.AviatorString;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+
+import java.util.Map;
 
 /**
  * Usage: CURRENTBIZUNIT()
@@ -25,10 +28,10 @@ public class CurrentBizunitFunction extends AbstractFunction {
     private static final long serialVersionUID = -6731627245536290306L;
 
     @Override
-    public AviatorObject call() throws Exception {
+    public AviatorObject call(Map<String, Object> env) {
         ID user = UserContextHolder.getUser();
         ID bizunit = (ID) Application.getUserStore().getUser(user).getOwningBizUnit().getIdentity();
-        return new AviatorID(bizunit);
+        return new AviatorString(bizunit.toLiteral());
     }
 
     @Override
