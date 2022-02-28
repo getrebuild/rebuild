@@ -252,10 +252,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         // 如用户无更新权限，则降级为只读共享
         if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
-            if (!Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true)
-                    || !Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode())) {
+            if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
+                    || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
                 rights = BizzPermission.READ.getMask();
-                log.warn("Downgrade share rights : {} > {}", record, rights);
+                log.warn("Downgrade share rights to READ(8) : {}", record);
             }
         }
 

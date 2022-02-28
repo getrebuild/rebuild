@@ -73,16 +73,20 @@ $(document).ready(function () {
       if (referenceLoaded === false) {
         referenceLoaded = true
         $.get('/admin/entity/entity-list?detail=true&bizz=false', (res) => {
-          const _data = res.data || []
-          _data.push({ entityName: 'User', entityLabel: $L('用户') })
-          _data.push({ entityName: 'Department', entityLabel: $L('部门') })
+          const d = res.data || []
+          d.push({ entityName: 'User', entityLabel: $L('用户') })
+          d.push({ entityName: 'Department', entityLabel: $L('部门') })
           // _data.push({ entityName: 'Team', entityLabel: $L('团队') })
           // _data.push({ entityName: 'Role', entityLabel: $L('角色') })
 
-          $(_data).each(function () {
-            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo('#refEntity')
+          // 明细实体默认隐藏
+          $(d).each(function () {
+            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo(
+              '#refEntity'
+            )
           })
-          if (_data.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#refEntity')
+
+          if (d.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#refEntity')
         })
       }
     } else if (dt === 'CLASSIFICATION') {

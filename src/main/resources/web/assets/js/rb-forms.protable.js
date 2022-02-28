@@ -55,7 +55,7 @@ class ProTable extends React.Component {
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
                     <button className="btn btn-light hide" title={$L('编辑')} onClick={() => this.editLine(key)}>
-                      <i className="icon zmdi zmdi-border-color fs-14" />
+                      <i className="icon zmdi zmdi-edit fs-14" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />

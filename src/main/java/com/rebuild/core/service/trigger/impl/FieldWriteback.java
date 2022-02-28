@@ -35,6 +35,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
@@ -272,37 +273,51 @@ public class FieldWriteback extends FieldAggregation {
                 }
 
                 // 公式
+                // @see AggregationEvaluator#evalFormula
                 else {
                     String clearFormual = useCode
                             ? sourceAny.substring(4, sourceAny.length() - 4)
                             : sourceAny
                                 .replace("×", "*")
                                 .replace("÷", "/")
-                                .replace("`", "\"");  // fix: 2.4 改为 "
+                                .replace("`", "\"");  // compatible: v2.4
+
+                    Map<String, Object> envMap = new HashMap<>();
 
                     for (String fieldName : fieldVars) {
                         String replace = "{" + fieldName + "}";
-                        if (clearFormual.contains(replace)) {
-                            Object value = useSourceData.getObjectValue(fieldName);
-                            if (value instanceof Date) {
-                                value = CalendarUtils.getUTCDateTimeFormat().format(value);
-                            } else if (value == null) {
-                                // 数字字段置 `0`
-                                Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
-                                if (isNumberField != null
-                                        && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
-                                    value = "0";
-                                } else {
-                                    value = StringUtils.EMPTY;
-                                }
-                            } else {
-                                value = value.toString();
-                            }
-                            clearFormual = clearFormual.replace(replace, (String) value);
+                        String replaceWhitQuote = "\"" + replace + "\"";
+
+                        if (clearFormual.contains(replaceWhitQuote)) {
+                            clearFormual = clearFormual.replace(replaceWhitQuote, fieldName);
+                        } else if (clearFormual.contains(replace)) {
+                            clearFormual = clearFormual.replace(replace, fieldName);
+                        } else {
+                            continue;
                         }
+
+                        Object value = useSourceData.getObjectValue(fieldName);
+
+                        if (value instanceof Date) {
+                            value = CalendarUtils.getUTCDateTimeFormat().format(value);
+                        } else if (value == null) {
+                            // 数字字段置 `0`
+                            Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                            if (isNumberField != null
+                                    && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
+                                value = "0";
+                            } else {
+                                value = StringUtils.EMPTY;
+                            }
+                        } else {
+                            value = value.toString();
+                        }
+
+                        envMap.put(fieldName, value);
                     }
 
-                    Object newValue = EvaluatorUtils.eval(clearFormual);
+                    Object newValue = AviatorUtils.eval(clearFormual, envMap, false);
+
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
                         if (dt == DisplayType.NUMBER) {

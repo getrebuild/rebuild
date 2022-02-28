@@ -10,6 +10,7 @@ package com.rebuild.core.configuration.general;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.alibaba.fastjson.JSON;
@@ -114,18 +115,26 @@ public class AutoFillinManager implements ConfigManager {
         JSONArray fillin = new JSONArray();
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
+            String targetField = e.getString("target");
+            Field targetFieldMeta = targetEntity.getField(targetField);
+
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
-                String targetField = e.getString("target");
                 value = conversionCompatibleValue(
                         sourceEntity.getField(sourceField),
-                        targetEntity.getField(targetField),
+                        targetFieldMeta,
                         sourceRecord.getObjectValue(sourceField));
             }
 
             // NOTE 忽略空值
             if (value == null || NullValue.is(value) || StringUtils.isBlank(value.toString())) {
                 continue;
+            }
+
+            // 日期格式处理
+            if (value instanceof Date
+                    && (targetFieldMeta.getType() == FieldType.DATE || targetFieldMeta.getType() == FieldType.TIMESTAMP)) {
+                value = EasyMetaFactory.valueOf(targetFieldMeta).wrapValue(value);
             }
 
             ConfigBean clone = e.clone().set("value", value);
@@ -144,15 +153,16 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     protected Object conversionCompatibleValue(Field source, Field target, Object value) {
-        EasyField easyField = EasyMetaFactory.valueOf(source);
-        Object newValue = easyField.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
+        EasyField sourceEasy = EasyMetaFactory.valueOf(source);
+        Object newValue = sourceEasy.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
 
         // 转换成前端可接受的值
-        if (easyField instanceof MixValue) {
-            if (!(newValue instanceof String) || easyField instanceof EasyFile) {
-                newValue = easyField.wrapValue(newValue);
+        if (sourceEasy instanceof MixValue) {
+            if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
+                newValue = sourceEasy.wrapValue(newValue);
             }
         }
+
         return newValue;
     }
 

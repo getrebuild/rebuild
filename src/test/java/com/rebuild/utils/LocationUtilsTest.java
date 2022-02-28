@@ -7,16 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class LocationUtilsTest extends TestSupport {
+class LocationUtilsTest {
 
     @Test
     void getLocation() {
         System.out.println(LocationUtils.getLocation("8.8.8.8"));
+        System.out.println(LocationUtils.getLocation("59.82.84.31"));
         System.out.println(LocationUtils.getLocation("192.168.1.1"));
         System.out.println(LocationUtils.getLocation("123"));
     }

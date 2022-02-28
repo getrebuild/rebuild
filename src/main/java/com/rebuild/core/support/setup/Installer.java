@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.setup;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
@@ -38,6 +37,8 @@ import redis.clients.jedis.JedisPool;
 import javax.sql.DataSource;
 import java.io.*;
 import java.sql.*;
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.*;
 
 import static com.rebuild.core.support.ConfigurationItem.*;
@@ -188,15 +189,12 @@ public class Installer implements InstallState {
 
         Assert.notNull(dbProps, "[databaseProps] cannot be null");
 
-        String osTimezone = StringUtils.defaultIfBlank(CalendarUtils.DEFAULT_TIME_ZONE.getID(), "GMT%2B08:00");
-        if (osTimezone.contains("GMT ")) osTimezone = osTimezone.replace("GMT ", "GMT%2B");  // ` ` > `+`
-
         String dbUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=%s",
                 dbProps.getString("dbHost"),
                 dbProps.getIntValue("dbPort"),
                 dbName,
-                osTimezone);
+                getTimeZoneId());
 
         String dbUser = dbProps.getString("dbUser");
         String dbPassword = dbProps.getString("dbPassword");
@@ -393,6 +391,27 @@ public class Installer implements InstallState {
             log.info("Check REBUILD database error : " + ex.getLocalizedMessage());
         }
         return false;
+    }
+
+    protected String getTimeZoneId() {
+        String tz = TimeZone.getDefault().getID();
+        if (StringUtils.isBlank(tz)) {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                ZoneId.of("GMT+08:00");
+                tz = "GMT+08:00";
+            } catch (DateTimeException unsupportZoneId) {
+                tz = "Asia/Shanghai";
+            }
+
+            log.warn("No time-zone specified! Use default : {}", tz);
+        }
+
+        // 转义
+        if (tz.contains(" ")) tz = tz.replace(" ", "%2B");
+        if (tz.contains("+")) tz = tz.replace("+", "%2B");
+
+        return tz;
     }
 
     // --

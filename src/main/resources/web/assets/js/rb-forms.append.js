@@ -513,8 +513,19 @@ class BaiduMapModal extends RbModal {
 
 // ~~ 签名板
 
+const SignPad_PenColors = {
+  black: 'rgb(0, 0, 0)',
+  blue: 'rgb(26, 97, 204)',
+  red: 'rgb(202, 51, 51)',
+}
+
 class SignPad extends React.Component {
-  state = { ...this.props }
+  constructor(props) {
+    super(props)
+
+    this._defaultPenColor = $storage.get('SignPad_PenColor') || 'black'
+    this.state = { ...props, penColor: this._defaultPenColor }
+  }
 
   render() {
     return (
@@ -522,13 +533,18 @@ class SignPad extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <h5 className="mt-0 text-bold">{$L('签名区')}</h5>
+              <h5 className="mt-0 text-bold text-uppercase">{$L('签名区')}</h5>
               <button className="close" type="button" onClick={this.hide}>
                 <i className="zmdi zmdi-close" />
               </button>
             </div>
             <div className="modal-body pt-1">
               <div className="sign-pad-canvas">
+                <div className="pen-colors">
+                  {Object.keys(SignPad_PenColors).map((item) => {
+                    return <a className={`color-${item} && ${this.state.penColor === item && 'active'}`} onClick={() => this._selectPenColor(item)} key={item} />
+                  })}
+                </div>
                 <canvas ref={(c) => (this._$canvas = c)} />
               </div>
               <div className="sign-pad-footer mt-2">
@@ -568,6 +584,7 @@ class SignPad extends React.Component {
       that._$canvas.height = 180
       that._SignaturePad = new window.SignaturePad(that._$canvas, {
         backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: SignPad_PenColors[that._defaultPenColor],
       })
       that.show()
     }
@@ -586,6 +603,14 @@ class SignPad extends React.Component {
 
   componentWillUnmount() {
     if (this._SignaturePad) this._SignaturePad.off()
+  }
+
+  _selectPenColor(c) {
+    this.setState({ penColor: c }, () => {
+      $storage.set('SignPad_PenColor', c)
+      this._SignaturePad.clear()
+      this._SignaturePad.penColor = SignPad_PenColors[c]
+    })
   }
 
   hide = () => $(this._$dlg).modal('hide')
