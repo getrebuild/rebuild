@@ -1,8 +1,8 @@
 <th:block xmlns:th="http://www.thymeleaf.org">
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="renderer" content="webkit" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="x-ua-compatible" content="IE=edge" />
   <link rel="manifest" th:href="@{/assets/manifest.json}" />
   <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
   <link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}" />
@@ -37,7 +37,7 @@
   <!--[if lt IE 10]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${T(com.rebuild.utils.AppUtils).isIE11(#request)}" th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
   <script th:if="${markWatermark == 'true'}" th:src="@{/assets/lib/watermark.js?v=2.3.2.2}"></script>
-  <style th:if="${commercial > 1}" type="text/css">
+  <style th:if="${commercial > 1}">
     .logo-img,
     .rb-top-header .rb-navbar-header .navbar-brand {
       background-image: url('[[${baseUrl}]]/commons/theme/use-logo');
