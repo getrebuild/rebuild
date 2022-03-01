@@ -43,13 +43,13 @@ _生产环境强烈推荐使用此方式 !!!_
 
 首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
-下载后解压（集成安装包），双击/运行 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验！
+下载后解压（集成安装包），双击/运行 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验。
 
 更多信息请参考 [安装文档](https://getrebuild.com/docs/admin/install)
 
 #### 2. 通过源码编译
 
-_注意 !!! 生产环境请使用 `master` 分支（即默认分支），其他分支为开发分支，功能存在不确定性。_
+_注意 !!! 生产环境请使用 `master` 分支（即默认分支），其他分支为开发分支，功能存在不确定性！_
 
 ```
 # 拉取
@@ -62,7 +62,7 @@ mvn package
 java -jar target/rebuild.jar
 ```
 
-打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验！
+打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验。
 
 ## 开发
 
