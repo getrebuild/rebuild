@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 /**
  * 字段值包装
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/23/2018
  */
 @Slf4j

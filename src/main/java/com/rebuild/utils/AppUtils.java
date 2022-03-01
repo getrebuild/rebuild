@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 封裝一些有用的工具方法
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/19/2018
  */
 public class AppUtils {

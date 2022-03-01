@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 /**
  * 请使用协作类 {@link Entity2Schema}
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 @Slf4j

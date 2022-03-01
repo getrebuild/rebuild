@@ -33,7 +33,7 @@ import org.apache.commons.lang.math.RandomUtils;
 /**
  * 创建实体
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 @Slf4j

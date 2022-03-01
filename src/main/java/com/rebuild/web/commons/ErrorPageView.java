@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see com.rebuild.web.RebuildWebConfigurer
  * @since 09/1/2020
  */

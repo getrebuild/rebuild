@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 导航菜单设置
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/19/2018
  */
 @RestController

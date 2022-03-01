@@ -561,7 +561,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
-.rbflow-design .auto-judge:after,
+.rbflow-design .auto-judge::after,
 .rbflow-design .node-wrap-box::after {
   pointer-events: none;
   content: '';

@@ -45,7 +45,7 @@ import java.util.Map;
 /**
  * for User
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 07/25/2018
  */
 @Slf4j

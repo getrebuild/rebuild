@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Base Controller
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/21/2017
  *
  * @see com.rebuild.api.RespBody

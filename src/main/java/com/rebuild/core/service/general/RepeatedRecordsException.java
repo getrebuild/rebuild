@@ -13,7 +13,7 @@ import com.rebuild.core.DefinedException;
 import java.util.List;
 
 /**
- * @author Zixin
+ * @author Zixin (RB)
  * @since 2021/01/12
  */
 public class RepeatedRecordsException extends DefinedException {

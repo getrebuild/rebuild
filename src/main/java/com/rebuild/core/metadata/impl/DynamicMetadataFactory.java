@@ -30,7 +30,7 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER;
 import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/04/2018
  */
 @Slf4j

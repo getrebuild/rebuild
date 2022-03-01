@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
  * <br>- 有权限的实体使用此类需要指定 <tt>strictMode=false</tt>
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 11/06/2017
  */
 @Service

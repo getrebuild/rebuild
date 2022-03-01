@@ -52,7 +52,7 @@ import java.util.*;
 /**
  * 业务实体操作（增/改/删/分派/共享）
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/30/2018
  * @see Application#getEntityService(int)
  * @see CommonOperatingController

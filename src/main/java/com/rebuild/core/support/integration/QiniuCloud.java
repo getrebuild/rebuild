@@ -39,7 +39,7 @@ import java.util.UUID;
 /**
  * 七牛云存储
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/19/2018
  */
 @Slf4j

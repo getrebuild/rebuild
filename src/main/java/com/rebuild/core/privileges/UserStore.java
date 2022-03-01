@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 用户体系缓存
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/16/2018
  */
 @Slf4j

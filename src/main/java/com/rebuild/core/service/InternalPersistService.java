@@ -15,7 +15,7 @@ import com.rebuild.core.Application;
 /**
  * 持久化服务
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/21/2017
  */
 public abstract class InternalPersistService implements ServiceSpec {

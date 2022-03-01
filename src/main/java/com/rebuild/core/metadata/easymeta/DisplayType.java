@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.dialect.Type;
 /**
  * RB 封装字段类型
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/18/2018
  */
 public enum DisplayType {

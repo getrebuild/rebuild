@@ -31,7 +31,7 @@ import java.util.Properties;
 /**
  * 配置参数
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/28/2020
  */
 @Component

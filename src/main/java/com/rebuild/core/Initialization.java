@@ -5,7 +5,7 @@ import org.springframework.core.Ordered;
 /**
  * 实现此接口，将在系统启动时调用 #init 执行初始化
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/28/2020
  */
 public interface Initialization extends Ordered {

@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * 系统配置
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see RebuildConfiguration
  * @see ConfigurationItem
  * @since 09/20/2018

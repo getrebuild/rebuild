@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * 角色（权限合并）
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/16/2018
  */
 public class CombinedRole extends Role {
