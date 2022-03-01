@@ -58,9 +58,13 @@ $(document).ready(function () {
 
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
-        let nexturl = $decode($urlp('nexturl') || '../dashboard/home')
+        let nexturl = $decode($urlp('nexturl'))
         if (res.data && res.data.passwdExpiredDays < 8) {
           nexturl = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
+        } else if (res.data && res.data.login2FaMode > 0) {
+          nexturl = `${rb.baseUrl}/user/login-2fa?token=${res.data.login2FaUserToken}`
+        } else if (!nexturl) {
+          nexturl = `${rb.baseUrl}/dashboard/home`
         }
         location.replace(nexturl)
       } else if (res.error_msg === 'VCODE') {

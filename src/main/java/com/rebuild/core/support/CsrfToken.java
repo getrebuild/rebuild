@@ -33,7 +33,7 @@ public class CsrfToken {
      * @return
      */
     public static String generate() {
-        String token = CodecUtils.randomCode(60);
+        String token = CodecUtils.randomCode(40);
         Application.getCommonsCache().putx(TOKEN_PREFIX + token,
                 System.currentTimeMillis(), CommonsCache.TS_HOUR * 2);
         return token;

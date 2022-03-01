@@ -169,17 +169,29 @@ public class LoginController extends BaseController {
             return RespBody.error(hasError);
         }
 
-        User loginUser = Application.getUserStore().getUser(user);
-        loginSuccessed(request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
-
         // 清理
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
+        Map<String, Object> resMap = new HashMap<>();
+
+        // 2FA
+        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
+        if (faMode > 0) {
+            resMap.put("login2FaMode", faMode);
+
+            String userToken = CodecUtils.randomCode(40);
+            Application.getCommonsCache().put(userToken, user, CommonsCache.TS_HOUR / 4); // 15m
+            resMap.put("login2FaUserToken", userToken);
+
+            return RespBody.ok(resMap);
+        }
+
+        User loginUser = Application.getUserStore().getUser(user);
+        loginSuccessed(request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
+
         // 密码过期
         Integer passwdExpiredDays = UserService.getPasswdExpiredDayLeft(loginUser.getId());
-
-        Map<String, Object> resMap = new HashMap<>();
         if (passwdExpiredDays != null) resMap.put("passwdExpiredDays", passwdExpiredDays);
 
         if (AppUtils.isRbMobile(request)) {

@@ -165,7 +165,7 @@
                           <th:block th:if="${PasswordExpiredDays != '0'}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</th:block>
                         </td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr>
                         <td>[[${bundle.L('启用两步验证')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'Login2FAMode' : ''}" th:data-value="${Login2FAMode}" th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}">
                           <th:block th:if="${Login2FAMode == '0'}">[[${bundle.L('不启用')}]]</th:block>

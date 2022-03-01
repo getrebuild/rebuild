@@ -64,11 +64,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.8.0-beta1";
+    public static final String VER = "2.9.0-dev";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2080002;
+    public static final int BUILD = 2090000;
 
     static {
         // Driver for DB
