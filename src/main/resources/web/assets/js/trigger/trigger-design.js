@@ -27,7 +27,7 @@ $(document).ready(() => {
   }
 
   let advFilter
-  $('.J_whenFilter .btn').click(() => {
+  $('.J_whenFilter .btn').on('click', () => {
     if (advFilter) {
       advFilter.show()
     } else {
@@ -40,7 +40,7 @@ $(document).ready(() => {
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
-  const $btn = $('.J_save').click(() => {
+  const $btn = $('.J_save').on('click', () => {
     if (!contentComp) return
 
     let when = 0

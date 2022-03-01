@@ -470,8 +470,7 @@ class FormulaCalcWithCode extends FormulaCalc {
       $(`<i class="v oper">${v}</em>`).appendTo(this._$formula).attr('data-v', v)
 
       if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
-        setTimeout(() => this.handleInput('('), 300)
-        setTimeout(() => this.handleInput('"'), 400)
+        setTimeout(() => this.handleInput('('), 200)
       }
     } else {
       super.handleInput(v)
