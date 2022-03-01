@@ -82,10 +82,11 @@ public class BatchUpdateController extends BaseController {
             if (dt == DisplayType.FILE
                     || dt == DisplayType.IMAGE
                     || dt == DisplayType.AVATAR
-                    || dt == DisplayType.LOCATION
                     || dt == DisplayType.BARCODE
                     || dt == DisplayType.SERIES
-                    || dt == DisplayType.ANYREFERENCE) {
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.SIGN) {
                 continue;
             }
 

@@ -9,13 +9,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 公共部分
 
 $(document).ready(() => {
-  $('.card-header>a').click((e) => {
+  $('.card-header>a').on('click', (e) => {
     $stopEvent(e, true)
     enableEditMode()
   })
 
-  $('.edit-footer>.btn-link').click(() => location.reload())
-  $('.edit-footer>.btn-primary').click(() => post(__data))
+  $('.edit-footer>.btn-link').on('click', () => location.reload())
+  $('.edit-footer>.btn-primary').on('click', () => post(__data))
 
   if (window.ClipboardJS) {
     $('a[data-clipboard-text]').each(function () {
@@ -39,14 +39,20 @@ const enableEditMode = function () {
     const name = $item.data('id')
     const value = $item.data('value')
     const optional = $item.data('optional')
+    const formText = $item.data('form-text')
 
-    const c = useEditComp(name, value)
-    if (c) {
-      renderRbcomp(React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null }), $item)
-    } else {
-      renderRbcomp(<input className="form-control form-control-sm" name={name} onChange={changeValue} defaultValue={value} placeholder={optional ? $L('(选填)') : null} />, $item)
-    }
+    let c = useEditComp(name, value)
+    if (!c) c = <input className="form-control form-control-sm" />
+
+    renderRbcomp(
+      <React.Fragment>
+        {React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null })}
+        {formText && <p className="mt-2 text-dark" dangerouslySetInnerHTML={{ __html: formText }} />}
+      </React.Fragment>,
+      $item
+    )
   })
+
   $('.syscfg').addClass('edit')
 }
 
@@ -54,8 +60,8 @@ const enableEditMode = function () {
 const post = function (data) {
   for (let name in data) {
     if (!data[name]) {
-      const $field = $('td[data-id=' + name + ']')
-      if ($field.data('optional')) continue // 可选值
+      const $field = $(`.syscfg td[data-id=${name}]`)
+      if ($field.length === 0 || $field.data('optional')) continue // 可选值
 
       const $c = $field.prev().clone()
       $c.find('p').remove()

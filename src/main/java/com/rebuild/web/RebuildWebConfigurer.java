@@ -9,7 +9,7 @@ package com.rebuild.web;
 
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
@@ -76,13 +76,28 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(ConfigurationItem.MarkWatermark));
 
         String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
-        if (StringUtils.isNotBlank(pageFooter)) {
+        if (StringUtils.isBlank(pageFooter)) {
+            thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, null);
+        } else {
             pageFooter = MarkdownUtils.render(pageFooter);
             thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
         }
 
+        setStaticVariable(ConfigurationItem.PortalOfficePreviewUrl);
+        setStaticVariable(ConfigurationItem.PortalBaiduMapAk);
+        setStaticVariable(ConfigurationItem.PortalUploadMaxSize);  // MB
+
         // 清理缓存
         thymeleafViewResolver.clearCache();
+    }
+
+    private void setStaticVariable(ConfigurationItem item) {
+        String value = RebuildConfiguration.get(item);
+        if (StringUtils.isBlank(value)) {
+            thymeleafViewResolver.addStaticVariable(item.name(), null);
+        } else {
+            thymeleafViewResolver.addStaticVariable(item.name(), value);
+        }
     }
 
     @Override
@@ -92,7 +107,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, new FastJsonHttpMessageConverter4());
+//        converters.add(0, new FastJsonHttpMessageConverter4());
+        converters.add(0, new FastJsonHttpMessageConverter());
     }
 
     @Override

@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 /**
  * 数据库备份
  * - `mysqldump[.exe]` 命令必须在环境变量中
- * - 除了本库还要有全局的 `RELOAD` 权限
+ * - 除了本库还要有全局的 `RELOAD` or `FLUSH_TABLES` and `PROCESS` 权限
  *
  * @author devezhao
  * @since 2020/2/4
@@ -62,39 +62,34 @@ public class DatabaseBackup {
         File dest = new File(backups, destName);
 
         String cmd = String.format(
-                "mysqldump -u%s -p%s -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers -R --hex-blob -x %s>%s",
+                "-u%s -p%s -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
 
-        Process process;
+        ProcessBuilder builder = new ProcessBuilder();
         String encoding = "UTF-8";
 
         if (SystemUtils.IS_OS_WINDOWS) {
-            cmd = cmd.replaceFirst("mysqldump", "cmd /c mysqldump.exe");
-            process = Runtime.getRuntime().exec(cmd);
+            builder.command("cmd.exe", "/c", "mysqldump.exe " + cmd);
             encoding = "GBK";
-        }
-        // for Linux
-        else {
-            process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmd });
+        } else {
+            // for Linux/Unix
+            builder.command("/bin/sh", "-c", "mysqldump " + cmd);
         }
 
-        BufferedReader readerError = null;
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+
         BufferedReader reader = null;
         StringBuilder echo = new StringBuilder();
         try {
-            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream(), encoding));
             reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding));
 
             String line;
-            while ((line = readerError.readLine()) != null) {
-                echo.append(line).append("\n");
-            }
             while ((line = reader.readLine()) != null) {
                 echo.append(line).append("\n");
             }
 
         } finally {
-            IOUtils.closeQuietly(readerError);
             IOUtils.closeQuietly(reader);
             process.destroy();
         }
@@ -113,7 +108,7 @@ public class DatabaseBackup {
         File zip = new File(backups, destName + ".zip");
         try {
             CompressUtils.forceZip(dest, zip, null);
-
+            
             FileUtils.deleteQuietly(dest);
             dest = zip;
         } catch (Exception e) {

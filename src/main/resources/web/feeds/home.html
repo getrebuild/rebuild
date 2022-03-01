@@ -72,7 +72,7 @@
                   <div class="card">
                     <div class="card-header" id="headingGroup">
                       <button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('团队')}]]</button>
-                      <a class="add-group admin-show" th:href="@{/admin/bizuser/teams}" th:title="${bundle.L('管理团队')}"><i class="icon zmdi zmdi-settings"></i></a>
+                      <a class="add-group admin-show" th:href="@{/admin/bizuser/teams}" th:title="${bundle.L('管理团队')}" target="_blank"><i class="icon zmdi zmdi-settings"></i></a>
                     </div>
                     <div class="collapse" id="collapseGroup">
                       <div class="card-body">
@@ -110,5 +110,6 @@
     <script th:src="@{/assets/js/feeds/feeds.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
   </body>
 </html>

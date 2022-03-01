@@ -22,14 +22,14 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.general.BulkContext;
-import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.*;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -52,7 +52,7 @@ import java.util.*;
 /**
  * 业务实体操作（增/改/删/分派/共享）
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/30/2018
  * @see Application#getEntityService(int)
  * @see CommonOperatingController
@@ -62,13 +62,12 @@ import java.util.*;
 @RequestMapping("/app/entity/")
 public class GeneralOperatingController extends BaseController {
 
-    // 重复字段值
-    public static final int CODE_REPEATED_VALUES = 499;
-
     @PostMapping("record-save")
     public JSONAware save(HttpServletRequest request) {
         final ID user = getRequestUser(request);
+
         final JSON formJson = ServletUtils.getRequestJson(request);
+        final Object details = ((JSONObject) formJson).remove(GeneralEntityService.HAS_DETAILS);
 
         Record record;
         try {
@@ -78,21 +77,46 @@ public class GeneralOperatingController extends BaseController {
             return RespBody.error(known.getLocalizedMessage());
         }
 
-        // 兼容所有类型的实体
+        // 非业务实体（兼容所有类型的实体）
         if (!MetadataHelper.isBusinessEntity(record.getEntity())) {
             return CommonOperatingController.saveRecord(record);
+        }
+
+        // 明细
+        List<Record> detailsList = new ArrayList<>();
+        if (details != null) {
+            try {
+                for (Object d : (JSONArray) details) {
+                    Record detail = EntityHelper.parse((JSONObject) d, user);
+                    detailsList.add(detail);
+                }
+
+            } catch (DataSpecificationException known) {
+                log.warn(">>>>> {}", known.getLocalizedMessage());
+                return RespBody.error(known.getLocalizedMessage());
+            }
         }
 
         final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
 
         // 检查重复值
-        List<Record> repeated = ies.getAndCheckRepeated(record, 100);
+        List<Record> repeated = ies.getAndCheckRepeated(record, 20);
         if (!repeated.isEmpty()) {
-            return new RespBody(CODE_REPEATED_VALUES, Language.L("存在重复记录"), buildRepeatedData(repeated));
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
+                    buildRepeatedData(repeated));
+        }
+
+        if (!detailsList.isEmpty()) {
+            record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
 
         try {
             record = ies.createOrUpdate(record);
+
+        } catch (RepeatedRecordsException know) {
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
+                    buildRepeatedData(know.getRepeatedRecords()));
 
         } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
@@ -104,6 +128,10 @@ public class GeneralOperatingController extends BaseController {
 
             log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
+
+        } finally {
+            // 确保清除
+            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
         }
 
         JSONObject ret = new JSONObject();

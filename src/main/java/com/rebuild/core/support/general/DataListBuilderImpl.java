@@ -89,7 +89,7 @@ public class DataListBuilderImpl implements DataListBuilder {
                 for (int i = 1; i < count.length; i++) {
                     Map<String, Object> cfg = countFields.get(i);
                     Field field = entity.getField((String) cfg.get("field"));
-                    String label = (String) cfg.get("label");
+                    String label = (String) cfg.get("label2");
                     if (StringUtils.isBlank(label)) {
                         String calc = (String) cfg.get("calc");
                         label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());

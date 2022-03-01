@@ -67,7 +67,7 @@ public class ApprovalFields2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 
@@ -81,7 +81,7 @@ public class ApprovalFields2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

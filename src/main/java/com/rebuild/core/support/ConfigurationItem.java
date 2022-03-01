@@ -43,8 +43,10 @@ public enum ConfigurationItem {
     // 开放注册
     OpenSignUp(true),
 
-    // 登录背景图
+    // 动态登录背景图
     LiveWallpaper(true),
+    // 自定登录背景图
+    CustomWallpaper,
 
     // 启用文件分享
     FileSharable(true),
@@ -62,7 +64,7 @@ public enum ConfigurationItem {
     RecycleBinKeepingDays(180),
 
     // 启用数据库备份
-    DBBackupsEnable(false),
+    DBBackupsEnable(true),
 
     // 数据备份保留时间（0为禁用）
     DBBackupsKeepingDays(180),
@@ -82,6 +84,13 @@ public enum ConfigurationItem {
     // 登录密码过期时间（0为不过期）
     PasswordExpiredDays(0),
 
+    // 允许使用时间
+    AllowUsesTime,
+    // 允许使用 IP
+    AllowUsesIp,
+    // 2FA
+    Login2FAMode(0),
+
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,
@@ -91,6 +100,11 @@ public enum ConfigurationItem {
     WxworkAuthFile,
     // SAML (IdP)
     SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
+
+    // PORTALs
+    PortalBaiduMapAk,
+    PortalOfficePreviewUrl,
+    PortalUploadMaxSize(100),
 
     // !!! 仅命令行适用
     DataDirectory,                  // 数据目录

@@ -84,7 +84,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-group row">
+                  <div th:if="${fieldType == 'REFERENCE'}" class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('父级级联字段')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <select class="form-control form-control-sm" id="referenceCascadingField">
@@ -310,10 +310,10 @@
                     </label>
                   </div>
                 </div>
-                <div class="form-group row bosskey-show">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('高级配置')}]]</label>
+                <div class="form-group row hide J_advOpt">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('高级')}]] <sup class="rbv"></sup></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox">
+                    <label class="custom-control custom-control-sm custom-checkbox bosskey-show">
                       <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
                       <span class="custom-control-label">
                         [[${bundle.L('允许使用')}]]
@@ -328,7 +328,17 @@
                       </span>
                     </label>
                     <div>
-                      <input type="text" class="form-control form-control-sm" id="advPattern" th:placeholder="${bundle.L('正则表达式')}" />
+                      <input type="text" class="form-control form-control-sm" id="advPattern" th:placeholder="${bundle.L('正则表达式')}" data-toggle="dropdown" autocomplete="off" />
+                      <div class="dropdown-menu common-patt">
+                        <h5>[[${bundle.L('常用')}]]</h5>
+                        <a class="badge" data-patt="^([0-9A-Z]{15}|[0-9A-Z]{17}|[0-9A-Z]{18}|[0-9A-Z]{20})$">[[${bundle.L('税号')}]]</a>
+                        <a class="badge" data-patt="^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9X]$">[[${bundle.L('身份证')}]]</a>
+                        <a class="badge" data-patt="^[1-9][0-9]{4,10}$">[[${bundle.L('QQ号')}]]</a>
+                        <a class="badge" data-patt="^[1-9][0-9]{5}$">[[${bundle.L('邮编')}]]</a>
+                        <a class="badge" data-patt="^[\u4e00-\u9fa5]{0,}$">[[${bundle.L('仅中文')}]]</a>
+                        <a class="badge" data-patt="^[A-Za-z]{0,}$">[[${bundle.L('仅英文')}]]</a>
+                        <a class="badge" data-patt="^.{10,20}$">[[${bundle.L('限制字数')}]]</a>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 @Slf4j
@@ -99,15 +99,17 @@ public class MetaEntityController extends BaseController {
         // 扩展配置
         mv.getModel().put("entityExtConfig", easyEntity.getExtraAttrs(true));
 
+        boolean isDetail = easyEntity.getRawMeta().getMainEntity() != null;
+        boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
+        mv.getModel().put("useListMode", !(isDetail || isBizz));
+
         return mv;
     }
 
     @RequestMapping("entity/entity-list")
     public RespBody listEntity(HttpServletRequest request) {
-        // 默认无BIZZ实体
-        final boolean usesBizz = getBoolParameter(request, "bizz", false);
-        // 默认无明细实体
-        final boolean usesDetail = getBoolParameter(request, "detail", false);
+        boolean usesBizz = getBoolParameter(request, "bizz", false);
+        boolean usesDetail = getBoolParameter(request, "detail", false);
 
         List<Map<String, Object>> data = new ArrayList<>();
         for (Entity entity : MetadataSorter.sortEntities(null, usesBizz, usesDetail)) {

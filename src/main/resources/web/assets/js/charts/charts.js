@@ -1004,7 +1004,7 @@ class ProjectTasks extends BaseChart {
                 return (
                   <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
                     <td className="align-text-top">
-                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" title={$L('完成')}>
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" title={$L('完成')}>
                         <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
                         <span className="custom-control-label" />
                       </label>

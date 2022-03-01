@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see com.rebuild.web.RebuildWebConfigurer
  * @since 09/1/2020
  */
@@ -59,6 +59,7 @@ public class ErrorPageView extends BaseController {
         mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
         mv.getModel().put("MemoryUsage", OshiUtils.getOsMemoryUsed());
+        mv.getModel().put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed());
         mv.getModel().put("SystemLoad", OshiUtils.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         return mv;
@@ -77,6 +78,7 @@ public class ErrorPageView extends BaseController {
         for (ServerStatus.Status item : ServerStatus.getLastStatus(realtime)) {
             status.put(item.name, item.success ? true : item.error);
         }
+        status.put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed()[1]);
         status.put("MemoryUsage", OshiUtils.getOsMemoryUsed()[1]);
         status.put("SystemLoad", OshiUtils.getSystemLoad());
 

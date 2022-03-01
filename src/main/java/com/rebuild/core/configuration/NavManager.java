@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * 导航菜单
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/20/2018
  */
 public class NavManager extends BaseLayoutManager {

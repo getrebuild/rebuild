@@ -9,11 +9,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 const __gExtConfig = {}
 
-const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-
+const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
-const SHOW_ADVDESENSITIZED = ['TEXT', 'EMAIL', 'PHONE']
-const SHOW_ADVPATTERN = [...SHOW_ADVDESENSITIZED, 'URL', 'NTEXT']
+const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL']
+const SHOW_ADVPATTERN = ['TEXT']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -29,12 +28,25 @@ $(document).ready(function () {
   }
   // 默认值
   if (!SHOW_DEFAULTVALUE.includes(dt)) $('#defaultValue').remove()
-  // 脱敏
-  if (!SHOW_ADVDESENSITIZED.includes(dt)) $('#advDesensitized').parent().remove()
-  // 正则
-  if (!SHOW_ADVPATTERN.includes(dt)) $('#advPattern').parent().remove()
 
-  const $btn = $('.J_save').click(function () {
+  // 脱敏
+  if (SHOW_ADVDESENSITIZED.includes(dt)) {
+    $('.J_advOpt').removeClass('hide')
+  } else {
+    $('#advDesensitized').parent().remove()
+  }
+  // 正则
+  if (SHOW_ADVPATTERN.includes(dt)) {
+    $('.J_advOpt').removeClass('hide')
+
+    $('.common-patt .badge').on('click', function () {
+      $('#advPattern').val($(this).data('patt'))
+    })
+  } else {
+    $('#advPattern').parent().remove()
+  }
+
+  const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
     let data = {
       fieldLabel: $val('#fieldLabel'),
@@ -81,6 +93,11 @@ $(document).ready(function () {
 
     if (SHOW_ADVDESENSITIZED.includes(dt)) extConfigNew['advDesensitized'] = $val('#advDesensitized')
     if (SHOW_ADVPATTERN.includes(dt)) extConfigNew['advPattern'] = $val('#advPattern')
+
+    if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern']) && rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持高级功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
@@ -172,7 +189,7 @@ $(document).ready(function () {
   // delete extConfig['classification']
   // delete extConfig['stateClass']
 
-  $('.J_del').click(function () {
+  $('.J_del').on('click', function () {
     if (!wpc.isSuperAdmin) {
       RbHighbar.error($L('仅超级管理员可删除字段'))
       return
@@ -235,7 +252,7 @@ const _handlePicklist = function (dt) {
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').click(() => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
+  $('.J_picklist-edit').on('click', () => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
 }
 
 const _handleSeries = function () {
@@ -271,7 +288,7 @@ const _handleDate = function (dt) {
 
   $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
-    .click(() => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
+    .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
 
 const _handleFile = function (uploadNumber) {
@@ -304,7 +321,7 @@ const _handleFile = function (uploadNumber) {
 
 const _handleClassification = function (useClassification) {
   const $dv = $('.J_defaultValue')
-  const $dvClear = $('.J_defaultValue-clear').click(() => {
+  const $dvClear = $('.J_defaultValue-clear').on('click', () => {
     $dv.attr('data-value-id', '').val('')
     $dvClear.addClass('hide')
   })
@@ -342,7 +359,7 @@ const _handleClassification = function (useClassification) {
       .text(res.data.name)
 
     $dv.attr('readonly', true)
-    $append.click(() => _showSelector(res.data))
+    $append.on('click', () => _showSelector(res.data))
   })
 
   _loadRefsLabel($dv, $dvClear)
@@ -375,7 +392,7 @@ const _handleReference = function (isN2N) {
   dataFilter && saveFilter(dataFilter)
 
   let advFilter
-  $('#referenceDataFilter').click(() => {
+  $('#referenceDataFilter').on('click', () => {
     if (advFilter) {
       advFilter.show()
     } else {
@@ -387,7 +404,7 @@ const _handleReference = function (isN2N) {
 
   // 默认值
   const $dv = $('.J_defaultValue')
-  const $dvClear = $('.J_defaultValue-clear').click(() => {
+  const $dvClear = $('.J_defaultValue-clear').on('click', () => {
     $dv.attr('data-value-id', '').val('')
     $dvClear.addClass('hide')
   })
@@ -407,7 +424,7 @@ const _handleReference = function (isN2N) {
 
   const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
-  $append.click(() => _showSearcher())
+  $append.on('click', () => _showSearcher())
 
   window.referenceSearch__call = function (selected) {
     let val
@@ -475,5 +492,5 @@ const _handleNumber = function (calcFormula) {
     })
   }
 
-  $el.click(() => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
+  $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
 }

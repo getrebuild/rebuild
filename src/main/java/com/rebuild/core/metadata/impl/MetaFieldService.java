@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 /**
  * 请使用协作类 {@link Field2Schema}
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 @Slf4j
@@ -91,7 +91,7 @@ public class MetaFieldService extends InternalPersistService implements AdminGua
     public Record update(Record record) {
         record = super.update(record);
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return record;
     }
 

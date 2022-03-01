@@ -26,7 +26,7 @@ import java.util.Collections;
 /**
  * 外部 URL 监测跳转
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/20/2018
  */
 @Controller

@@ -42,7 +42,7 @@ class MessageList extends React.Component {
           </ul>
           {this.state.list && msglist.length === 0 && (
             <div className="list-nodata">
-              <span className="zmdi zmdi-notifications"></span>
+              <span className="zmdi zmdi-notifications" />
               <p>{$L('暂无消息')}</p>
             </div>
           )}
@@ -78,13 +78,13 @@ class MessageList extends React.Component {
     if (append) clazz += ' append'
 
     return (
-      <li id={item[4]} className={`${clazz} ${item[4] === focusItem ? 'focus' : ''}`} key={item[4]} onClick={item[3] ? () => this.makeRead(item[4]) : null}>
+      <li id={item[4]} className={`${clazz} ${item[4] === focusItem ? 'focus' : ''}`} key={item[4]}>
         <span className="a">
           <div className="image">
             <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" />
           </div>
           <div className="notification-info">
-            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
+            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }} />
             <div className="date">
               <DateShow date={item[2]} />
             </div>
@@ -92,6 +92,11 @@ class MessageList extends React.Component {
           {append && (
             <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>
               {$L('查看')}
+            </a>
+          )}
+          {item[3] && (
+            <a className="read-mark" href="javascript:;" onClick={() => this.makeRead(item[4])}>
+              {$L('标记已读')}
             </a>
           )}
         </span>
@@ -177,7 +182,7 @@ class ApprovalList extends MessageList {
             <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" />
           </div>
           <div className="notification-info">
-            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
+            <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }} />
             <div className="date">
               <DateShow date={item[2]} />
             </div>

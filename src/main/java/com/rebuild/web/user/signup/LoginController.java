@@ -35,7 +35,6 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,13 +44,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 07/25/2018
  */
 @Slf4j
@@ -247,7 +243,14 @@ public class LoginController extends BaseController {
             if (uas.getOperatingSystem().getDeviceType() == DeviceType.MOBILE) ua += " [Mobile]";
 
         } catch (Exception ex) {
-            log.warn("Unknown user-agent : " + ua);
+            StringBuilder debug4 = new StringBuilder();
+            Enumeration<String> hs = request.getHeaderNames();
+            while (hs.hasMoreElements()) {
+                String name = hs.nextElement();
+                debug4.append("\n").append(name).append("=").append(request.getHeader(name));
+            }
+
+            log.warn("Unknown user-agent : " + ua + "" + debug4);
             ua = "UNKNOW";
         }
 
@@ -260,7 +263,7 @@ public class LoginController extends BaseController {
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
 
-        License.siteApi(
+        License.siteApiNoCache(
                 String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
@@ -337,7 +340,7 @@ public class LoginController extends BaseController {
             return RespBody.ok();
         }
 
-        JSONObject ret = License.siteApi("api/misc/bgimg", true);
+        JSONObject ret = License.siteApi("api/misc/bgimg");
         if (ret == null) {
             return RespBody.ok();
         } else {

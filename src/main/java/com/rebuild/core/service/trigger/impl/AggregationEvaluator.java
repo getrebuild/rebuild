@@ -12,13 +12,12 @@ import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 聚合计算
@@ -52,7 +51,7 @@ public class AggregationEvaluator {
     public Object eval() {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
-            return evalFormula(true);
+            return evalFormula();
         }
 
         String sourceField = item.getString("sourceField");
@@ -74,10 +73,9 @@ public class AggregationEvaluator {
     /**
      * 计算公式
      *
-     * @param quietly
      * @return
      */
-    public Object evalFormula(boolean quietly) {
+    public Object evalFormula() {
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
@@ -117,15 +115,27 @@ public class AggregationEvaluator {
                 .replace("×", "*")
                 .replace("÷", "/");
 
+        Map<String, Object> envMap = new HashMap<>();
+
         for (int i = 0; i < fields.size(); i++) {
             String[] field = fields.get(i);
-            Object value = useSourceData[i] == null ? "0" : useSourceData[i];
+            String fieldKey = StringUtils.join(field, "_");
 
-            // 忽略大小写
-            String replace = "(?i)\\{" + StringUtils.join(field, MetadataHelper.SPLITER_RE) + "}";
-            clearFormual = clearFormual.replaceAll(replace, value.toString());
+            String replace = "{" + StringUtils.join(field, MetadataHelper.SPLITER) + "}";
+            String replaceWhitQuote = "\"" + replace + "\"";
+
+            if (clearFormual.contains(replaceWhitQuote)) {
+                clearFormual = clearFormual.replace(replaceWhitQuote, fieldKey);
+            } else if (clearFormual.contains(replace)) {
+                clearFormual = clearFormual.replace(replace, fieldKey);
+            } else {
+                continue;
+            }
+
+            Object value = useSourceData[i] == null ? "0" : useSourceData[i];
+            envMap.put(fieldKey, value);
         }
 
-        return EvaluatorUtils.eval(clearFormual, null, quietly);
+        return AviatorUtils.eval(clearFormual, envMap, false);
     }
 }

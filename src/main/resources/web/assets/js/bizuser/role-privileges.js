@@ -88,7 +88,12 @@ $(document).ready(function () {
         <AdvFilter
           entity={entity}
           filter={advFilterSettings[filterKey]}
-          title={$L('自定义%s权限', ACTION_NAMES[action] || '')}
+          title={
+            <React.Fragment>
+              {$L('自定义%s权限', ACTION_NAMES[action] || '')}
+              <sup className="rbv" title={$L('增值功能')} />
+            </React.Fragment>
+          }
           inModal
           canNoFilters
           confirm={(set) => {

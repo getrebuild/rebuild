@@ -69,6 +69,10 @@ public class FieldWritebackController extends BaseController {
             }
 
             Entity refEntity = refFrom.getReferenceEntity();
+            if (refEntity.equals(sourceEntity)) {  // 排除自引用
+                continue;
+            }
+
             String entityLabel = String.format("%s (%s.%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(sourceEntity), EasyMetaFactory.getLabel(refFrom));
             entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.WB_ONE2ONE});
@@ -157,7 +161,7 @@ public class FieldWritebackController extends BaseController {
         try {
             Object evalValue = new AggregationEvaluator(
                     item, MetadataHelper.getEntity(sourceEntity), "(1=1)")
-                    .evalFormula(false);
+                    .evalFormula();
             return RespBody.ok(evalValue);
 
         } catch (Exception ex) {

@@ -35,16 +35,18 @@ class ContentGroupAggregation extends ActionContentSpec {
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('分组字段关联')}</label>
             <div className="col-md-12 col-lg-9">
               {this.state.groupFields && this.state.groupFields.length > 0 && (
-                <div className="mb-2 mt-1">
+                <div style={{ marginBottom: 12 }}>
                   {this.state.groupFields.map((item) => {
                     return (
-                      <span className="badge badge-primary badge-close" key={item.targetField}>
-                        <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
-                        <i className="zmdi zmdi-swap ml-2 mr-2" />
-                        <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
-                        <a className="close" title={$L('移除')} onClick={() => this.delGroupField(item.targetField)}>
-                          <i className="zmdi zmdi-close" />
-                        </a>
+                      <span className="mt-1 d-inline-block" key={item.targetField}>
+                        <span className="badge badge-primary badge-close m-0 mr-1">
+                          <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
+                          <i className="zmdi zmdi-swap ml-2 mr-2" />
+                          <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
+                          <a className="close" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
+                            <i className="zmdi zmdi-close" />
+                          </a>
+                        </span>
                       </span>
                     )
                   })}
@@ -54,6 +56,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetGroupField = c)}>
                     {(this.state.targetGroupFields || []).map((item) => {
+                      if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item[0]) || item[2] === 'DATETIME') return null
+
                       return (
                         <option key={item[0]} value={item[0]}>
                           {item[1]}
@@ -245,8 +249,13 @@ class ContentGroupAggregation extends ActionContentSpec {
               let stf = $s2tgf.val()
               stf = this.state.targetGroupFields.find((x) => x[0] === stf)
 
-              // FIXME 仅同类型的字段
-              const fs = this.__sourceGroupFieldsCache.filter((x) => x[2] === stf[2])
+              // 仅同类型的字段
+              // DATE DATETIME 兼容
+              const fs = this.__sourceGroupFieldsCache.filter((x) => {
+                if (stf[2] === 'DATE' && x[2] === 'DATETIME') return true
+                if (stf[2] === 'DATETIME' && x[2] === 'DATE') return true
+                return x[2] === stf[2]
+              })
               this.setState({ sourceGroupFields: fs })
             })
           const $s2sgf = $(this._$sourceGroupField).select2({ placeholder: $L('选择源字段') })

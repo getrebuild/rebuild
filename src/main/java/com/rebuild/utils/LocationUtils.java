@@ -13,6 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.regex.Pattern;
+
 /**
  * 位置工具
  *
@@ -21,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class LocationUtils {
+
+    private static final Pattern PRIVATE_IP = Pattern.compile("(localhost)|" +
+            "(^127\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|(^192\\.168\\.)");
 
     /**
      * 获取 IP 所在位置
@@ -40,8 +45,12 @@ public class LocationUtils {
      * @return
      */
     public static JSON getLocation(String ip, boolean useCache) {
+        if (PRIVATE_IP.matcher(ip).find()) {
+            return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
+        }
+
         JSONObject result;
-        if (useCache) {
+        if (useCache && Application.isReady()) {
             result = (JSONObject) Application.getCommonsCache().getx("IPLocation2" + ip);
             if (result != null) {
                 return result;
@@ -51,30 +60,50 @@ public class LocationUtils {
         result = new JSONObject();
         result.put("ip", ip);
 
-        JSONObject loc = getJSON(String.format("https://ipapi.co/%s/json/", ip));
-        if (loc != null) {
-            if (loc.getString("country") != null) {
-                result.put("country", loc.getString("country"));
-                result.put("region", loc.getString("region"));
-                result.put("city", loc.getString("city"));
-            } else if (loc.getBooleanValue("reserved")) {
+        JSONObject fetchTry;
+
+        // #1
+        fetchTry = getJSON(String.format("https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", ip));
+        if (fetchTry != null && fetchTry.getIntValue("code") == 0) {
+            fetchTry = fetchTry.getJSONObject("data");
+            String c = fetchTry.getString("country");
+            if ("local".equalsIgnoreCase(fetchTry.getString("isp_id")) || "xx".equalsIgnoreCase(c)) {
                 result.put("country", "R");
+            } else {
+                result.put("country", "xx".equalsIgnoreCase(c) ? "" : c);
+                c = fetchTry.getString("region");
+                result.put("region", "xx".equalsIgnoreCase(c) ? "" : c);
+                c = fetchTry.getString("city");
+                result.put("city", "xx".equalsIgnoreCase(c) ? "" : c);
             }
+            return result;
         }
 
-        if (result.getString("country") == null) {
-            loc = getJSON(String.format("http://ip-api.com/json/%s", ip));
-            log.warn("Use backup IP location service : " + loc);
+        // #2
+        fetchTry = getJSON(String.format("https://ipapi.co/%s/json/", ip));
+        if (fetchTry != null) {
+            if (fetchTry.getString("country") != null) {
+                result.put("country", fetchTry.getString("country"));
+                result.put("region", fetchTry.getString("region"));
+                result.put("city", fetchTry.getString("city"));
+            } else if (fetchTry.getBooleanValue("reserved")) {
+                result.put("country", "R");
+            }
+            return result;
+        }
 
-            if (loc != null) {
-                String message = loc.getString("message");
-                if (loc.getString("countryCode") != null) {
-                    result.put("country", loc.getString("countryCode"));
-                    result.put("region", loc.getString("regionName"));
-                    result.put("city", loc.getString("city"));
-                } else if (message != null && (message.contains("private") || message.contains("reserved"))) {
-                    result.put("country", "R");
-                }
+        // #3
+        fetchTry = getJSON(String.format("http://ip-api.com/json/%s", ip));
+        if (fetchTry != null) {
+            String message = fetchTry.getString("message");
+            if (fetchTry.getString("countryCode") != null) {
+                result.put("country", fetchTry.getString("countryCode"));
+                result.put("region", fetchTry.getString("regionName"));
+                result.put("city", fetchTry.getString("city"));
+                return result;
+            } else if (message != null && (message.contains("private") || message.contains("reserved"))) {
+                result.put("country", "R");
+                return result;
             }
         }
 
@@ -82,7 +111,9 @@ public class LocationUtils {
             result.put("country", "N");
         }
 
-        Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_DAY * 90);
+        if (Application.isReady()) {
+            Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_DAY * 90);
+        }
         return result;
     }
 

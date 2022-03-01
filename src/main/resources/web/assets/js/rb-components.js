@@ -568,12 +568,7 @@ class UserSelector extends React.Component {
 
     this.setState({ tabType: type, items: this._cached[ckey] }, () => {
       if (!this._cached[ckey]) {
-        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
-          // // 全部用户
-          // if (this.props.showAllUser && type === 'User' && !this.state.query) {
-          //   res.data.unshift({ id: '001-9999999999999999', text: '全部用户' })
-          // }
-
+        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}&atall=${!!this.props.requestAtAll}`, (res) => {
           this._cached[ckey] = res.data
           this.switchTab(type)
         })
@@ -974,12 +969,94 @@ UserPopup.create = function (el) {
 // ~~ HTML 内容
 const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
+// ~~ short React.Fragment
+const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
+
+class RbGritter extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div id="gritter-notice-wrapper" className="gritter-main-wrapper">
+        {this.state.items}
+      </div>
+    )
+  }
+
+  _addItem(message, options) {
+    const itemid = `gritter-item-${$random()}`
+
+    const type = options.type || 'success'
+    const icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+
+    const item = (
+      <div key={itemid} id={itemid} className={`gritter-item-wrapper color ${type} animated faster fadeInRight`}>
+        <div className="gritter-item">
+          <div className="gritter-img-container">
+            <span className="gritter-image">
+              <i className={`icon zmdi zmdi-${icon}`} />
+            </span>
+          </div>
+          <div className="gritter-content gritter-with-image">
+            <a
+              className="gritter-close"
+              tabIndex="1"
+              onClick={(e) => {
+                $stopEvent(e, true)
+                this._removeItem(itemid)
+              }}
+            />
+            {options.title && <span className="gritter-title">{options.title}</span>}
+            <p>{message}</p>
+          </div>
+        </div>
+      </div>
+    )
+
+    const itemsNew = this.state.items || []
+    itemsNew.push(item)
+    this.setState({ items: itemsNew }, () => {
+      setTimeout(() => this._removeItem(itemid), options.timeout || 6000)
+    })
+  }
+
+  _removeItem(itemid) {
+    const itemsNew = this.state.items.filter((item) => itemid !== item.key)
+    console.log(itemsNew)
+    this.setState({ items: itemsNew })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} message
+   * @param {*} options
+   */
+  static create(message, options = {}) {
+    if (top !== self && parent.RbGritter) {
+      parent.RbGritter.create(message, options)
+    } else {
+      if (this.__$wrapper) {
+        this.__$wrapper._addItem(message, options)
+      } else {
+        const that = this
+        renderRbcomp(<RbGritter />, null, function () {
+          that.__$wrapper = this
+          that.__$wrapper._addItem(message, options)
+        })
+      }
+    }
+  }
+}
+
 /**
  * JSX 组件渲染
  *
  * @param {*} jsx
  * @param {*} target id or object of element (or function of callback)
- * @param {*} call callback
+ * @param {*} call callback on mounted
  */
 const renderRbcomp = function (jsx, target, call) {
   if (typeof target === 'function') {
@@ -1000,6 +1077,8 @@ const renderRbcomp = function (jsx, target, call) {
   } else if (target instanceof $) {
     target = target[0]
   }
+
+  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
   ReactDOM.render(jsx, target, call)
   return target
 }

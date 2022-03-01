@@ -12,7 +12,7 @@ import com.rebuild.core.DefinedException;
 /**
  * 无效请求参数
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/19/2018
  */
 public class InvalidParameterException extends DefinedException {

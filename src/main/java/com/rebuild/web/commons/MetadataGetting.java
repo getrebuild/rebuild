@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  * 元数据获取
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/19/2018
  */
 @RestController
@@ -46,12 +46,12 @@ public class MetadataGetting extends BaseController {
 
     @GetMapping("entities")
     public List<JSON> entities(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        // 返回明细实体
+        final ID user = getRequestUser(request);
+        boolean usesBizz = getBoolParameter(request, "bizz", false);
         boolean usesDetail = getBoolParameter(request, "detail", false);
 
         List<JSON> data = new ArrayList<>();
-        for (Entity e : MetadataSorter.sortEntities(user, false, usesDetail)) {
+        for (Entity e : MetadataSorter.sortEntities(user, usesBizz, usesDetail)) {
             JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
             item.put("name", item.getString("entity"));
             item.put("label", item.getString("entityLabel"));

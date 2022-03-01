@@ -16,7 +16,7 @@ import com.rebuild.core.configuration.ConfigBean;
 /**
  * 基础布局管理
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/15/2018
  */
 public class BaseLayoutManager extends ShareToManager {

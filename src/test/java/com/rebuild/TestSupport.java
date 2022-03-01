@@ -50,7 +50,7 @@ public class TestSupport {
 
         try {
             System.setProperty("rbdev", "true");  // dev/debug mode
-//            System.setProperty("spring.main.web-application-type", "none");  // No Web
+            System.setProperty("spring.main.web-application-type", "none");  // No Web
             System.setProperty("server.port", "0");  // random port
             BootApplication.main(new String[0]);
             RebuildReady = true;
@@ -108,6 +108,7 @@ public class TestSupport {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("SameParameterValue")
     protected static boolean addTestEntities(boolean dropExists) throws Exception {
         boolean changed = false;
         if (dropExists) {
@@ -127,14 +128,13 @@ public class TestSupport {
             }
         }
 
-//        new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TestAllFields), true);
         if (!MetadataHelper.containsEntity(TestAllFields)) {
             Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
             String entityName = entity2Schema.createEntity(TestAllFields.toUpperCase(), null, null, true);
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) {
+                if (dt == DisplayType.ID || dt == DisplayType.ANYREFERENCE) {
                     continue;
                 }
 
@@ -145,13 +145,13 @@ public class TestSupport {
                     new Field2Schema(UserService.ADMIN_USER)
                             .createField(testEntity, fieldName, dt, null, entityName, null);
                 } else if (dt == DisplayType.CLASSIFICATION) {
-                    JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
+                    JSON extra = JSON.parseObject("{classification:'018-0000000000000001'}");
                     new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, entityName, area);
+                            .createField(testEntity, fieldName, dt, null, entityName, extra);
                 } else if (dt == DisplayType.STATE) {
-                    JSON area = JSON.parseObject("{stateClass:'com.rebuild.core.support.state.HowtoState'}");
+                    JSON extra = JSON.parseObject("{stateClass:'com.rebuild.core.support.state.HowtoState'}");
                     new Field2Schema(UserService.ADMIN_USER)
-                            .createField(testEntity, fieldName, dt, null, entityName, area);
+                            .createField(testEntity, fieldName, dt, null, entityName, extra);
                 } else {
                     new Field2Schema(UserService.ADMIN_USER)
                             .createField(testEntity, fieldName, dt, null, null, null);

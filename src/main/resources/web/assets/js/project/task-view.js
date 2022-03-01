@@ -50,10 +50,11 @@ class TaskForm extends React.Component {
           {this.props.editable && this.state.isManageable && (
             <div className="col-2 text-right">
               <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">
-                {$L('操作')} <i className="icon zmdi zmdi-more-vert"></i>
+                {$L('操作')} <i className="icon zmdi zmdi-more-vert" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={() => this._handleDelete()}>
+                  <i className="icon zmdi zmdi-delete" />
                   {$L('删除')}
                 </a>
               </div>
@@ -257,7 +258,7 @@ class ValueStatus extends ValueComp {
     return (
       <div className="form-control-plaintext">
         <span className="status-checkbox">
-          <label className="custom-control custom-checkbox custom-control-inline bw-bold" onClick={(e) => $stopEvent(e)}>
+          <label className="custom-control custom-checkbox custom-control-inline ptask" onClick={(e) => $stopEvent(e)}>
             <input className="custom-control-input" type="checkbox" disabled={this.props.readonly} ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
             <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
@@ -560,7 +561,7 @@ class ValueAttachments extends ValueComp {
                 <span>{fileName}</span>
                 {del && (
                   <b title={$L('删除')} onClick={(e) => this._deleteAttachment(item, e)}>
-                    <span className="zmdi zmdi-close"></span>
+                    <span className="zmdi zmdi-close" />
                   </b>
                 )}
               </a>
@@ -586,15 +587,9 @@ class ValueAttachments extends ValueComp {
   }
 
   componentDidMount() {
-    let mp = false
     $createUploader(
       this._attachments,
-      () => {
-        if (!mp) {
-          $mp.start()
-          mp = true
-        }
-      },
+      () => $mp.start(),
       (res) => {
         $mp.end()
         const s = (this.state.attachments || []).slice(0)
@@ -629,7 +624,7 @@ class ValueTags extends ValueComp {
                 {item.name}
                 {editable && (
                   <a title={$L('移除')} onClick={() => this._delRelated(item.rid)}>
-                    <i className="zmdi zmdi-close"></i>
+                    <i className="zmdi zmdi-close" />
                   </a>
                 )}
               </span>
@@ -639,7 +634,7 @@ class ValueTags extends ValueComp {
         {editable ? (
           <span className="dropdown" ref={(c) => (this._dropdown = c)}>
             <a className="tag-add" title={$L('点击添加')} data-toggle="dropdown">
-              <i className="zmdi zmdi-plus"></i>
+              <i className="zmdi zmdi-plus" />
             </a>
             <div className="dropdown-menu dropdown-menu-right tags">
               {<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} $$$parent={this} />}
@@ -716,7 +711,7 @@ class ValueTagsEditor extends React.Component {
             />
             <span className="input-group-btn">
               <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)}>
-                <i className="icon zmdi zmdi-plus text-primary"></i>
+                <i className="icon zmdi zmdi-plus text-primary" />
               </button>
             </span>
           </div>
@@ -727,11 +722,11 @@ class ValueTagsEditor extends React.Component {
               const colorStyle = { backgroundColor: item.color }
               return (
                 <li className="dropdown-item" key={item.id} onClick={() => this._saveRelated(item)}>
-                  <i style={colorStyle}></i>
+                  <i style={colorStyle} />
                   <span>{item.name}</span>
                   {item.isManageable && (
                     <a onClick={() => this.toggleEditMode(true, item)} title={$L('编辑')}>
-                      <i className="zmdi zmdi-edit"></i>
+                      <i className="zmdi zmdi-edit" />
                     </a>
                   )}
                 </li>
@@ -933,10 +928,10 @@ class TaskCommentsList extends React.Component {
     if ((this.state.comments || []).length === 0) return null
     return (
       <div className="comment-list-wrap">
-        <h4>
-          <i className="zmdi zmdi-comments label-icon down-2"></i>
+        <h5 className="text-bold">
+          <i className="zmdi zmdi-comments label-icon down-2" />
           {$L('评论列表')} ({this.state.comments.length})
-        </h4>
+        </h5>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
             const id = `comment-${item.id}`
@@ -962,7 +957,7 @@ class TaskCommentsList extends React.Component {
                       {this.props.editable && (
                         <ul className="list-unstyled m-0">
                           {item.isManageable && (
-                            <li className="list-inline-item mr-2">
+                            <li className="list-inline-item mr-3">
                               <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
                                 <i className="zmdi zmdi-delete" /> {$L('删除')}
                               </a>
@@ -1144,7 +1139,7 @@ class RichTextEditor extends React.Component {
                     <i className="file-icon" data-type={$fileExtName(fileName)} />
                     <span>{fileName}</span>
                     <b title={$L('移除')} onClick={() => this._removeFile(item)}>
-                      <span className="zmdi zmdi-close"></span>
+                      <span className="zmdi zmdi-close" />
                     </b>
                   </div>
                 )

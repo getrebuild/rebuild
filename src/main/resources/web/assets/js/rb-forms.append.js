@@ -4,10 +4,11 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-unused-vars */
 // 表单附加操作，可在其他页面独立引入
 
-// 分类数据选择
-// eslint-disable-next-line no-unused-vars
+// ~~ 分类数据选择
+
 class ClassificationSelector extends React.Component {
   constructor(props) {
     super(props)
@@ -154,14 +155,12 @@ class ClassificationSelector extends React.Component {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
+// ~~ 引用字段搜索
+
 window.referenceSearch__call = function (selected) {}
-// eslint-disable-next-line no-unused-vars
 window.referenceSearch__dlg
 
-// ~~ 引用字段搜索
 // see `reference-search.html`
-// eslint-disable-next-line no-unused-vars
 class ReferenceSearcher extends RbModal {
   constructor(props) {
     super(props)
@@ -189,7 +188,6 @@ class ReferenceSearcher extends RbModal {
 
   componentDidMount() {
     super.componentDidMount()
-    // eslint-disable-next-line no-unused-vars
     window.referenceSearch__dlg = this
   }
 
@@ -198,8 +196,8 @@ class ReferenceSearcher extends RbModal {
   }
 }
 
-// 删除确认
-// eslint-disable-next-line no-unused-vars
+// ~~ 删除确认
+
 class DeleteConfirm extends RbAlert {
   constructor(props) {
     super(props)
@@ -300,7 +298,8 @@ class DeleteConfirm extends RbAlert {
   }
 }
 
-// 百度地图
+// ~~ 百度地图
+
 // https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
 class BaiduMap extends React.Component {
   constructor(props) {
@@ -403,7 +402,6 @@ class BaiduMap extends React.Component {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 class BaiduMapModal extends RbModal {
   constructor(props) {
     super(props)
@@ -510,5 +508,168 @@ class BaiduMapModal extends RbModal {
         BaiduMapModal._ViewModal = this
       })
     }
+  }
+}
+
+// ~~ 签名板
+
+const SignPad_PenColors = {
+  black: 'rgb(0, 0, 0)',
+  blue: 'rgb(26, 97, 204)',
+  red: 'rgb(202, 51, 51)',
+}
+
+class SignPad extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this._defaultPenColor = $storage.get('SignPad_PenColor') || 'black'
+    this.state = { ...props, penColor: this._defaultPenColor }
+  }
+
+  render() {
+    return (
+      <div className="modal sign-pad" ref={(c) => (this._$dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <h5 className="mt-0 text-bold text-uppercase">{$L('签名区')}</h5>
+              <button className="close" type="button" onClick={this.hide}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body pt-1">
+              <div className="sign-pad-canvas">
+                <div className="pen-colors">
+                  {Object.keys(SignPad_PenColors).map((item) => {
+                    return <a className={`color-${item} && ${this.state.penColor === item && 'active'}`} onClick={() => this._selectPenColor(item)} key={item} />
+                  })}
+                </div>
+                <canvas ref={(c) => (this._$canvas = c)} />
+              </div>
+              <div className="sign-pad-footer mt-2">
+                <button type="button" className="btn btn-secondary btn-space" onClick={() => this._SignaturePad.clear()}>
+                  {$L('擦除')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-outline btn-space mr-0"
+                  onClick={() => {
+                    const data = this._SignaturePad.isEmpty() ? null : this._SignaturePad.toDataURL()
+                    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+                    this.hide()
+                  }}>
+                  {$L('确定')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const $root = $(this._$dlg).on('hidden.bs.modal', () => {
+      $keepModalOpen()
+      if (this.props.disposeOnHide === true) {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      }
+    })
+
+    const that = this
+    function initSign() {
+      that._$canvas.width = Math.min(540, $(window).width() - 40)
+      that._$canvas.height = 180
+      that._SignaturePad = new window.SignaturePad(that._$canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: SignPad_PenColors[that._defaultPenColor],
+      })
+      that.show()
+    }
+
+    if (!window.SignaturePad) {
+      $.ajax({
+        url: '/assets/lib/widget/signature_pad.umd.min.js',
+        dataType: 'script',
+        cache: true,
+        success: initSign,
+      })
+    } else {
+      initSign()
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._SignaturePad) this._SignaturePad.off()
+  }
+
+  _selectPenColor(c) {
+    this.setState({ penColor: c }, () => {
+      $storage.set('SignPad_PenColor', c)
+      this._SignaturePad.clear()
+      this._SignaturePad.penColor = SignPad_PenColors[c]
+    })
+  }
+
+  hide = () => $(this._$dlg).modal('hide')
+  show = (clear) => {
+    if (clear && this._SignaturePad) this._SignaturePad.clear()
+    $(this._$dlg).modal('show')
+  }
+}
+
+// ~~ 重复记录查看
+
+class RepeatedViewer extends RbModalHandler {
+  render() {
+    // 第一行为字段名
+    const data = this.props.data
+
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在重复记录')} disposeOnHide={true} colored="warning">
+        <table className="table table-hover dialog-table">
+          <thead>
+            <tr>
+              <th width="32" />
+              {data[0].map((item, idx) => {
+                if (idx === 0) return null
+                return <th key={`field-${idx}`}>{item}</th>
+              })}
+              <th width="55" />
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, idx) => {
+              if (idx === 0) return null
+              else return this.renderRow(item, idx)
+            })}
+          </tbody>
+        </table>
+      </RbModal>
+    )
+  }
+
+  renderRow(item, idx) {
+    return (
+      <tr key={`row-${idx}`}>
+        <td className="text-right pl-0">{idx}</td>
+        {item.map((o, i) => {
+          if (i === 0) return null
+          return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
+        })}
+        <td className="actions">
+          <button type="button" className="btn btn-light btn-sm w-auto" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
+            <i className="zmdi zmdi-open-in-new fs-16 down-2" />
+          </button>
+        </td>
+      </tr>
+    )
+  }
+
+  openView(id) {
+    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
+    else window.open(`${rb.baseUrl}/app/list-and-view?id=${id}`)
   }
 }

@@ -15,7 +15,7 @@ import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since Jan 6, 2019
  */
 public class DataListBuilderTest extends TestSupport {

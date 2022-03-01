@@ -616,6 +616,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       <div>
         <div className="header">
           <input type="text" placeholder={$L('审批人')} data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+          <i className="zmdi zmdi-edit icon" />
         </div>
         <div className="form rb-scroller">
           <div className="form-group mb-0">
@@ -764,6 +765,7 @@ class CCNodeConfig extends StartNodeConfig {
       <div>
         <div className="header">
           <input type="text" placeholder={$L('抄送人')} data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+          <i className="zmdi zmdi-edit icon" />
         </div>
         <div className="form">
           <div className="form-group mb-3">
@@ -815,6 +817,7 @@ class ConditionBranchConfig extends StartNodeConfig {
       <div>
         <div className="header">
           <input type="text" placeholder={$L('分支条件')} data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+          <i className="zmdi zmdi-edit icon" />
         </div>
         {this.state.isLast && <div className="alert alert-warning">{$L('该分支将作为最终分支匹配其他条件')}</div>}
         <AdvFilter filter={this.state.filter} entity={this.props.entity} onConfirm={this.save} onCancel={this.cancel} canNoFilters />

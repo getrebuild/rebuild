@@ -111,13 +111,13 @@ public class NavBuilder extends NavManager {
     /**
      * 是否需要过滤掉
      *
-     * @param nav
+     * @param item
      * @param user
      * @return
      */
-    private boolean isFilterNavItem(JSONObject nav, ID user) {
-        String type = nav.getString("type");
-        String value = nav.getString("value");
+    private boolean isFilterNavItem(JSONObject item, ID user) {
+        String type = item.getString("type");
+        String value = item.getString("value");
 
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
@@ -133,14 +133,32 @@ public class NavBuilder extends NavManager {
                     user, MetadataHelper.getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
+
+            // 替换 RBTOKEN
+            // https://getrebuild.com/docs/rbv/openapi/page-token-verify
+
+            if (value.contains("$RBTOKEN$") || value.contains("%24RBTOKEN%24")) {
+                String rbtoken = RBTOKEN.get();
+                if (rbtoken == null) {
+                    rbtoken = PageTokenVerify.generate(UserContextHolder.getUser());
+                    RBTOKEN.set(rbtoken);
+                }
+
+                if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", rbtoken);
+                else value = value.replace("%24RBTOKEN%24", rbtoken);
+
+                item.put("value", value);
+            }
+
             // URL 绑定实体权限
             // 如 https://www.baidu.com/::ENTITY_NAME
-            String[] split = value.split("::");
-            if (split.length != 2) return false;
 
-            String bindEntity = split[1];
+            String[] ss = value.split("::");
+            if (ss.length != 2) return false;
+
+            String bindEntity = ss[1];
             if (MetadataHelper.containsEntity(bindEntity)) {
-                nav.put("value", split[0]);
+                item.put("value", ss[0]);
                 return !Application.getPrivilegesManager().allowRead(user,
                         MetadataHelper.getEntity(bindEntity).getEntityCode());
             }
@@ -258,18 +276,6 @@ public class NavBuilder extends NavManager {
         boolean isOutUrl = isUrlType && navUrl.startsWith("http");
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
-
-            // https://getrebuild.com/docs/rbv/openapi/page-token-verify
-            if (navUrl.contains("$RBTOKEN$") || navUrl.contains("%24RBTOKEN%24")) {
-                String rbtoken = RBTOKEN.get();
-                if (rbtoken == null) {
-                    rbtoken = PageTokenVerify.generate(UserContextHolder.getUser());
-                    RBTOKEN.set(rbtoken);
-                }
-
-                if (navUrl.contains("$RBTOKEN$")) navUrl = navUrl.replace("$RBTOKEN$", rbtoken);
-                else navUrl = navUrl.replace("%24RBTOKEN%24", rbtoken);
-            }
 
             if (isOutUrl) {
                 navUrl = AppUtils.getContextPath("/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl));

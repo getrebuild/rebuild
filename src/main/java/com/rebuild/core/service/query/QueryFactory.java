@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 /**
  * 查询服务
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see RoleBaseQueryFilter
  * @since 05/21/2017
  */

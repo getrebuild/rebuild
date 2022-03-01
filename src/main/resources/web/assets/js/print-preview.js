@@ -191,6 +191,14 @@ class PreviewTable extends React.Component {
           })}
         </ul>
       )
+    } else if (item.type === 'SIGN') {
+      return (
+        <div className="img-field sign">
+          <span className="img-thumbnail img-upload">
+            <img src={item.value} alt="SIGN" />
+          </span>
+        </div>
+      )
     } else if (typeof item.value === 'object') {
       return this._findMixValue(item.value)
     } else {

@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.DeleteRecord;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -51,12 +52,15 @@ import java.util.*;
  *
  * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 11/06/2017
  */
 @Slf4j
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
+
+    // 有明细
+    public static final String HAS_DETAILS = "$DETAILS$";
 
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -70,6 +74,59 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int getEntityCode() {
         return 0;
+    }
+
+    // 此方法具备明细实体批处理能力
+    // 此方法具备重复检查能力
+    @Override
+    public Record createOrUpdate(Record record) {
+        @SuppressWarnings("unchecked")
+        final List<Record> details = (List<Record>) record.removeValue(HAS_DETAILS);
+
+        final int rcm = GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+
+        if (rcm == GeneralEntityServiceContextHolder.RCM_CHECK_MAIN
+                || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL) {
+            List<Record> repeated = getAndCheckRepeated(record, 20);
+            if (!repeated.isEmpty()) {
+                throw new RepeatedRecordsException(repeated);
+            }
+        }
+
+        record = super.createOrUpdate(record);
+        if (details == null || details.isEmpty()) return record;
+
+        // 明细
+        String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+        ID mainid = record.getPrimary();
+
+        boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
+                || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
+
+        for (Record d : details) {
+            if (d instanceof DeleteRecord) {
+                delete(d.getPrimary());
+                continue;
+            }
+
+            if (checkDetailsRepeated) {
+                d.setID(dtf, mainid);  // for check
+
+                List<Record> repeated = getAndCheckRepeated(d, 20);
+                if (!repeated.isEmpty()) {
+                    throw new RepeatedRecordsException(repeated);
+                }
+            }
+
+            if (d.getPrimary() == null) {
+                d.setID(dtf, mainid);
+                create(d);
+            } else {
+                update(d);
+            }
+        }
+
+        return record;
     }
 
     @Override
@@ -195,10 +252,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         // 如用户无更新权限，则降级为只读共享
         if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
-            if (!Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true)
-                    || !Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode())) {
+            if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
+                    || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
                 rights = BizzPermission.READ.getMask();
-                log.warn("Downgrade share rights : {} > {}", record, rights);
+                log.warn("Downgrade share rights to READ(8) : {}", record);
             }
         }
 
@@ -382,7 +439,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
+                            ? Language.L("主记录已完成审批，不能添加明细")
+                            : Language.L("主记录正在审批中，不能添加明细"));
                 }
             }
 
@@ -425,7 +483,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     }
 
                     throw new DataSpecificationException(currentState == ApprovalState.APPROVED
-                            ? Language.L("%s已完成审批，禁止操作", recordType) : Language.L("%s正在审批中，禁止操作", recordType));
+                            ? Language.L("%s已完成审批，禁止操作", recordType)
+                            : Language.L("%s正在审批中，禁止操作", recordType));
                 }
             }
         }
@@ -510,6 +569,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
             checkFields.add(field.getName());
         }
+
         if (checkFields.isEmpty()) {
             return Collections.emptyList();
         }
@@ -527,9 +587,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
-            checkSql.append(" and ").append(entity.getPrimaryField().getName())
-                    .append(" <> ")
-                    .append(String.format("'%s'", checkRecord.getPrimary().toLiteral()));
+            checkSql.append(String.format(" and (%s <> '%s')",
+                    entity.getPrimaryField().getName(), checkRecord.getPrimary()));
+        }
+
+        // 明细实体在主记录下检查重复
+        if (entity.getMainEntity() != null) {
+            String dtf = MetadataHelper.getDetailToMainField(entity).getName();
+            ID mainid = checkRecord.getID(dtf);
+            if (mainid == null) {
+                log.warn("Check all detail records for repeated");
+            } else {
+                checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+            }
         }
 
         Query query = ((BaseService) delegateService).getPersistManagerFactory().createQuery(checkSql.toString());

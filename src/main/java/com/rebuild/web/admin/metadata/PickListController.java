@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/06/2018
  */
 @Controller

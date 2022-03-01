@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
     <title>REBUILD</title>
-    <style type="text/css">
+    <style>
       .zmdi.err400,
       .zmdi.err401,
       .zmdi.err403,
@@ -22,6 +22,10 @@
         color: #fbbc05;
         font-size: 5rem;
       }
+      .zmdi.err497::before {
+        content: '\f119';
+      }
+
       .error-description > pre:empty {
         display: none;
       }
@@ -47,7 +51,8 @@
               <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('返回首页')}]]</a>
               <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('重试')}]]</button>
               <div class="mt-4">
-                <a href="https://getrebuild.com/report-issue?title=error-page" target="_blank">[[${bundle.L('报告问题')}]]</a>
+                <a th:href="${'https://getrebuild.com/report-issue?title=error-page-' + error_code}" target="_blank">[[${bundle.L('报告问题')}]]</a>
+                <span>[[${bundle.L('或联系系统管理员')}]]</span>
               </div>
             </div>
           </div>

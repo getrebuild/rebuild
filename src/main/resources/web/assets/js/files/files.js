@@ -16,7 +16,7 @@ class FilesList extends React.Component {
 
   render() {
     return (
-      <div className="file-list">
+      <div className="file-list file-list-striped">
         {(this.state.files || []).map((item) => {
           const checked = this.state.currentActive === item.id
           return (
@@ -31,7 +31,9 @@ class FilesList extends React.Component {
                 <i className="file-icon" data-type={item.fileType} />
               </div>
               <div className="detail">
-                <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
+                <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)} title={$L('预览')}>
+                  {$fileCutName(item.filePath)}
+                </a>
                 <div className="extras">
                   <span className="fsize">{item.fileSize}</span>
                   {this.renderExtras(item)}
@@ -58,7 +60,7 @@ class FilesList extends React.Component {
         )}
         {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>}
         {this.__pageNo === 1 && this.state.files && this.state.files.length === 0 && (
-          <div className="list-nodata pt-8 pb-8">
+          <div className="list-nodata">
             <i className="zmdi zmdi-folder-outline" />
             <p>{$L('暂无数据')}</p>
           </div>

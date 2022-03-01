@@ -75,7 +75,7 @@ public class FieldAggregation implements TriggerAction {
      * @param context
      */
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.TRUE, 5);
+        this(context, Boolean.TRUE, 9);
     }
 
     /**
@@ -195,7 +195,12 @@ public class FieldAggregation implements TriggerAction {
             ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
                     ? Application.getEntityService(targetEntity.getEntityCode())
                     : Application.getService(targetEntity.getEntityCode());
-            useService.update(targetRecord);
+
+            try {
+                useService.update(targetRecord);
+            } finally {
+                PrivilegesGuardContextHolder.getSkipGuardOnce();
+            }
         }
     }
 

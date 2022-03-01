@@ -56,7 +56,7 @@ class DlgAssign extends RbModalHandler {
           )}
           {this._Props[0] === 'share' && (
             <div className="form-group row pt-1">
-              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
@@ -192,27 +192,15 @@ class DlgUnshare extends RbModalHandler {
             <div className="col-sm-7">
               <div className="mt-1">
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                  <input
-                    className="custom-control-input"
-                    name="whichUsers"
-                    type="radio"
-                    checked={this.state.whichUsers === 'ALL'}
-                    onChange={() => this.whichMode(true)}
-                  />
+                  <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'ALL'} onChange={() => this.whichMode(true)} />
                   <span className="custom-control-label">{$L('全部用户')}</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                  <input
-                    className="custom-control-input"
-                    name="whichUsers"
-                    type="radio"
-                    checked={this.state.whichUsers === 'SPEC'}
-                    onChange={() => this.whichMode()}
-                  />
+                  <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'SPEC'} onChange={() => this.whichMode()} />
                   <span className="custom-control-label">{$L('指定用户')}</span>
                 </label>
               </div>
-              <div className={'mb-2 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
+              <div className={`mb-2 ${this.state.whichUsers === 'ALL' ? 'hide' : ''}`}>
                 <UserSelector ref={(c) => (this._UserSelector = c)} />
               </div>
             </div>
@@ -300,8 +288,8 @@ class DlgShareManager extends RbModalHandler {
                       <span>{item[0][1]}</span>
                     </td>
                     <td className="text-right">
-                      {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('读取')}</span>}
                       {(item[4] & 4) !== 0 && <span className="badge badge-light">{$L('编辑')}</span>}
+                      {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('读取')}</span>}
                     </td>
                     <td className="text-right text-muted" title={item[2]}>
                       {$L('由 %s 共享于 %s', item[3], $fromNow(item[2]))}

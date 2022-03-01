@@ -23,6 +23,7 @@ import com.qiniu.util.StringMap;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ import java.util.UUID;
 /**
  * 七牛云存储
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/19/2018
  */
 @Slf4j
@@ -186,7 +187,8 @@ public class QiniuCloud {
      */
     public String getUploadToken(String fileKey) {
         // 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
-        StringMap policy = new StringMap().put("fsizeLimit", 102400000);  // 100M
+        int maxSize = RebuildConfiguration.getInt(ConfigurationItem.PortalUploadMaxSize);
+        StringMap policy = new StringMap().put("fsizeLimit", FileUtils.ONE_MB * maxSize);
         return getAuth().uploadToken(bucketName, fileKey, 60 * 10, policy);
     }
 

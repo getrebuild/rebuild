@@ -11,8 +11,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.BootApplication;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -21,6 +21,8 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +39,19 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2021/5/14
  */
+@SuppressWarnings("NewClassNamingConvention")
 @Slf4j
-public class I18nGettextParser {
+public class I18nGettextParser extends TestSupport {
 
     public static final String ROOT = "D:\\GitHub\\rebuild\\rebuild";
 
-    public static void main(String[] args) throws IOException {
+    @Disabled
+    @Test
+    void runMain() throws Exception {
+        main(null);
+    }
+
+    public static void main(String[] args) throws Exception {
         final File root = new File(ROOT);
 
         Set<String> into = new TreeSet<>();
@@ -57,7 +66,7 @@ public class I18nGettextParser {
         }
 
         File target = new File(root, "lang.zh_CN.json");
-        if (target.exists()) target.delete();
+        FileUtils.deleteQuietly(target);
 
         JSONObject contents = new JSONObject(true);
         sysDefined(contents);
@@ -137,10 +146,6 @@ public class I18nGettextParser {
         for (ApprovalState s : ApprovalState.values()) into.put(s.getName(), s.getName());
 
         // 实体元数据
-
-        System.setProperty("spring.main.web-application-type", "none");  // No Web
-        System.setProperty("rbdev", "true");  // dev/debug mode
-        BootApplication.main(new String[0]);
 
         for (Entity entity : Application.getPersistManagerFactory().getMetadataFactory().getEntities()) {
             if (!EasyMetaFactory.valueOf(entity).isBuiltin()) continue;

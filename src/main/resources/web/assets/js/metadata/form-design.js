@@ -92,6 +92,7 @@ $(document).ready(function () {
     'AVATAR': $L('头像'),
     'BARCODE': $L('二维码'),
     'LOCATION': $L('位置'),
+    'SIGN': $L('签名'),
     'BOOL': $L('布尔'),
   }
   for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })

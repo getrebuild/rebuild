@@ -19,10 +19,8 @@ import com.rebuild.core.Initialization;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.*;
-import com.rebuild.core.support.License;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
@@ -32,13 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 用户体系缓存
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/16/2018
  */
+@Slf4j
 @Component
 public class UserStore implements Initialization {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserStore.class);
 
     final private Map<ID, User> USERS = new ConcurrentHashMap<>();
     final private Map<ID, Role> ROLES = new ConcurrentHashMap<>();
@@ -504,7 +501,6 @@ public class UserStore implements Initialization {
      * @param user
      */
     private void refreshUserRoleAppends(User user) {
-        if (!License.isCommercial()) return;
         // 最高权限无需合并
         if (user.getMainRole().getIdentity().equals(RoleService.ADMIN_ROLE)) {
             return;
@@ -557,7 +553,7 @@ public class UserStore implements Initialization {
                     userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5]);
             store(user);
         }
-        LOG.info("Loaded [ " + USERS.size() + " ] users.");
+        log.info("Loaded [ " + USERS.size() + " ] users.");
 
         // 角色
 
@@ -565,7 +561,7 @@ public class UserStore implements Initialization {
         for (Object[] o : array) {
             this.refreshRole((ID) o[0]);
         }
-        LOG.info("Loaded [ " + ROLES.size() + " ] roles.");
+        log.info("Loaded [ " + ROLES.size() + " ] roles.");
 
         // 附加角色
         for (User user : USERS.values()) {
@@ -597,7 +593,7 @@ public class UserStore implements Initialization {
             }
         }
 
-        LOG.info("Loaded [ " + DEPTS.size() + " ] departments.");
+        log.info("Loaded [ " + DEPTS.size() + " ] departments.");
 
         // 团队
 
@@ -605,7 +601,7 @@ public class UserStore implements Initialization {
         for (Object[] o : array) {
             this.refreshTeam((ID) o[0]);
         }
-        LOG.info("Loaded [ " + TEAMS.size() + " ] teams.");
+        log.info("Loaded [ " + TEAMS.size() + " ] teams.");
 
         isLoaded = true;
     }

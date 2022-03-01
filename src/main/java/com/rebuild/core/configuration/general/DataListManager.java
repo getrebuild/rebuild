@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * 数据列表
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see com.rebuild.core.support.general.DataListBuilder
  * @since 08/30/2018
  */

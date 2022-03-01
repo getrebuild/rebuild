@@ -76,15 +76,16 @@ body {
   min-height: 37px;
 }
 
-.rbview-form .img-field .img-thumbnail:hover,
+/* .rbview-form .img-field .img-thumbnail:hover,
 .rbview-form .file-field .img-thumbnail:hover {
   opacity: 0.8;
-}
+} 
 
 .rbview-form .file-field .img-thumbnail {
   width: 100%;
   margin: 0;
 }
+*/
 
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
@@ -93,6 +94,7 @@ body {
 
 .rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
   max-height: 134px;
+  word-break: break-all;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext > p {
@@ -222,7 +224,7 @@ body {
   margin-top: 4px;
 }
 
-@media screen and (max-width: 991px) {
+@media (max-width: 991px) {
   .view-action .col-lg-6 {
     padding-left: 15px !important;
     padding-right: 15px !important;
@@ -252,7 +254,7 @@ body {
   padding-left: 0;
 }
 
-@media screen and (max-width: 991px) {
+@media (max-width: 991px) {
   .view-user .col-lg-8,
   .view-date .col-lg-8 {
     padding-left: 15px;
@@ -393,11 +395,13 @@ body {
 .type-BOOL .edit-oper,
 .type-FILE .edit-oper,
 .type-MULTISELECT .edit-oper,
-.type-IMAGE .edit-oper {
+.type-IMAGE .edit-oper,
+.type-SIGN .edit-oper {
   border-top: 1px solid #dbdbdb;
 }
 
-.type-AVATAR .edit-oper {
+.type-AVATAR .edit-oper,
+.type-SIGN .edit-oper {
   margin-top: 7px;
 }
 
@@ -504,20 +508,14 @@ body {
 /* over Feeds */
 
 .feeds-list.inview {
-  border-top: 1px solid #ebebeb;
+  border-top: 1px solid #eee;
 }
 
 .feeds-list.inview > div {
-  padding: 12px 1px 0;
   position: relative;
-}
-
-.feeds-list.inview > div:first-child {
-  margin-top: 0;
-}
-
-.feeds-list.inview > div + div {
-  border-top: 1px solid #eee;
+  padding: 12px 1px 2px;
+  border-bottom: 1px solid #eee;
+  margin: 0;
 }
 
 .feeds-list.inview .feeds + .actions {
@@ -622,16 +620,28 @@ body {
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
-  border: 1px solid #d9d9d9;
   border-radius: 99px;
   padding: 1px 6px;
-  background-color: #fff;
   margin-right: 3px;
   margin-bottom: 3px;
   white-space: nowrap;
   display: inline-block;
+  background-color: #eee;
 }
 
 .form-control-plaintext.multi-values > a {
-  border-color: #4285f4;
+  background-color: #e6eff8;
+}
+
+.file-list.inview {
+  border-top: 1px solid #eee;
+}
+
+.file-list.inview .file-list-item {
+  padding-left: 10px;
+  padding-right: 1px;
+}
+
+.file-list.inview .file-list-item:hover {
+  background-color: transparent !important;
 }

@@ -7,6 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global FieldValueSet */
 // 列表公共操作
 
+const _RbList = function () {
+  return RbListPage._RbList || {}
+}
+
 // ~~ 高级查询操作类
 
 const AdvFilters = {
@@ -18,18 +22,18 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').click(() => {
+    this.__el.find('.J_advfilter').on('click', () => {
       this.showAdvFilter(null, this.current)
       this.current = null
     })
     const $all = $('.adv-search .dropdown-item:eq(0)')
-    $all.click(() => this._effectFilter($all, 'aside'))
+    $all.on('click', () => this._effectFilter($all, 'aside'))
 
     this.loadFilters()
   },
 
   loadFilters() {
-    const lastFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    const lastFilter = $storage.get(_RbList().__defaultFilterKey)
 
     const that = this
     let $defaultFilter
@@ -43,7 +47,7 @@ const AdvFilters = {
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
-        $item.click(() => that._effectFilter($item, 'aside'))
+        $item.on('click', () => that._effectFilter($item, 'aside'))
 
         if (lastFilter === item.id) $defaultFilter = $item
 
@@ -53,13 +57,13 @@ const AdvFilters = {
             `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`
           ).appendTo($item)
 
-          $action.find('a:eq(0)').click(function () {
+          $action.find('a:eq(0)').on('click', function () {
             that.showAdvFilter(item.id)
             $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
             return false
           })
 
-          $action.find('a:eq(1)').click(function () {
+          $action.find('a:eq(1)').on('click', function () {
             RbAlert.create($L('确认删除此高级查询？'), {
               type: 'danger',
               confirmText: $L('删除'),
@@ -70,7 +74,7 @@ const AdvFilters = {
                     this.hide()
                     that.loadFilters()
                     if (lastFilter === item.id) {
-                      RbListPage._RbList.setAdvFilter(null)
+                      _RbList().setAdvFilter(null)
                       $('.adv-search .J_name').text($L('全部数据'))
                     }
                   } else {
@@ -91,12 +95,30 @@ const AdvFilters = {
         $ghost.removeAttr('style')
         $ghost.removeAttr('data-ps-id')
         $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
-        $ghost.find('.dropdown-item').click(function () {
+        $ghost.find('.dropdown-item').on('click', function () {
           $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
           that._effectFilter($(this), 'aside')
         })
         $ghost.appendTo($('#asideFilters').empty())
+
+        if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
+          const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
+          renderRbcomp(
+            <RbAlertBox
+              type="info"
+              message={
+                <RF>
+                  <a className="mr-1" href="#" onClick={(e) => AdvFilters._showAddCommonQuery(e)}>
+                    {$L('添加')}
+                  </a>
+                  {$L('常用查询方便以后使用')}
+                </RF>
+              }
+            />,
+            $hub
+          )
+        }
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -120,7 +142,19 @@ const AdvFilters = {
     }
 
     if (this.current === '$ALL$') this.current = null
-    RbListPage._RbList.setAdvFilter(this.current)
+    _RbList().setAdvFilter(this.current)
+  },
+
+  _showAddCommonQuery(e) {
+    $stopEvent(e, true)
+    if (this._AddCommonQuery) {
+      this._AddCommonQuery.show()
+    } else {
+      const that = this
+      renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
+        that._AddCommonQuery = this
+      })
+    }
   },
 
   showAdvFilter(id, useCopyId) {
@@ -160,12 +194,12 @@ const AdvFilters = {
     if (!filter) return
     const that = AdvFilters
     let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
-    if (name) url += '&name=' + $encode(name)
-    if (shareTo) url += '&shareTo=' + $encode(shareTo)
+    if (name) url += `&name=${$encode(name)}`
+    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
 
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) {
-        $storage.set(RbListPage._RbList.__defaultFilterKey, res.data.id)
+        $storage.set(_RbList().__defaultFilterKey, res.data.id)
         that.loadFilters()
       } else {
         RbHighbar.error(res.error_msg)
@@ -176,6 +210,67 @@ const AdvFilters = {
   _getFilter(id, call) {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
+}
+
+class AddCommonQuery extends RbFormHandler {
+  render() {
+    const defs = [
+      [$L('今天新增的'), 'DAY_NEW'],
+      [$L('本周新增的'), 'WEEK_NEW'],
+      [$L('本月新增的'), 'MONTH_NEW'],
+      [],
+      [$L('属于我的'), 'MY_OWN'],
+      [$L('我创建的'), 'MY_CREATE'],
+      [$L('我修改的'), 'MY_MODIFY'],
+    ]
+
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
+        <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
+
+        <div ref={(c) => (this._$chks = c)}>
+          {defs.map((item, idx) => {
+            if (item.length === 0) return <br key={idx} />
+            return (
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
+                <input className="custom-control-input" type="checkbox" value={item[1]} />
+                <span className="custom-control-label"> {item[0]}</span>
+              </label>
+            )
+          })}
+        </div>
+        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
+            {$L('确定')}
+          </button>
+          <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
+            {$L('取消')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  saveAdd() {
+    const adds = []
+    $(this._$chks)
+      .find('input')
+      .each(function () {
+        const $this = $(this)
+        if ($this.prop('checked')) adds.push($this.val())
+      })
+
+    if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
+
+    this.disabled(true)
+    $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
+      this.disabled()
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      AdvFilters.loadFilters()
+      this.hide()
+    })
+  }
 }
 
 // ~~ 列表记录批量操作
@@ -564,7 +659,7 @@ const RbListCommon = {
     // 快速查询
     const $btn = $('.input-search .input-group-btn .btn'),
       $input = $('.input-search input')
-    $btn.on('click', () => RbListPage._RbList.searchQuick())
+    $btn.on('click', () => _RbList().searchQuick())
     $input.on('keydown', (e) => {
       e.which === 13 && $btn.trigger('click')
     })
@@ -578,7 +673,7 @@ const RbListCommon = {
     if (via) {
       wpc.protocolFilter = `via:${via}`
       const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
-      $cleanVia.find('a').click(() => {
+      $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
         RbListPage.reload()
         $cleanVia.remove()
@@ -591,11 +686,11 @@ const RbListCommon = {
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
-    $('.J_new').click(() => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    $('.J_new').on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
+    $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
-    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
+    $('.J_batch').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
 
     // 自动打开新建
     if (location.hash === '#!/New') {

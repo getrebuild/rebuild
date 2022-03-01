@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 class Meta2SchemaTest extends TestSupport {

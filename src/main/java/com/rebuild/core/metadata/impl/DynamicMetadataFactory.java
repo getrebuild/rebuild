@@ -30,7 +30,7 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER;
 import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/04/2018
  */
 @Slf4j
@@ -39,6 +39,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
     public DynamicMetadataFactory(String configLocation, Dialect dialect) {
         super(configLocation, dialect);
+    }
+
+    public void refresh() {
+        refresh(false);
     }
 
     @Override
@@ -169,8 +173,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             extraAttrs.put("displayType", dt.name());
 
             String cascadingField = extraAttrs.getString(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
-            if (StringUtils.isNotBlank(cascadingField)
-                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+            if (StringUtils.isNotBlank(cascadingField) && dt == DisplayType.REFERENCE) {
                 extraAttrs.put("_cascadingFieldParent", cascadingField);
                 String[] fs = cascadingField.split(SPLITER_RE);
                 cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);

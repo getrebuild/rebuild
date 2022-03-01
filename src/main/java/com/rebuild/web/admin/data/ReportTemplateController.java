@@ -13,20 +13,17 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +61,7 @@ public class ReportTemplateController extends BaseController {
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
-        Object[][] list = queryListOfConfig(sql, entity, q);
+        Object[][] list = ConfigCommons.queryListOfConfig(sql, entity, q);
         return RespBody.ok(list);
     }
 
@@ -120,30 +116,5 @@ public class ReportTemplateController extends BaseController {
 
         FileDownloader.setDownloadHeaders(request, response, file.getName());
         FileDownloader.writeLocalFile(file, response);
-    }
-
-    // --
-
-    /**
-     * 查询配置列表
-     *
-     * @param sql
-     * @param belongEntity
-     * @param q
-     */
-    public static Object[][] queryListOfConfig(String sql, String belongEntity, String q) {
-        if (StringUtils.isNotBlank(belongEntity) && !"$ALL$".equalsIgnoreCase(belongEntity)) {
-            sql = sql.replace("(1=1)", "belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'");
-        }
-        if (StringUtils.isNotBlank(q)) {
-            sql = sql.replace("(2=2)", "name like '%" + StringEscapeUtils.escapeSql(q) + "%'");
-        }
-
-        Object[][] array = Application.createQuery(sql).setLimit(500).array();
-        for (Object[] o : array) {
-            o[2] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[2]));
-            o[5] = I18nUtils.formatDate((Date) o[5]);
-        }
-        return array;
     }
 }

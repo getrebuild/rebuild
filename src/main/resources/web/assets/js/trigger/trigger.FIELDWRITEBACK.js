@@ -257,6 +257,8 @@ class ContentFieldWriteback extends ActionContentSpec {
       // 目标字段=源字段
       const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
       if (tfFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+
+      // ...
     } else if (mode === 'FORMULA') {
       sourceField = this._$sourceFormula.val()
       if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
@@ -321,7 +323,7 @@ class FieldFormula extends React.Component {
   render() {
     const toFieldType = this.state.targetField.type
     // @see DisplayType.java
-    if (toFieldType === 'AVATAR' || toFieldType === 'IMAGE' || toFieldType === 'FILE') {
+    if (['AVATAR', 'IMAGE', 'FILE', 'SIGN'].includes(toFieldType)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
@@ -417,9 +419,9 @@ class FormulaCalcWithCode extends FormulaCalc {
             <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
               DATESUB
             </a>
-            <div className="dropdown-divider"></div>
-            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E5%85%AC%E5%BC%8F%E7%BC%96%E8%BE%91%E5%99%A8">
-              <i className="zmdi zmdi-help icon"></i>
+            <div className="dropdown-divider" />
+            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E5%85%AC%E5%BC%8F%E7%BC%96%E8%BE%91%E5%99%A8">
+              <i className="zmdi zmdi-help icon" />
               {$L('如何使用函数')}
             </a>
           </div>
@@ -468,8 +470,7 @@ class FormulaCalcWithCode extends FormulaCalc {
       $(`<i class="v oper">${v}</em>`).appendTo(this._$formula).attr('data-v', v)
 
       if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
-        setTimeout(() => this.handleInput('('), 300)
-        setTimeout(() => this.handleInput('"'), 400)
+        setTimeout(() => this.handleInput('('), 200)
       }
     } else {
       super.handleInput(v)

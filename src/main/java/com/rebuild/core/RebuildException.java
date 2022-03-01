@@ -10,7 +10,7 @@ package com.rebuild.core;
 /**
  * RB Root Exception
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/19/2018
  */
 public class RebuildException extends RuntimeException {

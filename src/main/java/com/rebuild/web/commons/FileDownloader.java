@@ -164,7 +164,8 @@ public class FileDownloader extends BaseController {
             filePath = filePath.split("/filex/download/")[1];
         }
 
-        boolean temp = getBoolParameter(request, "temp");
+        final boolean temp = getBoolParameter(request, "temp");
+
         String attname = getParameter(request, "attname");
         if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
 

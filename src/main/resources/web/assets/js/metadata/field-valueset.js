@@ -10,7 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
-    if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
+    if (['ID', 'AVATAR', 'IMAGE', 'FILE', 'BARCODE', 'SERIES', 'SIGN'].includes(field.type)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 

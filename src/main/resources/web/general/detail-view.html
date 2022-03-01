@@ -34,7 +34,7 @@
         <div class="col-12 col-md-3 view-operating">
           <div class="view-action row">
             <div class="col-12 col-lg-6">
-              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('编辑')}]]</button>
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('编辑')}]]</button>
             </div>
             <div class="col-12 col-lg-6 btn-group J_mores">
               <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
@@ -48,7 +48,7 @@
               <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-transform"></i> [[${bundle.L('转换为')}]]</button>
               <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置记录转换映射')}]]</a>
+                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/robot/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置记录转换映射')}]]</a>
               </div>
             </div>
           </div>
@@ -88,6 +88,7 @@
     </script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.append.js}" type="text/babel"></script>
   </body>

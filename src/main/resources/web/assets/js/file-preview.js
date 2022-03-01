@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
@@ -364,10 +364,11 @@ class FileShare extends RbModalHandler {
       }).on('success', () => $(that._$copy).addClass('copied-check'))
       $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
     }
-    if (!window.ClipboardJS) {
-      $.getScript('/assets/lib/clipboard.min.js', initCopy)
-    } else {
+    if (window.ClipboardJS) {
       initCopy()
+    } else {
+      // eslint-disable-next-line no-undef
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
     }
   }
 

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * 列表项
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/06/2018
  */
 public class PickListManager implements ConfigManager {

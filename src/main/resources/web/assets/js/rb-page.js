@@ -134,11 +134,9 @@ $(function () {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
-        $.cookie('_USEBOSSKEY', 666, { expires: null, httpOnly: true })
       }
     }
   })
-  if ($.cookie('_USEBOSSKEY')) $('.bosskey-show').removeClass('bosskey-show')
 
   // Trigger on window.onresize
   $(window).on('resize', function () {
@@ -511,7 +509,7 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imgOnly = $input.attr('accept') === 'image/*'
   var local = $input.data('local')
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 100)) // default 100MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
@@ -678,6 +676,10 @@ var $mp = {
   _mp: null,
   // 开始
   start: function () {
+    if ($mp._timer || $mp._mp) {
+      // console.log('Element `$mp._mp` exists')
+      return
+    }
     $mp._timer = setTimeout(function () {
       $mp._mp = new Mprogress({ template: 3, start: true })
     }, 600)
@@ -857,8 +859,7 @@ var $useMap = function (onLoad) {
       typeof onLoad === 'function' && onLoad()
     }
 
-    var scriptUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback'
-    $.getScript(scriptUrl)
+    $getScript('https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'YQKHNmIcOgYccKepCkxetRDy8oTC28nD') + '&callback=$useMap__callback')
   }
 }
 
@@ -882,5 +883,16 @@ var $autoLocation = function (call) {
         console.log('Geolocation failed :', this.getStatus())
       }
     })
+  })
+}
+
+// $.getScript use cache
+var $getScript = function (url, callback) {
+  $.ajax({
+    type: 'GET',
+    url: url,
+    success: callback,
+    dataType: 'script',
+    cache: true,
   })
 }

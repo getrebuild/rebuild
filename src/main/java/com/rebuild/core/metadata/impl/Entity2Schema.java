@@ -33,7 +33,7 @@ import org.apache.commons.lang.math.RandomUtils;
 /**
  * 创建实体
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/03/2018
  */
 @Slf4j
@@ -162,7 +162,7 @@ public class Entity2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return entityName;
     }
 
@@ -241,7 +241,7 @@ public class Entity2Schema extends Field2Schema {
             return false;
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

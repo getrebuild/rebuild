@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 07/24/2021
  */
 class EntityRecordCreatorTest extends TestSupport {

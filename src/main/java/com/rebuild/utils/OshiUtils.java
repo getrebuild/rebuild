@@ -39,7 +39,24 @@ public class OshiUtils {
     public static double[] getOsMemoryUsed() {
         GlobalMemory memory = getSI().getHardware().getMemory();
         long memoryTotal = memory.getTotal();
-        double memoryUsage = (memoryTotal - memory.getAvailable()) * 1.0 / memoryTotal;
+        long memoryFree = memory.getAvailable();
+        double memoryUsage = (memoryTotal - memoryFree) * 1.0 / memoryTotal;
+        return new double[]{
+                (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
+                ObjectUtils.round(memoryUsage * 100, 2)
+        };
+    }
+
+    /**
+     * JVM 内存
+     *
+     * @return
+     */
+    public static double[] getJvmMemoryUsed() {
+//        double maxMemory = Runtime.getRuntime().maxMemory();
+        double memoryTotal = Runtime.getRuntime().totalMemory();
+        double memoryFree = Runtime.getRuntime().freeMemory();
+        double memoryUsage = (memoryTotal - memoryFree) / memoryTotal;
         return new double[]{
                 (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
                 ObjectUtils.round(memoryUsage * 100, 2)

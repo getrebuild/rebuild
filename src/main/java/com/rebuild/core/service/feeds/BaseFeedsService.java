@@ -12,15 +12,19 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +78,7 @@ public abstract class BaseFeedsService extends ObservableService {
         if (content == null || record.getID("feedsId") == null) return;
 
         // 已存在的
-        Set<ID> existsAtUsers = isNew ? null : this.awareMentionDelete(record.getPrimary(), true);
+        Set<ID> existsAtUsers = isNew ? Collections.emptySet() : this.awareMentionDelete(record.getPrimary(), true);
 
         Set<ID> atUsers = this.awareMentionCreate(record);
         if (atUsers.isEmpty()) return;
@@ -86,8 +90,16 @@ public abstract class BaseFeedsService extends ObservableService {
             related = record.getID("feedsId");
         }
 
+        if (atUsers.contains(UserService.ALLUSERS)
+                && !existsAtUsers.contains(UserService.ALLUSERS)) {
+            atUsers.clear();
+            for (User u : Application.getUserStore().getAllUsers()) {
+                if (u.isActive()) atUsers.add(u.getId());
+            }
+        }
+
         for (ID to : atUsers) {
-            if (existsAtUsers != null && existsAtUsers.contains(to)) continue;
+            if (existsAtUsers.contains(to)) continue;
             Application.getNotifications().send(
                     MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
         }
@@ -100,13 +112,22 @@ public abstract class BaseFeedsService extends ObservableService {
     protected Set<ID> awareMentionCreate(Record record) {
         final Record mention = EntityHelper.forNew(EntityHelper.FeedsMention, UserService.SYSTEM_USER);
         mention.setID("feedsId", record.getID("feedsId"));
-        // Can be null
+        // can be null
         if (record.getEntity().containsField("commentId")) {
             mention.setID("commentId", record.getID("commentId"));
         }
 
+        String fakeContent = record.getString("content");
+
+        String atAllKey = "@" + Language.L("全部用户");
+        if (fakeContent.contains(atAllKey)
+                && Application.getPrivilegesManager().allow(UserContextHolder.getUser(), ZeroEntry.AllowAtAllUsers)) {
+            fakeContent = fakeContent.replace(atAllKey, "@" + UserService.ALLUSERS);
+        }
+
         Set<ID> atUsers = new HashSet<>();
-        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(record.getString("content"));
+        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(fakeContent);
+
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
             ID atUser = ID.valueOf(at);
@@ -161,6 +182,7 @@ public abstract class BaseFeedsService extends ObservableService {
         for (Map.Entry<String, ID> e : map.entrySet()) {
             content = content.replace("@" + e.getKey(), "@" + e.getValue());
         }
+
         record.setString("content", content);
         return record;
     }

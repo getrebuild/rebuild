@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/19/2018
  */
 @Controller
@@ -101,7 +101,7 @@ public class FormDesignController extends BaseController {
 
             if (!willUpdate.isEmpty()) {
                 Application.getCommonsService().createOrUpdate(willUpdate.toArray(new Record[0]), false);
-                MetadataHelper.getMetadataFactory().refresh(false);
+                MetadataHelper.getMetadataFactory().refresh();
             }
         }
 

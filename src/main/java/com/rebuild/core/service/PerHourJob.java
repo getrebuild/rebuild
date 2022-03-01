@@ -45,9 +45,7 @@ public class PerHourJob extends DistributedJobLock {
             doCleanTempFiles();
         }
 
-        if (hour % 2 == 0) {
-            new SystemDiagnosis().diagnose();
-        }
+        new SystemDiagnosis().diagnose();
 
         // DO OTHERS HERE ...
 

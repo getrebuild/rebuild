@@ -14,6 +14,7 @@ $(document).ready(function () {
 
     const $to = $('.set-fields')
     if (fields.length > 0) $to.empty()
+
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
@@ -32,14 +33,15 @@ $(document).ready(function () {
     parent.RbModal.resize()
   })
 
-  // // 字段排序 FIXME 拖动布局错乱
-  // $('.set-items')
-  //   .sortable({
-  //     containment: 'parent',
-  //     cursor: 'move',
-  //     opacity: 0.8,
-  //   })
-  //   .disableSelection()
+  // // 字段排序
+  $('.set-items')
+    .sortable({
+      containment: 'parent',
+      cursor: 'move',
+      opacity: 0.8,
+      placeholder: 'ui-state-highlight',
+    })
+    .disableSelection()
 
   const $btn = $('.J_save').on('click', () => {
     if (rb.commercial < 1) {
@@ -50,7 +52,11 @@ $(document).ready(function () {
     const config = { items: [] }
     $('.set-items > span').each(function () {
       const $this = $(this)
-      config.items.push({ field: $this.attr('data-field'), calc: $this.attr('data-calc'), label: $this.attr('data-label') })
+      config.items.push({
+        field: $this.attr('data-field'),
+        calc: $this.attr('data-calc'),
+        label2: $this.attr('data-label'),
+      })
     })
 
     $btn.button('loading')
@@ -70,6 +76,8 @@ const CALC_TYPES = {
   'MIN': $L('最小值'),
 }
 
+const ShowStyles_Comps = {}
+
 const render_set = function (item) {
   const len = $('.set-items > span').length
   if (len >= 3) $('.J_tips').removeClass('hide')
@@ -82,7 +90,7 @@ const render_set = function (item) {
   $to.find('>span.text-muted').remove()
 
   const calc = item.calc || 'SUM'
-  const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.specLabel || ''}"></span>`).appendTo($to)
+  const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)
 
   const $a = $(
     `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`
@@ -96,11 +104,33 @@ const render_set = function (item) {
   for (let k in CALC_TYPES) {
     $(`<li class="dropdown-item" data-calc=${k}>${CALC_TYPES[k]}</li>`).appendTo($ul)
   }
-  // $('<li class="dropdown-divider"></li>').appendTo($ul)
-  // $(`<li class="dropdown-item" data-calc='_LABEL'>${$L('显示样式')}</li>`).appendTo($ul)
+  $('<li class="dropdown-divider"></li>').appendTo($ul)
+  $(`<li class="dropdown-item" data-calc='_LABEL'>${$L('显示样式')}</li>`).appendTo($ul)
 
   $ul.find('.dropdown-item').on('click', function () {
     const calc = $(this).data('calc')
-    $item.attr('data-calc', calc).find('.item > span').text(`${item.label} (${CALC_TYPES[calc]})`)
+    if (calc === '_LABEL') {
+      if (ShowStyles_Comps[item.name]) {
+        ShowStyles_Comps[item.name].show()
+      } else {
+        renderRbcomp(
+          // eslint-disable-next-line react/jsx-no-undef
+          <ShowStyles
+            label={item.label2}
+            onConfirm={(s) => {
+              $item.attr({
+                'data-label': s.label || '',
+              })
+            }}
+          />,
+          null,
+          function () {
+            ShowStyles_Comps[item.name] = this
+          }
+        )
+      }
+    } else {
+      $item.attr('data-calc', calc).find('.item > span').text(`${item.label} (${CALC_TYPES[calc]})`)
+    }
   })
 }

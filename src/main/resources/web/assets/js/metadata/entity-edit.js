@@ -7,10 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // eslint-disable-next-line no-undef, no-unused-vars
 window.clickIcon = function (icon) {
-  $('#entityIcon')
-    .attr('value', icon)
-    .find('i')
-    .attr('class', 'icon zmdi zmdi-' + icon)
+  $('#entityIcon').attr('value', icon).find('i').attr('class', `icon zmdi zmdi-${icon}`)
   RbModal.hide()
 }
 
@@ -20,9 +17,9 @@ $(document).ready(function () {
   if (!wpc.metaId) $('.footer .alert').removeClass('hide')
   else $('.footer .J_action').removeClass('hide')
 
-  $('.J_tab-' + wpc.entity + ' a').addClass('active')
+  $(`.J_tab-${wpc.entity} a`).addClass('active')
 
-  const $btn = $('.J_save').click(function () {
+  const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
 
     let data = {
@@ -59,7 +56,7 @@ $(document).ready(function () {
     })
   })
 
-  $('#entityIcon').click(function () {
+  $('#entityIcon').on('click', function () {
     RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
@@ -76,7 +73,7 @@ $(document).ready(function () {
   }
 
   // 系统级引用字段
-  const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId']
+  const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId', 'approvalLastUser']
 
   $.get(`/commons/metadata/fields?deep=1&entity=${wpc.entity}`, function (d) {
     // 名称字段
@@ -92,7 +89,7 @@ $(document).ready(function () {
         item.type === 'DATE' ||
         item.type === 'DATETIME' ||
         /* 开放引用字段是否有问题 ??? */
-        (item.type === 'REFERENCE' && _SYS_REF_FIELDS.indexOf(item.name) === -1)
+        (item.type === 'REFERENCE' && !_SYS_REF_FIELDS.includes(item.name))
       return {
         id: item.name,
         text: item.label,
@@ -139,6 +136,7 @@ $(document).ready(function () {
       multiple: true,
       maximumSelectionLength: 5,
     })
+
     if (wpc.extConfig.quickFields) {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
     }

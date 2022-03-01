@@ -31,7 +31,7 @@ import java.util.Properties;
 /**
  * 配置参数
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/28/2020
  */
 @Component
@@ -67,7 +67,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
             try {
                 Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(installed));
                 Properties filePs = new Properties();
-                // 兼容 V1
+                // compatible: v1.x
                 for (String name : temp.stringPropertyNames()) {
                     String value = temp.getProperty(name);
                     if (name.endsWith(".aes")) {

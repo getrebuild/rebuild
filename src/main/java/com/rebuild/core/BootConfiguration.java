@@ -11,9 +11,12 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.xml.XMLHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.distributed.DistributedSupport;
+import com.rebuild.core.support.distributed.DistributedSupportLocal;
 import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dom4j.Document;
@@ -23,11 +26,13 @@ import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -36,6 +41,7 @@ import java.nio.charset.StandardCharsets;
  * @author devezhao
  * @since 2020/9/23
  */
+@Slf4j
 @Configuration
 public class BootConfiguration implements InstallState {
 
@@ -43,7 +49,8 @@ public class BootConfiguration implements InstallState {
      * Fake instance
      * FIXME 直接 `==` 比较不安全 ???
      */
-    public static final JedisPool USE_EHCACHE = new JedisPool();
+    public static final JedisPool USE_EHCACHE = new JedisPool(
+            KnownJedisPool.DEFAULT_CONFIG, "127.0.0.1", 6379);
 
     @Bean
     JedisPool createJedisPool() {
@@ -74,10 +81,29 @@ public class BootConfiguration implements InstallState {
         return manager;
     }
 
-//    @Bean
-//    DistributedSupport createDistributedSupport() {
-//        return new DistributedSupport(createJedisPool());
-//    }
+    @Bean("DistributedSupport")
+    DistributedSupport createDistributedSupport() {
+        Class<?> clazz = null;
+        JedisPool redis = null;
+        try {
+            clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
+            redis = createJedisPool();
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        if (clazz != null && redis != null && redis != USE_EHCACHE) {
+            try {
+                Constructor<?> c = clazz.getConstructor(JedisPool.class);
+                return (DistributedSupport) c.newInstance(redis);
+            } catch (ReflectiveOperationException e) {
+                log.error("Cannot instance `DistributedSupportImpl`!", e);
+            }
+        }
+
+        return new DistributedSupportLocal();
+    }
+
+    // --
 
     /**
      * @return

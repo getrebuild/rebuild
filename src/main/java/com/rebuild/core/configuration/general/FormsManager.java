@@ -14,7 +14,7 @@ import com.rebuild.utils.JSONUtils;
 /**
  * 表单布局管理
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 08/30/2018
  */
 public class FormsManager extends BaseLayoutManager {

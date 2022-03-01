@@ -20,16 +20,10 @@ import org.junit.jupiter.api.Test;
 public class RBStoreTest extends TestSupport {
 
     @Test
-    public void fetchMetaschema() {
+    void fetchMetaschema() {
         JSON data = RBStore.fetchMetaschema("ACCOUNT-1.0.json");
         Assertions.assertNotNull(data);
 
-        System.out.println(JSONUtils.prettyPrint(data));
-    }
-
-    @Test
-    public void fetchBusinessModel() {
-        JSON data = RBStore.fetchBusinessModel("index.json");
         System.out.println(JSONUtils.prettyPrint(data));
     }
 }

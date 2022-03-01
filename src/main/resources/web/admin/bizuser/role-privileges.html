@@ -226,9 +226,17 @@
                       <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowNoDesensitized">[[${bundle.L('允许查看明文')}]]</a></td>
+                      <td class="name">
+                        <a data-name="AllowNoDesensitized">[[${bundle.L('允许查看明文')}]]</a>
+                        <sup class="rbv" th:title="${bundle.L('增值功能')}"></sup>
+                      </td>
                       <td><i data-action="Z" class="priv R0"></i></td>
                       <td colspan="5" class="text-muted text-left">[[${bundle.L('针对信息脱敏字段可查看明文')}]]</td>
+                    </tr>
+                    <tr>
+                      <td class="name"><a data-name="AllowAtAllUsers">[[${bundle.L('允许在动态中 @全部用户')}]]</a></td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('无')}]]</td>
                     </tr>
                   </tbody>
                 </table>

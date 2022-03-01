@@ -447,7 +447,7 @@ class Task extends React.Component {
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline bw-bold" onClick={(e) => $stopEvent(e)}>
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" onClick={(e) => $stopEvent(e)}>
                 <input
                   className="custom-control-input"
                   type="checkbox"

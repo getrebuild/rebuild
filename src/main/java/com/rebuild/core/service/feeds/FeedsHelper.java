@@ -30,6 +30,11 @@ import java.util.regex.Pattern;
 public class FeedsHelper {
 
     /**
+     * URL 提取
+     */
+    public static final Pattern URL_PATTERN = Pattern.compile("((www|https?://)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{7,300})");
+
+    /**
      * 评论数
      * TODO 缓存
      *
@@ -150,11 +155,6 @@ public class FeedsHelper {
     }
 
     /**
-     * URL 提取 FIXME 会匹配 " 符号
-     */
-    public static final Pattern URL_PATTERN = Pattern.compile("((www|https?://)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
-
-    /**
      * 格式化动态内容
      *
      * @param content
@@ -172,14 +172,14 @@ public class FeedsHelper {
      * @return
      */
     public static String formatContent(String content, boolean xss) {
-        if (xss) content = CommonsUtils.escapeHtml(content);
-
         Matcher urlMatcher = URL_PATTERN.matcher(content);
         Set<String> urls = new HashSet<>();
         while (urlMatcher.find()) {
             String url = urlMatcher.group();
             urls.add(url);
         }
+
+        if (xss) content = CommonsUtils.escapeHtml(content);
 
         if (!urls.isEmpty()) {
             // 排序: 长 -> 短
@@ -196,7 +196,8 @@ public class FeedsHelper {
                 xurlMap.put(x, url);
 
                 String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + x);
-                content = content.replace(url, String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, x));
+                content = content.replace(url,
+                        String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, x));
             }
 
             for (Map.Entry<String, String> e : xurlMap.entrySet()) {

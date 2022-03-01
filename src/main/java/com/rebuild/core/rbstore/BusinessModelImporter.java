@@ -83,7 +83,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         DynamicMetadataContextHolder.isSkipRefentityCheck(true);
         DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        MetadataHelper.getMetadataFactory().refresh();
     }
 
 

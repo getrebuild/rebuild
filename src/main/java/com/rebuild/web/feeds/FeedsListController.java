@@ -37,10 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 列表相关
@@ -116,13 +113,27 @@ public class FeedsListController extends BaseController {
 
         String sql = ITEM_SQL + sqlWhere;
 
-        // 焦点动态
-        ID foucs = getIdParameter(request, "foucs");
         Object[] foucsFeed = null;
-        if (foucs != null) {
-            foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
-                    .setParameter(1, foucs)
-                    .unique();
+        List<ID> userTop = null;
+        List<Object[]> userTopFeeds = null;
+        if (pageNo == 1) {
+            // 焦点动态
+            ID foucs = getIdParameter(request, "foucs");
+            if (foucs != null) {
+                foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                        .setParameter(1, foucs)
+                        .unique();
+            }
+
+            // 用户置顶动态
+            userTop = FeedsPostController.getUserTopFeeds(user);
+            userTopFeeds = new ArrayList<>();
+            for (ID s : userTop) {
+                Object[] o = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                        .setParameter(1, s)
+                        .unique();
+                if (o != null) userTopFeeds.add(o);
+            }
         }
 
         if ("older".equalsIgnoreCase(sort)) {
@@ -137,25 +148,37 @@ public class FeedsListController extends BaseController {
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
-        if (foucsFeed != null) {
-            List<Object[]> newArray = new ArrayList<>();
-            newArray.add(foucsFeed);
-            for (Object[] o : array) {
-                if (foucsFeed[0].equals(o[0])) {
-                    continue;
-                }
-                newArray.add(o);
-            }
-            array = newArray.toArray(new Object[0][]);
+        array = add2Top(foucsFeed, array);
+        if (userTopFeeds != null) {
+            // 最多 3
+            if (userTopFeeds.size() > 2) array = add2Top(userTopFeeds.get(2), array);
+            if (userTopFeeds.size() > 1) array = add2Top(userTopFeeds.get(1), array);
+            if (userTopFeeds.size() > 0) array = add2Top(userTopFeeds.get(0), array);
         }
 
+        Set<ID> set = new HashSet<>();
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
-            list.add(buildItem(o, user));
+            if (set.contains((ID) o[0])) continue;
+
+            JSONObject feed = buildItem(o, user);
+            if (userTop != null && userTop.contains((ID) o[0])) feed.put("usertop", true);
+
+            list.add(feed);
+            set.add((ID) o[0]);
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(
                 new String[] { "total", "data" }, new Object[] { count, list }));
+    }
+
+    private Object[][] add2Top(Object[] topFeed, Object[][] array) {
+        if (topFeed == null) return array;
+
+        Object[][] newArray = new Object[array.length + 1][];
+        newArray[0] = topFeed;
+        System.arraycopy(array, 0, newArray, 1, array.length);
+        return newArray;
     }
 
     @GetMapping("/feeds/feeds-details")
@@ -165,6 +188,11 @@ public class FeedsListController extends BaseController {
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsId).unique();
 
         JSONObject data = buildItem(o, user);
+
+        LinkedList<ID> usertop = FeedsPostController.getUserTopFeeds(user);
+        if (usertop.contains(feedsId)) {
+            data.put("usertop", true);
+        }
 
         boolean fromEdit = getBoolParameter(request, "edit");
         if (fromEdit) {

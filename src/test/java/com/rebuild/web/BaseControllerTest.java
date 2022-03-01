@@ -10,6 +10,7 @@ package com.rebuild.web;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -29,9 +30,15 @@ class BaseControllerTest extends TestSupport {
         BaseController c = new BaseController() {
         };
 
+        ApplicationContext context = Application.getContext();
+        if (!(context instanceof WebApplicationContext)) {
+            LOG.warn("None WebApplicationContext!");
+            return;
+        }
+
         MockHttpServletRequest request = MockMvcRequestBuilders
                 .get("/user/login?name=a&int=123456&id=" + SIMPLE_USER)
-                .buildRequest(Objects.requireNonNull(((WebApplicationContext) Application.getContext()).getServletContext()));
+                .buildRequest(Objects.requireNonNull(((WebApplicationContext) context).getServletContext()));
 
         assertEquals(c.getParameter(request, "name"), "a");
 

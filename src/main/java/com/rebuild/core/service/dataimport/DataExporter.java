@@ -13,10 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
@@ -172,24 +169,22 @@ public class DataExporter extends SetUser {
 
                 if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = Language.L("[无权限]");
-
-                } else if (dt == DisplayType.FILE
-                        || dt == DisplayType.IMAGE
-                        || dt == DisplayType.AVATAR
-                        || dt == DisplayType.BARCODE) {
+                } else if (!dt.isExportable()) {
                     cellVal = Language.L("[暂不支持]");
-
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
-
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
-
                 }
 
                 if (easyField instanceof MixValue &&
                         (cellVal instanceof JSONObject || cellVal instanceof JSONArray)) {
                     cellVal = ((MixValue) easyField).unpackWrapValue(cellVal);
+
+                    if (cellVal.toString().contains(", ")
+                            && (easyField instanceof EasyMultiSelect || easyField instanceof EasyN2NReference)) {
+                        cellVal = cellVal.toString().replace(", ", " / ");
+                    }
                 }
 
                 cellVals.add(cellVal.toString());

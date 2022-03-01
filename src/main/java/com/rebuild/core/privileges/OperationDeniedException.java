@@ -13,7 +13,7 @@ import com.rebuild.core.support.i18n.Language;
 /**
  * 非法操作/禁止操作
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 09/15/2020
  */
 public class OperationDeniedException extends RebuildException {

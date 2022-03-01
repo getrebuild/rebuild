@@ -18,6 +18,13 @@ import com.rebuild.api.Controller;
 public class DefinedException extends RebuildException {
     private static final long serialVersionUID = 2504578210264915700L;
 
+    // 重复记录错误码
+    public static final int CODE_RECORDS_REPEATED = 499;
+    // 审批警告
+    public static final int CODE_APPROVE_WARN = 498;
+    // 不在安全使用范围（IP、时段）
+    public static final int CODE_UNSAFE_USE = 497;
+
     // 错误码
     private int errorCode = Controller.CODE_ERROR;
 

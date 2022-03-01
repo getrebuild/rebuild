@@ -20,18 +20,21 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
-    this.__defaultFilterKey = `AdvFilter-${this.props.config.entity}`
-    this.__sortFieldKey = `SortField-${this.props.config.entity}`
-    this.__columnWidthKey = `ColumnWidth-${this.props.config.entity}.`
+    this.__defaultFilterKey = `AdvFilter-${props.config.entity}`
+    this.__sortFieldKey = `SortField-${props.config.entity}`
+    this.__columnWidthKey = `ColumnWidth-${props.config.entity}.`
 
     const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
-    const fields = props.config.fields
+    const fields = props.config.fields || []
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
+
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
+      if (['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR'].includes(fields[i].type)) fields[i].unsort = true
     }
-    props.config.fields = null
+
+    delete props.config.fields
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = $('#react-list').width() / 10
@@ -68,9 +71,9 @@ class RbList extends React.Component {
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || that.__defaultColumnWidth
                       const styles = { width: cWidth }
-                      const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
+                      const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                        <th key={`column-${item.field}`} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
                             <span style={{ width: cWidth - 8 }}>{item.label}</span>
                             <i className={`zmdi ${item.sort || ''}`} />
@@ -190,7 +193,7 @@ class RbList extends React.Component {
     let fieldSort = null
     this.state.fields.forEach(function (item) {
       fields.push(item.field)
-      if (item.sort) fieldSort = item.field + ':' + item.sort.replace('sort-', '')
+      if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
     this.lastFilter = filter || this.lastFilter
 
@@ -243,7 +246,7 @@ class RbList extends React.Component {
     const field = this.state.fields[index]
     if (!field) return null
 
-    const cellKey = 'row-' + lastPrimary.id + '-' + index
+    const cellKey = `row-${lastPrimary.id}-${index}`
     const width = this.state.fields[index].width || this.__defaultColumnWidth
     let type = field.type
     if (field.field === this.props.config.nameField) {
@@ -253,7 +256,7 @@ class RbList extends React.Component {
       type = cellVal
     }
 
-    const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
+    const c = CellRenders.render(cellVal, type, width, `${cellKey}.${field.field}`)
     if (index === 0 && this.fixedColumns) {
       return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
     }
@@ -331,7 +334,7 @@ class RbList extends React.Component {
         else if (fields[i].sort === 'sort-desc') fields[i].sort = null
         else fields[i].sort = 'sort-asc'
 
-        if (fields[i].sort) $storage.set(this.__sortFieldKey, field + ':' + fields[i].sort)
+        if (fields[i].sort) $storage.set(this.__sortFieldKey, `${field}:${fields[i].sort}`)
         else $storage.remove(this.__sortFieldKey)
       } else {
         fields[i].sort = null
@@ -488,7 +491,7 @@ const CellRenders = {
   },
 
   render(value, type, width, key) {
-    const style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
+    const style = { width: width || COLUMN_MIN_WIDTH }
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
@@ -548,7 +551,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
           const imgName = $fileCutName(item)
           const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
-            <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
+            <a key={item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
               <img alt="IMG" src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
             </a>
           )
@@ -727,6 +730,14 @@ CellRenders.addRender('LOCATION', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('SIGN', function (v, s, k) {
+  return (
+    <td key={k} className="user-avatar sign">
+      <img alt="SIGN" src={v} />
+    </td>
+  )
+})
+
 // ~ 分页组件
 
 class RbListPagination extends React.Component {
@@ -781,7 +792,7 @@ class RbListPagination extends React.Component {
                   )
                 else
                   return (
-                    <li key={`pn-${item}`} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}>
+                    <li key={`pn-${item}`} className={`paginate_button page-item ${this.state.pageNo === item && 'active'}`}>
                       <a className="page-link" onClick={this.goto.bind(this, item)}>
                         {item}
                       </a>
@@ -897,7 +908,7 @@ const RbListPage = {
     $('.J_view').click(() => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        location.hash = '!/View/' + entity[0] + '/' + ids[0]
+        location.hash = `!/View/${entity[0]}/${ids[0]}`
         RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
@@ -944,27 +955,27 @@ const RbListPage = {
 class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
+    this.state = { ...props, inLoad: true, isHide: true, destroy: false }
     this.mcWidth = this.props.subView === true ? 1344 : 1404
     if ($(window).width() < 1464) this.mcWidth -= 184
   }
 
   render() {
+    if (this.state.destroy) return null
+
     return (
-      !this.state.isDestroy && (
-        <div className="modal-wrapper">
-          <div className="modal rbview" ref={(c) => (this._rbview = c)}>
-            <div className="modal-dialog">
-              <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
-                <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                  <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
-                  <RbSpinner />
-                </div>
+      <div className="modal-wrapper">
+        <div className="modal rbview" ref={(c) => (this._rbview = c)}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this.mcWidth }}>
+              <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
+                <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
+                <RbSpinner />
               </div>
             </div>
           </div>
         </div>
-      )
+      </div>
     )
   }
 
@@ -982,7 +993,7 @@ class RbViewModal extends React.Component {
         // SubView 子视图不保持
         if (that.state.disposeOnHide === true) {
           $root.modal('dispose')
-          that.setState({ isDestroy: true }, () => {
+          that.setState({ destroy: true }, () => {
             RbViewModal.holder(that.state.id, 'DISPOSE')
             $unmount(rootWrap)
           })
@@ -1018,6 +1029,7 @@ class RbViewModal extends React.Component {
     if (url && url === this.state.url) urlChanged = false
     ext = ext || {}
     url = url || this.state.url
+
     this.__urlChanged = urlChanged
     this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
       $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })

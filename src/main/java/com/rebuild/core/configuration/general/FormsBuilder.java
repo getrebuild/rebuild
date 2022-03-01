@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -25,10 +26,10 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -111,13 +112,14 @@ public class FormsBuilder extends FormsManager {
         if (record == null) {
             if (mainEntity != null) {
                 ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
-                Assert.notNull(mainId, "Please calls FormBuilderContextHolder#setMainIdOfDetail first");
+                Assert.notNull(mainId, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
                 approvalState = getHadApproval(entityMeta, null);
 
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     return formatModelError(approvalState == ApprovalState.APPROVED
-                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
+                            ? Language.L("主记录已完成审批，不能添加明细")
+                            : Language.L("主记录正在审批中，不能添加明细"));
                 }
 
                 // 明细无需审批
@@ -189,10 +191,8 @@ public class FormsBuilder extends FormsManager {
 
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
-            model.set("isDetail", true);
             model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
-            model.set("isMain", true);
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
@@ -461,28 +461,33 @@ public class FormsBuilder extends FormsManager {
      * @param field
      * @param user4Desensitized 不传则不脱敏
      * @return
-     * // @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
+     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
+
+        // 特殊字段
         if (field.getDisplayType() == DisplayType.BARCODE
                 || (field.getDisplayType() == DisplayType.N2NREFERENCE && FieldValueHelper.hasLength(value))) {
             value = data.getPrimary();
         }
 
+        // 处理日期格式
+        if (field.getDisplayType() == DisplayType.REFERENCE && value != null && ((ID) value).getLabelRaw() != null) {
+            Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
+            if (nameField.getType() == FieldType.DATE || nameField.getType() == FieldType.TIMESTAMP) {
+                Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(((ID) value).getLabelRaw());
+                ((ID) value).setLabel(newLabel);
+            }
+        }
+
         value = FieldValueHelper.wrapFieldValue(value, field);
 
-        if (value != null && isUseDesensitized(field, user4Desensitized)) {
+        if (value != null && FieldValueHelper.isUseDesensitized(field, user4Desensitized)) {
             value = FieldValueHelper.desensitized(field, value);
         }
         return value;
-    }
-
-    private boolean isUseDesensitized(EasyField field, ID user) {
-        if (user == null) return false;
-        return "true".equals(field.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED))
-                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 
     /**
@@ -515,9 +520,7 @@ public class FormsBuilder extends FormsManager {
         for (Map.Entry<String, Object> e : initialVal.entrySet()) {
             final String field = e.getKey();
             final String value = (String) e.getValue();
-            if (StringUtils.isBlank(value)) {
-                continue;
-            }
+            if (StringUtils.isBlank(value)) continue;
 
             // 引用字段值如 `&User`
             if (field.startsWith(DV_REFERENCE_PREFIX)) {
@@ -582,7 +585,11 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON getReferenceMixValue(String idValue) {
-        if (!ID.isId(idValue)) return null;
+        if (DV_MAINID.equals(idValue)) {
+            return FieldValueHelper.wrapMixValue(EntityService.UNSAVED_RECORD, Language.L("新的"));
+        } else if (!ID.isId(idValue)) {
+            return null;
+        }
 
         try {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));

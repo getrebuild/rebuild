@@ -38,49 +38,7 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/sortable.js}"></script>
-    <script type="text/babel">
-      $(document).ready(function () {
-        const entity = $urlp('entity'),
-          type = $urlp('type')
-        const url = `/admin/entity/${entity}/view-addons?type=${type}`
-
-        $.get(url, function (res) {
-          $(res.data.refs).each(function () {
-            render_unset(this)
-          })
-
-          if (res.data.config) {
-            $(res.data.config.items).each(function () {
-              $('.unset-list li[data-key="' + this + '"]').trigger('click')
-            })
-            $('#relatedAutoExpand').attr('checked', res.data.config.autoExpand === true)
-            $('#relatedAutoHide').attr('checked', res.data.config.autoHide === true)
-          }
-
-          if (!res.data.refs || res.data.refs.length === 0) {
-            $(`<li class="dd-item nodata">${$L('暂无数据')}</li>`).appendTo('.unset-list')
-          }
-        })
-
-        const $btn = $('.J_save').click(function () {
-          let config = []
-          $('.J_config>li').each(function () {
-            config.push($(this).data('key'))
-          })
-          config = {
-            items: config,
-            autoExpand: $val('#relatedAutoExpand'),
-            autoHide: $val('#relatedAutoHide'),
-          }
-
-          $btn.button('loading')
-          $.post(url, JSON.stringify(config), function (res) {
-            $btn.button('reset')
-            if (res.error_code === 0) parent.location.reload()
-            else RbHighbar.error(res.error_msg)
-          })
-        })
-      })
-    </script>
+    <script th:src="@{/assets/js/show-styles.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/view-addons.js}" type="text/babel"></script>
   </body>
 </html>

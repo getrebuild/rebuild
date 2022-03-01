@@ -24,7 +24,6 @@ public class SystemDiagnosis {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
-    // 检查项
     private static final String HasUpdate = "HasUpdate";
     private static final String AdminMsg = "AdminMsg";
     private static final String UsersMsg = "UsersMsg";
@@ -33,20 +32,21 @@ public class SystemDiagnosis {
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
 
+    public static String _DENIEDMSG = null;
+
     public void diagnose() {
-        // Status
         ServerStatus.getLastStatus(true);
 
         LinkedHashMap<String, String> dangers = getDangersList();
 
-        JSONObject checkBuild = License.siteApi("api/authority/check-build", true);
+        JSONObject checkBuild = License.siteApi("api/authority/check-build");
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
             dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
         } else {
             dangers.remove(HasUpdate);
         }
 
-        JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
+        JSONObject echoValidity = License.siteApiNoCache("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
         if (echoValidity != null && !echoValidity.isEmpty()) {
             String adminMsg = echoValidity.getString("adminMsg");
             if (adminMsg == null) dangers.remove(AdminMsg);
@@ -56,13 +56,15 @@ public class SystemDiagnosis {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
+            // MULTIPLE RUNNING INSTANCES DETECTED!
+            _DENIEDMSG = echoValidity.getString("deniedMsg");
+
         } else {
             dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
         }
 
-        // 放入缓存
-        Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
+        Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
     }
 
     @SuppressWarnings("unchecked")
@@ -72,24 +74,14 @@ public class SystemDiagnosis {
         return dangers == null ? new LinkedHashMap<>() : (LinkedHashMap<String, String>) dangers.clone();
     }
 
-    // --
-
-    /**
-     * @param name
-     * @param message
-     */
     public static void setItem(String name, String message) {
         LinkedHashMap<String, String> dangers = getDangersList();
         if (message == null) dangers.remove(name);
         else dangers.put(name, message);
+
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
     }
 
-    // --
-
-    /**
-     * @return
-     */
     public static Collection<String> getAdminDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
 
@@ -125,9 +117,6 @@ public class SystemDiagnosis {
         return dangers.values();
     }
 
-    /**
-     * @return
-     */
     public static String getUsersDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
         return dangers.get(UsersMsg);

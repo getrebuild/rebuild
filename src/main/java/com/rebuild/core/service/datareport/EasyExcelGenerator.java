@@ -26,6 +26,7 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.util.*;
@@ -194,11 +195,11 @@ public class EasyExcelGenerator extends SetUser {
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             final String fieldName = iter.next();
-            EasyField easyMeta = EasyMetaFactory.valueOf(
+            EasyField easyField = EasyMetaFactory.valueOf(
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
-            DisplayType dt = easyMeta.getDisplayType();
+            DisplayType dt = easyField.getDisplayType();
 
-            if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.AVATAR) {
+            if (!dt.isExportable() && dt != DisplayType.SIGN) {
                 data.put(fieldName, unsupportFieldTip);
                 continue;
             }
@@ -219,10 +220,23 @@ public class EasyExcelGenerator extends SetUser {
             if (fieldValue == null) {
                 data.put(varName, StringUtils.EMPTY);
             } else {
-                fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyMeta, true);
+
+                if (dt == DisplayType.SIGN) {
+                    fieldValue = buildImgData((String) fieldValue);
+                } else {
+                    fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
+
+                    if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
+                        fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
+                    }
+                }
                 data.put(varName, fieldValue);
             }
         }
         return data;
+    }
+
+    private byte[] buildImgData(String base64img) {
+        return Base64Utils.decodeFromString(base64img.split("base64,")[1]);
     }
 }

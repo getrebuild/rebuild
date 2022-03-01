@@ -81,6 +81,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script>
       window.__PageConfig = {
+        type: 'TaskList',
         id: '[[${projectId}]]',
         icon: '[[${iconName}]]',
         projectCode: '[[${projectCode}]]',
@@ -94,5 +95,6 @@
     <script th:src="@{/assets/js/project/project-tasks.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
   </body>
 </html>

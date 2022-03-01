@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * 系统配置
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see RebuildConfiguration
  * @see ConfigurationItem
  * @since 09/20/2018
@@ -53,6 +53,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
+
+    public static final String ETAG_DIMGLOGOTIME = "dimgLogoTime";
+    public static final String ETAG_DIMGBGIMGTIME = "dimgBgimgTime";
 
     @GetMapping("systems")
     public ModelAndView pageSystems() {
@@ -64,7 +67,7 @@ public class ConfigurationController extends BaseController {
         // Available langs
         mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
-        JSONObject auth = License.queryAuthority(true);
+        JSONObject auth = License.queryAuthority();
         mv.getModel().put("LicenseType",
                 auth.getString("authType") + " (" + auth.getString("authObject") + ")");
         mv.getModel().put("Version", Application.VER);
@@ -93,11 +96,14 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        String dLOGO = data.getString("LOGO");
-        String dLOGOWhite = data.getString("LOGOWhite");
+        String dLOGO = data.getString(ConfigurationItem.LOGO.name());
+        String dLOGOWhite = data.getString(ConfigurationItem.LOGOWhite.name());
         if (dLOGO != null || dLOGOWhite != null) {
-            // @see UseThemeController#useLogo
-            Application.getCommonsCache().evict("dimgLogoTime");
+            Application.getCommonsCache().evict(ETAG_DIMGLOGOTIME);
+        }
+        String dCustomWallpaper = data.getString(ConfigurationItem.CustomWallpaper.name());
+        if (dCustomWallpaper != null) {
+            Application.getCommonsCache().evict(ETAG_DIMGBGIMGTIME);
         }
 
         setValues(data);

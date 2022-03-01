@@ -8,17 +8,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ExpiresMap;
 import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author ZHAO
@@ -63,8 +65,8 @@ public final class License {
         return SN;
     }
 
-    public static JSONObject queryAuthority(boolean useCache) {
-        JSONObject auth = siteApi("api/authority/query", useCache);
+    public static JSONObject queryAuthority() {
+        JSONObject auth = siteApi("api/authority/query");
         if (auth == null || auth.getString("error") != null) {
             auth = JSONUtils.toJSONObject(
                     new String[] { "sn", "authType", "authObject", "authExpires" },
@@ -74,7 +76,7 @@ public final class License {
     }
 
     public static int getCommercialType() {
-        JSONObject auth = queryAuthority(true);
+        JSONObject auth = queryAuthority();
         Integer authType = auth.getInteger("authTypeInt");
         return authType == null ? 0 : authType;
     }
@@ -100,30 +102,33 @@ public final class License {
     }
 
     public static JSONObject siteApi(String api) {
-        return siteApi(api, false);
+        return siteApi(api, ExpiresMap.HOUR_IN_SECOND * 2);
     }
 
-    public static JSONObject siteApi(String api, boolean useCache) {
-        if (useCache && Application.isReady()) {
-            Object o = Application.getCommonsCache().getx(api);
-            if (o != null) {
-                return (JSONObject) o;
-            }
+    public static JSONObject siteApiNoCache(String api) {
+        return siteApi(api, 0);
+    }
+
+    private static JSONObject siteApi(String api, int ttl) {
+        if (ttl > 0) {
+            JSONObject c = MCACHED.get(api, ttl);
+            if (c != null) return c;
         }
 
-        String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
-        if (!api.contains("/authority/new")) apiUrl += "&sn=" + SN();
+        Map<String, String> hs = new HashMap<>();
+        hs.put("X-SiteApi-K", OSA_KEY);
+        if (!api.contains("/authority/new")) hs.put("X-SiteApi-SN", SN());
 
         try {
-            String result = HttpUtils.get(apiUrl);
+            String result = HttpUtils.get("https://getrebuild.com/" + api, hs);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
 
                 String hasError = o.getString("error");
                 if (hasError != null) {
-                    log.error("Bad result : {}", result);
-                } else if (Application.isReady()) {
-                    Application.getCommonsCache().putx(api, o, CommonsCache.TS_HOUR);
+                    log.error("Error result : {}", result);
+                } else {
+                    MCACHED.put(api, o);
                 }
                 return o;
             } else {
@@ -135,4 +140,6 @@ public final class License {
         }
         return null;
     }
+
+    private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();
 }

@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * 实体元数据
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @see EasyMetaFactory
  * @since 08/13/2018
  */

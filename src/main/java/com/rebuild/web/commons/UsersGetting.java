@@ -13,12 +13,14 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -64,6 +66,14 @@ public class UsersGetting extends BaseController {
         members = UserHelper.sortMembers(members);
 
         JSONArray found = new JSONArray();
+
+        // 全部用户
+        if (getBoolParameter(request, "atall") && "User".equals(type) && StringUtils.isBlank(query)
+                && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
+            found.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("全部用户")}));
+        }
+
         for (Member m : members) {
             if (m.isDisabled()) continue;
 
@@ -79,14 +89,15 @@ public class UsersGetting extends BaseController {
                     || StringUtils.containsIgnoreCase(name, query)
                     || (ifUser != null && StringUtils.containsIgnoreCase(ifUser.getName(), query))
                     || (ifUser != null && ifUser.getEmail() != null && StringUtils.containsIgnoreCase(ifUser.getEmail(), query))) {
-                JSONObject o = JSONUtils.toJSONObject(new String[]{"id", "text"},
-                        new String[]{m.getIdentity().toString(), name});
-                found.add(o);
+
+                found.add(JSONUtils.toJSONObject(
+                        new String[]{"id", "text"}, new Object[]{m.getIdentity(), name}));
 
                 // 最多显示40个
                 if (found.size() >= 40) break;
             }
         }
+
         return found;
     }
 

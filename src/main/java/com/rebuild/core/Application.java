@@ -55,7 +55,7 @@ import java.util.*;
 /**
  * 后台入口类
  *
- * @author zhaofang123@gmail.com
+ * @author Zixin (RB)
  * @since 05/18/2018
  */
 @Slf4j
@@ -64,11 +64,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.7.2";
+    public static final String VER = "2.8.0-beta1";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2070204;
+    public static final int BUILD = 2080002;
 
     static {
         // Driver for DB
@@ -110,7 +110,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        if (_CONTEXT != null) throw new IllegalStateException("REBUILD ALREADY STARTED");
+        if (_CONTEXT != null) throw new IllegalStateException("REBUILD HAS STARTED");
 
         _CONTEXT = event.getApplicationContext();
 
@@ -129,18 +129,16 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl();
                             String banner = RebuildBanner.formatSimple(
-                                    "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                                    "    License : " + License.queryAuthority(false).values(),
+                                    "Rebuild (" + VER + ") started successfully in " + (System.currentTimeMillis() - time) + " ms.",
+                                    "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
                                     "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
 
-                            if (License.isCommercial()) {
-                                System.out.println(banner);
-                            } else {
-                                System.out.print(banner);
+                            System.out.println(banner);
 
+                            if (!License.isCommercial()) {
                                 String thanks = RebuildBanner.formatSimple(
                                         "**********",
                                         "感谢使用 REBUILD！",
@@ -204,7 +202,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         if (lastBuild < BUILD) {
-            log.warn("Clean up the cache once when upgrading : " + BUILD);
+            log.warn("Clean up the cache once when upgrading : {}", BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }
@@ -216,7 +214,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 加载自定义实体
         log.info("Loading customized/business entities ...");
-        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
+        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
 
         // 实体对应的服务类
         _ESS = new HashMap<>();

@@ -122,7 +122,7 @@ class AdvFilter extends React.Component {
                     value={this.state.filterName || ''}
                     data-id="filterName"
                     onChange={this.handleChange}
-                    placeholder={$L('输入名称保存')}
+                    placeholder={$L('输入名称保存到常用查询')}
                   />
                 </div>
                 {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />}
@@ -398,7 +398,7 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
-    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
+    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
       op = ['IN', 'NIN']
