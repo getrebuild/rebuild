@@ -198,6 +198,7 @@ a.ui-draggable.ui-draggable-dragging {
 .data-info .esource a {
   position: relative;
   cursor: default;
+  font-size: 14px;
 }
 
 .data-info .esource a i.zmdi {
@@ -228,22 +229,34 @@ a.ui-draggable.ui-draggable-dragging {
 .data-info .input {
   margin-bottom: 9px;
   padding: 0 6px;
+  position: relative;
 }
 
 .data-info .input .form-control {
   border-width: 0;
-  padding: 0 6px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.4);
   height: 30px !important;
+  line-height: 30px !important;
+  padding: 0;
+  transition: padding 0.2s;
+  font-size: 14px;
 }
 
-.input .form-control:hover,
-.input .form-control:focus {
-  background-color: #fff;
+.data-info .input .form-control + .icon {
+  position: absolute;
+  right: 12px;
+  top: 9px;
+  color: #999;
+}
+
+.data-info .input .form-control:hover,
+.data-info .input .form-control:focus {
+  background-color: #eee;
+  padding: 0 6px;
 }
 
 .input .form-control[disabled] {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+  background-color: rgba(255, 255, 255, 0.4) !important;
   cursor: default;
 }
 

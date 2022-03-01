@@ -24,6 +24,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 #config-side .header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 10px 20px;
+  position: relative;
 }
 
 #config-side .header > h5,
@@ -40,25 +41,34 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
-#config-side .header > input::after {
-  content: '\f158';
-  font-family: 'Material-Design-Iconic-Font';
-  width: 24px;
-  height: 32px;
-  display: inline-block;
+#config-side .header > input + .icon {
   position: absolute;
-  background-color: #ff0;
+  right: 27px;
+  top: 20px;
+  color: #999;
 }
+
+/*#config-side .header > input::after {*/
+/*  content: '\f158';*/
+/*  font-family: 'Material-Design-Iconic-Font';*/
+/*  width: 24px;*/
+/*  height: 32px;*/
+/*  display: inline-block;*/
+/*  position: absolute;*/
+/*  background-color: #ff0;*/
+/*}*/
 
 #config-side .header > input {
-  background-color: rgba(255, 255, 255, 0.6);
-  border-radius: 0;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
   padding: 0;
+  transition: padding 0.2s;
 }
 
-#config-side .header > input:focus {
-  background-color: #fff;
-  padding: 0 8px;
+#config-side .header > input:focus,
+#config-side .header > input:hover {
+  background-color: #eee;
+  padding: 0 6px;
 }
 
 #config-side .alert.alert-warning {
