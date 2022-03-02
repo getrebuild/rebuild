@@ -43,6 +43,7 @@ public class AviatorUtils {
         addCustomFunction(new CurrentBizunitFunction());
         addCustomFunction(new CurrentDateFunction());
         addCustomFunction(new LocationDistanceFunction());
+        addCustomFunction(new RequestFunctuin());
     }
 
     /**
