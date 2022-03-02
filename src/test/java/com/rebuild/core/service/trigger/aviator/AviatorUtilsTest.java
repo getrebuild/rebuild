@@ -33,14 +33,11 @@ class AviatorUtilsTest {
 
     @Test
     void func() {
-        Object result = AviatorUtils.evalQuietly("DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
-        System.out.println(result);
+        AviatorUtils.evalQuietly("p(DATEDIFF('2022-03-03 17:31:24', '2022-03-04 17:30:24', 'D'))");
 
-        result = AviatorUtils.evalQuietly("DATEADD('2021-01-01 18:17:00', '2H')");
-        System.out.println(result);
+        AviatorUtils.evalQuietly("p(DATEADD('2021-01-01 18:17:00', '2H'))");
 
-        result = AviatorUtils.evalQuietly("DATESUB('2021-01-01 18:17:00', '1')");
-        System.out.println(result);
+        AviatorUtils.evalQuietly("p(DATESUB('2021-01-01 18:17:00', '1'))");
     }
 
     @Test

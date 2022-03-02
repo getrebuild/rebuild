@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.commons.ObjectUtils;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorDouble;
+import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +32,12 @@ public class LocationDistanceFunction extends AbstractFunction {
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
         final double[] L1s = parseLngLat(arg1.getValue(env).toString());
         if (L1s == null) {
-            log.warn("Bad lnglat(1) format : {}", arg1.getValue(env));
-            return AviatorDouble.valueOf(0);
+            return AviatorNil.NIL;
         }
 
         final double[] L2s = parseLngLat(arg2.getValue(env).toString());
         if (L2s == null) {
-            log.warn("Bad lnglat(2) format : {}", arg2.getValue(env));
-            return AviatorDouble.valueOf(0);
+            return AviatorNil.NIL;
         }
 
         double LNG1 = L1s[0];
