@@ -31,6 +31,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -44,7 +45,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zixin (RB)
@@ -235,23 +239,23 @@ public class LoginController extends BaseController {
     }
 
     private void createLoginLog(HttpServletRequest request, ID user) {
-        String ua = request.getHeader("user-agent");
+        final String ua = request.getHeader("user-agent");
+        String uaClear;
         try {
             UserAgent uas = UserAgent.parseUserAgentString(ua);
-            ua = String.format("%s-%s (%s)",
-                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
-            if (uas.getOperatingSystem().getDeviceType() == DeviceType.MOBILE) ua += " [Mobile]";
 
-        } catch (Exception ex) {
-            StringBuilder debug4 = new StringBuilder();
-            Enumeration<String> hs = request.getHeaderNames();
-            while (hs.hasMoreElements()) {
-                String name = hs.nextElement();
-                debug4.append("\n").append(name).append("=").append(request.getHeader(name));
+            uaClear = uas.getBrowser().toString();
+            if (uas.getBrowserVersion() != null) uaClear = "-" + uas.getBrowserVersion();
+
+            OperatingSystem os = uas.getOperatingSystem();
+            if (os != null) {
+                uaClear += " (" + os + ")";
+                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
             }
 
-            log.warn("Unknown user-agent : " + ua + "" + debug4);
-            ua = "UNKNOW";
+        } catch (Exception ex) {
+            log.warn("Unknown user-agent : {}", ua);
+            uaClear = "UNKNOW";
         }
 
         String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
@@ -259,7 +263,7 @@ public class LoginController extends BaseController {
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
         record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", ua);
+        record.setString("userAgent", uaClear);
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
 

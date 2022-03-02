@@ -45,10 +45,18 @@ class AviatorUtilsTest {
 
     @Test
     void funcComplex() {
-        Object result = AviatorUtils.evalQuietly("100 + DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
-        System.out.println(result);
+        AviatorUtils.evalQuietly("p(100 + DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H'))");
+        AviatorUtils.evalQuietly("p(DATEADD(DATEADD('2021-01-01 18:17:00', '2H'), '1D'))");
+    }
 
-        result = AviatorUtils.evalQuietly("DATEADD(DATEADD('2021-01-01 18:17:00', '2H'), '1D')");
-        System.out.println(result);
+    @Test
+    void funcRequestFunction() {
+        AviatorUtils.evalQuietly("p(REQUEST('https://www.baidu.com/'))");
+        AviatorUtils.evalQuietly("p(REQUEST('https://www.google.com/', 'imdefault'))");
+    }
+
+    @Test
+    void funcLocationDistanceFunction() {
+        AviatorUtils.evalQuietly("p(LOCATIONDISTANCE('123.456789,123.456789', '地址$$$$123.456789,123.456789'))");
     }
 }
