@@ -119,7 +119,7 @@ public abstract class BaseFeedsService extends ObservableService {
 
         String fakeContent = record.getString("content");
 
-        String atAllKey = "@" + Language.L("全部用户");
+        String atAllKey = "@" + Language.L("所有人");
         if (fakeContent.contains(atAllKey)
                 && Application.getPrivilegesManager().allow(UserContextHolder.getUser(), ZeroEntry.AllowAtAllUsers)) {
             fakeContent = fakeContent.replace(atAllKey, "@" + UserService.ALLUSERS);

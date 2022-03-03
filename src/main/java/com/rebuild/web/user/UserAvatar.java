@@ -44,8 +44,6 @@ import java.io.IOException;
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
 
-    private static final String AVATAR_DEFAULT = "/assets/img/avatar.png";
-
     @GetMapping("/user-avatar")
     public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(getRequestUser(request), request, response);
@@ -63,7 +61,12 @@ public class UserAvatar extends BaseController {
      */
     private void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (user == null) {
-            response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+            return;
+        }
+
+        if (user.equals(UserService.ALLUSERS.toString())) {
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar-users.png"));
             return;
         }
 
@@ -77,7 +80,7 @@ public class UserAvatar extends BaseController {
         }
 
         if (realUser == null) {
-            response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
             return;
         }
 
@@ -113,7 +116,7 @@ public class UserAvatar extends BaseController {
             } catch (IOException ex) {
                 log.warn("Cannot generate avatar", ex);
 
-                response.sendRedirect(AppUtils.getContextPath(AVATAR_DEFAULT));
+                response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
                 return;
             }
 

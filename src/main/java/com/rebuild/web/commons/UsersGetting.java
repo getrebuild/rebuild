@@ -71,7 +71,7 @@ public class UsersGetting extends BaseController {
         if (getBoolParameter(request, "atall") && "User".equals(type) && StringUtils.isBlank(query)
                 && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
             found.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("全部用户")}));
+                    new String[]{"id", "text"}, new Object[]{UserService.ALLUSERS, Language.L("所有人")}));
         }
 
         for (Member m : members) {
