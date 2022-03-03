@@ -441,5 +441,10 @@
             <artifactId>dingtalk-sdk</artifactId>
             <version>1.0-20210901</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.7.22</version>
+        </dependency>
     </dependencies>
 </project>

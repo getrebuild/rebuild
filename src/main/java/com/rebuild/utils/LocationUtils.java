@@ -62,22 +62,22 @@ public class LocationUtils {
 
         JSONObject fetchTry;
 
-        // #1
-        fetchTry = getJSON(String.format("https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", ip));
-        if (fetchTry != null && fetchTry.getIntValue("code") == 0) {
-            fetchTry = fetchTry.getJSONObject("data");
-            String c = fetchTry.getString("country");
-            if ("local".equalsIgnoreCase(fetchTry.getString("isp_id")) || "xx".equalsIgnoreCase(c)) {
-                result.put("country", "R");
-            } else {
-                result.put("country", "xx".equalsIgnoreCase(c) ? "" : c);
-                c = fetchTry.getString("region");
-                result.put("region", "xx".equalsIgnoreCase(c) ? "" : c);
-                c = fetchTry.getString("city");
-                result.put("city", "xx".equalsIgnoreCase(c) ? "" : c);
-            }
-            return result;
-        }
+//        // #1
+//        fetchTry = getJSON(String.format("https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", ip));
+//        if (fetchTry != null && fetchTry.getIntValue("code") == 0) {
+//            fetchTry = fetchTry.getJSONObject("data");
+//            String c = fetchTry.getString("country");
+//            if ("local".equalsIgnoreCase(fetchTry.getString("isp_id")) || "xx".equalsIgnoreCase(c)) {
+//                result.put("country", "R");
+//            } else {
+//                result.put("country", "xx".equalsIgnoreCase(c) ? "" : c);
+//                c = fetchTry.getString("region");
+//                result.put("region", "xx".equalsIgnoreCase(c) ? "" : c);
+//                c = fetchTry.getString("city");
+//                result.put("city", "xx".equalsIgnoreCase(c) ? "" : c);
+//            }
+//            return result;
+//        }
 
         // #2
         fetchTry = getJSON(String.format("https://ipapi.co/%s/json/", ip));
