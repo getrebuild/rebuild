@@ -103,15 +103,7 @@ $(document).ready(function () {
     })
   })
 
-  $('.nav-tabs a').on('click', function (e) {
-    if (rb.commercial < 1 && $(this).find('.rbv').length > 0) {
-      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      $stopEvent(e, true)
-      return false
-    }
-
-    parent.RbModal.resize()
-  })
+  $('.nav-tabs a').on('click', () => parent.RbModal.resize())
 })
 
 class MetaschemaList extends React.Component {
