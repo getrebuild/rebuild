@@ -3872,6 +3872,10 @@ a.avatar.x26 img {
   text-transform: capitalize;
 }
 
+.dropdown-menu.origin .dropdown-item {
+  text-transform: unset;
+}
+
 a.select-lang {
   display: inline-block;
   padding: 5px 10px;

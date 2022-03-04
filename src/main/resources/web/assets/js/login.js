@@ -58,15 +58,20 @@ $(document).ready(function () {
 
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
-        let nexturl = $decode($urlp('nexturl'))
-        if (res.data && res.data.passwdExpiredDays < 8) {
-          nexturl = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
-        } else if (res.data && res.data.login2FaMode > 0) {
-          nexturl = `${rb.baseUrl}/user/login-2fa?token=${res.data.login2FaUserToken}`
-        } else if (!nexturl) {
-          nexturl = `${rb.baseUrl}/dashboard/home`
+        const nexturl = $urlp('nexturl')
+
+        let nexturl2 = nexturl
+        if (res.data && res.data.login2FaMode) {
+          nexturl2 = `${rb.baseUrl}/user/login-2fa?token=${res.data.login2FaUserToken}`
+          if (nexturl) nexturl2 += `&nexturl=${nexturl}`
+        } else if (res.data && res.data.passwdExpiredDays) {
+          nexturl2 = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
+          if (nexturl) nexturl2 += `&nexturl=${nexturl}`
+        } else if (!nexturl2) {
+          nexturl2 = `${rb.baseUrl}/dashboard/home`
         }
-        location.replace(nexturl)
+
+        location.replace(nexturl2)
       } else if (res.error_msg === 'VCODE') {
         location.reload()
       } else {

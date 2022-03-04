@@ -7,9 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
-import cn.devezhao.commons.*;
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
@@ -20,6 +21,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
@@ -28,12 +30,8 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
-import eu.bitwalker.useragentutils.DeviceType;
-import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,7 +42,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zixin (RB)
@@ -53,12 +54,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/user/")
-public class LoginController extends BaseController {
-
-    public static final String CK_AUTOLOGIN = "rb.alt";
-    public static final String SK_USER_THEME = "currentUseTheme";
-    private static final String SK_NEED_VCODE = "needLoginVCode";
-    private static final String SK_START_TOUR = "needStartTour";
+public class LoginController extends LoginAction {
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -68,7 +64,7 @@ public class LoginController extends BaseController {
             return null;
         }
 
-        // 授权 Token 登录
+        // Token 登录
         final String useToken = getParameter(request, "token");
         if (StringUtils.isNotBlank(useToken)) {
             ID tokenUser = AuthTokenManager.verifyToken(useToken, true);
@@ -84,7 +80,7 @@ public class LoginController extends BaseController {
             }
         }
 
-        // Cookie 记住登录
+        // 记住登录
         final String useAlt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
         if (StringUtils.isNotBlank(useAlt)) {
             ID altUser = null;
@@ -102,17 +98,21 @@ public class LoginController extends BaseController {
 
             } catch (Exception ex) {
                 ServletUtils.readCookie(request, CK_AUTOLOGIN);
-                log.error("Cannot decode User from alt : " + useAlt, ex);
+                log.error("Cannot decode User from alt : {}", useAlt, ex);
             }
 
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
-                loginSuccessed(request, response, altUser, true);
+                Integer ed = loginSuccessed(request, response, altUser, true);
 
                 String nexturl = getParameter(request, "nexturl", homeUrl);
+                if (ed != null) {
+                    nexturl = "../settings/passwd-expired?d=" + ed;
+                }
+
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
-                // 显示验证码
+                // 立即显示验证码
                 ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
             }
         }
@@ -173,26 +173,25 @@ public class LoginController extends BaseController {
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
+        final User loginUser = Application.getUserStore().getUser(user);
+
         Map<String, Object> resMap = new HashMap<>();
 
         // 2FA
         int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-        if (faMode > 0) {
+        if (faMode > 0 && !UserHelper.isSuperAdmin(loginUser.getId())) {
             resMap.put("login2FaMode", faMode);
 
             String userToken = CodecUtils.randomCode(40);
-            Application.getCommonsCache().put(userToken, user, CommonsCache.TS_HOUR / 4); // 15m
+            Application.getCommonsCache().putx("2FA" + userToken, loginUser.getId(), CommonsCache.TS_HOUR / 4); // 15m
             resMap.put("login2FaUserToken", userToken);
 
             return RespBody.ok(resMap);
         }
 
-        User loginUser = Application.getUserStore().getUser(user);
-        loginSuccessed(request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
-
-        // 密码过期
-        Integer passwdExpiredDays = UserService.getPasswdExpiredDayLeft(loginUser.getId());
-        if (passwdExpiredDays != null) resMap.put("passwdExpiredDays", passwdExpiredDays);
+        Integer ed = loginSuccessed(
+                request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
+        if (ed != null) resMap.put("passwdExpiredDays", ed);
 
         if (AppUtils.isRbMobile(request)) {
             String authToken = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES * 12);
@@ -217,66 +216,6 @@ public class LoginController extends BaseController {
             Application.getCommonsCache().putx(ckey, retry, CommonsCache.TS_HOUR);
         }
         return retry;
-    }
-
-    private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
-        // 自动登录
-        if (autoLogin) {
-            String alt = user + "," + System.currentTimeMillis() + ",v1";
-            alt = AES.encrypt(alt);
-            ServletUtils.addCookie(response, CK_AUTOLOGIN, alt);
-        } else {
-            ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
-        }
-
-        ThreadPool.exec(() -> createLoginLog(request, user));
-
-        ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-        Application.getSessionStore().storeLoginSuccessed(request);
-
-        // Tour 显示规则
-        Object[] initLoginTimes = Application.createQueryNoFilter(
-                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
-                .setParameter(1, user)
-                .unique();
-        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
-                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
-            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
-        }
-    }
-
-    private void createLoginLog(HttpServletRequest request, ID user) {
-        String ua = request.getHeader("user-agent");
-        try {
-            UserAgent uas = UserAgent.parseUserAgentString(ua);
-            ua = String.format("%s-%s (%s)",
-                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
-            if (uas.getOperatingSystem().getDeviceType() == DeviceType.MOBILE) ua += " [Mobile]";
-
-        } catch (Exception ex) {
-            StringBuilder debug4 = new StringBuilder();
-            Enumeration<String> hs = request.getHeaderNames();
-            while (hs.hasMoreElements()) {
-                String name = hs.nextElement();
-                debug4.append("\n").append(name).append("=").append(request.getHeader(name));
-            }
-
-            log.warn("Unknown user-agent : " + ua + "" + debug4);
-            ua = "UNKNOW";
-        }
-
-        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
-
-        Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
-        record.setID("user", user);
-        record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", ua);
-        record.setDate("loginTime", CalendarUtils.now());
-        Application.getCommonsService().create(record);
-
-        License.siteApiNoCache(
-                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
     @GetMapping("logout")
