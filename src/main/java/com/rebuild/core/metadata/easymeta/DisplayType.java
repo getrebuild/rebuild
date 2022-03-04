@@ -19,7 +19,7 @@ import cn.devezhao.persist4j.dialect.Type;
 public enum DisplayType {
 
     NUMBER(EasyNumber.class, "整数", FieldType.LONG, FieldType.NO_NEED_LENGTH, "##,###"),
-    DECIMAL(EasyDecimal.class, "货币", FieldType.DECIMAL, FieldType.NO_NEED_LENGTH, "##,##0.00"),
+    DECIMAL(EasyDecimal.class, "小数", FieldType.DECIMAL, FieldType.NO_NEED_LENGTH, "##,##0.00"),
     DATE(EasyDate.class, "日期", FieldType.DATE, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd"),
     DATETIME(EasyDateTime.class, "日期时间", FieldType.TIMESTAMP, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd HH:mm:ss"),
     TEXT(EasyText.class, "文本", FieldType.STRING, 200, null),
