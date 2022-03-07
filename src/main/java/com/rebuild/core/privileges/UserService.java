@@ -155,11 +155,7 @@ public class UserService extends BaseService {
         }
 
         if (record.hasValue("fullName")) {
-            try {
-                UserHelper.generateAvatar(record.getString("fullName"), true);
-            } catch (Exception ex) {
-                log.error(null, ex);
-            }
+            UserHelper.generateAvatar(record.getString("fullName"), true);
         }
     }
 

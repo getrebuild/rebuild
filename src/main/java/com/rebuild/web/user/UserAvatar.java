@@ -61,7 +61,7 @@ public class UserAvatar extends BaseController {
      */
     private void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (user == null) {
-            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+            response.sendRedirect(AppUtils.getContextPath(UserHelper.DEFAULT_AVATAR));
             return;
         }
 
@@ -80,7 +80,7 @@ public class UserAvatar extends BaseController {
         }
 
         if (realUser == null) {
-            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
+            response.sendRedirect(AppUtils.getContextPath(UserHelper.DEFAULT_AVATAR));
             return;
         }
 
@@ -104,22 +104,13 @@ public class UserAvatar extends BaseController {
             response.sendRedirect(avatarUrl);
 
         } else {
-            File avatarFile;
-            try {
-                String fullName = realUser.getFullName();
-                if (realUser.getId().equals(UserService.SYSTEM_USER) || realUser.getId().equals(UserService.ADMIN_USER)) {
-                    fullName = "RB";
-                }
 
-                avatarFile = UserHelper.generateAvatar(fullName, false);
-
-            } catch (IOException ex) {
-                log.warn("Cannot generate avatar", ex);
-
-                response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar.png"));
-                return;
+            String fullName = realUser.getFullName();
+            if (realUser.getId().equals(UserService.SYSTEM_USER) || realUser.getId().equals(UserService.ADMIN_USER)) {
+                fullName = "RB";
             }
 
+            File avatarFile = UserHelper.generateAvatar(fullName, false);
             FileDownloader.writeLocalFile(avatarFile, response);
         }
     }
