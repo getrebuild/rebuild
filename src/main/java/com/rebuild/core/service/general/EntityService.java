@@ -26,7 +26,7 @@ import java.util.List;
 public interface EntityService extends ServiceSpec {
 
     // 将新建的记录 ID
-    static final ID UNSAVED_RECORD = ID.valueOf("000-0000000000000000");
+    ID UNSAVED_RECORD = ID.valueOf("000-0000000000000000");
 
     /**
      * 取消共享，跟随共享权限

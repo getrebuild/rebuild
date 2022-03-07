@@ -538,7 +538,8 @@ public class FormsBuilder extends FormsManager {
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value) : value;
+                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value)
+                        : (DV_MAINID.equals(value) ? EntityService.UNSAVED_RECORD : value);
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
