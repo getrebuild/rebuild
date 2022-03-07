@@ -186,6 +186,10 @@ public class LoginController extends LoginAction {
             Application.getCommonsCache().putx("2FA" + userToken, loginUser.getId(), CommonsCache.TS_HOUR / 4); // 15m
             resMap.put("login2FaUserToken", userToken);
 
+            if (AppUtils.isRbMobile(request)) {
+                request.getSession().invalidate();
+            }
+
             return RespBody.ok(resMap);
         }
 
