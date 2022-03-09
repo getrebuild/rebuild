@@ -196,7 +196,7 @@ public class FlowNode {
             }
         }
 
-        users.addAll(UserHelper.parseUsers(defsList, null));
+        users.addAll(UserHelper.parseUsers(defsList, record));
         return users;
     }
 
