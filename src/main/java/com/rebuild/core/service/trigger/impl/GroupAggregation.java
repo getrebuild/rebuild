@@ -78,7 +78,7 @@ public class GroupAggregation extends FieldAggregation {
             groupFieldsMapping.put(sourceField, targetField);
         }
 
-        // 1.源纪录数据
+        // 1.源记录数据
 
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),

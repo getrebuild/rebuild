@@ -144,6 +144,7 @@ public class GeneralModelController extends EntityController {
             model.putAll(getViewExtras(user, entity, e.getMainEntity() != null));
             model.put("entityPrivileges", buildEntityPrivileges(id, user));
             model.put("entityLabel", Language.L(e));
+            model.put("isDetail", e.getMainEntity() != null);
         }
         return model;
     }

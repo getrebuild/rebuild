@@ -2,10 +2,11 @@
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
   "name": "REBUILD Web",
   "short_name": "REBUILD",
-  "start_url": "/",
-  "background_color": "#eeeeee",
+  "start_url": "../",
+  "background_color": "#ffffff",
   "theme_color": "#4285f4",
   "display": "standalone",
+  "orientation": "any",
   "id": "id-rebuild-web",
   "icons": [
     {

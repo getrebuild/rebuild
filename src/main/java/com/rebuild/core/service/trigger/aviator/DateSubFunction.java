@@ -20,8 +20,8 @@ public class DateSubFunction extends DateAddFunction {
     private static final long serialVersionUID = -8857066285235050207L;
 
     @Override
-    protected Date dateCalc(Date date, int interval, int field) {
-        return super.dateCalc(date, -interval, field);
+    protected Date dateAdd(Date date, int interval, int field) {
+        return super.dateAdd(date, -interval, field);
     }
 
     @Override

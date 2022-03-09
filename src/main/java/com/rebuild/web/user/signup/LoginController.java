@@ -31,6 +31,9 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.wf.captcha.utils.CaptchaUtil;
+import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.OperatingSystem;
+import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -220,6 +223,66 @@ public class LoginController extends LoginAction {
             Application.getCommonsCache().putx(ckey, retry, CommonsCache.TS_HOUR);
         }
         return retry;
+    }
+
+    private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
+        // 自动登录
+        if (autoLogin) {
+            String alt = user + "," + System.currentTimeMillis() + ",v1";
+            alt = AES.encrypt(alt);
+            ServletUtils.addCookie(response, CK_AUTOLOGIN, alt);
+        } else {
+            ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
+        }
+
+        ThreadPool.exec(() -> createLoginLog(request, user));
+
+        ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
+        Application.getSessionStore().storeLoginSuccessed(request);
+
+        // Tour 显示规则
+        Object[] initLoginTimes = Application.createQueryNoFilter(
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                .setParameter(1, user)
+                .unique();
+        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
+                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
+            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
+        }
+    }
+
+    private void createLoginLog(HttpServletRequest request, ID user) {
+        final String ua = request.getHeader("user-agent");
+        String uaClear;
+        try {
+            UserAgent uas = UserAgent.parseUserAgentString(ua);
+
+            uaClear = uas.getBrowser().toString();
+            if (uas.getBrowserVersion() != null) uaClear = "-" + uas.getBrowserVersion();
+
+            OperatingSystem os = uas.getOperatingSystem();
+            if (os != null) {
+                uaClear += " (" + os + ")";
+                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
+            }
+
+        } catch (Exception ex) {
+            log.warn("Unknown user-agent : {}", ua);
+            uaClear = "UNKNOW";
+        }
+
+        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
+
+        Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+        record.setID("user", user);
+        record.setString("ipAddr", ipAddr);
+        record.setString("userAgent", uaClear);
+        record.setDate("loginTime", CalendarUtils.now());
+        Application.getCommonsService().create(record);
+
+        License.siteApiNoCache(
+                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
     }
 
     @GetMapping("logout")

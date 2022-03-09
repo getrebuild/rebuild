@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.TransactionManual;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.N2NReferenceSupport;
@@ -46,6 +47,7 @@ public class RecordTransfomer extends SetUser {
 
     /**
      * @param targetEntity
+     * @param transConfig
      */
     public RecordTransfomer(Entity targetEntity, JSONObject transConfig) {
         this.targetEntity = targetEntity;
@@ -115,7 +117,27 @@ public class RecordTransfomer extends SetUser {
             if (StringUtils.isNotBlank(fillbackField) && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
                 Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
                 updateSource.setID(fillbackField, newId);
-                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+
+                // TODO 此配置未开放
+                int fillbackMode = transConfig.getIntValue("fillbackMode");
+
+                // 仅更新，无业务规则
+                if (fillbackMode == 3) {
+                    Application.getCommonsService().update(updateSource, false);
+                }
+                // 忽略审批状态（进行中）强制更新
+                else if (fillbackMode == 2) {
+                    GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
+                    try {
+                        Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+                    } finally {
+                        GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                    }
+                }
+                // 默认
+                else {
+                    Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+                }
             }
 
             TransactionManual.commit(tx);

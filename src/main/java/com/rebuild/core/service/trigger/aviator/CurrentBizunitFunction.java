@@ -24,7 +24,6 @@ import java.util.Map;
  * @since 2022/2/25
  */
 public class CurrentBizunitFunction extends AbstractFunction {
-
     private static final long serialVersionUID = -6731627245536290306L;
 
     @Override

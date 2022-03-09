@@ -82,7 +82,7 @@ public class ModelExtrasController extends BaseController {
             return RespBody.ok(newId);
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
-            return RespBody.errorl("记录转换失败，请检查记录转换映射配置");
+            return RespBody.errorl("记录转换失败 (%s)", ex.getLocalizedMessage());
         }
     }
 

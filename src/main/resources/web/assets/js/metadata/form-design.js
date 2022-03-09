@@ -78,7 +78,7 @@ $(document).ready(function () {
     'EMAIL': $L('邮箱'),
     'URL': $L('链接'),
     'NUMBER': $L('整数'),
-    'DECIMAL': $L('货币'),
+    'DECIMAL': $L('小数'),
     'SERIES': $L('自动编号'),
     'DATE': $L('日期'),
     'DATETIME': $L('日期时间'),
