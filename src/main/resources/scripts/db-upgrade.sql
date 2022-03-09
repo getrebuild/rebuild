@@ -1,6 +1,12 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #42 (v2.9)
+alter table `user`
+  add column `EXTERNAL_ID` varchar(100);
+alter table `department`
+  add column `EXTERNAL_ID` varchar(100);
+
 -- #41 (v2.7)
 -- ************ Entity [NreferenceItem] DDL ************
 create table if not exists `nreference_item` (
