@@ -244,8 +244,11 @@ public class LoginController extends BaseController {
         try {
             UserAgent uas = UserAgent.parseUserAgentString(ua);
 
-            uaClear = uas.getBrowser().toString();
-            if (uas.getBrowserVersion() != null) uaClear = "-" + uas.getBrowserVersion();
+            uaClear = uas.getBrowser().name();
+            if (uas.getBrowserVersion() != null) {
+                String mv = uas.getBrowserVersion().getMajorVersion();
+                if (!uaClear.endsWith(mv)) uaClear += "-" + mv;
+            }
 
             OperatingSystem os = uas.getOperatingSystem();
             if (os != null) {
