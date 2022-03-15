@@ -59,7 +59,7 @@ $(document).ready(function () {
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
         const nexturl = $decode($urlp('nexturl'))
-        let to = nexturl
+        let to = nexturl && nexturl.startsWith('http') ? null : nexturl
         if (res.data && res.data.login2FaMode) {
           to = `${rb.baseUrl}/user/login-2fa?token=${res.data.login2FaUserToken}`
           if (nexturl) to += `&nexturl=${$encode(nexturl)}`

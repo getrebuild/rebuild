@@ -72,6 +72,8 @@ public class LoginController extends LoginAction {
                 loginSuccessed(request, response, tokenUser, false);
 
                 String nexturl = getParameter(request, "nexturl", homeUrl);
+                if (nexturl.startsWith("http")) nexturl = homeUrl;
+
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -105,6 +107,8 @@ public class LoginController extends LoginAction {
                 Integer ed = loginSuccessed(request, response, altUser, true);
 
                 String nexturl = getParameter(request, "nexturl", homeUrl);
+                if (nexturl.startsWith("http")) nexturl = homeUrl;
+
                 if (ed != null) {
                     nexturl = "../settings/passwd-expired?d=" + ed;
                 }
