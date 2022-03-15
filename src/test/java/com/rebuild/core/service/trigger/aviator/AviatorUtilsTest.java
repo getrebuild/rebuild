@@ -7,9 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -55,5 +58,16 @@ class AviatorUtilsTest {
     @Test
     void funcLocationDistanceFunction() {
         AviatorUtils.evalQuietly("p(LOCATIONDISTANCE('123.456789,123.456789', '地址$$$$123.456789,123.456789'))");
+    }
+
+    @Test
+    void testNull() {
+        Map<String, Object> envMap = Collections.singletonMap("num", 4);
+        AviatorUtils.eval("p(2.5*num)", envMap, true);
+
+        envMap = Collections.singletonMap("num", null);
+        Map<String, Object> finalEnvMap = envMap;
+        Assertions.assertThrows(ExpressionRuntimeException.class,
+                () -> AviatorUtils.eval("p(2*num)", finalEnvMap, false));
     }
 }
