@@ -871,7 +871,7 @@ var $autoLocation = function (call) {
     geo.getCurrentPosition(function (e) {
       if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
         var geoc = new window.BMapGL.Geocoder()
-        geoc.getLocation(e.point, (r) => {
+        geoc.getLocation(e.point, function (r) {
           var v = {
             lat: e.latitude,
             lng: e.longitude,

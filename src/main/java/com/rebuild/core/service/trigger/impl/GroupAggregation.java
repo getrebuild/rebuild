@@ -98,8 +98,10 @@ public class GroupAggregation extends FieldAggregation {
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val != null) {
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
-                EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
+                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+                EasyField targetFieldEasy = EasyMetaFactory.valueOf(
+                        Objects.requireNonNull(MetadataHelper.getLastJoinField(targetEntity, targetField)));
 
                 // @see Dimension#getSqlName
 
@@ -140,8 +142,10 @@ public class GroupAggregation extends FieldAggregation {
                 // 分类分组
                 else if (sourceFieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
 
-                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(sourceEntity.getField(sourceField));
-                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(targetEntity.getField(targetField));
+                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(
+                            MetadataHelper.getLastJoinField(sourceEntity, sourceField));
+                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(
+                            MetadataHelper.getLastJoinField(targetEntity, targetField));
 
                     // 目标等级必须小于等于源等级
                     Assert.isTrue(targetFieldLevel <= sourceFieldLevel,

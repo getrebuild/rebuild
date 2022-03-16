@@ -71,7 +71,7 @@ public class AggregationEvaluator {
     }
 
     /**
-     * 计算公式
+     * 计算公式（只会涉及数字运算）
      *
      * @return
      */
@@ -132,7 +132,7 @@ public class AggregationEvaluator {
                 continue;
             }
 
-            Object value = useSourceData[i] == null ? "0" : useSourceData[i];
+            Object value = useSourceData[i] == null ? 0 : useSourceData[i];
             envMap.put(fieldKey, value);
         }
 

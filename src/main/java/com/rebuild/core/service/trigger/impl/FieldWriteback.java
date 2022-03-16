@@ -272,7 +272,7 @@ public class FieldWriteback extends FieldAggregation {
                     }
                 }
 
-                // 公式
+                // 高级公式（会涉及各种类型的运算）
                 // @see AggregationEvaluator#evalFormula
                 else {
                     String clearFormual = useCode
@@ -305,12 +305,10 @@ public class FieldWriteback extends FieldAggregation {
                             Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
                             if (isNumberField != null
                                     && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
-                                value = "0";
+                                value = 0;
                             } else {
                                 value = StringUtils.EMPTY;
                             }
-                        } else {
-                            value = value.toString();
                         }
 
                         envMap.put(fieldName, value);

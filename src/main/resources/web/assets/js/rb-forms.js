@@ -1007,9 +1007,9 @@ class RbFormDateTime extends RbFormElement {
 
   // https://github.com/smalot/bootstrap-datetimepicker/pull/645
   _getAutoPosition() {
-    const wh = $('.form-layout').height() || 9999,
+    const wh = $(document.body).height() || 9999,
       wt = $(this._fieldValue).offset().top
-    return wh + 120 - wt > 300 ? 'bottom-right' : 'top-right'
+    return wt + 280 < wh ? 'bottom-right' : 'top-right'
   }
 }
 

@@ -173,9 +173,10 @@ public class MetaSchemaGenerator {
         // 每种布局只保留一个（管理员的）
 
         Object[][] array = Application.createQueryNoFilter(
-                "select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
+                "select applyType,config from LayoutConfig where belongEntity = ? and (createdBy = ? or createdBy = ?)")
                 .setParameter(1, entity.getName())
                 .setParameter(2, UserService.ADMIN_USER)
+                .setParameter(3, UserService.SYSTEM_USER)
                 .array();
 
         JSONObject layouts = new JSONObject();
@@ -207,9 +208,10 @@ public class MetaSchemaGenerator {
 
     private JSON performFilters(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
-                "select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
+                "select filterName,config from FilterConfig where belongEntity = ? and (createdBy = ? or createdBy = ?)")
                 .setParameter(1, entity.getName())
                 .setParameter(2, UserService.ADMIN_USER)
+                .setParameter(3, UserService.SYSTEM_USER)
                 .array();
 
         JSONArray filters = new JSONArray();
