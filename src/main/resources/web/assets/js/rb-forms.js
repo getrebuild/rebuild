@@ -967,7 +967,7 @@ class RbFormDateTime extends RbFormElement {
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref={(c) => (this._fieldValue__icon = c)}>
-            <i className="icon zmdi zmdi-calendar" />
+            <i className={`icon zmdi zmdi-${this._icon || 'calendar'}`} />
           </button>
         </div>
       </div>
@@ -1010,6 +1010,38 @@ class RbFormDateTime extends RbFormElement {
     const wh = $(document.body).height() || 9999,
       wt = $(this._fieldValue).offset().top
     return wt + 280 < wh ? 'bottom-right' : 'top-right'
+  }
+}
+
+class RbFormTime extends RbFormDateTime {
+  constructor(props) {
+    super(props)
+    this._icon = 'time'
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+    } else if (!this.props.readonly) {
+      const format = (this.props.timeFormat || 'hh:ii:ss').replace('mm', 'ii').toLowerCase()
+      const minView = format.length === 2 ? 1 : 0
+
+      const that = this
+      this.__datetimepicker = $(this._fieldValue)
+        .datetimepicker({
+          format: format,
+          startView: 1,
+          minView: minView,
+          maxView: 1,
+          pickerPosition: this._getAutoPosition(),
+        })
+        .on('changeDate', function () {
+          const val = $(this).val()
+          that.handleChange({ target: { value: val } }, true)
+        })
+
+      $(this._fieldValue__icon).on('click', () => this.__datetimepicker.datetimepicker('show'))
+    }
   }
 }
 
@@ -2056,6 +2088,8 @@ var detectElement = function (item) {
     return <RbFormFile {...item} />
   } else if (item.type === 'DATETIME' || item.type === 'DATE') {
     return <RbFormDateTime {...item} />
+  } else if (item.type === 'TIME') {
+    return <RbFormTime {...item} />
   } else if (item.type === 'PICKLIST') {
     return <RbFormPickList {...item} />
   } else if (item.type === 'REFERENCE') {

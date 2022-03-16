@@ -121,6 +121,16 @@
                     </select>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'TIME'}" class="form-group row J_for-TIME">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('格式')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="timeFormat">
+                      <option value="HH">HH</option>
+                      <option value="HH:mm">HH:II</option>
+                      <option value="HH:mm:ss" selected="selected">HH:II:SS</option>
+                    </select>
+                  </div>
+                </div>
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传数量')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
