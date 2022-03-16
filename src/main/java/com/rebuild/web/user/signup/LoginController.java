@@ -226,42 +226,6 @@ public class LoginController extends LoginAction {
         return retry;
     }
 
-    private void createLoginLog(HttpServletRequest request, ID user) {
-        final String ua = request.getHeader("user-agent");
-        String uaClear;
-        try {
-            UserAgent uas = UserAgent.parseUserAgentString(ua);
-
-            uaClear = uas.getBrowser().name();
-            if (uas.getBrowserVersion() != null) {
-                String mv = uas.getBrowserVersion().getMajorVersion();
-                if (!uaClear.endsWith(mv)) uaClear += "-" + mv;
-            }
-
-            OperatingSystem os = uas.getOperatingSystem();
-            if (os != null) {
-                uaClear += " (" + os + ")";
-                if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
-            }
-
-        } catch (Exception ex) {
-            log.warn("Unknown user-agent : {}", ua);
-            uaClear = "UNKNOW";
-        }
-
-        String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
-
-        Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
-        record.setID("user", user);
-        record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", uaClear);
-        record.setDate("loginTime", CalendarUtils.now());
-        Application.getCommonsService().create(record);
-
-        License.siteApiNoCache(
-                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
-    }
-
     @GetMapping("logout")
     public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
         ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
