@@ -1034,6 +1034,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
+          title: $L('选择时间'),
         })
         .on('changeDate', function () {
           const val = $(this).val()
