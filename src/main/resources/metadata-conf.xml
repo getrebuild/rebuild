@@ -23,7 +23,7 @@
         <field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
-        <field name="externalId" type="string" max-length="100" queryable="false"/>
+        <field name="externalId" type="string" max-length="100" queryable="false" description="外部用户ID"/>
         <index type="unique" field-list="loginName"/>
         <index type="unique" field-list="email"/>
         <index type="unique" field-list="externalId"/>
@@ -37,7 +37,7 @@
         <field name="principalId" type="reference" ref-entity="User" description="负责人"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
-        <field name="externalId" type="string" max-length="100" queryable="false"/>
+        <field name="externalId" type="string" max-length="100" queryable="false" description="外部部门ID"/>
         <index type="unique" field-list="externalId"/>
     </entity>
 

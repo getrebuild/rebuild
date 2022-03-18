@@ -51,4 +51,11 @@ $(document).ready(() => {
   })
 })
 
-function syncUsers() {}
+function syncUsers() {
+  $.post(`${location.href.split('#')[0]}/sync-users`, (res) => {
+    if (res.error_code === 0) RbHighbar.success('同步完成')
+    else RbHighbar.error(res.error_msg)
+
+    $('.J_syncUsers').button('reset').find('.icon').removeClass('zmdi-hc-spin')
+  })
+}
