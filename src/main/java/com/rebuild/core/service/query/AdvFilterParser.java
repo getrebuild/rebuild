@@ -327,7 +327,7 @@ public class AdvFilterParser extends SetUser {
             }
 
         } else if (dt == DisplayType.TIME) {
-            // 前端输入 hh:mm
+            // 前端输入 HH:mm
             if (value != null && value.length() == 5) {
                 if (ParseHelper.EQ.equalsIgnoreCase(op)) {
                     op = ParseHelper.BW;
