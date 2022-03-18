@@ -22,6 +22,7 @@ public enum DisplayType {
     DECIMAL(EasyDecimal.class, "小数", FieldType.DECIMAL, FieldType.NO_NEED_LENGTH, "##,##0.00"),
     DATE(EasyDate.class, "日期", FieldType.DATE, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd"),
     DATETIME(EasyDateTime.class, "日期时间", FieldType.TIMESTAMP, FieldType.NO_NEED_LENGTH, "yyyy-MM-dd HH:mm:ss"),
+    TIME(EasyTime.class, "时间", FieldType.TIME, FieldType.NO_NEED_LENGTH, "HH:mm:ss"),
     TEXT(EasyText.class, "文本", FieldType.STRING, 200, null),
     NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, 32767, null),
     EMAIL(EasyEmail.class, "邮箱", FieldType.STRING, 100, null),

@@ -52,6 +52,11 @@ public class EasyFieldConfigProps {
     public static final String DATETIME_FORMAT = "datetimeFormat";
 
     /**
+     * 时间格式
+     */
+    public static final String TIME_FORMAT = "timeFormat";
+
+    /**
      * 允许上传数量 1,5
      */
     public static final String FILE_UPLOADNUMBER = "uploadNumber";

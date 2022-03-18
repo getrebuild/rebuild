@@ -63,11 +63,23 @@ class FieldValueSet extends React.Component {
         })
       }
       this.__$select2.val(null).trigger('change')
-    } else if (field.type === 'DATE' || field.type === 'DATETIME') {
-      this.__$datetimepicker = $(this._$value).datetimepicker({
+    } else if (field.type === 'DATE' || field.type === 'DATETIME' || field.type === 'TIME') {
+      let dpcfg = {
         format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
         minView: field.type === 'DATE' ? 'month' : 0,
-      })
+      }
+
+      if (field.type === 'TIME') {
+        dpcfg = {
+          format: 'hh:ii:ss',
+          startView: 1,
+          minView: 0,
+          maxView: 1,
+          title: $L('选择时间'),
+        }
+      }
+
+      this.__$datetimepicker = $(this._$value).datetimepicker(dpcfg)
     }
   }
 
