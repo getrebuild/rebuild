@@ -123,7 +123,7 @@ public class AdvFilterParser extends SetUser {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
             }
-            if (Application.devMode()) log.info("Filter item : {} > {}", item, itemSql);
+            if (Application.devMode()) log.info("Parse item : {} >> {}", item, itemSql);
         }
 
         if (indexItemSqls.isEmpty()) return null;
@@ -326,6 +326,16 @@ public class AdvFilterParser extends SetUser {
 
             }
 
+        } else if (dt == DisplayType.TIME) {
+            // 前端输入 HH:mm
+            if (value != null && value.length() == 5) {
+                if (ParseHelper.EQ.equalsIgnoreCase(op)) {
+                    op = ParseHelper.BW;
+                    valueEnd = value + ":59";
+                }
+                value += ":00";
+            }
+
         } else if (dt == DisplayType.MULTISELECT) {
             // 多选的包含/不包含要按位计算
             if (ParseHelper.IN.equalsIgnoreCase(op) || ParseHelper.NIN.equalsIgnoreCase(op)) {
@@ -389,6 +399,7 @@ public class AdvFilterParser extends SetUser {
                 }
             }
         } else if (ParseHelper.SFT.equalsIgnoreCase(op)) {
+            if (value == null) value = "0";  // No any
             // In Sql
             value = String.format(
                     "( select userId from TeamMember where teamId in ('%s') )",

@@ -40,6 +40,7 @@ create table if not exists `user` (
   primary key  (`USER_ID`),
   unique index UIX0_user (`LOGIN_NAME`),
   unique index UIX1_user (`EMAIL`),
+  unique index UIX2_user (`EXTERNAL_ID`),
   index IX2_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`)
 )Engine=InnoDB;
 
@@ -56,7 +57,8 @@ create table if not exists `department` (
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`DEPT_ID`)
+  primary key  (`DEPT_ID`),
+  unique index UIX0_department (`EXTERNAL_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [Role] DDL ************

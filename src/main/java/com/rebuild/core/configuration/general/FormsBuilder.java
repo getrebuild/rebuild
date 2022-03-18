@@ -340,6 +340,11 @@ public class FormsBuilder extends FormsManager {
                         easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
                         easyField.getDisplayType().getDefaultFormat());
                 el.put(EasyFieldConfigProps.DATE_FORMAT, format);
+            } else if (dt == DisplayType.TIME) {
+                String format = StringUtils.defaultIfBlank(
+                        easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT),
+                        easyField.getDisplayType().getDefaultFormat());
+                el.put(EasyFieldConfigProps.TIME_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             }

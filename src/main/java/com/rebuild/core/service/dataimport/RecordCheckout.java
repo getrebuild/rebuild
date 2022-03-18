@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.record.FieldValueException;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import cn.hutool.core.date.DateException;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
@@ -32,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.text.MessageFormat;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -85,7 +88,9 @@ public class RecordCheckout {
         } else if (dt == DisplayType.DECIMAL) {
             return cell.asDouble();
         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-            return checkoutDateValue(field, cell);
+            return checkoutDateValue(cell);
+        } else if (dt == DisplayType.TIME) {
+            return checkoutTimeValue(cell);
         } else if (dt == DisplayType.PICKLIST) {
             return checkoutPickListValue(field, cell);
         } else if (dt == DisplayType.CLASSIFICATION) {
@@ -101,7 +106,7 @@ public class RecordCheckout {
         } else if (dt == DisplayType.MULTISELECT) {
             return checkoutMultiSelectValue(field, cell);
         } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
-            return checkoutFileOrImage(field, cell);
+            return checkoutFileOrImage(cell);
         }
 
         String text = cell.asString();
@@ -241,7 +246,7 @@ public class RecordCheckout {
         return ids.toArray(new ID[0]);
     }
 
-    protected Date checkoutDateValue(Field field, Cell cell) {
+    protected Date checkoutDateValue(Cell cell) {
         Date date = cell.asDate();
         if (date != null) return date;
 
@@ -263,6 +268,19 @@ public class RecordCheckout {
         return null;
     }
 
+    protected LocalTime checkoutTimeValue(Cell cell) {
+        if (cell.isEmpty()) return null;
+
+        String time2str = cell.asString();
+
+        try {
+            return RecordVisitor.tryParseTime(time2str);
+        } catch (FieldValueException ignored) {
+        }
+
+        return null;
+    }
+
     protected Long checkoutMultiSelectValue(Field field, Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
@@ -274,7 +292,7 @@ public class RecordCheckout {
         return mVal == 0 ? null : mVal;
     }
 
-    protected String checkoutFileOrImage(Field field, Cell cell) {
+    protected String checkoutFileOrImage(Cell cell) {
         String val = cell.asString();
         if (StringUtils.isBlank(val)) return null;
 
