@@ -88,6 +88,7 @@ $(document).ready(function () {
         item.type === 'CLASSIFICATION' ||
         item.type === 'DATE' ||
         item.type === 'DATETIME' ||
+        item.type === 'TIME' ||
         /* 开放引用字段是否有问题 ??? */
         (item.type === 'REFERENCE' && !_SYS_REF_FIELDS.includes(item.name))
       return {

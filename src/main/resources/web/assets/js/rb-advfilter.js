@@ -398,6 +398,8 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
+    } else if (fieldType === 'TIME') {
+      op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
@@ -543,14 +545,14 @@ class FilterItem extends React.Component {
       this.removePickList()
     }
 
-    if (state.type === 'DATE' || state.type === 'DATETIME') {
+    if (state.type === 'DATE' || state.type === 'DATETIME' || state.type === 'TIME') {
       this.removeDatepicker()
       if (OP_DATE_NOPICKER.includes(state.op)) {
         // 无需日期组件
       } else {
-        this.renderDatepicker()
+        this.renderDatepicker(state.type === 'TIME')
       }
-    } else if (lastType === 'DATE' || lastType === 'DATETIME') {
+    } else if (lastType === 'DATE' || lastType === 'DATETIME' || lastType === 'TIME') {
       this.removeDatepicker()
     }
 
@@ -708,11 +710,22 @@ class FilterItem extends React.Component {
 
   // 日期时间
 
-  renderDatepicker() {
-    const dpcfg = {
+  renderDatepicker(onlyTime) {
+    let dpcfg = {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
+    }
+
+    // 仅时间
+    if (onlyTime) {
+      dpcfg = {
+        format: 'hh:ii',
+        minView: 0,
+        maxView: 1,
+        startView: 1,
+        title: $L('选择时间'),
+      }
     }
 
     const that = this
