@@ -3,9 +3,11 @@
 
 -- #42 (v2.9)
 alter table `user`
-  add column `EXTERNAL_ID` varchar(100);
+  add column `EXTERNAL_ID` varchar(100),
+  add unique index UIX2_department (`EXTERNAL_ID`);
 alter table `department`
-  add column `EXTERNAL_ID` varchar(100);
+  add column `EXTERNAL_ID` varchar(100),
+  add unique index UIX0_department (`EXTERNAL_ID`);
 
 -- #41 (v2.7)
 -- ************ Entity [NreferenceItem] DDL ************

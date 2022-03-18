@@ -26,6 +26,7 @@
         <field name="externalId" type="string" max-length="100" queryable="false"/>
         <index type="unique" field-list="loginName"/>
         <index type="unique" field-list="email"/>
+        <index type="unique" field-list="externalId"/>
         <index field-list="quickCode,fullName,email"/>
     </entity>
 
@@ -37,6 +38,7 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
         <field name="externalId" type="string" max-length="100" queryable="false"/>
+        <index type="unique" field-list="externalId"/>
     </entity>
 
     <entity name="Role" type-code="003" description="角色" name-field="name" extra-attrs="{icon:'lock'}">
