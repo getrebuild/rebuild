@@ -10,6 +10,7 @@ package com.rebuild.web.admin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
@@ -17,6 +18,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
@@ -300,6 +302,10 @@ public class ConfigurationController extends BaseController {
                     value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
+
+                if (ID.isId(value) && item == ConfigurationItem.DingtalkSyncUsersRole) {
+                    mv.getModel().put(name + "Label", UserHelper.getName(ID.valueOf(value)));
+                }
             }
         }
 
@@ -334,6 +340,10 @@ public class ConfigurationController extends BaseController {
                     value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
+
+                if (ID.isId(value) && item == ConfigurationItem.WxworkSyncUsersRole) {
+                    mv.getModel().put(name + "Label", UserHelper.getName(ID.valueOf(value)));
+                }
             }
         }
 
