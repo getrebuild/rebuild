@@ -51,14 +51,15 @@ public class BarCodeGeneratorController extends BaseController {
     @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameterNotNull(request, "t");
+        int w = getIntParameter(request, "w", 0);
 
         // 4小时缓存
         ServletUtils.addCacheHead(response, 240);
 
         if (request.getRequestURI().endsWith("render-qr")) {
-            writeTo(BarCodeSupport.createQRCode(content), response);
+            writeTo(BarCodeSupport.createQRCode(content, w), response);
         } else {
-            writeTo(BarCodeSupport.createBarCode(content), response);
+            writeTo(BarCodeSupport.createBarCode(content, w), response);
         }
     }
 
