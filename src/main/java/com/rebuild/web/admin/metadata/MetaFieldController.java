@@ -68,9 +68,8 @@ public class MetaFieldController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             Map<String, Object> map = new HashMap<>();
-            if (easyMeta.getMetaId() != null) {
-                map.put("fieldId", easyMeta.getMetaId());
-            }
+            if (easyMeta.getMetaId() != null) map.put("fieldId", easyMeta.getMetaId());
+
             map.put("fieldName", easyMeta.getName());
             map.put("fieldLabel", easyMeta.getLabel());
             map.put("comments", easyMeta.getComments());

@@ -171,6 +171,6 @@ public class ShowFieldsController extends BaseController implements ShareTo {
     }
 
     private boolean canListField(Field field) {
-        return EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
+        return field.isQueryable() && EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
     }
 }
