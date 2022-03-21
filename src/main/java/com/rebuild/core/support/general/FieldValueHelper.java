@@ -90,7 +90,7 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
-        if (!field.isQueryable() &&
+        if (value != null && !field.isQueryable() &&
                 (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
             return DataDesensitized.SECURE_TEXT;
         }

@@ -20,7 +20,7 @@ $(document).ready(function () {
 
   // 内置字段
   if (wpc.fieldBuildin) {
-    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
+    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter, .J_advOpt').remove()
   }
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {

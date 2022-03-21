@@ -94,10 +94,14 @@ public enum ConfigurationItem {
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,
+    DingtalkSyncUsers(false),
+    DingtalkSyncUsersRole,
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
     WxworkAuthFile,
+    WxworkSyncUsers(false),
+    WxworkSyncUsersRole,
     // SAML (IdP)
     SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 
