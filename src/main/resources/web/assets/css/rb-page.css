@@ -863,6 +863,15 @@ select.form-control:not([disabled]) {
   text-align: right;
 }
 
+@media (min-width: 1064px) {
+  .form-layout > .row .form-group.col-sm-3 {
+    padding-right: 0;
+  }
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
+    width: 100px;
+  }
+}
+
 .form-layout > .row .form-group > .col-form-control {
   flex: 1;
   position: relative;
