@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
+import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
@@ -82,10 +83,27 @@ public class OshiUtils {
         List<NetworkIF> nets = getSI().getHardware().getNetworkIFs();
         if (nets == null || nets.isEmpty()) return "localhost";
 
+        String bestipv4 = null;
         for (NetworkIF net : nets) {
+            if (net.isKnownVmMacAddr()) continue;
+
             String[] ipsv4 = net.getIPv4addr();
-            if (ipsv4 != null && ipsv4.length > 0) return ipsv4[0];
+            if (ipsv4 != null && ipsv4.length > 0) {
+                bestipv4 = ipsv4[0];
+                break;
+            }
         }
-        return "127.0.0.1";
+
+        if (bestipv4 == null) {
+            for (NetworkIF net : nets) {
+                String[] ipsv4 = net.getIPv4addr();
+                if (ipsv4 != null && ipsv4.length > 0) {
+                    bestipv4 = ipsv4[0];
+                    break;
+                }
+            }
+        }
+
+        return StringUtils.defaultString(bestipv4, "127.0.0.1");
     }
 }
