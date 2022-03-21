@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.bizz;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -189,5 +190,21 @@ public class UserController extends EntityController {
         Application.getBean(UserService.class).update(record);
 
         return RespBody.ok();
+    }
+
+    @PostMapping("bizz-flag")
+    public JSON bizzFlags(HttpServletRequest request) {
+        String post = ServletUtils.getRequestString(request);
+        String[] ids = post == null ? new String[0] : post.split(",");
+
+        JSONObject resMap = new JSONObject();
+
+        for (String id : ids) {
+            if (!ID.isId(id)) continue;
+
+            Object[] o = Application.getQueryFactory().unique(ID.valueOf(id), "externalId");
+            if (o != null && o[0] != null) resMap.put(id, o[0]);
+        }
+        return resMap;
     }
 }

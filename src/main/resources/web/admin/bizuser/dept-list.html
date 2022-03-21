@@ -4,6 +4,21 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/users#%E9%83%A8%E9%97%A8" />
     <title>[[${bundle.L('部门管理')}]]</title>
+    <style>
+      .badge.badge-WW,
+      .badge.badge-DD {
+        font-weight: normal;
+        cursor: help;
+        border-radius: 12px;
+        padding: 0 6px;
+        border-color: #4873c0;
+        color: #4873c0;
+      }
+      .badge.badge-DD {
+        border-color: #38adff;
+        color: #38adff;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">

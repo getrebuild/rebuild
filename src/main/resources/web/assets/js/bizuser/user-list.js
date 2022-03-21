@@ -7,8 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* global RbForm, loadDeptTree */
 
-const RbForm_postAfter = RbForm.postAfter
 let formPostType = 1
+
+const RbForm_postAfter = RbForm.postAfter
 RbForm.postAfter = function (data, next) {
   if (formPostType === 1) RbForm_postAfter(data, next)
   else loadDeptTree()
