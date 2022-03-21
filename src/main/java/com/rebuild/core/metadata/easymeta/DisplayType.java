@@ -39,7 +39,7 @@ public enum DisplayType {
     BARCODE(EasyBarCode.class, "二维码", FieldType.STRING, 300, null, false, true),
     N2NREFERENCE(EasyN2NReference.class, "多引用", FieldType.REFERENCE_LIST, -1, null),
     LOCATION(EasyLocation.class, "位置", FieldType.STRING, 100, null),
-    SIGN(EasySign.class, "签名", FieldType.TEXT, 32767, null, false, false),
+    SIGN(EasySign.class, "签名", FieldType.TEXT, 32767, null, false, true),
 
     // 内部
 
