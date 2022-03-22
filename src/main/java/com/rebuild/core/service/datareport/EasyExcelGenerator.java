@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.datareport;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.EasyExcel;
@@ -21,14 +22,20 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -115,10 +122,19 @@ public class EasyExcelGenerator extends SetUser {
         TemplateExtractor templateExtractor = new TemplateExtractor(this.template, true);
         Map<String, String> varsMap = templateExtractor.transformVars(entity);
 
+        Map<String, String> varsMapOfMain = new HashMap<>();
+        Map<String, String> varsMapOfDetail = new HashMap<>();
+
         List<String> fieldsOfMain = new ArrayList<>();
         List<String> fieldsOfDetail = new ArrayList<>();
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            if (e.getKey().startsWith(TemplateExtractor.NROW_PREFIX)) {
+                varsMapOfDetail.put(e.getKey(), e.getValue());
+            } else {
+                varsMapOfMain.put(e.getKey(), e.getValue());
+            }
+
             String validField = e.getValue();
             // 无效字段
             if (validField == null) {
@@ -138,18 +154,19 @@ public class EasyExcelGenerator extends SetUser {
         }
 
         final List<Map<String, Object>> datas = new ArrayList<>();
-        final String baseSql = "select %s from %s where %s = ?";
+        final String baseSql = "select %s,%s from %s where %s = ?";
 
         if (!fieldsOfMain.isEmpty()) {
             String sql = String.format(baseSql,
-                    StringUtils.join(fieldsOfMain, ","), entity.getName(), entity.getPrimaryField().getName());
+                    StringUtils.join(fieldsOfMain, ","),
+                    entity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName());
+
             Record record = Application.createQuery(sql, this.getUser())
                     .setParameter(1, this.recordId)
                     .record();
             Assert.notNull(record, "No record found : " + this.recordId);
 
-            Map<String, Object> data = buildData(record, varsMap);
-            datas.add(data);
+            datas.add(buildData(record, varsMapOfMain));
             this.hasMain = true;
         }
 
@@ -158,14 +175,16 @@ public class EasyExcelGenerator extends SetUser {
 
         String sql = String.format(baseSql + " order by modifiedOn desc",
                 StringUtils.join(fieldsOfDetail, ","),
+                entity.getDetailEntity().getPrimaryField().getName(),
                 entity.getDetailEntity().getName(),
                 MetadataHelper.getDetailToMainField(entity.getDetailEntity()).getName());
+
         List<Record> list = Application.createQuery(sql, this.getUser())
                 .setParameter(1, this.recordId)
                 .list();
 
         for (Record c : list) {
-            datas.add(buildData(c, varsMap));
+            datas.add(buildData(c, varsMapOfDetail));
         }
         return datas;
     }
@@ -182,6 +201,7 @@ public class EasyExcelGenerator extends SetUser {
         final String unsupportFieldTip = Language.L("[暂不支持]");
 
         final Map<String, Object> data = new HashMap<>();
+
         // 无效字段填充
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
             if (e.getValue() == null) {
@@ -193,16 +213,12 @@ public class EasyExcelGenerator extends SetUser {
             }
         }
 
-        for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
-            final String fieldName = iter.next();
+        for (final String fieldName : varsMap.values()) {
+            if (fieldName == null) continue;
+
             EasyField easyField = EasyMetaFactory.valueOf(
                     Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
             DisplayType dt = easyField.getDisplayType();
-
-            if (!dt.isExportable() && dt != DisplayType.SIGN) {
-                data.put(fieldName, unsupportFieldTip);
-                continue;
-            }
 
             // 替换成变量名
             String varName = fieldName;
@@ -216,14 +232,22 @@ public class EasyExcelGenerator extends SetUser {
                 varName = varName.substring(1);
             }
 
+            if (!dt.isExportable()) {
+                data.put(varName, unsupportFieldTip);
+                continue;
+            }
+
             Object fieldValue = record.getObjectValue(fieldName);
-            if (fieldValue == null) {
+
+            if (dt == DisplayType.BARCODE) {
+                data.put(varName, buildBarcodeData(easyField.getRawMeta(), record.getPrimary()));
+            } else if (fieldValue == null) {
                 data.put(varName, StringUtils.EMPTY);
             } else {
 
                 if (dt == DisplayType.SIGN) {
-                    fieldValue = buildImgData((String) fieldValue);
-                } else {
+                    fieldValue = buildSignData((String) fieldValue);
+                }  else {
                     fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
 
                     if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
@@ -236,7 +260,23 @@ public class EasyExcelGenerator extends SetUser {
         return data;
     }
 
-    private byte[] buildImgData(String base64img) {
+    private byte[] buildSignData(String base64img) {
+        // data:image/png;base64,xxx
         return Base64Utils.decodeFromString(base64img.split("base64,")[1]);
+    }
+
+    private byte[] buildBarcodeData(Field barcodeField, ID recordId) {
+        BufferedImage bi = BarCodeSupport.getBarCodeImage(barcodeField, recordId);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ImageIO.write(bi, "png", baos);
+
+            String base64 = Base64.encodeBase64String(baos.toByteArray());
+            return buildSignData("base64," + base64);
+
+        } catch (IOException e) {
+            log.error("Cannot encode image of barcode : {}", recordId, e);
+        }
+        return null;
     }
 }

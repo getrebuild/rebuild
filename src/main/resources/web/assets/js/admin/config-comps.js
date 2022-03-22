@@ -41,7 +41,7 @@ class ConfigFormDlg extends RbFormHandler {
 
   componentDidMount() {
     if (this._entity) {
-      $.get('/commons/metadata/entities', (res) => {
+      $.get(`/commons/metadata/entities?detail=${this.hasDetail === true}`, (res) => {
         this.setState({ entities: res.data }, () => {
           this.__select2 = $(this._entity).select2({
             placeholder: $L('选择实体'),

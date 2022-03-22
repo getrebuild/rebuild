@@ -68,6 +68,7 @@ class ReporEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('报表模板')
+    this.hasDetail = true
   }
 
   renderFrom() {
