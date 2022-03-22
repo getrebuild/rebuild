@@ -1787,8 +1787,8 @@ class RbFormBarcode extends RbFormElement {
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
-        <a className="img-thumbnail" title={this.state.value}>
-          <img src={codeUrl} alt={this.state.value} className={isbar ? 'w-auto' : ''} />
+        <a className={`img-thumbnail ${isbar && 'w-auto'}`} title={this.state.value}>
+          <img src={codeUrl} alt={this.state.value} />
         </a>
       </div>
     )

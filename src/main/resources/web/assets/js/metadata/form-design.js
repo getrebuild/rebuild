@@ -203,9 +203,14 @@ const render_item = function (data) {
   if (data.displayType) {
     $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
     $(`<a class="mr-1 colspan" title="${$L('宽度')}" data-toggle="dropdown"><i class="zmdi zmdi-view-column"></i></a>`).appendTo($action)
-    const $colspan = $(
-      '<div class="dropdown-menu dropdown-menu-right"><a data-colspan="1" title="1/4"></a><a data-colspan="9" title="1/3"></a><a data-colspan="2" title="1/2"><a data-colspan="3" title="3/4"></a><a data-colspan="4" title="4/4"></a></div>'
-    ).appendTo($action)
+
+    const $colspan = $('<div class="dropdown-menu dropdown-menu-right"></div>').appendTo($action)
+    $('<a data-colspan="1" title="4"></a>').appendTo($colspan)
+    $('<a data-colspan="9" title="3"></a>').appendTo($colspan)
+    $('<a data-colspan="2" title="2"></a>').appendTo($colspan)
+    $('<a data-colspan="4" title="1"></a>').appendTo($colspan)
+    $('<a data-colspan="3" title="3/4"></a>').appendTo($colspan)
+
     $colspan.find('a').on('click', function () {
       const colspan = ~~$(this).data('colspan')
       $item.removeClass('w-25 w-50 w-75 w-100 w-33').addClass(COLSPANS[colspan])

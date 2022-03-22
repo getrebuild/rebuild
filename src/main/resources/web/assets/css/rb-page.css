@@ -864,11 +864,13 @@ select.form-control:not([disabled]) {
 }
 
 @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3 {
+  .form-layout > .row .form-group.col-sm-3,
+  .form-layout > .row .form-group.col-sm-4 {
     padding-right: 0;
   }
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
-    width: 100px;
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label,
+  .form-layout > .row .form-group.col-sm-4 > .col-form-label {
+    width: 110px;
   }
 }
 
@@ -1090,6 +1092,15 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
+.img-field.barcode .img-thumbnail.w-auto {
+  width: auto;
+  height: auto;
+}
+
+.img-field.barcode .img-thumbnail.w-auto > img {
+  width: auto;
+}
+
 .file-field .file-select label.btn-secondary {
   line-height: 35px;
 }
@@ -1167,6 +1178,10 @@ select.form-control:not([disabled]) {
   opacity: 0.8;
   cursor: pointer;
 } */
+
+.input-group.has-append {
+  max-width: 100%;
+}
 
 .input-group.has-append .input-group-append button {
   min-width: 38px;

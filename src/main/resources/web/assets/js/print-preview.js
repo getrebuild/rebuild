@@ -18,16 +18,20 @@ class PreviewTable extends React.Component {
     let currentSpan = 0
 
     this.props.data.elements.forEach((c) => {
-      let colspan = c.colspan || 2
-      if (c.isFull || c.colspan === 4 || c.field === '$DIVIDER$') colspan = 4
-      // set
+      let colspan = 6
+      if (c.isFull || c.colspan === 4 || c.field === '$DIVIDER$') colspan = 12
+      else if (c.colspan === 3) colspan = 9
+      else if (c.colspan === 2) colspan = 6
+      else if (c.colspan === 1) colspan = 3
+      else if (c.colspan === 9) colspan = 4
+      // correct
       c.colspan = colspan
 
-      if (currentSpan + colspan > 4) {
+      if (currentSpan + colspan > 12) {
         rows.push(currentRow)
         currentRow = [c]
         currentSpan = colspan
-      } else if (currentSpan + colspan === 4) {
+      } else if (currentSpan + colspan === 12) {
         currentRow.push(c)
         rows.push(currentRow)
         currentRow = []
@@ -44,14 +48,9 @@ class PreviewTable extends React.Component {
       <table className="table table-bordered table-sm table-fixed">
         <tbody>
           <tr className="hide">
-            <td />
-            <td />
-            <td />
-            <td />
-            <td />
-            <td />
-            <td />
-            <td />
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => {
+              return <td data-col={i} key={i} />
+            })}
           </tr>
           {rows.map((row, idx) => {
             const k = `row-${idx}-`
@@ -71,38 +70,27 @@ class PreviewTable extends React.Component {
 
     if (c1.field === '$DIVIDER$') {
       cells.push(
-        <th colSpan="8" className="divider">
+        <th colSpan="12" className="divider">
           {c1.label}
         </th>
       )
       return cells
     }
 
-    function _colSpan(n) {
-      if (n === 4) return 7
-      else if (n === 3) return 5
-      else if (n === 2) return 3
-      else return 1
-    }
-
     cells.push(<th>{c1.label}</th>)
-    let colSpan = _colSpan(c2 ? c1.colspan : 4)
-    cells.push(<td colSpan={colSpan}>{this.formatValue(c1)}</td>)
+    cells.push(<td colSpan={c2 ? c1.colspan - 1 : 11}>{this.formatValue(c1)}</td>)
     if (!c2) return cells
 
     cells.push(<th>{c2.label}</th>)
-    colSpan = _colSpan(c3 ? c2.colspan : 4 - c1.colspan)
-    cells.push(<td colSpan={colSpan}>{this.formatValue(c2)}</td>)
+    cells.push(<td colSpan={c3 ? c2.colspan - 1 : 11 - c1.colspan}>{this.formatValue(c2)}</td>)
     if (!c3) return cells
 
     cells.push(<th>{c3.label}</th>)
-    colSpan = _colSpan(c4 ? c3.colspan : 4 - c1.colspan - c2.colspan)
-    cells.push(<td colSpan={colSpan}>{this.formatValue(c3)}</td>)
+    cells.push(<td colSpan={c4 ? c3.colspan - 1 : 11 - c1.colspan - c2.colspan}>{this.formatValue(c3)}</td>)
     if (!c4) return cells
 
     cells.push(<th>{c4.label}</th>)
-    colSpan = 1
-    cells.push(<td colSpan={colSpan}>{this.formatValue(c4)}</td>)
+    cells.push(<td colSpan={2}>{this.formatValue(c4)}</td>)
     return cells
   }
 
