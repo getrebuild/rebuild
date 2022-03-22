@@ -85,22 +85,17 @@ public class OshiUtils {
 
         String bestipv4 = null;
         for (NetworkIF net : nets) {
+            for (String ip : net.getIPv4addr()) {
+                if (bestipv4 == null) bestipv4 = ip;
+                break;
+            }
+
             if (net.isKnownVmMacAddr()) continue;
 
             String[] ipsv4 = net.getIPv4addr();
-            if (ipsv4 != null && ipsv4.length > 0) {
+            if (ipsv4.length > 0) {
                 bestipv4 = ipsv4[0];
                 break;
-            }
-        }
-
-        if (bestipv4 == null) {
-            for (NetworkIF net : nets) {
-                String[] ipsv4 = net.getIPv4addr();
-                if (ipsv4 != null && ipsv4.length > 0) {
-                    bestipv4 = ipsv4[0];
-                    break;
-                }
             }
         }
 
