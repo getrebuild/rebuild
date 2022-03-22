@@ -471,6 +471,7 @@ class RbFormElement extends React.Component {
     if (props.colspan === 4 || props.isFull === true) colspan = 12
     else if (props.colspan === 1) colspan = 3
     else if (props.colspan === 3) colspan = 9
+    else if (props.colspan === 9) colspan = 4
 
     const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
