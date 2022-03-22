@@ -63,11 +63,10 @@ public class BarCodeSupport {
         String barcodeType = EasyMetaFactory.valueOf(field).getExtraAttr("barcodeType");
 
         if (TYPE_BARCODE.equalsIgnoreCase(barcodeType)) {
-            return createBarCode(content);
-        }
-        // 默认为二维码
-        else {
-            return createQRCode(content);
+            return createBarCode(content, 0);
+        } else {
+            // 默认为二维码
+            return createQRCode(content, 0);
         }
     }
 
@@ -75,10 +74,11 @@ public class BarCodeSupport {
      * QR_CODE
      *
      * @param content
+     * @param w
      * @return
      */
-    public static BufferedImage createQRCode(String content) {
-        BitMatrix bitMatrix = createCode(content, BarcodeFormat.QR_CODE, 320);
+    public static BufferedImage createQRCode(String content, int w) {
+        BitMatrix bitMatrix = createCode(content, BarcodeFormat.QR_CODE, w <= 0 ? 320 : w);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
@@ -86,10 +86,11 @@ public class BarCodeSupport {
      * CODE_128
      *
      * @param content
+     * @param h
      * @return
      */
-    public static BufferedImage createBarCode(String content) {
-        BitMatrix bitMatrix = createCode(content, BarcodeFormat.CODE_128, 320);
+    public static BufferedImage createBarCode(String content, int h) {
+        BitMatrix bitMatrix = createCode(content, BarcodeFormat.CODE_128, h <= 0 ? 80 : h);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 

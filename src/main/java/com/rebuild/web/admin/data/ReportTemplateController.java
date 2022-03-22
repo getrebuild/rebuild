@@ -110,7 +110,7 @@ public class ReportTemplateController extends BaseController {
             File template = DataReportManager.instance.getTemplateFile(entity, reportId);
             file = new EasyExcelGenerator(template, (ID) random[0]).generate();
         } catch (ConfigurationException ex) {
-            response.sendError(400, Language.L("未找到可供预览的记录"));
+            response.sendError(500, ex.getLocalizedMessage());
             return;
         }
 

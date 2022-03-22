@@ -169,7 +169,7 @@ public class DataExporter extends SetUser {
 
                 if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = Language.L("[无权限]");
-                } else if (!dt.isExportable()) {
+                } else if (!dt.isExportable() || (dt == DisplayType.SIGN || dt == DisplayType.BARCODE)) {
                     cellVal = Language.L("[暂不支持]");
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位

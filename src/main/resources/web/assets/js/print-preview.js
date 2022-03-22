@@ -14,8 +14,8 @@ $(document).ready(() => {
 class PreviewTable extends React.Component {
   render() {
     const rows = [] // [[]]
-    let crtRow = []
-    let crtSpan = 0
+    let currentRow = []
+    let currentSpan = 0
 
     this.props.data.elements.forEach((c) => {
       let colspan = c.colspan || 2
@@ -23,22 +23,22 @@ class PreviewTable extends React.Component {
       // set
       c.colspan = colspan
 
-      if (crtSpan + colspan > 4) {
-        rows.push(crtRow)
-        crtRow = [c]
-        crtSpan = colspan
-      } else if (crtSpan + colspan === 4) {
-        crtRow.push(c)
-        rows.push(crtRow)
-        crtRow = []
-        crtSpan = 0
+      if (currentSpan + colspan > 4) {
+        rows.push(currentRow)
+        currentRow = [c]
+        currentSpan = colspan
+      } else if (currentSpan + colspan === 4) {
+        currentRow.push(c)
+        rows.push(currentRow)
+        currentRow = []
+        currentSpan = 0
       } else {
-        crtRow.push(c)
-        crtSpan += colspan
+        currentRow.push(c)
+        currentSpan += colspan
       }
     })
     // last
-    if (crtRow.length > 0) rows.push(crtRow)
+    if (currentRow.length > 0) rows.push(currentRow)
 
     return (
       <table className="table table-bordered table-sm table-fixed">
@@ -103,6 +103,7 @@ class PreviewTable extends React.Component {
     cells.push(<th>{c4.label}</th>)
     colSpan = 1
     cells.push(<td colSpan={colSpan}>{this.formatValue(c4)}</td>)
+    return cells
   }
 
   componentDidMount = () => $('.font-italic.hide').removeClass('hide')

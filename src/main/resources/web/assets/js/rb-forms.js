@@ -1016,6 +1016,7 @@ class RbFormDateTime extends RbFormElement {
 class RbFormImage extends RbFormElement {
   constructor(props) {
     super(props)
+    this._inputid = `${props.field}-input${$random()}`
 
     if (props.value) this.state.value = [...props.value] // clone
     if (this.props.uploadNumber) {
@@ -1052,8 +1053,8 @@ class RbFormImage extends RbFormElement {
           )
         })}
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
-          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._inputid} accept="image/*" />
+          <label htmlFor={this._inputid} className="img-thumbnail img-upload">
             <span className="zmdi zmdi-image-alt" />
           </label>
         </span>
@@ -1162,8 +1163,8 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-          <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._inputid} />
+          <label htmlFor={this._inputid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
           </label>
@@ -1737,22 +1738,23 @@ class RbFormBarcode extends RbFormElement {
 
   renderElement() {
     if (this.state.value) return this.renderViewElement()
-    else
-      return (
-        <div className="form-control-plaintext barcode text-muted">
-          {$L('自动值')} ({this.props.barcodeType === 'QRCODE' ? $L('二维码') : $L('条形码')})
-        </div>
-      )
+
+    return (
+      <div className="form-control-plaintext barcode text-muted">
+        {$L('自动值')} ({this.props.barcodeType === 'BARCODE' ? $L('条形码') : $L('二维码')})
+      </div>
+    )
   }
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'BARCODE' ? '' : '-qr'}?t=${$encode(this.state.value)}`
+    const isbar = this.props.barcodeType === 'BARCODE'
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
         <a className="img-thumbnail" title={this.state.value}>
-          <img src={codeUrl} alt={this.state.value} />
+          <img src={codeUrl} alt={this.state.value} className={isbar ? 'w-auto' : ''} />
         </a>
       </div>
     )
@@ -1762,14 +1764,15 @@ class RbFormBarcode extends RbFormElement {
 class RbFormAvatar extends RbFormElement {
   constructor(props) {
     super(props)
+    this._inputid = `${props.field}-input${$random()}`
   }
 
   renderElement() {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
-          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
-          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload" disabled={this.props.readonly}>
+          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._inputid} accept="image/*" />}
+          <label htmlFor={this._inputid} className="img-thumbnail img-upload" disabled={this.props.readonly}>
             <img src={this._formatUrl(this.state.value)} alt="Avatar" />
           </label>
         </span>
@@ -1947,7 +1950,6 @@ class RbFormSign extends RbFormElement {
       <div className="img-field sign sign-edit">
         <span title={this.props.readonly ? null : $L('签名')}>
           <label
-            htmlFor={`${this.props.field}-input`}
             className="img-thumbnail img-upload"
             onClick={() => {
               if (!this.props.readonly) {
