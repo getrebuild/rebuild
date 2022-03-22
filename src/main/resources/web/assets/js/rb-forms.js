@@ -1736,7 +1736,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={'radio-' + this.props.field}
+            name={`radio-${this.props.field}`}
             type="radio"
             checked={!$isTrue(this.state.value)}
             data-value="F"

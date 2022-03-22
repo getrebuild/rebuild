@@ -1328,6 +1328,25 @@ select.form-control:not([disabled]) {
   z-index: 2;
 }
 
+.dataTables_wrapper .rb-datatable-header {
+  padding-top: 12px;
+  padding-bottom: 7px;
+}
+
+.dataTables_wrapper .rb-datatable-header .quick-query-pane {
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  margin-left: -5px;
+  margin-right: -5px;
+}
+
+.dataTables_wrapper .rb-datatable-header .quick-query-pane .col-3 > div {
+  background-color: #eee;
+  border-radius: 2px;
+  height: 37px;
+}
+
 @media (max-width: 767px) {
   .dataTables_wrapper .rb-datatable-header {
     top: 0;
@@ -1338,6 +1357,7 @@ select.form-control:not([disabled]) {
     margin-left: -5px;
   }
 }
+
 
 .data-list .table th,
 .data-list .table td {
@@ -1724,9 +1744,9 @@ th.column-fixed {
 }
 
 .main-content > .nav-tabs-classic > li.nav-item a.nav-link {
-  padding: 11px 15px;
-  min-width: 101px;
-  max-width: 245px;
+  padding: 9px 15px;
+  min-width: 120px;
+  max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

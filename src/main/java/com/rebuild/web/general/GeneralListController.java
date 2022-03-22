@@ -15,22 +15,29 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 数据列表
@@ -95,6 +102,16 @@ public class GeneralListController extends EntityController {
         }
 
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
+
+        // 快速查询
+        Set<String> quickFields = ParseHelper.buildQuickFields(listEntity, null);
+        List<String> quickFieldsLabel = new ArrayList<>();
+        for (String qf : quickFields) {
+            if (qf.equalsIgnoreCase(EntityHelper.QuickCode)) continue;
+            if (qf.startsWith("&")) qf = qf.substring(1);
+            quickFieldsLabel.add(EasyMetaFactory.getLabel(listEntity, qf));
+        }
+        mv.getModel().put("quickFieldsLabel", StringUtils.join(quickFieldsLabel, " / "));
 
         return mv;
     }

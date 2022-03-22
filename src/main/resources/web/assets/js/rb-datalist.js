@@ -131,18 +131,21 @@ class RbList extends React.Component {
       wheelSpeed: 2,
     })
 
-    // enable pins
+    // enable pin
     if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
-      $('.main-content .rb-datatable-header').addClass('header-fixed')
+      // $('.main-content .rb-datatable-header').addClass('header-fixed')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
-        let mh = $(window).height() - 215
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44 // Has tab
+        let mh = $(window).height() - 208
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+        if ($('.main-content .quick-query-pane').length > 0) mh -= 62 // Has query
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
+    } else {
+      $('.main-content .rb-datatable-header').addClass('header-fixed')
     }
 
     if (supportFixedColumns) {
