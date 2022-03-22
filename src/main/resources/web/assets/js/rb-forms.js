@@ -1738,22 +1738,23 @@ class RbFormBarcode extends RbFormElement {
 
   renderElement() {
     if (this.state.value) return this.renderViewElement()
-    else
-      return (
-        <div className="form-control-plaintext barcode text-muted">
-          {$L('自动值')} ({this.props.barcodeType === 'QRCODE' ? $L('二维码') : $L('条形码')})
-        </div>
-      )
+
+    return (
+      <div className="form-control-plaintext barcode text-muted">
+        {$L('自动值')} ({this.props.barcodeType === 'BARCODE' ? $L('条形码') : $L('二维码')})
+      </div>
+    )
   }
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'BARCODE' ? '' : '-qr'}?t=${$encode(this.state.value)}`
+    const isbar = this.props.barcodeType === 'BARCODE'
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
         <a className="img-thumbnail" title={this.state.value}>
-          <img src={codeUrl} alt={this.state.value} />
+          <img src={codeUrl} alt={this.state.value} className={isbar ? 'w-auto' : ''} />
         </a>
       </div>
     )
