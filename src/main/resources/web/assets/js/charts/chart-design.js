@@ -108,12 +108,12 @@ $(document).ready(() => {
   if (wpc.chartConfig && wpc.chartConfig.axis) {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
     $(wpc.chartConfig.axis.numerical).each((idx, item) => add_axis('.J_axis-num', item))
-    $('.chart-type>a[data-type="' + wpc.chartConfig.type + '"]').trigger('click')
+    $(`.chart-type>a[data-type="${wpc.chartConfig.type}"]`).trigger('click')
     dataFilter = wpc.chartConfig.filter
 
     const option = wpc.chartConfig.option || {}
     for (let k in option) {
-      const opt = $('.chart-option input[data-name=' + k + ']')
+      const opt = $(`.chart-option input[data-name=${k}]`)
       if (opt.length > 0) {
         if (opt.attr('type') === 'checkbox') {
           if ($isTrue(option[k])) opt.trigger('click')
@@ -153,6 +153,7 @@ const CTs = {
   M: $L('按月'),
   D: $L('按日'),
   H: $L('按时'),
+  I: $L('按时分'),
   L1: $L('1级'),
   L2: $L('2级'),
   L3: $L('3级'),
@@ -189,21 +190,24 @@ const add_axis = (target, axis) => {
       calc = fieldType === 'num' ? 'SUM' : 'COUNT'
     } else if (fieldType === 'date') {
       calc = 'D'
+    } else if (fieldType === 'time') {
+      calc = 'I'
     } else if (fieldType === 'clazz') {
       calc = 'L1'
     }
   }
   $dropdown.attr({ 'data-calc': calc, 'data-sort': sort })
 
-  fieldLabel = fieldLabel || '[' + fieldName.toUpperCase() + ']'
+  fieldLabel = fieldLabel || `[${fieldName.toUpperCase()}]`
 
   if (isNumAxis) {
-    $dropdown.find('.J_date, .J_clazz').remove()
+    $dropdown.find('.J_date, .J_time, .J_clazz').remove()
     if (fieldType === 'num') $dropdown.find('.J_text').remove()
     else $dropdown.find('.J_num').remove()
   } else {
     $dropdown.find('.J_text, .J_num').remove()
     if (fieldType !== 'date') $dropdown.find('.J_date').remove()
+    if (fieldType !== 'time') $dropdown.find('.J_time').remove()
     if (fieldType !== 'clazz') $dropdown.find('.J_clazz').remove()
   }
   if ($dropdown.find('li:eq(0)').hasClass('dropdown-divider')) $dropdown.find('.dropdown-divider').remove()
@@ -216,7 +220,7 @@ const add_axis = (target, axis) => {
     const calc = $this.data('calc')
     const sort = $this.data('sort')
     if (calc) {
-      $dropdown.find('span').text(fieldLabel + (' (' + $this.text() + ')'))
+      $dropdown.find('span').text(`${fieldLabel} (${$this.text()})`)
       $dropdown.attr('data-calc', calc)
       aopts.each(function () {
         if ($(this).data('calc')) $(this).removeClass('text-primary')
@@ -379,7 +383,7 @@ const __buildAxisItem = (item, isNum) => {
   if (isNum) {
     x.calc = item.attr('data-calc')
     x.scale = item.attr('data-scale')
-  } else if (item.data('type') === 'date' || item.data('type') === 'clazz') {
+  } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
     x.calc = item.attr('data-calc')
   }
   return x

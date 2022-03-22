@@ -282,7 +282,8 @@ a.ui-draggable.ui-draggable-dragging {
   content: 'T';
 }
 
-.data-info .fields li.date a::before {
+.data-info .fields li.date a::before,
+.data-info .fields li.time a::before {
   content: 'D';
 }
 

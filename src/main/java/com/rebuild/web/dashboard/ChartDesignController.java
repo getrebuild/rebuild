@@ -138,6 +138,8 @@ public class ChartDesignController extends EntityController {
             String type = "text";
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 type = "date";
+            } else if (dt == DisplayType.TIME) {
+                type = "time";
             } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
                 type = "num";
             } else if (dt == DisplayType.CLASSIFICATION) {
