@@ -1186,7 +1186,8 @@ select.form-control:not([disabled]) {
   padding-top: 12px;
 }
 
-.col-form-label.required::after {
+.col-form-label.required::after,
+.protable thead > tr > th.required::after {
   content: '';
   position: absolute;
   display: inline-block;
@@ -1194,6 +1195,10 @@ select.form-control:not([disabled]) {
   width: 3px;
   height: 12px;
   margin-left: 6px;
+}
+
+.protable thead > tr > th.required::after {
+  margin-top: 2px;
 }
 
 .form-text {

@@ -35,8 +35,9 @@ class ProTable extends React.Component {
             <tr>
               <th className="col-index" />
               {formFields.map((item) => {
+                if (item.field === TYPE_DIVIDER) return null
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyles}>
+                  <th key={item.field} data-field={item.field} style={colStyles} className={item.nullable ? '' : 'required'}>
                     {item.label}
                     <i className="dividing hide" />
                   </th>
@@ -177,7 +178,8 @@ class InlineForm extends RbForm {
     return (
       <React.Fragment>
         {this.props.children.map((fieldComp) => {
-          const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
+          if (fieldComp.props.field === TYPE_DIVIDER) return null
+          const refid = `fieldcomp-${fieldComp.props.field}`
           return (
             <td key={`td-${refid}`} ref={(c) => (this._$ref = c)}>
               {React.cloneElement(fieldComp, { $$$parent: this, ref: refid })}
