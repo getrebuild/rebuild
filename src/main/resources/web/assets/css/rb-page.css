@@ -3164,11 +3164,10 @@ form {
 .search-container > .global-create > .dropdown > a {
   display: inline-block;
   width: 35px;
-  line-height: 35px;
-  height: 35px;
+  line-height: 37px;
+  height: 37px;
   text-align: center;
   color: #5a5a5a;
-  border-radius: 99px;
   font-size: 1.73rem;
 }
 
@@ -3177,6 +3176,15 @@ form {
   background: #4285f4;
   color: #fff;
   transition: background-color 0.3s;
+}
+
+.rb-top-header .search-input-gs {
+  background-color: #f5f5f5;
+}
+
+.rb-top-header .search-input-gs,
+.search-container > .global-create > .dropdown > a {
+  border-radius: 4px;
 }
 
 .preview-modal {
