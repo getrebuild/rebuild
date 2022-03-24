@@ -104,14 +104,7 @@ public class GeneralListController extends EntityController {
         mv.getModel().put("DataListConfig", JSON.toJSONString(listConfig));
 
         // 快速查询
-        Set<String> quickFields = ParseHelper.buildQuickFields(listEntity, null);
-        List<String> quickFieldsLabel = new ArrayList<>();
-        for (String qf : quickFields) {
-            if (qf.equalsIgnoreCase(EntityHelper.QuickCode)) continue;
-            if (qf.startsWith("&")) qf = qf.substring(1);
-            quickFieldsLabel.add(EasyMetaFactory.getLabel(listEntity, qf));
-        }
-        mv.getModel().put("quickFieldsLabel", StringUtils.join(quickFieldsLabel, " / "));
+        mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
 
         return mv;
     }
@@ -123,15 +116,7 @@ public class GeneralListController extends EntityController {
         return builder.getJSONResult();
     }
 
-    /**
-     * 检查实体页面
-     *
-     * @param user
-     * @param entity
-     * @param response
-     * @return
-     * @throws IOException
-     */
+    // 检查实体页面
     static Entity checkPageOfEntity(ID user, String entity, HttpServletResponse response) throws IOException {
         if (!MetadataHelper.containsEntity(entity)) {
             response.sendError(404);
@@ -150,5 +135,19 @@ public class GeneralListController extends EntityController {
         }
 
         return checkEntity;
+    }
+
+    // 快速查询
+    static String getQuickFieldsLabel(Entity entity) {
+        Set<String> quickFields = ParseHelper.buildQuickFields(entity, null);
+
+        List<String> quickFieldsLabel = new ArrayList<>();
+        for (String qf : quickFields) {
+            if (qf.equalsIgnoreCase(EntityHelper.QuickCode)) continue;
+            if (qf.startsWith("&")) qf = qf.substring(1);
+            quickFieldsLabel.add(EasyMetaFactory.getLabel(entity, qf));
+        }
+
+        return StringUtils.join(quickFieldsLabel, " / ");
     }
 }
