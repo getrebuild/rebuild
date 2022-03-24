@@ -41,6 +41,11 @@ button {
   cursor: pointer;
 }
 
+a[disabled],
+button[disabled] {
+  cursor: not-allowed !important;
+}
+
 /* 1280 */
 .container-smart {
   max-width: 1160px;

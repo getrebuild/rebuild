@@ -44,7 +44,7 @@ public class ApprovalStepService extends InternalPersistService {
     /**
      * 虚拟审批
      */
-    public static final ID APPROVAL_NOID = ID.valueOf("028-0000000000000000");
+    public static final ID APPROVAL_NOID = EntityHelper.newUnsavedId(28);
 
     protected ApprovalStepService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
