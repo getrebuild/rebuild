@@ -186,14 +186,17 @@ body {
 }
 
 .view-operating {
-  margin-top: 33px;
+  padding-top: 3px;
 }
 
-.view-operating > div {
-  margin-bottom: 15px !important;
+.view-operating > div{
+  margin-top: 15px;
 }
 
-.view-operating .row,
+.view-operating > div.view-action {
+  margin-top: 30px;
+}
+
 .view-operating .form-line {
   margin-bottom: 10px;
 }
@@ -207,11 +210,11 @@ body {
 }
 
 .view-action .col-lg-6:nth-child(odd) {
-  padding-right: 0.384615rem;
+  padding-right: 5px;
 }
 
 .view-action .col-lg-6:nth-child(even) {
-  padding-left: 0.384615rem;
+  padding-left: 5px;
 }
 
 .view-action .col-lg-6 .btn {
@@ -220,19 +223,11 @@ body {
   text-overflow: ellipsis;
 }
 
-.view-action.empty {
-  margin-top: 4px;
-}
-
 @media (max-width: 991px) {
   .view-action .col-lg-6 {
     padding-left: 15px !important;
     padding-right: 15px !important;
   }
-}
-
-.view-operating > div.view-user {
-  margin-bottom: 5px !important;
 }
 
 .view-date .col-lg-4,

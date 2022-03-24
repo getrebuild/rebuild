@@ -813,7 +813,7 @@ const RbViewPage = {
         $('.view-action .col-lg-6').each(function () {
           if ($(this).children().length === 0) $(this).remove()
         })
-        if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
+        if ($('.view-action').children().length === 0) $('.view-action').addClass('mt-0').empty()
       },
       100,
       '_cleanViewActionButton'
