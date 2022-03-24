@@ -27,6 +27,11 @@ import java.util.Date;
  */
 public class EntityHelper {
 
+    // 虚拟 ID 后缀
+    private static final String UNSAVED_ID_SUFFIX = "-0000000000000000";
+    // 将新建的记录 ID
+    public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
+
     /**
      * @param data
      * @param user
@@ -152,6 +157,26 @@ public class EntityHelper {
                 r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
             }
         }
+    }
+
+    /**
+     * 未保存记录 ID
+     *
+     * @param entityCode
+     * @return
+     * @see #isUnsavedId(ID)
+     */
+    public static ID newUnsavedId(int entityCode) {
+        if (entityCode == 0) return UNSAVED_ID;
+        return ID.valueOf(String.format("%03d", entityCode) + UNSAVED_ID_SUFFIX);
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    public static boolean isUnsavedId(ID id) {
+        return UNSAVED_ID.equals(id) || id.toLiteral().endsWith(UNSAVED_ID_SUFFIX);
     }
 
     // 公共字段/保留字段

@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.general.FormBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
@@ -37,7 +38,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 表单/视图
@@ -113,7 +116,7 @@ public class GeneralModelController extends EntityController {
                 }
                 // v2.8
                 else if (FormsBuilder.DV_MAINID.equals(mainid)) {
-                    ID fakeMainid = ID.newId(metaEntity.getMainEntity().getEntityCode());
+                    ID fakeMainid = EntityHelper.newUnsavedId(metaEntity.getMainEntity().getEntityCode());
                     FormBuilderContextHolder.setMainIdOfDetail(fakeMainid);
                 }
             }

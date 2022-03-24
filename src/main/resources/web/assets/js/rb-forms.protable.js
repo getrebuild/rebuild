@@ -18,8 +18,16 @@ class ProTable extends React.Component {
   }
 
   render() {
-    const formFields = this.state.formFields || []
-    const details = this.state.details || []
+    if (this.state.hasError) {
+      $('.detail-form-table .btn-group .btn').attr('disabled', true)
+      return <RbAlertBox message={this.state.hasError} />
+    }
+
+    // 等待初始化
+    if (!this.state.formFields) return null
+
+    const formFields = this.state.formFields
+    const details = this.state.details || [] // 编辑时有
 
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
@@ -35,8 +43,9 @@ class ProTable extends React.Component {
             <tr>
               <th className="col-index" />
               {formFields.map((item) => {
+                if (item.field === TYPE_DIVIDER) return null
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyles}>
+                  <th key={item.field} data-field={item.field} style={colStyles} className={item.nullable ? '' : 'required'}>
                     {item.label}
                     <i className="dividing hide" />
                   </th>
@@ -46,12 +55,12 @@ class ProTable extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {(this.state.inlineForms || []).map((form, idx) => {
-              const key = form.key
+            {(this.state.inlineForms || []).map((FORM, idx) => {
+              const key = FORM.key
               return (
                 <tr key={`inline-${key}`}>
                   <th className="col-index">{details.length + idx + 1}</th>
-                  {form}
+                  {FORM}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
                     <button className="btn btn-light hide" title={$L('编辑')} onClick={() => this.editLine(key)}>
@@ -77,6 +86,13 @@ class ProTable extends React.Component {
     }
 
     $.post(`/app/${entity.entity}/form-model?id=`, JSON.stringify(initialValue), (res) => {
+      // 包含错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const error = (res.data || {}).error || res.error_msg
+        this.setState({ hasError: error })
+        return
+      }
+
       this._initModel = res.data // 新建用
       this.setState({ formFields: res.data.elements }, () => {
         $(this._$scroller).perfectScrollbar()
@@ -177,7 +193,8 @@ class InlineForm extends RbForm {
     return (
       <React.Fragment>
         {this.props.children.map((fieldComp) => {
-          const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
+          if (fieldComp.props.field === TYPE_DIVIDER) return null
+          const refid = `fieldcomp-${fieldComp.props.field}`
           return (
             <td key={`td-${refid}`} ref={(c) => (this._$ref = c)}>
               {React.cloneElement(fieldComp, { $$$parent: this, ref: refid })}
