@@ -29,7 +29,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -114,8 +113,7 @@ public class FormsBuilder extends FormsManager {
                 ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
                 Assert.notNull(mainId, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
-                approvalState = getHadApproval(entityMeta, null);
-
+                approvalState = EntityHelper.isUnsavedId(mainId) ? null : getHadApproval(mainEntity, mainId);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     return formatModelError(approvalState == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")
@@ -125,9 +123,11 @@ public class FormsBuilder extends FormsManager {
                 // 明细无需审批
                 approvalState = null;
 
-                if (!Application.getPrivilegesManager().allowUpdate(user, mainId)) {
+                if (!EntityHelper.isUnsavedId(mainId)
+                        && !Application.getPrivilegesManager().allowUpdate(user, mainId)) {
                     return formatModelError(Language.L("你没有添加明细权限"));
                 }
+
             } else if (!Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode())) {
                 return formatModelError(Language.L("你没有新建权限" ));
             } else {
@@ -225,23 +225,28 @@ public class FormsBuilder extends FormsManager {
      * @see RobotApprovalManager#hadApproval(Entity, ID)
      */
     private ApprovalState getHadApproval(Entity entity, ID recordId) {
-        Entity mainEntity = entity.getMainEntity();
-        if (mainEntity == null) {
+        // 新建时
+        if (recordId == null) {
+            return RobotApprovalManager.instance.hadApproval(entity, null);
+        }
+
+        // 无明细实体
+        if (entity.getMainEntity() == null) {
             return RobotApprovalManager.instance.hadApproval(entity, recordId);
         }
 
         ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
         if (mainId == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
-            String sql = String.format("select %s from %s where %s = ?",
-                    dtmField.getName(), entity.getName(), entity.getPrimaryField().getName());
-            Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, dtmField.getName());
             if (o == null) {
+                log.warn("No main-id found : {}", recordId);
                 return null;
             }
+
             mainId = (ID) o[0];
         }
-        return RobotApprovalManager.instance.hadApproval(mainEntity, mainId);
+        return RobotApprovalManager.instance.hadApproval(entity, mainId);
     }
 
     /**
@@ -544,7 +549,7 @@ public class FormsBuilder extends FormsManager {
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
                 Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value)
-                        : (DV_MAINID.equals(value) ? EntityService.UNSAVED_RECORD : value);
+                        : (DV_MAINID.equals(value) ? EntityHelper.UNSAVED_ID : value);
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
@@ -592,7 +597,7 @@ public class FormsBuilder extends FormsManager {
      */
     private JSON getReferenceMixValue(String idValue) {
         if (DV_MAINID.equals(idValue)) {
-            return FieldValueHelper.wrapMixValue(EntityService.UNSAVED_RECORD, Language.L("新的"));
+            return FieldValueHelper.wrapMixValue(EntityHelper.UNSAVED_ID, Language.L("新的"));
         } else if (!ID.isId(idValue)) {
             return null;
         }
