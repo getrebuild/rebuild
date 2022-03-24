@@ -615,17 +615,14 @@ body {
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
-  border-radius: 99px;
+  border-radius: 3px;
   padding: 1px 6px;
   margin-right: 3px;
   margin-bottom: 3px;
-  white-space: nowrap;
   display: inline-block;
-  background-color: #eee;
-}
-
-.form-control-plaintext.multi-values > a {
-  background-color: #e6eff8;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  line-height: 17px;
 }
 
 .file-list.inview {

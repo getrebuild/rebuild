@@ -1483,10 +1483,12 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table td div .badge {
   font-weight: normal;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 13px;
   padding: 1px 6px;
-  border-radius: 99px;
+  border-radius: 3px;
+  line-height: 17px;
+  border: 1px solid #ddd;
+  background-color: #fff;
 }
 
 .data-list .table td div .badge.badge-default {
