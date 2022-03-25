@@ -1343,18 +1343,11 @@ select.form-control:not([disabled]) {
   padding-bottom: 7px;
 }
 
-.dataTables_wrapper .rb-datatable-header .quick-query-pane {
+.dataTables_wrapper .rb-datatable-header .quick-filter-pane {
+  margin: -12px -25px 12px -23px;
+  background-color: #f5f5f5;
   border-bottom: 1px solid #dee2e6;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  margin-left: -5px;
-  margin-right: -5px;
-}
-
-.dataTables_wrapper .rb-datatable-header .quick-query-pane .col-3 > div {
-  background-color: #eee;
-  border-radius: 2px;
-  height: 37px;
+  padding: 12px 18px;
 }
 
 @media (max-width: 767px) {
@@ -1367,7 +1360,6 @@ select.form-control:not([disabled]) {
     margin-left: -5px;
   }
 }
-
 
 .data-list .table th,
 .data-list .table td {
@@ -4681,4 +4673,48 @@ pre.unstyle {
 
 .pointer {
   cursor: pointer !important;
+}
+
+/* filter pane */
+
+.dataTables_wrapper .rb-datatable-header .quick-filter-pane {
+  padding-top: 0;
+}
+
+.quick-filter-pane .ph-item {
+  background-color: #e6e6e6;
+  min-height: 59px;
+  border-radius: 3px;
+}
+
+.quick-filter-pane .ph-item-mt {
+  height: 12px;
+  overflow: hidden;
+}
+
+.quick-filter-pane .col > div > label {
+  display: block;
+  margin-bottom: 3px;
+  margin-top: 12px;
+}
+
+.quick-filter-pane .col > div .filter-items .col-sm-5.field {
+  display: none;
+}
+
+/* col-sm-4 */
+.quick-filter-pane .col > div .filter-items .col-sm-2.op {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 33.333333%;
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+  padding-left: 15px;
+}
+
+/* col-sm-8 */
+.quick-filter-pane .col > div .filter-items .col-sm-5.val {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 66.666667%;
+  flex: 0 0 66.666667%;
+  max-width: 66.666667%;
 }

@@ -140,7 +140,7 @@ class RbList extends React.Component {
       $addResizeHandler(() => {
         let mh = $(window).height() - 208
         if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
-        if ($('.main-content .quick-query-pane').length > 0) mh -= 62 // Has query
+        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
@@ -943,6 +943,12 @@ const RbListPage = {
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
+    }
+
+    // Filter Pane
+    if ($('.quick-filter-pane').length > 0) {
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<AdvFilterPane entity={entity[0]} />, $('.quick-filter-pane')[0])
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)
