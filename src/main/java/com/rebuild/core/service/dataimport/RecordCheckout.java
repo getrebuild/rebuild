@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -46,6 +47,8 @@ import java.util.*;
 @Slf4j
 public class RecordCheckout {
 
+    final private List<String> traceLogs = new ArrayList<>();
+
     final private Map<Field, Integer> fieldsMapping;
 
     protected RecordCheckout(Map<Field, Integer> fieldsMapping) {
@@ -62,16 +65,21 @@ public class RecordCheckout {
             int cellIndex = e.getValue();
             if (cellIndex >= row.length) continue;
 
-            Field field = e.getKey();
             Cell cellValue = row[cellIndex];
+            if (cellValue == Cell.NULL || cellValue.isEmpty()) {
+                continue;
+            }
+
+            Field field = e.getKey();
             Object value = checkoutFieldValue(field, cellValue, true);
 
             if (value != null) {
                 record.setObjectValue(field.getName(), value);
-            } else if (cellValue != Cell.NULL && !cellValue.isEmpty()) {
-                log.warn("Invalid value of cell : " + cellValue + " > " + field.getName());
+            } else {
+                putTraceLog(cellValue, Language.L(EasyMetaFactory.getDisplayType(field)));
             }
         }
+
         return record;
     }
 
@@ -265,7 +273,7 @@ public class RecordCheckout {
             return cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
         }
 
-        return null;
+        return date;
     }
 
     protected LocalTime checkoutTimeValue(Cell cell) {
@@ -301,5 +309,27 @@ public class RecordCheckout {
             if (EasyUrl.isUrl(s)) urls.add(s);
         }
         return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
+    }
+
+    /**
+     * @return
+     */
+    public List<String> getTraceLogs() {
+        return traceLogs;
+    }
+
+    private void putTraceLog(Cell cell, String log) {
+        // A1 A2 ...
+        int num = cell.getColumnNo();
+        StringBuilder name = new StringBuilder();
+        while (num >= 0) {
+            int remainder = num % 26;
+            name.insert(0, (char) (remainder + 65));
+            //noinspection IntegerDivisionInFloatingPointContext
+            num = (int) Math.floor(num / 26) - 1;
+        }
+        name.append(cell.getRowNo() + 1);
+
+        traceLogs.add(name + ":" + log);
     }
 }
