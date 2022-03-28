@@ -869,11 +869,13 @@ select.form-control:not([disabled]) {
 }
 
 @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3 {
+  .form-layout > .row .form-group.col-sm-3,
+  .form-layout > .row .form-group.col-sm-4 {
     padding-right: 0;
   }
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
-    width: 100px;
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label,
+  .form-layout > .row .form-group.col-sm-4 > .col-form-label {
+    width: 110px;
   }
 }
 
@@ -1095,6 +1097,15 @@ select.form-control:not([disabled]) {
   cursor: default;
 }
 
+.img-field.barcode .img-thumbnail.w-auto {
+  width: auto;
+  height: auto;
+}
+
+.img-field.barcode .img-thumbnail.w-auto > img {
+  width: auto;
+}
+
 .file-field .file-select label.btn-secondary {
   line-height: 35px;
 }
@@ -1172,6 +1183,10 @@ select.form-control:not([disabled]) {
   opacity: 0.8;
   cursor: pointer;
 } */
+
+.input-group.has-append {
+  max-width: 100%;
+}
 
 .input-group.has-append .input-group-append button {
   min-width: 38px;
@@ -1323,6 +1338,18 @@ select.form-control:not([disabled]) {
   z-index: 2;
 }
 
+.dataTables_wrapper .rb-datatable-header {
+  padding-top: 12px;
+  padding-bottom: 7px;
+}
+
+.dataTables_wrapper .rb-datatable-header .quick-filter-pane {
+  margin: -12px -25px 12px -23px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #dee2e6;
+  padding: 12px 18px;
+}
+
 @media (max-width: 767px) {
   .dataTables_wrapper .rb-datatable-header {
     top: 0;
@@ -1448,10 +1475,12 @@ i.dividing.ui-draggable-dragging {
 
 .data-list .table td div .badge {
   font-weight: normal;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 13px;
   padding: 1px 6px;
-  border-radius: 99px;
+  border-radius: 3px;
+  line-height: 17px;
+  border: 1px solid #ddd;
+  background-color: #fff;
 }
 
 .data-list .table td div .badge.badge-default {
@@ -1719,9 +1748,9 @@ th.column-fixed {
 }
 
 .main-content > .nav-tabs-classic > li.nav-item a.nav-link {
-  padding: 11px 15px;
-  min-width: 101px;
-  max-width: 245px;
+  padding: 9px 15px;
+  min-width: 120px;
+  max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3127,11 +3156,10 @@ form {
 .search-container > .global-create > .dropdown > a {
   display: inline-block;
   width: 35px;
-  line-height: 35px;
-  height: 35px;
+  line-height: 37px;
+  height: 37px;
   text-align: center;
   color: #5a5a5a;
-  border-radius: 99px;
   font-size: 1.73rem;
 }
 
@@ -3140,6 +3168,15 @@ form {
   background: #4285f4;
   color: #fff;
   transition: background-color 0.3s;
+}
+
+.rb-top-header .search-input-gs {
+  background-color: #f5f5f5;
+}
+
+.rb-top-header .search-input-gs,
+.search-container > .global-create > .dropdown > a {
+  border-radius: 4px;
 }
 
 .preview-modal {
@@ -4636,4 +4673,48 @@ pre.unstyle {
 
 .pointer {
   cursor: pointer !important;
+}
+
+/* filter pane */
+
+.dataTables_wrapper .rb-datatable-header .quick-filter-pane {
+  padding-top: 0;
+}
+
+.quick-filter-pane .ph-item {
+  background-color: #e6e6e6;
+  min-height: 59px;
+  border-radius: 3px;
+}
+
+.quick-filter-pane .ph-item-mt {
+  height: 12px;
+  overflow: hidden;
+}
+
+.quick-filter-pane .col > div > label {
+  display: block;
+  margin-bottom: 3px;
+  margin-top: 12px;
+}
+
+.quick-filter-pane .col > div .filter-items .col-sm-5.field {
+  display: none;
+}
+
+/* col-sm-4 */
+.quick-filter-pane .col > div .filter-items .col-sm-2.op {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 33.333333%;
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+  padding-left: 15px;
+}
+
+/* col-sm-8 */
+.quick-filter-pane .col > div .filter-items .col-sm-5.val {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 66.666667%;
+  flex: 0 0 66.666667%;
+  max-width: 66.666667%;
 }

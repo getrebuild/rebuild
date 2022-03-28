@@ -50,6 +50,13 @@ public class Dimension extends Axis {
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
             }
 
+        } else if (dt == DisplayType.TIME) {
+            if (getFormatCalc() == FormatCalc.H) {
+                return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%H");
+            } else {
+                return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%H:%i");
+            }
+
         } else if (dt == DisplayType.CLASSIFICATION
                 && getFormatCalc() != null && getFormatCalc().name().startsWith("L")) {
             int useLevel = ClassificationManager.instance.getOpenLevel(getField()) + 1;

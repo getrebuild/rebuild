@@ -471,6 +471,7 @@ class RbFormElement extends React.Component {
     if (props.colspan === 4 || props.isFull === true) colspan = 12
     else if (props.colspan === 1) colspan = 3
     else if (props.colspan === 3) colspan = 9
+    else if (props.colspan === 9) colspan = 4
 
     const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
@@ -1735,7 +1736,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={'radio-' + this.props.field}
+            name={`radio-${this.props.field}`}
             type="radio"
             checked={!$isTrue(this.state.value)}
             data-value="F"
@@ -1786,8 +1787,8 @@ class RbFormBarcode extends RbFormElement {
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
-        <a className="img-thumbnail" title={this.state.value}>
-          <img src={codeUrl} alt={this.state.value} className={isbar ? 'w-auto' : ''} />
+        <a className={`img-thumbnail ${isbar && 'w-auto'}`} title={this.state.value}>
+          <img src={codeUrl} alt={this.state.value} />
         </a>
       </div>
     )

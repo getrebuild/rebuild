@@ -3,8 +3,9 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title th:text="${entityLabel}"></title>
-    <style type="text/css">
-      .rb-datatable-header {
+    <style>
+      .dataTables_wrapper .rb-datatable-header,
+      .dataTables_wrapper .rb-datatable-header.header-fixed {
         position: fixed;
         top: 0;
         left: 0;
@@ -13,7 +14,7 @@
         z-index: 10;
       }
       #react-list {
-        margin-top: 68px;
+        margin-top: 60px;
       }
     </style>
   </head>
@@ -26,7 +27,7 @@
               <div class="col-6">
                 <div class="dataTables_filter">
                   <div class="input-group input-search">
-                    <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
+                    <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" maxlength="40" />
                     <span class="input-group-btn">
                       <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                     </span>
@@ -59,8 +60,9 @@
         protocolFilter: '[[${referenceFilter}]]',
       }
     </script>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script type="text/babel">
       RbList.renderAfter = function () {
         parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()

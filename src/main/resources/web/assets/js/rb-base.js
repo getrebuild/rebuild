@@ -276,9 +276,8 @@ var $cleanMap = function (map) {
  * 常用正则
  */
 var $regex = {
-  _Date:
-    /^((((1[6-9]|[2-9]\d)\d{2})-(0?[13578]|1[02])-(0?[1-9]|[12]\d|3[01]))|(((1[6-9]|[2-9]\d)\d{2})-(0?[13456789]|1[012])-(0?[1-9]|[12]\d|30))|(((1[6-9]|[2-9]\d)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))-0?2-29-))$/,
-  _UTCDate: /^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/, // eg. 2010-01-01, 2010-1-9
+  _Date: /^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/, // eg. 2010-01-01, 2010-1-9
+  _Time: /^[0-9]{1,2}:[0-9]{1,2}(:[0-9]{1,2})?$/, // eg. 16:01:10, 10:1:9
   // eslint-disable-next-line no-useless-escape
   _Url: /^(http|https|ftp)\:\/\/[a-z0-9\-\.]+(:[0-9]*)?\/?([a-z0-9\-\._\?\,\'\/\\\+&amp;%\$#\=~!:])*$/i,
   _Mail: /^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
@@ -290,8 +289,8 @@ var $regex = {
   isDate: function (val) {
     return this._Date.test(val)
   },
-  isUTCDate: function (val) {
-    return this._UTCDate.test(val)
+  isTime: function (val) {
+    return this._Time.test(val)
   },
   isUrl: function (val) {
     return this._Url.test(val)
