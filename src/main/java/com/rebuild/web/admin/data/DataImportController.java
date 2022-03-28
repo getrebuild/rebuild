@@ -28,6 +28,7 @@ import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -167,5 +168,17 @@ public class DataImportController extends BaseController {
         }
         File tmp = RebuildConfiguration.getFileOfTemp(file);
         return (!tmp.exists() || tmp.isDirectory()) ? null : tmp;
+    }
+
+    @GetMapping("/data-imports/import-trace")
+    public RespBody importTrace(HttpServletRequest request) {
+        String taskid = getParameterNotNull(request, "taskid");
+        HeavyTask<?> task = TaskExecutors.get(taskid);
+
+        if (task == null) {
+            return RespBody.error();
+        } else {
+            return RespBody.ok(((DataImporter) task).getTraceLogs());
+        }
     }
 }

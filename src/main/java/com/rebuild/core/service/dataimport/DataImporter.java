@@ -22,6 +22,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -38,8 +39,8 @@ public class DataImporter extends HeavyTask<Integer> {
     final private ImportRule rule;
     private ID owningUser;
 
-    // 记录每一行的错误日志
-    private Map<Integer, Object> eachLogs = new LinkedHashMap<>();
+    final private List<Object[]> traceLogs = new ArrayList<>();
+    private String cellTraces = null;
 
     /**
      * @param rule
@@ -62,25 +63,31 @@ public class DataImporter extends HeavyTask<Integer> {
                 break;
             }
 
-            Cell firstCell = row == null || row.length == 0 ? null : row[0];
-            if (firstCell == null || firstCell.getRowNo() == 0) {
+            Cell fc = row == null || row.length == 0 ? null : row[0];
+            if (fc == null || fc.getRowNo() == 0) {
                 continue;
             }
 
             try {
                 Record record = checkoutRecord(row);
-                if (record != null) {
+                if (record == null) {
+                    traceLogs.add(new Object[] { fc.getRowNo(), "SKIP" });
+                } else {
+                    boolean isNew = record.getPrimary() == null;
                     record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
                     this.addSucceeded();
-                    eachLogs.put(firstCell.getRowNo(), record.getPrimary());
+
+                    traceLogs.add(new Object[] { fc.getRowNo(),
+                            isNew ? "CREATED" : "UPDATED", record.getPrimary(), cellTraces });
                 }
+
             } catch (Exception ex) {
-                eachLogs.put(firstCell.getRowNo(), ex.getLocalizedMessage());
-                log.error("ROW#{} > {}", firstCell.getRowNo(), ex);
+                traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", ex.getLocalizedMessage() });
+                log.error("ROW#{} > {}", fc.getRowNo(), ex.getLocalizedMessage());
             }
+
             this.addCompleted();
         }
-
         return this.getSucceeded();
     }
 
@@ -91,27 +98,25 @@ public class DataImporter extends HeavyTask<Integer> {
     }
 
     /**
-     * 获取错误日志（按错误行）
-     *
-     * @return
-     */
-    public Map<Integer, Object> getEachLogs() {
-        return eachLogs;
-    }
-
-    /**
      * @param row
      * @return
      */
     protected Record checkoutRecord(Cell[] row) {
-        Record recordNew = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
+        Record recordHub = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
 
-        // 新建
-        Record record = new RecordCheckout(rule.getFiledsMapping()).checkout(recordNew, row);
+        // 解析数据
+        RecordCheckout recordCheckout = new RecordCheckout(rule.getFiledsMapping());
+        Record checkout = recordCheckout.checkout(recordHub, row);
+
+        if (recordCheckout.getTraceLogs().isEmpty()) {
+            cellTraces = null;
+        } else {
+            cellTraces = StringUtils.join(recordCheckout.getTraceLogs(), ", ");
+        }
 
         // 检查重复
         if (rule.getRepeatOpt() < ImportRule.REPEAT_OPT_IGNORE) {
-            final ID repeat = findRepeatedRecordId(rule.getRepeatFields(), recordNew);
+            final ID repeat = findRepeatedRecordId(rule.getRepeatFields(), recordHub);
 
             if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_SKIP) {
                 return null;
@@ -119,24 +124,24 @@ public class DataImporter extends HeavyTask<Integer> {
 
             if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE) {
                 // 更新
-                record = EntityHelper.forUpdate(repeat, this.owningUser);
-                for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
+                checkout = EntityHelper.forUpdate(repeat, this.owningUser);
+                for (Iterator<String> iter = recordHub.getAvailableFieldIterator(); iter.hasNext(); ) {
                     String field = iter.next();
-                    if (MetadataHelper.isCommonsField(field)) {
-                        continue;
-                    }
-                    record.setObjectValue(field, recordNew.getObjectValue(field));
+                    if (MetadataHelper.isCommonsField(field)) continue;
+
+                    checkout.setObjectValue(field, recordHub.getObjectValue(field));
                 }
             }
         }
 
         // Verify new record
-        if (record.getPrimary() == null) {
-            EntityRecordCreator verifier = new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-            verifier.verify(record);
+        // Throws DataSpecificationException
+        if (checkout.getPrimary() == null) {
+            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null)
+                    .verify(checkout);
         }
 
-        return record;
+        return checkout;
     }
 
     /**
@@ -170,5 +175,13 @@ public class DataImporter extends HeavyTask<Integer> {
 
         Object[] exists = query.unique();
         return exists == null ? null : (ID) exists[0];
+    }
+
+    /**
+     * 错误日志
+     * @return
+     */
+    public List<Object[]> getTraceLogs() {
+        return traceLogs;
     }
 }
