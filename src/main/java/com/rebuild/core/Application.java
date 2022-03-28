@@ -95,7 +95,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteMapNullValue.getMask();
 
         // for ehcache
-        System.setProperty(CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,"true");
+        System.setProperty(CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY, "true");
     }
 
     // 系统状态
