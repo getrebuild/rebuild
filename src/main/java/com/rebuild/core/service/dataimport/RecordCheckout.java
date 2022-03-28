@@ -31,7 +31,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.text.MessageFormat;
@@ -84,9 +83,11 @@ public class RecordCheckout {
     }
 
     /**
+     * 验证格式，如邮箱/URL等
+     *
      * @param field
      * @param cell
-     * @param validate 验证格式，如邮箱/URL等
+     * @param validate
      * @return
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
@@ -135,8 +136,7 @@ public class RecordCheckout {
     }
 
     protected ID checkoutPickListValue(Field field, Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
+        final String val = cell.asString();
 
         // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
@@ -154,25 +154,16 @@ public class RecordCheckout {
 
     protected Integer checkoutStateValue(Field field, Cell cell) {
         final String val = cell.asString();
-        if (StringUtils.isBlank(val)) {
-            return null;
-        }
 
         try {
             return StateManager.instance.findState(field, val).getState();
         } catch (MetadataModificationException ignored) {
         }
-
-        // 兼容状态值
-        if (NumberUtils.isNumber(val)) {
-            return NumberUtils.toInt(val);
-        }
         return null;
     }
 
     protected ID checkoutClassificationValue(Field field, Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
+        final String val = cell.asString();
 
         // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
@@ -189,12 +180,10 @@ public class RecordCheckout {
     }
 
     protected ID checkoutReferenceValue(Field field, Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
-
+        final String val = cell.asString();
         final Entity refEntity = field.getReferenceEntity();
 
-        // 支持ID导入
+        // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == refEntity.getEntityCode()) {
             ID checkId = ID.valueOf(val);
             Object exists = Application.getQueryFactory().uniqueNoFilter(checkId, refEntity.getPrimaryField().getName());
@@ -207,9 +196,7 @@ public class RecordCheckout {
         }
 
         Object val2Text = checkoutFieldValue(refEntity.getNameField(), cell, false);
-        if (val2Text == null) {
-            return null;
-        }
+        if (val2Text == null) return null;
 
         Query query;
         // 用户特殊处理
@@ -230,8 +217,8 @@ public class RecordCheckout {
                     String.format("select %s from %s where ",
                             refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
-                sql.append(
-                        String.format("%s = '%s' or ", qf, StringEscapeUtils.escapeSql((String) val2Text)));
+                sql.append(String.format("%s = '%s' or ",
+                        qf, StringEscapeUtils.escapeSql((String) val2Text)));
             }
             sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 
@@ -243,8 +230,7 @@ public class RecordCheckout {
     }
 
     protected ID[] checkoutN2NReferenceValue(Field field, Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
+        final String val = cell.asString();
 
         Set<ID> ids = new LinkedHashSet<>();
         for (String s : val.split("[,，;；]")) {
@@ -258,10 +244,8 @@ public class RecordCheckout {
         Date date = cell.asDate();
         if (date != null) return date;
 
-        if (cell.isEmpty()) return null;
-
         String date2str = cell.asString();
-        
+
         try {
             DateTime dt = DateUtil.parse(date2str);
             if (dt != null) date = dt.toJdkDate();
@@ -272,26 +256,19 @@ public class RecordCheckout {
         if (date == null && date2str.contains("/")) {
             return cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
         }
-
         return date;
     }
 
     protected LocalTime checkoutTimeValue(Cell cell) {
-        if (cell.isEmpty()) return null;
-
-        String time2str = cell.asString();
-
         try {
-            return RecordVisitor.tryParseTime(time2str);
+            return RecordVisitor.tryParseTime(cell.asString());
         } catch (FieldValueException ignored) {
         }
-
         return null;
     }
 
     protected Long checkoutMultiSelectValue(Field field, Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
+        final String val = cell.asString();
 
         long mVal = 0;
         for (String s : val.split("[,，;；]")) {
@@ -301,8 +278,7 @@ public class RecordCheckout {
     }
 
     protected String checkoutFileOrImage(Cell cell) {
-        String val = cell.asString();
-        if (StringUtils.isBlank(val)) return null;
+        final String val = cell.asString();
 
         List<String> urls = new ArrayList<>();
         for (String s : val.split("[,，;；]")) {
