@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -87,7 +86,6 @@ public class DataImporter extends HeavyTask<Integer> {
                 log.error("ROW#{} > {}", fc.getRowNo(), ex.getLocalizedMessage());
             }
 
-            ThreadPool.waitFor(1500);
             this.addCompleted();
         }
         return this.getSucceeded();
