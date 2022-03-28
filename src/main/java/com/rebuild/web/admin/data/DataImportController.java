@@ -170,7 +170,6 @@ public class DataImportController extends BaseController {
         return (!tmp.exists() || tmp.isDirectory()) ? null : tmp;
     }
 
-    // 开始导入
     @GetMapping("/data-imports/import-trace")
     public RespBody importTrace(HttpServletRequest request) {
         String taskid = getParameterNotNull(request, "taskid");
