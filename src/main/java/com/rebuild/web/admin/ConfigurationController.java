@@ -149,6 +149,10 @@ public class ConfigurationController extends BaseController {
             bucketManager.getBucketInfo(dStorageBucket);
 
             setValues(data);
+
+            QiniuCloud.instance().initAuth();
+            Application.getBean(RebuildWebConfigurer.class).init();
+
             return RespBody.ok();
 
         } catch (QiniuException ex) {
