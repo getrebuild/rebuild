@@ -130,6 +130,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                     .addAttribute("repeatable", String.valueOf(c[15]))
                     .addAttribute("queryable", String.valueOf(c[16]));
 
+//            if ("TIME".equals(c[4])) c[4] = "TEXT";
             DisplayType dt = DisplayType.valueOf((String) c[4]);
             field.addAttribute("type", dt.getFieldType().getName());
 

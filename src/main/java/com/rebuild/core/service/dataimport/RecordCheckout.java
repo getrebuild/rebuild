@@ -254,7 +254,7 @@ public class RecordCheckout {
 
         // 2017/11/19 11:07
         if (date == null && date2str.contains("/")) {
-            return cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
+            date = cell.asDate(new String[]{"yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d"});
         }
         return date;
     }
