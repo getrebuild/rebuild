@@ -10,7 +10,7 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 /**
  * 验证码助手
@@ -19,6 +19,8 @@ import org.apache.commons.lang.math.RandomUtils;
  * @since 11/05/2018
  */
 public class VerfiyCode {
+
+    private static final String VC_PREFIX = "VCode-";
 
     /**
      * @param key
@@ -42,12 +44,11 @@ public class VerfiyCode {
         } else if (level == 2) {
             vcode = CodecUtils.randomCode(8);
         } else {
-            vcode = RandomUtils.nextInt(999999999) + "888888";
-            vcode = vcode.substring(0, 6);
+            vcode = RandomUtils.nextInt(100000, 999999) + "";
         }
 
         // 缓存 10 分钟
-        Application.getCommonsCache().put("VCode-" + key, vcode, CommonsCache.TS_HOUR / 6);
+        Application.getCommonsCache().put(VC_PREFIX + key, vcode, CommonsCache.TS_HOUR / 6);
         return vcode;
     }
 
@@ -75,7 +76,7 @@ public class VerfiyCode {
             return true;
         }
 
-        final String ckey = "VCode-" + key;
+        final String ckey = VC_PREFIX + key;
         String exists = Application.getCommonsCache().get(ckey);
         if (exists == null) {
             return false;
@@ -97,6 +98,6 @@ public class VerfiyCode {
      * @return
      */
     public static void clean(String key) {
-        Application.getCommonsCache().evict("VCode-" + key);
+        Application.getCommonsCache().evict(VC_PREFIX + key);
     }
 }
