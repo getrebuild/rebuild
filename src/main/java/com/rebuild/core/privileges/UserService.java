@@ -20,6 +20,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
@@ -27,6 +28,8 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
@@ -80,6 +83,10 @@ public class UserService extends BaseService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
+        if (!License.isCommercial() && Application.getUserStore().getAllUsers().length >= 100) {
+            throw new NeedRbvException("用户数量超出免费版限制");
+        }
+
         checkAdminGuard(BizzPermission.CREATE, null);
 
         final String passwd = record.getString("password");
