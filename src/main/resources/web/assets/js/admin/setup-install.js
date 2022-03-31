@@ -103,7 +103,7 @@ class RbWelcome extends React.Component {
   // 开始安装
   _next(type) {
     const commercialTip = (
-      <div className="text-left link">
+      <div className="text-left link" style={{ lineHeight: 2 }}>
         <div dangerouslySetInnerHTML={{ __html: $('.license').html() }} />
         <div dangerouslySetInnerHTML={{ __html: $L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。') }} className="text-bold" />
       </div>
