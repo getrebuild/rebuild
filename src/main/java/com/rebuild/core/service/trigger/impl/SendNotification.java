@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
@@ -35,7 +36,7 @@ import java.util.Set;
 public class SendNotification implements TriggerAction {
 
     // 通知
-    private static final int TYPE_NOTIFICATION = 1;
+//    private static final int TYPE_NOTIFICATION = 1;
     // 邮件
     private static final int TYPE_MAIL = 2;
     // 短信
@@ -59,14 +60,14 @@ public class SendNotification implements TriggerAction {
                 // FIXME 等待事物完成
                 ThreadPool.waitFor(3000);
 
-                executeAsync();
+                executeAsync(operatingContext);
             } catch (Exception ex) {
                 log.error(null, ex);
             }
         });
     }
 
-    private void executeAsync() {
+    private void executeAsync(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) context.getActionContent();
 
         Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), context.getSourceRecord());
@@ -84,7 +85,12 @@ public class SendNotification implements TriggerAction {
         }
 
         String message = content.getString("content");
-        message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
+
+        if (operatingContext.getAction() == BizzPermission.DELETE) {
+            message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord());
+        } else {
+            message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
+        }
 
         String emailSubject = content.getString("title");
         if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");

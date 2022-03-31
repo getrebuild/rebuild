@@ -79,12 +79,10 @@ public class FieldWriteback extends FieldAggregation {
         if (tschain == null) return;
 
         this.prepare(operatingContext);
+        if (targetRecordIds.isEmpty()) return;
 
-        if (targetRecordIds.isEmpty()) {
-            return;
-        }
         if (targetRecordData.getAvailableFields().isEmpty()) {
-            log.warn("No data of target record available");
+            log.info("No data of target record available");
             return;
         }
 
@@ -94,6 +92,12 @@ public class FieldWriteback extends FieldAggregation {
 
         boolean tschainAdded = false;
         for (ID targetRecordId : targetRecordIds) {
+            if (operatingContext.getAction() == BizzPermission.DELETE
+                    && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
+                // 删除时无需更新自己
+                continue;
+            }
+
             if (allowNoPermissionUpdate) {
                 PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
             }
@@ -115,7 +119,7 @@ public class FieldWriteback extends FieldAggregation {
 
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
             try {
-                targetService.createOrUpdate(targetRecord);  // Only create
+                targetService.createOrUpdate(targetRecord);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
@@ -137,7 +141,7 @@ public class FieldWriteback extends FieldAggregation {
         targetRecordIds = new HashSet<>();
 
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
-            // 自己
+            // 自己更新自己
             targetRecordIds.add(context.getSourceRecord());
 
         } else if (isOne2One) {
