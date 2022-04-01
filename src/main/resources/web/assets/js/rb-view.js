@@ -14,7 +14,8 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
 
-    this.onViewEditable = wpc.onViewEditable !== false
+    this.onViewEditable = this.props.onViewEditable
+    if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
     this.__FormData = {}
   }
 
@@ -510,7 +511,7 @@ const RbViewPage = {
     this.__entity = entity
     this.__ep = ep
 
-    renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview', function () {
+    renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
       RbViewPage._RbViewForm = this
     })
 

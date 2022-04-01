@@ -94,21 +94,23 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
     @Override
     public int delete(ID recordId) {
+        final ID currentUser = UserContextHolder.getUser();
+
         Record deleted = null;
         if (countObservers() > 0) {
-            deleted = EntityHelper.forUpdate(recordId, UserContextHolder.getUser());
+            deleted = EntityHelper.forUpdate(recordId, currentUser);
             deleted = record(deleted);
 
             // 删除前触发，做一些状态保持
             setChanged();
-            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), DELETE_BEFORE, deleted, null));
+            notifyObservers(OperatingContext.create(currentUser, DELETE_BEFORE, deleted, null));
         }
 
         int affected = delegateService.delete(recordId);
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.DELETE, deleted, null));
+            notifyObservers(OperatingContext.create(currentUser, BizzPermission.DELETE, deleted, null));
         }
         return affected;
     }
