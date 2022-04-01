@@ -83,7 +83,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-2 pr-0">
                   <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
-                    {Object.keys(FormulaAggregation.CALC_MODES).map((item) => {
+                    {(this.state.calcModes || []).map((item) => {
                       return (
                         <option key={item} value={item}>
                           {FormulaAggregation.CALC_MODES[item]}
@@ -181,30 +181,61 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.__sourceFieldsCache = res.data.source
+      this.__targetFieldsCache = res.data.target
       this.setState({ hadApproval: res.data.hadApproval })
 
-      if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => $(this._$calcMode).trigger('change'))
+      if (this.state.sourceFields) {
+        this.setState({ sourceFields: res.data.source }, () => $(this._$sourceField).trigger('change'))
       } else {
         // init
-        this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
-          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
-          const $s2cm = $(this._$calcMode)
+        this.setState({ sourceFields: res.data.source }, () => {
+          let $s2sf, $s2cm
+
+          $s2sf = $(this._$sourceField)
+            .select2({ placeholder: $L('选择聚合字段') })
+            .on('change', (e) => {
+              let sf = e.target.value
+              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              if (!sf) return
+
+              let cm = Object.keys(FormulaAggregation.CALC_MODES)
+              if (['DATE', 'DATETIME'].includes(sf[2])) {
+                cm = ['MAX', 'MIN', 'COUNT', 'COUNT2'] // in FormulaAggregation.CALC_MODES
+              } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf[2])) {
+                cm = ['COUNT', 'COUNT2'] // in FormulaAggregation.CALC_MODES
+              }
+              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+            })
+
+          $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
-              this.setState({ calcMode: e.target.value })
+              const cm = e.target.value
+              this.setState({ calcMode: cm })
 
-              if (e.target.value === 'COUNT' || e.target.value === 'COUNT2') {
-                this.setState({ sourceFields: this.__sourceFieldsCache })
-              } else {
-                // 仅数字字段
-                const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
-                this.setState({ sourceFields: fs })
+              let sf = $s2sf.val()
+              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              if (!sf) return
+
+              let fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
+              if (['DATE', 'DATETIME'].includes(sf[2]) && !['COUNT', 'COUNT2'].includes(cm)) {
+                fs = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x[2]))
               }
+              this.setState({ targetFields: fs })
             })
+
           const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
 
-          $s2cm.trigger('change')
+          // 优先显示
+          const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
+          if (useNum) {
+            $s2sf.val(useNum[0])
+          } else {
+            const useDate = this.__sourceFieldsCache.find((x) => ['DATE', 'DATETIME'].includes(x[2]))
+            if (useDate) $s2sf.val(useDate[0])
+          }
+
+          $s2sf.trigger('change')
 
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
@@ -262,12 +293,12 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (calc === 'FORMULA') {
       if (!formula) return RbHighbar.create($L('请输入计算公式'))
     } else if (!sf) {
-      return RbHighbar.create($L('请选择源字段'))
+      return RbHighbar.create($L('请选择聚合字段'))
     }
 
     // 目标字段=源字段
     const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-    if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+    if (sf === tfFull) return RbHighbar.create($L('目标字段与聚合字段不能为同一字段'))
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
