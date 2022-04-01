@@ -291,9 +291,15 @@ public class FieldWriteback extends FieldAggregation {
                     for (String fieldName : fieldVars) {
                         String replace = "{" + fieldName + "}";
                         String replaceWhitQuote = "\"" + replace + "\"";
+                        String replaceWhitQuoteSingle = "'" + replace + "'";
+                        boolean forceUseQuote = false;
 
                         if (clearFormual.contains(replaceWhitQuote)) {
                             clearFormual = clearFormual.replace(replaceWhitQuote, fieldName);
+                            forceUseQuote = true;
+                        } else if (clearFormual.contains(replaceWhitQuoteSingle)) {
+                            clearFormual = clearFormual.replace(replaceWhitQuoteSingle, fieldName);
+                            forceUseQuote = true;
                         } else if (clearFormual.contains(replace)) {
                             clearFormual = clearFormual.replace(replace, fieldName);
                         } else {
@@ -313,6 +319,8 @@ public class FieldWriteback extends FieldAggregation {
                             } else {
                                 value = StringUtils.EMPTY;
                             }
+                        } else if (forceUseQuote) {
+                            value = value.toString();
                         }
 
                         envMap.put(fieldName, value);
