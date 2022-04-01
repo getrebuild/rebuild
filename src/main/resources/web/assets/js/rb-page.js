@@ -301,10 +301,12 @@ var _initNavs = function () {
   var navUrl = '/' + urls.slice(3).join('/')
   var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
   if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
+    $('.sidebar-elements li.active:not(.parent)').removeClass('active')
     $navHit.parent().addClass('active')
-    if ($navHit.parents('li.parent').length > 0) {
-      $navHit.parents('li.parent').addClass('active').first().trigger('click')
-      $(document.body).trigger('click')
+    // parent
+    var $parent = $navHit.parents('li.parent:not(.active)')
+    if ($parent.length > 0) {
+      $parent.addClass('active').first().trigger('click')
     }
   }
 }

@@ -48,13 +48,9 @@ public class EasyDateTime extends EasyField {
         }
 
         String dateValue = (String) wrapValue(value);
-        if (dateValue.length() == 4) {  // YYYY
-            dateValue += "01-01 00:00:00";
-        } else if (dateValue.length() == 7) {  // YYYY-MM
-            dateValue += "-01 00:00:00";
-        } else {  // YYYY-MM-DD
-            dateValue += " 00:00:00";
-        }
+        // padding
+        dateValue += "1970-01-01 00:00:00".substring(dateValue.length());
+
         return CalendarUtils.parse(dateValue);
     }
 

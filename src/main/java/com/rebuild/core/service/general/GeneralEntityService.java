@@ -96,7 +96,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         record = super.createOrUpdate(record);
         if (details == null || details.isEmpty()) return record;
 
-        // 明细
+        // 主记录+明细记录处理
+
         String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
         ID mainid = record.getPrimary();
 
