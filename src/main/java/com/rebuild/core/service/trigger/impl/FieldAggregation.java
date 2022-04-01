@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -108,17 +109,7 @@ public class FieldAggregation implements TriggerAction {
             log.info("Occured trigger-chain : {} > {} (current)",
                     StringUtils.join(tschain, " > "), triggerCurrent);
 
-//            // 同一触发器不能连续触发（源实体与目标实体相同时）
-//            ID lastTrigger = tschain.get(tschain.size() - 1);
-//            if (triggerCurrent.equals(lastTrigger)) {
-//                return null;
-//            }
-//            // 循环调用（如 A > B > A）
-//            if (tschain.contains(triggerCurrent)) {
-//                return null;
-//            }
-
-            // 在整个触发链上只触发一次
+            // 在整个触发链上只触发一次，避免循环调用
             if (tschain.contains(triggerCurrent)) {
                 return null;
             }
@@ -179,6 +170,10 @@ public class FieldAggregation implements TriggerAction {
                 targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
             } else if (dt == DisplayType.DECIMAL) {
                 targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
+            } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                targetRecord.setDate(targetField, (Date) evalValue);
+            } else {
+                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
             }
         }
 

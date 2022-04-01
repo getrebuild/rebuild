@@ -48,7 +48,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                       <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.state.targetFields)}</span>
+                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.__targetFieldsCache)}</span>
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
@@ -204,6 +204,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf[2])) {
                 cm = ['COUNT', 'COUNT2'] // in FormulaAggregation.CALC_MODES
               }
+
               this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
             })
 
@@ -221,6 +222,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               if (['DATE', 'DATETIME'].includes(sf[2]) && !['COUNT', 'COUNT2'].includes(cm)) {
                 fs = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x[2]))
               }
+
               this.setState({ targetFields: fs })
             })
 
