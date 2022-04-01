@@ -10,6 +10,7 @@ package com.rebuild.web.user;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -117,7 +118,7 @@ public class UserAvatar extends BaseController {
 
     @RequestMapping("/user-avatar-update")
     @ResponseBody
-    public String avatarUpdate(HttpServletRequest request) throws IOException {
+    public RespBody avatarUpdate(HttpServletRequest request) throws IOException {
         final ID user = getRequestUser(request);
         String avatarRaw = getParameterNotNull(request, "avatar");
         String xywh = getParameterNotNull(request, "xywh");
@@ -130,7 +131,7 @@ public class UserAvatar extends BaseController {
         Application.getBean(UserService.class).update(record);
 
         ServletUtils.setSessionAttribute(request, "davatarTime", System.currentTimeMillis());
-        return uploadName;
+        return RespBody.ok(uploadName);
     }
 
     /**

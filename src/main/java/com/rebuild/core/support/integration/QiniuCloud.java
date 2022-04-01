@@ -64,13 +64,7 @@ public class QiniuCloud {
     private String bucketName;
 
     private QiniuCloud() {
-        String[] account = RebuildConfiguration.getStorageAccount();
-        if (account != null) {
-            this.auth = Auth.create(account[0], account[1]);
-            this.bucketName = account[2];
-        } else {
-            log.warn("No QiniuCloud configuration! Using local storage.");
-        }
+        initAuth();
     }
 
     /**
@@ -80,6 +74,18 @@ public class QiniuCloud {
      */
     public boolean available() {
         return this.auth != null;
+    }
+
+    /**
+     */
+    public void initAuth() {
+        String[] account = RebuildConfiguration.getStorageAccount();
+        if (account != null) {
+            this.auth = Auth.create(account[0], account[1]);
+            this.bucketName = account[2];
+        } else {
+            log.warn("No QiniuCloud configuration! Using local storage.");
+        }
     }
 
     /**

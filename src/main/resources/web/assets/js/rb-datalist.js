@@ -24,7 +24,7 @@ class RbList extends React.Component {
     this.__sortFieldKey = `SortField-${props.config.entity}`
     this.__columnWidthKey = `ColumnWidth-${props.config.entity}.`
 
-    const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
+    const sort = ($storage.get(this.__sortFieldKey) || props.config.sort || ':').split(':')
     const fields = props.config.fields || []
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)

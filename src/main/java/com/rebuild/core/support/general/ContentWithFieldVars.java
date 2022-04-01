@@ -35,16 +35,17 @@ public class ContentWithFieldVars {
      * 替换文本中的字段变量
      *
      * @param content
-     * @param record
+     * @param recordId
      * @return
+     * @see #replaceWithRecord(String, Record)
      */
-    public static String replaceWithRecord(String content, ID record) {
-        if (StringUtils.isBlank(content) || record == null) {
+    public static String replaceWithRecord(String content, ID recordId) {
+        if (StringUtils.isBlank(content) || recordId == null) {
             return content;
         }
 
-        Entity entity = MetadataHelper.getEntity(record.getEntityCode());
-        // 主键
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        // 主键占位符
         content = content.replace("{ID}", String.format("{%s}", entity.getPrimaryField().getName()));
 
         Map<String, String> fieldVars = new HashMap<>();
@@ -53,28 +54,55 @@ public class ContentWithFieldVars {
                 fieldVars.put(field, null);
             }
         }
-
         if (fieldVars.isEmpty()) return content;
 
         String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fieldVars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, record).record();
-        if (o != null) {
-            for (String field : fieldVars.keySet()) {
-                Object value = o.getObjectValue(field);
-                value = FieldValueHelper.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
-                if (value != null) {
-                    fieldVars.put(field, value.toString());
-                }
+                StringUtils.join(fieldVars.keySet(), ","),
+                entity.getName(), entity.getPrimaryField().getName());
+        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+
+        return replaceWithRecord(content, o);
+    }
+
+    /**
+     * 替换文本中的字段变量
+     *
+     * @param content
+     * @param record
+     * @return
+     */
+    public static String replaceWithRecord(String content, Record record) {
+        if (StringUtils.isBlank(content) || record == null) {
+            return content;
+        }
+
+        // 主键占位符
+        content = content.replace("{ID}",
+                String.format("{%s}", record.getEntity().getPrimaryField().getName()));
+
+        Map<String, String> fieldVars = new HashMap<>();
+        for (String field : matchsVars(content)) {
+            if (MetadataHelper.getLastJoinField(record.getEntity(), field) != null) {
+                fieldVars.put(field, null);
+            }
+        }
+        if (fieldVars.isEmpty()) return content;
+
+        for (String field : fieldVars.keySet()) {
+            Object value = record.getObjectValue(field);
+            value = FieldValueHelper.wrapFieldValue(value,
+                    MetadataHelper.getLastJoinField(record.getEntity(), field), true);
+            if (value != null) {
+                fieldVars.put(field, value.toString());
             }
         }
 
         for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-            content = content.replace("{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
+            content = content.replace("{" + e.getKey() + "}",
+                    StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
         }
         return content;
     }
-
 
     /**
      * 提取内容中的变量 {xxx}
