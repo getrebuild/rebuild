@@ -123,15 +123,18 @@ public class AggregationEvaluator {
 
             String replace = "{" + StringUtils.join(field, MetadataHelper.SPLITER) + "}";
             String replaceWhitQuote = "\"" + replace + "\"";
+            String replaceWhitQuoteSingle = "'" + replace + "'";
 
             if (clearFormual.contains(replaceWhitQuote)) {
                 clearFormual = clearFormual.replace(replaceWhitQuote, fieldKey);
+            } else if (clearFormual.contains(replaceWhitQuoteSingle)) {
+                clearFormual = clearFormual.replace(replaceWhitQuoteSingle, fieldKey);
             } else if (clearFormual.contains(replace)) {
                 clearFormual = clearFormual.replace(replace, fieldKey);
             } else {
                 continue;
             }
-
+            
             Object value = useSourceData[i] == null ? 0 : useSourceData[i];
             envMap.put(fieldKey, value);
         }
