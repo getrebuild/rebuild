@@ -408,7 +408,7 @@ public class PrivilegesManager {
      * @see RoleBaseQueryFilter#buildCustomFilter(Privileges)
      */
     private boolean andPassCustomFilter(ID user, ID target, Permission action, Privileges ep) {
-        if (!ep.getClass().isAssignableFrom(CustomEntityPrivileges.class)) return true;
+        if (!(ep instanceof CustomEntityPrivileges)) return true;
         if (((CustomEntityPrivileges) ep).getCustomFilter(action) == null) return true;
 
         // TODO 性能优化

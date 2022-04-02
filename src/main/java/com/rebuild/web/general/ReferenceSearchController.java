@@ -73,21 +73,32 @@ public class ReferenceSearchController extends EntityController {
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
-        // 启用数据过滤后最近搜索将不可用
         String protocolFilter = new ProtocolFilterParser(null)
                 .parseRef(field + "." + entity.getName(), request.getParameter("cascadingValue"));
 
         String q = getParameter(request, "q");
-        // 为空则加载最近使用的
-        // 强制返回结果 H5
-        if (StringUtils.isBlank(q) && !getBoolParameter(request, "forceResults")) {
-            if (protocolFilter != null) return JSONUtils.EMPTY_ARRAY;
 
-            String type = getParameter(request, "type");
-            ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
+        // 强制搜索 H5
+        boolean forceResults = getBoolParameter(request, "forceResults");
+        boolean forceSearchs = getBoolParameter(request, "forceSearchs");
+
+        // 为空则加载最近使用的
+        if (StringUtils.isBlank(q) && !forceSearchs) {
+            ID[] recently = null;
+
+            // 启用数据过滤后最近搜索将不可用
+            if (protocolFilter != null) {
+                if (forceResults) recently = new ID[0];
+                else return JSONUtils.EMPTY_ARRAY;
+            }
+
+            if (recently == null) {
+                String type = getParameter(request, "type");
+                recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
+            }
 
             if (recently == null || recently.length == 0) {
-                return JSONUtils.EMPTY_ARRAY;
+                if (!forceResults) return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
             }
