@@ -7,7 +7,7 @@
 
 ## 项目特色
 
-REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建，无需编程、无需编译代码，甚至无需了解技术。
+REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。REBUILD 侧重于业务需求实现，而非基础的技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建，无需编程、无需编译代码，甚至无需了解技术。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
@@ -20,9 +20,9 @@ REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。
 1. [新增] 签名字段
 2. [新增] 字段正则表达式/格式验证/数据脱敏
 3. [新增] 支持明细记录共同编辑
-4. [新增] 安全使用，可配置系统使用时间/使用IP
+4. [新增] 安全使用，可配置系统使用时间/使用 IP
 5. [优化] 多项触发器增强
-6. [修复] 安全补丁/BUG修复
+6. [修复] 安全补丁/BUG 修复
 7. ...
 
 更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.8)
@@ -49,7 +49,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 #### 2. 通过源码编译
 
-_注意 !!! 生产环境请使用 `master` 分支（即默认分支），其他分支为开发分支，功能存在不确定性！_
+_注意 !!! 生产环境请使用 `master` 分支（默认分支），其他分支为开发分支，功能存在不确定性！_
 
 ```
 # 拉取
@@ -83,9 +83,9 @@ RB 中有几个非常重要地启动参数需要了解，无论是开发还是�
 
 ## 授权 License
 
-REBUILD 使用开源 [GPL-3.0](LICENSE) 和 [商业授权](COMMERCIAL) 双重许可授权。
+REBUILD 使用 GPL-3.0 开源许可和商业授权双重授权协议，使用将被视为你自愿承诺接受 [协议](https://getrebuild.com/legal/service-terms) 之所有条款。
 
-REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) dual-licensing authorizations.
+REBUILD uses the GPL-3.0 open source license and commercial license dual license agreement. Use will be deemed your voluntary commitment to accept all terms of the [Agreement](https://getrebuild.com/legal/service-terms).
 
 ## 购买商业版
 
