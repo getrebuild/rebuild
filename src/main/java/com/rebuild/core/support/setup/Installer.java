@@ -124,7 +124,10 @@ public class Installer implements InstallState {
 
         // 安装模块
         try {
-            this.installModel();
+            String[] created = this.installModel();
+
+            // 初始化菜单
+            NavBuilder.instance.addInitNavOnInstall(created);
         } catch (Exception ex) {
             log.error("Error installing business module", ex);
         }
@@ -342,12 +345,14 @@ public class Installer implements InstallState {
     }
 
     /**
-     * 安装实体
+     * 安装初始实体
+     *
+     * @return
      */
-    protected void installModel() {
+    protected String[] installModel() {
         JSONArray modelProps = installProps.getJSONArray("modelProps");
         if (modelProps == null || modelProps.isEmpty()) {
-            return;
+            return new String[0];
         }
 
         BusinessModelImporter bmi = new BusinessModelImporter();
@@ -361,8 +366,7 @@ public class Installer implements InstallState {
         bmi.setUser(UserService.SYSTEM_USER);
         TaskExecutors.run(bmi);
 
-        // 初始化菜单
-        NavBuilder.instance.addInitNavOnInstall(bmi.getCreatedEntity().toArray(new String[0]));
+        return bmi.getCreatedEntity().toArray(new String[0]);
     }
 
     /**
