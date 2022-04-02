@@ -648,6 +648,7 @@ class RbFormElement extends React.Component {
     this.handleChange({ target: { value: val } }, true)
   }
   // Getter
+  // @return string or object
   getValue() {
     return this.state.value
   }
@@ -1374,13 +1375,14 @@ class RbFormReference extends RbFormElement {
     }
     if (!cascadingField) return null
 
+    let v
     if (this.props.onView) {
-      const v = (this.props.$$$parent.__ViewData || {})[cascadingField]
-      return v ? v.id : null
+      v = (this.props.$$$parent.__ViewData || {})[cascadingField]
     } else {
       const fieldComp = this.props.$$$parent.refs[`fieldcomp-${cascadingField}`]
-      return fieldComp ? fieldComp.getValue() : null
+      v = fieldComp ? fieldComp.getValue() : null
     }
+    return v ? v.id || v : null
   }
 
   // 字段回填

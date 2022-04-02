@@ -212,7 +212,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      */
     private String buildCustomFilter(Privileges ep) {
         if (user == null || useAction == null
-                || !ep.getClass().isAssignableFrom(CustomEntityPrivileges.class)) return null;
+                || !(ep instanceof CustomEntityPrivileges)) return null;
 
         JSONObject hasFilter = ((CustomEntityPrivileges) ep).getCustomFilter(useAction);
         if (hasFilter == null) return null;
