@@ -125,9 +125,9 @@ public class Installer implements InstallState {
         // 安装模块
         try {
             String[] created = this.installModel();
-
+            
             // 初始化菜单
-            NavBuilder.instance.addInitNavOnInstall(created);
+            if (created.length > 0) NavBuilder.instance.addInitNavOnInstall(created);
         } catch (Exception ex) {
             log.error("Error installing business module", ex);
         }
