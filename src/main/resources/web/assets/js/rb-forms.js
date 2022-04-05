@@ -779,13 +779,15 @@ class RbFormNumber extends RbFormText {
 
       this.calcFormula__values = {}
       // 初始值
-      watchFields.forEach((item) => {
-        const name = item.substr(1, item.length - 2)
-        const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
-        if (fieldComp && fieldComp.state.value) {
-          this.calcFormula__values[name] = fieldComp.state.value
-        }
-      })
+      setTimeout(() => {
+        watchFields.forEach((item) => {
+          const name = item.substr(1, item.length - 2)
+          const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
+          if (fieldComp && fieldComp.state.value) {
+            this.calcFormula__values[name] = this._removeComma(fieldComp.state.value)
+          }
+        })
+      }, 400)
 
       // 小数位
       const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
@@ -793,13 +795,22 @@ class RbFormNumber extends RbFormText {
       // 表单计算
       this.props.$$$parent.onFieldValueChange((s) => {
         if (!watchFields.includes(`{${s.name}}`)) return
-        this.calcFormula__values[s.name] = s.value
+
+        if (s.value) {
+          this.calcFormula__values[s.name] = this._removeComma(s.value)
+        } else {
+          delete this.calcFormula__values[s.name]
+        }
 
         let formula = calcFormula
         for (let key in this.calcFormula__values) {
           formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
         }
-        if (formula.includes('{')) return
+
+        if (formula.includes('{')) {
+          this.setValue(null)
+          return
+        }
 
         try {
           let calcv = null
