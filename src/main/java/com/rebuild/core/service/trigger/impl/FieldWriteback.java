@@ -82,7 +82,7 @@ public class FieldWriteback extends FieldAggregation {
         if (targetRecordIds.isEmpty()) return;
 
         if (targetRecordData.getAvailableFields().isEmpty()) {
-            log.info("No data of target record available");
+            log.info("No data of target record available : {}", targetRecordId);
             return;
         }
 

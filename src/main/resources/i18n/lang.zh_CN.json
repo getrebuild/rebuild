@@ -264,7 +264,7 @@
 	"SMTP 服务器地址":"SMTP 服务器地址",
 	"SMTP 服务器地址不能为空":"SMTP 服务器地址不能为空",
 	"SMTP 用户名":"SMTP 用户名",
-	"[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。":"[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。",
+	"[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。":"[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。",
 	"[REBUILD](https://getrebuild.com/) 强力驱动":"[REBUILD](https://getrebuild.com/) 强力驱动",
 	"[无效字段]":"[无效字段]",
 	"[无权限]":"[无权限]",

@@ -34,11 +34,11 @@ public class HttpUtils {
 
     private static OkHttpClient okHttpClient = null;
 
-    private static final String RB_UA = String.format("RB/%s (%s/%s)",
+    public static final String RB_UA = String.format("RB/%s (%s/%s)",
             Application.VER, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
 
     private static final Locale l = Locale.getDefault();
-    private static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
+    public static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
 
     private static String RB_CI;
 

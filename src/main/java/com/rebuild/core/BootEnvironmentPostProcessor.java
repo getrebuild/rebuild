@@ -171,7 +171,8 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)
                 || ConfigurationItem.RedisDatabase.name().equalsIgnoreCase(name)
                 || ConfigurationItem.MobileUrl.name().equalsIgnoreCase(name)
-                || ConfigurationItem.RbStoreUrl.name().equalsIgnoreCase(name)) {
+                || ConfigurationItem.RbStoreUrl.name().equalsIgnoreCase(name)
+                || ConfigurationItem.SN.name().equalsIgnoreCase(name)) {
             value = StringUtils.defaultIfBlank(System.getProperty(name), System.getProperty(V2_PREFIX + name));
 
         } else if (ENV_HOLD != null) {
