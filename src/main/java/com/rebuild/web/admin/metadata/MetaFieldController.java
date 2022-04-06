@@ -199,7 +199,7 @@ public class MetaFieldController extends BaseController {
         Entity referenceEntity = refField.getReferenceEntity();
 
         List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
-//        // 有主实体
+//        // TODO 父级级联-有主实体
 //        if (currentEntity.getMainEntity() != null) {
 //            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
 //        }
