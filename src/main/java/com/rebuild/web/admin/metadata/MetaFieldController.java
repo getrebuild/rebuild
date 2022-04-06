@@ -198,26 +198,45 @@ public class MetaFieldController extends BaseController {
         Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
         Entity referenceEntity = refField.getReferenceEntity();
 
-        // 找到共同的引用字段
-        Field[] currentEntityFields = MetadataSorter.sortFields(currentEntity, DisplayType.REFERENCE);
+        List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
+//        // 有主实体
+//        if (currentEntity.getMainEntity() != null) {
+//            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+//        }
+
+        return RespBody.ok(list);
+    }
+
+    // 获取共同引用字段
+    private List<JSONObject> getCoReferenceFields(Entity entity, Entity referenceEntity, boolean fromDetail) {
+        Field[] entityFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
         Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE);
 
-        List<JSONObject> together = new ArrayList<>();
-        for (Field foo : currentEntityFields) {
+        List<JSONObject> co = new ArrayList<>();
+        for (Field foo : entityFields) {
             if (MetadataHelper.isCommonsField(foo)) continue;
 
             Entity fooEntity = foo.getReferenceEntity();
             for (Field bar : referenceEntityFields) {
+                if (MetadataHelper.isCommonsField(bar)) continue;
+
                 if (fooEntity.equals(bar.getReferenceEntity())) {
                     // 当前实体字段$$$$引用实体字段
                     String name = foo.getName() + MetadataHelper.SPLITER + bar.getName();
-                    String label = String.format("%s (%s)", EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
-                    together.add(JSONUtils.toJSONObject(
+                    String label = String.format("%s (%s)",
+                            EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
+
+                    // TODO 明细可级联父级
+                    if (fromDetail) {
+                        label = EasyMetaFactory.getLabel(entity) + "." + label;
+                        name = entity.getName() + "." + name;
+                    }
+
+                    co.add(JSONUtils.toJSONObject(
                             new String[] { "name", "label" }, new String[] { name, label } ));
                 }
             }
         }
-
-        return RespBody.ok(together);
+        return co;
     }
 }

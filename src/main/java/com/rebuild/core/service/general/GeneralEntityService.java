@@ -489,6 +489,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
             }
         }
+
+        // TODO 父级级联字段校验
+        // 视图页也要控制级联
+        if (action == BizzPermission.CREATE || action == BizzPermission.UPDATE) {
+        }
+
         return true;
     }
 

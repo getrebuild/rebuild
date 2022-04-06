@@ -645,8 +645,8 @@ class RbFormElement extends React.Component {
   }
 
   // Setter
-  setValue(val) {
-    this.handleChange({ target: { value: val } }, true)
+  setValue(val, checkValue) {
+    this.handleChange({ target: { value: val } }, checkValue === false ? false : true)
   }
   // Getter
   // @return string or object
@@ -778,6 +778,7 @@ class RbFormNumber extends RbFormText {
       const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
 
       this.calcFormula__values = {}
+
       // 初始值
       setTimeout(() => {
         watchFields.forEach((item) => {
@@ -795,7 +796,7 @@ class RbFormNumber extends RbFormText {
       // 表单计算
       this.props.$$$parent.onFieldValueChange((s) => {
         if (!watchFields.includes(`{${s.name}}`)) return
-
+        debugger
         if (s.value) {
           this.calcFormula__values[s.name] = this._removeComma(s.value)
         } else {
@@ -808,7 +809,7 @@ class RbFormNumber extends RbFormText {
         }
 
         if (formula.includes('{')) {
-          this.setValue(null)
+          this.setValue(null, false)
           return
         }
 

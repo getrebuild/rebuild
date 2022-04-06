@@ -4716,3 +4716,12 @@ pre.unstyle {
   flex: 0 0 66.666667%;
   max-width: 66.666667%;
 }
+
+.dropdown-menu.entity-switch {
+  min-width: 220px;
+}
+
+.dropdown-menu.entity-switch .dropdown-item.current,
+.dropdown-menu.entity-switch .dropdown-item.current .icon {
+  color: #4285f4;
+}
