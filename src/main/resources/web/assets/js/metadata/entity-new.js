@@ -30,8 +30,6 @@ $(document).ready(function () {
   })
 
   const $copy = $('.btn-primary.copy').on('click', () => {
-    if (rb.commercial < 1) return
-
     const sourceEntity = $val('#copySourceEntity')
     if (!sourceEntity) RbHighbar.create($L('请选择从哪个实体复制'))
 
