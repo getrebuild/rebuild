@@ -23,6 +23,7 @@ import java.util.Map;
  * @since 2021/11/15
  */
 public class CustomEntityPrivileges extends EntityPrivileges {
+    private static final long serialVersionUID = 2658045031880710476L;
 
     private Map<String, JSON> customAdvFilters = new HashMap<>();
 
