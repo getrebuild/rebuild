@@ -112,7 +112,6 @@ public class AutoFillinController extends BaseController {
             String targetField = (String) o[2];
             if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
                     || !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                Application.getBean(AutoFillinConfigService.class).delete((ID) o[0]);
                 continue;
             }
 
