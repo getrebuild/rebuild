@@ -196,7 +196,7 @@ button[disabled] {
 .badge.text-id {
   font-weight: normal;
   color: #777;
-  font-size: 12px;
+  font-size: 12px !important;
   text-transform: uppercase;
   line-height: 1.2 !important;
 }

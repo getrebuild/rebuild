@@ -45,7 +45,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
                   <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
-                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
+                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”')}
                 </div>
               )}
             </div>
@@ -155,6 +155,15 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
                 </span>
               </label>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$forceUpdate = c)} />
+                  <span className="custom-control-label">
+                    {$L('允许强制更新')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('强制更新只读记录')} />
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </form>
@@ -183,6 +192,7 @@ class ContentFieldWriteback extends ActionContentSpec {
 
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
     }
   }
 
@@ -290,6 +300,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       targetEntity: $(this._$targetEntity).val(),
       items: this.state.items,
       readonlyFields: $(this._$readonlyFields).prop('checked'),
+      forceUpdate: $(this._$forceUpdate).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))

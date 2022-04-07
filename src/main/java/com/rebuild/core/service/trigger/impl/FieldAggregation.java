@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -54,8 +55,6 @@ public class FieldAggregation implements TriggerAction {
 
     final protected ActionContext context;
 
-    // 允许无权限更新
-    final protected boolean allowNoPermissionUpdate;
     // 最大触发链深度
     final protected int maxTriggerDepth;
     // 此触发器可能产生连锁反应
@@ -76,17 +75,15 @@ public class FieldAggregation implements TriggerAction {
      * @param context
      */
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.TRUE, 9);
+        this(context, 9);
     }
 
     /**
      * @param context
-     * @param allowNoPermissionUpdate
      * @param maxTriggerDepth
      */
-    protected FieldAggregation(ActionContext context, boolean allowNoPermissionUpdate, int maxTriggerDepth) {
+    protected FieldAggregation(ActionContext context, int maxTriggerDepth) {
         this.context = context;
-        this.allowNoPermissionUpdate = allowNoPermissionUpdate;
         this.maxTriggerDepth = maxTriggerDepth;
     }
 
@@ -133,13 +130,6 @@ public class FieldAggregation implements TriggerAction {
             return;
         }
 
-        // 如果当前用户对目标记录无修改权限
-        if (!allowNoPermissionUpdate
-                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
-            log.warn("No permission to update record of target : {}", targetRecordId);
-            return;
-        }
-
         // 聚合数据过滤
         JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
@@ -149,6 +139,7 @@ public class FieldAggregation implements TriggerAction {
 
         // 构建目标记录数据
         Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
+
         JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
@@ -178,9 +169,14 @@ public class FieldAggregation implements TriggerAction {
         }
 
         // 有需要才执行
-        if (targetRecord.getAvailableFields().size() > 1) {
-            if (allowNoPermissionUpdate) {
-                PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+        if (!targetRecord.isEmpty()) {
+            final boolean forceUpdate = ((JSONObject) context.getActionContent()).getBooleanValue("forceUpdate");
+
+            // 跳过权限
+            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+            // 强制更新 (v2.9)
+            if (forceUpdate) {
+                GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
 
             // 会关联触发下一触发器（如有）
@@ -191,10 +187,12 @@ public class FieldAggregation implements TriggerAction {
                     ? Application.getEntityService(targetEntity.getEntityCode())
                     : Application.getService(targetEntity.getEntityCode());
 
+            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
             try {
                 useService.update(targetRecord);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
     }
