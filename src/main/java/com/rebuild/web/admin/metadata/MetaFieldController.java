@@ -199,7 +199,7 @@ public class MetaFieldController extends BaseController {
         Entity referenceEntity = refField.getReferenceEntity();
 
         List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
-//        // TODO 父级级联-有主实体
+//        // TODO 开放明细实体关联主实体父级级联
 //        if (currentEntity.getMainEntity() != null) {
 //            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
 //        }
@@ -226,7 +226,6 @@ public class MetaFieldController extends BaseController {
                     String label = String.format("%s (%s)",
                             EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
 
-                    // TODO 明细可级联父级
                     if (fromDetail) {
                         label = EasyMetaFactory.getLabel(entity) + "." + label;
                         name = entity.getName() + "." + name;

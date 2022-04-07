@@ -1416,7 +1416,8 @@ class RbFormReference extends RbFormElement {
 
   componentWillUnmount() {
     super.componentWillUnmount()
-    if (this._ReferenceSearcher) {
+
+    if (this._ReferenceSearcher && !this._hasCascadingField) {
       this._ReferenceSearcher.destroy()
       this._ReferenceSearcher = null
     }

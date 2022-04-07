@@ -193,6 +193,7 @@ class ReferenceSearcher extends RbModal {
 
   destroy() {
     this.setState({ destroy: true })
+    window.referenceSearch__dlg = null
   }
 }
 
