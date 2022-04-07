@@ -422,9 +422,8 @@ a.btn {
 }
 
 .input-search input + .btn-input-clear::before {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 1.308rem;
-  content: '\f135';
   content: '\f136';
 }
 
@@ -947,7 +946,7 @@ select.form-control:not([disabled]) {
 
 .type-N2NREFERENCE .select2-container--default .select2-selection--multiple::after {
   content: '\f2f9';
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 35px;
@@ -1010,7 +1009,6 @@ select.form-control:not([disabled]) {
 .img-field .img-upload[disabled] .zmdi {
   opacity: 1 !important;
   color: #dbdbdb !important;
-  cursor: default !important;
   cursor: not-allowed !important;
 }
 
@@ -1093,6 +1091,15 @@ select.form-control:not([disabled]) {
   width: auto;
   display: inline-block;
   cursor: default;
+}
+
+.img-field.barcode .img-thumbnail.w-auto {
+  width: auto;
+  height: auto;
+}
+
+.img-field.barcode .img-thumbnail.w-auto > img {
+  width: auto;
 }
 
 .file-field .file-select label.btn-secondary {
@@ -1594,7 +1601,7 @@ th.column-fixed {
   transform: translateX(100%);
   box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.3s;
-  width: 20px;
+  /*width: 20px;*/
   /* fix: Safari */
   width: 24px;
 }
@@ -4336,7 +4343,7 @@ html.external-auth .auth-body.must-center .login {
 
 .user-popup .infos p.phone,
 .user-popup .infos p.email {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
 }
 
 .user-popup .infos p.phone::after,
@@ -4400,7 +4407,7 @@ pre.unstyle {
 }
 
 .dropdown-item.check::after {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f26b';
   float: right;
   font-size: 1.2rem;
@@ -4476,7 +4483,7 @@ pre.unstyle {
 }
 
 .sign-pad-canvas .pen-colors > a.active::after {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f26b';
   font-size: 1.3rem;
 }
