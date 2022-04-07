@@ -23,7 +23,6 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
  */
-@Slf4j
 @Controller
 @RequestMapping("/admin/entity/{entity}/field/")
 public class AutoFillinController extends BaseController {
