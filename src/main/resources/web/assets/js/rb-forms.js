@@ -347,9 +347,9 @@ class RbForm extends React.Component {
   }
 
   // 避免无意义更新
-  setFieldUnchanged(field) {
+  setFieldUnchanged(field, originValue) {
     delete this.__FormData[field]
-    if (this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field }))
+    if (this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: originValue }))
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
@@ -573,7 +573,7 @@ class RbFormElement extends React.Component {
 
     if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
-      else this.props.$$$parent.setFieldUnchanged(this.props.field)
+      else this.props.$$$parent.setFieldUnchanged(this.props.field, this.state.value)
     } else {
       this.setState({ hasError: err })
       this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)

@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
  */
+@Slf4j
 @Controller
 @RequestMapping("/admin/entity/{entity}/field/")
 public class AutoFillinController extends BaseController {
@@ -112,6 +114,9 @@ public class AutoFillinController extends BaseController {
             String targetField = (String) o[2];
             if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
                     || !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
+                // 字段已删除
+                log.warn("Auto delete auto-fill when fields not exists : {}", o[0]);
+                Application.getBean(AutoFillinConfigService.class).delete((ID) o[0]);
                 continue;
             }
 
