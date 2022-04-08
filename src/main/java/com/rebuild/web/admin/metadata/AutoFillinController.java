@@ -110,16 +110,19 @@ public class AutoFillinController extends BaseController {
         for (Object[] o : array) {
             String sourceField = (String) o[1];
             String targetField = (String) o[2];
-            if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
-                    || !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                continue;
-            }
+
+            String sourceFieldLabel = sourceEntity.containsField(sourceField)
+                    ? EasyMetaFactory.getLabel(sourceEntity.getField(sourceField))
+                    : String.format("[%s]", sourceField.toUpperCase());
+            String targetFieldLabel = targetEntity.containsField(targetField)
+                    ? EasyMetaFactory.getLabel(targetEntity.getField(targetField))
+                    : String.format("[%s]", targetField.toUpperCase());
 
             JSON rule = JSONUtils.toJSONObject(
                     new String[]{ "id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig" },
                     new Object[]{ o[0],
-                            sourceField, EasyMetaFactory.getLabel(sourceEntity.getField(sourceField)),
-                            targetField, EasyMetaFactory.getLabel(targetEntity.getField(targetField)),
+                            sourceField, sourceFieldLabel,
+                            targetField, targetFieldLabel,
                             JSON.parse((String) o[3])});
             rules.add(rule);
         }
