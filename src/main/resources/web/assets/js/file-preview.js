@@ -95,7 +95,8 @@ class RbPreview extends React.Component {
             onLoad={() => this.setState({ imgRendered: true })}
             onError={() => {
               RbHighbar.error($L('无法读取图片'))
-              this.hide()
+              // this.hide()
+              // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
             }}
           />
         </div>
@@ -181,8 +182,9 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
+      const ispdf = fileName.toLowerCase().endsWith('.pdf')
       const setPreviewUrl = function (url) {
-        const previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        const previewUrl = ispdf ? url : (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
