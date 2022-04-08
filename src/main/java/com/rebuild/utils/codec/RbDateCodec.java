@@ -32,7 +32,7 @@ public class RbDateCodec extends DateCodec {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
             throws IOException {
         SerializeWriter out = serializer.out;
-        if (object == null || NullValue.is(object)) {
+        if (NullValue.isNull(object)) {
             out.writeNull();
             return;
         }

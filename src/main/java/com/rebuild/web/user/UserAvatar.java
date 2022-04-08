@@ -88,6 +88,13 @@ public class UserAvatar extends BaseController {
         ServletUtils.addCacheHead(response, 30);
 
         String avatarUrl = realUser.getAvatarUrl();
+
+        // 外部地址
+        if (avatarUrl != null && (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"))) {
+            response.sendRedirect(avatarUrl);
+            return;
+        }
+
         avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
         if (avatarUrl != null) {
             int w = getIntParameter(request, "w", 100);

@@ -85,11 +85,9 @@ public class ApprovalController extends BaseController {
             }
 
             // 审批中提交人可撤回
-            if (stateVal == ApprovalState.PROCESSING.getState()) {
-                ID submitter = ApprovalHelper.getSubmitter(recordId);
-                if (user.equals(submitter)) {
-                    data.put("canCancel", true);
-                }
+            if (stateVal == ApprovalState.PROCESSING.getState()
+                    && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+                data.put("canCancel", true);
             }
         }
 
@@ -122,6 +120,12 @@ public class ApprovalController extends BaseController {
         data.put("isLastStep", nextNodes.isLastStep());
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
+
+//        // 审批中提交人可撤回
+//        if (ApprovalHelper.getApprovalState(recordId) == ApprovalState.PROCESSING
+//                && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+//            data.put("canCancel", true);
+//        }
 
         // 可修改字段
         JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();

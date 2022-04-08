@@ -484,7 +484,7 @@ public class FormsBuilder extends FormsManager {
         }
 
         // 处理日期格式
-        if (field.getDisplayType() == DisplayType.REFERENCE && value != null && ((ID) value).getLabelRaw() != null) {
+        if (field.getDisplayType() == DisplayType.REFERENCE && value instanceof ID && ((ID) value).getLabelRaw() != null) {
             Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
             if (nameField.getType() == FieldType.DATE || nameField.getType() == FieldType.TIMESTAMP) {
                 Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(((ID) value).getLabelRaw());

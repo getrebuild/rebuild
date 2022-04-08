@@ -313,11 +313,12 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
+    // 新纪录初始值
     if (this.isNew) {
       this.props.children.map((child) => {
         const val = child.props.value
         if (val && child.props.readonly !== true) {
-          // 复合型值 {id:xxx, text:xxx}
+          // {id:xxx, text:xxx}
           this.setFieldValue(child.props.field, typeof val === 'object' ? val.id : val)
         }
       })
@@ -340,16 +341,16 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error && this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
+    if (!error) this._onFieldValueChangeCall(field, value)
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
   }
 
   // 避免无意义更新
-  setFieldUnchanged(field) {
+  setFieldUnchanged(field, originValue) {
     delete this.__FormData[field]
-    if (this._onFieldValueChange_calls) this._onFieldValueChange_calls.forEach((c) => c({ name: field }))
+    this._onFieldValueChangeCall(field, originValue)
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
@@ -360,6 +361,11 @@ class RbForm extends React.Component {
     const c = this._onFieldValueChange_calls || []
     c.push(call)
     this._onFieldValueChange_calls = c
+  }
+  _onFieldValueChangeCall(field, value) {
+    if (this._onFieldValueChange_calls) {
+      this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
+    }
   }
 
   // 保存并添加明细
@@ -529,8 +535,8 @@ class RbFormElement extends React.Component {
         title={this.state.hasError}
         type="text"
         value={value || ''}
-        onChange={(e) => this.handleChange(e)}
-        onBlur={this.props.readonly ? null : () => this.checkValue()}
+        onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+        // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
         maxLength={this.props.maxLength || 200}
       />
@@ -574,7 +580,7 @@ class RbFormElement extends React.Component {
 
     if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
-      else this.props.$$$parent.setFieldUnchanged(this.props.field)
+      else this.props.$$$parent.setFieldUnchanged(this.props.field, this.state.value)
     } else {
       this.setState({ hasError: err })
       this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
@@ -761,8 +767,8 @@ class RbFormNumber extends RbFormText {
         title={this.state.hasError}
         type="text"
         value={this._removeComma(value) || ''}
-        onChange={(e) => this.handleChange(e)}
-        onBlur={this.props.readonly ? null : () => this.checkValue()}
+        onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+        // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
         maxLength="29"
       />
@@ -775,51 +781,56 @@ class RbFormNumber extends RbFormText {
     // 表单计算（视图下无效）
     if (this.props.calcFormula && !this.props.onView) {
       const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
-      const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+      const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
 
-      this.calcFormula__values = {}
-      // 初始值
+      // 等待字段初始化完毕
       setTimeout(() => {
+        const calcFormulaValues = {}
+        const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+
         watchFields.forEach((item) => {
           const name = item.substr(1, item.length - 2)
           const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
           if (fieldComp && fieldComp.state.value) {
-            this.calcFormula__values[name] = this._removeComma(fieldComp.state.value)
+            calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
-      }, 400)
 
-      // 小数位
-      const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
+        // 表单计算
+        this.props.$$$parent.onFieldValueChange((s) => {
+          if (!watchFields.includes(`{${s.name}}`)) {
+            if (rb.env === 'dev') console.log('onFieldValueChange :', s)
+            return false
+          } else if (rb.env === 'dev') {
+            console.log('onFieldValueChange for calcFormula :', s)
+          }
 
-      // 表单计算
-      this.props.$$$parent.onFieldValueChange((s) => {
-        if (!watchFields.includes(`{${s.name}}`)) return
+          if (s.value) {
+            calcFormulaValues[s.name] = this._removeComma(s.value)
+          } else {
+            delete calcFormulaValues[s.name]
+          }
 
-        if (s.value) {
-          this.calcFormula__values[s.name] = this._removeComma(s.value)
-        } else {
-          delete this.calcFormula__values[s.name]
-        }
+          let formula = calcFormula
+          for (let key in calcFormulaValues) {
+            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
+          }
 
-        let formula = calcFormula
-        for (let key in this.calcFormula__values) {
-          formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
-        }
+          if (formula.includes('{')) {
+            this.setValue(null)
+            return false
+          }
 
-        if (formula.includes('{')) {
-          this.setValue(null)
-          return
-        }
-
-        try {
-          let calcv = null
-          eval(`calcv = ${formula}`)
-          if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-        } catch (err) {
-          if (rb.env === 'dev') console.log(err)
-        }
-      })
+          try {
+            let calcv = null
+            eval(`calcv = ${formula}`)
+            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+          } catch (err) {
+            if (rb.env === 'dev') console.log(err)
+          }
+          return true
+        })
+      }, 200)
     }
   }
 
@@ -859,8 +870,8 @@ class RbFormTextarea extends RbFormElement {
           className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e)}
-          onBlur={this.props.readonly ? null : () => this.checkValue()}
+          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           maxLength="6000"
         />
@@ -973,8 +984,8 @@ class RbFormDateTime extends RbFormElement {
           title={this.state.hasError}
           type="text"
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e)}
-          onBlur={this.props.readonly ? null : () => this.checkValue()}
+          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          // onBlur={this.props.readonly ? null : () => this.checkValue()}
           maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
@@ -1405,7 +1416,8 @@ class RbFormReference extends RbFormElement {
 
   componentWillUnmount() {
     super.componentWillUnmount()
-    if (this._ReferenceSearcher) {
+
+    if (this._ReferenceSearcher && !this._hasCascadingField) {
       this._ReferenceSearcher.destroy()
       this._ReferenceSearcher = null
     }

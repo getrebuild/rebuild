@@ -44,9 +44,7 @@ public class PrivilegesGuardContextHolder {
      */
     public static ID getSkipGuardOnce() {
         ID recordId = SKIP_GUARD.get();
-        if (recordId != null) {
-            SKIP_GUARD.remove();
-        }
+        if (recordId != null) SKIP_GUARD.remove();
         return recordId;
     }
 }

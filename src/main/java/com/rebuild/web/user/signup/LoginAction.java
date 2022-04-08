@@ -10,7 +10,6 @@ package com.rebuild.web.user.signup;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
@@ -20,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BaseController;
 import eu.bitwalker.useragentutils.DeviceType;
@@ -41,7 +41,7 @@ public class LoginAction extends BaseController {
 
     public static final String CK_AUTOLOGIN = "rb.alt";
     public static final String SK_USER_THEME = "currentUseTheme";
-    
+
     protected static final String SK_NEED_VCODE = "needLoginVCode";
     protected static final String SK_START_TOUR = "needStartTour";
 
@@ -64,7 +64,7 @@ public class LoginAction extends BaseController {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
 
-        ThreadPool.exec(() -> createLoginLog(request, user));
+        createLoginLog(request, user);
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
@@ -114,14 +114,17 @@ public class LoginAction extends BaseController {
 
         String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
 
-        Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+        final Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
         record.setString("ipAddr", ipAddr);
         record.setString("userAgent", uaClear);
         record.setDate("loginTime", CalendarUtils.now());
-        Application.getCommonsService().create(record);
 
-        License.siteApiNoCache(
-                String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
+        TaskExecutors.queue(() -> {
+            Application.getCommonsService().create(record);
+
+            License.siteApiNoCache(
+                    String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
+        });
     }
 }

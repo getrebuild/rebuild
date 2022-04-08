@@ -298,7 +298,7 @@ public class FieldValueHelper {
      * @return
      */
     public static boolean hasLength(Object o) {
-        if (o == null || NullValue.is(o)) return false;
+        if (NullValue.isNull(o)) return false;
         if (o.getClass().isArray()) return ((Object[]) o).length > 0;
         else return o.toString().length() > 0;
     }

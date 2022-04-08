@@ -81,14 +81,16 @@ public class FieldWriteback extends FieldAggregation {
         this.prepare(operatingContext);
         if (targetRecordIds.isEmpty()) return;
 
-        if (targetRecordData.getAvailableFields().isEmpty()) {
+        if (targetRecordData.isEmpty()) {
             log.info("No data of target record available : {}", targetRecordId);
             return;
         }
 
-        final ServiceSpec targetService = MetadataHelper.isBusinessEntity(targetEntity)
+        final ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
                 ? Application.getEntityService(targetEntity.getEntityCode())
                 : Application.getService(targetEntity.getEntityCode());
+
+        final boolean forceUpdate = ((JSONObject) context.getActionContent()).getBooleanValue("forceUpdate");
 
         boolean tschainAdded = false;
         for (ID targetRecordId : targetRecordIds) {
@@ -98,13 +100,11 @@ public class FieldWriteback extends FieldAggregation {
                 continue;
             }
 
-            if (allowNoPermissionUpdate) {
-                PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
-            }
-            // 如果当前用户对目标记录无修改权限
-            else if (!Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
-                log.warn("No permission to update record of target : {}", targetRecordId);
-                continue;
+            // 跳过权限
+            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+            // 强制更新 (v2.9)
+            if (forceUpdate) {
+                GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
 
             // 会关联触发下一触发器
@@ -116,12 +116,15 @@ public class FieldWriteback extends FieldAggregation {
 
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
+            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+
             try {
-                targetService.createOrUpdate(targetRecord);
+                useService.createOrUpdate(targetRecord);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
