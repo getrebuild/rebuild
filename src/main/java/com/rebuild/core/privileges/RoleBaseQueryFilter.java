@@ -18,6 +18,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -26,6 +28,7 @@ import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -127,7 +130,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             owningFormat = dtmField.getName() + "." + owningFormat;
         }
 
-        final String customFilter = buildCustomFilter(ep);
+        final String customFilter = buildCustomFilter(ep, dtmField);
         final String shareFilter = buildShareFilter(entity, dtmField);
 
         final DepthEntry depth = ep.superlative(useAction);
@@ -183,19 +186,19 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      * 共享权限
      *
      * @param entity
-     * @param detailToMainField
+     * @param dtmField
      * @return
      */
-    private String buildShareFilter(Entity entity, Field detailToMainField) {
+    private String buildShareFilter(Entity entity, Field dtmField) {
         if (user == null) return null;
 
         String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
 
-        // 明细实体，使用主实体的共享
-        if (detailToMainField != null) {
+        // 使用主实体的共享（明细实体）
+        if (dtmField != null) {
             shareFilter = String.format(shareFilter,
-                    detailToMainField.getOwnEntity().getMainEntity().getName(),
-                    user.getId(), detailToMainField.getName());
+                    dtmField.getOwnEntity().getMainEntity().getName(),
+                    user.getId(), dtmField.getName());
         } else {
             shareFilter = String.format(shareFilter,
                     entity.getName(), user.getId(), entity.getPrimaryField().getName());
@@ -207,15 +210,32 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      * 自定义权限
      *
      * @param ep
+     * @param dtmField
      * @return
      * @see PrivilegesManager#andPassCustomFilter(ID, ID, Permission, Privileges)
      */
-    private String buildCustomFilter(Privileges ep) {
+    private String buildCustomFilter(Privileges ep, Field dtmField) {
         if (user == null || useAction == null
                 || !(ep instanceof CustomEntityPrivileges)) return null;
 
         JSONObject hasFilter = ((CustomEntityPrivileges) ep).getCustomFilter(useAction);
         if (hasFilter == null) return null;
+
+        // 兼容转换（明细实体）
+        if (dtmField != null) {
+            final JSONArray items = hasFilter.getJSONArray("items");
+
+            JSONArray items2 = new JSONArray();
+            for (Object item : items) {
+                JSONObject c = (JSONObject) JSONUtils.clone((JSON) item);
+                c.put("field", String.format("%s.%s", dtmField.getName(), c.getString("field")));
+                items2.add(c);
+            }
+
+            hasFilter = JSONUtils.toJSONObject(
+                    new String[] { "entity", "items" },
+                    new Object[] { dtmField.getOwnEntity().getName(), items2 });
+        }
 
         AdvFilterParser advFilterParser = new AdvFilterParser(hasFilter);
         advFilterParser.setUser(user.getId());

@@ -405,7 +405,7 @@ public class PrivilegesManager {
      * @param action
      * @param ep
      * @return
-     * @see RoleBaseQueryFilter#buildCustomFilter(Privileges)
+     * @see RoleBaseQueryFilter#buildCustomFilter(Privileges, Field)
      */
     private boolean andPassCustomFilter(ID user, ID target, Permission action, Privileges ep) {
         if (!(ep instanceof CustomEntityPrivileges)) return true;

@@ -57,7 +57,8 @@ public class AutoFillinManager implements ConfigManager {
         // 内置字段无配置 @see field-edit.html
         if (easyField.isBuiltin()) return JSONUtils.EMPTY_ARRAY;
 
-        final List<ConfigBean> config = getConfig(field);
+        final List<ConfigBean> config = new ArrayList<>();
+        for (ConfigBean cb : getConfig(field)) config.add(cb.clone());
 
         // 父级级联
         // 利用表单回填做父级级联字段回填
@@ -70,7 +71,7 @@ public class AutoFillinManager implements ConfigManager {
                     .set("whenCreate", true)
                     .set("whenUpdate", true)
                     .set("fillinForce", true);
-            
+
             // 移除冲突的表单回填配置
             for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
                 ConfigBean cb = iter.next();
@@ -89,28 +90,28 @@ public class AutoFillinManager implements ConfigManager {
         Entity sourceEntity = MetadataHelper.getEntity(source.getEntityCode());
         Entity targetEntity = field.getOwnEntity();
         Set<String> sourceFields = new HashSet<>();
-        for (ConfigBean e : config) {
+        for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+            ConfigBean e = iter.next();
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
             if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
                     || !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
+                iter.remove();
                 continue;
             }
 
             sourceFields.add(sourceField);
         }
-        if (sourceFields.isEmpty()) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
+
+        if (sourceFields.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(sourceFields, ","),
                 sourceEntity.getName(),
                 sourceEntity.getPrimaryField().getName());
         Record sourceRecord = Application.createQueryNoFilter(ql).setParameter(1, source).record();
-        if (sourceRecord == null) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
+
+        if (sourceRecord == null) return JSONUtils.EMPTY_ARRAY;
 
         JSONArray fillin = new JSONArray();
         for (ConfigBean e : config) {
