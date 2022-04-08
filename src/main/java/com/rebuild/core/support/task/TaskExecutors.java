@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.*;
 
 /**
@@ -34,11 +35,16 @@ public class TaskExecutors extends DistributedJobLock {
 
     private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
-    private static final ExecutorService EXECS = new ThreadPoolExecutor(
+    private static final ExecutorService EXEC = new ThreadPoolExecutor(
             MAX_TASKS_NUMBER, MAX_TASKS_NUMBER, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(MAX_TASKS_NUMBER * 6));
 
     private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
+
+    // 队列执行
+    private static final ExecutorService SINGLE_QUEUE = new ThreadPoolExecutor(
+            1, 1, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     /**
      * 异步执行（提交给任务调度）
@@ -50,7 +56,7 @@ public class TaskExecutors extends DistributedJobLock {
     public static String submit(HeavyTask<?> task, ID execUser) {
         String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
         task.setUser(execUser);
-        EXECS.execute(task);
+        EXEC.execute(task);
         TASKS.put(taskid, task);
         return taskid;
     }
@@ -79,6 +85,8 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
+     * 获取任务
+     *
      * @param taskid
      * @return
      */
@@ -96,12 +104,26 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
+     * 排队执行（单线程）
+     *
+     * @param command
+     */
+    public static void queue(Runnable command) {
+        SINGLE_QUEUE.execute(command);
+    }
+
+    /**
      * 停止任务执行器
      */
     public static void shutdown() {
-        List<Runnable> runs = EXECS.shutdownNow();
-        if (!runs.isEmpty()) {
-            log.warn("{} task(s) were interrupted", runs.size());
+        List<Runnable> t = EXEC.shutdownNow();
+        if (!t.isEmpty()) {
+            log.warn("{} task(s) were interrupted", t.size());
+        }
+
+        List<Runnable> c = SINGLE_QUEUE.shutdownNow();
+        if (!c.isEmpty()) {
+            log.warn("{} command(s) were interrupted", c.size());
         }
     }
 
@@ -109,21 +131,27 @@ public class TaskExecutors extends DistributedJobLock {
 
     @Scheduled(fixedRate = 300000, initialDelay = 300000)
     public void executeJob() {
-        if (TASKS.isEmpty() || !tryLock()) return;
+        if (!tryLock()) return;
 
-        log.info("{} task(s) in the queue", TASKS.size());
+        if (!TASKS.isEmpty()) {
+            log.info("{} task(s) in the queue", TASKS.size());
+            for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
+                HeavyTask<?> task = e.getValue();
+                if (task.getCompletedTime() == null || !task.isCompleted()) {
+                    continue;
+                }
 
-        for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
-            HeavyTask<?> task = e.getValue();
-            if (task.getCompletedTime() == null || !task.isCompleted()) {
-                continue;
+                long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
+                if (leftTime > 60 * 120) {
+                    TASKS.remove(e.getKey());
+                    log.info("HeavyTask self-destroying : " + e.getKey());
+                }
             }
+        }
 
-            long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
-            if (leftTime > 60 * 120) {
-                TASKS.remove(e.getKey());
-                log.info("HeavyTask self-destroying : " + e.getKey());
-            }
+        Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();
+        if (!queue.isEmpty()) {
+            log.info("{} command(s) in the single-queue", queue.size());
         }
     }
 }
