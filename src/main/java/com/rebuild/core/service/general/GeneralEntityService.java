@@ -470,15 +470,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     return false;
                 }
 
-                boolean rejected = false;
+                boolean unallow = false;
                 if (action == BizzPermission.DELETE) {
-                    rejected = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
                 } else if (action == BizzPermission.UPDATE) {
-                    rejected = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
+                    unallow = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
                             || (currentState == ApprovalState.PROCESSING && !GeneralEntityServiceContextHolder.isAllowForceUpdateOnce() /* 审批时修改 */);
                 }
 
-                if (rejected) {
+                if (unallow) {
                     if (RobotTriggerObserver.getTriggerSource() != null) {
                         recordType = Language.L("关联记录");
                     }
