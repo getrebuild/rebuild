@@ -127,7 +127,7 @@ public class AutoFillinManager implements ConfigManager {
             }
 
             // NOTE 忽略空值
-            if (value == null || NullValue.is(value) || StringUtils.isBlank(value.toString())) {
+            if (NullValue.isNull(value) || StringUtils.isBlank(value.toString())) {
                 continue;
             }
 

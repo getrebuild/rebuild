@@ -273,7 +273,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>ft-time-SNAPSHOT</version>
+            <version>1.5.8</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
