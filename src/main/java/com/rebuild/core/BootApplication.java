@@ -73,14 +73,23 @@ public class BootApplication extends SpringBootServletInitializer {
     }
 
     /**
+     * @param path
      * @return
      */
-    protected static String getLocalUrl() {
+    protected static String getLocalUrl(String path) {
         if (TOMCAT_PORT == null) {
             // USE BOOT
             TOMCAT_PORT = BootEnvironmentPostProcessor.getProperty("server.port", "18080");
         }
-        return String.format("http://localhost:%s%s", TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
+
+        String url = String.format("http://localhost:%s%s", TOMCAT_PORT, StringUtils.defaultString(getContextPath(), "/"));
+        if (!url.endsWith("/")) url += "/";
+
+        if (path != null) {
+            if (path.startsWith("/")) path = path.substring(1);
+            url += path;
+        }
+        return url;
     }
 
     /**
