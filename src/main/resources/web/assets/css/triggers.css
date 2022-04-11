@@ -49,6 +49,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
+.J_startHour1 + .input-group-append > .input-group-text {
+  border-right: 0 none;
+  border-radius: 0;
+}
+
 #react-content {
   background-color: #f7f7f7;
   border-radius: 3px;
@@ -373,7 +378,8 @@ textarea.formula-code {
 }
 
 .on-timers .input-group {
-  width: 400px;
+  width: 300px;
+  float: left;
 }
 
 .code-panel {

@@ -93,7 +93,18 @@
                                   <span class="input-group-text">[[${bundle.L('次')}]]</span>
                                 </div>
                               </div>
-                              <p class="form-text">[[${bundle.L('具体实行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
+                              <div class="input-group input-group-sm ml-2 J_startHour">
+                                <div class="input-group-prepend input-group-append">
+                                  <span class="input-group-text">[[${bundle.L('执行时间')}]]</span>
+                                </div>
+                                <select class="form-control form-control-sm J_startHour1"></select>
+                                <div class="input-group-append">
+                                  <span class="input-group-text">~</span>
+                                </div>
+                                <select class="form-control form-control-sm J_startHour2"></select>
+                              </div>
+                              <div class="clearfix"></div>
+                              <p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
                             </div>
                           </div>
                         </div>
