@@ -19,17 +19,17 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('通知类型')}</label>
             <div className="col-12 col-lg-8 pt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(1)} checked={this.state.type === 1} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 1 })} checked={this.state.type === 1} disabled={this.state.userType === 2} />
                 <span className="custom-control-label">{$L('通知')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(2)} checked={this.state.type === 2} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 2 })} checked={this.state.type === 2} />
                 <span className="custom-control-label">
                   {$L('邮件')} {this.state.serviceMail === false && `(${$L('不可用')})`}
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(3)} checked={this.state.type === 3} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 3 })} checked={this.state.type === 3} />
                 <span className="custom-control-label">
                   {$L('短信')} {this.state.serviceSms === false && `(${$L('不可用')})`}
                 </span>
@@ -41,18 +41,11 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('发送给谁')}</label>
             <div className="col-12 col-lg-8 pt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 1 })} checked={this.state.userType === 1} />
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(1)} checked={this.state.userType === 1} />
                 <span className="custom-control-label">{$L('内部用户')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input
-                  className="custom-control-input"
-                  name="utype"
-                  type="radio"
-                  onChange={() => this.setState({ userType: 2 })}
-                  checked={this.state.userType === 2}
-                  disabled={this.state.type === 1}
-                />
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(2)} checked={this.state.userType === 2} />
                 <span className="custom-control-label">{$L('外部人员')}</span>
               </label>
             </div>
@@ -90,9 +83,9 @@ class ContentSendNotification extends ActionContentSpec {
     )
   }
 
-  setType(type) {
-    const s = { type: type }
-    if (type === 1 && this.state.userType === 2) s.userType = 1
+  setUserType(type) {
+    const s = { userType: type }
+    if (type === 2 && this.state.type === 1) s.type = 2
     this.setState(s)
   }
 
