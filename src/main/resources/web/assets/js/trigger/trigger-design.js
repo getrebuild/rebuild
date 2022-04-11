@@ -11,6 +11,15 @@ var contentComp = null
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
 
+  for (let i = 0; i < 24; i++) {
+    const H1 = i < 10 ? `0${i}` : i
+    const H2 = i + 1 < 10 ? `0${i + 1}` : i + 1
+    $(`<option value="${i}">${H1}:00</option>`).appendTo('.J_startHour1')
+    $(`<option value="${i}">${H2}:00</option>`).appendTo('.J_startHour2')
+  }
+  $('.J_startHour1').val('0')
+  $('.J_startHour2').val('23')
+
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512]).each(function () {
       let mask = this
@@ -21,6 +30,11 @@ $(document).ready(() => {
           const wt = (wpc.whenTimer || 'D:1').split(':')
           $('.J_whenTimer1').val(wt[0])
           $('.J_whenTimer2').val(wt[1])
+          // v2.9
+          if (wt[2]) $('.J_startHour1').val(wt[2])
+          if (wt[3]) $('.J_startHour2').val(wt[3])
+
+          $('.J_whenTimer1').trigger('change')
         }
       }
     })
@@ -47,11 +61,12 @@ $(document).ready(() => {
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
     })
-    const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 10 && (when & 512) !== 0) {
       RbHighbar.error(WrapHtml($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
+
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
 
     const content = contentComp.buildContent()
     if (content === false) return

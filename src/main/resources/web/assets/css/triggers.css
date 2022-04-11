@@ -373,7 +373,8 @@ textarea.formula-code {
 }
 
 .on-timers .input-group {
-  width: 400px;
+  width: 300px;
+  float: left;
 }
 
 .code-panel {
