@@ -411,7 +411,7 @@ class UserSelector extends React.Component {
     if (props.hideTeam !== true) this._useTabs.push(['Team', $L('团队')])
 
     // 默认显示
-    this.state.tabType = this._useTabs[0][0]
+    this.state.tabType = this._useTabs[0] ? this._useTabs[0][0] : null
   }
 
   render() {

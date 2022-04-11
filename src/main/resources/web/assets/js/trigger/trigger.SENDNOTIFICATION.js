@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 发送通知
 // eslint-disable-next-line no-undef
 class ContentSendNotification extends ActionContentSpec {
-  state = { ...this.props, type: 1 }
+  state = { ...this.props, type: 1, userType: 1 }
 
   render() {
     return (
@@ -19,17 +19,17 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('通知类型')}</label>
             <div className="col-12 col-lg-8 pt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 1 })} checked={this.state.type === 1} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(1)} checked={this.state.type === 1} />
                 <span className="custom-control-label">{$L('通知')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 2 })} checked={this.state.type === 2} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(2)} checked={this.state.type === 2} />
                 <span className="custom-control-label">
                   {$L('邮件')} {this.state.serviceMail === false && `(${$L('不可用')})`}
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 3 })} checked={this.state.type === 3} />
+                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setType(3)} checked={this.state.type === 3} />
                 <span className="custom-control-label">
                   {$L('短信')} {this.state.serviceSms === false && `(${$L('不可用')})`}
                 </span>
@@ -37,10 +37,35 @@ class ContentSendNotification extends ActionContentSpec {
             </div>
           </div>
 
-          <div className="form-group row pt-1">
+          <div className="form-group row pt-1 mb-0">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('发送给谁')}</label>
+            <div className="col-12 col-lg-8 pt-1">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 1 })} checked={this.state.userType === 1} />
+                <span className="custom-control-label">{$L('内部用户')}</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input
+                  className="custom-control-input"
+                  name="utype"
+                  type="radio"
+                  onChange={() => this.setState({ userType: 2 })}
+                  checked={this.state.userType === 2}
+                  disabled={this.state.type === 1}
+                />
+                <span className="custom-control-label">{$L('外部人员')}</span>
+              </label>
+            </div>
+          </div>
+          <div className="form-group row pt-0 mt-0">
+            <label className="col-12 col-lg-3 col-form-label text-lg-right"></label>
             <div className="col-12 col-lg-8">
-              <UserSelectorWithField ref={(c) => (this._sendTo = c)} />
+              <div className={this.state.userType === 1 ? '' : 'hide'}>
+                <UserSelectorWithField ref={(c) => (this._sendTo1 = c)} />
+              </div>
+              <div className={this.state.userType === 2 ? '' : 'hide'}>
+                <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
+              </div>
             </div>
           </div>
 
@@ -57,15 +82,18 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
             <div className="col-12 col-lg-8">
               <textarea className="form-control form-control-sm row3x" ref={(c) => (this._content = c)} maxLength="600" />
-              <p
-                className="form-text"
-                dangerouslySetInnerHTML={{ __html: $L('内容支持内置变量，内置变量如 `{createdOn}` (其中 createdOn 为触发实体的字段内部标识)') }}
-              />
+              <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容支持内置变量，内置变量如 `{createdOn}` (其中 createdOn 为触发实体的字段内部标识)') }} />
             </div>
           </div>
         </form>
       </div>
     )
+  }
+
+  setType(type) {
+    const s = { type: type }
+    if (type === 1 && this.state.userType === 2) s.userType = 1
+    this.setState(s)
   }
 
   componentDidMount() {
@@ -75,21 +103,34 @@ class ContentSendNotification extends ActionContentSpec {
     if (content) {
       if (content.sendTo) {
         $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
-          if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
+          if (res.error_code === 0 && res.data.length > 0) {
+            if (content.userType === 2) {
+              this._sendTo2.setState({ selected: res.data })
+            } else {
+              this._sendTo1.setState({ selected: res.data })
+            }
+          }
         })
       }
 
-      this.setState({ type: content.type ? content.type : 1 }, () => {
-        $(this._title).val(content.title || '')
-        $(this._content).val(content.content || '')
-      })
+      this.setState(
+        {
+          type: content.type ? content.type : 1,
+          userType: content.userType ? content.userType : 1,
+        },
+        () => {
+          $(this._title).val(content.title || '')
+          $(this._content).val(content.content || '')
+        }
+      )
     }
   }
 
   buildContent() {
     const _data = {
       type: this.state.type,
-      sendTo: this._sendTo.getSelected(),
+      userType: this.state.userType,
+      sendTo: this.state.userType === 2 ? this._sendTo2.getSelected() : this._sendTo1.getSelected(),
       title: $(this._title).val(),
       content: $(this._content).val(),
     }
@@ -111,4 +152,32 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
+}
+
+const wpc = window.__PageConfig
+
+class AccountSelectorWithField extends UserSelector {
+  constructor(props) {
+    super(props)
+    this._useTabs.push(['FIELDS', $L('使用字段')])
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    this._fields = []
+    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+      $(res.data).each((idx, item) => {
+        if (item.type === 'PHONE' || item.type === 'EMAIL') {
+          this._fields.push({ id: item.name, text: item.label })
+        }
+      })
+
+      this.switchTab()
+    })
+  }
+
+  switchTab() {
+    this.setState({ tabType: 'FIELDS', items: this._fields || [] })
+  }
 }
