@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +40,10 @@ public class RevisionHistoryController extends EntityController {
     }
 
     @RequestMapping("revision-history/details")
-    public JSON details(@IdParam ID revId) {
+    public JSON details(@IdParam ID revisionId) {
         Object[] rev = Application.createQueryNoFilter(
                 "select revisionContent,belongEntity from RevisionHistory where revisionId = ?")
-                .setParameter(1, revId)
+                .setParameter(1, revisionId)
                 .unique();
         JSONArray contents = JSON.parseArray((String) rev[0]);
 
@@ -63,9 +64,12 @@ public class RevisionHistoryController extends EntityController {
                     }
 
                     fieldName = easyField.getLabel();
-
                 } else {
-                    fieldName = "[" + fieldName.toUpperCase() + "]";
+                    if ("SHARETO".equalsIgnoreCase(fieldName)) {
+                        fieldName = Language.L("共享用户");
+                    } else {
+                        fieldName = "[" + fieldName.toUpperCase() + "]";
+                    }
                 }
                 item.put("field", fieldName);
             }
