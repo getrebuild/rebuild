@@ -34,6 +34,7 @@ $(document).ready(function () {
 
     let extConfig = {
       quickFields: $('#quickFields').val().join(','),
+      tags: $('#tags').val().join(','),
     }
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
     if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
@@ -137,9 +138,37 @@ $(document).ready(function () {
       multiple: true,
       maximumSelectionLength: 5,
     })
-
     if (wpc.extConfig.quickFields) {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
     }
+  })
+
+  $.get('/admin/entity/entity-tags', (res) => {
+    let data = res.data || []
+    data = data.sort().map((item) => {
+      return { id: item, text: item }
+    })
+
+    $('#tags').select2({
+      placeholder: $L('无'),
+      data: data,
+      multiple: true,
+      maximumSelectionLength: 5,
+      language: {
+        noResults: function () {
+          return $L('输入标签')
+        },
+      },
+      tags: true,
+    })
+
+    if (wpc.extConfig.tags) {
+      $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
+    }
+
+    // fix: 中文输入???
+    $(document).on('keyup', '.select2-selection--multiple .select2-search__field', function () {
+      $(this).css('width', '20em')
+    })
   })
 })

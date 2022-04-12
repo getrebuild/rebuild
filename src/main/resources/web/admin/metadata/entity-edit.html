@@ -80,6 +80,12 @@
                     <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${comments}" th:placeholder="${bundle.L('(选填)')}">[[${comments}]]</textarea>
                   </div>
                 </div>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('标签')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="tags"></select>
+                  </div>
+                </div>
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div class="J_action hide">

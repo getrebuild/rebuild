@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
     <title>[[${bundle.L('实体管理')}]]</title>
-    <style type="text/css">
+    <style>
       .card.entity {
         position: relative;
         margin-bottom: 20px;
@@ -45,6 +45,17 @@
       .card.ph {
         margin-left: 10px;
         margin-top: 0;
+      }
+      #entityList > div.tag {
+        width: 100%;
+      }
+      #entityList > div.tag > h3 {
+        margin: 0 0 20px;
+        font-weight: bold;
+        line-height: 1;
+        font-size: 16px;
+        padding: 0;
+        color: #777;
       }
     </style>
   </head>
@@ -91,12 +102,26 @@
     </script>
     <script type="text/babel">
       $(document).ready(function () {
+        const NO_TAG = '__'
         $.get('/admin/entity/entity-list?bizz=true', function (res) {
           $('#entityList').empty()
+
+          const groups = { [NO_TAG]: [] }
           $(res.data).each(function () {
+            ;(this.tags || NO_TAG).split(',').forEach((tag) => {
+              let g = groups[tag]
+              if (!g) {
+                g = []
+                groups[tag] = g
+              }
+              g.push(this)
+            })
+          })
+
+          $(groups[NO_TAG]).each(function () {
             if (this.builtin) render_entity(this)
           })
-          $(res.data).each(function () {
+          $(groups[NO_TAG]).each(function () {
             if (!this.builtin) render_entity(this)
           })
 
@@ -112,6 +137,16 @@
               if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $L('添加实体'))
               else RbHighbar.error('仅超级管理员可添加实体')
             })
+
+          delete groups[NO_TAG]
+
+          const keys = Object.keys(groups).sort()
+          keys.forEach((tag) => {
+            $(`<div class="tag"><h3><i class="icon zmdi zmdi-widgets text-primary mr-2"></i>${tag}</h3></div>`).appendTo('#entityList')
+            $(groups[tag]).each(function () {
+              render_entity(this)
+            })
+          })
         })
       })
 
