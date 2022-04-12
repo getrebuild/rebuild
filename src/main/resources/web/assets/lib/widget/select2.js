@@ -5643,6 +5643,10 @@ S2.define('select2/core',[
 
     this.on('open', function () {
       self.$container.addClass('select2-container--open');
+        // fix: RB 2022/4/12
+        var s = self.$dropdown.find('input.select2-search__field')
+        s && s[0] && s[0].focus()
+        // fix: RB 2022/4/12
     });
 
     this.on('close', function () {

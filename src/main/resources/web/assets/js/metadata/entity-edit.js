@@ -165,10 +165,5 @@ $(document).ready(function () {
     if (wpc.extConfig.tags) {
       $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
-
-    // fix: 中文输入???
-    $(document).on('keyup', '.select2-selection--multiple .select2-search__field', function () {
-      $(this).css('width', '20em')
-    })
   })
 })
