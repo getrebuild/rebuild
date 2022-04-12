@@ -1916,6 +1916,8 @@
         this.$searchContainer = $search
         this.$search = $search.find('input')
 
+        this.RB_isTyping = false
+
         var $rendered = decorated.call(this)
 
         this._transferTabIndex()
@@ -2024,6 +2026,19 @@
           self.$selection.off('keyup.search')
         })
 
+        // RB FIX
+        // Only tags enabled
+        if (this.options.get('tags')) {
+          this.$selection.on('compositionstart', '.select2-search--inline', function () {
+            self.RB_isTyping = true
+          })
+          this.$selection.on('compositionend', '.select2-search--inline', function () {
+            self.RB_isTyping = false
+            self.handleSearch()
+          })
+        }
+        // RB FIX
+
         this.$selection.on('keyup.search input.search', '.select2-search--inline', function (evt) {
           // IE will trigger the `input` event when a placeholder is used on a
           // search box. To get around this issue, we are forced to ignore all
@@ -2081,6 +2096,8 @@
       }
 
       Search.prototype.handleSearch = function () {
+        if (this.RB_isTyping) return
+
         this.resizeSearch()
 
         if (!this._keyUpPrevented) {
@@ -5402,10 +5419,10 @@
 
         this.on('open', function () {
           self.$container.addClass('select2-container--open')
-          // fix: RB 2022/4/12
+          // RB FIX
           var s = self.$dropdown.find('input.select2-search__field')
           s && s[0] && s[0].focus()
-          // fix: RB 2022/4/12
+          // RB FIX
         })
 
         this.on('close', function () {
