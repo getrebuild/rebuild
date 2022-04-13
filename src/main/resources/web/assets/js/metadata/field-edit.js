@@ -11,8 +11,8 @@ const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
-const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL']
-const SHOW_ADVPATTERN = ['TEXT']
+const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
+const SHOW_ADVPATTERN = ['TEXT', 'PHONE', 'EMAIL']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
