@@ -17,6 +17,10 @@ public class EasyEntityConfigProps {
      * 快速查询字段
      */
     public static final String QUICK_FIELDS = "quickFields";
+    /**
+     * 实体分类
+     */
+    public static final String TAGS = "tags";
 
     /**
      * 隐藏常用查询面板

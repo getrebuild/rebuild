@@ -12,8 +12,10 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -154,4 +156,14 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
 //     * @return
 //     */
 //    abstract T checkoutValue(Object rawValue);
+
+    /**
+     * 信息脱敏
+     *
+     * @return
+     * @see com.rebuild.core.support.general.FieldValueHelper#desensitized(EasyField, Object)
+     */
+    public boolean isDesensitized() {
+        return BooleanUtils.toBoolean(getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
+    }
 }

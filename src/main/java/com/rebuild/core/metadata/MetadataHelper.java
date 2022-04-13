@@ -17,15 +17,16 @@ import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 实体元数据
@@ -380,5 +381,22 @@ public class MetadataHelper {
             return false;
         }
         return checkAndWarnField(getEntity(entityName), fieldName);
+    }
+
+    /**
+     * 实体分类标签
+     * TODO 性能
+     *
+     * @return
+     */
+    public static Set<String> getEntityTags() {
+        Set<String> set = new TreeSet<>();
+        for (Entity entity : getEntities()) {
+            String tags = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.TAGS);
+            if (StringUtils.isNotBlank(tags)) {
+                Collections.addAll(set, tags.split(","));
+            }
+        }
+        return set;
     }
 }
