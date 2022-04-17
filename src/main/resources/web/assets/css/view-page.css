@@ -176,6 +176,23 @@ body {
   padding-right: 30px;
 }
 
+.related-list .card .header-title .col-2 a.edit {
+  color: #999;
+  font-size: 1.231rem;
+  margin-left: -25px;
+  margin-top: -2px;
+  position: absolute;
+  display: none;
+}
+
+.related-list .card .header-title .col-2 a.edit:hover {
+  color: #4285f4;
+}
+
+.related-list .card:hover .header-title .col-2 a.edit {
+  display: inline-block;
+}
+
 .related-list .related-toolbar {
   margin-bottom: 13px;
 }
@@ -189,7 +206,7 @@ body {
   padding-top: 3px;
 }
 
-.view-operating > div{
+.view-operating > div {
   margin-top: 15px;
 }
 
@@ -551,6 +568,11 @@ body {
   color: #878787;
 }
 
+.tasks-list.inview .header-title .task-meta .text-ellipsis {
+  font-size: 12px;
+  padding-top: 1px;
+}
+
 .tasks-list.inview .header-title .task-meta .avatar {
   position: absolute;
   top: -4px;
@@ -636,4 +658,12 @@ body {
 
 .file-list.inview .file-list-item:hover {
   background-color: transparent !important;
+}
+
+.div-texts {
+  font-size: 12px;
+  color: #878787;
+}
+
+.div-texts > span {
 }

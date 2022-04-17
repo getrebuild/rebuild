@@ -331,6 +331,11 @@ class EntityRelatedList extends RelatedList {
             </a>
           </div>
           <div className="col-2 text-right">
+            {item[4] && (
+              <a className="edit" onClick={(e) => this._handleEdit(e, item[0])} title={$L('编辑')}>
+                <i className="icon zmdi zmdi-edit" />
+              </a>
+            )}
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
             </span>
@@ -369,6 +374,17 @@ class EntityRelatedList extends RelatedList {
       // FIXME 数据少不显示
       // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+
+  _handleEdit(e, id) {
+    $stopEvent(e, true)
+    console.log(this.props)
+    RbFormModal.create({
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
     })
   }
 
@@ -692,8 +708,10 @@ const RbViewPage = {
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
+      const configThat = this
       $tabNav.find('a').on('click', function () {
-        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+        $tabPane.find('.related-list').length === 0 &&
+          renderRbcomp(<MixRelatedList entity={entity} entity2={[configThat.entityLabel, configThat.icon]} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()

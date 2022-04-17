@@ -64,6 +64,8 @@ public class RelatedListController extends BaseController {
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
         Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
+
+        List<Object> res = new ArrayList<>();
         for (Object[] o : array) {
             Object nameValue = o[1];
             nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
@@ -71,13 +73,15 @@ public class RelatedListController extends BaseController {
                 nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
 
-            o[1] = nameValue;
-            o[2] = I18nUtils.formatDate((Date) o[2]);
+            res.add(new Object[] {
+                    o[0], nameValue, I18nUtils.formatDate((Date) o[2]),
+                    o.length > 3 ? o[3] : null,
+                    Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]) });
         }
 
         return JSONUtils.toJSONObject(
                 new String[] { "total", "data" },
-                new Object[] { 0, array });
+                new Object[] { 0, res });
     }
 
     @GetMapping("related-counts")
@@ -158,6 +162,10 @@ public class RelatedListController extends BaseController {
             sql.append(primaryField.getName()).append(",")
                     .append(namedField.getName()).append(",")
                     .append(EntityHelper.ModifiedOn);
+
+            if (MetadataHelper.hasApprovalField(relatedEntity)) {
+                sql.append(",").append(EntityHelper.ApprovalState);
+            }
         }
 
         sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(mainWhere);

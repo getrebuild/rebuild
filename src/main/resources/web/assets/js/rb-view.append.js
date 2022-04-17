@@ -143,6 +143,13 @@ class LightTaskList extends RelatedList {
           </div>
           <div className="col-5 task-meta">
             <div className="row">
+              {/* <div className="col-2">
+                {item.executor && (
+                  <a className="avatar" title={`${$L('执行人')} ${item.executor[1]}`}>
+                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} alt="Avatar" />
+                  </a>
+                )}
+              </div> */}
               <div className="col-7 pr-0 text-ellipsis">{item.planName}</div>
               <div className="col-5 text-ellipsis">
                 {!item.deadline && !item.endTime && (
