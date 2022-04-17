@@ -39,11 +39,11 @@ public class DataListWrapper {
     final protected Entity entity;
 
     // for 权限验证
-    private ID user;
-    private Map<String, Integer> queryJoinFields;
+    protected ID user;
+    protected Map<String, Integer> queryJoinFields;
 
     // 信息脱敏
-    private boolean useDesensitized = false;
+    protected boolean useDesensitized = false;
 
     /**
      * @param total
