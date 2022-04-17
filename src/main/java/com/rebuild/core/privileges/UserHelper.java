@@ -256,9 +256,12 @@ public class UserHelper {
             String sql = String.format("select %s from %s where %s = ?",
                     StringUtils.join(fromFields.iterator(), ","), entity.getName(), entity.getPrimaryField().getName());
             Object[] bizzValues = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
-            for (Object bizz : bizzValues) {
-                if (bizz != null) {
-                    bizzs.add((ID) bizz);
+
+            if (bizzValues != null) {
+                for (Object bizz : bizzValues) {
+                    if (bizz != null) {
+                        bizzs.add((ID) bizz);
+                    }
                 }
             }
         }

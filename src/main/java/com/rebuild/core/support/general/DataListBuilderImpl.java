@@ -74,11 +74,18 @@ public class DataListBuilderImpl implements DataListBuilder {
         return null;
     }
 
+    /**
+     * @return
+     */
+    protected boolean isNeedReload() {
+        return queryParser.isNeedReload();
+    }
+
     @Override
     public JSON getJSONResult() {
         int totalRows = 0;
         List<JSON> stats = null;
-        if (queryParser.isNeedReload()) {
+        if (isNeedReload()) {
             Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
             totalRows = ObjectUtils.toInt(count[0]);
 

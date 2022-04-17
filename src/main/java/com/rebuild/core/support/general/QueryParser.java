@@ -119,7 +119,7 @@ public class QueryParser {
     /**
      * @return
      */
-    protected Map<String, Integer> getQueryJoinFields() {
+    public Map<String, Integer> getQueryJoinFields() {
         doParseIfNeed();
         return queryJoinFields;
     }
@@ -149,6 +149,7 @@ public class QueryParser {
             fullSql.append(field).append(',');
             fieldIndex++;
 
+            // 仅支持两级验证
             if (field.split("\\.").length > 1) {
                 queryJoinFields.add(field.split("\\.")[0]);
             }
