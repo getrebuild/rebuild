@@ -370,7 +370,7 @@ body {
 }
 
 .rbview-form .form-group.editable a.edit::before {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f158';
   font-size: 16px;
   display: inline-block;
@@ -670,12 +670,4 @@ body {
 
 .file-list.inview .file-list-item:hover {
   background-color: transparent !important;
-}
-
-.div-texts {
-  font-size: 12px;
-  color: #878787;
-}
-
-.div-texts > span {
 }
