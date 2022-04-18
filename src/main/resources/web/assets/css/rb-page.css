@@ -201,6 +201,18 @@ button[disabled] {
   line-height: 1.2 !important;
 }
 
+.badge-sm {
+  border-radius: 99px;
+  font-weight: normal;
+  font-size: 12px;
+  padding: 1px 6px 0;
+  line-height: 17px;
+}
+
+.badge-sm.badge-light {
+  line-height: 15px;
+}
+
 a.badge.text-id {
   color: #4285f4;
   cursor: pointer;
@@ -1719,7 +1731,7 @@ th.column-fixed {
 .dataTables_info .stat-item::before {
   content: '·';
   color: #999;
-  font-weight: bold;
+  font-weight: bolder;
   margin: 0 5px;
 }
 

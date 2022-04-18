@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
@@ -73,10 +74,14 @@ public class RelatedListController extends BaseController {
                 nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
 
+            int approvalState = o.length > 3 ? ObjectUtils.toInt(o[3]) : 0;
+            boolean canUpdate = approvalState != ApprovalState.APPROVED.getState()
+                    && approvalState != ApprovalState.PROCESSING.getState()
+                    && Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]);
+
             res.add(new Object[] {
                     o[0], nameValue, I18nUtils.formatDate((Date) o[2]),
-                    o.length > 3 ? o[3] : null,
-                    Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]) });
+                    approvalState, canUpdate });
         }
 
         return JSONUtils.toJSONObject(

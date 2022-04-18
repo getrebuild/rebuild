@@ -172,25 +172,31 @@ body {
   font-size: 1.2rem;
 }
 
-.related-list .card .header-title .col-2.text-right {
+.related-list .card .header-title .record-meta {
   padding-right: 30px;
+  text-align: right;
 }
 
-.related-list .card .header-title .col-2 a.edit {
+.related-list .card .header-title .record-meta .badge {
+  margin-right: 13px;
+}
+
+.related-list .card .header-title .record-meta a.edit {
   color: #999;
   font-size: 1.231rem;
-  margin-left: -25px;
+  margin-left: -38px;
   margin-top: -2px;
   position: absolute;
   display: none;
+  padding: 0 10px;
 }
 
-.related-list .card .header-title .col-2 a.edit:hover {
+.related-list .card .header-title .record-meta a.edit:hover {
   color: #4285f4;
 }
 
-.related-list .card:hover .header-title .col-2 a.edit,
-.related-list .card.active .header-title .col-2 a.edit {
+.related-list .card:hover .header-title .record-meta a.edit,
+.related-list .card.active .header-title .record-meta a.edit {
   display: inline-block;
 }
 
@@ -565,21 +571,28 @@ body {
 .tasks-list.inview .header-title .task-meta {
   text-align: right;
   color: #878787;
-}
-
-.tasks-list.inview .header-title .task-meta .text-ellipsis {
   font-size: 12px;
-  padding-top: 1px;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar {
+.tasks-list.inview .header-title .task-meta > span {
+  margin-left: 10px;
+  position: relative;
+}
+
+.tasks-list.inview .header-title .task-meta > span + span::before {
+  content: '·';
+  margin-right: 10px;
+  font-weight: bolder;
+}
+
+.tasks-list.inview .header-title .task-meta > span .avatar {
   position: absolute;
-  top: -4px;
-  right: 15px;
-  margin-left: 15px;
+  margin-top: -4px;
+  margin-left: -24px;
+  cursor: default;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar img {
+.tasks-list.inview .header-title .task-meta > span img {
   width: 26px;
   height: 26px;
 }
