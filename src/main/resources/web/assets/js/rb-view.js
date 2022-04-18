@@ -388,7 +388,6 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    console.log(this.props)
     RbFormModal.create({
       id: id,
       entity: this.__entity,
