@@ -189,7 +189,8 @@ body {
   color: #4285f4;
 }
 
-.related-list .card:hover .header-title .col-2 a.edit {
+.related-list .card:hover .header-title .col-2 a.edit,
+.related-list .card.active .header-title .col-2 a.edit {
   display: inline-block;
 }
 
@@ -499,8 +500,6 @@ body {
 
 .view-history .view-history-items > li b:first-child {
   font-weight: normal;
-  min-width: 60px;
-  display: inline-block;
 }
 
 .CodeMirror-fullscreen {

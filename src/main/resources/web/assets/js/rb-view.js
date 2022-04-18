@@ -43,7 +43,7 @@ class RbViewForm extends React.Component {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
           else $('.J_edit, .J_delete').remove()
 
-          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止操作') : $L('主记录已审批完成，明细记录禁止操作')} />
         }
         hadApproval = null
       }
