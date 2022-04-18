@@ -100,8 +100,8 @@ public class FormsBuilder extends FormsManager {
             Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
         }
 
-        // 明细实体
-        final Entity mainEntity = entityMeta.getMainEntity();
+        // 如果明细实体
+        final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
 
@@ -109,11 +109,11 @@ public class FormsBuilder extends FormsManager {
 
         // 新建
         if (record == null) {
-            if (mainEntity != null) {
-                ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
-                Assert.notNull(mainId, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
+            if (hasMainEntity != null) {
+                ID mainid = FormBuilderContextHolder.getMainIdOfDetail();
+                Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
-                approvalState = EntityHelper.isUnsavedId(mainId) ? null : getHadApproval(mainEntity, mainId);
+                approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     return formatModelError(approvalState == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")
@@ -123,8 +123,8 @@ public class FormsBuilder extends FormsManager {
                 // 明细无需审批
                 approvalState = null;
 
-                if (!EntityHelper.isUnsavedId(mainId)
-                        && !Application.getPrivilegesManager().allowUpdate(user, mainId)) {
+                if (!EntityHelper.isUnsavedId(mainid)
+                        && !Application.getPrivilegesManager().allowUpdate(user, mainid)) {
                     return formatModelError(Language.L("你没有添加明细权限"));
                 }
 
@@ -151,11 +151,11 @@ public class FormsBuilder extends FormsManager {
 
             approvalState = getHadApproval(entityMeta, record);
             if (approvalState != null) {
-                String recordType = mainEntity == null ? Language.L("记录") : Language.L("主记录");
+                String recordType = hasMainEntity == null ? Language.L("记录") : Language.L("主记录");
                 if (approvalState == ApprovalState.APPROVED) {
-                    return formatModelError(Language.L("%s已完成审批，禁止操作", recordType));
+                    return formatModelError(Language.L("%s已完成审批，禁止编辑", recordType));
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    return formatModelError(Language.L("%s正在审批中，禁止操作", recordType));
+                    return formatModelError(Language.L("%s正在审批中，禁止编辑", recordType));
                 }
             }
         }
@@ -190,8 +190,8 @@ public class FormsBuilder extends FormsManager {
         }
 
         // 主/明细实体处理
-        if (entityMeta.getMainEntity() != null) {
-            model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
+        if (hasMainEntity != null) {
+            model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
@@ -230,13 +230,15 @@ public class FormsBuilder extends FormsManager {
             return RobotApprovalManager.instance.hadApproval(entity, null);
         }
 
-        // 无明细实体
+        // 普通实体
         if (entity.getMainEntity() == null) {
             return RobotApprovalManager.instance.hadApproval(entity, recordId);
         }
 
-        ID mainId = FormBuilderContextHolder.getMainIdOfDetail();
-        if (mainId == null) {
+        // 明细实体
+
+        ID mainid = FormBuilderContextHolder.getMainIdOfDetail();
+        if (mainid == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, dtmField.getName());
             if (o == null) {
@@ -244,9 +246,10 @@ public class FormsBuilder extends FormsManager {
                 return null;
             }
 
-            mainId = (ID) o[0];
+            mainid = (ID) o[0];
         }
-        return RobotApprovalManager.instance.hadApproval(entity, mainId);
+
+        return RobotApprovalManager.instance.hadApproval(entity.getMainEntity(), mainid);
     }
 
     /**

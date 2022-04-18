@@ -172,8 +172,32 @@ body {
   font-size: 1.2rem;
 }
 
-.related-list .card .header-title .col-2.text-right {
+.related-list .card .header-title .record-meta {
   padding-right: 30px;
+  text-align: right;
+}
+
+.related-list .card .header-title .record-meta .badge {
+  margin-right: 13px;
+}
+
+.related-list .card .header-title .record-meta a.edit {
+  color: #999;
+  font-size: 1.231rem;
+  margin-left: -38px;
+  margin-top: -2px;
+  position: absolute;
+  display: none;
+  padding: 0 10px;
+}
+
+.related-list .card .header-title .record-meta a.edit:hover {
+  color: #4285f4;
+}
+
+.related-list .card:hover .header-title .record-meta a.edit,
+.related-list .card.active .header-title .record-meta a.edit {
+  display: inline-block;
 }
 
 .related-list .related-toolbar {
@@ -189,7 +213,7 @@ body {
   padding-top: 3px;
 }
 
-.view-operating > div{
+.view-operating > div {
   margin-top: 15px;
 }
 
@@ -346,7 +370,7 @@ body {
 }
 
 .rbview-form .form-group.editable a.edit::before {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f158';
   font-size: 16px;
   display: inline-block;
@@ -482,8 +506,6 @@ body {
 
 .view-history .view-history-items > li b:first-child {
   font-weight: normal;
-  min-width: 60px;
-  display: inline-block;
 }
 
 .CodeMirror-fullscreen {
@@ -549,16 +571,28 @@ body {
 .tasks-list.inview .header-title .task-meta {
   text-align: right;
   color: #878787;
+  font-size: 12px;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar {
+.tasks-list.inview .header-title .task-meta > span {
+  margin-left: 10px;
+  position: relative;
+}
+
+.tasks-list.inview .header-title .task-meta > span + span::before {
+  content: '·';
+  margin-right: 10px;
+  font-weight: bolder;
+}
+
+.tasks-list.inview .header-title .task-meta > span .avatar {
   position: absolute;
-  top: -4px;
-  right: 15px;
-  margin-left: 15px;
+  margin-top: -4px;
+  margin-left: -24px;
+  cursor: default;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar img {
+.tasks-list.inview .header-title .task-meta > span img {
   width: 26px;
   height: 26px;
 }

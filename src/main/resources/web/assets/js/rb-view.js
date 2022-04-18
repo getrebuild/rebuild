@@ -43,7 +43,7 @@ class RbViewForm extends React.Component {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
           else $('.J_edit, .J_delete').remove()
 
-          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止操作') : $L('主记录已审批完成，明细记录禁止操作')} />
         }
         hadApproval = null
       }
@@ -305,6 +305,11 @@ class RelatedList extends React.Component {
   }
 }
 
+const APPROVAL_STATE_CLAZZs = {
+  2: [$L('审批中'), 'warning'],
+  10: [$L('通过'), 'success'],
+  11: [$L('驳回'), 'danger'],
+}
 // ~ 业务实体相关项列表
 class EntityRelatedList extends RelatedList {
   constructor(props) {
@@ -322,15 +327,24 @@ class EntityRelatedList extends RelatedList {
   }
 
   renderItem(item) {
+    const astate = APPROVAL_STATE_CLAZZs[item[3]]
     return (
       <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
         <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
-          <div className="col-10">
+          <div className="col-9">
             <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('打开')}>
               {item[1]}
             </a>
           </div>
-          <div className="col-2 text-right">
+          <div className="col-3 record-meta">
+            {item[4] && (
+              <a className="edit" onClick={(e) => this._handleEdit(e, item[0])} title={$L('编辑')}>
+                <i className="icon zmdi zmdi-edit" />
+              </a>
+            )}
+
+            {astate && <span className={`badge badge-sm badge-${astate[1]}`}>{astate[0]}</span>}
+
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
             </span>
@@ -369,6 +383,16 @@ class EntityRelatedList extends RelatedList {
       // FIXME 数据少不显示
       // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+
+  _handleEdit(e, id) {
+    $stopEvent(e, true)
+    RbFormModal.create({
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
     })
   }
 
@@ -692,8 +716,10 @@ const RbViewPage = {
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
+      const configThat = this
       $tabNav.find('a').on('click', function () {
-        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+        $tabPane.find('.related-list').length === 0 &&
+          renderRbcomp(<MixRelatedList entity={entity} entity2={[configThat.entityLabel, configThat.icon]} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()
