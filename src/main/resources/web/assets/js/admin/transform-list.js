@@ -95,8 +95,6 @@ class TransformEditor extends ConfigFormDlg {
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
                   {(this.state.entities || []).map((item) => {
-                    if (item.mainEntity) return null
-
                     return (
                       <option key={item.name} value={item.name}>
                         {item.label}
