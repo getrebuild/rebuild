@@ -417,7 +417,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <EditableForm $$$parent={fake} entity={this.props.entity} ref={(c) => (this._rbform = c)}>
+        <EditableForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
             // eslint-disable-next-line no-undef
@@ -478,7 +478,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 // eslint-disable-next-line no-undef
 class EditableForm extends RbForm {
   constructor(props) {
-    super({ ...props, rawModel: {} })
+    super(props)
   }
 
   renderFormAction() {
