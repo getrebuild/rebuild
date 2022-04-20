@@ -145,6 +145,7 @@ class FieldsMapping extends React.Component {
 
         const sourceFields = []
         that.props.source.fields.forEach((item) => {
+          if (item.name.includes('.')) return  // 暂不支持二级字段
           if ($fieldIsCompatible(item, targetField)) {
             sourceFields.push({ id: item.name, text: item.label })
           }
@@ -188,7 +189,7 @@ class FieldsMapping extends React.Component {
         </div>
         {_target.fields.map((item) => {
           return (
-            <div className="row" key={`t-${item.name}`}>
+            <div className="row" key={item.name}>
               <div className="col-7">
                 <select className="form-control form-control-sm" data-field={item.name} data-req={!item.nullable} />
               </div>
