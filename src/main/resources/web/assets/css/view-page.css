@@ -671,3 +671,9 @@ body {
 .file-list.inview .file-list-item:hover {
   background-color: transparent !important;
 }
+
+.trans-to-wrap {
+  width: 88%;
+  margin: 0 auto;
+  text-align: left;
+}

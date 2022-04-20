@@ -521,6 +521,39 @@ class SelectReport extends React.Component {
   }
 }
 
+class TransformRich extends React.Component {
+  render() {
+    return (
+      <RF>
+        {WrapHtml($L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
+        {this.props.mainEntity && (
+          <div className="mt-3 trans-to-wrap">
+            <div>
+              <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
+            </div>
+          </div>
+        )}
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    $initReferenceSelect2(this._$select, {
+      placeholder: $L('选择主记录'),
+      entity: this.props.entity,
+      name: `${this.props.mainEntity}Id`,
+    })
+  }
+
+  getMainId() {
+    if (this._$select) {
+      const v = $(this._$select).val()
+      return v ? v : false
+    }
+    return true
+  }
+}
+
 // 视图页操作类
 const RbViewPage = {
   _RbViewForm: null,
@@ -789,18 +822,25 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.on('click', () => {
-        RbAlert.create(WrapHtml($L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)), {
-          confirm: function () {
+        let _TransformRich
+        RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
+          tabIndex: 1,
+          onConfirm: function () {
+            const mainid = _TransformRich.getMainId()
+            if (mainid === false) {
+              RbHighbar.create($L('请选择主记录'))
+              return
+            }
+
             this.disabled(true)
-            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {
-              this.hide()
+            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
               if (res.error_code === 0) {
+                this.hide()
                 RbHighbar.success($L('转换成功'))
                 setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
-              } else if (res.error_code === 400) {
-                RbHighbar.create(res.error_msg)
               } else {
-                RbHighbar.error(res.error_msg)
+                this.disabled(false)
+                res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
               }
             })
           },

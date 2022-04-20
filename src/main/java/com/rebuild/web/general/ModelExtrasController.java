@@ -68,6 +68,7 @@ public class ModelExtrasController extends BaseController {
     public RespBody transform(HttpServletRequest request) {
         ID transid = getIdParameterNotNull(request, "transid");
         ID sourceRecord = getIdParameterNotNull(request, "source");
+        ID mainid = getIdParameter(request, "mainid");
 
         ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
@@ -78,7 +79,7 @@ public class ModelExtrasController extends BaseController {
         }
 
         try {
-            ID newId = transfomer.transform(sourceRecord);
+            ID newId = transfomer.transform(sourceRecord, mainid);
             return RespBody.ok(newId);
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
