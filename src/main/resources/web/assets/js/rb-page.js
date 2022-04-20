@@ -640,7 +640,6 @@ var $initReferenceSelect2 = function (el, options) {
     theme: 'default ' + (options.appendClass || ''),
   })
 
-  $fixSelect2($el)
   return $el
 }
 
@@ -899,14 +898,5 @@ var $getScript = function (url, callback) {
     success: callback,
     dataType: 'script',
     cache: true,
-  })
-}
-
-// fix: 搜索框无法获取焦点
-var $fixSelect2 = function (select) {
-  $(select).on('select2:open', function () {
-    var s = $(this).data('select2')
-    s = s && s.$dropdown ? s.$dropdown.find('input.select2-search__field') : null
-    s && s[0] && s[0].focus()
   })
 }

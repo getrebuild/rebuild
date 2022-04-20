@@ -118,6 +118,5 @@ module.exports = {
     WrapHtml: true,
     SignPad: true,
     RF: true,
-    $fixSelect2: true,
   },
 }

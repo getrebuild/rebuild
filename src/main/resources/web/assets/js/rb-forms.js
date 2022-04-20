@@ -1305,7 +1305,6 @@ class RbFormPickList extends RbFormElement {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: $L('选择%s', this.props.label),
       })
-      $fixSelect2(this.__select2)
 
       const that = this
       this.__select2
