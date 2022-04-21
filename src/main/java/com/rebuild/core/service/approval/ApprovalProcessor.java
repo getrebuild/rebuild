@@ -22,9 +22,8 @@ import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -35,9 +34,8 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
+@Slf4j
 public class ApprovalProcessor extends SetUser {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ApprovalProcessor.class);
 
     // 最大撤销次数
     private static final int MAX_REVOKED = 3;
@@ -80,13 +78,13 @@ public class ApprovalProcessor extends SetUser {
 
         FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
         if (!nextNodes.isValid()) {
-            LOG.warn("No next-node be found");
+            log.warn("No next-node be found");
             return false;
         }
 
         Set<ID> nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
         if (nextApprovers.isEmpty()) {
-            LOG.warn("No any approvers special");
+            log.warn("No any approvers special");
             return false;
         }
 
@@ -444,6 +442,12 @@ public class ApprovalProcessor extends SetUser {
     }
 
     private void shareIfNeed(ID recordId, Set<ID> shareTo) {
+        // 当前用户无共享权限
+        if (!Application.getPrivilegesManager().allowShare(getUser(), recordId)) {
+            log.warn("Current userm no share privileges to auto-share : {} >> {}", getUser(), recordId);
+            return;
+        }
+
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
             if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
