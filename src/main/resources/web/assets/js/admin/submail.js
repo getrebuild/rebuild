@@ -21,17 +21,15 @@ postBefore = function (data) {
 }
 
 $(document).ready(() => {
-  $('.J_test-email').click(() => renderRbcomp(<TestSend type="email" />))
-  $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
+  $('.J_test-email').on('click', () => renderRbcomp(<TestSend type="email" />))
+  $('.J_test-sms').on('click', () => renderRbcomp(<TestSend type="sms" />))
 
   // Use SMTP
   if ($('td[data-id="MailSmtpServer"]').attr('data-value')) {
     $('.email-set').addClass('smtp')
   }
   // Switch SMTP
-  $('.J_switch-email-set').click(() => {
-    $('.email-set').toggleClass('smtp')
-  })
+  $('.J_switch-email-set').on('click', () => $('.email-set').toggleClass('smtp'))
 
   $.get('./submail/stats', (res) => {
     let $el = $('.J_stats-sms')
@@ -61,8 +59,7 @@ const _renderStats = function (data, $el) {
       textStyle: { fontSize: 12 },
     },
     textStyle: {
-      fontFamily:
-        'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+      fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
     },
     xAxis: {
       show: false,
@@ -126,6 +123,9 @@ class TestSend extends RbAlert {
       const $this = $(this)
       conf[$this.data('id')] = $this.find('input').val()
     })
+
+    // None SMTP
+    if ($('.email-set.smtp').length === 0) conf['MailSmtpServer'] = null
 
     $(this._btn).button('loading')
     $.post('./submail/test?type=' + this.props.type + '&receiver=' + $encode(receiver), JSON.stringify(conf), (res) => {

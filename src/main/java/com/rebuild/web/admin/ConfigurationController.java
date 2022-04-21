@@ -215,6 +215,7 @@ public class ConfigurationController extends BaseController {
             String[] specAccount = new String[]{
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName"),
+                    data.getString("MailCc"),
                     data.getString("MailSmtpServer")
             };
             if (specAccount[1].contains("*")) {
