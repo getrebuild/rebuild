@@ -145,7 +145,6 @@ class FieldsMapping extends React.Component {
 
         const sourceFields = []
         that.props.source.fields.forEach((item) => {
-          if (item.name.includes('.')) return  // 暂不支持二级字段
           if ($fieldIsCompatible(item, targetField)) {
             sourceFields.push({ id: item.name, text: item.label })
           }

@@ -105,25 +105,22 @@ public class TransformConfigController extends BaseController {
             fields.add(easyField.toJSON());
         }
 
-        // 二级字段
-        if (isSource) {
-            for (Field refField : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
-                if (!refField.isQueryable() || MetadataHelper.isCommonsField(refField)) continue;
+        // 二级字段（父级）
+        if (isSource && entity.getMainEntity() != null) {
+            Field dtmField = MetadataHelper.getDetailToMainField(entity);
+            String namePrefix = dtmField.getName() + ".";
+            String labelPrefix = EasyMetaFactory.getLabel(dtmField) + ".";
 
-                String namePrefix = refField.getName() + ".";
-                String labelPrefix = EasyMetaFactory.getLabel(refField) + ".";
+            for (Field field : MetadataSorter.sortFields(dtmField.getReferenceEntity())) {
+                if (!field.isQueryable() || MetadataHelper.isCommonsField(field)) continue;
 
-                for (Field field : MetadataSorter.sortFields(refField.getReferenceEntity())) {
-                    if (!refField.isQueryable() || MetadataHelper.isCommonsField(field)) continue;
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
 
-                    EasyField easyField = EasyMetaFactory.valueOf(field);
-                    if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-
-                    JSONObject o = (JSONObject) easyField.toJSON();
-                    o.put("name", namePrefix + o.getString("name"));
-                    o.put("label", labelPrefix + o.getString("label"));
-                    fields.add(o);
-                }
+                JSONObject o = (JSONObject) easyField.toJSON();
+                o.put("name", namePrefix + o.getString("name"));
+                o.put("label", labelPrefix + o.getString("label"));
+                fields.add(o);
             }
         }
 

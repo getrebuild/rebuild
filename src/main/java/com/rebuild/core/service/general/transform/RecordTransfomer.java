@@ -195,7 +195,8 @@ public class RecordTransfomer extends SetUser {
             Object sourceValue = source.getObjectValue(sourceField);
             if (sourceValue != null) {
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
+                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
+                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
 
                 if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
                     sourceValue = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
@@ -206,8 +207,13 @@ public class RecordTransfomer extends SetUser {
             }
         }
 
-        target = Application.getEntityService(targetEntity.getEntityCode()).create(target);
-        return target.getPrimary();
+        GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+        try {
+            target = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(target);
+            return target.getPrimary();
+        } finally {
+            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+        }
     }
 
     private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
@@ -215,8 +221,10 @@ public class RecordTransfomer extends SetUser {
         for (Object field : fieldsName) {
             if (field == null) continue;
 
-            if (MetadataHelper.checkAndWarnField(entity, (String) field)) {
+            if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);
+            } else {
+                log.warn("Unknown field `{}` in `{}`", field, entity.getName());
             }
         }
         return valid;

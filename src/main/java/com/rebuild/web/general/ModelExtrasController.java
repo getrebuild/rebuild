@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -83,7 +84,13 @@ public class ModelExtrasController extends BaseController {
             return RespBody.ok(newId);
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
-            return RespBody.errorl("记录转换失败 (%s)", ex.getLocalizedMessage());
+
+            String detail = ex.getLocalizedMessage();
+            if (ex instanceof RepeatedRecordsException) {
+                detail = Language.L("存在重复记录");
+            }
+
+            return RespBody.errorl("记录转换失败 (%s)", detail);
         }
     }
 
