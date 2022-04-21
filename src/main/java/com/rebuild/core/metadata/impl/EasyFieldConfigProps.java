@@ -134,4 +134,9 @@ public class EasyFieldConfigProps {
      * 自动定位
      */
     public static final String LOCATION_AUTOLOCATION = "locationAutoLocation";
+
+    /**
+     * 扫码
+     */
+    public static final String TEXT_SCANCODE = "textScanCode";
 }

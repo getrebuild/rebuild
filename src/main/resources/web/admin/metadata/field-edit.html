@@ -330,6 +330,13 @@
                         <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('不允许使用的字段对普通用户不可见')}"></i>
                       </span>
                     </label>
+                    <label class="custom-control custom-control-sm custom-checkbox bosskey-show">
+                      <input class="custom-control-input" type="checkbox" id="textScanCode" th:data-o="${textScanCode}" />
+                      <span class="custom-control-label">
+                        [[${bundle.L('开启扫码')}]]
+                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('仅可在手机版企业微信、钉钉中使用')}"></i>
+                      </span>
+                    </label>
                     <label class="custom-control custom-control-sm custom-checkbox">
                       <input class="custom-control-input" type="checkbox" id="advDesensitized" />
                       <span class="custom-control-label">
