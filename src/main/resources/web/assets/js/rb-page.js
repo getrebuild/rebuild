@@ -900,3 +900,36 @@ var $getScript = function (url, callback) {
     cache: true,
   })
 }
+
+// 搜索 text/id
+// https://select2.org/searching#customizing-how-results-are-matched
+var $select2MatcherAll = function (params, data) {
+  if ($.trim(params.term) === '') {
+    return data
+  }
+  if (typeof data.text === 'undefined') {
+    return null
+  }
+
+  function _matcher(item, s) {
+    s = s.toLowerCase()
+    return item.text.toLowerCase().indexOf(s) > -1 || item.id.toLowerCase().indexOf(s) > -1
+  }
+
+  if (data.children) {
+    var ch = data.children.filter(function (item) {
+      return _matcher(item, params.term)
+    })
+    if (ch.length === 0) return null
+
+    var data2 = $.extend({}, data, true)
+    data2.children = ch
+    return data2
+  } else {
+    if (_matcher(data, params.term)) {
+      return data
+    }
+  }
+
+  return null
+}

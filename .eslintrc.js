@@ -118,5 +118,6 @@ module.exports = {
     WrapHtml: true,
     SignPad: true,
     RF: true,
+    $select2MatcherAll: true,
   },
 }
