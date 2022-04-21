@@ -18,11 +18,13 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +37,7 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * SUBMAIL SMS/MAIL 发送
@@ -80,11 +83,12 @@ public class SMSender {
      * @param subject
      * @param content
      * @param useTemplate
+     * @param specAccount
      * @return <tt>null</tt> if failed or SENDID
      * @throws ConfigurationException If mail-account unset
      */
     public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
-        if (specAccount == null || specAccount.length < 4
+        if (specAccount == null || specAccount.length < 5
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
             throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
@@ -94,8 +98,8 @@ public class SMSender {
         if (useTemplate) {
             Element mailbody = getMailTemplate();
 
-            mailbody.selectFirst(".rb-title").text(subject);
-            mailbody.selectFirst(".rb-content").html(content);
+            Objects.requireNonNull(mailbody.selectFirst(".rb-title")).text(subject);
+            Objects.requireNonNull(mailbody.selectFirst(".rb-content")).html(content);
             String htmlContent = mailbody.html();
             // 处理公共变量
             htmlContent = htmlContent.replace("%TO%", to);
@@ -116,23 +120,23 @@ public class SMSender {
         final String logContent = "【" + subject + "】" + content;
 
         // Use SMTP
-        if (specAccount.length >= 5 && StringUtils.isNotBlank(specAccount[4])) {
-            String emailId;
+        if (specAccount.length >= 6 && StringUtils.isNotBlank(specAccount[5])) {
             try {
-                emailId = sendMailViaSmtp(to, subject, content, specAccount);
+                String emailId = sendMailViaSmtp(to, subject, content, specAccount);
+                createLog(to, logContent, TYPE_EMAIL, emailId, null);
+                return emailId;
+
             } catch (EmailException ex) {
-                log.error("Mail failed to send : " + to + " > " + subject, ex);
+                log.error("SMTP failed to send : " + to + " > " + subject, ex);
                 return null;
             }
-
-            createLog(to, logContent, TYPE_EMAIL, emailId, null);
-            return emailId;
         }
 
         Map<String, Object> params = new HashMap<>();
         params.put("appid", specAccount[0]);
         params.put("signature", specAccount[1]);
         params.put("to", to);
+        if (StringUtils.isNotBlank(specAccount[4])) params.put("cc", specAccount[4]);
         params.put("from", specAccount[2]);
         params.put("from_name", specAccount[3]);
         params.put("subject", subject);
@@ -142,13 +146,14 @@ public class SMSender {
             params.put("text", content);
         }
         params.put("asynchronous", "true");
+        params.put("headers", JSONUtils.toJSONObject("X-User-Agent", HttpUtils.RB_UA));
 
         JSONObject rJson;
         try {
-            String r = HttpUtils.post("https://api.mysubmail.com/mail/send.json", params);
+            String r = HttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Mail failed to send : " + to + " > " + subject, ex);
+            log.error("Submail failed to send : " + to + " > " + subject, ex);
             return null;
         }
 
@@ -175,21 +180,23 @@ public class SMSender {
      * @return
      * @throws ConfigurationException
      */
-    private static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
+    protected static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.addTo(to);
+        if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
         email.setSubject(subject);
         email.setHtmlMsg(htmlContent);
 
-        email.setAuthentication(specAccount[0], specAccount[1]);
         email.setFrom(specAccount[2], specAccount[3]);
+        email.setAuthentication(specAccount[0], specAccount[1]);
 
-        // host:port:ssl
-        String[] hostPortSsl = specAccount[4].split(":");
+        // HOST[:PORT:SSL]
+        String[] hostPortSsl = specAccount[5].split(":");
         email.setHostName(hostPortSsl[0]);
         if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
         if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
+        email.addHeader("X-User-Agent", HttpUtils.RB_UA);
         email.setCharset("UTF-8");
         return email.send();
     }
@@ -259,19 +266,22 @@ public class SMSender {
         params.put("appid", specAccount[0]);
         params.put("signature", specAccount[1]);
         params.put("to", to);
-        // Auto appended the SMS-Sign (China only?)
+        // Auto append the SMS-Sign
         if (!content.startsWith("【")) {
             content = "【" + specAccount[2] + "】" + content;
         }
         params.put("content", content);
 
+        HeavyStopWatcher.createWatcher("Subsms Send", to);
         JSONObject rJson;
         try {
-            String r = HttpUtils.post("https://api.mysubmail.com/message/send.json", params);
+            String r = HttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("SMS failed to send : " + to + " > " + content, ex);
+            log.error("Subsms failed to send : " + to + " > " + content, ex);
             return null;
+        } finally {
+            HeavyStopWatcher.clean();
         }
 
         if (STATUS_OK.equalsIgnoreCase(rJson.getString("status"))) {
@@ -286,30 +296,21 @@ public class SMSender {
         }
     }
 
-    /**
-     * 记录发送日志
-     *
-     * @param to
-     * @param content
-     * @param type    1=短信 2=邮件
-     * @param sentid
-     * @param error
-     */
     private static void createLog(String to, String content, int type, String sentid, String error) {
         if (!Application.isReady()) return;
 
-        Record log = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
-        log.setString("to", to);
-        log.setString("content", CommonsUtils.maxstr(content, 10000));
-        log.setDate("sendTime", CalendarUtils.now());
-        log.setInt("type", type);
+        Record slog = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
+        slog.setString("to", to);
+        slog.setString("content", CommonsUtils.maxstr(content, 10000));
+        slog.setDate("sendTime", CalendarUtils.now());
+        slog.setInt("type", type);
         if (sentid != null) {
-            log.setString("sendResult", sentid);
+            slog.setString("sendResult", sentid);
         } else {
-            log.setString("sendResult",
+            slog.setString("sendResult",
                     CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
         }
-        Application.getCommonsService().create(log);
+        Application.getCommonsService().create(slog);
     }
 
     /**

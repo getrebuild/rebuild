@@ -214,7 +214,7 @@ class RbAlert extends React.Component {
     if (this.props.width) styles.maxWidth = ~~this.props.width
 
     return (
-      <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex={this.state.tabIndex || -1}>
+      <div className="modal rbalert" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog modal-dialog-centered" style={styles}>
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -274,7 +274,9 @@ class RbAlert extends React.Component {
 
   disabled(d) {
     d = d === true
-    this.setState({ disable: d, tabIndex: d ? 99999 : -1 }, () => {
+    // 带有 tabIndex 导致 select2 组件搜索框无法搜索???
+    // , tabIndex: d ? 99999 : -1
+    this.setState({ disable: d }, () => {
       // disabled 时不能简单关闭
       // $(this._dlg).modal({ backdrop: d ? 'static' : true, keyboard: !d })
     })
@@ -706,6 +708,7 @@ const DateShow = function ({ date }) {
 }
 
 // ~~ 任意记录选择
+// @see rb-page.js#$initReferenceSelect2
 class AnyRecordSelector extends React.Component {
   state = { ...this.props }
 
@@ -739,6 +742,7 @@ class AnyRecordSelector extends React.Component {
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
+            matcher: $select2MatcherAll,
           })
           .on('change', () => {
             $(this._record).val(null).trigger('change')
@@ -1003,7 +1007,6 @@ class RbGritter extends React.Component {
           <div className="gritter-content gritter-with-image">
             <a
               className="gritter-close"
-              tabIndex="1"
               onClick={(e) => {
                 $stopEvent(e, true)
                 this._removeItem(itemid)

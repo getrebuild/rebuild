@@ -640,7 +640,6 @@ var $initReferenceSelect2 = function (el, options) {
     theme: 'default ' + (options.appendClass || ''),
   })
 
-  $fixSelect2($el)
   return $el
 }
 
@@ -902,11 +901,35 @@ var $getScript = function (url, callback) {
   })
 }
 
-// fix: 搜索框无法获取焦点
-var $fixSelect2 = function (select) {
-  $(select).on('select2:open', function () {
-    var s = $(this).data('select2')
-    s = s && s.$dropdown ? s.$dropdown.find('input.select2-search__field') : null
-    s && s[0] && s[0].focus()
-  })
+// 搜索 text/id
+// https://select2.org/searching#customizing-how-results-are-matched
+var $select2MatcherAll = function (params, data) {
+  if ($.trim(params.term) === '') {
+    return data
+  }
+  if (typeof data.text === 'undefined') {
+    return null
+  }
+
+  function _matcher(item, s) {
+    s = s.toLowerCase()
+    return item.text.toLowerCase().indexOf(s) > -1 || item.id.toLowerCase().indexOf(s) > -1
+  }
+
+  if (data.children) {
+    var ch = data.children.filter(function (item) {
+      return _matcher(item, params.term)
+    })
+    if (ch.length === 0) return null
+
+    var data2 = $.extend({}, data, true)
+    data2.children = ch
+    return data2
+  } else {
+    if (_matcher(data, params.term)) {
+      return data
+    }
+  }
+
+  return null
 }

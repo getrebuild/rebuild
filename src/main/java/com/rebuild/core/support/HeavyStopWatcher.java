@@ -26,16 +26,34 @@ public class HeavyStopWatcher {
     private static final ThreadLocal<StopWatch> WATCHER = new NamedThreadLocal<>("HeavyTaskWatcher");
 
     /**
-     * @param name
+     * 创建
+     *
+     * @param watcherName
      * @return
      */
-    public static StopWatch createWatcher(String name) {
+    public static StopWatch createWatcher(String watcherName) {
+        return createWatcher(watcherName, null);
+    }
+
+    /**
+     * 创建并启动
+     *
+     * @param watcherName
+     * @param taskName
+     * @return
+     */
+    public static StopWatch createWatcher(String watcherName, String taskName) {
         // 未启用
         if (!BooleanUtils.toBoolean(System.getProperty("_HeavyStopWatcher"))) return null;
 
-        StopWatch sw = new StopWatch(name);
+        StopWatch sw = new StopWatch(watcherName);
         WATCHER.set(sw);
-        return sw;
+
+        if (taskName != null) {
+            return start(taskName);
+        } else {
+            return sw;
+        }
     }
 
     /**
@@ -60,7 +78,11 @@ public class HeavyStopWatcher {
         StopWatch sw = WATCHER.get();
         if (sw == null) return null;
 
-        if (sw.getTotalTimeMillis() > printIfTimeout) log.info("\n" + sw.prettyPrint());
+        if (sw.getTotalTimeMillis() > printIfTimeout) {
+            log.info("\n" + sw.prettyPrint());
+        }
+
+        if (sw.isRunning()) sw.stop();
 
         WATCHER.remove();
         return sw;

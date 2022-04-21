@@ -315,6 +315,7 @@ class DlgAddChart extends RbFormHandler {
       this.__select2 = $entity.select2({
         allowClear: false,
         placeholder: $L('选择数据来源'),
+        matcher: $select2MatcherAll,
       })
     })
   }

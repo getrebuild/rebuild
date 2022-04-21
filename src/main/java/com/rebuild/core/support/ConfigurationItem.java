@@ -34,7 +34,7 @@ public enum ConfigurationItem {
     StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
 
     // 邮件
-    MailUser, MailPassword, MailAddr, MailName(AppName),
+    MailUser, MailPassword, MailAddr, MailName(AppName), MailCc,
     MailSmtpServer,
 
     // 短信
