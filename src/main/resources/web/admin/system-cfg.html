@@ -256,7 +256,7 @@
                   <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多增值功能与专业技术支持</a>
                 </div>
               </div>
-              <div class="card" th:if="${commercial <= 10}">
+              <div class="card" th:classappend="${commercial > 10 ? 'hide' : ''}">
                 <div class="card-header card-header-divider">[[${bundle.L('关于')}]] REBUILD</div>
                 <div class="card-body">
                   <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
