@@ -224,8 +224,7 @@ public class MetaEntityController extends BaseController {
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
         } else {
-            FileDownloader.setDownloadHeaders(request, response, dest.getName());
-            FileDownloader.writeLocalFile(dest.getName(), true, response);
+            FileDownloader.downloadTempFile(response, dest, null);
         }
     }
 

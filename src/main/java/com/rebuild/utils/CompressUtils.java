@@ -94,4 +94,22 @@ public class CompressUtils {
             }
         }
     }
+
+    /**
+     * @param source
+     * @param dest
+     * @throws IOException
+     * @see IOUtils#copyLarge(Reader, Writer)
+     */
+    public static void copy(File source, File dest) throws IOException {
+        FileReader fr = new FileReader(source);
+        FileWriter fw = new FileWriter(dest);
+
+        try {
+            IOUtils.copyLarge(fr, fw);
+        } finally {
+            IOUtils.closeQuietly(fr);
+            IOUtils.closeQuietly(fw);
+        }
+    }
 }

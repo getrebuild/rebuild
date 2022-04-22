@@ -90,7 +90,7 @@ public class ReportTemplateController extends BaseController {
     }
 
     @GetMapping("/report-templates/preview")
-    public void preview(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void preview(@IdParam ID reportId, HttpServletResponse response) throws IOException {
         Object[] report = Application.createQueryNoFilter(
                 "select belongEntity from DataReportConfig where configId = ?")
                 .setParameter(1, reportId)
@@ -114,7 +114,6 @@ public class ReportTemplateController extends BaseController {
             return;
         }
 
-        FileDownloader.setDownloadHeaders(request, response, file.getName());
-        FileDownloader.writeLocalFile(file, response);
+        FileDownloader.downloadTempFile(response, file, null);
     }
 }

@@ -166,6 +166,16 @@ public class QiniuCloud {
     }
 
     /**
+     * @param filePath
+     * @param dest
+     * @throws IOException
+     */
+    public void download(String filePath, File dest) throws IOException {
+        String url = makeUrl(filePath, 60);
+        HttpUtils.readBinary(url, dest, null);
+    }
+
+    /**
      * 删除文件
      *
      * @param key

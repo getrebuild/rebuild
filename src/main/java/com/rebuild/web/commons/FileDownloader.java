@@ -222,6 +222,7 @@ public class FileDownloader extends BaseController {
      * @param response
      * @return
      * @throws IOException
+     * @see #setDownloadHeaders(HttpServletRequest, HttpServletResponse, String)
      */
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
         if (!file.exists()) {
@@ -243,6 +244,7 @@ public class FileDownloader extends BaseController {
      * @param response
      * @return
      * @throws IOException
+     * @see #setDownloadHeaders(HttpServletRequest, HttpServletResponse, String)
      */
     public static boolean writeStream(InputStream is, HttpServletResponse response) throws IOException {
         response.setContentLength(is.available());
@@ -264,7 +266,7 @@ public class FileDownloader extends BaseController {
      * @param response
      * @param attname
      */
-    public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+    protected static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
         // 特殊字符处理
         attname = attname.replace(" ", "-");
         attname = attname.replace("%", "-");
@@ -294,5 +296,17 @@ public class FileDownloader extends BaseController {
             throw new RebuildException("Attack path detected : " + filepath);
         }
         return filepath;
+    }
+
+    /**
+     * @param resp
+     * @param file
+     * @param attname
+     * @throws IOException
+     */
+    public static void downloadTempFile(HttpServletResponse resp, File file, String attname) throws IOException {
+        String url = String.format("/filex/download/%s?temp=yes", CodecUtils.urlEncode(file.getName()));
+        if (attname != null) url += "&attname=" + CodecUtils.urlEncode(attname);
+        resp.sendRedirect(AppUtils.getContextPath(url));
     }
 }
