@@ -39,11 +39,13 @@ public class SystemDiagnosis {
 
         LinkedHashMap<String, String> dangers = getDangersList();
 
-        JSONObject checkBuild = License.siteApi("api/authority/check-build");
-        if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
-            dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
-        } else {
-            dangers.remove(HasUpdate);
+        if (License.getCommercialType() != 11) {
+            JSONObject checkBuild = License.siteApi("api/authority/check-build");
+            if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
+                dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
+            } else {
+                dangers.remove(HasUpdate);
+            }
         }
 
         JSONObject echoValidity = License.siteApiNoCache("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
