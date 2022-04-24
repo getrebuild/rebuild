@@ -256,12 +256,12 @@
                   <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多增值功能与专业技术支持</a>
                 </div>
               </div>
-              <div class="card" th:if="${commercial <= 10}">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]] REBUILD</div>
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
                 <div class="card-body">
                   <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
                   <p class="mb-2">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
-                  <ul style="line-height: 2">
+                  <ul style="line-height: 2" th:if="${commercial < 11}">
                     <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('系统状态')}]]</a></li>
                     <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('帮助文档')}]]</a></li>
                     <li><a class="link" target="_blank" href="https://getrebuild.com/">[[${bundle.L('技术支持')}]]</a></li>
@@ -272,13 +272,6 @@
                       th:utext="${bundle.L('[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。')}"
                     ></span>
                   </div>
-                </div>
-              </div>
-              <div class="card" th:if="${commercial > 10}">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
-                <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('系统版本')}]] <a>[[${Version}]]</a></p>
-                  <p class="mb-2">[[${bundle.L('授权类型')}]] <a>[[${LicenseType}]]</a></p>
                 </div>
               </div>
             </div>
