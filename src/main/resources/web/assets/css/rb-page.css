@@ -1494,8 +1494,7 @@ i.dividing.ui-draggable-dragging {
   line-height: 1.3334;
 }
 
-.column-imgs,
-.column-files {
+.column-imgs {
   max-height: 32px;
   overflow: hidden;
 }
@@ -1522,19 +1521,18 @@ i.dividing.ui-draggable-dragging {
   margin-left: 3px;
 }
 
-.column-files ul,
-.column-files ul > li {
-  margin: 0;
-  padding: 0;
-}
-
-.column-files ul > li {
-  line-height: 1.3;
-}
-
-.column-files ul > li > a:hover {
+.column-files > a:hover {
   cursor: pointer;
   color: #0d5bdd !important;
+}
+
+.column-files > a + a::before,
+.column-n2n > a + a::before {
+  content: ',';
+  margin-left: 1px;
+  margin-right: 4px;
+  color: #878787;
+  font-weight: bold;
 }
 
 .column-checkbox {
