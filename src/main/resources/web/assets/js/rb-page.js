@@ -176,6 +176,12 @@ $(function () {
       location.reload(true)
     })
   })
+
+  if (rb.commercial === 11) {
+    $('a[target="_blank"]').each(function () {
+      if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
+    })
+  }
 })
 
 var $addResizeHandler__calls = []

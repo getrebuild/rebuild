@@ -46,12 +46,14 @@ class ContentSendNotification extends ActionContentSpec {
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(2)} checked={this.state.userType === 2} />
-                <span className="custom-control-label">{$L('外部人员')}</span>
+                <span className="custom-control-label">
+                  {$L('外部人员')} <sup className="rbv" title={$L('增值功能')} />
+                </span>
               </label>
             </div>
           </div>
           <div className="form-group row pt-0 mt-0">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right"></label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right" />
             <div className="col-12 col-lg-8">
               <div className={this.state.userType === 1 ? '' : 'hide'}>
                 <UserSelectorWithField ref={(c) => (this._sendTo1 = c)} />
@@ -120,6 +122,11 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   buildContent() {
+    if (rb.commercial < 1 && this.state.userType === 2) {
+      RbHighbar.error(WrapHtml($L('免费版不支持外部人员功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+
     const _data = {
       type: this.state.type,
       userType: this.state.userType,
@@ -127,7 +134,8 @@ class ContentSendNotification extends ActionContentSpec {
       title: $(this._title).val(),
       content: $(this._content).val(),
     }
-    if (!_data.sendTo || _data.sendTo.length === 0) {
+
+    if ((_data.sendTo || []).length === 0) {
       RbHighbar.create($L('请选择发送给谁'))
       return false
     }

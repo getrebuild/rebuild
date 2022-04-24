@@ -547,10 +547,9 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm">
-      <div className="column-imgs" style={s} title={$L('共 %d 项', vLen)}>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-imgs" style={s}>
         {v.map((item, idx) => {
-          if (idx > 2) return null
           const imgName = $fileCutName(item)
           const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
@@ -568,22 +567,16 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm">
-      <div style={s} className="column-files">
-        <ul className="list-unstyled" title={$L('共 %d 项', vLen)}>
-          {v.map((item, idx) => {
-            if (idx > 0) return null
-            const fileName = $fileCutName(item)
-            return (
-              <li key={item} className="text-truncate">
-                <a onClick={(e) => CellRenders.clickPreview(item, null, e)}>
-                  {fileName}
-                  {vLen > 1 ? ` ...[${vLen}]` : null}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-files" style={s}>
+        {v.map((item) => {
+          const fileName = $fileCutName(item)
+          return (
+            <a key={item} title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>
+              {fileName}
+            </a>
+          )
+        })}
       </div>
     </td>
   )
@@ -605,14 +598,12 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k}>
-      <div style={s} title={$L('共 %d 项', vLen)}>
-        {v.map((item, idx) => {
-          if (idx > 0) return null
+    <td key={k} title={$L('共 %d 项', vLen)}>
+      <div className="column-n2n" style={s}>
+        {v.map((item) => {
           return (
             <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
-              {vLen > 1 ? ` ...[${vLen}]` : null}
             </a>
           )
         })}
@@ -692,9 +683,10 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
 })
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
+  const vLen = (v.text || []).length
   return (
-    <td key={k} className="td-sm column-multi">
-      <div style={s}>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           return (
             <span key={item} className="badge" title={item}>

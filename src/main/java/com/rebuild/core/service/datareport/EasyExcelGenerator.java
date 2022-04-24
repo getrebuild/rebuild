@@ -75,7 +75,7 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     public File generate() {
-        File tmp = RebuildConfiguration.getFileOfTemp(String.format("REPORT-%d.%s",
+        File tmp = RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s",
                 System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
 
         List<Map<String, Object>> datas = buildData();

@@ -350,6 +350,14 @@ class LightAttachmentList extends RelatedList {
         </p>
       </div>
     )
+    this.__listExtraLink = (
+      <form method="post" action={`${rb.baseUrl}/files/batch-download`} target="_blank" ref={(c) => (this._$downloadForm = c)}>
+        <input type="hidden" name="files" />
+        <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')}>
+          <i className="icon zmdi zmdi-download" />
+        </button>
+      </form>
+    )
   }
 
   renderSorts() {
@@ -417,6 +425,9 @@ class LightAttachmentList extends RelatedList {
       this.setState({ dataList: list, showMore: data.length >= pageSize })
 
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+
+      const files = list.map((item) => item.filePath)
+      $(this._$downloadForm).find('input').val(files.join(','))
     })
   }
 }

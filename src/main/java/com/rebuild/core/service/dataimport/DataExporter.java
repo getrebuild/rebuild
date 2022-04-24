@@ -70,7 +70,7 @@ public class DataExporter extends SetUser {
      */
     public File export(ID useReport) {
         if (useReport == null) {
-            File tmp = RebuildConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
+            File tmp = RebuildConfiguration.getFileOfTemp(String.format("RBEXPORT-%d.csv", System.currentTimeMillis()));
             exportCsv(tmp);
             return tmp;
         } else {

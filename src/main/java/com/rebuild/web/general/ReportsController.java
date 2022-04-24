@@ -70,8 +70,7 @@ public class ReportsController extends BaseController {
             writeSuccess(response, data);
 
         } else {
-            FileDownloader.setDownloadHeaders(request, response, fileName);
-            FileDownloader.writeLocalFile(file, response);
+            FileDownloader.downloadTempFile(response, file, fileName);
         }
     }
 
