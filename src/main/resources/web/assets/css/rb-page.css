@@ -997,12 +997,12 @@ select.form-control:not([disabled]) {
 .img-field {
   line-height: 1;
   font-size: 0;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .img-field > span {
   margin-right: 5px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   display: inline-block;
 }
 
