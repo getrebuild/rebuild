@@ -295,21 +295,22 @@ public class UserHelper {
             new Color(52, 168, 83),
             new Color(251, 188, 5),
             new Color(234, 67, 53),
-            new Color(61, 60, 60)
+            new Color(155, 82, 222),
+            new Color(22, 168, 143),
     };
 
     /**
      * 生成用户头像
      *
      * @param name
-     * @param reload
+     * @param forceMake
      * @return
      */
-    public static File generateAvatar(String name, boolean reload) {
+    public static File generateAvatar(String name, boolean forceMake) {
         if (StringUtils.isBlank(name)) name = "RB";
         File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + ".jpg");
         if (avatarFile.exists()) {
-            if (reload) {
+            if (forceMake) {
                 FileUtils.deleteQuietly(avatarFile);
             } else {
                 return avatarFile;
@@ -333,11 +334,13 @@ public class UserHelper {
             final Font font = createFont();
             g2d.setFont(font);
             g2d.setColor(Color.WHITE);
-
             FontMetrics fontMetrics = g2d.getFontMetrics(font);
             int x = fontMetrics.stringWidth(name);
             g2d.drawString(name, (200 - x) / 2, 128);
-
+            g2d.setColor(new Color(0, 0, 0, 1));
+            g2d.drawString("wbr", 0, 62);
+            g2d.dispose();
+            
             try (FileOutputStream fos = new FileOutputStream(avatarFile)) {
                 ImageIO.write(bi, "png", fos);
                 fos.flush();
