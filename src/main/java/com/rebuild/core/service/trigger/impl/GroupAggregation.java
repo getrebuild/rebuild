@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -34,8 +35,6 @@ import java.util.*;
 
 /**
  * 分组聚合
- *
- * FIXME 目标实体记录自动新建时不会触发业务规则，因为使用了 CommonService 创建
  *
  * @author devezhao
  * @since 2021/6/28
@@ -195,6 +194,7 @@ public class GroupAggregation extends FieldAggregation {
 
         // 不必担心必填字段，必填只是前端约束
         // 还可以通过设置字段默认值来完成必填字段的自动填写
+        // 0425 需要业务规则，譬如自动编号、默认值等
 
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
@@ -207,14 +207,13 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
-//        // 若无权限可能抛出异常（无权新建）
-//        if (allowNoPermissionUpdate) {
-//            PrivilegesGuardContextHolder.setSkipGuard(PrivilegesGuardContextHolder.FOR_NEW_RECORD);
-//        }
-//        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
-
-        // FIXME 忽略业务规则新建
-        newTargetRecord = Application.getCommonsService().create(newTargetRecord, false);
+        // 强制新建
+        PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        try {
+            Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+        } finally {
+            PrivilegesGuardContextHolder.getSkipGuardOnce();
+        }
 
         targetRecordId = newTargetRecord.getPrimary();
     }
