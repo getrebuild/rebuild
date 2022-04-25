@@ -26,6 +26,7 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -131,9 +132,11 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         // 无权限操作
-        if (!allowed && PrivilegesGuardContextHolder.getSkipGuardOnce() != null) {
+        ID skipId;
+        if (!allowed && (skipId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
             allowed = true;
-            log.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
+            log.warn("Allow no permission({}) passed once : {}",
+                    action.getName(), ObjectUtils.defaultIfNull(recordId, skipId));
         }
 
         if (!allowed) {
