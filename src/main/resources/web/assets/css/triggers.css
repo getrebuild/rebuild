@@ -464,6 +464,11 @@ textarea.formula-code {
 
 .when-update a {
   color: #4285f4 !important;
+  display: none;
+}
+
+.when-update:hover a {
+  display: inline-block;
 }
 
 .when-update a:hover {
