@@ -59,7 +59,6 @@ class DataList extends React.Component {
     const $s2 = $('#belongEntity')
       .select2({
         placeholder: $L('选择实体'),
-        width: 220,
         allowClear: false,
       })
       .val('$ALL$')
