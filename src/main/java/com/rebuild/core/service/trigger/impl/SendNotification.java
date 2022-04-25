@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -72,6 +73,22 @@ public class SendNotification implements TriggerAction {
 
     private void executeAsync(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) context.getActionContent();
+
+        // 指定字段
+        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
+        if (operatingContext.getAction() == BizzPermission.UPDATE
+                && whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
+            Record updatedRecord = operatingContext.getAfterRecord();
+            boolean hasUpdated = false;
+            for (String field : updatedRecord.getAvailableFields()) {
+                if (whenUpdateFields.contains(field)) {
+                    hasUpdated = true;
+                    break;
+                }
+            }
+
+            if (!hasUpdated) return;
+        }
 
         final int type = content.getIntValue("type");
         final int userType = content.getIntValue("userType");

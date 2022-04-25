@@ -368,7 +368,7 @@ textarea.formula-code {
 }
 
 .J_when label.custom-control {
-  min-width: 110px;
+  min-width: 120px;
 }
 
 .on-timers {
@@ -460,4 +460,12 @@ textarea.formula-code {
 /* fix: height */
 .select2-selection.select2-selection--multiple ul.select2-selection__rendered {
   display: block;
+}
+
+.when-update a {
+  color: #4285f4 !important;
+}
+
+.when-update a:hover {
+  color: #0d5bdd !important;
 }

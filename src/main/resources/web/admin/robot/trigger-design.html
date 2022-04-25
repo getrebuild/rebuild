@@ -36,9 +36,10 @@
                             <input class="custom-control-input" type="checkbox" value="1" />
                             <span class="custom-control-label"> [[${bundle.L('新建时')}]]</span>
                           </label>
-                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 when-update">
                             <input class="custom-control-input" type="checkbox" value="4" />
                             <span class="custom-control-label"> [[${bundle.L('更新时')}]]</span>
+                            <a class="hide ml-1" th:title="${bundle.L('指定字段')}"><i class="icon zmdi zmdi-settings fs-15"></i></a>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="2" />

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 var contentComp = null
+var whenUpdateFields
 
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
@@ -51,6 +52,21 @@ $(document).ready(() => {
     }
   })
   saveFilter(wpc.whenFilter)
+
+  $('.when-update a').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <DlgSpecFields
+        selected={whenUpdateFields}
+        onConfirm={(s) => {
+          whenUpdateFields = s
+          const $s = $('.when-update .custom-control-label')
+          if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
+          else $s.text($s.text().split(' (')[0])
+        }}
+      />
+    )
+  })
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
@@ -175,4 +191,68 @@ class ActionContentSpec extends React.Component {
 function _handle512Change() {
   if ($(event.target).prop('checked')) $('.on-timers').removeClass('hide')
   else $('.on-timers').addClass('hide')
+}
+
+// ~ 指定字段
+class DlgSpecFields extends RbModalHandler {
+  render() {
+    const _selected = this.props.selected || []
+
+    return (
+      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="p-1">
+          <div className="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm">
+            <div className="icon">
+              <span className="zmdi zmdi-info-outline" />
+            </div>
+            <div className="message">
+              <a className="close" data-dismiss="alert">
+                <span className="zmdi zmdi-close" />
+              </a>
+              <p>{$L('指定字段被更新时触发，默认为全部字段')}</p>
+            </div>
+          </div>
+
+          <div className="row " ref={(c) => (this._fields = c)}>
+            {(this.state.fields || []).map((item) => {
+              if (item.type === 'BARCODE' || item.updatable === false) return null
+              return (
+                <div className="col-3" key={`field-${item.name}`}>
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
+                    <input className="custom-control-input" type="checkbox" value={item.name} defaultChecked={_selected.includes(item.name)} />
+                    <span className="custom-control-label">{item.label}</span>
+                  </label>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button className="btn btn-primary btn-space" type="button" onClick={this.handleConfirm}>
+            {$L('确定')}
+          </button>
+          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm = () => {
+    const selected = []
+    $(this._fields)
+      .find('input:checked')
+      .each(function () {
+        selected.push(this.value)
+      })
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
+    this.hide()
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${wpc.sourceEntity}`, (res) => this.setState({ fields: res.data }))
+  }
 }
