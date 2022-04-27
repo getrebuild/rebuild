@@ -22,15 +22,10 @@ import com.rebuild.core.service.trigger.TriggerException;
  * @author devezhao
  * @since 2020/7/31
  */
-public class AutoApproval implements TriggerAction {
+public class AutoApproval extends TriggerAction {
 
-    final private ActionContext context;
-
-    /**
-     * @param context
-     */
     public AutoApproval(ActionContext context) {
-        this.context = context;
+        super(context);
     }
 
     @Override
@@ -46,8 +41,8 @@ public class AutoApproval implements TriggerAction {
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
         ID recordId = operatingContext.getAnyRecord().getPrimary();
-        String useApprover = ((JSONObject) context.getActionContent()).getString("useApprover");
-        String useApproval = ((JSONObject) context.getActionContent()).getString("useApproval");
+        String useApprover = ((JSONObject) actionContext.getActionContent()).getString("useApprover");
+        String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
         Application.getBean(ApprovalStepService.class).txAutoApproved(
                 recordId,

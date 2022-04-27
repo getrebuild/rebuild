@@ -46,14 +46,12 @@ import java.util.List;
  * @since 2019/05/29
  */
 @Slf4j
-public class FieldAggregation implements TriggerAction {
+public class FieldAggregation extends TriggerAction {
 
     /**
      * 更新自己
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
-
-    final protected ActionContext context;
 
     // 最大触发链深度
     final protected int maxTriggerDepth;
@@ -71,19 +69,12 @@ public class FieldAggregation implements TriggerAction {
     // 关联字段条件
     protected String followSourceWhere;
 
-    /**
-     * @param context
-     */
     public FieldAggregation(ActionContext context) {
         this(context, 9);
     }
 
-    /**
-     * @param context
-     * @param maxTriggerDepth
-     */
     protected FieldAggregation(ActionContext context, int maxTriggerDepth) {
-        this.context = context;
+        super(context);
         this.maxTriggerDepth = maxTriggerDepth;
     }
 
@@ -102,7 +93,7 @@ public class FieldAggregation implements TriggerAction {
         if (tschain == null) {
             tschain = new ArrayList<>();
         } else {
-            ID triggerCurrent = context.getConfigId();
+            ID triggerCurrent = actionContext.getConfigId();
             log.info("Occured trigger-chain : {} > {} (current)",
                     StringUtils.join(tschain, " > "), triggerCurrent);
 
@@ -131,7 +122,7 @@ public class FieldAggregation implements TriggerAction {
         }
 
         // 聚合数据过滤
-        JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
+        JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
         if (dataFilter != null && !dataFilter.isEmpty()) {
             dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
@@ -140,7 +131,7 @@ public class FieldAggregation implements TriggerAction {
         // 构建目标记录数据
         Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
 
-        JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
+        JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
@@ -170,7 +161,7 @@ public class FieldAggregation implements TriggerAction {
 
         // 有需要才执行
         if (!targetRecord.isEmpty()) {
-            final boolean forceUpdate = ((JSONObject) context.getActionContent()).getBooleanValue("forceUpdate");
+            final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
             // 跳过权限
             PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
@@ -180,7 +171,7 @@ public class FieldAggregation implements TriggerAction {
             }
 
             // 会关联触发下一触发器（如有）
-            tschain.add(context.getConfigId());
+            tschain.add(actionContext.getConfigId());
             TRIGGER_CHAIN_DEPTH.set(tschain);
 
             ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
@@ -202,8 +193,8 @@ public class FieldAggregation implements TriggerAction {
         if (sourceEntity != null) return;  // 已经初始化
 
         // FIELD.ENTITY
-        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
-        sourceEntity = context.getSourceEntity();
+        String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
+        sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
         String followSourceField;
@@ -211,7 +202,7 @@ public class FieldAggregation implements TriggerAction {
         // 自己
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             followSourceField = sourceEntity.getPrimaryField().getName();
-            targetRecordId = context.getSourceRecord();
+            targetRecordId = actionContext.getSourceRecord();
         } else {
             followSourceField = targetFieldEntity[0];
             if (!sourceEntity.containsField(followSourceField)) {
@@ -220,7 +211,7 @@ public class FieldAggregation implements TriggerAction {
 
             // 找到主记录
             Object[] o = Application.getQueryFactory().uniqueNoFilter(
-                    context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
+                    actionContext.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
             // o[1] 为空说明记录不存在
             if (o != null && o[0] != null && o[1] != null) {
                 targetRecordId = (ID) o[0];
