@@ -260,4 +260,9 @@ public class EntityHelper {
     // 外部表单
 
     public static final int ExtformConfig = 60;
+
+    // 日志
+
+    public static final int CommonsLog = 99;
+
 }
