@@ -308,7 +308,7 @@ public class UserHelper {
      */
     public static File generateAvatar(String name, boolean forceMake) {
         if (StringUtils.isBlank(name)) name = "RB";
-        File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + ".jpg");
+        File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + "29.jpg");
         if (avatarFile.exists()) {
             if (forceMake) {
                 FileUtils.deleteQuietly(avatarFile);
@@ -340,7 +340,7 @@ public class UserHelper {
             g2d.setColor(new Color(0, 0, 0, 1));
             g2d.drawString("wbr", 0, 62);
             g2d.dispose();
-            
+
             try (FileOutputStream fos = new FileOutputStream(avatarFile)) {
                 ImageIO.write(bi, "png", fos);
                 fos.flush();
