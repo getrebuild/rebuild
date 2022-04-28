@@ -199,6 +199,9 @@ public class Installer implements InstallState {
                 dbName,
                 getTimeZoneId());
 
+        // https://www.cnblogs.com/lusaisai/p/13372763.html
+        // allowPublicKeyRetrieval=true
+
         String dbUser = dbProps.getString("dbUser");
         String dbPassword = dbProps.getString("dbPassword");
 

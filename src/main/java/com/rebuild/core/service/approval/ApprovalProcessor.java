@@ -17,6 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.SetUser;
@@ -442,16 +443,22 @@ public class ApprovalProcessor extends SetUser {
     }
 
     private void shareIfNeed(ID recordId, Set<ID> shareTo) {
-        // 当前用户无共享权限
-        if (!Application.getPrivilegesManager().allowShare(getUser(), recordId)) {
-            log.warn("Current userm no share privileges to auto-share : {} >> {}", getUser(), recordId);
-            return;
-        }
+//        // 当前用户无共享权限
+//        if (!Application.getPrivilegesManager().allowShare(getUser(), recordId)) {
+//            log.warn("Current userm no share privileges to auto-share : {} >> {}", getUser(), recordId);
+//            return;
+//        }
 
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
             if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
-                es.share(recordId, user, null);
+                // force share
+                PrivilegesGuardContextHolder.setSkipGuard(recordId);
+                try {
+                    es.share(recordId, user, null);
+                } finally {
+                    PrivilegesGuardContextHolder.getSkipGuardOnce();
+                }
             }
         }
     }
