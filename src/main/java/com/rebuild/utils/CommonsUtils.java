@@ -192,4 +192,13 @@ public class CommonsUtils {
             throw new RebuildException(ex);
         }
     }
+
+    /**
+     * @param str
+     * @return
+     */
+    public static boolean isExternalUrl(String str) {
+        return str != null
+                && (str.startsWith("http://") || str.startsWith("https://"));
+    }
 }

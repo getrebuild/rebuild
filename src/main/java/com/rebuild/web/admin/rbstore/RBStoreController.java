@@ -15,6 +15,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,10 @@ public class RBStoreController extends BaseController {
     @GetMapping("/admin/rbstore/load-index")
     public JSONAware loadDataIndex(HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
+        if (CommonsUtils.isExternalUrl(type)) {
+            return RespBody.error();
+        }
+
         JSON index = RBStore.fetchRemoteJson(type + "/index.json");
         return index == null ? RespBody.error() : index;
     }
