@@ -31,6 +31,8 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     private JSONObject queryData;
 
+    private int count = 0;
+
     public EasyExcelListGenerator(ID reportId, JSONObject queryData) {
         super(DataReportManager.instance.getTemplateFile(
                 MetadataHelper.getEntity(queryData.getString("entity")), reportId), null);
@@ -74,7 +76,12 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         List<Map<String, Object>> datas = new ArrayList<>();
         for (Record c : list) {
             datas.add(buildData(c, varsMap));
+            count++;
         }
         return datas;
+    }
+
+    public int getExportCount() {
+        return count;
     }
 }

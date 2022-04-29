@@ -949,10 +949,10 @@ class DlgFields extends RbModalHandler {
           })}
         </div>
         <div className="dialog-footer">
-          <button className="btn btn-primary" type="button" onClick={this.confirm}>
+          <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
             {$L('确定')}
           </button>
-          <button className="btn btn-secondary" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
             {$L('取消')}
           </button>
         </div>

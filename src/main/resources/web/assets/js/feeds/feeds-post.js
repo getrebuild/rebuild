@@ -276,7 +276,7 @@ class FeedsEditor extends React.Component {
                 return (
                   <span key={'img-' + item}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="Avatar" />
+                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} alt="Avatar" />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
                         <span className="zmdi zmdi-close" />
                       </b>

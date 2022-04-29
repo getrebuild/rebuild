@@ -348,6 +348,7 @@ function _renderRepeatFields(entity) {
 // ~ 导入详情
 class ImportsTraceViewer extends RbAlert {
   renderContent() {
+    const data = this.state.data || []
     return (
       <table className="table table-fixed">
         <thead>
@@ -360,7 +361,7 @@ class ImportsTraceViewer extends RbAlert {
           </tr>
         </thead>
         <tbody>
-          {(this.state.trace || []).map((item) => {
+          {data.map((item) => {
             return (
               <tr key={item[0]}>
                 <th className="pr-0">{item[0] + 1}</th>
@@ -368,15 +369,17 @@ class ImportsTraceViewer extends RbAlert {
                   {item[1] === 'CREATED' && (
                     <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
                       {$L('新建成功')}
+                      <i className="icon zmdi zmdi-open-in-new ml-1" />
                     </a>
                   )}
                   {item[1] === 'UPDATED' && (
                     <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
                       {$L('更新成功')}
+                      <i className="icon zmdi zmdi-open-in-new ml-1" />
                     </a>
                   )}
                   {item[1] === 'SKIP' && <span className="text-muted">{$L('跳过')}</span>}
-                  {item[1] === 'ERROR' && <span className="text-danger">{$L('错误')}</span>}
+                  {item[1] === 'ERROR' && <span className="text-danger">{$L('失败')}</span>}
                 </td>
                 <td>{this._formatDetail(item)}</td>
               </tr>
@@ -413,10 +416,9 @@ class ImportsTraceViewer extends RbAlert {
   load() {
     $.get(`/admin/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ trace: res.data })
-
-        // reload
-        if (import_inprogress === true) this._timer = setTimeout(() => this.load(), 1500)
+        this.setState({ data: res.data })
+        // refresh
+        if (import_inprogress === true && res.data.length < 1000) this._timer = setTimeout(() => this.load(), 1500)
       } else {
         RbHighbar.error(res.error_msg)
       }

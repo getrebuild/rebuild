@@ -123,8 +123,13 @@ public class LoginAction extends BaseController {
         TaskExecutors.queue(() -> {
             Application.getCommonsService().create(record);
 
-            License.siteApiNoCache(
-                    String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s", user, ipAddr, CodecUtils.urlEncode(ua)));
+            String uid = Application.getUserStore().getUser(user).getEmail();
+            if (uid != null) uid = user + ":" + uid;
+            else uid = user.toLiteral();
+
+            String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s",
+                    CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(ua));
+            License.siteApiNoCache(uaUrl);
         });
     }
 }

@@ -90,16 +90,17 @@ body {
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
   position: relative;
-}
-
-.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
-  max-height: 134px;
   word-break: break-all;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext > p {
   margin: 0;
   line-height: 1.428571;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content,
+.rbview-form .type-NTEXT.col-sm-12 .form-control-plaintext {
+  max-height: 134px;
 }
 
 .nav-tabs > li.nav-item a.nav-link {
@@ -360,9 +361,10 @@ body {
   right: 0;
   top: 0;
   color: #aaa;
-  width: 22px;
-  height: 22px;
-  margin-top: 6px;
+  width: 24px;
+  height: 24px;
+  margin-top: 5px;
+  padding-top: 1px;
   text-align: center;
   border-radius: 2px;
   background-color: #f8f9fa;

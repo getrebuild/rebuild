@@ -123,7 +123,7 @@ public class LocationUtils {
      */
     private static JSONObject getJSON(String url) {
         try {
-            return JSON.parseObject(HttpUtils.get(url));
+            return JSON.parseObject(OkHttpUtils.get(url));
         } catch (Exception e) {
             log.debug("Error occured : " + url + " >> " + e);
         }

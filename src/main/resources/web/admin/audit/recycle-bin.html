@@ -18,9 +18,11 @@
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="float-left mr-2 select2-sm">
-                        <select class="form-control form-control-sm" id="belongEntity" style="width: 220px">
-                          <option value="$ALL$">[[${bundle.L('全部实体')}]]</option>
-                        </select>
+                        <div style="width: 212px; margin-bottom: 5px">
+                          <select class="form-control form-control-sm" id="belongEntity">
+                            <option value="$ALL$">[[${bundle.L('全部实体')}]]</option>
+                          </select>
+                        </div>
                       </div>
                       <div class="input-group input-search">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" />

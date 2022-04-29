@@ -118,6 +118,12 @@ class ContentSendNotification extends ActionContentSpec {
           $(this._content).val(content.content || '')
         }
       )
+
+      if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
+        window.whenUpdateFields = content.whenUpdateFields
+        const $s = $('.when-update .custom-control-label')
+        $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
+      }
     }
   }
 
@@ -143,6 +149,9 @@ class ContentSendNotification extends ActionContentSpec {
       RbHighbar.create($L('内容不能为空'))
       return false
     }
+
+    if (window.whenUpdateFields) _data.whenUpdateFields = window.whenUpdateFields
+
     return _data
   }
 }
@@ -153,6 +162,9 @@ renderContentComp = function (props) {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
+
+  // 指定字段
+  $('.when-update a.hide').removeClass('hide')
 }
 
 const wpc = window.__PageConfig

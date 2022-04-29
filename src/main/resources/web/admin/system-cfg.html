@@ -87,7 +87,7 @@
                             <i class="logo-img white"></i>
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
-                          <input type="file" class="hide" accept="image/*" data-maxsize="1048576" data-local="true" />
+                          <input type="file" class="hide" accept="image/*" data-maxsize="10485760" data-local="true" />
                           <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，建议尺寸 268 × 54')}]]</p>
                         </td>
                       </tr>
@@ -120,7 +120,7 @@
                             <i class="bgimg-img"></i>
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
-                          <input type="file" class="hide" accept="image/*" data-maxsize="1048576" data-local="true" />
+                          <input type="file" class="hide" accept="image/*" data-maxsize="10485760" data-local="true" />
                           <p class="mt-2 text-dark hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
                         </td>
                       </tr>
@@ -257,7 +257,7 @@
                 </div>
               </div>
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('关于')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('关于')}]] <th:block th:if="${commercial < 11}">REBUILD</th:block></div>
                 <div class="card-body">
                   <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
                   <p class="mb-2">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>

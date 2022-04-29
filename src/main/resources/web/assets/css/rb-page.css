@@ -688,11 +688,6 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
-.rbalert.modal {
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 .rbmodal.show,
 .rbview.show {
   display: block !important;
@@ -997,12 +992,12 @@ select.form-control:not([disabled]) {
 .img-field {
   line-height: 1;
   font-size: 0;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .img-field > span {
   margin-right: 5px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   display: inline-block;
 }
 

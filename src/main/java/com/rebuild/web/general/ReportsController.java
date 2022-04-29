@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -99,6 +100,9 @@ public class ReportsController extends BaseController {
                         EasyMetaFactory.getLabel(entity),
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
             }
+
+            CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
+                    String.format("%s:%d", entity, exporter.getExportCount()));
 
             JSON data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });

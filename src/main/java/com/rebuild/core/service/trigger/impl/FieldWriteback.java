@@ -90,7 +90,7 @@ public class FieldWriteback extends FieldAggregation {
                 ? Application.getEntityService(targetEntity.getEntityCode())
                 : Application.getService(targetEntity.getEntityCode());
 
-        final boolean forceUpdate = ((JSONObject) context.getActionContent()).getBooleanValue("forceUpdate");
+        final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         boolean tschainAdded = false;
         for (ID targetRecordId : targetRecordIds) {
@@ -109,7 +109,7 @@ public class FieldWriteback extends FieldAggregation {
 
             // 会关联触发下一触发器
             if (!tschainAdded) {
-                tschain.add(context.getConfigId());
+                tschain.add(actionContext.getConfigId());
                 tschainAdded = true;
                 TRIGGER_CHAIN_DEPTH.set(tschain);
             }
@@ -135,17 +135,17 @@ public class FieldWriteback extends FieldAggregation {
         if (targetRecordIds != null) return;
 
         // FIELD.ENTITY
-        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
-        sourceEntity = context.getSourceEntity();
+        String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
+        sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
-        boolean isOne2One = ((JSONObject) context.getActionContent()).getBooleanValue(WB_ONE2ONE);
+        boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(WB_ONE2ONE);
 
         targetRecordIds = new HashSet<>();
 
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             // 自己更新自己
-            targetRecordIds.add(context.getSourceRecord());
+            targetRecordIds.add(actionContext.getSourceRecord());
 
         } else if (isOne2One) {
             // 只会存在一个记录
@@ -177,7 +177,7 @@ public class FieldWriteback extends FieldAggregation {
 
     private Record buildTargetRecordData() {
         final Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
-        final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
+        final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
         for (Object o : items) {
@@ -211,7 +211,7 @@ public class FieldWriteback extends FieldAggregation {
         if (!fieldVars.isEmpty()) {
             String sql = String.format("select %s from %s where %s = '%s'",
                     StringUtils.join(fieldVars, ","), sourceEntity.getName(),
-                    sourceEntity.getPrimaryField().getName(), context.getSourceRecord());
+                    sourceEntity.getPrimaryField().getName(), actionContext.getSourceRecord());
             useSourceData = Application.createQueryNoFilter(sql).record();
         }
 
@@ -246,7 +246,7 @@ public class FieldWriteback extends FieldAggregation {
 
                 if (value != null) {
                     if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                        value = N2NReferenceSupport.items(sourceFieldMeta, context.getSourceRecord());
+                        value = N2NReferenceSupport.items(sourceFieldMeta, actionContext.getSourceRecord());
                     }
 
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)

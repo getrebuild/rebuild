@@ -32,26 +32,17 @@ import java.util.Set;
  * @since 2019/8/23
  */
 @Slf4j
-public class AutoAssign implements TriggerAction {
-
-    final protected ActionContext context;
+public class AutoAssign extends TriggerAction {
 
     // 允许无权限分派
     final private boolean allowNoPermissionAssign;
 
-    /**
-     * @param context
-     */
     public AutoAssign(ActionContext context) {
         this(context, Boolean.TRUE);
     }
 
-    /**
-     * @param context
-     * @param allowNoPermissionAssign
-     */
     public AutoAssign(ActionContext context, boolean allowNoPermissionAssign) {
-        this.context = context;
+        super(context);
         this.allowNoPermissionAssign = allowNoPermissionAssign;
     }
 
@@ -67,7 +58,7 @@ public class AutoAssign implements TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        final JSONObject content = (JSONObject) context.getActionContent();
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         if (!allowNoPermissionAssign
@@ -84,8 +75,8 @@ public class AutoAssign implements TriggerAction {
 
         ID toUser = null;
 
-        final boolean orderedAssign = ((JSONObject) context.getActionContent()).getIntValue("assignRule") != 2;
-        final String orderedAssignKey = "AutoAssignLastAssignTo" + context.getConfigId();
+        final boolean orderedAssign = ((JSONObject) actionContext.getActionContent()).getIntValue("assignRule") != 2;
+        final String orderedAssignKey = "AutoAssignLastAssignTo" + actionContext.getConfigId();
         if (orderedAssign) {
             String lastAssignTo = KVStorage.getCustomValue(orderedAssignKey);
             ID lastAssignToUser = ID.isId(lastAssignTo) ? ID.valueOf(lastAssignTo) : null;
@@ -114,7 +105,7 @@ public class AutoAssign implements TriggerAction {
             toUser = toUsers.toArray(new ID[0])[rnd];
         }
 
-        String hasCascades = ((JSONObject) context.getActionContent()).getString("cascades");
+        String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
         String[] cascades = null;
         if (StringUtils.isNotBlank(hasCascades)) {
             cascades = hasCascades.split("[,]");
@@ -125,7 +116,7 @@ public class AutoAssign implements TriggerAction {
         }
 
         try {
-            Application.getEntityService(context.getSourceEntity().getEntityCode())
+            Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
                     .assign(recordId, toUser, cascades);
 
             // 当前分派人

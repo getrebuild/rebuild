@@ -539,4 +539,15 @@
         <field name="hookSecret" type="string" max-length="300" description="回调安全码"/>
     </entity>
 
+    <entity name="CommonsLog" type-code="099" description="通用日志" queryable="false" parent="false">
+        <field name="logId" type="primary"/>
+        <field name="type" type="string" max-length="20" nullable="false"/>
+        <field name="user" type="reference" ref-entity="User" cascade="ignore" nullable="false"/>
+        <field name="source" type="any-reference" ref-entity="*" nullable="false" cascade="ignore"/>
+        <field name="logContent" type="text"/>
+        <field name="logTime" type="timestamp" nullable="false"/>
+        <field name="status" type="small-int" default-value="1"/>
+        <index field-list="type,logTime,source"/>
+    </entity>
+
 </metadata-config>

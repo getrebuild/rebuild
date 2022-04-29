@@ -45,6 +45,8 @@ public class DataExporter extends SetUser {
     // 字段
     private List<Field> headFields = new ArrayList<>();
 
+    private int count = 0;
+
     /**
      * @param queryData
      */
@@ -76,7 +78,10 @@ public class DataExporter extends SetUser {
         } else {
             EasyExcelListGenerator generator = new EasyExcelListGenerator(useReport, this.queryData);
             generator.setUser(getUser());
-            return generator.generate();
+            File file = generator.generate();
+
+            count = generator.getExportCount();
+            return file;
         }
     }
 
@@ -99,6 +104,7 @@ public class DataExporter extends SetUser {
                     for (List<String> row : this.buildData(control)) {
                         writer.newLine();
                         writer.write(mergeLine(row));
+                        count++;
                     }
 
                     writer.flush();
@@ -192,5 +198,9 @@ public class DataExporter extends SetUser {
             into.add(cellVals);
         }
         return into;
+    }
+
+    public int getExportCount() {
+        return count;
     }
 }

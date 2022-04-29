@@ -1,6 +1,20 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #43 (v2.9)
+-- ************ Entity [CommonsLog] DDL ************
+create table if not exists `commons_log` (
+  `LOG_ID`             char(20) not null,
+  `TYPE`               varchar(20) not null,
+  `USER`               char(20) not null,
+  `SOURCE`             char(20) not null,
+  `LOG_CONTENT`        text(65535),
+  `LOG_TIME`           timestamp not null default current_timestamp,
+  `STATUS`             smallint(6) default '1',
+  primary key  (`LOG_ID`),
+  index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
+)Engine=InnoDB;
+
 -- #42 (v2.9)
 alter table `user`
   add column `EXTERNAL_ID` varchar(100),

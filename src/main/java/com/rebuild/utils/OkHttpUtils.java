@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2020/7/15
  */
 @Slf4j
-public class HttpUtils {
+public class OkHttpUtils {
 
     private static OkHttpClient okHttpClient = null;
 
@@ -55,6 +55,7 @@ public class HttpUtils {
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
+                    .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
             RB_CI = ComputerIdentifier.generateIdentifierKey();
         }
