@@ -100,11 +100,11 @@
                       <div class="col-md-4 col-12">
                         <div class="avatar-wrap">
                           <div class="avatar text-center">
-                            <img id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime}|" alt="Avatar" />
+                            <img id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime ?:''}|" alt="Avatar" />
                             <label>
                               <i class="zmdi zmdi-camera"></i>
                               <br />[[${bundle.L('修改头像')}]]
-                              <input type="file" id="avatar-input" accept="image/*" data-maxsize="1048576" data-local="temp" />
+                              <input type="file" id="avatar-input" accept="image/*" data-maxsize="10485760" data-local="temp" />
                             </label>
                           </div>
                         </div>

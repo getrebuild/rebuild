@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -15,7 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * 公共日志
+ * 通用日志保存
  *
  * @author RB
  * @since 2022/4/27
@@ -48,6 +49,7 @@ public class CommonsLog {
         log.setInt("status", status);
         log.setDate("logTime", CalendarUtils.now());
         if (content != null) log.setString("logContent", content);
-        Application.getCommonsService().create(log);
+
+        ThreadPool.exec(() -> Application.getCommonsService().create(log));
     }
 }
