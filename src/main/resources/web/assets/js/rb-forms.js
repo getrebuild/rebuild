@@ -766,7 +766,7 @@ class RbFormNumber extends RbFormText {
         className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
         title={this.state.hasError}
         type="text"
-        value={this._removeComma(value) || ''}
+        value={this._removeComma(value)}
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
@@ -837,7 +837,8 @@ class RbFormNumber extends RbFormText {
   // 移除千分为位
   _removeComma(n) {
     if (n) return (n + '').replace(/,/g, '')
-    return n
+    else if (isNaN(n)) return ''
+    else return n  // `0`
   }
 }
 
