@@ -55,6 +55,7 @@ public class HttpUtils {
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
+                    .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
             RB_CI = ComputerIdentifier.generateIdentifierKey();
         }
