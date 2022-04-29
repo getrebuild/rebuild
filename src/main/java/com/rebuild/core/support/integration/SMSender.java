@@ -23,9 +23,9 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -146,11 +146,11 @@ public class SMSender {
             params.put("text", content);
         }
         params.put("asynchronous", "true");
-        params.put("headers", JSONUtils.toJSONObject("X-User-Agent", HttpUtils.RB_UA));
+        params.put("headers", JSONUtils.toJSONObject("X-User-Agent", OkHttpUtils.RB_UA));
 
         JSONObject rJson;
         try {
-            String r = HttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
+            String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Submail failed to send : " + to + " > " + subject, ex);
@@ -196,7 +196,7 @@ public class SMSender {
         if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
         if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
-        email.addHeader("X-User-Agent", HttpUtils.RB_UA);
+        email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
         email.setCharset("UTF-8");
         return email.send();
     }
@@ -275,7 +275,7 @@ public class SMSender {
         HeavyStopWatcher.createWatcher("Subsms Send", to);
         JSONObject rJson;
         try {
-            String r = HttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
+            String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
             log.error("Subsms failed to send : " + to + " > " + content, ex);

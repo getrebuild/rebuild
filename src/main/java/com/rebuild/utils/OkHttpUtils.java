@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2020/7/15
  */
 @Slf4j
-public class HttpUtils {
+public class OkHttpUtils {
 
     private static OkHttpClient okHttpClient = null;
 
