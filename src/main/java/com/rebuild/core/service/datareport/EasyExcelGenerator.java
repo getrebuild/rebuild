@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -16,10 +17,12 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.BarCodeSupport;
@@ -124,15 +127,21 @@ public class EasyExcelGenerator extends SetUser {
 
         Map<String, String> varsMapOfMain = new HashMap<>();
         Map<String, String> varsMapOfDetail = new HashMap<>();
+        Map<String, String> varsMapOfApproval = new HashMap<>();
 
         List<String> fieldsOfMain = new ArrayList<>();
         List<String> fieldsOfDetail = new ArrayList<>();
+        List<String> fieldsOfApproval = new ArrayList<>();
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
-            if (e.getKey().startsWith(TemplateExtractor.NROW_PREFIX)) {
-                varsMapOfDetail.put(e.getKey(), e.getValue());
+            final String field = e.getKey();
+
+            if (field.startsWith(TemplateExtractor.APPROVAL_PREFIX)) {
+                varsMapOfApproval.put(field, e.getValue());
+            } else if (field.startsWith(TemplateExtractor.NROW_PREFIX)) {
+                varsMapOfDetail.put(field, e.getValue());
             } else {
-                varsMapOfMain.put(e.getKey(), e.getValue());
+                varsMapOfMain.put(field, e.getValue());
             }
 
             String validField = e.getValue();
@@ -142,14 +151,16 @@ public class EasyExcelGenerator extends SetUser {
                 continue;
             }
 
-            if (e.getKey().startsWith(TemplateExtractor.NROW_PREFIX)) {
+            if (field.startsWith(TemplateExtractor.APPROVAL_PREFIX)) {
+                fieldsOfApproval.add(validField);
+            } else if (field.startsWith(TemplateExtractor.NROW_PREFIX)) {
                 fieldsOfDetail.add(validField);
             } else {
                 fieldsOfMain.add(validField);
             }
         }
 
-        if (fieldsOfMain.isEmpty() && fieldsOfDetail.isEmpty()) {
+        if (fieldsOfMain.isEmpty() && fieldsOfDetail.isEmpty() && fieldsOfApproval.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -170,22 +181,38 @@ public class EasyExcelGenerator extends SetUser {
             this.hasMain = true;
         }
 
-        // 无明细
-        if (fieldsOfDetail.isEmpty()) return datas;
+        // 明细
+        if (!fieldsOfDetail.isEmpty()) {
+            String sql = String.format(baseSql + " order by modifiedOn desc",
+                    StringUtils.join(fieldsOfDetail, ","),
+                    entity.getDetailEntity().getPrimaryField().getName(),
+                    entity.getDetailEntity().getName(),
+                    MetadataHelper.getDetailToMainField(entity.getDetailEntity()).getName());
 
-        String sql = String.format(baseSql + " order by modifiedOn desc",
-                StringUtils.join(fieldsOfDetail, ","),
-                entity.getDetailEntity().getPrimaryField().getName(),
-                entity.getDetailEntity().getName(),
-                MetadataHelper.getDetailToMainField(entity.getDetailEntity()).getName());
+            List<Record> list = Application.createQuery(sql, this.getUser())
+                    .setParameter(1, this.recordId)
+                    .list();
 
-        List<Record> list = Application.createQuery(sql, this.getUser())
-                .setParameter(1, this.recordId)
-                .list();
-
-        for (Record c : list) {
-            datas.add(buildData(c, varsMapOfDetail));
+            for (Record c : list) {
+                datas.add(buildData(c, varsMapOfDetail));
+            }
         }
+
+        // 审批
+        if (!fieldsOfApproval.isEmpty()) {
+            String sql = String.format(
+                    "select %s,stepId from RobotApprovalStep where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn",
+                    StringUtils.join(fieldsOfApproval, ","));
+
+            List<Record> list = Application.createQueryNoFilter(sql)
+                    .setParameter(1, this.recordId)
+                    .list();
+
+            for (Record c : list) {
+                datas.add(buildData(c, varsMapOfApproval));
+            }
+        }
+
         return datas;
     }
 
@@ -252,6 +279,9 @@ public class EasyExcelGenerator extends SetUser {
 
                     if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
                         fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
+                    } else if (record.getEntity().getEntityCode() == EntityHelper.RobotApprovalStep
+                            && "state".equalsIgnoreCase(fieldName)) {
+                        fieldValue = Language.L(ApprovalState.valueOf(ObjectUtils.toInt(fieldValue)));
                     }
                 }
                 data.put(varName, fieldValue);

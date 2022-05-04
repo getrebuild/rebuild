@@ -11,6 +11,7 @@ import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.ExcelUtils;
@@ -31,6 +32,8 @@ public class TemplateExtractor {
 
     // 列表（即多条记录）
     protected static final String NROW_PREFIX = ".";
+    // 审批节点字段
+    protected static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
 
     // ${xxx}
     private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
@@ -59,33 +62,40 @@ public class TemplateExtractor {
         final Set<String> vars = extractVars();
 
         Entity detailEntity = entity.getDetailEntity();
-        Map<String, String> map = new HashMap<>();
-        for (String field : vars) {
+        Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
+                ? MetadataHelper.getEntity(EntityHelper.RobotApprovalStep) : null;
 
+        Map<String, String> map = new HashMap<>();
+        for (final String field : vars) {
             // 列表型字段
             if (field.startsWith(NROW_PREFIX)) {
+                final String listField = field.substring(1);
 
-                String listField = field.substring(1);
-
-                if (detailEntity != null) {
+                // 审批
+                if (field.startsWith(APPROVAL_PREFIX)) {
+                    String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
+                    if (approvalEntity != null
+                            && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
+                        map.put(field, stepNodeField);
+                    } else {
+                        map.put(field, null);
+                    }
+                } else if (detailEntity != null) {
                     if (MetadataHelper.getLastJoinField(detailEntity, listField) != null) {
                         map.put(field, listField);
                     } else {
-                        String realField = transformRealField(detailEntity, listField);
-                        map.put(field, realField);
+                        map.put(field, transformRealField(detailEntity, listField));
                     }
                 } else if (MetadataHelper.getLastJoinField(entity, listField) != null) {
                     map.put(field, listField);
                 } else {
-                    String realField = transformRealField(entity, field);
-                    map.put(field, realField);
+                    map.put(field, transformRealField(entity, field));
                 }
 
             } else if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 map.put(field, field);
             } else {
-                String realField = transformRealField(entity, field);
-                map.put(field, realField);
+                map.put(field, transformRealField(entity, field));
             }
         }
         return map;
