@@ -418,9 +418,9 @@ var _initGlobalSearch = function () {
   $aa.eq(0).addClass('active')
   $('.global-search input').on('keydown', function (e) {
     var $active = $('.global-search a.active')
-    if (e.keyCode === 37) {
+    if (e.keyCode === 37 || e.keyCode === 38) {
       _tryActive($active, $active.prev())
-    } else if (e.keyCode === 39) {
+    } else if (e.keyCode === 39 || e.keyCode === 40) {
       _tryActive($active, $active.next())
     } else if (e.keyCode === 13) {
       var s = $('.search-input-gs').val()
