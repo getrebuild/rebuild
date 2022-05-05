@@ -111,6 +111,11 @@ $(document).ready(() => {
       $btn.button('reset')
     })
   })
+
+  if (wpc.lockedUser && wpc.lockedUser[0] !== rb.currentUser) {
+    $('.footer .alert-warning').removeClass('hide').find('.message').text($L('已被 %s 锁定，其他人无法操作', wpc.lockedUser[1]))
+    $('.footer .btn').attr('disabled', true)
+  }
 })
 
 const saveFilter = function (res) {

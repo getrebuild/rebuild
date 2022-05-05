@@ -1,6 +1,18 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #44 (v2.9)
+-- ************ Entity [CommonsLock] DDL ************
+create table if not exists `commons_lock` (
+  `LOCK_ID`            char(20) not null,
+  `SOURCE`             char(20) not null,
+  `LOCK_USER`          char(20) not null,
+  `LOCK_TIME`          timestamp not null default current_timestamp,
+  primary key  (`LOCK_ID`),
+  index IX0_commons_lock (`LOCK_USER`, `LOCK_TIME`),
+  unique index UIX1_commons_lock (`SOURCE`)
+)Engine=InnoDB;
+
 -- #43 (v2.9)
 -- ************ Entity [CommonsLog] DDL ************
 create table if not exists `commons_log` (
