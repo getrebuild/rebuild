@@ -88,18 +88,21 @@ public class LoginController extends LoginAction {
             ID altUser = null;
             try {
                 String[] alts = AES.decrypt(useAlt).split(",");
-                altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
+                altUser = alts.length == 3 && ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
 
-                // 最大一个月有效期
+                // 最大30天有效期
                 if (altUser != null) {
                     long t = ObjectUtils.toLong(alts[1]);
                     if ((System.currentTimeMillis() - t) / 1000 > 30 * 24 * 60 * 60) {
                         altUser = null;
                     }
+                    if (altUser != null && !UserHelper.isActive(altUser)) {
+                        altUser = null;
+                    }
                 }
 
             } catch (Exception ex) {
-                ServletUtils.readCookie(request, CK_AUTOLOGIN);
+                ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
                 log.error("Cannot decode User from alt : {}", useAlt, ex);
             }
 
@@ -197,14 +200,12 @@ public class LoginController extends LoginAction {
             return RespBody.ok(resMap);
         }
 
-        Integer ed = loginSuccessed(
-                request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
-        if (ed != null) resMap.put("passwdExpiredDays", ed);
-
         if (AppUtils.isRbMobile(request)) {
-            String authToken = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES * 12);
-            resMap.put("authToken", authToken);
-            request.getSession().invalidate();
+            resMap = loginSuccessedH5(request, response, loginUser.getId());
+        } else {
+            Integer ed = loginSuccessed(
+                    request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
+            if (ed != null) resMap.put("passwdExpiredDays", ed);
         }
 
         return RespBody.ok(resMap);
