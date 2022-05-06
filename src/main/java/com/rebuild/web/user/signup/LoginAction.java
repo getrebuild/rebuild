@@ -18,10 +18,8 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BaseController;
@@ -103,15 +101,17 @@ public class LoginAction extends BaseController {
         Integer ed = loginSuccessed(request, response, user, false);
         if (ed != null) resMap.put("passwdExpiredDays", ed);
 
-        String authToken = AuthTokenManager.generateToken(user, AuthTokenManager.TOKEN_EXPIRES * 12);
+        String authToken = AuthTokenManager.generateToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
         resMap.put("authToken", authToken);
 
-        // 2FA
-        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-        if (faMode <= 0) {
-            String lauthToken = user + "," + System.currentTimeMillis() + ",h5";
-            resMap.put("lauthToken", AES.encrypt(lauthToken));
-        }
+
+        // FIXME 暂不启用 lauthToken 前端有问题
+//        // 2FA
+//        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
+//        if (faMode <= 0) {
+//            String lauthToken = user + "," + System.currentTimeMillis() + ",h5";
+//            resMap.put("lauthToken", AES.encrypt(lauthToken));
+//        }
 
         request.getSession().invalidate();
 
