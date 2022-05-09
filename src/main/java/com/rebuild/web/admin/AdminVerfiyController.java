@@ -14,6 +14,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.SystemDiagnosis;
@@ -21,6 +22,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,15 +59,17 @@ public class AdminVerfiyController extends BaseController {
 
     @PostMapping("/user/admin-verify")
     public RespBody adminVerify(HttpServletRequest request) {
-        ID adminId = getRequestUser(request);
-        String passwd = getParameterNotNull(request, "passwd");
+        final ID admin = getRequestUser(request);
+        Assert.isTrue(UserHelper.isAdmin(admin), Language.L("非管理员用户"));
 
-        Object[] foundUser = Application.createQueryNoFilter(
+        String passwd = ServletUtils.getRequestString(request);
+
+        Object[] adminUser = Application.createQueryNoFilter(
                 "select password from User where userId = ?")
-                .setParameter(1, adminId)
+                .setParameter(1, admin)
                 .unique();
 
-        if (foundUser[0].equals(EncryptUtils.toSHA256Hex(passwd))) {
+        if (adminUser[0].equals(EncryptUtils.toSHA256Hex(passwd))) {
             ServletUtils.setSessionAttribute(request, KEY_VERIFIED, CalendarUtils.now());
             return RespBody.ok();
         } else {
