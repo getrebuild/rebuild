@@ -157,6 +157,11 @@
                           <div class="dropdown-menu">
                             <!-- ACTION IN HERE -->
                           </div>
+                          <!-- LOCKED -->
+                          <div class="alert alert-warning alert-icon mb-0 mt-3 hide" style="max-width: 485px">
+                            <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+                            <div class="message"></div>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -178,6 +183,7 @@
         whenTimer: '[[${whenTimer}]]',
         whenFilter: [(${whenFilter ?:'null'})],
         actionContent: [(${actionContent ?:'null'})],
+        lockedUser: [(${lockedUser ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

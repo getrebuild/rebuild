@@ -769,6 +769,17 @@ create table if not exists `extform_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [CommonsLock] DDL ************
+create table if not exists `commons_lock` (
+  `LOCK_ID`            char(20) not null,
+  `SOURCE`             char(20) not null,
+  `LOCK_USER`          char(20) not null,
+  `LOCK_TIME`          timestamp not null default current_timestamp,
+  primary key  (`LOCK_ID`),
+  index IX0_commons_lock (`LOCK_USER`, `LOCK_TIME`),
+  unique index UIX1_commons_lock (`SOURCE`)
+)Engine=InnoDB;
+
 -- ************ Entity [CommonsLog] DDL ************
 create table if not exists `commons_log` (
   `LOG_ID`             char(20) not null,
@@ -835,4 +846,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 43);
+  values ('021-9000000000000001', 'DBVer', 44);

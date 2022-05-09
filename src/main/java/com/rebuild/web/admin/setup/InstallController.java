@@ -13,6 +13,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
@@ -139,5 +140,10 @@ public class InstallController extends BaseController implements InstallState {
             log.error("An error occurred during install", ex);
             return RespBody.errorl("安装失败 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
+    }
+
+    @GetMapping("request-sn")
+    public RespBody requestSn() {
+        return RespBody.ok(License.SN());
     }
 }

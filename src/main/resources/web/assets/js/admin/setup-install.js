@@ -115,8 +115,13 @@ class RbWelcome extends React.Component {
       cancelText: $L('不同意'),
       confirmText: $L('同意'),
       confirm: function () {
-        this.hide()
-        that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+        this.disabled(true)
+        $(this._dlg).find('.btn-warning').text($L('请求授权'))
+
+        setTimeout(() => {
+          this.hide()
+          that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+        }, 1500 + Math.random() * 1000)
       },
     })
   }
@@ -138,7 +143,7 @@ class DatabaseConf extends React.Component {
               <select className="form-control form-control-sm" name="dbType">
                 <option value="mysql">MySQL</option>
               </select>
-              <div className="form-text">{$L('支持 MySQL 5.5 或以上版本')}</div>
+              <div className="form-text">{$L('支持 MySQL 5.6 或以上版本')}</div>
             </div>
           </div>
           <div className="form-group row">
@@ -183,7 +188,14 @@ class DatabaseConf extends React.Component {
               <div className="icon">
                 <i className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`} />
               </div>
-              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }} />
+              <div className="message">
+                <span dangerouslySetInnerHTML={{ __html: this.state.testMessage }} />
+                {!this.state.testState && (
+                  <a title={$L('查看如何解决')} className="fs-16 ml-1" href={`https://www.baidu.com/s?wd=${encodeURIComponent(this.state.testMessage)}`} target="_blank" rel="noopener noreferrer">
+                    <i className="zmdi zmdi-help-outline down-1" />
+                  </a>
+                )}
+              </div>
             </div>
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>

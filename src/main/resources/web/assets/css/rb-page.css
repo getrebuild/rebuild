@@ -688,6 +688,13 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
+@media (max-width: 767px) {
+  .rbalert.modal {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
 .rbmodal.show,
 .rbview.show {
   display: block !important;

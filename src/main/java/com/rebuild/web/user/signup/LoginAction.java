@@ -14,6 +14,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
@@ -31,6 +32,8 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -58,8 +61,7 @@ public class LoginAction extends BaseController {
         // 自动登录
         if (autoLogin) {
             String alt = user + "," + System.currentTimeMillis() + ",v1";
-            alt = AES.encrypt(alt);
-            ServletUtils.addCookie(response, CK_AUTOLOGIN, alt);
+            ServletUtils.addCookie(response, CK_AUTOLOGIN, AES.encrypt(alt));
         } else {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
@@ -83,6 +85,37 @@ public class LoginAction extends BaseController {
         // 密码过期剩余时间
         Integer ed = UserService.getPasswdExpiredDayLeft(user);
         return ed == null || ed > 14 ? null : ed;
+    }
+
+    /**
+     * 登录成功 H5
+     *
+     * @param request
+     * @param response
+     * @param user
+     * @return
+     */
+    protected Map<String, Object> loginSuccessedH5(HttpServletRequest request, HttpServletResponse response, ID user) {
+        Map<String, Object> resMap = new HashMap<>();
+
+        Integer ed = loginSuccessed(request, response, user, false);
+        if (ed != null) resMap.put("passwdExpiredDays", ed);
+
+        String authToken = AuthTokenManager.generateToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
+        resMap.put("authToken", authToken);
+
+
+        // FIXME 暂不启用 lauthToken 前端有问题
+//        // 2FA
+//        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
+//        if (faMode <= 0) {
+//            String lauthToken = user + "," + System.currentTimeMillis() + ",h5";
+//            resMap.put("lauthToken", AES.encrypt(lauthToken));
+//        }
+
+        request.getSession().invalidate();
+
+        return resMap;
     }
 
     /**

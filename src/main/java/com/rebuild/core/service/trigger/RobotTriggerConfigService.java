@@ -36,6 +36,11 @@ public class RobotTriggerConfigService extends BaseConfigurationService implemen
     }
 
     @Override
+    protected boolean hasLock() {
+        return true;
+    }
+
+    @Override
     protected void cleanCache(ID cfgid) {
         Object[] cfg = Application.createQueryNoFilter(
                 "select belongEntity from RobotTriggerConfig where configId = ?")

@@ -48,8 +48,11 @@ class TriggerList extends ConfigList {
     return (
       <React.Fragment>
         {(this.state.data || []).map((item) => {
+          const locked = item[8]
+          const disabled = locked && locked[0] !== rb.currentUser
+
           return (
-            <tr key={'k-' + item[0]}>
+            <tr key={item[0]}>
               <td>
                 <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
@@ -61,10 +64,19 @@ class TriggerList extends ConfigList {
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
+                {locked ? (
+                  <a className="icon" title={locked[0] === rb.currentUser ? $L('解锁') : $L('已被 %s 锁定', locked[1])} onClick={() => this.handleLock(item)}>
+                    <i className={`zmdi zmdi-lock-outline text-${disabled ? 'danger' : 'warning'}`} />
+                  </a>
+                ) : (
+                  <a className="icon" title={$L('锁定')} onClick={() => this.handleLock(item, true)}>
+                    <i className="zmdi zmdi-lock-open" />
+                  </a>
+                )}
+                <a className="icon" title={$L('修改')} onClick={() => !disabled && this.handleEdit(item)} disabled={disabled}>
                   <i className="zmdi zmdi-edit" />
                 </a>
-                <a className="icon danger-hover" title={$L('删除')} onClick={() => this.handleDelete(item[0])}>
+                <a className="icon danger-hover" title={$L('删除')} onClick={() => !disabled && this.handleDelete(item[0])} disabled={disabled}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -73,6 +85,27 @@ class TriggerList extends ConfigList {
         })}
       </React.Fragment>
     )
+  }
+
+  handleLock(item, lock) {
+    if (lock !== true && item[8][0] !== rb.currentUser) {
+      RbHighbar.create($L('请联系 %s 解锁', item[8][1]))
+      return
+    }
+
+    const tips = lock ? $L('锁定后只有你可以修改/删除，其他人无法操作，直到你解锁') : $L('确认解锁？')
+
+    RbAlert.create(tips, {
+      type: 'warning',
+      onConfirm: function () {
+        this.disabled(true)
+        $.post(`/admin/lock/${lock ? 'lock' : 'unlock'}?id=${item[0]}`, (res) => {
+          this.hide()
+          if (res.error_code === 0) dlgActionAfter()
+          else RbHighbar.error(res.error_msg)
+        })
+      },
+    })
   }
 
   handleEdit(item) {

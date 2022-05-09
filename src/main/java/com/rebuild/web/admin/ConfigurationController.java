@@ -132,15 +132,28 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/storage")
     public RespBody postIntegrationStorage(@RequestBody JSONObject data) {
-        String dStorageURL = defaultIfBlank(data, ConfigurationItem.StorageURL);
+        String dStorageUrl = defaultIfBlank(data, ConfigurationItem.StorageURL);
         String dStorageBucket = defaultIfBlank(data, ConfigurationItem.StorageBucket);
         String dStorageApiKey = defaultIfBlank(data, ConfigurationItem.StorageApiKey);
         String dStorageApiSecret = defaultIfBlank(data, ConfigurationItem.StorageApiSecret);
 
-        if (dStorageURL.startsWith("//")) {
-            dStorageURL = "https:" + dStorageURL;
+        if (!dStorageUrl.endsWith("/")) {
+            dStorageUrl = dStorageUrl + "/";
+            data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
         }
-        if (!RegexUtils.isUrl(dStorageURL)) {
+
+        if (dStorageUrl.startsWith("http://") || dStorageUrl.startsWith("https://")) {
+            // OK
+        } else {
+            if (dStorageUrl.startsWith("//")) {
+                dStorageUrl = "https:" + dStorageUrl;
+            } else {
+                dStorageUrl = "http://" + dStorageUrl;
+                data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
+            }
+        }
+
+        if (!RegexUtils.isUrl(dStorageUrl)) {
             return RespBody.errorl("无效访问域名");
         }
 
