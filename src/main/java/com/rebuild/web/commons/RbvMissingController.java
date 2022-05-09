@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
