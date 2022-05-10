@@ -10,6 +10,7 @@ package com.rebuild.core.support.setup;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -21,6 +22,7 @@ import com.rebuild.core.cache.RedisDriver;
 import com.rebuild.core.configuration.NavBuilder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
+import com.rebuild.core.rbstore.ClassificationImporter;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -73,7 +75,8 @@ public class Installer implements InstallState {
      * 执行安装
      */
     public void install() throws Exception {
-        this.installDatabase();
+        final boolean dbNew = this.installDatabase();
+
         this.installAdmin();
 
         Properties installProps = buildConnectionProps(null);
@@ -122,14 +125,23 @@ public class Installer implements InstallState {
         // Clean cached
         clearAllCache();
 
-        // 安装模块
+        if (!dbNew) return;
+
+        // 附加数据
+
         try {
             String[] created = this.installModel();
-            
+
             // 初始化菜单
             if (created.length > 0) NavBuilder.instance.addInitNavOnInstall(created);
         } catch (Exception ex) {
             log.error("Error installing business module", ex);
+        }
+
+        try {
+            this.installClassification();
+        } catch (Exception ex) {
+            log.error("Error installing classification data", ex);
         }
     }
 
@@ -215,12 +227,14 @@ public class Installer implements InstallState {
 
     /**
      * 数据库
+     *
+     * @return
      */
-    protected void installDatabase() {
+    protected boolean installDatabase() {
         // 本身就是 RB 数据库，无需创建
         if (isRbDatabase()) {
             log.warn("Use exists REBUILD database without create");
-            return;
+            return false;
         }
 
         if (!quickMode) {
@@ -262,6 +276,8 @@ public class Installer implements InstallState {
         } catch (SQLException | IOException e) {
             throw new SetupException(e);
         }
+
+        return true;
     }
 
     /**
@@ -348,7 +364,7 @@ public class Installer implements InstallState {
     }
 
     /**
-     * 安装初始实体
+     * 初始业务实体
      *
      * @return
      */
@@ -370,6 +386,21 @@ public class Installer implements InstallState {
         TaskExecutors.run(bmi);
 
         return bmi.getCreatedEntity().toArray(new String[0]);
+    }
+
+    /**
+     * 分类数据（异步）
+     */
+    protected void installClassification() {
+        String[][] init = new String[][] {
+                new String[] { "018-0000000000000001", "CHINA-PCAS.json" },
+                new String[] { "018-0000000000000002", "CHINA-ICNEA.json" },
+        };
+
+        for (String[] i : init) {
+            ClassificationImporter c = new ClassificationImporter(ID.valueOf(i[0]), i[1]);
+            TaskExecutors.submit(c, UserService.SYSTEM_USER);
+        }
     }
 
     /**
