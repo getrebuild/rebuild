@@ -56,4 +56,9 @@ public abstract class TriggerAction {
     public boolean isUsableSourceEntity(int entityCode) {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "#" + actionContext.getConfigId();
+    }
 }
