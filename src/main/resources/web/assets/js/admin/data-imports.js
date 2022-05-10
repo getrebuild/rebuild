@@ -350,43 +350,51 @@ class ImportsTraceViewer extends RbAlert {
   renderContent() {
     const data = this.state.data || []
     return (
-      <table className="table table-fixed">
-        <thead>
-          <tr>
-            <th width="50" className="pr-0">
-              {$L('行号')}
-            </th>
-            <th width="120">{$L('状态')}</th>
-            <th>{$L('详情')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => {
-            return (
-              <tr key={item[0]}>
-                <th className="pr-0">{item[0] + 1}</th>
-                <td>
-                  {item[1] === 'CREATED' && (
-                    <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
-                      {$L('新建成功')}
-                      <i className="icon zmdi zmdi-open-in-new ml-1" />
-                    </a>
-                  )}
-                  {item[1] === 'UPDATED' && (
-                    <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
-                      {$L('更新成功')}
-                      <i className="icon zmdi zmdi-open-in-new ml-1" />
-                    </a>
-                  )}
-                  {item[1] === 'SKIP' && <span className="text-muted">{$L('跳过')}</span>}
-                  {item[1] === 'ERROR' && <span className="text-danger">{$L('失败')}</span>}
-                </td>
-                <td>{this._formatDetail(item)}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <RF>
+        <table className="table table-fixed">
+          <thead>
+            <tr>
+              <th width="50" className="pr-0">
+                {$L('行号')}
+              </th>
+              <th width="120">{$L('状态')}</th>
+              <th>{$L('详情')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item) => {
+              return (
+                <tr key={item[0]}>
+                  <th className="pr-0">{item[0] + 1}</th>
+                  <td>
+                    {item[1] === 'CREATED' && (
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                        {$L('新建成功')}
+                        <i className="icon zmdi zmdi-open-in-new ml-1" />
+                      </a>
+                    )}
+                    {item[1] === 'UPDATED' && (
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                        {$L('更新成功')}
+                        <i className="icon zmdi zmdi-open-in-new ml-1" />
+                      </a>
+                    )}
+                    {item[1] === 'SKIP' && <span className="text-muted">{$L('跳过')}</span>}
+                    {item[1] === 'ERROR' && <span className="text-danger">{$L('失败')}</span>}
+                  </td>
+                  <td>{this._formatDetail(item)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+
+        <div className={`text-center mt-2 pb-2 ${!this.state.hasMore && 'hide'}`}>
+          <button type="button" className="btn btn-link" onClick={() => this.showData(1)}>
+            {$L('显示更多')}
+          </button>
+        </div>
+      </RF>
     )
   }
 
@@ -410,18 +418,25 @@ class ImportsTraceViewer extends RbAlert {
       clearTimeout(this._timer)
       this._timer = null
     }
-    console.log('componentWillUnmount')
   }
 
   load() {
     $.get(`/admin/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ data: res.data })
+        this._datas = res.data || []
+        this.showData()
+
         // refresh
-        if (import_inprogress === true && res.data.length < 1000) this._timer = setTimeout(() => this.load(), 1500)
+        if (import_inprogress === true && res.data.length < 2000) this._timer = setTimeout(() => this.load(), 1500)
       } else {
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+
+  showData() {
+    this._showPage = (this._showPage || 0) + 1
+    const p = this._datas.slice(0, this._showPage * 200)
+    this.setState({ data: p, hasMore: this._datas.length > p.length })
   }
 }
