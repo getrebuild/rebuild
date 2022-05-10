@@ -51,7 +51,7 @@
     <script type="text/babel">
       $(document).ready(function () {
         const nexturl = $decode($urlp('nexturl') || '../admin/systems')
-        const $btn = $('.J_verify-btn').click(function () {
+        const $btn = $('.J_verify-btn').on('click', () => {
           const passwd = $val('#admin-passwd')
           if (!passwd) {
             RbHighbar.create($L('请输入密码'))
@@ -59,9 +59,10 @@
           }
 
           $btn.button('loading')
-          $.post('admin-verify?passwd=' + $encode(passwd), function (res) {
-            if (res.error_code === 0) location.replace(nexturl)
-            else {
+          $.post('admin-verify?passwd=******', passwd, (res) => {
+            if (res.error_code === 0) {
+              location.replace(nexturl)
+            } else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')
             }

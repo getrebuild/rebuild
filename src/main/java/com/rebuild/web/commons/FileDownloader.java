@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -112,10 +112,16 @@ public class FileDownloader extends BaseController {
                     builder.scale(1.0);
                 }
 
-                builder
-                        .outputFormat(mimeType != null && mimeType.contains("png") ? "png" : "jpg")
-                        .toOutputStream(response.getOutputStream());
+                try {
+                    builder
+                            .outputFormat(mimeType != null && mimeType.contains("png") ? "png" : "jpg")
+                            .toOutputStream(response.getOutputStream());
+                } catch (IOException ex) {
+                    // ClientAbortException
+                    log.info("SUPPRESS : {}", ex.getLocalizedMessage());
+                }
             }
+
         } else {
             // 特殊字符文件名
             String[] path = filePath.split("/");

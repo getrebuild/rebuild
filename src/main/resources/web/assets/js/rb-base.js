@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -70,7 +70,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
-      'X-Client': 'RB/WEB-2.1',
+      'X-Client': 'RB/WEB-2.9',
       'X-CsrfToken': rb.csrfToken || '',
       'X-AuthToken': rb.authToken || '',
     },
