@@ -21,17 +21,18 @@ REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。
 2. [新增] 钉钉、企业微信组织架构同步
 3. [新增] 报表模板支持导出审批记录
 4. [新增] 附件打包下载
-5. [优化] 多项触发器增强
-6. [修复] 安全补丁/多项已知问题修复
+5. [优化] 手机版表单
+5. [优化] 多项触发器功能增强
+6. [修复] 多项安全补丁/已知问题修复
 7. ...
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.8)
+更多新特性请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=2.8)
 
 ## 在线体验
 
 [https://nightly.getrebuild.com/](https://nightly.getrebuild.com/)
 
-> 管理员用户名密码均为 `admin`，普通用户名密码均为 `rebuild`
+> 默认的管理员用户名密码均为 `admin`，普通用户名密码均为 `rebuild`
 
 ## 使用
 
@@ -43,9 +44,9 @@ _生产环境强烈推荐使用此方式 !!!_
 
 首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
-下载后解压（集成安装包），双击/运行 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-更多信息请参考 [安装文档](https://getrebuild.com/docs/admin/install)
+更多详情请参见 [帮助文档](https://getrebuild.com/docs/)
 
 #### 2. 通过源码编译
 
@@ -62,24 +63,26 @@ mvn package
 java -jar target/rebuild.jar
 ```
 
-打开浏览器输入 [http://127.0.0.1:18080/](http://127.0.0.1:18080/) 开始体验。
+打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
 ## 开发
 
-RB 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
+REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
 如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
-#### 启动参数
+#### 开发环境
 
-RB 中有几个非常重要地启动参数需要了解，无论是开发还是运行都非常重要。
+REBUILD 对于开发环境的要求很简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
 
-| 参数       | 说明                                                 | 默认值        |
-| ---------- | ---------------------------------------------------- | ------------- |
-| `-Drbdev`  | 开发模式下请设为 `true`，会启用众多开发特性          | `false`       |
-| `-Drbpass` | 用于解密加密的配置参数，加密参数使用 `AES(xxx)` 包裹 | `REBUILD2018` |
+- JDK 1.8+（兼容 OpenJDK）
+- MySQL 5.6+
+- Redis 3.2+（非必须，可使用内建的 Ehcache 缓存）
+- Tomcat 8.0+（非必须，从 V2.0 开始默认使用 SpringBooot 内置 Tomcat）
+- Apache Maven 3.3+
+- IDEA 或 Eclipse (for JEE)
 
-更多信息请参考 [开发人员文档](https://getrebuild.com/docs/dev/)
+更多详情请参见 [开发人员文档](https://getrebuild.com/docs/dev/)
 
 ## 授权 License
 
@@ -89,4 +92,4 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 支持 RB 可持续发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，REBUILD 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 支持 REBUILD 可持续发展。除了增值功能以外，还可以得到更专业的技术支持服务。非常感谢！
