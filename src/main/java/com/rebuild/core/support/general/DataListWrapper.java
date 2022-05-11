@@ -125,7 +125,7 @@ public class DataListWrapper {
                 }
 
                 if (field.getType() == FieldType.REFERENCE_LIST) {
-                    ID valueUseRecordId = (ID) raw[raw.length - 1];
+                    ID valueUseRecordId = (ID) raw[selectFieldsLen - 1];
                     row[colIndex] = wrapFieldValue(valueUseRecordId, field);
                 } else {
                     row[colIndex] = wrapFieldValue(value, field);

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.setup;
 
 import com.rebuild.TestSupport;
-import com.rebuild.core.support.RebuildConfiguration;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -24,6 +23,6 @@ public class DatabaseBackupTest extends TestSupport {
 
     @Test
     void backupFile() throws Exception {
-        new DataFileBackup().backup();
+        new DatafileBackup().backup();
     }
 }

@@ -134,7 +134,7 @@ public class TaskExecutors extends DistributedJobLock {
         if (!tryLock()) return;
 
         if (!TASKS.isEmpty()) {
-            log.info("{} task(s) in the queue", TASKS.size());
+            int completed = 0;
             for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
                 HeavyTask<?> task = e.getValue();
                 if (task.getCompletedTime() == null || !task.isCompleted()) {
@@ -146,9 +146,11 @@ public class TaskExecutors extends DistributedJobLock {
                     TASKS.remove(e.getKey());
                     log.info("HeavyTask self-destroying : " + e.getKey());
                 }
+                completed++;
             }
+            log.info("{} task(s) in the queue. {} is completed", TASKS.size(), completed);
         }
-
+        
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();
         if (!queue.isEmpty()) {
             log.info("{} command(s) in the single-queue", queue.size());

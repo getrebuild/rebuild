@@ -474,8 +474,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (action == BizzPermission.DELETE) {
                     unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
                 } else if (action == BizzPermission.UPDATE) {
-                    unallow = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
-                            || (currentState == ApprovalState.PROCESSING && !GeneralEntityServiceContextHolder.isAllowForceUpdateOnce() /* 审批时修改 */);
+                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+
+                    // 管理员撤销
+                    if (unallow) {
+                        boolean adminCancel = currentState == ApprovalState.APPROVED && changeState == ApprovalState.CANCELED;
+                        if (adminCancel) unallow = false;
+                    }
+
+                    // 审批时/已通过强制修改
+                    if (unallow) {
+                        boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                        if (forceUpdate) unallow = false;
+                    }
                 }
 
                 if (unallow) {

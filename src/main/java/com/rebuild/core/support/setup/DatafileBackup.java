@@ -23,7 +23,7 @@ import java.io.IOException;
  * @since 2021/12/15
  */
 @Slf4j
-public class DataFileBackup extends DatabaseBackup {
+public class DatafileBackup extends DatabaseBackup {
 
     /**
      * @return

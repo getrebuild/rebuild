@@ -9,7 +9,7 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.setup.DataFileBackup;
+import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
@@ -147,7 +147,7 @@ public class AdminCLI2 {
                 result.add("Backup database : " + backup);
             }
             if (type == null || "datafile".equals(type)) {
-                File backup = new DataFileBackup().backup();
+                File backup = new DatafileBackup().backup();
                 result.add("Backup datafile : " + backup);
             }
 
