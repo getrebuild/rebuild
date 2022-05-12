@@ -838,7 +838,7 @@ class RbFormNumber extends RbFormText {
   _removeComma(n) {
     if (n) return (n + '').replace(/,/g, '')
     else if (isNaN(n)) return ''
-    else return n  // `0`
+    else return n // `0`
   }
 }
 
@@ -1537,12 +1537,19 @@ class RbFormN2NReference extends RbFormReference {
     this.setState({ value: val }, () => checkValue === true && this.checkValue())
   }
 
-  setValue(val, isAppend) {
+  // @append = 追加模式
+  setValue(val, append) {
     if (val && val.length > 0) {
-      const currentValue = this.state.value || ''
+      let currentIds = this.state.value || '' // init is Object
+
+      if (!append) {
+        this.__select2.val(null).trigger('change')
+        currentIds = ''
+      }
+
       const ids = []
       val.forEach((item) => {
-        if (!currentValue.includes(item.id)) {
+        if (!currentIds.includes(item.id)) {
           const o = new Option(item.text, item.id, true, true)
           this.__select2.append(o)
           ids.push(item.id)
@@ -1551,7 +1558,7 @@ class RbFormN2NReference extends RbFormReference {
 
       if (ids.length > 0) {
         let ss = ids.join(',')
-        if (isAppend && currentValue && currentValue !== '') ss = currentValue + ',' + ss
+        if (append && currentIds && currentIds !== '') ss = currentIds + ',' + ss
         this.handleChange({ target: { value: ss } }, true)
       }
     } else {

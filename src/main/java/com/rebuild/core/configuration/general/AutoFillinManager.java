@@ -160,9 +160,16 @@ public class AutoFillinManager implements ConfigManager {
      */
     protected Object conversionCompatibleValue(Field source, Field target, Object value) {
         EasyField sourceEasy = EasyMetaFactory.valueOf(source);
-        Object newValue = sourceEasy.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
+        EasyField targetEasy = EasyMetaFactory.valueOf(target);
+        Object newValue = sourceEasy.convertCompatibleValue(value, targetEasy);
 
         // 转换成前端可接受的值
+
+        if (sourceEasy.getDisplayType() == targetEasy.getDisplayType()
+                && sourceEasy.getDisplayType() == DisplayType.MULTISELECT) {
+            return newValue;  // Long
+        }
+
         if (sourceEasy instanceof MixValue) {
             if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
                 newValue = sourceEasy.wrapValue(newValue);
