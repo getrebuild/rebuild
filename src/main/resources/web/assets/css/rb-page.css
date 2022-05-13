@@ -1794,6 +1794,14 @@ th.column-fixed {
   height: 300px;
 }
 
+.sortable-box .dd-list:empty::before {
+  content: attr(_title);
+  color: #777;
+  font-style: italic;
+  padding: 7px;
+  display: block;
+}
+
 .sortable-box.h380 {
   height: 388px;
 }

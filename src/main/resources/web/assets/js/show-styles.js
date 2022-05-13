@@ -26,6 +26,8 @@ class ShowStyles extends React.Component {
                     <input className="form-control form-control-sm" placeholder={$L('默认')} defaultValue={this.props.label || ''} maxLength="50" ref={(c) => (this._$label = c)} />
                   </div>
                 </div>
+                {this.renderExtras()}
+
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
                     <button className="btn btn-primary btn-space" type="button" onClick={() => this.saveProps()}>
@@ -42,6 +44,10 @@ class ShowStyles extends React.Component {
         </div>
       </div>
     )
+  }
+
+  renderExtras() {
+    return null
   }
 
   componentDidMount() {

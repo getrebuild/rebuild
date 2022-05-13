@@ -431,3 +431,9 @@ class LightAttachmentList extends RelatedList {
     })
   }
 }
+
+// for view-addons.js
+// eslint-disable-next-line no-unused-vars
+var _showFilterForAddons = function (opt) {
+  renderRbcomp(<AdvFilter entity={opt.entity} filter={opt.filter} confirm={opt.onConfirm} title={$L('附加过滤条件')} inModal canNoFilters />)
+}

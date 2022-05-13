@@ -3,6 +3,13 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('视图配置')}]]</title>
+    <style>
+      .dd-item.star .dd3-content::after {
+        content: '*';
+        margin-left: 4px;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body class="dialog">
     <div class="main-content">
@@ -10,7 +17,7 @@
         <div class="col-6 sortable-swap">
           <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
           <div class="sortable-box rb-scroller">
-            <ol class="dd-list J_config"></ol>
+            <ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
