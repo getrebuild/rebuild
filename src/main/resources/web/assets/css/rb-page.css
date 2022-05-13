@@ -886,6 +886,7 @@ select.form-control:not([disabled]) {
   .form-layout > .row .form-group.col-sm-4 {
     padding-right: 0;
   }
+
   .form-layout > .row .form-group.col-sm-3 > .col-form-label,
   .form-layout > .row .form-group.col-sm-4 > .col-form-label {
     width: 110px;

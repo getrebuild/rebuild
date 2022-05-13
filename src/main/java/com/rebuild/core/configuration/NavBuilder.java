@@ -105,8 +105,12 @@ public class NavBuilder extends NavManager {
                 nav.put("sub", buildAvailableProjects(user));
             }
         }
+
+        PTOKEN_IFNEED.remove();
         return navs;
     }
+
+    private static final ThreadLocal<String> PTOKEN_IFNEED = new ThreadLocal<>();
 
     /**
      * 是否需要过滤掉
@@ -138,14 +142,14 @@ public class NavBuilder extends NavManager {
             // https://getrebuild.com/docs/rbv/openapi/page-token-verify
 
             if (value.contains("$RBTOKEN$") || value.contains("%24RBTOKEN%24")) {
-                String rbtoken = RBTOKEN.get();
-                if (rbtoken == null) {
-                    rbtoken = PageTokenVerify.generate(UserContextHolder.getUser());
-                    RBTOKEN.set(rbtoken);
+                String ptoken = PTOKEN_IFNEED.get();
+                if (ptoken == null) {
+                    ptoken = PageTokenVerify.generate(UserContextHolder.getUser());
+                    PTOKEN_IFNEED.set(ptoken);
                 }
 
-                if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", rbtoken);
-                else value = value.replace("%24RBTOKEN%24", rbtoken);
+                if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", ptoken);
+                else value = value.replace("%24RBTOKEN%24", ptoken);
 
                 item.put("value", value);
             }
@@ -256,8 +260,6 @@ public class NavBuilder extends NavManager {
         return navsHtml.toString();
     }
 
-    private static final ThreadLocal<String> RBTOKEN = new ThreadLocal<>();
-
     /**
      * 渲染导航菜單
      *
@@ -357,16 +359,18 @@ public class NavBuilder extends NavManager {
                 if (activeNav.startsWith("nav_entity-") || activeNav.startsWith("nav_project-")) {
                     Element navParent = nav.parent();
                     if (navParent != null && navParent.hasClass("sub-menu-ul")) {
+                        //noinspection ConstantConditions
                         navParent.parent().parent().parent().parent().addClass("open active");
                     }
                 }
             }
+            //noinspection ConstantConditions
             return navBody.selectFirst("li").outerHtml();
         }
         return navHtml.toString();
     }
 
-    // FIXME 目前仅处理了默认导航
+    // TODO 目前仅处理了默认导航
 
     private static JSONArray replaceLang(JSONArray resource) {
         JSONArray clone = (JSONArray) resource.clone();
