@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -43,14 +42,5 @@ public class EasyText extends EasyField {
             }
         }
         return null;
-    }
-
-    /**
-     * 信息脱敏
-     * 
-     * @return
-     */
-    public boolean isDesensitized() {
-        return BooleanUtils.toBoolean(getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
     }
 }

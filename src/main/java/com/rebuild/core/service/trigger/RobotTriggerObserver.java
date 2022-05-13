@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -15,11 +15,14 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 
 /**
  * 触发器
@@ -106,9 +109,9 @@ public class RobotTriggerObserver extends OperatingObserver {
             return;
         }
 
-        final boolean originalTriggerSource = getTriggerSource() == null;
+        final boolean originTriggerSource = getTriggerSource() == null;
         // 设置原始触发源
-        if (originalTriggerSource) {
+        if (originTriggerSource) {
             TRIGGER_SOURCE.set(context);
         }
         // 自己触发自己，避免无限执行
@@ -125,11 +128,14 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                 try {
                     action.execute(context);
+                    CommonsLog.createLog(TYPE_TRIGGER, context.getOperator(), action.getActionContext().getConfigId());
+
                 } catch (Throwable ex) {
                     // DataValidate 直接抛出
                     if (ex instanceof DataValidateException) throw ex;
 
                     log.error("Trigger execution failed : {} << {}", action, context, ex);
+                    CommonsLog.createLog(TYPE_TRIGGER, context.getOperator(), action.getActionContext().getConfigId(), ex);
 
                     // FIXME 触发器执行失败是否抛出
                     if (ex instanceof MissingMetaExcetion
@@ -143,14 +149,14 @@ public class RobotTriggerObserver extends OperatingObserver {
                     }
 
                 } finally {
-                    if (originalTriggerSource) {
+                    if (originTriggerSource) {
                         action.clean();
                     }
                 }
             }
 
         } finally {
-            if (originalTriggerSource) {
+            if (originTriggerSource) {
                 TRIGGER_SOURCE.remove();
                 TRIGGER_SOURCE_LASTID.remove();
             }

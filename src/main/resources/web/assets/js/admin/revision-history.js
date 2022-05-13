@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -59,7 +59,6 @@ class DataList extends React.Component {
     const $s2 = $('#belongEntity')
       .select2({
         placeholder: $L('选择实体'),
-        width: 220,
         allowClear: false,
       })
       .val('$ALL$')

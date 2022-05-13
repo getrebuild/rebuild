@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -99,7 +99,7 @@ public class AppUtils {
         String authToken = request.getHeader(HF_AUTHTOKEN);
         ID user = AuthTokenManager.verifyToken(authToken, false);
         if (user != null && refreshToken) {
-            AuthTokenManager.refreshToken(authToken, AuthTokenManager.TOKEN_EXPIRES);
+            AuthTokenManager.refreshToken(authToken, AuthTokenManager.H5TOKEN_EXPIRES);
         }
         return user;
     }

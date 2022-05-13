@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -146,7 +146,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div.detail .extras > span + span::before {
   content: '·';
-  margin: 0 8px 0 10px;
+  margin: 0 10px;
+  font-weight: bolder;
 }
 
 .file-list-item > div.detail a:hover {

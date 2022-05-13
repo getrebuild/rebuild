@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -53,8 +53,16 @@ public class TransformManager implements ConfigManager {
 
             String target = c.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
-            if (!Application.getPrivilegesManager().allowCreate(user, targetEntity.getEntityCode())) {
-                continue;
+
+            if (targetEntity.getMainEntity() == null) {
+                if (!Application.getPrivilegesManager().allowCreate(user, targetEntity.getEntityCode())) {
+                    continue;
+                }
+            } else {
+                // To 明细
+                if (!Application.getPrivilegesManager().allowUpdate(user, targetEntity.getMainEntity().getEntityCode())) {
+                    continue;
+                }
             }
 
             JSONObject item = EasyMetaFactory.toJSON(targetEntity);

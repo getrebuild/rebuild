@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -48,6 +48,13 @@ public class Dimension extends Axis {
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
                 default:
                     return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
+            }
+
+        } else if (dt == DisplayType.TIME) {
+            if (getFormatCalc() == FormatCalc.H) {
+                return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%H");
+            } else {
+                return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%H:%i");
             }
 
         } else if (dt == DisplayType.CLASSIFICATION

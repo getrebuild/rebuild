@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -11,7 +11,7 @@ import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
-import com.rebuild.utils.HttpUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class RequestFunctuin extends AbstractFunction {
 
         String res = null;
         try {
-            res = HttpUtils.get(requestUrl);
+            res = OkHttpUtils.get(requestUrl);
         } catch (IOException ex) {
             log.error("Request fail : {}", requestUrl, ex);
         }

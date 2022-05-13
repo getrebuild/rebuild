@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -58,10 +58,11 @@ public class ActionFactory {
     /**
      * RBV 功能
      */
-    private static class NoRbv implements TriggerAction {
+    private static class NoRbv extends TriggerAction {
 
         private ActionType actionType;
         NoRbv(ActionType actionType) {
+            super(null);
             this.actionType = actionType;
         }
 
@@ -69,6 +70,11 @@ public class ActionFactory {
         public ActionType getType() {
             if (actionType == null) throw new UnsupportedOperationException();
             else return actionType;
+        }
+
+        @Override
+        public ActionContext getActionContext() {
+            throw new UnsupportedOperationException();
         }
 
         @Override

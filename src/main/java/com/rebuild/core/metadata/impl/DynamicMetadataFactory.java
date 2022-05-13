@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -130,8 +130,14 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                     .addAttribute("repeatable", String.valueOf(c[15]))
                     .addAttribute("queryable", String.valueOf(c[16]));
 
-//            if ("TIME".equals(c[4])) c[4] = "TEXT";
-            DisplayType dt = DisplayType.valueOf((String) c[4]);
+            DisplayType dt;
+            try {
+                dt = DisplayType.valueOf((String) c[4]);
+            } catch (IllegalArgumentException noenum) {
+                c[4] = "TEXT";
+                dt = DisplayType.valueOf((String) c[4]);
+                log.warn(noenum.getLocalizedMessage());
+            }
             field.addAttribute("type", dt.getFieldType().getName());
 
             // 针对不同字段的特殊处理

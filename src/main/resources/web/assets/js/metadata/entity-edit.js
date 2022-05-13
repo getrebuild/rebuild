@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -34,6 +34,7 @@ $(document).ready(function () {
 
     let extConfig = {
       quickFields: $('#quickFields').val().join(','),
+      tags: $('#tags').val().join(','),
     }
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
     if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
@@ -88,6 +89,7 @@ $(document).ready(function () {
         item.type === 'CLASSIFICATION' ||
         item.type === 'DATE' ||
         item.type === 'DATETIME' ||
+        item.type === 'TIME' ||
         /* 开放引用字段是否有问题 ??? */
         (item.type === 'REFERENCE' && !_SYS_REF_FIELDS.includes(item.name))
       return {
@@ -136,9 +138,32 @@ $(document).ready(function () {
       multiple: true,
       maximumSelectionLength: 5,
     })
-
     if (wpc.extConfig.quickFields) {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
+    }
+  })
+
+  $.get('/admin/entity/entity-tags', (res) => {
+    let data = res.data || []
+    data = data.sort().map((item) => {
+      return { id: item, text: item }
+    })
+
+    $('#tags').select2({
+      placeholder: $L('无'),
+      data: data,
+      multiple: true,
+      maximumSelectionLength: 5,
+      language: {
+        noResults: function () {
+          return $L('输入标签')
+        },
+      },
+      tags: true,
+    })
+
+    if (wpc.extConfig.tags) {
+      $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
   })
 })

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -21,6 +22,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -51,9 +53,17 @@ public class ReportsController extends BaseController {
 
     @RequestMapping("report/available")
     public JSON availableReports(@PathVariable String entity, HttpServletRequest request) {
-        return DataReportManager.instance.getReports(
+        JSONArray res = DataReportManager.instance.getReports(
                 MetadataHelper.getEntity(entity),
                 getIntParameter(request, "type", DataReportManager.TYPE_RECORD));
+
+        // 名称排序
+        res.sort((o1, o2) -> {
+            JSONObject j1 = (JSONObject) o1;
+            JSONObject j2 = (JSONObject) o2;
+            return j1.getString("name").compareTo(j2.getString("name"));
+        });
+        return res;
     }
 
     @RequestMapping({"report/generate", "report/export"})
@@ -70,8 +80,7 @@ public class ReportsController extends BaseController {
             writeSuccess(response, data);
 
         } else {
-            FileDownloader.setDownloadHeaders(request, response, fileName);
-            FileDownloader.writeLocalFile(file, response);
+            FileDownloader.downloadTempFile(response, file, fileName);
         }
     }
 
@@ -100,6 +109,9 @@ public class ReportsController extends BaseController {
                         EasyMetaFactory.getLabel(entity),
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
             }
+
+            CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
+                    String.format("%s:%d", entity, exporter.getExportCount()));
 
             JSON data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -162,7 +162,7 @@ public class QueryParser {
         fullSql.append(pkName);
         fieldIndex++;
 
-        // NOTE 查询出关联记录 ID 以便验证权限
+        // 追加关联查询记录 ID 以便验证权限
         if (!queryJoinFields.isEmpty()) {
             this.queryJoinFields = new HashMap<>();
             for (String field : queryJoinFields) {

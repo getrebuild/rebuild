@@ -50,6 +50,12 @@
             <div class="card-body">
               <div class="dataTables_wrapper container-fluid">
                 <div class="row rb-datatable-header">
+<!--                  <div class="col-12">-->
+<!--                    <div class="quick-filter-pane">-->
+<!--                      <div class="ph-item-mt"></div>-->
+<!--                      <div class="ph-item rb"></div>-->
+<!--                    </div>-->
+<!--                  </div>-->
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="adv-search float-left">
@@ -66,7 +72,7 @@
                         </div>
                       </div>
                       <div class="input-group input-search float-left">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
+                        <input class="form-control" type="text" th:placeholder="${quickFieldsLabel ?:bundle.L('快速查询')}" th:title="${quickFieldsLabel}" maxlength="40" />
                         <button class="btn btn-input-clear" type="button"></button>
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
@@ -122,6 +128,7 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-filter-pane.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>

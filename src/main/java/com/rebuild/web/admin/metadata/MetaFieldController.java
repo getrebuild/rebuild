@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -68,9 +68,8 @@ public class MetaFieldController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             Map<String, Object> map = new HashMap<>();
-            if (easyMeta.getMetaId() != null) {
-                map.put("fieldId", easyMeta.getMetaId());
-            }
+            if (easyMeta.getMetaId() != null) map.put("fieldId", easyMeta.getMetaId());
+
             map.put("fieldName", easyMeta.getName());
             map.put("fieldLabel", easyMeta.getLabel());
             map.put("comments", easyMeta.getComments());
@@ -199,26 +198,44 @@ public class MetaFieldController extends BaseController {
         Field refField = currentEntity.getField(getParameterNotNull(request, "field"));
         Entity referenceEntity = refField.getReferenceEntity();
 
-        // 找到共同的引用字段
-        Field[] currentEntityFields = MetadataSorter.sortFields(currentEntity, DisplayType.REFERENCE);
+        List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
+//        // TODO 开放明细实体关联主实体父级级联
+//        if (currentEntity.getMainEntity() != null) {
+//            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+//        }
+
+        return RespBody.ok(list);
+    }
+
+    // 获取共同引用字段
+    private List<JSONObject> getCoReferenceFields(Entity entity, Entity referenceEntity, boolean fromDetail) {
+        Field[] entityFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
         Field[] referenceEntityFields = MetadataSorter.sortFields(referenceEntity, DisplayType.REFERENCE);
 
-        List<JSONObject> together = new ArrayList<>();
-        for (Field foo : currentEntityFields) {
+        List<JSONObject> co = new ArrayList<>();
+        for (Field foo : entityFields) {
             if (MetadataHelper.isCommonsField(foo)) continue;
 
             Entity fooEntity = foo.getReferenceEntity();
             for (Field bar : referenceEntityFields) {
+                if (MetadataHelper.isCommonsField(bar)) continue;
+
                 if (fooEntity.equals(bar.getReferenceEntity())) {
                     // 当前实体字段$$$$引用实体字段
                     String name = foo.getName() + MetadataHelper.SPLITER + bar.getName();
-                    String label = String.format("%s (%s)", EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
-                    together.add(JSONUtils.toJSONObject(
+                    String label = String.format("%s (%s)",
+                            EasyMetaFactory.getLabel(foo), EasyMetaFactory.getLabel(bar));
+
+                    if (fromDetail) {
+                        label = EasyMetaFactory.getLabel(entity) + "." + label;
+                        name = entity.getName() + "." + name;
+                    }
+
+                    co.add(JSONUtils.toJSONObject(
                             new String[] { "name", "label" }, new String[] { name, label } ));
                 }
             }
         }
-
-        return RespBody.ok(together);
+        return co;
     }
 }

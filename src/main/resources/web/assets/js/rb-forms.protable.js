@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -101,7 +101,7 @@ class ProTable extends React.Component {
       // 编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          res.data.forEach((item) => this.addLine(item))
+          res.data && res.data.forEach((item) => this.addLine(item))
         })
       }
     })
@@ -150,10 +150,9 @@ class ProTable extends React.Component {
     let error = null
 
     ;(this._inlineFormsRefs || []).forEach((item) => {
-      const f = item.current
-      if (!f) return
+      if (!item.current) return
+      const d = item.current.buildFormData()
 
-      const d = f.buildFormData()
       if (!d || typeof d === 'string') {
         if (!error) error = d
       } else if (Object.keys(d).length > 0) {

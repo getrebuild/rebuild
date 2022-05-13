@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -10,7 +10,6 @@ package com.rebuild.api;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -21,6 +20,7 @@ import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
@@ -49,7 +49,7 @@ public class ApiGateway extends Controller implements Initialization {
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
             new int[] { 10, 60 },
-            new int[] { 200, 600 });
+            new int[] { 600, 6000 });
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
@@ -246,28 +246,27 @@ public class ApiGateway extends Controller implements Initialization {
      * @param result
      */
     protected void logRequestAsync(Date requestTime, String remoteIp, String requestId, String apiName, ApiContext context, JSON result) {
-        ThreadPool.exec(() -> {
-            Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
-            record.setString("requestUrl", apiName);
-            record.setString("remoteIp", remoteIp);
-            record.setString("responseBody", requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 10000)));
-            record.setDate("requestTime", requestTime);
-            record.setDate("responseTime", CalendarUtils.now());
+        Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+        record.setString("requestUrl", apiName);
+        record.setString("remoteIp", remoteIp);
+        record.setString("responseBody", requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 10000)));
+        record.setDate("requestTime", requestTime);
+        record.setDate("responseTime", CalendarUtils.now());
 
-            if (context != null) {
-                record.setString("appId", context.getAppId());
-                if (context.getPostData() != null) {
-                    record.setString("requestBody",
-                            CommonsUtils.maxstr(context.getPostData().toJSONString(), 10000));
-                }
-                if (!context.getParameterMap().isEmpty()) {
-                    record.setString("requestUrl",
-                            CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(), 300));
-                }
-            } else {
-                record.setString("appId", "0");
+        if (context != null) {
+            record.setString("appId", context.getAppId());
+            if (context.getPostData() != null) {
+                record.setString("requestBody",
+                        CommonsUtils.maxstr(context.getPostData().toJSONString(), 10000));
             }
-            Application.getCommonsService().create(record, false);
-        });
+            if (!context.getParameterMap().isEmpty()) {
+                record.setString("requestUrl",
+                        CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(), 300));
+            }
+        } else {
+            record.setString("appId", "0");
+        }
+
+        TaskExecutors.queue(() -> Application.getCommonsService().create(record, false));
     }
 }

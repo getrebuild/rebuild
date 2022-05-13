@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -10,6 +10,7 @@ package com.rebuild.web.admin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
@@ -17,6 +18,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
@@ -130,15 +132,28 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/storage")
     public RespBody postIntegrationStorage(@RequestBody JSONObject data) {
-        String dStorageURL = defaultIfBlank(data, ConfigurationItem.StorageURL);
+        String dStorageUrl = defaultIfBlank(data, ConfigurationItem.StorageURL);
         String dStorageBucket = defaultIfBlank(data, ConfigurationItem.StorageBucket);
         String dStorageApiKey = defaultIfBlank(data, ConfigurationItem.StorageApiKey);
         String dStorageApiSecret = defaultIfBlank(data, ConfigurationItem.StorageApiSecret);
 
-        if (dStorageURL.startsWith("//")) {
-            dStorageURL = "https:" + dStorageURL;
+        if (!dStorageUrl.endsWith("/")) {
+            dStorageUrl = dStorageUrl + "/";
+            data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
         }
-        if (!RegexUtils.isUrl(dStorageURL)) {
+
+        if (dStorageUrl.startsWith("http://") || dStorageUrl.startsWith("https://")) {
+            // OK
+        } else {
+            if (dStorageUrl.startsWith("//")) {
+                dStorageUrl = "https:" + dStorageUrl;
+            } else {
+                dStorageUrl = "http://" + dStorageUrl;
+                data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
+            }
+        }
+
+        if (!RegexUtils.isUrl(dStorageUrl)) {
             return RespBody.errorl("无效访问域名");
         }
 
@@ -213,6 +228,7 @@ public class ConfigurationController extends BaseController {
             String[] specAccount = new String[]{
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName"),
+                    data.getString("MailCc"),
                     data.getString("MailSmtpServer")
             };
             if (specAccount[1].contains("*")) {
@@ -304,6 +320,10 @@ public class ConfigurationController extends BaseController {
                     value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
+
+                if (ID.isId(value) && item == ConfigurationItem.DingtalkSyncUsersRole) {
+                    mv.getModel().put(name + "Label", UserHelper.getName(ID.valueOf(value)));
+                }
             }
         }
 
@@ -338,6 +358,10 @@ public class ConfigurationController extends BaseController {
                     value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
+
+                if (ID.isId(value) && item == ConfigurationItem.WxworkSyncUsersRole) {
+                    mv.getModel().put(name + "Label", UserHelper.getName(ID.valueOf(value)));
+                }
             }
         }
 

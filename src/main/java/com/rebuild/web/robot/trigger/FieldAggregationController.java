@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -98,7 +98,8 @@ public class FieldAggregationController extends BaseController {
         // 目标字段
 
         if (targetEntity != null) {
-            for (Field field : MetadataSorter.sortFields(targetEntity, DisplayType.NUMBER, DisplayType.DECIMAL)) {
+            for (Field field : MetadataSorter.sortFields(targetEntity,
+                    DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME)) {
                 if (EasyMetaFactory.valueOf(field).isBuiltin()) continue;
                 targetFields.add(buildField(field));
             }

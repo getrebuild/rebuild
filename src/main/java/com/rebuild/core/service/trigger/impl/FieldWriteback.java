@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -81,14 +81,16 @@ public class FieldWriteback extends FieldAggregation {
         this.prepare(operatingContext);
         if (targetRecordIds.isEmpty()) return;
 
-        if (targetRecordData.getAvailableFields().isEmpty()) {
-            log.info("No data of target record available");
+        if (targetRecordData.isEmpty()) {
+            log.info("No data of target record available : {}", targetRecordId);
             return;
         }
 
-        final ServiceSpec targetService = MetadataHelper.isBusinessEntity(targetEntity)
+        final ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
                 ? Application.getEntityService(targetEntity.getEntityCode())
                 : Application.getService(targetEntity.getEntityCode());
+
+        final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         boolean tschainAdded = false;
         for (ID targetRecordId : targetRecordIds) {
@@ -98,30 +100,31 @@ public class FieldWriteback extends FieldAggregation {
                 continue;
             }
 
-            if (allowNoPermissionUpdate) {
-                PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
-            }
-            // 如果当前用户对目标记录无修改权限
-            else if (!Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
-                log.warn("No permission to update record of target : {}", targetRecordId);
-                continue;
+            // 跳过权限
+            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+            // 强制更新 (v2.9)
+            if (forceUpdate) {
+                GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
 
             // 会关联触发下一触发器
             if (!tschainAdded) {
-                tschain.add(context.getConfigId());
+                tschain.add(actionContext.getConfigId());
                 tschainAdded = true;
                 TRIGGER_CHAIN_DEPTH.set(tschain);
             }
 
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
+            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+
             try {
-                targetService.createOrUpdate(targetRecord);
+                useService.createOrUpdate(targetRecord);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
@@ -132,17 +135,17 @@ public class FieldWriteback extends FieldAggregation {
         if (targetRecordIds != null) return;
 
         // FIELD.ENTITY
-        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
-        sourceEntity = context.getSourceEntity();
+        String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
+        sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
-        boolean isOne2One = ((JSONObject) context.getActionContent()).getBooleanValue(WB_ONE2ONE);
+        boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(WB_ONE2ONE);
 
         targetRecordIds = new HashSet<>();
 
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             // 自己更新自己
-            targetRecordIds.add(context.getSourceRecord());
+            targetRecordIds.add(actionContext.getSourceRecord());
 
         } else if (isOne2One) {
             // 只会存在一个记录
@@ -174,7 +177,7 @@ public class FieldWriteback extends FieldAggregation {
 
     private Record buildTargetRecordData() {
         final Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
-        final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
+        final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
         for (Object o : items) {
@@ -208,7 +211,7 @@ public class FieldWriteback extends FieldAggregation {
         if (!fieldVars.isEmpty()) {
             String sql = String.format("select %s from %s where %s = '%s'",
                     StringUtils.join(fieldVars, ","), sourceEntity.getName(),
-                    sourceEntity.getPrimaryField().getName(), context.getSourceRecord());
+                    sourceEntity.getPrimaryField().getName(), actionContext.getSourceRecord());
             useSourceData = Application.createQueryNoFilter(sql).record();
         }
 
@@ -243,7 +246,7 @@ public class FieldWriteback extends FieldAggregation {
 
                 if (value != null) {
                     if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                        value = N2NReferenceSupport.items(sourceFieldMeta, context.getSourceRecord());
+                        value = N2NReferenceSupport.items(sourceFieldMeta, actionContext.getSourceRecord());
                     }
 
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)

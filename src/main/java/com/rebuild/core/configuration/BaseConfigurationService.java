@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -14,6 +14,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.InternalPersistService;
+import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
 
 /**
@@ -37,6 +38,11 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     @Override
     public Record update(Record record) {
+        ID locked = hasLock() ? CommonsLock.getLockedUser(record.getPrimary()) : null;
+        if (locked != null && !locked.equals(UserContextHolder.getUser())) {
+            throw new DataSpecificationException(Language.L("操作失败 (已被锁定)"));
+        }
+
         throwIfNotSelf(record.getPrimary());
         cleanCache(record.getPrimary());
         return super.update(record);
@@ -44,6 +50,11 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     @Override
     public int delete(ID recordId) {
+        ID locked = hasLock() ? CommonsLock.getLockedUser(recordId) : null;
+        if (locked != null && !locked.equals(UserContextHolder.getUser())) {
+            throw new DataSpecificationException(Language.L("操作失败 (已被锁定)"));
+        }
+
         throwIfNotSelf(recordId);
         cleanCache(recordId);
         return super.delete(recordId);
@@ -84,4 +95,8 @@ public abstract class BaseConfigurationService extends InternalPersistService {
      * @param cfgid
      */
     abstract protected void cleanCache(ID cfgid);
+
+    protected boolean hasLock() {
+        return false;
+    }
 }

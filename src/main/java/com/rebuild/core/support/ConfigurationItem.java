@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -34,7 +34,7 @@ public enum ConfigurationItem {
     StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
 
     // 邮件
-    MailUser, MailPassword, MailAddr, MailName(AppName),
+    MailUser, MailPassword, MailAddr, MailName(AppName), MailCc,
     MailSmtpServer,
 
     // 短信
@@ -94,10 +94,14 @@ public enum ConfigurationItem {
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,
+    DingtalkSyncUsers(false),
+    DingtalkSyncUsersRole,
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
     WxworkAuthFile,
+    WxworkSyncUsers(false),
+    WxworkSyncUsersRole,
     // SAML (IdP)
     SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 

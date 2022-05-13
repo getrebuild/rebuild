@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -35,8 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -126,31 +125,35 @@ public class ApprovalAdminController extends BaseController {
         Field[] deptRefFields = MetadataSorter.sortFields(
                 MetadataHelper.getEntity(EntityHelper.Department), DisplayType.REFERENCE);
 
+        Set<String> filterNames = new HashSet<>();
+        Collections.addAll(filterNames, EntityHelper.ApprovalLastUser, "deptId");
+
         // 发起人
         for (Field field : userRefFields) {
-            if (isRefUserField(field)) {
+            if (isRefUserOrDeptField(field, filterNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_SUBMITOR + field.getName(),
                         textSubmitor + EasyMetaFactory.getLabel(field)} );
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserField(field)) {
+            if (isRefUserOrDeptField(field, filterNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_SUBMITOR + "deptId." + field.getName(),
                         textSubmitor + textDept + EasyMetaFactory.getLabel(field)} );
             }
         }
+
         // （上一）审批人
         for (Field field : userRefFields) {
-            if (isRefUserField(field)) {
+            if (isRefUserOrDeptField(field, filterNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_APPROVER + field.getName(),
                         textApprover + EasyMetaFactory.getLabel(field)} );
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserField(field)) {
+            if (isRefUserOrDeptField(field, filterNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_APPROVER + "deptId." + field.getName(),
                         textApprover + textDept + EasyMetaFactory.getLabel(field)} );
@@ -160,8 +163,7 @@ public class ApprovalAdminController extends BaseController {
         // 本实体字段
         Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
         for (Field field : refFields) {
-            int refEntity = field.getReferenceEntity().getEntityCode();
-            if (refEntity == EntityHelper.User || refEntity == EntityHelper.Department) {
+            if (isRefUserOrDeptField(field, filterNames, false)) {
                 fields.add(new String[] { field.getName(), EasyMetaFactory.getLabel(field)} );
             }
         }
@@ -170,9 +172,12 @@ public class ApprovalAdminController extends BaseController {
                 new String[] {  "id", "text" }, fields.toArray(new String[0][]));
     }
 
-    private boolean isRefUserField(Field field) {
-        return field.getReferenceEntity().getEntityCode() == EntityHelper.User
-                && !MetadataHelper.isCommonsField(field);
+    private boolean isRefUserOrDeptField(Field field, Set<String> filterNames, boolean excludeCommon) {
+        if (excludeCommon && MetadataHelper.isCommonsField(field)) return false;
+        if (filterNames.contains(field.getName())) return false;
+
+        int ec = field.getReferenceEntity().getEntityCode();
+        return ec == EntityHelper.User || ec == EntityHelper.Department;
     }
 
     @PostMapping("approval/user-fields-show")
@@ -201,8 +206,8 @@ public class ApprovalAdminController extends BaseController {
                     if (userField.getOwnEntity().getEntityCode() == EntityHelper.Department) {
                         fieldText = textDept + fieldText;
                     }
-                    fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR) ? textSubmitor : textApprover)
-                            + fieldText;
+                    fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
+                            ? textSubmitor : textApprover)  + fieldText;
 
                     shows.add(new String[] { idOrField, fieldText });
                 }

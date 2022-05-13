@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
@@ -64,6 +65,8 @@ public class RelatedListController extends BaseController {
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
         Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
+
+        List<Object> res = new ArrayList<>();
         for (Object[] o : array) {
             Object nameValue = o[1];
             nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
@@ -71,13 +74,19 @@ public class RelatedListController extends BaseController {
                 nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
 
-            o[1] = nameValue;
-            o[2] = I18nUtils.formatDate((Date) o[2]);
+            int approvalState = o.length > 3 ? ObjectUtils.toInt(o[3]) : 0;
+            boolean canUpdate = approvalState != ApprovalState.APPROVED.getState()
+                    && approvalState != ApprovalState.PROCESSING.getState()
+                    && Application.getPrivilegesManager().allowUpdate(user, (ID) o[0]);
+
+            res.add(new Object[] {
+                    o[0], nameValue, I18nUtils.formatDate((Date) o[2]),
+                    approvalState, canUpdate });
         }
 
         return JSONUtils.toJSONObject(
                 new String[] { "total", "data" },
-                new Object[] { 0, array });
+                new Object[] { 0, res });
     }
 
     @GetMapping("related-counts")
@@ -158,6 +167,10 @@ public class RelatedListController extends BaseController {
             sql.append(primaryField.getName()).append(",")
                     .append(namedField.getName()).append(",")
                     .append(EntityHelper.ModifiedOn);
+
+            if (MetadataHelper.hasApprovalField(relatedEntity)) {
+                sql.append(",").append(EntityHelper.ApprovalState);
+            }
         }
 
         sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(mainWhere);

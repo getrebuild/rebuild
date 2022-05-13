@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -45,6 +45,7 @@ import com.rebuild.utils.codec.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.CacheManager;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -64,11 +65,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.8.4";
+    public static final String VER = "2.9.0-beta2";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 2080408;
+    public static final int BUILD = 2090002;
 
     static {
         // Driver for DB
@@ -92,6 +93,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteMapNullValue.getMask();
+
+        // for ehcache
+        System.setProperty(CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY, "true");
     }
 
     // 系统状态
@@ -127,7 +131,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            String localUrl = BootApplication.getLocalUrl();
+                            String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
                                     "Rebuild (" + VER + ") started successfully in " + (System.currentTimeMillis() - time) + " ms.",
                                     "    License : " + License.queryAuthority().values(),
@@ -157,7 +161,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
                                 "REBUILD IS WAITING FOR INSTALL ...",
-                                "Install : " + BootApplication.getLocalUrl() + "/setup/install"));
+                                "Install : " + BootApplication.getLocalUrl("/setup/install")));
                     }
                 }, 1500);
             }

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -44,9 +44,7 @@ public class PrivilegesGuardContextHolder {
      */
     public static ID getSkipGuardOnce() {
         ID recordId = SKIP_GUARD.get();
-        if (recordId != null) {
-            SKIP_GUARD.remove();
-        }
+        if (recordId != null) SKIP_GUARD.remove();
         return recordId;
     }
 }

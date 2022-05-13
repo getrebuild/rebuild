@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -13,8 +13,8 @@ import cn.devezhao.commons.identifier.ComputerIdentifier;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 
@@ -120,7 +120,7 @@ public final class License {
         if (!api.contains("/authority/new")) hs.put("X-SiteApi-SN", SN());
 
         try {
-            String result = HttpUtils.get("https://getrebuild.com/" + api, hs);
+            String result = OkHttpUtils.get("https://getrebuild.com/" + api, hs);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
 

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -67,14 +67,28 @@ public class RecordTransfomer extends SetUser {
     /**
      * @param sourceRecordId
      * @return
-     * @see #checkFilter(ID)
      */
     public ID transform(ID sourceRecordId) {
+        return transform(sourceRecordId, null);
+    }
+
+    /**
+     * @param sourceRecordId
+     * @return
+     * @see #checkFilter(ID)
+     */
+    public ID transform(ID sourceRecordId, ID mainId) {
         // 手动事务，因为可能要转换多条记录
         TransactionStatus tx = TransactionManual.newTransaction();
 
         try {
             // 主记录
+
+            Map<String, Object> map = null;
+            if (mainId != null) {
+                Field targetDtf = MetadataHelper.getDetailToMainField(targetEntity);
+                map = Collections.singletonMap(targetDtf.getName(), mainId);
+            }
 
             JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) {
@@ -82,12 +96,12 @@ public class RecordTransfomer extends SetUser {
             }
 
             final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
-            final ID newId = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, null);
+            final ID newId = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, map);
             if (newId == null) {
                 throw new ConfigurationException("Cannot transform record of main : " + transConfig);
             }
 
-            // 明细
+            // 明细记录（如有）
 
             JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
             if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
@@ -100,7 +114,6 @@ public class RecordTransfomer extends SetUser {
                 Object[][] details = Application.createQueryNoFilter(sql).array();
 
                 Entity targetDetailEntity = targetEntity.getDetailEntity();
-                Map<String, Object> map = null;
                 if (details.length > 0) {
                     Field targetDtf = MetadataHelper.getDetailToMainField(targetDetailEntity);
                     map = Collections.singletonMap(targetDtf.getName(), newId);
@@ -182,7 +195,8 @@ public class RecordTransfomer extends SetUser {
             Object sourceValue = source.getObjectValue(sourceField);
             if (sourceValue != null) {
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceEntity.getField(sourceField));
+                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
+                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
 
                 if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
                     sourceValue = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
@@ -193,8 +207,13 @@ public class RecordTransfomer extends SetUser {
             }
         }
 
-        target = Application.getEntityService(targetEntity.getEntityCode()).create(target);
-        return target.getPrimary();
+        GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+        try {
+            target = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(target);
+            return target.getPrimary();
+        } finally {
+            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+        }
     }
 
     private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
@@ -202,8 +221,10 @@ public class RecordTransfomer extends SetUser {
         for (Object field : fieldsName) {
             if (field == null) continue;
 
-            if (MetadataHelper.checkAndWarnField(entity, (String) field)) {
+            if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);
+            } else {
+                log.warn("Unknown field `{}` in `{}`", field, entity.getName());
             }
         }
         return valid;

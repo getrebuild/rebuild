@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -132,7 +132,7 @@ class LightTaskList extends RelatedList {
     return (
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
-          <div className="col-7 title">
+          <div className="col-8 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask">
               <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
@@ -141,30 +141,35 @@ class LightTaskList extends RelatedList {
               [{item.taskNumber}] {item.taskName}
             </a>
           </div>
-          <div className="col-5 task-meta">
-            <div className="row">
-              <div className="col-7 pr-0 text-ellipsis">{item.planName}</div>
-              <div className="col-5 text-ellipsis">
-                {!item.deadline && !item.endTime && (
-                  <React.Fragment>
-                    <span className="mr-1">{$L('创建时间')}</span>
-                    <DateShow date={item.createdOn} />
-                  </React.Fragment>
-                )}
-                {item.endTime && (
-                  <React.Fragment>
-                    <span className="mr-1">{$L('完成时间')}</span>
-                    <DateShow date={item.endTime} />
-                  </React.Fragment>
-                )}
-                {!item.endTime && item.deadline && (
-                  <React.Fragment>
-                    <span className="mr-1">{$L('到期时间')}</span>
-                    <DateShow date={item.deadline} />
-                  </React.Fragment>
-                )}
-              </div>
-            </div>
+          <div className="col-4 task-meta">
+            {item.executor && (
+              <span>
+                <a className="avatar" title={`${$L('执行人')} ${item.executor[1]}`}>
+                  <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} alt="Avatar" />
+                </a>
+              </span>
+            )}
+
+            <span title={$L('项目')}>{item.planName}</span>
+
+            {!item.deadline && !item.endTime && (
+              <span>
+                <span className="mr-1">{$L('创建时间')}</span>
+                <DateShow date={item.createdOn} />
+              </span>
+            )}
+            {item.endTime && (
+              <span>
+                <span className="mr-1">{$L('完成时间')}</span>
+                <DateShow date={item.endTime} />
+              </span>
+            )}
+            {!item.endTime && item.deadline && (
+              <span>
+                <span className="mr-1">{$L('到期时间')}</span>
+                <DateShow date={item.deadline} />
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -345,6 +350,14 @@ class LightAttachmentList extends RelatedList {
         </p>
       </div>
     )
+    this.__listExtraLink = (
+      <form method="post" action={`${rb.baseUrl}/files/batch-download`} target="_blank" ref={(c) => (this._$downloadForm = c)}>
+        <input type="hidden" name="files" />
+        <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')}>
+          <i className="icon zmdi zmdi-download" />
+        </button>
+      </form>
+    )
   }
 
   renderSorts() {
@@ -412,6 +425,9 @@ class LightAttachmentList extends RelatedList {
       this.setState({ dataList: list, showMore: data.length >= pageSize })
 
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+
+      const files = list.map((item) => item.filePath)
+      $(this._$downloadForm).find('input').val(files.join(','))
     })
   }
 }

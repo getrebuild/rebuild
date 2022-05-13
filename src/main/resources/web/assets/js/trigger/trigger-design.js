@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -7,9 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 var contentComp = null
+var whenUpdateFields
 
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
+
+  for (let i = 0; i < 24; i++) {
+    const H1 = i < 10 ? `0${i}` : i
+    const H2 = i + 1 < 10 ? `0${i + 1}` : i + 1
+    $(`<option value="${i}">${H1}:00</option>`).appendTo('.J_startHour1')
+    $(`<option value="${i}">${H2}:00</option>`).appendTo('.J_startHour2')
+  }
+  $('.J_startHour1').val('0')
+  $('.J_startHour2').val('23')
 
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512]).each(function () {
@@ -21,6 +31,11 @@ $(document).ready(() => {
           const wt = (wpc.whenTimer || 'D:1').split(':')
           $('.J_whenTimer1').val(wt[0])
           $('.J_whenTimer2').val(wt[1])
+          // v2.9
+          if (wt[2]) $('.J_startHour1').val(wt[2])
+          if (wt[3]) $('.J_startHour2').val(wt[3])
+
+          $('.J_whenTimer1').trigger('change')
         }
       }
     })
@@ -38,6 +53,21 @@ $(document).ready(() => {
   })
   saveFilter(wpc.whenFilter)
 
+  $('.when-update a').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <DlgSpecFields
+        selected={whenUpdateFields}
+        onConfirm={(s) => {
+          whenUpdateFields = s
+          const $s = $('.when-update .custom-control-label')
+          if (s.length > 0) $s.text(`${$s.text().split(' (')[0]} (${s.length})`)
+          else $s.text($s.text().split(' (')[0])
+        }}
+      />
+    )
+  })
+
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
   const $btn = $('.J_save').on('click', () => {
@@ -47,11 +77,12 @@ $(document).ready(() => {
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
     })
-    const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 10 && (when & 512) !== 0) {
       RbHighbar.error(WrapHtml($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
+
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
 
     const content = contentComp.buildContent()
     if (content === false) return
@@ -80,6 +111,11 @@ $(document).ready(() => {
       $btn.button('reset')
     })
   })
+
+  if (wpc.lockedUser && wpc.lockedUser[0] !== rb.currentUser) {
+    $('.footer .alert-warning').removeClass('hide').find('.message').text($L('已被 %s 锁定，其他人无法操作', wpc.lockedUser[1]))
+    $('.footer .btn').attr('disabled', true)
+  }
 })
 
 const saveFilter = function (res) {
@@ -160,4 +196,93 @@ class ActionContentSpec extends React.Component {
 function _handle512Change() {
   if ($(event.target).prop('checked')) $('.on-timers').removeClass('hide')
   else $('.on-timers').addClass('hide')
+}
+
+// 立即执行
+// eslint-disable-next-line no-unused-vars
+function _useExecDirect() {
+  $('.footer .btn-light').removeClass('hide')
+  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv" title="${$L('增值功能')}"></sup></a>`)
+    .appendTo('.footer .dropdown-menu')
+    .on('click', () => {
+      if (rb.commercial < 10) {
+        RbHighbar.error(WrapHtml($L('免费版不支持立即执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
+
+      RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
+        confirm: function () {
+          this.disabled(true)
+          // eslint-disable-next-line no-undef
+          $.post(`/admin/robot/trigger/exec-direct?id=${wpc.configId}`, () => {
+            this.hide()
+            RbHighbar.success($L('执行成功'))
+          })
+        },
+      })
+    })
+}
+
+// ~ 指定字段
+class DlgSpecFields extends RbModalHandler {
+  render() {
+    const _selected = this.props.selected || []
+
+    return (
+      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="p-1">
+          <div className="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm">
+            <div className="icon">
+              <span className="zmdi zmdi-info-outline" />
+            </div>
+            <div className="message">
+              <a className="close" data-dismiss="alert">
+                <span className="zmdi zmdi-close" />
+              </a>
+              <p>{$L('指定字段被更新时触发，默认为全部字段')}</p>
+            </div>
+          </div>
+
+          <div className="row " ref={(c) => (this._fields = c)}>
+            {(this.state.fields || []).map((item) => {
+              if (item.type === 'BARCODE' || item.updatable === false) return null
+              return (
+                <div className="col-3" key={`field-${item.name}`}>
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
+                    <input className="custom-control-input" type="checkbox" value={item.name} defaultChecked={_selected.includes(item.name)} />
+                    <span className="custom-control-label">{item.label}</span>
+                  </label>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="dialog-footer">
+          <button className="btn btn-primary btn-space" type="button" onClick={this.handleConfirm}>
+            {$L('确定')}
+          </button>
+          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm = () => {
+    const selected = []
+    $(this._fields)
+      .find('input:checked')
+      .each(function () {
+        selected.push(this.value)
+      })
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(selected)
+    this.hide()
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${wpc.sourceEntity}`, (res) => this.setState({ fields: res.data }))
+  }
 }

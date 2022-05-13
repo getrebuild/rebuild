@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -178,16 +178,22 @@ public class FlowNode {
                 if (whichUser != null) {
                     Field userField = ApprovalHelper.checkVirtualField(def);
                     if (userField != null) {
-                        Object[] refUser;
+                        Object[] ud;
+                        // 部门中的用户（如上级）
                         if (userField.getOwnEntity().getEntityCode() == EntityHelper.Department) {
-                            Department refDept = Application.getUserStore().getUser(whichUser).getOwningDept();
-                            refUser = Application.getQueryFactory().uniqueNoFilter(
-                                    (ID) refDept.getIdentity(), userField.getName());
+                            Department d = Application.getUserStore().getUser(whichUser).getOwningDept();
+                            ud = Application.getQueryFactory().uniqueNoFilter((ID) d.getIdentity(), userField.getName());
                         } else {
-                            refUser = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
+                            ud = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
                         }
 
-                        if (refUser != null && refUser[0] != null) users.add((ID) refUser[0]);
+                        if (ud != null && ud[0] != null) {
+                            if (userField.getReferenceEntity().getEntityCode() == EntityHelper.Department) {
+                                defsList.add(ud[0].toString());
+                            } else {
+                                users.add((ID) ud[0]);
+                            }
+                        }
                     }
                 }
 
@@ -197,6 +203,8 @@ public class FlowNode {
         }
 
         users.addAll(UserHelper.parseUsers(defsList, record));
+        users.removeIf(id -> !UserHelper.isActive(id));
+
         return users;
     }
 

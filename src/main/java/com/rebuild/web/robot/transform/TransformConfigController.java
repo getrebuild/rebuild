@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -104,6 +104,26 @@ public class TransformConfigController extends BaseController {
 
             fields.add(easyField.toJSON());
         }
+
+        // 二级字段（父级）
+        if (isSource && entity.getMainEntity() != null) {
+            Field dtmField = MetadataHelper.getDetailToMainField(entity);
+            String namePrefix = dtmField.getName() + ".";
+            String labelPrefix = EasyMetaFactory.getLabel(dtmField) + ".";
+
+            for (Field field : MetadataSorter.sortFields(dtmField.getReferenceEntity())) {
+                if (!field.isQueryable() || MetadataHelper.isCommonsField(field)) continue;
+
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
+
+                JSONObject o = (JSONObject) easyField.toJSON();
+                o.put("name", namePrefix + o.getString("name"));
+                o.put("label", labelPrefix + o.getString("label"));
+                fields.add(o);
+            }
+        }
+
         entityData.put("fields", fields);
 
         return entityData;

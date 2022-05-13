@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -20,9 +20,6 @@ let import_inprogress = false
 let import_taskid
 
 const entity = $urlp('entity')
-if (entity) {
-  $('.J_step3-next').attr('href', `${$('.J_step3-next').attr('href')}?entity=${entity}`)
-}
 
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
@@ -79,6 +76,10 @@ $(document).ready(() => {
   window.onbeforeunload = function () {
     if (import_inprogress === true) return false
   }
+
+  $('.J_step3-trace').on('click', () => {
+    renderRbcomp(<ImportsTraceViewer width="681" taskid={import_taskid} />)
+  })
 })
 
 // 1. 初始导入
@@ -167,6 +168,11 @@ const step3_import_show = () => {
   $('.steps li, .step-content .step-pane').removeClass('active complete')
   $('.steps li[data-step=1], .steps li[data-step=2]').addClass('complete')
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
+
+  // Next
+  if (_Config.entity || entity) {
+    $('.J_step3-next').attr('href', `${$('.J_step3-next').attr('href')}?entity=${_Config.entity || entity}`)
+  }
 }
 
 // 3.2. 导入状态
@@ -337,4 +343,100 @@ function _renderRepeatFields(entity) {
     fields_cached = res.data
     _Config.entity = entity
   })
+}
+
+// ~ 导入详情
+class ImportsTraceViewer extends RbAlert {
+  renderContent() {
+    const data = this.state.data || []
+    return (
+      <RF>
+        <table className="table table-fixed">
+          <thead>
+            <tr>
+              <th width="50" className="pr-0">
+                {$L('行号')}
+              </th>
+              <th width="120">{$L('状态')}</th>
+              <th>{$L('详情')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item) => {
+              return (
+                <tr key={item[0]}>
+                  <th className="pr-0">{item[0] + 1}</th>
+                  <td>
+                    {item[1] === 'CREATED' && (
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                        {$L('新建成功')}
+                        <i className="icon zmdi zmdi-open-in-new ml-1" />
+                      </a>
+                    )}
+                    {item[1] === 'UPDATED' && (
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                        {$L('更新成功')}
+                        <i className="icon zmdi zmdi-open-in-new ml-1" />
+                      </a>
+                    )}
+                    {item[1] === 'SKIP' && <span className="text-muted">{$L('跳过')}</span>}
+                    {item[1] === 'ERROR' && <span className="text-danger">{$L('失败')}</span>}
+                  </td>
+                  <td>{this._formatDetail(item)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+
+        <div className={`text-center mt-2 pb-2 ${!this.state.hasMore && 'hide'}`}>
+          <button type="button" className="btn btn-link" onClick={() => this.showData(1)}>
+            {$L('显示更多')}
+          </button>
+        </div>
+      </RF>
+    )
+  }
+
+  _formatDetail(item) {
+    if (item[1] === 'CREATED' || item[1] === 'UPDATED') {
+      return item[3] ? `${$L('单元格值错误')} ${item[3]}` : <span className="text-muted">-</span>
+    } else if (item[1] === 'ERROR') {
+      return item[2]
+    } else {
+      return <span className="text-muted">-</span>
+    }
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    this.load()
+  }
+
+  componentWillUnmount() {
+    if (this._timer) {
+      clearTimeout(this._timer)
+      this._timer = null
+    }
+  }
+
+  load() {
+    $.get(`/admin/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
+      if (res.error_code === 0) {
+        this._datas = res.data || []
+        this.showData()
+
+        // refresh
+        if (import_inprogress === true && res.data.length < 2000) this._timer = setTimeout(() => this.load(), 1500)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  showData() {
+    this._showPage = (this._showPage || 0) + 1
+    const p = this._datas.slice(0, this._showPage * 200)
+    this.setState({ data: p, hasMore: this._datas.length > p.length })
+  }
 }

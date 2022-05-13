@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -11,8 +11,9 @@ const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
-const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL']
-const SHOW_ADVPATTERN = ['TEXT']
+const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
+const SHOW_ADVPATTERN = ['TEXT', 'PHONE', 'EMAIL']
+const SHOW_SCANCODE = ['TEXT']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -20,7 +21,7 @@ $(document).ready(function () {
 
   // 内置字段
   if (wpc.fieldBuildin) {
-    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
+    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter, .J_advOpt').remove()
   }
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
@@ -44,6 +45,12 @@ $(document).ready(function () {
     })
   } else {
     $('#advPattern').parent().remove()
+  }
+  // 扫码
+  if (SHOW_SCANCODE.includes(dt)) {
+    $('.J_advOpt').removeClass('hide')
+  } else {
+    $('#textScanCode').parent().remove()
   }
 
   const $btn = $('.J_save').on('click', function () {
@@ -90,11 +97,13 @@ $(document).ready(function () {
     delete extConfigNew['undefined']
     delete extConfigNew['advDesensitized']
     delete extConfigNew['advPattern']
+    delete extConfigNew['textScanCode']
 
     if (SHOW_ADVDESENSITIZED.includes(dt)) extConfigNew['advDesensitized'] = $val('#advDesensitized')
     if (SHOW_ADVPATTERN.includes(dt)) extConfigNew['advPattern'] = $val('#advPattern')
+    if (SHOW_SCANCODE.includes(dt)) extConfigNew['textScanCode'] = $val('#textScanCode')
 
-    if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern']) && rb.commercial < 1) {
+    if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode']) && rb.commercial < 1) {
       RbHighbar.error(WrapHtml($L('免费版不支持高级功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
@@ -149,6 +158,7 @@ $(document).ready(function () {
 
   if (extConfig.advDesensitized) $('#advDesensitized').attr('checked', true)
   if (extConfig.advPattern) $('#advPattern').val(extConfig.advPattern)
+  if (extConfig.textScanCode) $('#textScanCode').val(extConfig.textScanCode)
 
   // 设置扩展值
   for (let k in extConfig) {

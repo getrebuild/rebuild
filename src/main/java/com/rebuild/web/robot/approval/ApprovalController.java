@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -45,11 +45,18 @@ public class ApprovalController extends BaseController {
         final ID user = getRequestUser(request);
 
         FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
-        JSONArray data = new JSONArray();
+        JSONArray res = new JSONArray();
         for (FlowDefinition d : defs) {
-            data.add(d.toJSON("id", "name"));
+            res.add(d.toJSON("id", "name"));
         }
-        return data;
+
+        // 名称排序
+        res.sort((o1, o2) -> {
+            JSONObject j1 = (JSONObject) o1;
+            JSONObject j2 = (JSONObject) o2;
+            return j1.getString("name").compareTo(j2.getString("name"));
+        });
+        return res;
     }
 
     @GetMapping("state")
@@ -85,11 +92,9 @@ public class ApprovalController extends BaseController {
             }
 
             // 审批中提交人可撤回
-            if (stateVal == ApprovalState.PROCESSING.getState()) {
-                ID submitter = ApprovalHelper.getSubmitter(recordId);
-                if (user.equals(submitter)) {
-                    data.put("canCancel", true);
-                }
+            if (stateVal == ApprovalState.PROCESSING.getState()
+                    && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+                data.put("canCancel", true);
             }
         }
 
@@ -122,6 +127,12 @@ public class ApprovalController extends BaseController {
         data.put("isLastStep", nextNodes.isLastStep());
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
+
+//        // 审批中提交人可撤回
+//        if (ApprovalHelper.getApprovalState(recordId) == ApprovalState.PROCESSING
+//                && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+//            data.put("canCancel", true);
+//        }
 
         // 可修改字段
         JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();

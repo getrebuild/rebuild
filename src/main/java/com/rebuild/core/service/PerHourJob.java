@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -11,7 +11,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SystemDiagnosis;
 import com.rebuild.core.support.distributed.DistributedJobLock;
-import com.rebuild.core.support.setup.DataFileBackup;
+import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +74,7 @@ public class PerHourJob extends DistributedJobLock {
         }
 
         try {
-            new DataFileBackup().backup(backups);
+            new DatafileBackup().backup(backups);
             SystemDiagnosis.setItem(SystemDiagnosis.DataFileBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DataFileBackup] failed!", e);

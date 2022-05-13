@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -58,11 +58,19 @@ $(document).ready(function () {
 
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
-        let nexturl = $decode($urlp('nexturl') || '../dashboard/home')
-        if (res.data && res.data.passwdExpiredDays < 8) {
-          nexturl = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
+        const nexturl = $decode($urlp('nexturl'))
+        let to = nexturl && nexturl.startsWith('http') ? null : nexturl
+        if (res.data && res.data.login2FaMode) {
+          to = `${rb.baseUrl}/user/login-2fa?token=${res.data.login2FaUserToken}`
+          if (nexturl) to += `&nexturl=${$encode(nexturl)}`
+        } else if (res.data && res.data.passwdExpiredDays) {
+          to = `${rb.baseUrl}/settings/passwd-expired?d=${res.data.passwdExpiredDays}`
+          if (nexturl) to += `&nexturl=${$encode(nexturl)}`
+        } else if (!to) {
+          to = `${rb.baseUrl}/dashboard/home`
         }
-        location.replace(nexturl)
+
+        location.replace(to)
       } else if (res.error_msg === 'VCODE') {
         location.reload()
       } else {

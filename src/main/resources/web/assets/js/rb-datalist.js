@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -131,18 +131,21 @@ class RbList extends React.Component {
       wheelSpeed: 2,
     })
 
-    // enable pins
+    // enable pin
     if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
-      $('.main-content .rb-datatable-header').addClass('header-fixed')
+      // $('.main-content .rb-datatable-header').addClass('header-fixed')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
-        let mh = $(window).height() - 215
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44 // Has tab
+        let mh = $(window).height() - 208
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
+    } else {
+      $('.main-content .rb-datatable-header').addClass('header-fixed')
     }
 
     if (supportFixedColumns) {
@@ -544,10 +547,9 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm">
-      <div className="column-imgs" style={s} title={$L('共 %d 项', vLen)}>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-imgs" style={s}>
         {v.map((item, idx) => {
-          if (idx > 2) return null
           const imgName = $fileCutName(item)
           const imgUrl = _isFullUrl(item) ? item : `${rb.baseUrl}/filex/img/${item}`
           return (
@@ -565,22 +567,16 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm">
-      <div style={s} className="column-files">
-        <ul className="list-unstyled" title={$L('共 %d 项', vLen)}>
-          {v.map((item, idx) => {
-            if (idx > 0) return null
-            const fileName = $fileCutName(item)
-            return (
-              <li key={item} className="text-truncate">
-                <a onClick={(e) => CellRenders.clickPreview(item, null, e)}>
-                  {fileName}
-                  {vLen > 1 ? ` ...[${vLen}]` : null}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-files" style={s}>
+        {v.map((item) => {
+          const fileName = $fileCutName(item)
+          return (
+            <a key={item} title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>
+              {fileName}
+            </a>
+          )
+        })}
       </div>
     </td>
   )
@@ -602,14 +598,12 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k}>
-      <div style={s} title={$L('共 %d 项', vLen)}>
-        {v.map((item, idx) => {
-          if (idx > 0) return null
+    <td key={k} title={$L('共 %d 项', vLen)}>
+      <div className="column-n2n" style={s}>
+        {v.map((item) => {
           return (
             <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
-              {vLen > 1 ? ` ...[${vLen}]` : null}
             </a>
           )
         })}
@@ -689,9 +683,10 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
 })
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
+  const vLen = (v.text || []).length
   return (
-    <td key={k} className="td-sm column-multi">
-      <div style={s}>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           return (
             <span key={item} className="badge" title={item}>
@@ -940,6 +935,12 @@ const RbListPage = {
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
+    }
+
+    // Filter Pane
+    if ($('.quick-filter-pane').length > 0) {
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<AdvFilterPane entity={entity[0]} />, $('.quick-filter-pane')[0])
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)

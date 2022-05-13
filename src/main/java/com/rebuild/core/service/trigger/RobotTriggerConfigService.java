@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -33,6 +33,11 @@ public class RobotTriggerConfigService extends BaseConfigurationService implemen
     @Override
     public int getEntityCode() {
         return EntityHelper.RobotTriggerConfig;
+    }
+
+    @Override
+    protected boolean hasLock() {
+        return true;
     }
 
     @Override

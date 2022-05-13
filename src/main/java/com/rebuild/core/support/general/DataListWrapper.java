@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -17,7 +17,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyText;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
@@ -126,7 +125,7 @@ public class DataListWrapper {
                 }
 
                 if (field.getType() == FieldType.REFERENCE_LIST) {
-                    ID valueUseRecordId = (ID) raw[raw.length - 1];
+                    ID valueUseRecordId = (ID) raw[selectFieldsLen - 1];
                     row[colIndex] = wrapFieldValue(valueUseRecordId, field);
                 } else {
                     row[colIndex] = wrapFieldValue(value, field);
@@ -169,8 +168,7 @@ public class DataListWrapper {
      * @see FieldValueHelper#isUseDesensitized(EasyField, ID)
      */
     private boolean isUseDesensitized(EasyField easyField) {
-        return this.useDesensitized
-                && easyField instanceof EasyText && ((EasyText) easyField).isDesensitized();
+        return this.useDesensitized && easyField.isDesensitized();
     }
 
     /**

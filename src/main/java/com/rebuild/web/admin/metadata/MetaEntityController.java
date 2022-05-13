@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
@@ -127,6 +128,7 @@ public class MetaEntityController extends BaseController {
             if (entity.getMainEntity() != null) {
                 map.put("mainEntity", entity.getMainEntity().getName());
             }
+            map.put("tags", easyMeta.getExtraAttr(EasyEntityConfigProps.TAGS));
             data.add(map);
         }
         return RespBody.ok(data);
@@ -222,8 +224,7 @@ public class MetaEntityController extends BaseController {
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
         } else {
-            FileDownloader.setDownloadHeaders(request, response, dest.getName());
-            FileDownloader.writeLocalFile(dest.getName(), true, response);
+            FileDownloader.downloadTempFile(response, dest, null);
         }
     }
 
@@ -269,5 +270,10 @@ public class MetaEntityController extends BaseController {
             log.error("entity-copy", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
+    }
+
+    @GetMapping("entity/entity-tags")
+    public RespBody entityTags() {
+        return RespBody.ok(MetadataHelper.getEntityTags());
     }
 }

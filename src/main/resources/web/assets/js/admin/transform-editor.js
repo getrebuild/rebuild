@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -188,7 +188,7 @@ class FieldsMapping extends React.Component {
         </div>
         {_target.fields.map((item) => {
           return (
-            <div className="row" key={`t-${item.name}`}>
+            <div className="row" key={item.name}>
               <div className="col-7">
                 <select className="form-control form-control-sm" data-field={item.name} data-req={!item.nullable} />
               </div>

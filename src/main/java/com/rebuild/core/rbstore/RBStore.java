@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -12,8 +12,8 @@ import com.alibaba.fastjson.parser.Feature;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -64,7 +64,7 @@ public class RBStore {
         }
 
         try {
-            String content = HttpUtils.get(fileUrl);
+            String content = OkHttpUtils.get(fileUrl);
             if (JSONUtils.wellFormat(content)) {
                 return (JSON) JSON.parse(content, Feature.OrderedField);
             }

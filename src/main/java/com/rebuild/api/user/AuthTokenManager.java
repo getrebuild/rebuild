@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -29,6 +29,10 @@ public class AuthTokenManager {
      * Token 默认有效期（2 小时）
      */
     public static final int TOKEN_EXPIRES = 60 * 60 * 2;
+    /**
+     * H5 Token 默认有效期（12 小时）
+     */
+    public static final int H5TOKEN_EXPIRES = 60 * 60 * 12;
 
     /**
      * 生成并存储 Token

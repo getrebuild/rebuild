@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -88,13 +88,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 180px;
   min-width: 180px;
   text-align: center;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 0;
   line-height: 1;
 }
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a {
-  width: 21%;
+  width: 17%;
   display: inline-block;
   background-color: #eee;
   padding: 0;
@@ -130,6 +130,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='9']::after {
+  width: 33.33%;
+}
+
 .form-preview .dd-item,
 .form-preview .dd-placeholder {
   float: left;
@@ -158,6 +162,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .form-preview .dd-item.w-100 {
   width: 99% !important;
+}
+
+.form-preview .dd-item.w-33 {
+  width: 32.33% !important;
 }
 
 .form-preview .dd-item span.ft {

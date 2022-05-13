@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -20,11 +20,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyFile;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
@@ -117,18 +115,25 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
+            Field sourceFieldMeta = sourceEntity.getField(sourceField);
             Field targetFieldMeta = targetEntity.getField(targetField);
 
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
+                if (EasyMetaFactory.getDisplayType(sourceFieldMeta) == DisplayType.N2NREFERENCE) {
+                    value = N2NReferenceSupport.items(sourceFieldMeta, source);
+                } else {
+                    value = sourceRecord.getObjectValue(sourceField);
+                }
+
                 value = conversionCompatibleValue(
                         sourceEntity.getField(sourceField),
                         targetFieldMeta,
-                        sourceRecord.getObjectValue(sourceField));
+                        value);
             }
 
             // NOTE 忽略空值
-            if (value == null || NullValue.is(value) || StringUtils.isBlank(value.toString())) {
+            if (NullValue.isNull(value) || StringUtils.isBlank(value.toString())) {
                 continue;
             }
 
@@ -155,9 +160,16 @@ public class AutoFillinManager implements ConfigManager {
      */
     protected Object conversionCompatibleValue(Field source, Field target, Object value) {
         EasyField sourceEasy = EasyMetaFactory.valueOf(source);
-        Object newValue = sourceEasy.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
+        EasyField targetEasy = EasyMetaFactory.valueOf(target);
+        Object newValue = sourceEasy.convertCompatibleValue(value, targetEasy);
 
         // 转换成前端可接受的值
+
+        if (sourceEasy.getDisplayType() == targetEasy.getDisplayType()
+                && sourceEasy.getDisplayType() == DisplayType.MULTISELECT) {
+            return newValue;  // Long
+        }
+
         if (sourceEasy instanceof MixValue) {
             if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
                 newValue = sourceEasy.wrapValue(newValue);

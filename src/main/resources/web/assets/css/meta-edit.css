@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -223,12 +223,9 @@ a#entityIcon:hover {
 }
 
 .common-patt .badge {
-  margin: 0;
-  margin-right: 3px;
-  margin-top: 6px;
+  margin: 6px 3px 0 0;
   font-weight: normal;
   border: 0 none;
-  background-color: #eee;
   background-color: rgb(245, 247, 249);
 }
 

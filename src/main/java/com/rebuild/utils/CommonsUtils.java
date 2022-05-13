@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -191,5 +191,14 @@ public class CommonsUtils {
             log.error("Invalid method invoke : {}", desc);
             throw new RebuildException(ex);
         }
+    }
+
+    /**
+     * @param str
+     * @return
+     */
+    public static boolean isExternalUrl(String str) {
+        return str != null
+                && (str.startsWith("http://") || str.startsWith("https://"));
     }
 }

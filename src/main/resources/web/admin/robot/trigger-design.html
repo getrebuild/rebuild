@@ -36,9 +36,10 @@
                             <input class="custom-control-input" type="checkbox" value="1" />
                             <span class="custom-control-label"> [[${bundle.L('新建时')}]]</span>
                           </label>
-                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 when-update">
                             <input class="custom-control-input" type="checkbox" value="4" />
                             <span class="custom-control-label"> [[${bundle.L('更新时')}]]</span>
+                            <a class="hide ml-1" th:title="${bundle.L('指定字段')}"><i class="icon zmdi zmdi-settings fs-15"></i></a>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="2" />
@@ -93,7 +94,18 @@
                                   <span class="input-group-text">[[${bundle.L('次')}]]</span>
                                 </div>
                               </div>
-                              <p class="form-text">[[${bundle.L('具体实行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
+                              <div class="input-group input-group-sm ml-2 J_startHour">
+                                <div class="input-group-prepend input-group-append">
+                                  <span class="input-group-text">[[${bundle.L('执行时段')}]]</span>
+                                </div>
+                                <select class="form-control form-control-sm J_startHour1"></select>
+                                <div class="input-group-append">
+                                  <span class="input-group-text">~</span>
+                                </div>
+                                <select class="form-control form-control-sm J_startHour2"></select>
+                              </div>
+                              <div class="clearfix"></div>
+                              <p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
                             </div>
                           </div>
                         </div>
@@ -140,7 +152,16 @@
                       <div class="form-group row footer">
                         <label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
                         <div class="col-12 col-lg-9">
-                          <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                          <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
+                          <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more fs-18"></i></button>
+                          <div class="dropdown-menu">
+                            <!-- ACTION IN HERE -->
+                          </div>
+                          <!-- LOCKED -->
+                          <div class="alert alert-warning alert-icon mb-0 mt-3 hide" style="max-width: 485px">
+                            <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+                            <div class="message"></div>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -162,6 +183,7 @@
         whenTimer: '[[${whenTimer}]]',
         whenFilter: [(${whenFilter ?:'null'})],
         actionContent: [(${actionContent ?:'null'})],
+        lockedUser: [(${lockedUser ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -9,7 +9,6 @@ package com.rebuild.core.support;
 
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
-import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -106,22 +105,27 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static String[] getStorageAccount() {
         return getsNoUnset(true,
-                ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret, ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
+                ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret,
+                ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
     }
 
     /**
      * 邮件账号
      *
-     * @return returns [MailUser, MailPassword, MailAddr, MailName, MailSmtpServer]
+     * @return returns [MailUser, MailPassword, MailAddr, MailName, MailCc, MailSmtpServer]
      */
     public static String[] getMailAccount() {
         String[] set = getsNoUnset(false,
                 ConfigurationItem.MailUser, ConfigurationItem.MailPassword, ConfigurationItem.MailAddr, ConfigurationItem.MailName);
         if (set == null) return null;
 
+        String cc = get(ConfigurationItem.MailCc);
         String smtpServer = get(ConfigurationItem.MailSmtpServer);
+
         return new String[] {
-                set[0], set[1], set[2], set[3], StringUtils.defaultIfBlank(smtpServer, null)
+                set[0], set[1], set[2], set[3],
+                StringUtils.defaultIfBlank(cc, null),
+                StringUtils.defaultIfBlank(smtpServer, null)
         };
     }
 

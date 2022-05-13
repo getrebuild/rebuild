@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -23,7 +23,7 @@ import java.io.IOException;
  * @since 2021/12/15
  */
 @Slf4j
-public class DataFileBackup extends DatabaseBackup {
+public class DatafileBackup extends DatabaseBackup {
 
     /**
      * @return

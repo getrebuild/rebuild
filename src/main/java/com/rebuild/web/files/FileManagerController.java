@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -15,18 +15,23 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
+import com.rebuild.core.service.files.BatchDownload;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectHelper;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.commons.FileDownloader;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author devezhao
@@ -119,5 +124,23 @@ public class FileManagerController extends BaseController {
         }
 
         return RespBody.ok(readable);
+    }
+
+    @PostMapping("batch-download")
+    public void batchDownload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String files = req.getParameter("files");
+
+        List<String> filePaths = new ArrayList<>();
+        Collections.addAll(filePaths, files.split(","));
+
+        BatchDownload bd = new BatchDownload(filePaths);
+        TaskExecutors.run(bd);
+
+        File zipName = bd.getDestZip();
+        if (zipName != null && zipName.exists()) {
+            FileDownloader.downloadTempFile(resp, zipName, null);
+        } else {
+            resp.sendError(500, Language.L("无法下载文件"));
+        }
     }
 }

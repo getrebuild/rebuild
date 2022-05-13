@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -34,17 +34,10 @@ public class AutoShare extends AutoAssign {
     // 允许无权限共享
     final private boolean allowNoPermissionShare;
 
-    /**
-     * @param context
-     */
     public AutoShare(ActionContext context) {
         this(context, Boolean.TRUE);
     }
 
-    /**
-     * @param context
-     * @param allowNoPermissionShare
-     */
     public AutoShare(ActionContext context, boolean allowNoPermissionShare) {
         super(context);
         this.allowNoPermissionShare = allowNoPermissionShare;
@@ -57,7 +50,7 @@ public class AutoShare extends AutoAssign {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        final JSONObject content = (JSONObject) context.getActionContent();
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         if (!allowNoPermissionShare
@@ -72,7 +65,7 @@ public class AutoShare extends AutoAssign {
             return;
         }
 
-        String hasCascades = ((JSONObject) context.getActionContent()).getString("cascades");
+        String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
         String[] cascades = null;
         if (StringUtils.isNotBlank(hasCascades)) {
             cascades = hasCascades.split("[,]");
@@ -83,7 +76,7 @@ public class AutoShare extends AutoAssign {
             shareRights += BizzPermission.UPDATE.getMask();
         }
         
-        final EntityService es = Application.getEntityService(context.getSourceEntity().getEntityCode());
+        final EntityService es = Application.getEntityService(actionContext.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
             if (allowNoPermissionShare) {
                 PrivilegesGuardContextHolder.setSkipGuard(recordId);

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -67,7 +67,7 @@ $(document).ready(function () {
 
     $('.J_dt-REFERENCE, .J_dt-N2NREFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     const dt = $(this).val()
-    $('.J_dt-' + dt).removeClass('hide')
+    $(`.J_dt-${dt}`).removeClass('hide')
 
     if (dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
       if (referenceLoaded === false) {
@@ -81,9 +81,7 @@ $(document).ready(function () {
 
           // 明细实体默认隐藏
           $(d).each(function () {
-            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo(
-              '#refEntity'
-            )
+            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ` (${$L('明细实体')})` : ''}</option>`).appendTo('#refEntity')
           })
 
           if (d.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#refEntity')

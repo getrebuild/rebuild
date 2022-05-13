@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -64,7 +64,7 @@ class AdvFilter extends React.Component {
         )}
 
         <div className="adv-filter">
-          <div className="filter-items" onKeyPress={this.searchByKey}>
+          <div className="filter-items" onKeyPress={(e) => this.searchByKey(e)}>
             {this.state.items}
 
             <div className="item plus">
@@ -270,12 +270,12 @@ class AdvFilter extends React.Component {
     return adv
   }
 
-  searchByKey = (e) => {
+  searchByKey(e) {
     if (this.props.fromList !== true || e.which !== 13) return // Not [Enter]
     this.searchNow()
   }
 
-  searchNow = () => {
+  searchNow() {
     const adv = this.toFilterJson(true)
     if (!!adv && window.RbListPage) RbListPage._RbList.search(adv, true)
   }
@@ -398,6 +398,8 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
+    } else if (fieldType === 'TIME') {
+      op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
@@ -433,8 +435,15 @@ class FilterItem extends React.Component {
     if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
+          <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+          <input
+            className="form-control form-control-sm"
+            ref={(c) => (this._filterVal2 = c)}
+            onChange={(e) => this.valueHandle(e)}
+            onBlur={(e) => this.valueCheck(e)}
+            value={this.state.value2 || ''}
+            data-at="2"
+          />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
         </div>
@@ -462,7 +471,9 @@ class FilterItem extends React.Component {
         </select>
       )
     } else {
-      valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+      valComp = (
+        <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={(e) => this.valueHandle(e)} onBlur={(e) => this.valueCheck(e)} value={this.state.value || ''} />
+      )
     }
 
     return valComp
@@ -543,14 +554,14 @@ class FilterItem extends React.Component {
       this.removePickList()
     }
 
-    if (state.type === 'DATE' || state.type === 'DATETIME') {
+    if (state.type === 'DATE' || state.type === 'DATETIME' || state.type === 'TIME') {
       this.removeDatepicker()
       if (OP_DATE_NOPICKER.includes(state.op)) {
         // 无需日期组件
       } else {
-        this.renderDatepicker()
+        this.renderDatepicker(state.type === 'TIME')
       }
-    } else if (lastType === 'DATE' || lastType === 'DATETIME') {
+    } else if (lastType === 'DATE' || lastType === 'DATETIME' || lastType === 'TIME') {
       this.removeDatepicker()
     }
 
@@ -582,24 +593,26 @@ class FilterItem extends React.Component {
     this.removeBool()
   }
 
-  valueHandle = (e) => {
+  valueHandle(e) {
     const v = e.target.value
     if (~~e.target.dataset.at === 2) this.setState({ value2: v })
     else this.setState({ value: v })
   }
 
   // @e = el or event
-  valueCheck = (e) => {
+  valueCheck(e) {
     const $el = e.target ? $(e.target) : e
-    let v = e.target ? e.target.value : e.val()
     $el.removeClass('is-invalid')
+    const v = e.target ? e.target.value : e.val()
     if (!v) {
       $el.addClass('is-invalid')
     } else {
       if (this.isNumberValue()) {
         if ($regex.isDecimal(v) === false) $el.addClass('is-invalid')
       } else if (this.state.type === 'DATE' || this.state.type === 'DATETIME') {
-        if ($regex.isUTCDate(v) === false) $el.addClass('is-invalid')
+        if ($regex.isDate(v) === false) $el.addClass('is-invalid')
+      } else if (this.state.type === 'TIME') {
+        if ($regex.isTime(v) === false) $el.addClass('is-invalid')
       }
     }
   }
@@ -708,11 +721,22 @@ class FilterItem extends React.Component {
 
   // 日期时间
 
-  renderDatepicker() {
-    const dpcfg = {
+  renderDatepicker(onlyTime) {
+    let dpcfg = {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
+    }
+
+    // 仅时间
+    if (onlyTime) {
+      dpcfg = {
+        format: 'hh:ii',
+        minView: 0,
+        maxView: 1,
+        startView: 1,
+        title: $L('选择时间'),
+      }
     }
 
     const that = this

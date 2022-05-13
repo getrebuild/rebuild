@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -299,6 +299,9 @@ public class ReferenceSearchController extends EntityController {
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }
+
+        // 快速查询
+        mv.getModel().put("quickFieldsLabel", GeneralListController.getQuickFieldsLabel(searchEntity));
 
         return mv;
     }

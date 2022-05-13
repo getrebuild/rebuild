@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -38,3 +38,25 @@ var loadDeptTree = function () {
 }
 
 $(document).ready(() => loadDeptTree())
+
+RbList.renderAfter = function () {
+  if (rb.commercial < 10) return
+
+  const FLAGS = {
+    'WW': $L('企业微信'),
+    'DD': $L('钉钉'),
+  }
+
+  const userids = []
+  $('#react-list .table>tbody>tr').each(function () {
+    userids.push($(this).data('id'))
+  })
+
+  $.post('/admin/bizuser/bizz-flag', userids.join(','), (res) => {
+    for (let k in res.data || {}) {
+      const uPrefix = res.data[k].substr(0, 2)
+      const badge = `<span class="badge badge-${uPrefix}" title="${res.data[k].substr(2)}">${FLAGS[uPrefix]}</span>`
+      $(`#react-list .table>tbody>tr[data-id="${k}"] td.column-empty`).html(badge)
+    }
+  })
+}

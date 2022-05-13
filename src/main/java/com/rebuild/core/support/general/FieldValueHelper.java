@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -20,7 +20,10 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -90,7 +93,7 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
-        if (!field.isQueryable() &&
+        if (value != null && !field.isQueryable() &&
                 (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
             return DataDesensitized.SECURE_TEXT;
         }
@@ -259,18 +262,17 @@ public class FieldValueHelper {
      * @return
      */
     public static boolean isUseDesensitized(EasyField field, ID user) {
-        if (!(field instanceof EasyText)) return false;
         if (user == null) {
             log.warn("No [user] spec! Cannot check desensitized");
             return false;
         }
-        
-        return ((EasyText) field).isDesensitized()
+
+        return field.isDesensitized()
                 && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 
     /**
-     * 字段值脱敏。仅适用文本、邮箱、电话字段
+     * 字段值脱敏。仅适用文本/邮箱/电话/数字字段
      *
      * @param field
      * @param value
@@ -286,6 +288,8 @@ public class FieldValueHelper {
             return DataDesensitized.phone((String) value);
         } else if (dt == DisplayType.TEXT) {
             return DataDesensitized.any((String) value);
+        } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
+            return DataDesensitized.SECURE_TEXT;
         } else {
             return value;
         }
@@ -298,7 +302,7 @@ public class FieldValueHelper {
      * @return
      */
     public static boolean hasLength(Object o) {
-        if (o == null || NullValue.is(o)) return false;
+        if (NullValue.isNull(o)) return false;
         if (o.getClass().isArray()) return ((Object[]) o).length > 0;
         else return o.toString().length() > 0;
     }

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -99,10 +99,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
                 }
 
                 Object hasVal = record.getObjectValue(field.getName());
-                boolean isNull = hasVal == null || NullValue.is(hasVal);
                 boolean canNull = field.isNullable() || autoReadonlyFields.contains(field.getName());
 
-                if (isNull) {
+                if (NullValue.isNull(hasVal)) {
                     if (!canNull) {
                         notNulls.add(easyField.getLabel());
                     }
@@ -127,11 +126,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
                 if (MetadataHelper.isCommonsField(field)) continue;
 
                 Object hasVal = record.getObjectValue(field.getName());
-                boolean isNull = hasVal == null || NullValue.is(hasVal);
                 boolean canNull = field.isNullable() || autoReadonlyFields.contains(field.getName());
 
                 EasyField easyField = EasyMetaFactory.valueOf(field);
-                if (isNull) {
+                if (NullValue.isNull(hasVal)) {
                     if (!canNull) {
                         notNulls.add(easyField.getLabel());
                     }

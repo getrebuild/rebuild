@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -28,6 +28,7 @@ $(document).ready(function () {
       .select2({
         placeholder: $L('选择关联项'),
         allowClear: false,
+        matcher: $select2MatcherAll,
       })
       .on('change', () => {
         if (item_current_isNew === true) {

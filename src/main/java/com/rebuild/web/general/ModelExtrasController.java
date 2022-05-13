@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -68,6 +69,7 @@ public class ModelExtrasController extends BaseController {
     public RespBody transform(HttpServletRequest request) {
         ID transid = getIdParameterNotNull(request, "transid");
         ID sourceRecord = getIdParameterNotNull(request, "source");
+        ID mainid = getIdParameter(request, "mainid");
 
         ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
@@ -78,11 +80,17 @@ public class ModelExtrasController extends BaseController {
         }
 
         try {
-            ID newId = transfomer.transform(sourceRecord);
+            ID newId = transfomer.transform(sourceRecord, mainid);
             return RespBody.ok(newId);
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
-            return RespBody.errorl("记录转换失败 (%s)", ex.getLocalizedMessage());
+
+            String detail = ex.getLocalizedMessage();
+            if (ex instanceof RepeatedRecordsException) {
+                detail = Language.L("存在重复记录");
+            }
+
+            return RespBody.errorl("记录转换失败 (%s)", detail);
         }
     }
 

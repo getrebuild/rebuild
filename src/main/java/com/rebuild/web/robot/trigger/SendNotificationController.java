@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.robot.trigger;
 
-import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +26,10 @@ import java.util.Map;
 public class SendNotificationController extends BaseController {
 
     @GetMapping("sendnotification-atypes")
-    public JSON availableTypes() {
+    public RespBody availableTypes() {
         Map<String, Boolean> map = new HashMap<>();
         map.put("serviceMail", SMSender.availableMail());
         map.put("serviceSms", SMSender.availableSMS());
-        return (JSON) JSON.toJSON(map);
+        return RespBody.ok(map);
     }
 }

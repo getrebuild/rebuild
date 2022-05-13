@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -639,7 +639,7 @@ function __renderRichContent(e) {
             return (
               <span key={'img-' + item}>
                 <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="Avatar" />
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} alt="Avatar" />
                 </a>
               </span>
             )

@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,17 +46,13 @@ import java.util.List;
  * @since 2019/05/29
  */
 @Slf4j
-public class FieldAggregation implements TriggerAction {
+public class FieldAggregation extends TriggerAction {
 
     /**
      * 更新自己
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
 
-    final protected ActionContext context;
-
-    // 允许无权限更新
-    final protected boolean allowNoPermissionUpdate;
     // 最大触发链深度
     final protected int maxTriggerDepth;
     // 此触发器可能产生连锁反应
@@ -71,21 +69,12 @@ public class FieldAggregation implements TriggerAction {
     // 关联字段条件
     protected String followSourceWhere;
 
-    /**
-     * @param context
-     */
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.TRUE, 9);
+        this(context, 9);
     }
 
-    /**
-     * @param context
-     * @param allowNoPermissionUpdate
-     * @param maxTriggerDepth
-     */
-    protected FieldAggregation(ActionContext context, boolean allowNoPermissionUpdate, int maxTriggerDepth) {
-        this.context = context;
-        this.allowNoPermissionUpdate = allowNoPermissionUpdate;
+    protected FieldAggregation(ActionContext context, int maxTriggerDepth) {
+        super(context);
         this.maxTriggerDepth = maxTriggerDepth;
     }
 
@@ -104,21 +93,11 @@ public class FieldAggregation implements TriggerAction {
         if (tschain == null) {
             tschain = new ArrayList<>();
         } else {
-            ID triggerCurrent = context.getConfigId();
+            ID triggerCurrent = actionContext.getConfigId();
             log.info("Occured trigger-chain : {} > {} (current)",
                     StringUtils.join(tschain, " > "), triggerCurrent);
 
-//            // 同一触发器不能连续触发（源实体与目标实体相同时）
-//            ID lastTrigger = tschain.get(tschain.size() - 1);
-//            if (triggerCurrent.equals(lastTrigger)) {
-//                return null;
-//            }
-//            // 循环调用（如 A > B > A）
-//            if (tschain.contains(triggerCurrent)) {
-//                return null;
-//            }
-
-            // 在整个触发链上只触发一次
+            // 在整个触发链上只触发一次，避免循环调用
             if (tschain.contains(triggerCurrent)) {
                 return null;
             }
@@ -142,15 +121,8 @@ public class FieldAggregation implements TriggerAction {
             return;
         }
 
-        // 如果当前用户对目标记录无修改权限
-        if (!allowNoPermissionUpdate
-                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
-            log.warn("No permission to update record of target : {}", targetRecordId);
-            return;
-        }
-
         // 聚合数据过滤
-        JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
+        JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
         if (dataFilter != null && !dataFilter.isEmpty()) {
             dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
@@ -158,7 +130,8 @@ public class FieldAggregation implements TriggerAction {
 
         // 构建目标记录数据
         Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
-        JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
+
+        JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
@@ -179,27 +152,38 @@ public class FieldAggregation implements TriggerAction {
                 targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
             } else if (dt == DisplayType.DECIMAL) {
                 targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
+            } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                targetRecord.setDate(targetField, (Date) evalValue);
+            } else {
+                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
             }
         }
 
         // 有需要才执行
-        if (targetRecord.getAvailableFields().size() > 1) {
-            if (allowNoPermissionUpdate) {
-                PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+        if (!targetRecord.isEmpty()) {
+            final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
+
+            // 跳过权限
+            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+            // 强制更新 (v2.9)
+            if (forceUpdate) {
+                GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
 
             // 会关联触发下一触发器（如有）
-            tschain.add(context.getConfigId());
+            tschain.add(actionContext.getConfigId());
             TRIGGER_CHAIN_DEPTH.set(tschain);
 
             ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
                     ? Application.getEntityService(targetEntity.getEntityCode())
                     : Application.getService(targetEntity.getEntityCode());
 
+            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
             try {
                 useService.update(targetRecord);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
     }
@@ -209,8 +193,8 @@ public class FieldAggregation implements TriggerAction {
         if (sourceEntity != null) return;  // 已经初始化
 
         // FIELD.ENTITY
-        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
-        sourceEntity = context.getSourceEntity();
+        String[] targetFieldEntity = ((JSONObject) actionContext.getActionContent()).getString("targetEntity").split("\\.");
+        sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
         String followSourceField;
@@ -218,7 +202,7 @@ public class FieldAggregation implements TriggerAction {
         // 自己
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             followSourceField = sourceEntity.getPrimaryField().getName();
-            targetRecordId = context.getSourceRecord();
+            targetRecordId = actionContext.getSourceRecord();
         } else {
             followSourceField = targetFieldEntity[0];
             if (!sourceEntity.containsField(followSourceField)) {
@@ -227,7 +211,7 @@ public class FieldAggregation implements TriggerAction {
 
             // 找到主记录
             Object[] o = Application.getQueryFactory().uniqueNoFilter(
-                    context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
+                    actionContext.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
             // o[1] 为空说明记录不存在
             if (o != null && o[0] != null && o[1] != null) {
                 targetRecordId = (ID) o[0];

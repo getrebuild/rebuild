@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -30,6 +30,8 @@ import java.util.Map;
 public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     private JSONObject queryData;
+
+    private int count = 0;
 
     public EasyExcelListGenerator(ID reportId, JSONObject queryData) {
         super(DataReportManager.instance.getTemplateFile(
@@ -74,7 +76,12 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         List<Map<String, Object>> datas = new ArrayList<>();
         for (Record c : list) {
             datas.add(buildData(c, varsMap));
+            count++;
         }
         return datas;
+    }
+
+    public int getExportCount() {
+        return count;
     }
 }

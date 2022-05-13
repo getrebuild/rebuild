@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -14,11 +14,14 @@ $(document).ready(() => {
     href = href.split('/field/')[0] + '/fields'
   }
 
-  const $ul = $('<ul class="dropdown-menu auto-scroller"></ul>').appendTo('.aside-header')
-  $ul.perfectScrollbar()
+  const $ul = $('<ul class="dropdown-menu auto-scroller entity-switch"></ul>').appendTo('.aside-header')
 
   function _render(item) {
-    $(`<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`).appendTo($ul)
+    const $item = $(`<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`)
+    if (entity === item.entityName) {
+      $item.addClass('current')
+    }
+    $item.appendTo($ul)
   }
 
   $.get('/admin/entity/entity-list?detail=true&bizz=true', (res) => {
@@ -28,6 +31,8 @@ $(document).ready(() => {
     $(res.data).each((idx, item) => {
       if (item.builtin === false) _render(item)
     })
+
+    $ul.perfectScrollbar()
   })
 
   $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted"></i>').appendTo('.aside-header .title')

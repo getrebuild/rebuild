@@ -23,8 +23,10 @@
         <field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
+        <field name="externalId" type="string" max-length="100" queryable="false" creatable="false" updatable="false" description="外部用户ID"/>
         <index type="unique" field-list="loginName"/>
         <index type="unique" field-list="email"/>
+        <index type="unique" field-list="externalId"/>
         <index field-list="quickCode,fullName,email"/>
     </entity>
 
@@ -35,6 +37,8 @@
         <field name="principalId" type="reference" ref-entity="User" description="负责人"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
+        <field name="externalId" type="string" max-length="100" queryable="false" creatable="false" updatable="false" description="外部部门ID"/>
+        <index type="unique" field-list="externalId"/>
     </entity>
 
     <entity name="Role" type-code="003" description="角色" name-field="name" extra-attrs="{icon:'lock'}">
@@ -533,6 +537,26 @@
         <field name="bindUser" type="reference" ref-entity="User" description="数据绑定用户"/>
         <field name="hookUrl" type="string" max-length="300" description="回调地址"/>
         <field name="hookSecret" type="string" max-length="300" description="回调安全码"/>
+    </entity>
+
+    <entity name="CommonsLock" type-code="098" description="通用锁" queryable="false" parent="false">
+        <field name="lockId" type="primary"/>
+        <field name="source" type="any-reference" ref-entity="*" nullable="false" cascade="ignore"/>
+        <field name="lockUser" type="reference" ref-entity="User" nullable="false"/>
+        <field name="lockTime" type="timestamp" nullable="false"/>
+        <index field-list="lockUser,lockTime"/>
+        <index field-list="source" type="unique"/>
+    </entity>
+
+    <entity name="CommonsLog" type-code="099" description="通用日志" queryable="false" parent="false">
+        <field name="logId" type="primary"/>
+        <field name="type" type="string" max-length="20" nullable="false"/>
+        <field name="user" type="reference" ref-entity="User" cascade="ignore" nullable="false"/>
+        <field name="source" type="any-reference" ref-entity="*" nullable="false" cascade="ignore"/>
+        <field name="logContent" type="text"/>
+        <field name="logTime" type="timestamp" nullable="false"/>
+        <field name="status" type="small-int" default-value="1"/>
+        <index field-list="type,logTime,source"/>
     </entity>
 
 </metadata-config>

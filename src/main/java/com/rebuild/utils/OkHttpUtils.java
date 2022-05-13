@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -30,15 +30,15 @@ import java.util.concurrent.TimeUnit;
  * @since 2020/7/15
  */
 @Slf4j
-public class HttpUtils {
+public class OkHttpUtils {
 
     private static OkHttpClient okHttpClient = null;
 
-    private static final String RB_UA = String.format("RB/%s (%s/%s)",
+    public static final String RB_UA = String.format("RB/%s (%s/%s)",
             Application.VER, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
 
     private static final Locale l = Locale.getDefault();
-    private static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
+    public static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
 
     private static String RB_CI;
 
@@ -55,6 +55,7 @@ public class HttpUtils {
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
+                    .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
             RB_CI = ComputerIdentifier.generateIdentifierKey();
         }

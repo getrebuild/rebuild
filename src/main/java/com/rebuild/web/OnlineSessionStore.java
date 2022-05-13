@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -12,8 +12,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -34,13 +33,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author devezhao
  * @since 09/27/2018
  */
+@Slf4j
 @Component
 public class OnlineSessionStore implements HttpSessionListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OnlineSessionStore.class);
-
     private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
-
     private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
 
     /**
@@ -52,17 +49,14 @@ public class OnlineSessionStore implements HttpSessionListener {
 
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        if (LOG.isDebugEnabled()) {
-            LOG.info("Created session - " + event);
-        }
+        if (log.isDebugEnabled()) log.info("Created session : {}", event.getSession().getId());
+
         ONLINE_SESSIONS.add(event.getSession());
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        if (LOG.isDebugEnabled()) {
-            LOG.info("Destroyed session - " + event);
-        }
+        if (log.isDebugEnabled()) log.info("Destroyed session : {}", event.getSession().getId());
 
         HttpSession s = event.getSession();
         if (ONLINE_SESSIONS.contains(s)) {
@@ -119,10 +113,11 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (!RebuildConfiguration.getBool(ConfigurationItem.MultipleSessions)) {
             HttpSession previous = getSession((ID) loginUser);
             if (previous != null) {
-                LOG.warn("Kill previous session : " + loginUser + " < " + previous.getId());
+                log.warn("Kill previous session : {} < {}", loginUser, previous.getId());
+
                 try {
                     previous.invalidate();
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         }

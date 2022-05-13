@@ -59,6 +59,24 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('数据同步')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
+                        <td data-id="DingtalkSyncUsers" th:data-value="${DingtalkSyncUsers}">
+                          <span class="mr-1">[[${DingtalkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
+                          <button type="button" class="btn btn-light btn-sm J_syncUsers"><i class="icon zmdi zmdi-refresh"></i> [[${bundle.L('立即同步')}]]</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('用户默认角色')}]]</td>
+                        <td data-id="DingtalkSyncUsersRole" th:data-value="${DingtalkSyncUsersRole}" th:data-form-text="${bundle.L('如不指定新同步的用户将不可用，直到你为他们指定了角色')}">
+                          [[${DingtalkSyncUsersRoleLabel ?:bundle.L('无')}]]
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <div class="edit-footer">
                     <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
                     <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
@@ -74,5 +92,6 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/clipboard.min.js}"></script>
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/syscfg-sync.js}" type="text/babel"></script>
   </body>
 </html>

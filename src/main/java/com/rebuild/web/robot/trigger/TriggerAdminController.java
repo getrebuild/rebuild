@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -9,6 +9,7 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -16,6 +17,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
@@ -73,6 +75,8 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("actionContent", config[4]);
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
+        mv.getModel().put("lockedUser", JSON.toJSONString(CommonsLock.getLockedUserFormat(configId)));
+
         return mv;
     }
 
@@ -103,13 +107,14 @@ public class TriggerAdminController extends BaseController {
     public Object[][] triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType from RobotTriggerConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,configId from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] array = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
+            o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
         }
         return array;
     }

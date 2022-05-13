@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -45,6 +45,8 @@ public class DataExporter extends SetUser {
     // 字段
     private List<Field> headFields = new ArrayList<>();
 
+    private int count = 0;
+
     /**
      * @param queryData
      */
@@ -70,13 +72,16 @@ public class DataExporter extends SetUser {
      */
     public File export(ID useReport) {
         if (useReport == null) {
-            File tmp = RebuildConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
+            File tmp = RebuildConfiguration.getFileOfTemp(String.format("RBEXPORT-%d.csv", System.currentTimeMillis()));
             exportCsv(tmp);
             return tmp;
         } else {
             EasyExcelListGenerator generator = new EasyExcelListGenerator(useReport, this.queryData);
             generator.setUser(getUser());
-            return generator.generate();
+            File file = generator.generate();
+
+            count = generator.getExportCount();
+            return file;
         }
     }
 
@@ -99,6 +104,7 @@ public class DataExporter extends SetUser {
                     for (List<String> row : this.buildData(control)) {
                         writer.newLine();
                         writer.write(mergeLine(row));
+                        count++;
                     }
 
                     writer.flush();
@@ -192,5 +198,9 @@ public class DataExporter extends SetUser {
             into.add(cellVals);
         }
         return into;
+    }
+
+    public int getExportCount() {
+        return count;
     }
 }

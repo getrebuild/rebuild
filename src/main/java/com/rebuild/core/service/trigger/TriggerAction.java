@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -16,32 +16,21 @@ import com.rebuild.core.service.general.OperatingContext;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
  */
-public interface TriggerAction {
+public abstract class TriggerAction {
 
-    /**
-     * 动作类型
-     *
-     * @return
-     */
-    ActionType getType();
+    final protected ActionContext actionContext;
 
-    /**
-     * 源实体过滤
-     *
-     * @param entityCode
-     * @return
-     */
-    default boolean isUsableSourceEntity(int entityCode) {
-        return true;
+    protected TriggerAction(ActionContext actionContext) {
+        this.actionContext = actionContext;
     }
 
-    /**
-     * 操作执行
-     *
-     * @param operatingContext
-     * @throws TriggerException
-     */
-    void execute(OperatingContext operatingContext) throws TriggerException;
+    public ActionContext getActionContext() {
+        return actionContext;
+    }
+
+    abstract public ActionType getType();
+
+    abstract public void execute(OperatingContext operatingContext) throws TriggerException;
 
     /**
      * 如果是删除动作，会先调用此方法。可在此方法中保持一些数据状态，以便删除后还可继续使用
@@ -49,12 +38,27 @@ public interface TriggerAction {
      * @param operatingContext
      * @throws TriggerException
      */
-    default void prepare(OperatingContext operatingContext) throws TriggerException {
+    protected void prepare(OperatingContext operatingContext) throws TriggerException {
     }
 
     /**
      * 执行后进行清理工作。注意：只有同步任务并且不是用新事物的任务才会触发
      */
-    default void clean() {
+    public void clean() {
+    }
+
+    /**
+     * 实体是否可用此触发器
+     *
+     * @param entityCode
+     * @return
+     */
+    public boolean isUsableSourceEntity(int entityCode) {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "#" + actionContext.getConfigId();
     }
 }

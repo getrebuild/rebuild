@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -55,9 +55,9 @@ public class GroupAggregation extends FieldAggregation {
     public void prepare(OperatingContext operatingContext) throws TriggerException {
         if (sourceEntity != null) return;  // 已经初始化
 
-        final JSONObject actionContent = (JSONObject) context.getActionContent();
+        final JSONObject actionContent = (JSONObject) actionContext.getActionContent();
 
-        sourceEntity = context.getSourceEntity();
+        sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(actionContent.getString("targetEntity"));
 
         // 0.分组字段关联 <Source, Target>
@@ -84,7 +84,7 @@ public class GroupAggregation extends FieldAggregation {
                 sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
 
         Record sourceRecord = Application.getQueryFactory().createQueryNoFilter(ql)
-                .setParameter(1, context.getSourceRecord())
+                .setParameter(1, actionContext.getSourceRecord())
                 .record();
 
         // 2.找到目标记录

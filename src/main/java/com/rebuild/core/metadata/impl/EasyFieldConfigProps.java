@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -50,6 +50,11 @@ public class EasyFieldConfigProps {
      * 日期格式
      */
     public static final String DATETIME_FORMAT = "datetimeFormat";
+
+    /**
+     * 时间格式
+     */
+    public static final String TIME_FORMAT = "timeFormat";
 
     /**
      * 允许上传数量 1,5
@@ -129,4 +134,9 @@ public class EasyFieldConfigProps {
      * 自动定位
      */
     public static final String LOCATION_AUTOLOCATION = "locationAutoLocation";
+
+    /**
+     * 扫码
+     */
+    public static final String TEXT_SCANCODE = "textScanCode";
 }

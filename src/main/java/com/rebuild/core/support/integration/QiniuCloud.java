@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -25,7 +25,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.HttpUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -122,7 +122,7 @@ public class QiniuCloud {
      * @throws Exception
      */
     public String upload(URL url) throws Exception {
-        File tmp = HttpUtils.readBinary(url.toString());
+        File tmp = OkHttpUtils.readBinary(url.toString());
         if (tmp == null) {
             throw new RebuildException("Cannot read file from URL : " + url);
         }
@@ -163,6 +163,16 @@ public class QiniuCloud {
         seconds /= 2;
         deadline = deadline / seconds * seconds;
         return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
+    }
+
+    /**
+     * @param filePath
+     * @param dest
+     * @throws IOException
+     */
+    public void download(String filePath, File dest) throws IOException {
+        String url = makeUrl(filePath, 60);
+        OkHttpUtils.readBinary(url, dest, null);
     }
 
     /**

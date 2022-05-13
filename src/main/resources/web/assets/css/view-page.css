@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -90,16 +90,17 @@ body {
 .rbview-form .type-NTEXT .form-control-plaintext {
   max-height: 72px;
   position: relative;
-}
-
-.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
-  max-height: 134px;
   word-break: break-all;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext > p {
   margin: 0;
   line-height: 1.428571;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content,
+.rbview-form .type-NTEXT.col-sm-12 .form-control-plaintext {
+  max-height: 134px;
 }
 
 .nav-tabs > li.nav-item a.nav-link {
@@ -172,8 +173,32 @@ body {
   font-size: 1.2rem;
 }
 
-.related-list .card .header-title .col-2.text-right {
+.related-list .card .header-title .record-meta {
   padding-right: 30px;
+  text-align: right;
+}
+
+.related-list .card .header-title .record-meta .badge {
+  margin-right: 13px;
+}
+
+.related-list .card .header-title .record-meta a.edit {
+  color: #999;
+  font-size: 1.231rem;
+  margin-left: -38px;
+  margin-top: -2px;
+  position: absolute;
+  display: none;
+  padding: 0 10px;
+}
+
+.related-list .card .header-title .record-meta a.edit:hover {
+  color: #4285f4;
+}
+
+.related-list .card:hover .header-title .record-meta a.edit,
+.related-list .card.active .header-title .record-meta a.edit {
+  display: inline-block;
 }
 
 .related-list .related-toolbar {
@@ -186,14 +211,17 @@ body {
 }
 
 .view-operating {
-  margin-top: 33px;
+  padding-top: 3px;
 }
 
 .view-operating > div {
-  margin-bottom: 15px !important;
+  margin-top: 15px;
 }
 
-.view-operating .row,
+.view-operating > div.view-action {
+  margin-top: 30px;
+}
+
 .view-operating .form-line {
   margin-bottom: 10px;
 }
@@ -207,11 +235,11 @@ body {
 }
 
 .view-action .col-lg-6:nth-child(odd) {
-  padding-right: 0.384615rem;
+  padding-right: 5px;
 }
 
 .view-action .col-lg-6:nth-child(even) {
-  padding-left: 0.384615rem;
+  padding-left: 5px;
 }
 
 .view-action .col-lg-6 .btn {
@@ -220,19 +248,11 @@ body {
   text-overflow: ellipsis;
 }
 
-.view-action.empty {
-  margin-top: 4px;
-}
-
 @media (max-width: 991px) {
   .view-action .col-lg-6 {
     padding-left: 15px !important;
     padding-right: 15px !important;
   }
-}
-
-.view-operating > div.view-user {
-  margin-bottom: 5px !important;
 }
 
 .view-date .col-lg-4,
@@ -341,9 +361,10 @@ body {
   right: 0;
   top: 0;
   color: #aaa;
-  width: 22px;
-  height: 22px;
-  margin-top: 6px;
+  width: 24px;
+  height: 24px;
+  margin-top: 5px;
+  padding-top: 1px;
   text-align: center;
   border-radius: 2px;
   background-color: #f8f9fa;
@@ -351,7 +372,7 @@ body {
 }
 
 .rbview-form .form-group.editable a.edit::before {
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   content: '\f158';
   font-size: 16px;
   display: inline-block;
@@ -487,8 +508,6 @@ body {
 
 .view-history .view-history-items > li b:first-child {
   font-weight: normal;
-  min-width: 60px;
-  display: inline-block;
 }
 
 .CodeMirror-fullscreen {
@@ -554,16 +573,28 @@ body {
 .tasks-list.inview .header-title .task-meta {
   text-align: right;
   color: #878787;
+  font-size: 12px;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar {
+.tasks-list.inview .header-title .task-meta > span {
+  margin-left: 10px;
+  position: relative;
+}
+
+.tasks-list.inview .header-title .task-meta > span + span::before {
+  content: '·';
+  margin-right: 10px;
+  font-weight: bolder;
+}
+
+.tasks-list.inview .header-title .task-meta > span .avatar {
   position: absolute;
-  top: -4px;
-  right: 15px;
-  margin-left: 15px;
+  margin-top: -4px;
+  margin-left: -24px;
+  cursor: default;
 }
 
-.tasks-list.inview .header-title .task-meta .avatar img {
+.tasks-list.inview .header-title .task-meta > span img {
   width: 26px;
   height: 26px;
 }
@@ -620,17 +651,14 @@ body {
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
-  border-radius: 99px;
+  border-radius: 3px;
   padding: 1px 6px;
   margin-right: 3px;
   margin-bottom: 3px;
-  white-space: nowrap;
   display: inline-block;
-  background-color: #eee;
-}
-
-.form-control-plaintext.multi-values > a {
-  background-color: #e6eff8;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  line-height: 17px;
 }
 
 .file-list.inview {
@@ -644,4 +672,10 @@ body {
 
 .file-list.inview .file-list-item:hover {
   background-color: transparent !important;
+}
+
+.trans-to-wrap {
+  width: 88%;
+  margin: 0 auto;
+  text-align: left;
 }

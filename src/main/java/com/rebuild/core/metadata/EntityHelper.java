@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -260,4 +260,10 @@ public class EntityHelper {
     // 外部表单
 
     public static final int ExtformConfig = 60;
+
+    // 锁/日志
+
+    public static final int CommonsLock = 98;
+    public static final int CommonsLog = 99;
+
 }

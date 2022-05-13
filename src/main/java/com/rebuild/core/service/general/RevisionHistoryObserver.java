@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -79,7 +79,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
     public void onShare(OperatingContext context) {
-        Record revision = newRevision(context, false);
+        Record revision = newRevision(context, true);
         ID recordId = context.getAfterRecord().getID("recordId");
         revision.setID("recordId", recordId);
         revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
@@ -88,18 +88,13 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
     public void onUnshare(OperatingContext context) {
-        Record revision = newRevision(context, false);
+        Record revision = newRevision(context, true);
         ID recordId = context.getBeforeRecord().getID("recordId");
         revision.setID("recordId", recordId);
         revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
         Application.getCommonsService().create(revision);
     }
 
-    /**
-     * @param context
-     * @param mergeChange
-     * @return
-     */
     private Record newRevision(OperatingContext context, boolean mergeChange) {
         ID recordId = context.getAnyRecord().getPrimary();
         Record record = EntityHelper.forNew(EntityHelper.RevisionHistory, UserService.SYSTEM_USER);
@@ -112,6 +107,19 @@ public class RevisionHistoryObserver extends OperatingObserver {
         if (mergeChange) {
             Record before = context.getBeforeRecord();
             Record after = context.getAfterRecord();
+
+            // 共享特殊处理
+            if (context.getAnyRecord().getEntity().getEntityCode() == EntityHelper.ShareAccess) {
+                final ID shareTo = context.getAnyRecord().getID("shareTo");
+                if (before != null) {
+                    before = EntityHelper.forNew(EntityHelper.ShareAccess, before.getPrimary(), false);
+                    before.setID("SHARETO", shareTo);
+                } else if (after != null) {
+                    after = EntityHelper.forNew(EntityHelper.ShareAccess, after.getEditor(), false);
+                    after.setID("SHARETO", shareTo);
+                }
+            }
+
             JSON revisionContent = new RecordDifference(before).diffMerge(after);
             record.setString("revisionContent", revisionContent.toJSONString());
         } else {

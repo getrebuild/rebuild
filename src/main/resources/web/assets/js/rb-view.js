@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
@@ -43,7 +43,7 @@ class RbViewForm extends React.Component {
           if (window.RbViewPage) window.RbViewPage.setReadonly()
           else $('.J_edit, .J_delete').remove()
 
-          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止修改') : $L('主记录已审批完成，明细记录禁止修改')} />
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录禁止操作') : $L('主记录已审批完成，明细记录禁止操作')} />
         }
         hadApproval = null
       }
@@ -305,6 +305,11 @@ class RelatedList extends React.Component {
   }
 }
 
+const APPROVAL_STATE_CLAZZs = {
+  2: [$L('审批中'), 'warning'],
+  10: [$L('通过'), 'success'],
+  11: [$L('驳回'), 'danger'],
+}
 // ~ 业务实体相关项列表
 class EntityRelatedList extends RelatedList {
   constructor(props) {
@@ -322,15 +327,24 @@ class EntityRelatedList extends RelatedList {
   }
 
   renderItem(item) {
+    const astate = APPROVAL_STATE_CLAZZs[item[3]]
     return (
       <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
         <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
-          <div className="col-10">
+          <div className="col-9">
             <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('打开')}>
               {item[1]}
             </a>
           </div>
-          <div className="col-2 text-right">
+          <div className="col-3 record-meta">
+            {item[4] && (
+              <a className="edit" onClick={(e) => this._handleEdit(e, item[0])} title={$L('编辑')}>
+                <i className="icon zmdi zmdi-edit" />
+              </a>
+            )}
+
+            {astate && <span className={`badge badge-sm badge-${astate[1]}`}>{astate[0]}</span>}
+
             <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
             </span>
@@ -369,6 +383,16 @@ class EntityRelatedList extends RelatedList {
       // FIXME 数据少不显示
       // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+
+  _handleEdit(e, id) {
+    $stopEvent(e, true)
+    RbFormModal.create({
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
     })
   }
 
@@ -494,6 +518,39 @@ class SelectReport extends React.Component {
     renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
       that.__cached = this
     })
+  }
+}
+
+class TransformRich extends React.Component {
+  render() {
+    return (
+      <RF>
+        {WrapHtml($L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
+        {this.props.mainEntity && (
+          <div className="mt-3 trans-to-wrap">
+            <div>
+              <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
+            </div>
+          </div>
+        )}
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    $initReferenceSelect2(this._$select, {
+      placeholder: $L('选择主记录'),
+      entity: this.props.entity,
+      name: `${this.props.mainEntity}Id`,
+    })
+  }
+
+  getMainId() {
+    if (this._$select) {
+      const v = $(this._$select).val()
+      return v ? v : false
+    }
+    return true
   }
 }
 
@@ -692,8 +749,10 @@ const RbViewPage = {
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
+      const configThat = this
       $tabNav.find('a').on('click', function () {
-        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+        $tabPane.find('.related-list').length === 0 &&
+          renderRbcomp(<MixRelatedList entity={entity} entity2={[configThat.entityLabel, configThat.icon]} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()
@@ -763,18 +822,25 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.on('click', () => {
-        RbAlert.create(WrapHtml($L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)), {
-          confirm: function () {
+        let _TransformRich
+        RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
+          tabIndex: 1,
+          onConfirm: function () {
+            const mainid = _TransformRich.getMainId()
+            if (mainid === false) {
+              RbHighbar.create($L('请选择主记录'))
+              return
+            }
+
             this.disabled(true)
-            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {
-              this.hide()
+            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
               if (res.error_code === 0) {
+                this.hide()
                 RbHighbar.success($L('转换成功'))
                 setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
-              } else if (res.error_code === 400) {
-                RbHighbar.create(res.error_msg)
               } else {
-                RbHighbar.error(res.error_msg)
+                this.disabled(false)
+                res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
               }
             })
           },
@@ -814,7 +880,7 @@ const RbViewPage = {
         $('.view-action .col-lg-6').each(function () {
           if ($(this).children().length === 0) $(this).remove()
         })
-        if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
+        if ($('.view-action').children().length === 0) $('.view-action').addClass('mt-0').empty()
       },
       100,
       '_cleanViewActionButton'
