@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(function () {
   const entity = $urlp('entity')
 
-  const $btn = $('.btn-primary').click(function () {
+  const $btn = $('.btn-primary').on('click', function () {
     const fieldLabel = $val('#fieldLabel'),
       type = $val('#type'),
       comments = $val('#comments'),
@@ -62,7 +62,7 @@ $(document).ready(function () {
 
   let referenceLoaded = false
   let classificationLoaded = false
-  $('#type').change(function () {
+  $('#type').on('change', function () {
     parent.RbModal.resize()
 
     $('.J_dt-REFERENCE, .J_dt-N2NREFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
