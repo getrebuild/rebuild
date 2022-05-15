@@ -24,10 +24,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 视图-相关项/新建相关
@@ -70,6 +67,42 @@ public class ViewAddonsManager extends BaseLayoutManager {
             vtabs.put("items", tabsFluent);
         }
         return vtabs;
+    }
+
+    /**
+     * 获取显示项过滤条件
+     *
+     * @param entity
+     * @param user
+     * @return
+     */
+    public Map<String, JSONObject> getViewTabFilters(String entity, ID user) {
+        final ConfigBean config = getLayout(user, entity, TYPE_TAB);
+        if (config == null) return Collections.emptyMap();
+
+        // compatible: v2.2
+        JSON configJson = config.getJSON("config");
+        if (configJson instanceof JSONArray) {
+            configJson = JSONUtils.toJSONObject("items", configJson);
+        }
+
+        JSONArray items = ((JSONObject) configJson).getJSONArray("items");
+        if (items == null || items.isEmpty()) return Collections.emptyMap();
+
+        Map<String, JSONObject> filters = new HashMap<>();
+        for (Object o : items) {
+            // compatible: v2.8
+            if (!(o instanceof JSONArray)) continue;
+
+            JSONArray item = (JSONArray) o;
+            if (item.size() < 3) continue;
+
+            String entityKey = item.getString(0);
+            JSONObject filter = item.getJSONObject(2);
+            if (filter != null) filters.put(entityKey, filter);
+        }
+
+        return filters;
     }
 
     /**

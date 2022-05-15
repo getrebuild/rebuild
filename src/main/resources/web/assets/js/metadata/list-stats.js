@@ -28,6 +28,8 @@ $(document).ready(function () {
         const field = fields.find((x) => x.name === item.field)
         render_set({ ...item, name: item.field, specLabel: item.label, label: field ? field.label : `[${item.field.toUpperCase()}]` })
       })
+
+      refreshConfigStar()
     }
 
     parent.RbModal.resize()
@@ -66,6 +68,8 @@ $(document).ready(function () {
       else RbHighbar.error(res.error_msg)
     })
   })
+
+  $('.J_tips').on('closed.bs.alert', () => parent.RbModal.resize())
 })
 
 // 支持的计算类型
@@ -121,6 +125,7 @@ const render_set = function (item) {
               $item.attr({
                 'data-label': s.label || '',
               })
+              refreshConfigStar()
             }}
           />,
           null,
@@ -132,5 +137,13 @@ const render_set = function (item) {
     } else {
       $item.attr('data-calc', calc).find('.item > span').text(`${item.label} (${CALC_TYPES[calc]})`)
     }
+  })
+}
+
+const refreshConfigStar = function () {
+  $('.set-items > span').each(function () {
+    const $this = $(this)
+    if ($this.attr('data-label')) $this.find('.item').addClass('star')
+    else $this.find('.item').removeClass('star')
   })
 }

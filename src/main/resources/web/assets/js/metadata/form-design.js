@@ -83,7 +83,7 @@ $(document).ready(function () {
     'SERIES': $L('自动编号'),
     'DATE': $L('日期'),
     'DATETIME': $L('日期时间'),
-    // 'TIME': $L('时间'),
+    'TIME': $L('时间'),
     'PICKLIST': $L('下拉列表'),
     'CLASSIFICATION': $L('分类'),
     'MULTISELECT': $L('多选'),
