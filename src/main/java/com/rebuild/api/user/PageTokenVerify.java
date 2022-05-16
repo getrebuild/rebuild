@@ -27,6 +27,8 @@ import java.util.UUID;
  */
 public class PageTokenVerify extends BaseApi {
 
+    public static final int TOKEN_EXPIRES = CommonsCache.TS_HOUR;
+
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         String token = context.getParameterNotBlank("token");
@@ -49,9 +51,9 @@ public class PageTokenVerify extends BaseApi {
      * @return
      */
     public static String generate(ID user) {
-        String token = UUID.randomUUID().toString().replace("-", "");
-        Application.getCommonsCache().putx("RBPT." + token, user, CommonsCache.TS_HOUR);
-        return token;
+        String ptoken = UUID.randomUUID().toString().replace("-", "");
+        Application.getCommonsCache().putx("RBPT." + ptoken, user, TOKEN_EXPIRES);
+        return ptoken;
     }
 
     /**
