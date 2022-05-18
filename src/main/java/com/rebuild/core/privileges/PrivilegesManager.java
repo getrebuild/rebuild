@@ -299,6 +299,11 @@ public class PrivilegesManager {
             return true;
         }
 
+        // 取消共享与共享共用权限
+        if (action == EntityService.UNSHARE) {
+            action = BizzPermission.SHARE;
+        }
+
         // 明细无 分派/共享
         if (entity.getMainEntity() != null) {
             if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
