@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
@@ -113,11 +114,14 @@ public class RobotTriggerObserver extends OperatingObserver {
         // 设置原始触发源
         if (originTriggerSource) {
             TRIGGER_SOURCE.set(context);
-        }
-        // 自己触发自己，避免无限执行
-        else if (primaryId.equals(getTriggerSource().getAnyRecord().getPrimary())
-                || primaryId.equals(TRIGGER_SOURCE_LASTID.get())) {
-            return;
+        } else {
+            // 自己触发自己，避免无限执行
+            boolean x = primaryId.equals(getTriggerSource().getAnyRecord().getPrimary());
+            boolean xor = x || primaryId.equals(TRIGGER_SOURCE_LASTID.get());
+            if (x || xor) {
+                if (Application.devMode()) log.warn("Self trigger, ignore : {}", primaryId);
+                return;
+            }
         }
 
         TRIGGER_SOURCE_LASTID.set(primaryId);
@@ -184,5 +188,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     public static OperatingContext getTriggerSource() {
         return TRIGGER_SOURCE.get();
+    }
+
+    /**
+     * 强制自执行
+     */
+    public static void forceTriggerSelf() {
+        TRIGGER_SOURCE_LASTID.set(null);
     }
 }

@@ -25,6 +25,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
@@ -162,6 +163,7 @@ public class GroupAggregation extends FieldAggregation {
                         sourceRecord.setID(sourceField, (ID) val);
 
                         for (int i = 0; i < sourceFieldLevel - targetFieldLevel; i++) {
+                            //noinspection StringConcatenationInLoop
                             sourceField += ".parent";
                         }
                     }
@@ -207,14 +209,15 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
-        // 强制新建
         PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+
         try {
             Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
 
+        RobotTriggerObserver.forceTriggerSelf();
         targetRecordId = newTargetRecord.getPrimary();
     }
 
