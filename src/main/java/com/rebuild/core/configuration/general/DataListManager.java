@@ -197,9 +197,20 @@ public class DataListManager extends BaseLayoutManager {
      */
     public ConfigBean getListStatsField(ID user, String entity) {
         ConfigBean e = getLayout(user, entity, TYPE_LISTSTATS);
-        if (e == null) {
-            return null;
-        }
+        if (e == null) return null;
+        return e.clone();
+    }
+
+    /**
+     * 列表-查询字段
+     *
+     * @param user
+     * @param entity
+     * @return
+     */
+    public ConfigBean getListQueriesField(ID user, String entity) {
+        ConfigBean e = getLayout(user, entity, TYPE_LISTFILTERPANE);
+        if (e == null) return null;
         return e.clone();
     }
 

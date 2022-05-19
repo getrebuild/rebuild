@@ -1356,13 +1356,6 @@ select.form-control:not([disabled]) {
   padding-bottom: 7px;
 }
 
-.dataTables_wrapper .rb-datatable-header .quick-filter-pane {
-  margin: -12px -25px 12px -23px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #dee2e6;
-  padding: 12px 18px;
-}
-
 @media (max-width: 767px) {
   .dataTables_wrapper .rb-datatable-header {
     top: 0;
@@ -4692,21 +4685,53 @@ pre.unstyle {
   cursor: pointer !important;
 }
 
+.dropdown-menu.entity-switch {
+  min-width: 220px;
+}
+
+.dropdown-menu.entity-switch .dropdown-item.current,
+.dropdown-menu.entity-switch .dropdown-item.current .icon {
+  color: #4285f4;
+}
+
 /* filter pane */
 
 .dataTables_wrapper .rb-datatable-header .quick-filter-pane {
+  margin: -12px -25px 12px -23px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #dee2e6;
+  padding: 12px 18px;
   padding-top: 0;
 }
 
 .quick-filter-pane .ph-item {
   background-color: #e6e6e6;
   min-height: 59px;
-  border-radius: 3px;
+  border-radius: 0;
 }
 
 .quick-filter-pane .ph-item-mt {
   height: 12px;
   overflow: hidden;
+}
+
+.quick-filter-pane .col > div {
+  margin-top: 12px;
+}
+
+.quick-filter-pane .col {
+  display: none;
+}
+
+.quick-filter-pane.extended .col {
+  display: block;
+}
+
+.quick-filter-pane .col:nth-child(1),
+.quick-filter-pane .col:nth-child(2),
+.quick-filter-pane .col:nth-child(3),
+.quick-filter-pane .col:last-child {
+  display: block;
 }
 
 .quick-filter-pane .col > div > label {
@@ -4715,8 +4740,50 @@ pre.unstyle {
   margin-top: 12px;
 }
 
-.quick-filter-pane .col > div .filter-items .col-sm-5.field {
+.quick-filter-pane .col > div .filter-items .col-sm-5.field,
+.quick-filter-pane.v2 .col > div .filter-items .col-sm-2.op {
   display: none;
+}
+
+.quick-filter-pane .operating-btn {
+  min-height: 50px;
+}
+
+.quick-filter-pane .operating-btn > div {
+  position: absolute;
+  bottom: 0;
+}
+
+.quick-filter-pane .operating-btn a {
+  display: inline-block;
+  padding: 8px 8px 8px 0;
+  opacity: 0.8;
+  color: #616161;
+  line-height: 1;
+}
+
+.quick-filter-pane .operating-btn a .icon {
+  font-size: 1.231rem;
+}
+
+.quick-filter-pane .operating-btn a:hover {
+  opacity: 1;
+}
+
+.quick-filter-pane .operating-btn a.admin-show {
+  display: none;
+}
+
+.quick-filter-pane .operating-btn:hover a.admin-show {
+  display: inline-block;
+}
+
+/* col-sm-8 */
+.quick-filter-pane .col > div .filter-items .col-sm-5.val {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 66.666667%;
+  flex: 0 0 66.666667%;
+  max-width: 66.666667%;
 }
 
 /* col-sm-4 */
@@ -4728,19 +4795,46 @@ pre.unstyle {
   padding-left: 15px;
 }
 
-/* col-sm-8 */
-.quick-filter-pane .col > div .filter-items .col-sm-5.val {
-  -webkit-box-flex: 0;
-  -ms-flex: 0 0 66.666667%;
-  flex: 0 0 66.666667%;
-  max-width: 66.666667%;
+.quick-filter-pane.v2 .col > div .filter-items .col-sm-5.val {
+  -ms-flex: 0 0 100%;
+  flex: 0 0 100%;
+  max-width: 100%;
+  margin-left: 0;
 }
 
-.dropdown-menu.entity-switch {
-  min-width: 220px;
+/* datalist style v3 */
+
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  position: fixed;
+  bottom: 0;
+  right: 25px;
+  left: 535px;
 }
 
-.dropdown-menu.entity-switch .dropdown-item.current,
-.dropdown-menu.entity-switch .dropdown-item.current .icon {
-  color: #4285f4;
+.rb-aside.rb-aside-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  left: 305px;
+}
+
+.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  left: 365px;
+}
+
+.rb-aside.rb-aside-collapsed.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  left: 135px;
+}
+
+.rb-collapsible-sidebar:not(.rb-aside) .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  left: 255px;
+}
+
+.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed:not(.rb-aside) .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
+  left: 85px;
+}
+
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .table {
+  margin-bottom: 35px;
+}
+
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .list-nodata {
+  padding-top: 45px;
 }

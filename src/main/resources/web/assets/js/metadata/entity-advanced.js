@@ -127,6 +127,17 @@ class DlgMode1Option extends RbFormHandler {
               </div>
             </div>
           </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部查询面板')}</label>
+            <div className="col-sm-7">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
+                <span>
+                  <label htmlFor="advListFilterPane" />
+                </span>
+              </div>
+            </div>
+          </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -146,6 +157,7 @@ class DlgMode1Option extends RbFormHandler {
     const o = {
       advListHideFilters: $val('#advListHideFilters'),
       advListHideCharts: $val('#advListHideCharts'),
+      advListFilterPane: $val('#advListFilterPane'),
     }
 
     this.disabled(true)

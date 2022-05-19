@@ -22,32 +22,20 @@ class AdvFilterPane extends React.Component {
   onRef = (c) => this._itemsRef.push(c)
 
   componentDidMount() {
-    $.get(`/commons/metadata/fields?entity=${this.props.entity}`, (res) => {
-      const items = res.data.map((item) => {
-        if (item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') {
-          REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
-          if (item.type === 'N2NREFERENCE') IS_N2NREF.push(item.name)
+    const items = (this.props.fields || []).map((item) => {
+      if (item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') {
+        REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
+        if (item.type === 'N2NREFERENCE') IS_N2NREF.push(item.name)
 
-          // NOTE: Use `NameField` field-type
-          if (!BIZZ_ENTITIES.includes(item.ref[0])) {
-            item.type = item.ref[1]
-          }
+        // NOTE: Use `NameField` field-type
+        if (!BIZZ_ENTITIES.includes(item.ref[0])) {
+          item.type = item.ref[1]
         }
-        return item
-      })
-
-      this.setState({ items })
+      }
+      return item
     })
 
-    // const items = [
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    //   { name: 'UnitPrice', label: '单价', type: 'DECIMAL' },
-    // ]
-    // this.setState({ items })
+    this.setState({ items })
   }
 
   render() {
@@ -55,7 +43,7 @@ class AdvFilterPane extends React.Component {
 
     const col = $('#react-list').width() > 1200 ? 3 : 4
     return (
-      <div className="row" onKeyPress={(e) => this.searchByKey(e)}>
+      <form className="row" onSubmit={(e) => this.searchNow(e)}>
         {this.state.items.map((item, i) => {
           return (
             <div className={`col col-${col}`} key={i}>
@@ -71,23 +59,50 @@ class AdvFilterPane extends React.Component {
           )
         })}
 
-        <div className={`col col-${col}`}>
+        <div className={`col col-${col} operating-btn`}>
           <div>
-            <label>&nbsp;</label>
-            <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
+            <button className="btn btn-primary btn-outline" type="submit">
               <i className="icon zmdi zmdi-search"></i> {$L('查询')}
             </button>
+            {(this.props.fields || []).length > 3 && (
+              <a className="ml-3 down-1" onClick={() => this.toggleExtended()}>
+                {this.state.extended && (
+                  <RF>
+                    <i className="icon zmdi zmdi-chevron-up"></i> {$L('收缩')}
+                  </RF>
+                )}
+                {!this.state.extended && (
+                  <RF>
+                    <i className="icon zmdi zmdi-chevron-down"></i> {$L('展开')}
+                  </RF>
+                )}
+              </a>
+            )}
+            {rb.isAdminUser && (
+              <a
+                className="ml-2 down-2 admin-show"
+                title={$L('配置查询字段')}
+                onClick={() => {
+                  RbModal.create(
+                    `/p/admin/metadata/list-filterpane?entity=${this.props.entity}`,
+                    <RF>
+                      {$L('配置查询字段')}
+                      <sup className="rbv" title={$L('增值功能')} />
+                    </RF>
+                  )
+                }}>
+                <i className="icon zmdi zmdi-settings" />
+              </a>
+            )}
           </div>
         </div>
-      </div>
+      </form>
     )
   }
 
-  searchByKey(e) {
-    e.which === 13 && this.searchNow()
-  }
+  searchNow(e) {
+    $stopEvent(e, true)
 
-  searchNow() {
     const filters = []
     for (let i = 0; i < this._itemsRef.length; i++) {
       const item = this._itemsRef[i].getFilterJson()
@@ -101,6 +116,13 @@ class AdvFilterPane extends React.Component {
 
     if (rb.env === 'dev') console.log(JSON.stringify(adv))
   }
+
+  toggleExtended() {
+    this.setState({ extended: !this.state.extended }, () => {
+      if (this.state.extended) $('.quick-filter-pane').addClass('extended')
+      else $('.quick-filter-pane').removeClass('extended')
+    })
+  }
 }
 
 // eslint-disable-next-line no-undef
@@ -109,11 +131,24 @@ class FilterItemExt extends FilterItem {
     super(props)
   }
 
+  componentDidMount() {
+    super.componentDidMount()
+
+    const $s2op = this.__select2[1]
+
+    setTimeout(() => {
+      if (this.state.type === 'DATE' || this.state.type === 'DATETIME' || this.state.type === 'TIME') {
+        $s2op.val('EQ').trigger('change')
+      }
+    }, 200)
+  }
+
   // @e = el or event
   valueCheck(e) {
     const v = e.target ? e.target.value : e.val()
     if (!v) return
-    else super.valueCheck(e)
+
+    super.valueCheck(e)
     // $el.removeClass('is-invalid')
   }
 }

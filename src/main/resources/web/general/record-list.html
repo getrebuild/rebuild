@@ -50,6 +50,12 @@
             <div class="card-body">
               <div class="dataTables_wrapper container-fluid">
                 <div class="row rb-datatable-header">
+                  <div class="col-12" th:if="${advListFilterPane == 'true'}">
+                    <div class="quick-filter-pane v2">
+                      <div class="ph-item-mt"></div>
+                      <div class="ph-item rb"></div>
+                    </div>
+                  </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="adv-search float-left">
@@ -116,6 +122,7 @@
         listConfig: [(${DataListConfig})],
         advFilter: true,
         statsField: true,
+        paneFields: [(${paneFields ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
@@ -126,6 +133,7 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-filter-pane.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>

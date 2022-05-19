@@ -34,4 +34,8 @@ public class EasyEntityConfigProps {
      * 列表模式
      */
     public static final String ADV_LIST_MODE = "advListMode";
+    /**
+     * 列表查询面板
+     */
+    public static final String ADV_LIST_FILTERPANE = "advListFilterPane";
 }

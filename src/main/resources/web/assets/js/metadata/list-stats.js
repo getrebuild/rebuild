@@ -35,7 +35,7 @@ $(document).ready(function () {
     parent.RbModal.resize()
   })
 
-  // // 字段排序
+  // 字段排序
   $('.set-items')
     .sortable({
       containment: 'parent',
