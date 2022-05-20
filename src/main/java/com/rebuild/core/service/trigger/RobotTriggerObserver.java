@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
@@ -34,7 +35,7 @@ import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
-    private static final ThreadLocal<ID> TRIGGER_SOURCE_LASTID = new ThreadLocal<>();
+    private static final ThreadLocal<String> TRIGGER_SOURCE_LAST = new ThreadLocal<>();
 
     @Override
     protected void onCreate(OperatingContext context) {
@@ -101,6 +102,7 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
         final ID primaryId = context.getAnyRecord().getPrimary();
+        final String sourceName = primaryId + ":" + when.name().charAt(0);
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_ACTION_HOLDS.get(primaryId)
@@ -113,14 +115,17 @@ public class RobotTriggerObserver extends OperatingObserver {
         // 设置原始触发源
         if (originTriggerSource) {
             TRIGGER_SOURCE.set(context);
-        }
-        // 自己触发自己，避免无限执行
-        else if (primaryId.equals(getTriggerSource().getAnyRecord().getPrimary())
-                || primaryId.equals(TRIGGER_SOURCE_LASTID.get())) {
-            return;
+        } else {
+            // 自己触发自己，避免无限执行
+            boolean x = primaryId.equals(getTriggerSource().getAnyRecord().getPrimary());
+            boolean xor = x || sourceName.equals(TRIGGER_SOURCE_LAST.get());
+            if (x || xor) {
+                if (Application.devMode()) log.warn("Self trigger, ignore : {}", sourceName);
+                return;
+            }
         }
 
-        TRIGGER_SOURCE_LASTID.set(primaryId);
+        TRIGGER_SOURCE_LAST.set(sourceName);
 
         try {
             for (TriggerAction action : beExecuted) {
@@ -158,7 +163,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         } finally {
             if (originTriggerSource) {
                 TRIGGER_SOURCE.remove();
-                TRIGGER_SOURCE_LASTID.remove();
+                TRIGGER_SOURCE_LAST.remove();
             }
         }
     }
@@ -184,5 +189,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     public static OperatingContext getTriggerSource() {
         return TRIGGER_SOURCE.get();
+    }
+
+    /**
+     * 强制自执行
+     */
+    public static void forceTriggerSelf() {
+        TRIGGER_SOURCE_LAST.set(null);
     }
 }

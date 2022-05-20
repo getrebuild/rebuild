@@ -56,15 +56,15 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         final ID caller = UserContextHolder.getUser();
-        if (Application.devMode()) {
-            log.info("User [ " + caller + " ] call : " + invocation.getMethod());
-        }
+        if (Application.devMode()) log.info("User [ {} ] call : {}", caller, invocation.getMethod());
 
         Class<?> invocationClass = Objects.requireNonNull(invocation.getThis()).getClass();
+
         // 验证管理员操作
         if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
             throw new AccessDeniedException(Language.L("权限不足，访问被阻止"));
         }
+
         // 仅 EntityService 或子类会验证角色权限
         if (!EntityService.class.isAssignableFrom(invocationClass)) {
             return;

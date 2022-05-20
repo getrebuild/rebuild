@@ -75,7 +75,8 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        final List<ID> tschain = checkTriggerChain();
+        final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
+        final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return;
 
         this.prepare(operatingContext);
@@ -109,9 +110,9 @@ public class FieldWriteback extends FieldAggregation {
 
             // 会关联触发下一触发器
             if (!tschainAdded) {
-                tschain.add(actionContext.getConfigId());
                 tschainAdded = true;
-                TRIGGER_CHAIN_DEPTH.set(tschain);
+                tschain.add(chainName);
+                TRIGGERS_CHAIN.set(tschain);
             }
 
             Record targetRecord = targetRecordData.clone();
