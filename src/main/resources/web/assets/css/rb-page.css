@@ -4831,10 +4831,10 @@ pre.unstyle {
   left: 85px;
 }
 
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .table {
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list {
   margin-bottom: 35px;
 }
 
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .list-nodata {
-  padding-top: 45px;
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .table {
+  margin-bottom: 15px;
 }

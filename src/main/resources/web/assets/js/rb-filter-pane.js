@@ -109,12 +109,13 @@ class AdvFilterPane extends React.Component {
       if (item) filters.push(item)
     }
 
-    const adv = {
+    const s = {
       entity: this.props.entity,
       items: filters,
     }
 
-    if (rb.env === 'dev') console.log(JSON.stringify(adv))
+    if (rb.env === 'dev') console.log(JSON.stringify(s))
+    typeof this.props.onSearch === 'function' && this.props.onSearch(s)
   }
 
   toggleExtended() {
