@@ -47,7 +47,7 @@ public abstract class OperatingObserver implements Observer {
     /**
      * @param ctx
      */
-    protected void updateByAction(OperatingContext ctx) {
+    protected void updateByAction(final OperatingContext ctx) {
         if (ctx.getAction() == BizzPermission.CREATE) {
             onCreate(ctx);
         } else if (ctx.getAction() == BizzPermission.UPDATE) {
@@ -66,7 +66,7 @@ public abstract class OperatingObserver implements Observer {
     }
 
     /**
-     * 是否异步执行
+     * 是否异步执行（异步执行请注意事物）
      *
      * @return
      */
