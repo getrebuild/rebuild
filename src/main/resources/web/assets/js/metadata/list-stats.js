@@ -39,9 +39,8 @@ $(document).ready(function () {
   $('.set-items')
     .sortable({
       containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
       placeholder: 'ui-state-highlight',
+      opacity: 0.8,
     })
     .disableSelection()
 

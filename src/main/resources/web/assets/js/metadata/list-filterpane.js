@@ -31,9 +31,8 @@ $(document).ready(function () {
   $('.set-items')
     .sortable({
       containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
       placeholder: 'ui-state-highlight',
+      opacity: 0.8,
     })
     .disableSelection()
 
@@ -71,8 +70,8 @@ $(document).ready(function () {
 const render_set = function (item) {
   const len = $('.set-items > span').length
   if (len >= 9) {
-    // RbHighbar.create($L('最多可添加 9 项'))
-    // return
+    RbHighbar.create($L('最多可添加 9 项'))
+    return false
   }
 
   const $to = $('.set-items')
@@ -92,8 +91,9 @@ const render_set = function (item) {
 const render_unset = function (item) {
   const $item = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo('.set-fields')
   $item.on('click', () => {
-    $item.remove()
-    render_set(item)
-    parent.RbModal.resize()
+    if (render_set(item) !== false) {
+      $item.remove()
+      parent.RbModal.resize()
+    }
   })
 }

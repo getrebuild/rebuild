@@ -41,12 +41,11 @@ class AdvFilterPane extends React.Component {
   render() {
     if (!this.state.items) return null
 
-    const col = $('#react-list').width() > 1200 ? 3 : 4
     return (
       <form className="row" onSubmit={(e) => this.searchNow(e)}>
         {this.state.items.map((item, i) => {
           return (
-            <div className={`col col-${col}`} key={i}>
+            <div className="col col-6 col-lg-4 col-xl-3" key={i}>
               <div>
                 <label>{item.label}</label>
                 <div className="adv-filter">
@@ -59,7 +58,7 @@ class AdvFilterPane extends React.Component {
           )
         })}
 
-        <div className={`col col-${col} operating-btn`}>
+        <div className="col col-6 col-lg-4 col-xl-3 operating-btn">
           <div>
             <button className="btn btn-primary btn-outline" type="submit">
               <i className="icon zmdi zmdi-search"></i> {$L('查询')}

@@ -5,6 +5,9 @@
     <title>[[${bundle.L('统计字段')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
+      .axis-target > span {
+        display: inline-block;
+      }
       .axis-target .item {
         border-radius: 2px;
         padding-left: 8px;
@@ -28,9 +31,10 @@
       .set-items a.del {
         margin-left: 3px;
       }
-      .axis-target .ui-sortable-placeholder.ui-state-highlight {
-        width: 16px;
+      .axis-target .ui-state-highlight {
         height: 0;
+        display: inline-block;
+        min-width: 15px;
       }
       .axis-target:empty::after {
         content: attr(_title);
