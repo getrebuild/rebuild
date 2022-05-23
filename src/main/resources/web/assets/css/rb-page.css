@@ -4838,3 +4838,7 @@ pre.unstyle {
 .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .table {
   margin-bottom: 15px;
 }
+
+.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .list-nodata {
+  padding-top: 72px;
+}
