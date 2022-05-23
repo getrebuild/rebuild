@@ -34,6 +34,11 @@
         width: 7px;
         height: 0;
       }
+      .axis-target:empty::after {
+        content: attr(_title);
+        font-style: italic;
+        color: #999;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -48,13 +53,9 @@
         </div>
 
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
-        <div class="axis-target set-items">
-          <span class="text-muted">[[${bundle.L('无')}]]</span>
-        </div>
+        <div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
         <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
-        <div class="axis-target set-fields">
-          <span class="text-muted">[[${bundle.L('无可用字段')}]]</span>
-        </div>
+        <div class="axis-target set-fields" th:_title="${bundle.L('无可用字段')}"></div>
       </div>
 
       <div class="dialog-footer">

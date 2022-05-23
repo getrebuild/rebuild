@@ -64,7 +64,7 @@ public class ListStatsController extends BaseController {
     public JSON gets(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        ConfigBean config = DataListManager.instance.getListStatsField(user, entity);
+        ConfigBean config = DataListManager.instance.getListStats(user, entity);
         JSONObject configJson = config == null ? new JSONObject() : (JSONObject) config.getJSON("config");
 
         // 可用字段
@@ -105,14 +105,16 @@ public class ListStatsController extends BaseController {
     public JSON gets2(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        ConfigBean config = DataListManager.instance.getListQueriesField(user, entity);
+        ConfigBean config = DataListManager.instance.getListFilterPane(user, entity);
         JSONObject configJson = config == null ? new JSONObject() : (JSONObject) config.getJSON("config");
 
         // 可用字段
         JSONArray afields = new JSONArray();
         for (Field field : MetadataSorter.sortFields(MetadataHelper.getEntity(entity))) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.BARCODE) {
+            DisplayType dt = easyField.getDisplayType();
+            if (dt == DisplayType.BARCODE || dt == DisplayType.SIGN
+                    || dt == DisplayType.AVATAR || dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
                 continue;
             }
             afields.add(EasyMetaFactory.toJSON(field));

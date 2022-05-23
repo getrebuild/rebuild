@@ -15,18 +15,12 @@ $(document).ready(function () {
     const $to = $('.set-fields')
     if (fields.length > 0) $to.empty()
 
-    fields.forEach((item) => {
-      const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
-      $a.on('click', () => {
-        render_set(item)
-        parent.RbModal.resize()
-      })
-    })
+    fields.forEach((item) => render_unset(item))
 
     if ((res.data.items || []).length > 0) {
       res.data.items.forEach((item) => {
         const field = fields.find((x) => x.name === item.field)
-        render_set({ ...item, name: item.field, label: field ? field.label : `[${item.field.toUpperCase()}]` })
+        render_set({ name: item.field, label: field ? field.label : `[${item.field.toUpperCase()}]` })
       })
     }
 
@@ -52,11 +46,18 @@ $(document).ready(function () {
     const config = { items: [] }
     $('.set-items > span').each(function () {
       const $this = $(this)
-      config.items.push({
-        field: $this.attr('data-field'),
-        op: null,
-      })
+      if ($this.attr('data-field')) {
+        config.items.push({
+          field: $this.attr('data-field'),
+          op: null,
+        })
+      }
     })
+
+    if (config.items.length < 1) {
+      RbHighbar.create(WrapHtml($L('请至少添加 1 个查询字段')))
+      return
+    }
 
     $btn.button('loading')
     $.post(settingsUrl, JSON.stringify(config), (res) => {
@@ -70,8 +71,8 @@ $(document).ready(function () {
 const render_set = function (item) {
   const len = $('.set-items > span').length
   if (len >= 9) {
-    RbHighbar.create($L('最多可添加 9 项'))
-    return
+    // RbHighbar.create($L('最多可添加 9 项'))
+    // return
   }
 
   const $to = $('.set-items')
@@ -81,6 +82,18 @@ const render_set = function (item) {
   const $a = $(`<div class="item"><span>${item.label}</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`).appendTo($item)
   $a.find('a.del').on('click', () => {
     $item.remove()
+    render_unset(item)
+    parent.RbModal.resize()
+  })
+
+  $(`.set-fields a[data-field="${item.name}"]`).remove()
+}
+
+const render_unset = function (item) {
+  const $item = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo('.set-fields')
+  $item.on('click', () => {
+    $item.remove()
+    render_set(item)
     parent.RbModal.resize()
   })
 }

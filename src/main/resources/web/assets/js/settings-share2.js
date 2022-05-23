@@ -93,19 +93,9 @@ class Share2 extends _ChangeHandler {
     if (that.__settings) {
       that.__settings.show()
     } else {
-      renderRbcomp(
-        <Share2Settings
-          configName={this.props.configName}
-          shareTo={this.props.shareTo}
-          call={this.showSettingsCall}
-          id={this.props.id}
-          noName={this.props.noSwitch}
-        />,
-        null,
-        function () {
-          that.__settings = this
-        }
-      )
+      renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={this.props.noSwitch} />, null, function () {
+        that.__settings = this
+      })
     }
     return false
   }
@@ -186,14 +176,7 @@ class Share2Settings extends Share2Switch {
         </div>
         {this.props.noName !== true && (
           <div className="form-group">
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              placeholder={$L('未命名')}
-              value={this.state.configName || ''}
-              name="configName"
-              onChange={this.handleChange}
-            />
+            <input type="text" className="form-control form-control-sm" placeholder={$L('未命名')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
           </div>
         )}
         <div className="form-group mb-1">

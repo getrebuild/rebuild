@@ -270,7 +270,7 @@ public class QueryParser {
         countFields.add(Collections.emptyMap());
 
         if (queryExpr.getBooleanValue("statsField")) {
-            ConfigBean cb = DataListManager.instance.getListStatsField(UserService.SYSTEM_USER, entity.getName());
+            ConfigBean cb = DataListManager.instance.getListStats(UserService.SYSTEM_USER, entity.getName());
             if (cb != null && cb.getJSON("config") != null) {
                 JSONArray items = ((JSONObject) cb.getJSON("config")).getJSONArray("items");
                 for (Object o : items) {
