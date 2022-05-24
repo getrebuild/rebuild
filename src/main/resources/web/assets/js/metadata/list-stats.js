@@ -13,8 +13,6 @@ $(document).ready(function () {
     const fields = res.data.fields || []
 
     const $to = $('.set-fields')
-    if (fields.length > 0) $to.empty()
-
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
@@ -53,13 +51,11 @@ $(document).ready(function () {
     const config = { items: [] }
     $('.set-items > span').each(function () {
       const $this = $(this)
-      if ($this.attr('data-field')) {
-        config.items.push({
-          field: $this.attr('data-field'),
-          calc: $this.attr('data-calc'),
-          label2: $this.attr('data-label'),
-        })
-      }
+      config.items.push({
+        field: $this.attr('data-field'),
+        calc: $this.attr('data-calc'),
+        label2: $this.attr('data-label'),
+      })
     })
 
     $btn.button('loading')
@@ -92,7 +88,6 @@ const render_set = function (item) {
   }
 
   const $to = $('.set-items')
-  $to.find('>span.text-muted').remove()
 
   const calc = item.calc || 'SUM'
   const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)
