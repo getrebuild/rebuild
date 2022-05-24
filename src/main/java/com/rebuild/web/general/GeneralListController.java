@@ -12,8 +12,10 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -90,8 +92,31 @@ public class GeneralListController extends EntityController {
             String advListHideCharts = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
+
             mv.getModel().put("hideAside",
                     BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
+
+            // 查询面板
+
+            String advListFilterpane = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterpane);
+
+            if (BooleanUtils.toBoolean(advListFilterpane)) {
+                ConfigBean cb = DataListManager.instance.getListFilterPane(user, entity);
+                if (cb != null && cb.getJSON("config") != null) {
+                    JSONObject configJson = (JSONObject) cb.getJSON("config");
+
+                    JSONArray paneFields = new JSONArray();
+                    for (Object o : configJson.getJSONArray("items")) {
+                        JSONObject item = (JSONObject) o;
+                        String field = item.getString("field");
+                        if (listEntity.containsField(field)) {
+                            paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
+                        }
+                    }
+                    mv.getModel().put("paneFields", paneFields);
+                }
+            }
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);

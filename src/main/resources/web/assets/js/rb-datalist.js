@@ -126,27 +126,32 @@ class RbList extends React.Component {
   }
 
   componentDidMount() {
+    // FIXME 拖到底部才能左右滚动
+
     const $scroller = $(this._rblistScroller)
     $scroller.perfectScrollbar({
-      wheelSpeed: 2,
+      suppressScrollY: true,
     })
 
-    // enable pin
-    if ($(window).height() > 666 && $(window).width() >= 1280) {
-      $('.main-content').addClass('pb-0')
-      // $('.main-content .rb-datatable-header').addClass('header-fixed')
-      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
+    // // enable pin
+    // if ($(window).height() > 666 && $(window).width() >= 1280) {
+    //   $('.main-content').addClass('pb-0')
+    //   // $('.main-content .rb-datatable-header').addClass('header-fixed')
+    //   if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
-      $addResizeHandler(() => {
-        let mh = $(window).height() - 208
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
-        $scroller.css({ maxHeight: mh })
-        $scroller.perfectScrollbar('update')
-      })()
-    } else {
-      $('.main-content .rb-datatable-header').addClass('header-fixed')
-    }
+    //   $addResizeHandler(() => {
+    //     let mh = $(window).height() - 208
+    //     if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+    //     if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
+    //     $scroller.css({ maxHeight: mh })
+    //     $scroller.perfectScrollbar('update')
+    //   })()
+    // } else {
+    //   $('.main-content .rb-datatable-header').addClass('header-fixed')
+    // }
+
+    // v2.10
+    $('.main-content .rb-datatable-header').addClass('header-fixed footer-fixed')
 
     if (supportFixedColumns) {
       let slLast = 0
@@ -884,23 +889,31 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_edit').click(() => {
+    $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] })
       }
     })
-    $('.J_delete').click(() => {
+
+    $('.J_delete').on('click', () => {
       if ($('.J_delete').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
-      const deleteAfter = function () {
-        that._RbList.reload()
-      }
+
       const needEntity = wpc.type === 'DetailList' || wpc.type === 'DetailView' ? null : entity[0]
-      renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
+      renderRbcomp(
+        <DeleteConfirm
+          ids={ids}
+          entity={needEntity}
+          deleteAfter={() => {
+            that._RbList.reload()
+          }}
+        />
+      )
     })
-    $('.J_view').click(() => {
+
+    $('.J_view').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         location.hash = `!/View/${entity[0]}/${ids[0]}`
@@ -908,20 +921,23 @@ const RbListPage = {
       }
     })
 
-    $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
+    $('.J_columns').on('click', () => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
 
     // 权限实体才有
-    $('.J_assign').click(() => {
+
+    $('.J_assign').on('click', () => {
       if ($('.J_assign').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
-    $('.J_share').click(() => {
+
+    $('.J_share').on('click', () => {
       if ($('.J_share').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
-    $('.J_unshare').click(() => {
+
+    $('.J_unshare').on('click', () => {
       if ($('.J_unshare').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
@@ -940,7 +956,7 @@ const RbListPage = {
     // Filter Pane
     if ($('.quick-filter-pane').length > 0) {
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<AdvFilterPane entity={entity[0]} />, $('.quick-filter-pane')[0])
+      renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $('.quick-filter-pane')[0])
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)
@@ -1121,9 +1137,7 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => {
-      this.chartLoaded !== true && this.loadWidget()
-    })
+    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
@@ -1141,6 +1155,7 @@ const ChartsWidget = {
       this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
       return
     }
+
     // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
       ChartsWidget.__chartSelect = this
@@ -1203,6 +1218,7 @@ $(document).ready(() => {
       $content.height($(window).height() - 147)
       $content.perfectScrollbar('update')
     })()
+
     ChartsWidget.init()
   }
 

@@ -919,7 +919,7 @@ var $select2MatcherAll = function (params, data) {
 
   function _matcher(item, s) {
     s = s.toLowerCase()
-    return item.text.toLowerCase().indexOf(s) > -1 || item.id.toLowerCase().indexOf(s) > -1
+    return (item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1
   }
 
   if (data.children) {

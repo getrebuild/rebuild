@@ -13,8 +13,6 @@ $(document).ready(function () {
     const fields = res.data.fields || []
 
     const $to = $('.set-fields')
-    if (fields.length > 0) $to.empty()
-
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
@@ -35,13 +33,12 @@ $(document).ready(function () {
     parent.RbModal.resize()
   })
 
-  // // 字段排序
+  // 字段排序
   $('.set-items')
     .sortable({
       containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
       placeholder: 'ui-state-highlight',
+      opacity: 0.8,
     })
     .disableSelection()
 
@@ -91,7 +88,6 @@ const render_set = function (item) {
   }
 
   const $to = $('.set-items')
-  $to.find('>span.text-muted').remove()
 
   const calc = item.calc || 'SUM'
   const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)

@@ -2,33 +2,34 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('统计字段')}]]</title>
+    <title>[[${bundle.L('查询字段')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
       .axis-target > span {
         display: inline-block;
-        margin-right: 4px;
-        margin-bottom: 4px;
+      }
+      .axis-target .item {
+        border-radius: 2px;
+        padding-left: 8px;
+        padding-right: 8px;
+        margin-right: 7px;
+        margin-bottom: 6px;
       }
       .axis-target .item::before {
-        border-color: #fff;
+        display: none;
       }
       .set-fields a.item {
         background-color: #eee;
-        padding: 4px 8px;
-        cursor: pointer;
       }
       .set-fields a.item:hover {
         background-color: #4285f4;
         color: #fff;
       }
-      .set-items .item > span {
-        margin: 0 4px;
+      .set-items .item {
+        padding-right: 3px;
       }
-      .set-items .item.star > span::after {
-        content: '*';
-        margin-left: 4px;
-        font-weight: bold;
+      .set-items a.del {
+        margin-left: 3px;
       }
       .axis-target .ui-state-highlight {
         height: 0;
@@ -45,18 +46,10 @@
   <body class="dialog">
     <div class="main-content">
       <div class="p-3">
-        <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
-          <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
-          <div class="message">
-            <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
-            <p>[[${bundle.L('添加过多的统计字段可能会影响列表加载速度')}]]</p>
-          </div>
-        </div>
-
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
         <div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
         <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
-        <div class="axis-target set-fields" th:_title="${bundle.L('无可用字段')}"></div>
+        <div class="axis-target set-fields" th:_title="${bundle.L('无')}"></div>
       </div>
 
       <div class="dialog-footer">
@@ -65,7 +58,6 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/show-styles.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/metadata/list-stats.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/list-filterpane.js}" type="text/babel"></script>
   </body>
 </html>
