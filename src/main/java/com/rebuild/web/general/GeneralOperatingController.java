@@ -277,15 +277,14 @@ public class GeneralOperatingController extends BaseController {
     }
 
     @PostMapping("record-unshare")
-    public JSONAware unsharesa(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+    public JSONAware unshare(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
         if (accessIds.length == 0) {
             return RespBody.errorl("没有要取消共享的记录");
         }
 
-        final ID firstId = accessIds[0];
-        final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         final EntityService ies = Application.getEntityService(entity.getEntityCode());
 
         int affected;
@@ -321,7 +320,7 @@ public class GeneralOperatingController extends BaseController {
                 StringUtils.join(records, "','"));
 
         String to = getParameterNotNull(request, "to");
-        // 非全部
+        // 指定用户（/全部）
         if (!"$ALL$".equals(to)) {
             ID[] toUsers = parseUserList(request);
             if (toUsers.length == 0) {

@@ -57,7 +57,7 @@ public class FieldAggregation extends TriggerAction {
     final protected int maxTriggerDepth;
     // 此触发器可能产生连锁反应
     // 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
-    protected static final ThreadLocal<List<ID>> TRIGGER_CHAIN_DEPTH = new ThreadLocal<>();
+    protected static final ThreadLocal<List<String>> TRIGGERS_CHAIN = new ThreadLocal<>();
 
     // 源实体
     protected Entity sourceEntity;
@@ -86,19 +86,19 @@ public class FieldAggregation extends TriggerAction {
     /**
      * 检查调用链
      *
+     * @param chainName
      * @return
      */
-    protected List<ID> checkTriggerChain() {
-        List<ID> tschain = TRIGGER_CHAIN_DEPTH.get();
+    protected List<String> checkTriggerChain(String chainName) {
+        List<String> tschain = TRIGGERS_CHAIN.get();
         if (tschain == null) {
             tschain = new ArrayList<>();
         } else {
-            ID triggerCurrent = actionContext.getConfigId();
-            log.info("Occured trigger-chain : {} > {} (current)",
-                    StringUtils.join(tschain, " > "), triggerCurrent);
+            log.info("Occured trigger-chain : {} > {} (current)", StringUtils.join(tschain, " > "), chainName);
 
             // 在整个触发链上只触发一次，避免循环调用
-            if (tschain.contains(triggerCurrent)) {
+            if (tschain.contains(chainName)) {
+                if (Application.devMode()) log.warn("Record triggered only once on trigger-chain : {}", chainName);
                 return null;
             }
         }
@@ -112,7 +112,8 @@ public class FieldAggregation extends TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        final List<ID> tschain = checkTriggerChain();
+        final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
+        final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return;
 
         this.prepare(operatingContext);
@@ -171,8 +172,8 @@ public class FieldAggregation extends TriggerAction {
             }
 
             // 会关联触发下一触发器（如有）
-            tschain.add(actionContext.getConfigId());
-            TRIGGER_CHAIN_DEPTH.set(tschain);
+            tschain.add(chainName);
+            TRIGGERS_CHAIN.set(tschain);
 
             ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
                     ? Application.getEntityService(targetEntity.getEntityCode())
@@ -223,6 +224,6 @@ public class FieldAggregation extends TriggerAction {
 
     @Override
     public void clean() {
-        TRIGGER_CHAIN_DEPTH.remove();
+        TRIGGERS_CHAIN.remove();
     }
 }

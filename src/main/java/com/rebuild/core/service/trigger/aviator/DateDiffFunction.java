@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
-import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorNil;
@@ -24,7 +23,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Usage: DATEDIFF(date1, date2, [H|D|M|Y])
+ * Usage: DATEDIFF($date1, $date2, [H|D|M|Y])
  * Return: Number
  *
  * @author devezhao
@@ -52,36 +51,32 @@ public class DateDiffFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2, AviatorObject arg3) {
-        Object o1 = arg1.getValue(env);
-        Date date1 = o1 instanceof Date ? (Date) o1 : CalendarUtils.parse(o1.toString());
-        if (date1 == null) {
+        Object o = arg1.getValue(env);
+        Date $date1 = o instanceof Date ? (Date) o : CalendarUtils.parse(o.toString());
+        if ($date1 == null) {
             return AviatorNil.NIL;
         }
 
-        Object o2 = arg2.getValue(env);
-        Date date2 = o2 instanceof Date ? (Date) o2 : CalendarUtils.parse(o2.toString());
-        if (date2 == null) {
+        o = arg2.getValue(env);
+        Date $date2 = o instanceof Date ? (Date) o : CalendarUtils.parse(o.toString());
+        if ($date2 == null) {
             return AviatorNil.NIL;
         }
 
-        if (arg3.getValue(env) == null) {
-            throw new ExpressionSyntaxErrorException("`dateUnit` cannot be null");
-        }
-
-        String dateUnit = arg3.getValue(env).toString();
+        final String $du = arg3.getValue(env) == null ? null : arg3.getValue(env).toString();
 
         if (isUseMysql) {
             String mysqlUnit = "DAY";
-            if (AviatorDate.DU_YEAR.equalsIgnoreCase(dateUnit)) mysqlUnit = "YEAR";
-            else if (AviatorDate.DU_MONTH.equalsIgnoreCase(dateUnit)) mysqlUnit = "MONTH";
-            else if (AviatorDate.DU_HOUR.equalsIgnoreCase(dateUnit)) mysqlUnit = "HOUR";
-            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase(dateUnit)) mysqlUnit = "MINUTE";
+            if (AviatorDate.DU_YEAR.equalsIgnoreCase($du)) mysqlUnit = "YEAR";
+            else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) mysqlUnit = "MONTH";
+            else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) mysqlUnit = "HOUR";
+            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) mysqlUnit = "MINUTE";
 
             // 利用 MySQL 计算，可预期
             String mysql = String.format("select TIMESTAMPDIFF(%s, '%s', '%s')",
                     mysqlUnit,
-                    CalendarUtils.getUTCDateTimeFormat().format(date1),
-                    CalendarUtils.getUTCDateTimeFormat().format(date2));
+                    CalendarUtils.getUTCDateTimeFormat().format($date1),
+                    CalendarUtils.getUTCDateTimeFormat().format($date2));
             Object[] res = Application.getPersistManagerFactory().createNativeQuery(mysql).unique();
 
             return AviatorLong.valueOf(ObjectUtils.toLong(res[0]));
@@ -90,11 +85,11 @@ public class DateDiffFunction extends AbstractFunction {
 
             long res = 0;
 
-            if (AviatorDate.DU_YEAR.equalsIgnoreCase(dateUnit)) res = DateUtil.betweenYear(date1, date2, true);
-            else if (AviatorDate.DU_MONTH.equalsIgnoreCase(dateUnit)) res = DateUtil.betweenMonth(date1, date2, true);
-            else if (AviatorDate.DU_DAY.equalsIgnoreCase(dateUnit)) res = DateUtil.betweenDay(date1, date2, true);
-            else if (AviatorDate.DU_HOUR.equalsIgnoreCase(dateUnit)) res = DateUtil.between(date1, date2, DateUnit.HOUR, false);
-            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase(dateUnit)) res = DateUtil.between(date1, date2, DateUnit.MINUTE, false);
+            if (AviatorDate.DU_YEAR.equalsIgnoreCase($du)) res = DateUtil.betweenYear($date1, $date2, true);
+            else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) res = DateUtil.betweenMonth($date1, $date2, true);
+            else if (AviatorDate.DU_DAY.equalsIgnoreCase($du)) res = DateUtil.betweenDay($date1, $date2, true);
+            else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) res = DateUtil.between($date1, $date2, DateUnit.HOUR, false);
+            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) res = DateUtil.between($date1, $date2, DateUnit.MINUTE, false);
 
             return AviatorLong.valueOf(res);
         }

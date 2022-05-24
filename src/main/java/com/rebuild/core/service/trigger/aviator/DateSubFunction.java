@@ -10,7 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import java.util.Date;
 
 /**
- * Usage: DATESUB(date, interval[H|D|M|Y])
+ * Usage: DATESUB($date, $number, [H|D|M|Y])
  * Return: Date
  *
  * @author devezhao
