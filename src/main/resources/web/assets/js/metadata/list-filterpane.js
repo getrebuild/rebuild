@@ -11,10 +11,6 @@ $(document).ready(function () {
 
   $.get(settingsUrl, (res) => {
     const fields = res.data.fields || []
-
-    const $to = $('.set-fields')
-    if (fields.length > 0) $to.empty()
-
     fields.forEach((item) => render_unset(item))
 
     if ((res.data.items || []).length > 0) {
@@ -44,13 +40,10 @@ $(document).ready(function () {
 
     const config = { items: [] }
     $('.set-items > span').each(function () {
-      const $this = $(this)
-      if ($this.attr('data-field')) {
-        config.items.push({
-          field: $this.attr('data-field'),
-          op: null,
-        })
-      }
+      config.items.push({
+        field: $(this).attr('data-field'),
+        op: null,
+      })
     })
 
     if (config.items.length < 1) {
@@ -75,7 +68,6 @@ const render_set = function (item) {
   }
 
   const $to = $('.set-items')
-  $to.find('>span.text-muted').remove()
 
   const $item = $(`<span data-field="${item.name}" data-op=""></span>`).appendTo($to)
   const $a = $(`<div class="item"><span>${item.label}</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`).appendTo($item)

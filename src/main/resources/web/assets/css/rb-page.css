@@ -1987,6 +1987,17 @@ th.column-fixed {
   color: #4c8bf5;
 }
 
+.btn-group .btn-primary.btn-outline:first-child {
+  border-left-color: #206ff2 !important;
+  border-bottom-color: #206ff2 !important;
+}
+
+.btn-group .btn-primary.btn-outline:last-child,
+.btn-group .btn-primary.btn-outline.dropdown-toggle {
+  border-right-color: #206ff2 !important;
+  border-bottom-color: #206ff2 !important;
+}
+
 .btn-warning.btn-outline,
 .btn-warning.btn-outline[disabled] {
   background-color: #fff;
@@ -4776,6 +4787,11 @@ pre.unstyle {
 
 .quick-filter-pane .operating-btn:hover a.admin-show {
   display: inline-block;
+}
+
+.quick-filter-pane .operating-btn .dropdown-menu {
+  padding: 15px 0;
+  text-align: center;
 }
 
 /* col-sm-8 */

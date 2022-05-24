@@ -60,9 +60,24 @@ class AdvFilterPane extends React.Component {
 
         <div className="col col-6 col-lg-4 col-xl-3 operating-btn">
           <div>
-            <button className="btn btn-primary btn-outline" type="submit">
-              <i className="icon zmdi zmdi-search"></i> {$L('查询')}
-            </button>
+            <div className="btn-group">
+              <button className="btn btn-primary btn-outline" type="submit">
+                <i className="icon zmdi zmdi-search"></i> {$L('查询')}
+              </button>
+              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+                <i className="icon zmdi zmdi-chevron-down" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" name="useEquation" value="OR" defaultChecked />
+                  <span className="custom-control-label">{$L('或关系')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0 mr-0">
+                  <input className="custom-control-input" type="radio" name="useEquation" value="AND" ref={(c) => (this._$useEquationAnd = c)} />
+                  <span className="custom-control-label">{$L('且关系')}</span>
+                </label>
+              </div>
+            </div>
             {(this.props.fields || []).length > 3 && (
               <a className="ml-3 down-1" onClick={() => this.toggleExtended()}>
                 {this.state.extended && (
@@ -110,6 +125,7 @@ class AdvFilterPane extends React.Component {
 
     const s = {
       entity: this.props.entity,
+      equation: this._$useEquationAnd.checked ? 'AND' : 'OR',
       items: filters,
     }
 
