@@ -26,7 +26,7 @@ REBUILD 通过领先的业务流程引擎为你快速搭建企业管理系统。
 6. [修复] 多项安全补丁/已知问题修复
 7. ...
 
-更多新特性请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=2.8)
+更多新特性请参见 [更新日志](https://getrebuild.com/docs/dev/changelog)
 
 ## 在线体验
 
