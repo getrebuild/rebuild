@@ -52,11 +52,13 @@ $(document).ready(function () {
     const config = { items: [] }
     $('.set-items > span').each(function () {
       const $this = $(this)
-      config.items.push({
-        field: $this.attr('data-field'),
-        calc: $this.attr('data-calc'),
-        label2: $this.attr('data-label'),
-      })
+      if ($this.attr('data-field')) {
+        config.items.push({
+          field: $this.attr('data-field'),
+          calc: $this.attr('data-calc'),
+          label2: $this.attr('data-label'),
+        })
+      }
     })
 
     $btn.button('loading')
