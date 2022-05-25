@@ -179,7 +179,7 @@ public class DataExporter extends SetUser {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
-                } else if (dt == DisplayType.PICKLIST) {
+                } else if (dt == DisplayType.PICKLIST && cellVal instanceof JSONObject) {
                     cellVal = ((JSONObject) cellVal).getString("text");
                 }
 
