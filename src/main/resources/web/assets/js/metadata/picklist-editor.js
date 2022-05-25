@@ -6,64 +6,89 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-undef */
 
+const _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']
+
 const isMulti = $urlp('multi') === 'true'
-const maxOptions = isMulti ? 20 : 40
+const maxOptions = isMulti ? 2 : 4
 
 $(document).ready(function () {
-  const query = 'entity=' + $urlp('entity') + '&field=' + $urlp('field')
+  const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
+
+  if (!isMulti) {
+    const $cs = $('.colors').removeClass('hide')
+    parent.RbModal.resize()
+
+    _COLORS.forEach((c) => {
+      $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
+    })
+    $cs.find('>a').on('click', function () {
+      $cs.find('>a .zmdi').remove()
+      $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    })
+  }
 
   $.get(`/admin/field/picklist-gets?isAll=true&${query}`, function (res) {
     $(res.data).each(function () {
       if (this.hide === true) {
         render_unset([this.id, this.text])
       } else {
-        const item = render_item([this.id, this.text, this['default']])
+        const item = render_item([this.id, this.text, this['default'], this.color])
         if (this['default']) item.find('.defset').trigger('click')
       }
     })
   })
 
-  $('.J_confirm').click(function () {
-    if ($('.J_config>li').length > maxOptions) {
-      RbHighbar.create($L('最多支持 %d 个选项', maxOptions))
-      return false
-    }
-
+  $('.J_confirm').on('click', () => {
     const text = $val('.J_text')
     if (!text) {
       RbHighbar.create($L('请输入选项值'))
       return false
     }
 
-    let exists = false
+    const color = $('.colors >a>i').parent().data('color') || ''
+    const id = $('.J_text').attr('data-key')
+
+    let exists = null
     $('.J_config .dd3-content, .unset-list .dd-handle>span').each(function () {
-      if ($(this).text() === text) exists = true
+      if ($(this).text() === text) exists = $(this).parents('li').attr('data-key')
     })
-    if (exists) {
+    if (exists && exists !== id) {
       RbHighbar.create($L('选项值重复'))
       return false
     }
 
-    const id = $('.J_text').attr('attr-id')
-    $('.J_text').val('').attr('attr-id', '')
-    $('.J_confirm').text($L('添加'))
+    // New
     if (!id) {
+      if ($('.J_config>li').length >= maxOptions) {
+        RbHighbar.create($L('最多支持 %d 个选项', maxOptions))
+        return false
+      }
+
       render_item([$random(), text])
     } else {
-      const item = $('.J_config li[data-key="' + id + '"]')
-      item.attr('data-key', id)
-      item.find('.dd3-content').text(text)
+      const $item = $(`.J_config li[data-key="${id}"]`)
+      $item.attr({
+        'data-key': id,
+        'data-color': color,
+      })
+      $item.find('.dd3-content').text(text).css('color', color)
     }
+
+    // Reset
+    $('.J_text').val('').removeAttr('data-key')
+    $('.J_confirm').text($L('添加'))
+    $('.colors>a>i').remove()
+
     return false
   })
 
-  $('.J_save').click(function () {
+  $('.J_save').on('click', function () {
     const show_items = []
     $('.J_config>li').each(function () {
       const $this = $(this)
-      const id = $this.attr('data-key')
       show_items.push({
-        id: id,
+        id: $this.attr('data-key'),
+        color: $this.attr('data-color'),
         text: $this.find('.dd3-content').text(),
         default: $this.hasClass('active'),
       })
@@ -87,6 +112,7 @@ $(document).ready(function () {
       show: show_items,
       hide: hide_items,
     }
+
     const $btn = $(this)
     const delConfirm = function () {
       $btn.button('loading')
@@ -109,7 +135,7 @@ $(document).ready(function () {
 
 render_unset_after = function (item) {
   const $del = $(`<a href="javascript:;" class="action">[${$L('删除')}]</a>`).appendTo(item.find('.dd-handle'))
-  $del.click(() => {
+  $del.on('click', () => {
     $del.text(`[${$L('保存后删除')}]`)
     $del.parent().parent().attr('data-del', 'force')
     return false
@@ -118,18 +144,23 @@ render_unset_after = function (item) {
 
 render_item_after = function (item, data) {
   if (data[2]) item.addClass('active')
+  if (data[3]) item.attr('data-color', data[3]).find('.dd3-content').css('color', data[3])
+
   item.find('a.J_del').attr('title', $L('禁用'))
 
   const $edit = $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
   item.find('.dd3-action').prepend($edit)
-  $edit.click(function () {
+  $edit.on('click', () => {
     $('.J_confirm').text($L('修改'))
-    $('.J_text').val(data[1]).attr('attr-id', data[0]).focus()
+    $('.J_text').val(data[1]).attr('data-key', data[0]).focus()
+
+    data[3] = item.attr('data-color')
+    if (data[3]) $(`.colors>a[data-color="${data[3]}"]`).trigger('click')
   })
 
   const $def = $(`<a title="${$L('设为默认')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
   item.find('.dd3-action').prepend($def)
-  $def.click(function () {
+  $def.on('click', () => {
     if (item.hasClass('active')) {
       item.removeClass('active')
       $def.attr('title', $L('设为默认'))
@@ -147,6 +178,6 @@ render_item_after = function (item, data) {
       .find('.dd3-action>a.J_del')
       .attr('title', '删除')
       .off('click')
-      .click(() => item.remove())
+      .on('click', () => item.remove())
   }
 }

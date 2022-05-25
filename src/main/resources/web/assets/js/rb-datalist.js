@@ -572,7 +572,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+    <td key={k} title={$L('共 %d 项', vLen)}>
       <div className="column-files" style={s}>
         {v.map((item) => {
           const fileName = $fileCutName(item)

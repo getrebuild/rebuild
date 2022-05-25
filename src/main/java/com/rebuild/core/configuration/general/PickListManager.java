@@ -65,7 +65,7 @@ public class PickListManager implements ConfigManager {
 
         if (cached == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select itemId,text,isDefault,isHide,maskValue from PickList where belongEntity = ? and belongField = ? order by seq asc")
+                    "select itemId,text,isDefault,isHide,maskValue,color from PickList where belongEntity = ? and belongField = ? order by seq asc")
                     .setParameter(1, entity)
                     .setParameter(2, field)
                     .array();
@@ -76,7 +76,8 @@ public class PickListManager implements ConfigManager {
                         .set("text", o[1])
                         .set("default", o[2])
                         .set("hide", o[3])
-                        .set("mask", o[4]);
+                        .set("mask", o[4])
+                        .set("color", o[5]);
                 list.add(entry);
             }
 
