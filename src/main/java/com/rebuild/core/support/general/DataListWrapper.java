@@ -14,6 +14,8 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -111,7 +113,7 @@ public class DataListWrapper {
                     nameValue = value;
                 }
 
-                // 如果最终没能取得名称字段，则补充
+                // 如果最终没能取得名称字段则补充
                 if (field.getType() == FieldType.PRIMARY) {
                     if (nameValue == null) {
                         nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
@@ -139,15 +141,15 @@ public class DataListWrapper {
     }
 
     /**
-     * @param value
-     * @param field
-     * @return
+     * @see FieldValueHelper#wrapFieldValue(Object, EasyField, boolean)
      */
-    protected Object wrapFieldValue(Object value, Field field) {
+    private Object wrapFieldValue(Object value, Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
         if (easyField.getDisplayType() == DisplayType.ID) {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
+
+        final Object origin = value;
 
         boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
                 || easyField.getDisplayType() == DisplayType.PICKLIST
@@ -159,12 +161,24 @@ public class DataListWrapper {
         if (value != null && isUseDesensitized(easyField)) {
             value = FieldValueHelper.desensitized(easyField, value);
         }
+
+        // v2.10 Color
+        if (value != null && easyField.getDisplayType() == DisplayType.PICKLIST) {
+            for (ConfigBean c : PickListManager.instance.getPickListRaw(field, true)) {
+                if (c.getID("id").equals(origin)) {
+                    if (StringUtils.isNotBlank(c.getString("color"))) {
+                        value = JSONUtils.toJSONObject(
+                                new String[]{ "text", "color" }, new Object[]{ value, c.getString("color") });
+                    }
+                    break;
+                }
+            }
+        }
+
         return value;
     }
 
     /**
-     * @param easyField
-     * @return
      * @see FieldValueHelper#isUseDesensitized(EasyField, ID)
      */
     private boolean isUseDesensitized(EasyField easyField) {

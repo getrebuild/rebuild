@@ -30,6 +30,7 @@ import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +46,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 2019/8/3
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/{entity}/")
 public class ReportsController extends BaseController {
@@ -118,6 +120,7 @@ public class ReportsController extends BaseController {
             return RespBody.ok(data);
 
         } catch (Exception ex) {
+            log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

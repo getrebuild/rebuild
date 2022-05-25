@@ -738,6 +738,23 @@ CellRenders.addRender('SIGN', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('PICKLIST', function (v, s, k) {
+  // Use badge
+  if (typeof v === 'object') {
+    return (
+      <td key={k} className="td-sm column-state">
+        <div style={s} title={v.text}>
+          <span className="badge badge-primary" style={{ backgroundColor: v.color }}>
+            {v.text}
+          </span>
+        </div>
+      </td>
+    )
+  } else {
+    return CellRenders.renderSimple(v, s, k)
+  }
+})
+
 // ~ 分页组件
 
 class RbListPagination extends React.Component {
