@@ -13,7 +13,11 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.rebuild.core.RebuildException;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +49,7 @@ public class ExcelUtils {
         final List<Cell[]> rows = new ArrayList<>();
         final AtomicInteger rowNo = new AtomicInteger(0);
 
-        try (InputStream is = new FileInputStream(excel)) {
+        try (InputStream is = Files.newInputStream(excel.toPath())) {
             try (BufferedInputStream bis = new BufferedInputStream(is)) {
                 // noinspection rawtypes
                 EasyExcel.read(bis, null, new AnalysisEventListener() {

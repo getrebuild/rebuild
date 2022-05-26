@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -59,7 +59,7 @@ public class FlowParserTest {
      */
     static FlowParser createFlowParser(int fileNo) throws IOException {
         File file = ResourceUtils.getFile("classpath:approval-flow" + fileNo + ".json");
-        try (InputStream in = new FileInputStream(file)) {
+        try (InputStream in = Files.newInputStream(file.toPath())) {
             JSONObject flowDefinition = JSON.parseObject(in, null);
             return new FlowParser(flowDefinition);
         }
