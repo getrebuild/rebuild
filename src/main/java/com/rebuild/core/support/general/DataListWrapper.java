@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -164,14 +163,10 @@ public class DataListWrapper {
 
         // v2.10 Color
         if (value != null && easyField.getDisplayType() == DisplayType.PICKLIST) {
-            for (ConfigBean c : PickListManager.instance.getPickListRaw(field, true)) {
-                if (c.getID("id").equals(origin)) {
-                    if (StringUtils.isNotBlank(c.getString("color"))) {
-                        value = JSONUtils.toJSONObject(
-                                new String[]{ "text", "color" }, new Object[]{ value, c.getString("color") });
-                    }
-                    break;
-                }
+            String color = PickListManager.instance.getColor((ID) origin);
+            if (color != null) {
+                value = JSONUtils.toJSONObject(
+                        new String[]{ "text", "color" }, new Object[]{ value, color });
             }
         }
 
