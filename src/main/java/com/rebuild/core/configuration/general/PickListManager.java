@@ -16,6 +16,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class PickListManager implements ConfigManager {
 
         if (cached == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select itemId,text,isDefault,isHide,maskValue from PickList where belongEntity = ? and belongField = ? order by seq asc")
+                    "select itemId,text,isDefault,isHide,maskValue,color from PickList where belongEntity = ? and belongField = ? order by seq asc")
                     .setParameter(1, entity)
                     .setParameter(2, field)
                     .array();
@@ -76,7 +77,8 @@ public class PickListManager implements ConfigManager {
                         .set("text", o[1])
                         .set("default", o[2])
                         .set("hide", o[3])
-                        .set("mask", o[4]);
+                        .set("mask", o[4])
+                        .set("color", o[5]);
                 list.add(entry);
             }
 
@@ -98,21 +100,37 @@ public class PickListManager implements ConfigManager {
      * @return
      */
     public String getLabel(ID itemId) {
-        final String ckey = "PickListLABEL-" + itemId;
-        String cached = Application.getCommonsCache().get(ckey);
+        Serializable s = getItem(itemId);
+        return s == null ? null : (String) ((Object[]) s)[0];
+    }
+
+    /**
+     * @param itemId
+     * @return
+     */
+    public String getColor(ID itemId) {
+        Serializable s = getItem(itemId);
+        if (s == null) return null;
+
+        String color = (String) ((Object[]) s)[1];
+        return StringUtils.defaultIfBlank(color, null);
+    }
+
+    private Serializable getItem(ID itemId) {
+        final String ckey = "PickListITEM-" + itemId;
+        Serializable cached = Application.getCommonsCache().getx(ckey);
         if (cached != null) {
             return cached.equals(DELETED_ITEM) ? null : cached;
         }
 
         Object[] o = Application.createQueryNoFilter(
-                "select text from PickList where itemId = ?")
+                        "select text,color from PickList where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
-        if (o != null) cached = (String) o[0];
-        // 可能已删除
-        if (cached == null) cached = DELETED_ITEM;
+        if (o != null) cached = o;
+        if (cached == null) cached = DELETED_ITEM;  // 已删除
 
-        Application.getCommonsCache().put(ckey, cached);
+        Application.getCommonsCache().putx(ckey, cached);
         return cached.equals(DELETED_ITEM) ? null : cached;
     }
 
@@ -149,7 +167,7 @@ public class PickListManager implements ConfigManager {
     @Override
     public void clean(Object idOrField) {
         if (idOrField instanceof ID) {
-            Application.getCommonsCache().evict("PickListLABEL-" + idOrField);
+            Application.getCommonsCache().evict("PickListITEM-" + idOrField);
         } else if (idOrField instanceof Field) {
             Field field = (Field) idOrField;
             Application.getCommonsCache().evict(String.format("PickList-%s.%s", field.getOwnEntity().getName(), field.getName()));

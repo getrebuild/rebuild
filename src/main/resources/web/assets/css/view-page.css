@@ -679,3 +679,17 @@ body {
   margin: 0 auto;
   text-align: left;
 }
+
+.type-PICKLIST .form-control-plaintext {
+  padding: 7px 0;
+}
+
+.type-PICKLIST .form-control-plaintext .badge-color {
+  font-size: 1rem;
+  line-height: 17px;
+  border: 0 none;
+  font-weight: normal;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1px 6px;
+}

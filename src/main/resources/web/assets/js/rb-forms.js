@@ -1297,6 +1297,28 @@ class RbFormPickList extends RbFormElement {
 
   renderViewElement() {
     return super.renderViewElement(__findOptionText(this.state.options, this.state.value))
+
+    // Use badge
+    // const value = this.state.value
+    // if ((this.state.options || []).length === 0 || !value) return super.renderViewElement(null)
+
+    // // eslint-disable-next-line eqeqeq
+    // const o = this.state.options.find((x) => x.id == value)
+    // if (!o || !o.text) {
+    //   return super.renderViewElement(`[${value.toUpperCase()}]`)
+    // }
+
+    // if (o.color) {
+    //   return (
+    //     <div className="form-control-plaintext">
+    //       <span className="badge badge-color" style={{ backgroundColor: o.color }}>
+    //         {o.text}
+    //       </span>
+    //     </div>
+    //   )
+    // } else {
+    //   return super.renderViewElement(o.text)
+    // }
   }
 
   onEditModeChanged(destroy) {

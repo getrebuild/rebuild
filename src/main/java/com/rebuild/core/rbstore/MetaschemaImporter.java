@@ -325,6 +325,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
             if (item.size() > 2) {
                 option.put("mask", item.getLongValue(2));
             }
+            // v2.10: Color
+            if (item.size() > 3) {
+                option.put("color", item.getString(3));
+            }
 
             shown.add(option);
         }

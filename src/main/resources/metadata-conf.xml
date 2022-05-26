@@ -134,7 +134,8 @@
         <field name="isDefault" type="bool" default-value="F"/>
         <field name="isHide" type="bool" default-value="F"/>
         <field name="maskValue" type="long" default-value="0" description="(MultiSelect专用)"/>
-        <index field-list="belongEntity,belongField"/>
+        <field name="color" type="string" max-length="10"/>
+        <index field-list="belongEntity,belongField,seq"/>
     </entity>
 
     <entity name="LayoutConfig" type-code="013" description="布局 (表单/列表/导航/视图(相关项/新建))" queryable="false">

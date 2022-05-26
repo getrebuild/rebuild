@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #45 (v2.10)
+alter table `pick_list`
+  add column `COLOR` varchar(10);
+
 -- #44 (v2.9)
 -- ************ Entity [CommonsLock] DDL ************
 create table if not exists `commons_lock` (

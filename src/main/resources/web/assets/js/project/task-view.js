@@ -710,7 +710,7 @@ class ValueTagsEditor extends React.Component {
               onKeyDown={(e) => e.keyCode === 13 && this.toggleEditMode(true)}
             />
             <span className="input-group-btn">
-              <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)}>
+              <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)} title={$L('添加标签')}>
                 <i className="icon zmdi zmdi-plus text-primary" />
               </button>
             </span>

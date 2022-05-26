@@ -187,12 +187,13 @@ create table if not exists `pick_list` (
   `IS_DEFAULT`         char(1) default 'F',
   `IS_HIDE`            char(1) default 'F',
   `MASK_VALUE`         bigint(20) default '0' comment '(MultiSelect专用)',
+  `COLOR`              varchar(10),
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`ITEM_ID`),
-  index IX0_pick_list (`BELONG_ENTITY`, `BELONG_FIELD`)
+  index IX0_pick_list (`BELONG_ENTITY`, `BELONG_FIELD`, `SEQ`)
 )Engine=InnoDB;
 
 -- ************ Entity [LayoutConfig] DDL ************
@@ -846,4 +847,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 44);
+  values ('021-9000000000000001', 'DBVer', 45);

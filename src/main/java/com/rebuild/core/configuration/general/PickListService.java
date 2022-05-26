@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.AdminGuard;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -114,6 +115,7 @@ public class PickListService extends BaseConfigurationService implements AdminGu
             r.setString("text", item.getString("text"));
             r.setBoolean("isHide", false);
             r.setBoolean("isDefault", item.getBoolean("default"));
+            r.setString("color", StringUtils.defaultString(item.getString("color"), ""));
             if (id2id == null) {
                 r.setString("belongEntity", field.getOwnEntity().getName());
                 r.setString("belongField", field.getName());
