@@ -35,7 +35,9 @@ class AdvFilterPane extends React.Component {
       return item
     })
 
-    this.setState({ items })
+    this.setState({ items }, () => {
+      setTimeout(() => this.clearFilter(), 200)
+    })
   }
 
   render() {
@@ -50,7 +52,7 @@ class AdvFilterPane extends React.Component {
                 <label>{item.label}</label>
                 <div className="adv-filter">
                   <div className="filter-items">
-                    <FilterItemExt onRef={this.onRef} $$$parent={this} fields={[item]} />
+                    <FilterItemExt onRef={this.onRef} $$$parent={this} fields={[item]} allowClear />
                   </div>
                 </div>
               </div>
@@ -61,10 +63,10 @@ class AdvFilterPane extends React.Component {
         <div className="col col-6 col-lg-4 col-xl-3 operating-btn">
           <div>
             <div className="btn-group">
-              <button className="btn btn-primary btn-outline" type="submit">
+              <button className="btn btn-secondary" type="submit">
                 <i className="icon zmdi zmdi-search"></i> {$L('查询')}
               </button>
-              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
                 <i className="icon zmdi zmdi-chevron-down" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -78,16 +80,19 @@ class AdvFilterPane extends React.Component {
                 </label>
               </div>
             </div>
+            <a className="ml-3 down-1" onClick={() => this.clearFilter(true)}>
+              <i className="icon zmdi zmdi-replay down-1" /> {$L('重置')}
+            </a>
             {(this.props.fields || []).length > 3 && (
-              <a className="ml-3 down-1" onClick={() => this.toggleExtended()}>
+              <a className="ml-2 down-1" onClick={() => this.toggleExtended()}>
                 {this.state.extended && (
                   <RF>
-                    <i className="icon zmdi zmdi-chevron-up"></i> {$L('收缩')}
+                    <i className="icon zmdi zmdi-unfold-less down-1" /> {$L('收缩')}
                   </RF>
                 )}
                 {!this.state.extended && (
                   <RF>
-                    <i className="icon zmdi zmdi-chevron-down"></i> {$L('展开')}
+                    <i className="icon zmdi zmdi-unfold-more down-1" /> {$L('展开')}
                   </RF>
                 )}
               </a>
@@ -95,12 +100,12 @@ class AdvFilterPane extends React.Component {
             {rb.isAdminUser && (
               <a
                 className="ml-2 down-2 admin-show"
-                title={$L('配置查询字段')}
+                title={$L('配置查询面板字段')}
                 onClick={() => {
                   RbModal.create(
                     `/p/admin/metadata/list-filterpane?entity=${this.props.entity}`,
                     <RF>
-                      {$L('配置查询字段')}
+                      {$L('配置查询面板字段')}
                       <sup className="rbv" title={$L('增值功能')} />
                     </RF>
                   )
@@ -131,6 +136,11 @@ class AdvFilterPane extends React.Component {
 
     if (rb.env === 'dev') console.log(JSON.stringify(s))
     typeof this.props.onSearch === 'function' && this.props.onSearch(s)
+  }
+
+  clearFilter(searchNow) {
+    this._itemsRef.forEach((i) => i.clear())
+    searchNow === true && setTimeout(() => this.searchNow(), 200)
   }
 
   toggleExtended() {

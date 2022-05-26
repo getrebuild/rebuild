@@ -772,7 +772,8 @@ class FilterItem extends React.Component {
     const that = this
     const $s2val = $(this._filterVal)
       .select2({
-        allowClear: false,
+        allowClear: this.props.allowClear === true,
+        placeholder: this.props.allowClear === true ? $L('全部') : null,
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val() })
@@ -794,7 +795,7 @@ class FilterItem extends React.Component {
   }
 
   getFilterJson() {
-    let s = this.state
+    const s = this.state
     if (!s.value) {
       if (OP_NOVALUE.includes(s.op)) {
         // 允许无值
@@ -834,5 +835,13 @@ class FilterItem extends React.Component {
 
     this.setState({ hasError: false })
     return item
+  }
+
+  clear() {
+    this.setState({ value: null, value2: null, hasError: false }, () => {
+      if (this._filterVal && this._filterVal.tagName === 'SELECT') {
+        $(this._filterVal).val(null).trigger('change')
+      }
+    })
   }
 }

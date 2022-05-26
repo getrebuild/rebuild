@@ -15,7 +15,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -102,20 +101,11 @@ public class GeneralListController extends EntityController {
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterpane);
 
             if (BooleanUtils.toBoolean(advListFilterpane)) {
-                ConfigBean cb = DataListManager.instance.getListFilterPane(user, entity);
-                if (cb != null && cb.getJSON("config") != null) {
-                    JSONObject configJson = (JSONObject) cb.getJSON("config");
-
-                    JSONArray paneFields = new JSONArray();
-                    for (Object o : configJson.getJSONArray("items")) {
-                        JSONObject item = (JSONObject) o;
-                        String field = item.getString("field");
-                        if (listEntity.containsField(field)) {
-                            paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
-                        }
-                    }
-                    mv.getModel().put("paneFields", paneFields);
+                JSONArray paneFields = new JSONArray();
+                for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
+                    paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
                 }
+                mv.getModel().put("paneFields", paneFields);
             }
 
         } else if (listMode == 2) {
