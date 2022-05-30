@@ -7,17 +7,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
+import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -57,7 +61,7 @@ public class ReportTemplateController extends BaseController {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from DataReportConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
@@ -92,7 +96,7 @@ public class ReportTemplateController extends BaseController {
     @GetMapping("/report-templates/preview")
     public void preview(@IdParam ID reportId, HttpServletResponse response) throws IOException {
         Object[] report = Application.createQueryNoFilter(
-                "select belongEntity from DataReportConfig where configId = ?")
+                "select belongEntity,templateType from DataReportConfig where configId = ?")
                 .setParameter(1, reportId)
                 .unique();
         Entity entity = MetadataHelper.getEntity((String) report[0]);
@@ -107,13 +111,31 @@ public class ReportTemplateController extends BaseController {
 
         File file;
         try {
-            File template = DataReportManager.instance.getTemplateFile(entity, reportId);
-            file = new EasyExcelGenerator(template, (ID) random[0]).generate();
+            // 列表报表
+            if (ObjectUtils.toInt(report[1]) == DataReportManager.TYPE_LIST) {
+                JSONObject queryData = JSONUtils.toJSONObject(
+                        new String[] { "pageSize", "entity" },
+                        new Object[] { 2, report[0] });
+                file = new EasyExcelListGenerator(reportId, queryData).generate();
+            } else {
+                file = new EasyExcelGenerator(reportId, (ID) random[0]).generate();
+            }
+
         } catch (ConfigurationException ex) {
             response.sendError(500, ex.getLocalizedMessage());
             return;
         }
 
         FileDownloader.downloadTempFile(response, file, null);
+    }
+
+    @GetMapping("/report-templates/download")
+    public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        @SuppressWarnings("deprecation")
+        File template = DataReportManager.instance.getTemplateFile(reportId);
+        String attname = QiniuCloud.parseFileName(template.getName());
+
+        FileDownloader.setDownloadHeaders(request, response, attname);
+        FileDownloader.writeLocalFile(template, response);
     }
 }

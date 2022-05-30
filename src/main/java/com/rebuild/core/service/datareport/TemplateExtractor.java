@@ -44,12 +44,25 @@ public class TemplateExtractor {
     // Use easyexcel
     private boolean isV2;
 
+    private boolean useDetails;
+
     /**
      * @param template
+     * @param isV2
      */
     public TemplateExtractor(File template, boolean isV2) {
+        this(template, isV2, true);
+    }
+
+    /**
+     * @param template
+     * @param isV2
+     * @param useDetails
+     */
+    public TemplateExtractor(File template, boolean isV2, boolean useDetails) {
         this.template = template;
         this.isV2 = isV2;
+        this.useDetails = useDetails;
     }
 
     /**
@@ -61,7 +74,7 @@ public class TemplateExtractor {
     public Map<String, String> transformVars(Entity entity) {
         final Set<String> vars = extractVars();
 
-        Entity detailEntity = entity.getDetailEntity();
+        Entity detailEntity = this.useDetails ? entity.getDetailEntity() : null;
         Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
                 ? MetadataHelper.getEntity(EntityHelper.RobotApprovalStep) : null;
 
@@ -74,8 +87,7 @@ public class TemplateExtractor {
                 // 审批
                 if (field.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
-                    if (approvalEntity != null
-                            && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
+                    if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(field, stepNodeField);
                     } else {
                         map.put(field, null);

@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<ReporEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<ReporEdit />))
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -22,8 +22,11 @@ class ReportList extends ConfigList {
       <React.Fragment>
         {(this.state.data || []).map((item) => {
           return (
-            <tr key={'k-' + item[0]}>
-              <td>{item[3]}</td>
+            <tr key={item[0]}>
+              <td>
+                {item[3]}
+                {item[6] === 2 && <span className="badge badge-secondary badge-sm ml-1">{$L('列表模板')}</span>}
+              </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
               <td>
@@ -31,7 +34,10 @@ class ReportList extends ConfigList {
               </td>
               <td className="actions">
                 <a className="icon" title={$L('预览')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
-                  <i className="zmdi zmdi-open-in-new" />
+                  <i className="zmdi zmdi-eye" />
+                </a>
+                <a className="icon" title={$L('下载模板')} href={`${rb.baseUrl}/admin/data/report-templates/download?id=${item[0]}`} target="_blank">
+                  <i className="zmdi zmdi-download" />
                 </a>
                 <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
