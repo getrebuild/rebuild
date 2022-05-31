@@ -129,7 +129,7 @@ public class FieldValueHelper {
 
         JSONObject mixValue = JSONUtils.toJSONObject(
                 new String[] { "id", "text" }, new Object[] { id, text });
-        if (id != null) {
+        if (id != null && !EntityHelper.isUnsavedId(id)) {
             if (MetadataHelper.containsEntity(id.getEntityCode())) {
                 mixValue.put("entity", MetadataHelper.getEntityName(id));
             } else {

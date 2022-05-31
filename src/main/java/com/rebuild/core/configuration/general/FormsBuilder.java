@@ -363,6 +363,11 @@ public class FormsBuilder extends FormsManager {
                 if (value != null) {
                     el.put("value", value);
                 }
+
+                ID pv = dt == DisplayType.REFERENCE ? getCascadingFieldParentValue(easyField, data.getPrimary()) : null;
+                if (pv != null) {
+                    el.put("_cascadingFieldParentValue", pv);
+                }
             }
             // 新建记录
             else {
@@ -612,5 +617,28 @@ public class FormsBuilder extends FormsManager {
             log.error("No record found : " + idValue);
             return null;
         }
+    }
+
+    /**
+     * 父级（值）级联
+     *
+     * @param field
+     * @param record
+     * @return
+     */
+    private ID getCascadingFieldParentValue(EasyField field, ID record) {
+        String pf = field.getExtraAttr("_cascadingFieldParent");
+        if (pf == null) return null;
+
+        String[] pfs = pf.split(MetadataHelper.SPLITER_RE);
+        String fieldParent = pfs[0];
+        // 明细>主实体
+        if (pfs[0].contains(".")) {
+            Field dtf = MetadataHelper.getDetailToMainField(field.getRawMeta().getOwnEntity());
+            fieldParent = dtf.getName() + "." + pfs[0].split("\\.")[1];
+        }
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
+        return o == null ? null : (ID) o[0];
     }
 }

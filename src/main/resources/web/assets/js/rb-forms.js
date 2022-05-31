@@ -268,7 +268,7 @@ class RbForm extends React.Component {
         </div>
 
         <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} />
+          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} $$$main={this} />
         </div>
       </div>
     )
@@ -1429,6 +1429,11 @@ class RbFormReference extends RbFormElement {
         if (v && typeof v === 'string') {
           __addRecentlyUse(v)
           that.triggerAutoFillin(v)
+
+          // v2.10 FIXME 父级改变后清除明细
+          if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
+            that.props.$$$parent._ProTable.clear(that.props._cascadingFieldChild)
+          }
         }
         that.handleChange({ target: { value: v } }, true)
       })
@@ -1455,13 +1460,32 @@ class RbFormReference extends RbFormElement {
     }
     if (!cascadingField) return null
 
+    let $$$parent = this.props.$$$parent
+
+    // v2.10 使用主表单
+    if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
+      $$$parent = $$$parent.props.$$$main
+      cascadingField = cascadingField.split('.')[1]
+    }
+
     let v
     if (this.props.onView) {
-      v = (this.props.$$$parent.__ViewData || {})[cascadingField]
+      v = ($$$parent.__ViewData || {})[cascadingField]
+
+      // v2.10 无值时使用后台值
+      if (!v && this.props._cascadingFieldParentValue) {
+        v = { id: this.props._cascadingFieldParentValue }
+      }
     } else {
-      const fieldComp = this.props.$$$parent.refs[`fieldcomp-${cascadingField}`]
+      const fieldComp = $$$parent.refs[`fieldcomp-${cascadingField}`]
       v = fieldComp ? fieldComp.getValue() : null
+
+      // v2.10 无布局时使用后台值
+      if (!fieldComp && this.props._cascadingFieldParentValue) {
+        v = { id: this.props._cascadingFieldParentValue }
+      }
     }
+
     return v ? v.id || v : null
   }
 
