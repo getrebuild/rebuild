@@ -18,8 +18,7 @@ public class DynamicMetadataContextHolder {
     private static final ThreadLocal<Boolean> SKIP_LANGUAGE_REFRESH = new ThreadLocal<>();
 
     /**
-     * 跳过检测引用实体。
-     * 主要用在实体导入时，被引用实体暂时不存在
+     * 跳过检测引用实体。主要用在实体导入时，被引用实体暂时不存在
      */
     public static void setSkipRefentityCheck() {
         SKIP_REFENTITY_CHECK.set(true);

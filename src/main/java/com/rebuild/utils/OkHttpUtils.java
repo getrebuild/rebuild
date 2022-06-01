@@ -18,6 +18,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -182,7 +183,7 @@ public class OkHttpUtils {
         try (Response response = client.newCall(request).execute()) {
             try (InputStream is = Objects.requireNonNull(response.body()).byteStream()) {
                 try (BufferedInputStream bis = new BufferedInputStream(is)) {
-                    try (OutputStream os = new FileOutputStream(dest)) {
+                    try (OutputStream os = Files.newOutputStream(dest.toPath())) {
                         byte[] chunk = new byte[1024];
                         int count;
                         while ((count = bis.read(chunk)) != -1) {

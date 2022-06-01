@@ -278,7 +278,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.80</version>
+            <version>1.2.83</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
@@ -293,7 +293,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.13.2</version>
+            <version>2.13.3</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -312,12 +312,12 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.2.1</version>
+            <version>4.2.3</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.9.5</version>
+            <version>7.10.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -327,7 +327,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.1.5</version>
+            <version>6.1.6</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -367,7 +367,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>3.0.5</version>
+            <version>3.1.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -393,7 +393,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.1.210</version>
+            <version>2.1.212</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.aviator</groupId>
@@ -413,7 +413,7 @@
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
-            <version>3.4.1</version>
+            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
@@ -443,7 +443,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.7.22</version>
+            <version>5.8.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -35,8 +35,12 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * 文件下载/查看
@@ -101,7 +105,7 @@ public class FileDownloader extends BaseController {
                 BufferedImage bi = ImageIO.read(img);
                 if (bi == null) {
                     log.debug("None image type : {}", filePath);
-                    writeStream(new FileInputStream(img), response);
+                    writeStream(Files.newInputStream(img.toPath()), response);
                     return;
                 }
 
@@ -240,7 +244,7 @@ public class FileDownloader extends BaseController {
         long size = FileUtils.sizeOf(file);
         response.setHeader("Content-Length", String.valueOf(size));
 
-        try (InputStream fis = new FileInputStream(file)) {
+        try (InputStream fis = Files.newInputStream(file.toPath())) {
             return writeStream(fis, response);
         }
     }
@@ -272,7 +276,7 @@ public class FileDownloader extends BaseController {
      * @param response
      * @param attname
      */
-    protected static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+    public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
         // 特殊字符处理
         attname = attname.replace(" ", "-");
         attname = attname.replace("%", "-");

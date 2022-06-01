@@ -63,24 +63,27 @@ public class AutoFillinManager implements ConfigManager {
         String cascadingField = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
         if (StringUtils.isNotBlank(cascadingField)) {
             String[] fs = cascadingField.split(MetadataHelper.SPLITER_RE);
-            ConfigBean fake = new ConfigBean()
-                    .set("source", fs[1])
-                    .set("target", fs[0])
-                    .set("whenCreate", true)
-                    .set("whenUpdate", true)
-                    .set("fillinForce", true);
+            // 不含明细
+            if (!fs[0].contains(".")) {
+                ConfigBean fake = new ConfigBean()
+                        .set("source", fs[1])
+                        .set("target", fs[0])
+                        .set("whenCreate", true)
+                        .set("whenUpdate", true)
+                        .set("fillinForce", true);
 
-            // 移除冲突的表单回填配置
-            for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
-                ConfigBean cb = iter.next();
-                if (cb.getString("source").equals(fake.getString("source"))
-                        && cb.getString("target").equals(fake.getString("target"))) {
-                    iter.remove();
-                    break;
+                // 移除冲突的表单回填配置
+                for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+                    ConfigBean cb = iter.next();
+                    if (cb.getString("source").equals(fake.getString("source"))
+                            && cb.getString("target").equals(fake.getString("target"))) {
+                        iter.remove();
+                        break;
+                    }
                 }
-            }
 
-            config.add(fake);
+                config.add(fake);
+            }
         }
 
         if (config.isEmpty()) return JSONUtils.EMPTY_ARRAY;

@@ -17,6 +17,7 @@ import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.QueryParser;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +35,12 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
     private int count = 0;
 
     public EasyExcelListGenerator(ID reportId, JSONObject queryData) {
-        super(DataReportManager.instance.getTemplateFile(
-                MetadataHelper.getEntity(queryData.getString("entity")), reportId), null);
+        this(DataReportManager.instance.getTemplateFile(
+                MetadataHelper.getEntity(queryData.getString("entity")), reportId), queryData);
+    }
+
+    public EasyExcelListGenerator(File template, JSONObject queryData) {
+        super(template, null);
         this.queryData = queryData;
     }
 
@@ -46,7 +51,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
     @Override
     protected List<Map<String, Object>> buildData() {
         Entity entity = MetadataHelper.getEntity(queryData.getString("entity"));
-        TemplateExtractor templateExtractor = new TemplateExtractor(this.template, true);
+        TemplateExtractor templateExtractor = new TemplateExtractor(this.template, true, false);
         Map<String, String> varsMap = templateExtractor.transformVars(entity);
 
         List<String> validFields = new ArrayList<>();
@@ -61,7 +66,6 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         }
 
         if (validFields.isEmpty()) {
-            log.warn("No valid fields in template : {}", this.template);
             return Collections.emptyList();
         }
 
