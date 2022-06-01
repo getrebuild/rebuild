@@ -114,6 +114,9 @@ public class ReferenceSearchController extends EntityController {
     public JSON search(@EntityParam Entity searchEntity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
+        // 强制搜索 H5
+        boolean forceResults = getBoolParameter(request, "forceResults");
+
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
@@ -121,7 +124,8 @@ public class ReferenceSearchController extends EntityController {
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently.length == 0) {
-                return JSONUtils.EMPTY_ARRAY;
+                if (forceResults);
+                else return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, null);
             }

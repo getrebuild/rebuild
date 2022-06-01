@@ -92,7 +92,7 @@ public class SystemDiagnosis {
                     Language.L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
         }
 
-        if (dangers.isEmpty())  return null;
+        if (dangers.isEmpty()) return null;
 
         dangers.remove(UsersMsg);
 
@@ -104,16 +104,18 @@ public class SystemDiagnosis {
             dangers.put(HasUpdate, hasUpdate);
         }
 
-        String hasDatabaseBackupFail = dangers.get(DatabaseBackupFail);
-        if (hasDatabaseBackupFail != null) {
-            dangers.put(DatabaseBackupFail,
-                    Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDatabaseBackupFail));
-        }
+        if (RebuildConfiguration.getBool(ConfigurationItem.DBBackupsEnable)) {
+            String hasDatabaseBackupFail = dangers.get(DatabaseBackupFail);
+            if (hasDatabaseBackupFail != null) {
+                dangers.put(DatabaseBackupFail,
+                        Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDatabaseBackupFail));
+            }
 
-        String hasDataFileBackupFail = dangers.get(DataFileBackupFail);
-        if (hasDataFileBackupFail != null) {
-            dangers.put(DataFileBackupFail,
-                    Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDataFileBackupFail));
+            String hasDataFileBackupFail = dangers.get(DataFileBackupFail);
+            if (hasDataFileBackupFail != null) {
+                dangers.put(DataFileBackupFail,
+                        Language.L("数据备份失败") + String.format("<blockquote class=\"code\">%s</blockquote>", hasDataFileBackupFail));
+            }
         }
 
         return dangers.values();
