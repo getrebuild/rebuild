@@ -154,7 +154,8 @@ public class FieldAggregation extends TriggerAction {
             } else if (dt == DisplayType.DECIMAL) {
                 targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
             } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                targetRecord.setDate(targetField, (Date) evalValue);
+                if (evalValue instanceof Date) targetRecord.setDate(targetField, (Date) evalValue);
+                else targetRecord.setNull(targetField);
             } else {
                 log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
             }
