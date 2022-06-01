@@ -258,7 +258,7 @@ class RbForm extends React.Component {
                 {NADD.map((n) => {
                   return (
                     <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
-                      {$L('添加 %d 个', n)}
+                      {$L('添加 %d 条', n)}
                     </a>
                   )
                 })}
@@ -1432,7 +1432,8 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
-            that.props.$$$parent._ProTable.clear(that.props._cascadingFieldChild)
+            const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
+            that.props.$$$parent._ProTable.clear(field)
           }
         }
         that.handleChange({ target: { value: v } }, true)

@@ -148,11 +148,11 @@ class ProTable extends React.Component {
   }
 
   clear(field) {
-    // TODO 只清理字段 ???
-    console.log('CLEAR :', field)
-    if (!this.state.inlineForms) return
-
-    this.state.inlineForms.forEach((c) => this.removeLine(c.key))
+    this.state.inlineForms &&
+      this.state.inlineForms.forEach((c) => {
+        const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
+        fieldComp && fieldComp.setValue(null)
+      })
   }
 
   buildFormData() {

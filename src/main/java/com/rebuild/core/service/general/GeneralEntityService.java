@@ -104,11 +104,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                 || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
+        // 先删除
         for (Record d : details) {
-            if (d instanceof DeleteRecord) {
-                delete(d.getPrimary());
-                continue;
-            }
+            if (d instanceof DeleteRecord) delete(d.getPrimary());
+        }
+        // 再保存
+        for (Record d : details) {
+            if (d instanceof DeleteRecord) continue;
 
             if (checkDetailsRepeated) {
                 d.setID(dtf, mainid);  // for check
