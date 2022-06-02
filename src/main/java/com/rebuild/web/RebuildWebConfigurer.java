@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
@@ -41,7 +42,6 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -183,6 +183,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 errorMsg = Language.L("访问的页面/资源不存在");
             }
         }
+
+        if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
 
         error.getModel().put("error_code", errorCode);
         error.getModel().put("error_msg", errorMsg);

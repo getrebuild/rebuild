@@ -219,6 +219,14 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   renderUsers() {
+    if (this.state.hasError) {
+      return (
+        <div className="form-group">
+          <RbAlertBox message={this.state.hasError} type="danger" />
+        </div>
+      )
+    }
+
     const approverHas = (this.state.nextApprovers || []).length > 0 || this.state.approverSelfSelecting
     const ccHas = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
 
@@ -284,7 +292,13 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   getNextStep(approval) {
-    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => this.setState(res.data))
+    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
+      if (res.error_code === 0) {
+        this.setState({ ...res.data, hasError: null })
+      } else {
+        this.setState({ hasError: res.error_msg })
+      }
+    })
   }
 }
 
@@ -398,10 +412,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           </div>
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)}>
+            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
               {$L('同意')}
             </button>
-            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)}>
+            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
               {$L('驳回')}
             </button>
           </div>
