@@ -97,11 +97,11 @@
       $(document).ready(function () {
         loadFields()
 
-        $('.input-search .btn').click(() => __renderList())
+        $('.input-search .btn').on('click', () => __renderList())
         $('.input-search .form-control').keydown(function (event) {
           if (event.which === 13) $('.input-search .btn').trigger('click')
         })
-        $('.J_new-field').click(function () {
+        $('.J_new-field').on('click', function () {
           if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
           else RbHighbar.error($L('仅超级管理员可添加字段'))
         })
@@ -109,7 +109,7 @@
 
       let fields_data
       const loadFields = function () {
-        $.get('../list-field?entity=' + wpc.entityName, function (res) {
+        $.get(`../list-field?entity=${wpc.entityName}&refname=true`, function (res) {
           fields_data = res.data
           __renderList()
         })
@@ -132,7 +132,9 @@
             $tr.addClass('danger')
           }
           $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)
-          $(`<td><div class="text-muted">${item.displayType}</div></td>`).appendTo($tr)
+          let dt = item.displayType
+          if (item.displayTypeRef) dt += ` (${item.displayTypeRef[1]})`
+          $(`<td><div class="text-muted">${dt}</div></td>`).appendTo($tr)
           $(`<td><div class="text-none" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
           $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
         })

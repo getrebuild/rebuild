@@ -22,7 +22,7 @@ class ApprovalList extends ConfigList {
       <React.Fragment>
         {(this.state.data || []).map((item) => {
           return (
-            <tr key={'k-' + item[0]}>
+            <tr key={item[0]}>
               <td>
                 <a href={`approval/${item[0]}`}>{item[3]}</a>
               </td>
