@@ -63,8 +63,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (Application.isWaitLoad()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
-        if (SystemDiagnosis._DENIEDMSG != null) {
-            throw new DefinedException(CODE_STARTING, SystemDiagnosis._DENIEDMSG);
+        if (SysbaseDiagnosis._DENIEDMSG != null) {
+            throw new DefinedException(CODE_STARTING, SysbaseDiagnosis._DENIEDMSG);
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
