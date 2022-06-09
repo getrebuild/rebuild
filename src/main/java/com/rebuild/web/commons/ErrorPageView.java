@@ -11,22 +11,27 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author Zixin (RB)
  * @see com.rebuild.web.RebuildWebConfigurer
  * @since 09/1/2020
  */
+@Slf4j
 @Controller
 public class ErrorPageView extends BaseController {
 
@@ -92,5 +97,17 @@ public class ErrorPageView extends BaseController {
         } else {
             return "redirect:/error/server-status";
         }
+    }
+
+    @GetMapping("/error/request-support")
+    public void requestSupport(HttpServletResponse response) throws IOException {
+        String tsid = null;
+        try {
+            tsid = new SysbaseSupport().submit();
+        } catch (Exception e) {
+            log.error(null, e);
+        }
+        response.sendRedirect(
+                "https://getrebuild.com/report-issue?title=" + StringUtils.defaultIfBlank(tsid, "TS"));
     }
 }

@@ -25,8 +25,14 @@ class SysbaseSupportTest {
     void getLogbackFile() throws IOException {
         log.info("SysbaseSupportTest#getLogbackFile");
 
-        File file = SysbaseSupport.getLogbackFile();
+        File file = new SysbaseSupport().getLogbackFile();
         System.out.println(file + " >> " + file.exists());
         System.out.println(FileUtils.readFileToString(file));
+    }
+
+    @Test
+    void submit() {
+        log.info("SysbaseSupportTest#submit");
+        System.out.println(new SysbaseSupport().submit());
     }
 }

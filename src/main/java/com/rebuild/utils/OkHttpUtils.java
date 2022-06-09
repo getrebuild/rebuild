@@ -197,7 +197,14 @@ public class OkHttpUtils {
         return true;
     }
 
-    private static Request.Builder useHeaders(Request.Builder builder, Map<String, String> headers) {
+    /**
+     * Add common headers
+     *
+     * @param builder
+     * @param headers
+     * @return
+     */
+    public static Request.Builder useHeaders(Request.Builder builder, Map<String, String> headers) {
         builder.addHeader(HttpHeaders.USER_AGENT, RB_UA);
         builder.addHeader(HttpHeaders.ACCEPT_LANGUAGE, RB_LANG);
         if (RB_CI != null) builder.addHeader("X-RB-CI", RB_CI);
