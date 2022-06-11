@@ -389,7 +389,13 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Saml")) {
-                mv.getModel().put(name, RebuildConfiguration.get(item));
+                String value = RebuildConfiguration.get(item);
+//                if (value != null && item == ConfigurationItem.SamlIdPCert) {
+//                    String[] vs = value.split("\n");
+//                    value = StringUtils.join(
+//                            new String[] { vs[0], vs[1], "**********", vs[vs.length - 2], vs[vs.length - 1] }, "\n");
+//                }
+                mv.getModel().put(name, value);
             }
         }
 

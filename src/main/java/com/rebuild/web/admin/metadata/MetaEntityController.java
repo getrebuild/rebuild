@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.EntityOverview;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
@@ -69,7 +70,7 @@ public class MetaEntityController extends BaseController {
 
         // 不允许访问
         if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity))) {
-            response.sendError(403);
+            response.sendError(403, "SYSTEM ENTITY IS PROHIBITED");
             return null;
         }
 
@@ -104,6 +105,18 @@ public class MetaEntityController extends BaseController {
         boolean isDetail = easyEntity.getRawMeta().getMainEntity() != null;
         boolean isBizz = MetadataHelper.isBizzEntity(easyEntity.getRawMeta());
         mv.getModel().put("useListMode", !(isDetail || isBizz));
+
+        return mv;
+    }
+
+    @GetMapping("entity/{entity}/overview")
+    public ModelAndView pageOverview(@PathVariable String entity) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entity-overview");
+        EasyEntity easyEntity = setEntityBase(mv, entity);
+
+        EntityOverview o = new EntityOverview(easyEntity.getRawMeta());
+        mv.getModel().put("overview", JSON.toJSON(o.overview()));
+        mv.getModel().put("graph", JSON.toJSON(o.graph()));
 
         return mv;
     }

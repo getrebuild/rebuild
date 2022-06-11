@@ -16,7 +16,8 @@
               <div class="card">
                 <div class="card-header pb-1">
                   [[${bundle.L('钉钉')}]]
-                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>
                 <div class="card-body">
                   <h5>[[${bundle.L('应用凭证')}]]</h5>
@@ -66,7 +67,7 @@
                         <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
                         <td data-id="DingtalkSyncUsers" th:data-value="${DingtalkSyncUsers}">
                           <span class="mr-1">[[${DingtalkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
-                          <button type="button" class="btn btn-light btn-sm J_syncUsers"><i class="icon zmdi zmdi-refresh"></i> [[${bundle.L('立即同步')}]]</button>
+                          <button type="button" class="btn btn-light btn-sm J_syncUsers up-1"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
                         </td>
                       </tr>
                       <tr>
