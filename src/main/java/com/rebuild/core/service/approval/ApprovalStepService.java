@@ -90,7 +90,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.L("用户 @%s 提交了一条 %s 审批，请知晓", submitter, entityLabel);
+            String ccMsg = Language.L("用户 @%s 提交了一条 %s 审批，请知悉", submitter, entityLabel);
             for (ID to : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(to, ccMsg, recordId));
             }
@@ -154,7 +154,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知晓",
+            String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
                     submitter, entityLabel, approver, Language.L(state));
             for (ID c : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, recordId));

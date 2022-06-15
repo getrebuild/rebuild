@@ -56,6 +56,8 @@ public class FormsBuilder extends FormsManager {
     public static final String DIVIDER_LINE = "$DIVIDER$";
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
+    // 复制记录
+    public static final String DV_COPYID = "$COPYID$";
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
 

@@ -821,7 +821,15 @@ const RbViewPage = {
     const that = this
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
+
+      const entity = item.entity.split('.')
       $item.on('click', () => {
+        // if (item.transmode) {
+        //   const iv = { '$COPYID$': `${that.__id}.${item.transid}` }
+        //   RbFormModal.create({ title: item.entityLabel, entity: entity[0], icon: item.icon, initialValue: iv })
+        //   return
+        // }
+
         let _TransformRich
         RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
           tabIndex: 1,
@@ -836,8 +844,19 @@ const RbViewPage = {
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
-                RbHighbar.success($L('转换成功'))
-                setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+                // RbHighbar.success($L('转换成功'))
+                setTimeout(() => {
+                  if (item.transmode) {
+                    RbFormModal.create({
+                      id: res.data,
+                      title: $L('编辑%s', item.entityLabel),
+                      entity: entity[0],
+                      icon: item.icon,
+                    })
+                  } else {
+                    that.clickView(`!#/View/${item.entity}/${res.data}`)
+                  }
+                }, 200)
               } else {
                 this.disabled(false)
                 res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)

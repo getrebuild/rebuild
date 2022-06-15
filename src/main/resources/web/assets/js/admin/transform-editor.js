@@ -68,6 +68,7 @@ $(document).ready(() => {
         fieldsMapping: fm,
         fieldsMappingDetail: fmd,
         fillbackField: $('#fillbackField').val(),
+        transformMode: $('#transformMode').prop('checked') ? 2 : 1,
         useFilter: advFilter_data,
       }
 
@@ -121,6 +122,9 @@ $(document).ready(() => {
 
     if (config.fillbackField) {
       $('#fillbackField').val(config.fillbackField).trigger('change')
+    }
+    if (config.transformMode === 2) {
+      $('#transformMode').attr('checked', true)
     }
   }, 100)
 })
