@@ -527,7 +527,7 @@ class TransformRich extends React.Component {
       <RF>
         {WrapHtml($L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
         {this.props.mainEntity && (
-          <div className="mt-3 trans-to-wrap">
+          <div className="widget-sm mt-3">
             <div>
               <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
             </div>

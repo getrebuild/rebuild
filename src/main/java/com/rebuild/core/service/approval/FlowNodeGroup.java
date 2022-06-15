@@ -169,6 +169,14 @@ public class FlowNodeGroup {
     /**
      * @return
      */
+    public boolean getRejectStep() {
+        FlowNode node = getApprovalNode();
+        return node == null ? Boolean.FALSE : node.getRejectStep();
+    }
+
+    /**
+     * @return
+     */
     public String getGroupId() {
         StringBuilder sb = new StringBuilder();
         for (FlowNode node : nodes) {

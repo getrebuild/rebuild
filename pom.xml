@@ -298,7 +298,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.9</version>
+            <version>1.2.10</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -317,7 +317,7 @@
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.10.2</version>
+            <version>7.10.4</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -367,7 +367,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -418,7 +418,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.17.0</version>
+            <version>3.17.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -443,7 +443,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.0</version>
+            <version>5.8.2</version>
         </dependency>
     </dependencies>
 </project>

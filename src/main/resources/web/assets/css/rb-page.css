@@ -800,6 +800,11 @@ body.view-body {
   color: #777;
   font-size: 12px;
   font-weight: normal;
+  padding: 6px 10px;
+}
+
+.select2-container--default .select2-results__option .select2-results__option {
+  padding-left: 22px;
 }
 
 .select2-container--default .select2-results__group::after {
@@ -3015,7 +3020,8 @@ form {
   background-color: #33a451;
 }
 
-.timeline.approved-steps .timeline-item.state11::before {
+.timeline.approved-steps .timeline-item.state11::before,
+.timeline.approved-steps .timeline-item.state21::before {
   border-color: #ea3f30;
   background-color: #ea3f30;
 }
@@ -3042,11 +3048,6 @@ form {
   top: 16px;
   line-height: 1.2;
   width: 80px;
-}
-
-.timeline.approved-steps .timeline-date > span {
-  display: block;
-  color: #999;
 }
 
 .timeline.approved-steps .timeline-avatar {
@@ -3077,6 +3078,11 @@ form {
   margin-left: -57px;
   margin-top: 8px;
   text-align: center;
+}
+
+.timeline.approved-steps > strong {
+  padding-left: 140px;
+  display: block;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,
@@ -4861,4 +4867,10 @@ pre.unstyle {
 
 .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .list-nodata {
   padding-top: 72px;
+}
+
+.rbalert .widget-sm {
+  width: 88%;
+  margin: 0 auto;
+  text-align: left;
 }

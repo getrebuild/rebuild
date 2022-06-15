@@ -65,7 +65,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 1. 提交
+     * 1.提交
      *
      * @param selectNextUsers
      * @return
@@ -108,7 +108,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 2. 审批
+     * 2.审批
      *
      * @param approver
      * @param state
@@ -117,11 +117,11 @@ public class ApprovalProcessor extends SetUser {
      * @throws ApprovalException
      */
     public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
-        approve(approver, state, remark, selectNextUsers, null, null);
+        approve(approver, state, remark, selectNextUsers, null, null, null);
     }
 
     /**
-     * 2. 审批
+     * 2.审批
      *
      * @param approver
      * @param state
@@ -129,9 +129,10 @@ public class ApprovalProcessor extends SetUser {
      * @param selectNextUsers
      * @param addedData
      * @param checkUseGroup
+     * @param rejectNode
      * @throws ApprovalException
      */
-    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup) throws ApprovalException {
+    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode) throws ApprovalException {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
         ApprovalState currentState = status.getCurrentState();
         if (currentState != ApprovalState.PROCESSING) {
@@ -162,7 +163,11 @@ public class ApprovalProcessor extends SetUser {
         Set<ID> nextApprovers = null;
         String nextNode = null;
 
-        if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
+        // 回退至节点
+        if (state == ApprovalState.REJECTED && rejectNode != null) {
+            nextNode = rejectNode;
+            approvedStep.setInt("state", ApprovalState.BACKED.getState());
+        } else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
             nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
             if (nextApprovers.isEmpty()) {
                 throw new ApprovalException(Language.L("下一流程无审批人可用，请联系管理员配置"));
@@ -184,7 +189,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 3. 撤回
+     * 3.撤回
      *
      * @throws ApprovalException
      */
@@ -200,7 +205,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 3. 撤销（管理员）
+     * 3.撤销（管理员）
      *
      * @throws ApprovalException
      */
@@ -346,7 +351,7 @@ public class ApprovalProcessor extends SetUser {
         final String currentNode = ApprovalHelper.getApprovalStatus(this.record).getCurrentStepNode();
         Object[][] array = Application.createQueryNoFilter(
                 "select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
-                        + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
+                        + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F'")
                 .setParameter(1, this.record)
                 .setParameter(2, this.approval)
                 .setParameter(3, currentNode)
@@ -378,7 +383,7 @@ public class ApprovalProcessor extends SetUser {
         }
 
         Object[] firstStep = null;
-        Map<String, List<Object[]>> stepGroupMap = new HashMap<>();
+        Map<String, List<Object[]>> stepGroupMap = new LinkedHashMap<>();
         for (Object[] o : array) {
             String prevNode = (String) o[7];
             if (firstStep == null && FlowNode.NODE_ROOT.equals(prevNode)) {
@@ -401,33 +406,48 @@ public class ApprovalProcessor extends SetUser {
                         status.getApprovalId(), status.getApprovalName(), status.getCurrentState().getState()});
         steps.add(submitter);
 
-        String next = FlowNode.NODE_ROOT;
-        while (next != null) {
-            List<Object[]> group = stepGroupMap.get(next);
-            if (group == null) {
-                break;
-            }
-            next = (String) group.get(0)[6];
+        int nodeIndex = 0;
+        Map<String, String> nodeIndexNames = new HashMap<>();
+        for (Map.Entry<String, List<Object[]>> e : stepGroupMap.entrySet()) {
+            nodeIndex++;
+            List<Object[]> group = e.getValue();
 
             // 按审批时间排序
-            group.sort((o1, o2) -> {
-                Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
-                Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
-                return t1.compareTo(t2);
-            });
+            if (group.size() > 1) {
+                group.sort((o1, o2) -> {
+                    Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
+                    Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
+                    return t1.compareTo(t2);
+                });
+            }
 
-            String signMode = null;
+            String node = (String) group.get(0)[6];
+            FlowNode flowNode = null;
             try {
-                signMode = getFlowParser().getNode(next).getSignMode();
+                flowNode = getFlowParser().getNode(node);
             } catch (ApprovalException | ConfigurationException ignored) {
             }
 
-            JSONArray s = new JSONArray();
+            JSONArray step = new JSONArray();
             for (Object[] o : group) {
-                s.add(formatStep(o, signMode));
+                JSONObject s = formatStep(o, flowNode == null ? FlowNode.SIGN_OR : flowNode.getSignMode());
+
+                s.put("node", node);
+                String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
+                if (StringUtils.isBlank(nodeName)) {
+                    nodeName = nodeIndexNames.get(node);
+                    if (StringUtils.isBlank(nodeName)) {
+                        nodeName = Language.L("审批人") + "#" + nodeIndex;
+                        nodeIndexNames.put(node, nodeName);
+                    }
+                }
+                s.put("nodeName", nodeName);
+
+                step.add(s);
             }
-            steps.add(s);
+            steps.add(step);
         }
+
         return steps;
     }
 
@@ -439,16 +459,10 @@ public class ApprovalProcessor extends SetUser {
                         approver, UserHelper.getName(approver),
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
-                        CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode});
+                        CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
     }
 
     private void shareIfNeed(ID recordId, Set<ID> shareTo) {
-//        // 当前用户无共享权限
-//        if (!Application.getPrivilegesManager().allowShare(getUser(), recordId)) {
-//            log.warn("Current userm no share privileges to auto-share : {} >> {}", getUser(), recordId);
-//            return;
-//        }
-
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
             if (!Application.getPrivilegesManager().allowRead(user, recordId)) {

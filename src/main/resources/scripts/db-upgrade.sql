@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #46 (v2.10)
+alter table `robot_approval_step`
+  add column`IS_BACKED` char(1) default 'F' comment '是否退回';
+
 -- #45 (v2.10)
 alter table `pick_list`
   add column `COLOR` varchar(10);

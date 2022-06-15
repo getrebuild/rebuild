@@ -674,12 +674,6 @@ body {
   background-color: transparent !important;
 }
 
-.trans-to-wrap {
-  width: 88%;
-  margin: 0 auto;
-  text-align: left;
-}
-
 .type-PICKLIST .form-control-plaintext {
   padding: 7px 0;
 }

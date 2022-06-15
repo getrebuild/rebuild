@@ -655,6 +655,13 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
           <div className="form-group mt-4">
+            <label className="text-bold">{$L('驳回时')}</label>
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('允许退回到指定步骤 (否则为整体驳回)')}</span>
+            </label>
+          </div>
+          <div className="form-group mt-4">
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
               <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
@@ -722,6 +729,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       signMode: this.state.signMode,
       selfSelecting: this.state.selfSelecting,
       editableFields: editableFields,
+      rejectStep: this.state.rejectStep,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {

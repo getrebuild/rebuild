@@ -106,18 +106,17 @@ public class ApprovalStepService extends InternalPersistService {
      * @param signMode
      * @param cc
      * @param nextApprovers [驳回时无需]
-     * @param nextNode      [驳回时无需]
+     * @param nextNode      下一节点或回退节点
      * @param addedData     [驳回时无需]
      * @param checkUseGroup [驳回时无需]
      */
     public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
-        // 审批时更新主记录
+        // 审批时更新主记录（驳回时不会传这个值）
         if (addedData != null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(addedData.getPrimary());
             try {
                 Application.getEntityService(addedData.getEntity().getEntityCode()).update(addedData);
             } finally {
-                // 再清理一次，以防出错未清理
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
 
@@ -136,11 +135,13 @@ public class ApprovalStepService extends InternalPersistService {
             }
         }
 
+        ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
+
         super.update(stepRecord);
         final ID stepRecordId = stepRecord.getPrimary();
 
         Object[] stepObject = Application.createQueryNoFilter(
-                "select recordId,approvalId,node from RobotApprovalStep where stepId = ?")
+                "select recordId,approvalId,node,prevNode from RobotApprovalStep where stepId = ?")
                 .setParameter(1, stepRecordId)
                 .unique();
         final ID submitter = getSubmitter((ID) stepObject[0], (ID) stepObject[1]);
@@ -150,7 +151,6 @@ public class ApprovalStepService extends InternalPersistService {
         final ID approver = UserContextHolder.getUser();
 
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
-        ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
@@ -162,20 +162,31 @@ public class ApprovalStepService extends InternalPersistService {
         }
 
         // 拒绝了直接返回
-        if (state == ApprovalState.REJECTED) {
+        if (state == ApprovalState.REJECTED || state == ApprovalState.BACKED) {
             // 拒绝了，同一节点的其他审批人全部作废
             cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
-            // 更新主记录状态
+            // 更新主记录
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
-            recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
             if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
                 recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
             }
-            super.update(recordOfMain);
 
-            String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批", approver, entityLabel);
-            Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
+            // 退回
+            if (state == ApprovalState.BACKED) {
+                recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
+                super.update(recordOfMain);
+
+                createBackedNodes(currentNode, nextNode, recordId, approvalId, approver);
+            }
+            // 驳回
+            else {
+                recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
+                super.update(recordOfMain);
+
+                String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
+                Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
+            }
             return;
         }
 
@@ -328,25 +339,19 @@ public class ApprovalStepService extends InternalPersistService {
      * @param approvalId
      * @param node
      * @param excludeStep
-     * @param onlyDarft
+     * @param isDarft 仅草稿
      */
-    private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
+    private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean isDarft) {
         String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
-        if (approvalId != null) {
-            sql += " and approvalId = '" + approvalId + "'";
-        }
-        if (node != null) {
-            sql += " and node = '" + node + "'";
-        }
-        if (onlyDarft) {
-            sql += " and state = " + ApprovalState.DRAFT.getState();
-        }
+        if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
+        if (node != null) sql += " and node = '" + node + "'";
+        if (isDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
 
-        Object[][] cancelled = Application.createQueryNoFilter(sql)
+        Object[][] canceled = Application.createQueryNoFilter(sql)
                 .setParameter(1, recordId)
                 .array();
 
-        for (Object[] o : cancelled) {
+        for (Object[] o : canceled) {
             if (excludeStep != null && excludeStep.equals(o[0])) {
                 continue;
             }
@@ -421,6 +426,53 @@ public class ApprovalStepService extends InternalPersistService {
         } else {
             log.warn("Invalid state {} for auto approval", currentState);
             return false;
+        }
+    }
+
+    /**
+     * @param rejectNode
+     * @param recordId
+     * @param approvalId
+     */
+    private void createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver) {
+        // 1.最近提交的
+        Object[] lastRoot = Application.createQueryNoFilter(
+                "select createdOn from RobotApprovalStep where prevNode = 'ROOT' and recordId = ? and approvalId = ? order by createdOn desc")
+                .setParameter(1, recordId)
+                .setParameter(2, approvalId)
+                .unique();
+
+        // 2.上一节点审批
+        Object[][] prevNodes = Application.createQueryNoFilter(
+                        "select approver,isCanceled,stepId from RobotApprovalStep where node = ? and recordId = ? and approvalId = ? and createdOn >= ?")
+                .setParameter(1, rejectNode)
+                .setParameter(2, recordId)
+                .setParameter(3, approvalId)
+                .setParameter(4, lastRoot[0])
+                .array();
+
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+
+        // 3.复制回退节点
+        for (Object[] o : prevNodes) {
+            Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
+            step.setString("node", rejectNode);
+            step.setString("prevNode", currentNode);
+            step.setID("recordId", recordId);
+            step.setID("approvalId", approvalId);
+            step.setID("approver", (ID) o[0]);
+            super.create(step);
+
+            // 通知退回
+            if (!(Boolean) o[1]) {
+                String rejectedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审核", o[0], entityLabel);
+                Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], rejectedMsg, recordId));
+            }
+
+            // 标记为退回
+            Record backed = EntityHelper.forUpdate((ID) o[2], approver);
+            backed.setBoolean("isBacked", true);
+            super.update(backed);
         }
     }
 }

@@ -202,11 +202,11 @@ class ApprovalProcessor extends React.Component {
 
   viewSteps = () => {
     const that = this
-    if (this._stepViewer) {
-      this._stepViewer.show()
+    if (this._ApprovalStepViewer) {
+      this._ApprovalStepViewer.show()
     } else {
       renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () {
-        that._stepViewer = this
+        that._ApprovalStepViewer = this
       })
     }
   }
@@ -219,6 +219,8 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   renderUsers() {
+    if (!this.state.isLoaded) return null
+
     if (this.state.hasError) {
       return (
         <div className="form-group">
@@ -293,6 +295,7 @@ class ApprovalUsersForm extends RbFormHandler {
 
   getNextStep(approval) {
     $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
+      this.setState({ isLoaded: true })
       if (res.error_code === 0) {
         this.setState({ ...res.data, hasError: null })
       } else {
@@ -428,6 +431,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const fake = {
       state: { id: this.props.id },
     }
+
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
@@ -445,6 +449,58 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   componentDidMount = () => this.getNextStep()
 
   post(state) {
+    const that = this
+    if (state === 11 && this.state.isRejectStep) {
+      this.disabled(true)
+      $.get(`/app/entity/approval/fetch-workedsteps?hasNodeName=yes&record=${this.props.id}`, (res) => {
+        this.disabled()
+
+        const ss = []
+        for (let i = 1; i < (res.data || []).length - 1; i++) {
+          const s = res.data[i][0]
+          ss.push({ node: s.node, nodeName: s.nodeName })
+        }
+
+        RbAlert.create(
+          <RF>
+            <div>{$L('请选择驳回方式')}</div>
+            <div className="widget-sm mt-3">
+              <select className="form-control form-control-sm" defaultValue="0">
+                <option value="0">{$L('整体驳回')}</option>
+                {ss.length > 0 && (
+                  <optgroup label={$L('退回至')}>
+                    {ss.map((s) => {
+                      return (
+                        <option key={s.node} value={s.node}>
+                          {s.nodeName}
+                        </option>
+                      )
+                    })}
+                  </optgroup>
+                )}
+              </select>
+            </div>
+          </RF>,
+          {
+            onConfirm: function () {
+              this.disabled(true)
+              const node = $(this._element).find('select').val()
+              that.post2(state, node === '0' ? null : node)
+            },
+            onRendered: function () {
+              $(this._element).find('select').select2({
+                allowClear: false,
+              })
+            },
+          }
+        )
+      })
+    } else {
+      this.post2(state)
+    }
+  }
+
+  post2(state, rejectNode) {
     const aformData = {}
     if (this.state.aform && state === 10) {
       const fd = this._rbform.__FormData
@@ -473,7 +529,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
 
     this.disabled(true)
-    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
+    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
       if (res.error_code === 498) {
         this.setState({ bizMessage: res.error_msg })
         this.getNextStep()
@@ -509,6 +565,7 @@ const STATE_NAMES = {
   11: $L('审批驳回'),
   12: $L('审批撤回'),
   13: $L('审批撤销'),
+  21: $L('退回'),
 }
 
 // 已审批步骤查看
@@ -586,7 +643,7 @@ class ApprovalStepViewer extends React.Component {
     s.forEach((item) => {
       const approverName = item.approver === rb.currentUser ? $L('你') : item.approverName
       let aMsg = $L('等待 %s 审批', approverName)
-      if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state])
+      if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state] || item.state)
       if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
       sss.push(
@@ -608,14 +665,25 @@ class ApprovalStepViewer extends React.Component {
         </li>
       )
     })
-    if (sss.length < 2) return sss
+
+    if (sss.length < 2) {
+      return (
+        <RF>
+          {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
+          {sss}
+        </RF>
+      )
+    }
 
     const sm = s[0].signMode
     const clazz = sm === 'OR' || sm === 'AND' ? 'joint' : 'no-joint'
     return (
-      <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
-        {sss}
-      </div>
+      <RF>
+        {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
+        <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
+          {sss}
+        </div>
+      </RF>
     )
   }
 
@@ -624,7 +692,7 @@ class ApprovalStepViewer extends React.Component {
     return (
       <div className="timeline-date">
         {time[1]}
-        <span>{time[0]}</span>
+        <div>{time[0]}</div>
       </div>
     )
   }

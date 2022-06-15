@@ -80,7 +80,7 @@ public class ApprovalController extends BaseController {
             if (stateVal < ApprovalState.APPROVED.getState()) {
                 JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep();
                 data.put("currentStep", current);
-
+                
                 for (Object o : current) {
                     JSONObject step = (JSONObject) o;
                     if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
@@ -107,6 +107,7 @@ public class ApprovalController extends BaseController {
         final ID user = getRequestUser(request);
 
         ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
+
         FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 
         JSONArray approverList = new JSONArray();
@@ -127,12 +128,8 @@ public class ApprovalController extends BaseController {
         data.put("isLastStep", nextNodes.isLastStep());
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
-
-//        // 审批中提交人可撤回
-//        if (ApprovalHelper.getApprovalState(recordId) == ApprovalState.PROCESSING
-//                && user.equals(ApprovalHelper.getSubmitter(recordId))) {
-//            data.put("canCancel", true);
-//        }
+        // current
+        data.put("isRejectStep", approvalProcessor.getCurrentNode().getRejectStep());
 
         // 可修改字段
         JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
@@ -173,6 +170,7 @@ public class ApprovalController extends BaseController {
     public RespBody doApprove(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID approver = getRequestUser(request);
         final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
+        final String rejectNode = getParameter(request, "rejectNode", null);
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject selectUsers = post.getJSONObject("selectUsers");
@@ -194,7 +192,7 @@ public class ApprovalController extends BaseController {
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
+                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup, rejectNode);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {
