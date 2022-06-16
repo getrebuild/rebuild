@@ -82,7 +82,7 @@ public class ApiGateway extends Controller implements Initialization {
 
         final Date reuqestTime = CalendarUtils.now();
         final String remoteIp = ServletUtils.getRemoteAddr(request);
-        final String requestId = UUID.randomUUID().toString();
+        final String requestId = CommonsUtils.randomHex();
 
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
         response.setHeader("X-Request-Id", requestId);

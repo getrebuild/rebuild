@@ -25,6 +25,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -34,7 +35,6 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.UUID;
 
 /**
  * 七牛云存储
@@ -254,7 +254,7 @@ public class QiniuCloud {
     public static String formatFileKey(String fileName, boolean keepName) {
         if (!keepName) {
             String[] fileNameSplit = fileName.split("\\.");
-            fileName = UUID.randomUUID().toString().replace("-", "");
+            fileName = CommonsUtils.randomHex(true);
             if (fileNameSplit.length > 1 && StringUtils.isNotBlank(fileNameSplit[fileNameSplit.length - 1])) {
                 fileName += "." + fileNameSplit[fileNameSplit.length - 1];
             }

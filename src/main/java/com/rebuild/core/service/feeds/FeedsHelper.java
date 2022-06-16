@@ -192,7 +192,7 @@ public class FeedsHelper {
 
             Map<String, String> xurlMap = new HashMap<>();
             for (String url : setList) {
-                String x = UUID.randomUUID().toString();
+                String x = CommonsUtils.randomHex();
                 xurlMap.put(x, url);
 
                 String safeUrl = AppUtils.getContextPath("/commons/url-safe?url=" + x);
