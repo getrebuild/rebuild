@@ -325,7 +325,7 @@ public class QiniuCloud {
      *
      * @return
      */
-    public static long storageSize() {
+    public static long getStorageSize() {
         Long size = (Long) Application.getCommonsCache().getx("_StorageSize");
         if (size != null) {
             return size;
@@ -344,5 +344,23 @@ public class QiniuCloud {
 
         Application.getCommonsCache().putx("_StorageSize", size, CommonsCache.TS_HOUR);
         return size;
+    }
+
+    /**
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
+    public static File getStorageFile(String filePath) throws IOException {
+        File file;
+        if (QiniuCloud.instance().available()) {
+            file = RebuildConfiguration.getFileOfTemp("tmp." + System.nanoTime());
+            QiniuCloud.instance().download(filePath, file);
+        } else {
+            file = RebuildConfiguration.getFileOfData(filePath);
+        }
+
+        if (!file.exists()) throw new RebuildException("Cannot read file : " + filePath);
+        return file;
     }
 }
