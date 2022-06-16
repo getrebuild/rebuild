@@ -8,6 +8,7 @@
     <meta http-equiv="refresh" content="30" />
     <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
+    <base target="_blank" />
     <title>REBUILD</title>
     <style>
       body,
@@ -30,7 +31,7 @@
     <div th:if="${!ok}" class="error">
       <div class="container">
         <h2 class="mt-0">[[${bundle.L('系统故障')}]]</h2>
-        <div th:utext="${bundle.L('服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](https://getrebuild.com/report-issue?title=boot-error)')}"></div>
+        <div th:utext="${bundle.L('服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](request-support?title=boot-error)')}"></div>
       </div>
     </div>
     <div class="container">
@@ -111,9 +112,9 @@
       <div class="text-muted mt-5">
         &copy; REBUILD
         <b class="ml-1 mr-1">·</b>
-        <a href="server-status.json" target="_blank">Status Api</a>
+        <a href="server-status.json">Status Api</a>
         <b class="ml-1 mr-1">·</b>
-        <a href="request-support" target="_blank">[[${bundle.L('请求技术支持')}]]</a>
+        <a href="request-support">[[${bundle.L('请求技术支持')}]]</a>
       </div>
     </div>
   </body>

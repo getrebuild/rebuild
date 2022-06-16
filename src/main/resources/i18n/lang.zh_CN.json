@@ -1063,7 +1063,7 @@
 	"有效":"有效",
 	"有效期":"有效期",
 	"有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)":"有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)",
-	"服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](https://getrebuild.com/report-issue?title=boot-error)":"服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](https://getrebuild.com/report-issue?title=boot-error)",
+	"服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](request-support?title=boot-error)":"服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](request-support?title=boot-error)",
 	"服务集成":"服务集成",
 	"未命名":"未命名",
 	"未命名图表":"未命名图表",
