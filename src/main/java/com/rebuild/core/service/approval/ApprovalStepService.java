@@ -201,7 +201,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         // 或签。一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
-            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
+            cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
         }
         // 会签。检查是否都签了
         else {
@@ -289,7 +289,7 @@ public class ApprovalStepService extends InternalPersistService {
                 throw new OperationDeniedException(Language.L("仅提交人可撤回审批"));
             }
         }
-        
+
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
         step.setID("recordId", recordId);
         step.setID("approvalId", approvalId == null ? APPROVAL_NOID : approvalId);
@@ -350,13 +350,13 @@ public class ApprovalStepService extends InternalPersistService {
      * @param approvalId
      * @param node
      * @param excludeStep
-     * @param isDarft 仅草稿
+     * @param darftOnly 仅草稿
      */
-    private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean isDarft) {
+    private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean darftOnly) {
         String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
         if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
         if (node != null) sql += " and node = '" + node + "'";
-        if (isDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
+        if (darftOnly) sql += " and state = " + ApprovalState.DRAFT.getState();
 
         Object[][] canceled = Application.createQueryNoFilter(sql)
                 .setParameter(1, recordId)
