@@ -30,8 +30,8 @@ public enum ApprovalState implements StateSpec {
 
     ;
 
-    private int state;
-    private String name;
+    private final int state;
+    private final String name;
 
     /**
      * @param state

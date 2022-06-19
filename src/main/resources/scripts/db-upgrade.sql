@@ -3,7 +3,8 @@
 
 -- #46 (v2.10)
 alter table `robot_approval_step`
-  add column`IS_BACKED` char(1) default 'F' comment '是否退回';
+  add column`IS_BACKED` char(1) default 'F' comment '是否退回',
+  add column `NODE_BATCH` varchar(100) comment '审批节点批次';
 
 -- #45 (v2.10)
 alter table `pick_list`

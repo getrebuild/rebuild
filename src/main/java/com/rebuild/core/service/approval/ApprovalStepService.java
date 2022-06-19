@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -26,6 +28,7 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -80,6 +83,7 @@ public class ApprovalStepService extends InternalPersistService {
         step.setID("approvalId", approvalId);
         step.setString("node", recordOfMain.getString(EntityHelper.ApprovalStepNode));
         step.setString("prevNode", FlowNode.NODE_ROOT);
+        step.setString("nodeBatch", getBatchNo(recordId, approvalId, FlowNode.NODE_ROOT));
         for (ID to : nextApprovers) {
             Record clone = step.clone();
             clone.setID("approver", to);
@@ -140,8 +144,8 @@ public class ApprovalStepService extends InternalPersistService {
         super.update(stepRecord);
         final ID stepRecordId = stepRecord.getPrimary();
 
-        Object[] stepObject = Application.createQueryNoFilter(
-                "select recordId,approvalId,node,prevNode from RobotApprovalStep where stepId = ?")
+        final Object[] stepObject = Application.createQueryNoFilter(
+                "select recordId,approvalId,node,prevNode,createdOn from RobotApprovalStep where stepId = ?")
                 .setParameter(1, stepRecordId)
                 .unique();
         final ID submitter = getSubmitter((ID) stepObject[0], (ID) stepObject[1]);
@@ -248,10 +252,12 @@ public class ApprovalStepService extends InternalPersistService {
             super.update(recordOfMain);
         }
 
-        // 审批人
+        // 下一步审批人
         if (nextApprovers != null) {
+            String nodeBatch = getBatchNo(recordId, approvalId, nextNode);
             for (ID to : nextApprovers) {
-                ID created = createStepIfNeed(recordId, approvalId, nextNode, to, !goNextNode, currentNode);
+                ID created = createStepIfNeed(recordId, approvalId, nextNode, to, !goNextNode, currentNode,
+                        (Date) stepObject[4], nodeBatch);
 
                 // 非会签通知审批
                 if (goNextNode && created != null) {
@@ -273,10 +279,17 @@ public class ApprovalStepService extends InternalPersistService {
         final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
-        if (isRevoke && !UserHelper.isAdmin(opUser)) {
-            throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
+        if (isRevoke) {
+            if (!UserHelper.isAdmin(opUser)) {
+                throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
+            }
+        } else {
+            ID s = ApprovalHelper.getSubmitter(recordId, approvalId);
+            if (!opUser.equals(s)) {
+                throw new OperationDeniedException(Language.L("仅提交人可撤回审批"));
+            }
         }
-
+        
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
         step.setID("recordId", recordId);
         step.setID("approvalId", approvalId == null ? APPROVAL_NOID : approvalId);
@@ -302,33 +315,31 @@ public class ApprovalStepService extends InternalPersistService {
      * @param node
      * @param approver
      * @param isWaiting
+     * @param prevNode
+     * @param afterCreate
      * @return
      */
-    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
+    private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch) {
         Object[] hadApprover = Application.createQueryNoFilter(
-                "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F'")
+                "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F' and createdOn >= ?")
                 .setParameter(1, recordId)
                 .setParameter(2, approvalId)
                 .setParameter(3, node)
                 .setParameter(4, approver)
+                .setParameter(5, afterCreate)
                 .unique();
-        if (hadApprover != null) {
-            return null;
-        }
+        if (hadApprover != null) return null;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, UserContextHolder.getUser());
         step.setID("recordId", recordId);
         step.setID("approvalId", approvalId);
         step.setString("node", node);
         step.setID("approver", approver);
-        if (isWaiting) {
-            step.setBoolean("isWaiting", true);
-        }
-        if (prevNode != null) {
-            step.setString("prevNode", prevNode);
-        }
-        step = super.create(step);
+        if (isWaiting) step.setBoolean("isWaiting", true);
+        if (prevNode != null) step.setString("prevNode", prevNode);
+        if (nodeBatch != null) step.setString("nodeBatch", nodeBatch);
 
+        step = super.create(step);
         return step.getPrimary();
     }
 
@@ -408,7 +419,9 @@ public class ApprovalStepService extends InternalPersistService {
             if (useApproval == null) useApproval = APPROVAL_NOID;
 
             ID stepId = createStepIfNeed(recordId, useApproval,
-                    FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT);
+                    FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT,
+                    CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
+
             Record step = EntityHelper.forUpdate(stepId, useApprover, false);
             step.setInt("state", ApprovalState.APPROVED.getState());
             step.setString("remark", Language.L("自动审批"));
@@ -452,6 +465,7 @@ public class ApprovalStepService extends InternalPersistService {
                 .array();
 
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+        String nodeBatch = getBatchNo(recordId, approvalId, rejectNode);
 
         // 3.复制回退节点
         for (Object[] o : prevNodes) {
@@ -461,6 +475,7 @@ public class ApprovalStepService extends InternalPersistService {
             step.setID("recordId", recordId);
             step.setID("approvalId", approvalId);
             step.setID("approver", (ID) o[0]);
+            step.setString("nodeBatch", nodeBatch);
             super.create(step);
 
             // 通知退回
@@ -474,5 +489,27 @@ public class ApprovalStepService extends InternalPersistService {
             backed.setBoolean("isBacked", true);
             super.update(backed);
         }
+    }
+
+    private String getBatchNo(ID recordId, ID approvalId, String node) {
+        Object[] lastNode = Application.getQueryFactory().createQueryNoFilter(
+                "select node,nodeBatch from RobotApprovalStep where recordId = ? and approvalId = ? order by createdOn desc")
+                .setParameter(1, recordId)
+                .setParameter(2, approvalId)
+                .unique();
+        if (lastNode != null && lastNode[0].equals(node)) {
+            return (String) lastNode[1];
+        }
+
+        if (lastNode != null && lastNode[1] != null) {
+            String index = ((String) lastNode[1]).split("-")[1];
+            return String.format("%s-%d", node, ObjectUtils.toInt(index) + 1);
+        }
+
+        Object[] o = Application.getQueryFactory().createQueryNoFilter(
+                "select count(distinct stepId) from RobotApprovalStep where recordId = ?")
+                .setParameter(1, recordId)
+                .unique();
+        return String.format("%s-%d", node, (Long) o[0]);
     }
 }

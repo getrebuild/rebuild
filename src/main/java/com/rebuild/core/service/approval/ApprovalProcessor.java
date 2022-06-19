@@ -140,7 +140,7 @@ public class ApprovalProcessor extends SetUser {
         }
 
         final Object[] stepApprover = Application.createQueryNoFilter(
-                "select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
+                "select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
                 .setParameter(1, this.record)
                 .setParameter(2, approver)
                 .setParameter(3, getCurrentNodeId(status))
@@ -345,13 +345,30 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 获取当前审批步骤
      *
+     * @param currentNode
      * @return returns [S, S]
      */
-    public JSONArray getCurrentStep() {
-        final String currentNode = ApprovalHelper.getApprovalStatus(this.record).getCurrentStepNode();
-        Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
-                        + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F'")
+    public JSONArray getCurrentStep(String currentNode) {
+        if (currentNode == null) {
+            currentNode = ApprovalHelper.getApprovalStatus(this.record).getCurrentStepNode();
+        }
+
+        // 1.哪个批次
+        String sql = "select nodeBatch from RobotApprovalStep" +
+                " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F' order by createdOn desc";
+        Object[] lastNode = Application.createQueryNoFilter(sql)
+                .setParameter(1, this.record)
+                .setParameter(2, this.approval)
+                .setParameter(3, currentNode)
+                .unique();
+        String nodeBatch = lastNode == null || lastNode[0] == null ? null : (String) lastNode[0];
+
+        // 2.批次下的
+        sql = "select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
+                + " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F'";
+        if (StringUtils.isNotBlank(nodeBatch)) sql += " and nodeBatch = '" + nodeBatch + "'";
+
+        Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, this.record)
                 .setParameter(2, this.approval)
                 .setParameter(3, currentNode)
@@ -374,7 +391,7 @@ public class ApprovalProcessor extends SetUser {
         this.approval = status.getApprovalId();
 
         Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
+                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch from RobotApprovalStep" +
                         " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
                 .setParameter(1, this.record)
                 .array();
@@ -383,14 +400,15 @@ public class ApprovalProcessor extends SetUser {
         }
 
         Object[] firstStep = null;
-        Map<String, List<Object[]>> stepGroupMap = new LinkedHashMap<>();
+        Map<String, List<Object[]>> stepBatchMap = new LinkedHashMap<>();
         for (Object[] o : array) {
             String prevNode = (String) o[7];
             if (firstStep == null && FlowNode.NODE_ROOT.equals(prevNode)) {
                 firstStep = o;
             }
 
-            List<Object[]> stepGroup = stepGroupMap.computeIfAbsent(prevNode, k -> new ArrayList<>());
+            String batch = StringUtils.defaultString((String) o[8], prevNode);
+            List<Object[]> stepGroup = stepBatchMap.computeIfAbsent(batch, k -> new ArrayList<>());
             stepGroup.add(o);
         }
         if (firstStep == null) {
@@ -408,7 +426,7 @@ public class ApprovalProcessor extends SetUser {
 
         int nodeIndex = 0;
         Map<String, String> nodeIndexNames = new HashMap<>();
-        for (Map.Entry<String, List<Object[]>> e : stepGroupMap.entrySet()) {
+        for (Map.Entry<String, List<Object[]>> e : stepBatchMap.entrySet()) {
             nodeIndex++;
             List<Object[]> group = e.getValue();
 
@@ -434,7 +452,7 @@ public class ApprovalProcessor extends SetUser {
 
                 s.put("node", node);
                 String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
-                if (StringUtils.isBlank(nodeName)) {
+                if (StringUtils.isBlank(nodeName) && !ApprovalState.CANCELED.name().equalsIgnoreCase(node)) {
                     nodeName = nodeIndexNames.get(node);
                     if (StringUtils.isBlank(nodeName)) {
                         nodeName = Language.L("审批人") + "#" + nodeIndex;

@@ -437,12 +437,13 @@ create table if not exists `robot_approval_step` (
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
   `IS_WAITING`         char(1) default 'F' comment '是否生效',
   `IS_BACKED`          char(1) default 'F' comment '是否退回',
+  `NODE_BATCH`         varchar(100) comment '审批节点批次',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`STEP_ID`),
-  index IX0_robot_approval_step (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`, `IS_BACKED`)
+  index IX0_robot_approval_step (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`, `IS_BACKED`, `NODE_BATCH`)
 )Engine=InnoDB;
 
 -- ************ Entity [RebuildApi] DDL ************

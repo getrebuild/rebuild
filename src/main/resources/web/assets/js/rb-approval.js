@@ -146,7 +146,13 @@ class ApprovalProcessor extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
+    $.get(`/app/entity/approval/state?record=${this.props.id}`, (res) => {
+      if (res.error_code === 0 && res.data) {
+        this.setState(res.data)
+      } else {
+        RbHighbar.error($L('无法获取审批状态'))
+      }
+    })
   }
 
   submit = () => {
@@ -205,7 +211,7 @@ class ApprovalProcessor extends React.Component {
     if (this._ApprovalStepViewer) {
       this._ApprovalStepViewer.show()
     } else {
-      renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () {
+      renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} $$$parent={this} />, null, function () {
         that._ApprovalStepViewer = this
       })
     }
@@ -452,13 +458,25 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const that = this
     if (state === 11 && this.state.isRejectStep) {
       this.disabled(true)
-      $.get(`/app/entity/approval/fetch-workedsteps?hasNodeName=yes&record=${this.props.id}`, (res) => {
+      $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
         this.disabled()
 
         const ss = []
         for (let i = 1; i < (res.data || []).length - 1; i++) {
-          const s = res.data[i][0]
-          ss.push({ node: s.node, nodeName: s.nodeName })
+          let node = null
+          for (let j = 0; j < res.data[i].length; j++) {
+            let s = res.data[i][j]
+            if (s.state === 10) {
+              node = s
+            } else if (s.state !== 10) {
+              node = null
+              break
+            }
+          }
+
+          if (node && node.node !== this.state.currentNode) {
+            ss.push({ node: node.node, nodeName: node.nodeName })
+          }
         }
 
         RbAlert.create(
@@ -595,7 +613,7 @@ class ApprovalStepViewer extends React.Component {
                 })}
                 {stateLast >= 10 && (
                   <li className="timeline-item last" key="step-last">
-                    <span>{stateLast === 13 ? $L('重审') : $L('结束')}</span>
+                    <span>{stateLast === 13 || stateLast === 12 ? $L('重审') : $L('结束')}</span>
                   </li>
                 )}
               </ul>
@@ -646,6 +664,8 @@ class ApprovalStepViewer extends React.Component {
       if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state] || item.state)
       if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
+      const action = item.approver === rb.currentUser && item.state === 1 && stateLast === 1
+
       sss.push(
         <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
           {this._formatTime(item.approvedTime || item.createdOn)}
@@ -654,7 +674,20 @@ class ApprovalStepViewer extends React.Component {
               <img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} alt="Avatar" />
             </div>
             <div className="timeline-header">
-              <p className="timeline-activity">{aMsg}</p>
+              <p className="timeline-activity">
+                {aMsg}
+                {action && (
+                  <a
+                    href="javascript:;"
+                    className="action"
+                    onClick={() => {
+                      this.props.$$$parent && this.props.$$$parent.approve()
+                      this.hide()
+                    }}>
+                    {$L('审批')}
+                  </a>
+                )}
+              </p>
               {item.remark && (
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>

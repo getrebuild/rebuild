@@ -55,7 +55,7 @@ public class ApprovalProcessorTest extends TestSupport {
         processor.approve(UserService.ADMIN_USER, ApprovalState.APPROVED, null, null);
 
         // 当前节点
-        System.out.println("CurrentStep : " + processor.getCurrentStep());
+        System.out.println("CurrentStep : " + processor.getCurrentStep(null));
 
         // 已审批节点
         System.out.println("WorkedSteps : " + processor.getWorkedSteps());

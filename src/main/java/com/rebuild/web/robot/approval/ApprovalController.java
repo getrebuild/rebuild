@@ -76,11 +76,11 @@ public class ApprovalController extends BaseController {
         ID useApproval = status.getApprovalId();
         if (useApproval != null) {
             data.put("approvalId", useApproval);
-            // 当前审批步骤
+            // 审批中
             if (stateVal < ApprovalState.APPROVED.getState()) {
-                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep();
+                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status.getCurrentStepNode());
                 data.put("currentStep", current);
-                
+
                 for (Object o : current) {
                     JSONObject step = (JSONObject) o;
                     if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
@@ -93,7 +93,7 @@ public class ApprovalController extends BaseController {
 
             // 审批中提交人可撤回
             if (stateVal == ApprovalState.PROCESSING.getState()
-                    && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+                    && user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                 data.put("canCancel", true);
             }
         }
@@ -107,7 +107,6 @@ public class ApprovalController extends BaseController {
         final ID user = getRequestUser(request);
 
         ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
-
         FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 
         JSONArray approverList = new JSONArray();
@@ -130,6 +129,7 @@ public class ApprovalController extends BaseController {
         data.put("useGroup", nextNodes.getGroupId());
         // current
         data.put("isRejectStep", approvalProcessor.getCurrentNode().getRejectStep());
+        data.put("currentNode", approvalProcessor.getCurrentNode().getNodeId());
 
         // 可修改字段
         JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
