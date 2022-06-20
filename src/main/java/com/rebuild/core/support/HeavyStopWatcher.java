@@ -75,14 +75,14 @@ public class HeavyStopWatcher {
      * @return
      */
     public static StopWatch clean(long printIfTimeout) {
-        StopWatch sw = WATCHER.get();
+        StopWatch sw = getCurrentWatcher();
         if (sw == null) return null;
+
+        if (sw.isRunning()) sw.stop();
 
         if (sw.getTotalTimeMillis() > printIfTimeout) {
             log.info("\n" + sw.prettyPrint());
         }
-
-        if (sw.isRunning()) sw.stop();
 
         WATCHER.remove();
         return sw;
@@ -93,7 +93,7 @@ public class HeavyStopWatcher {
      * @return
      */
     public static StopWatch start(String taskName) {
-        StopWatch sw = WATCHER.get();
+        StopWatch sw = getCurrentWatcher();
         if (sw == null) return null;
 
         if (sw.isRunning()) {
@@ -112,7 +112,7 @@ public class HeavyStopWatcher {
      * @return
      */
     public static StopWatch stop() {
-        StopWatch sw = WATCHER.get();
+        StopWatch sw = getCurrentWatcher();
         if (sw == null) return null;
 
         if (sw.isRunning()) sw.stop();

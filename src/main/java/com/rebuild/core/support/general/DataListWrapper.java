@@ -127,9 +127,9 @@ public class DataListWrapper {
 
                 if (field.getType() == FieldType.REFERENCE_LIST) {
                     ID valueUseRecordId = (ID) raw[selectFieldsLen - 1];
-                    row[colIndex] = wrapFieldValue(valueUseRecordId, field);
+                    row[colIndex] = wrapFieldValue(valueUseRecordId, field, fieldItem.getFieldPath());
                 } else {
-                    row[colIndex] = wrapFieldValue(value, field);
+                    row[colIndex] = wrapFieldValue(value, field, null);
                 }
             }
         }
@@ -142,7 +142,7 @@ public class DataListWrapper {
     /**
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField, boolean)
      */
-    private Object wrapFieldValue(Object value, Field field) {
+    protected Object wrapFieldValue(Object value, Field field, String fieldPath) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
         if (easyField.getDisplayType() == DisplayType.ID) {
             return FieldValueHelper.wrapMixValue((ID) value, null);
@@ -154,6 +154,10 @@ public class DataListWrapper {
                 || easyField.getDisplayType() == DisplayType.PICKLIST
                 || easyField.getDisplayType() == DisplayType.STATE
                 || easyField.getDisplayType() == DisplayType.BOOL;
+
+        if (easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
+            value = N2NReferenceSupport.items(fieldPath, (ID) value);
+        }
 
         value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
 

@@ -146,7 +146,7 @@ class UserSelectorWithField extends UserSelector {
     this._fields = []
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
-        if (item.type === 'REFERENCE' && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
+        if ((item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
           this._fields.push({ id: item.name, text: item.label })
         }
       })
