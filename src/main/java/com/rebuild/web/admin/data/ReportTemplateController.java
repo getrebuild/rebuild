@@ -135,7 +135,7 @@ public class ReportTemplateController extends BaseController {
         File template = DataReportManager.instance.getTemplateFile(reportId);
         String attname = QiniuCloud.parseFileName(template.getName());
 
-        FileDownloader.setDownloadHeaders(request, response, attname);
+        FileDownloader.setDownloadHeaders(request, response, attname, false);
         FileDownloader.writeLocalFile(template, response);
     }
 }
