@@ -7,10 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.springframework.util.Assert;
@@ -25,10 +27,10 @@ import org.springframework.util.Assert;
 public class N2NReferenceSupport {
 
     /**
-     * 获取引用项
+     * 获取引用项（仅本实体 N2N 字段）
      *
      * @param field
-     * @param recordId
+     * @param recordId 主键
      * @return
      */
     public static ID[] items(Field field, ID recordId) {
@@ -44,6 +46,30 @@ public class N2NReferenceSupport {
             ids[i] = (ID) array[i][0];
         }
         return ids;
+    }
+
+    /**
+     * 获取引用项
+     *
+     * @param fieldPath
+     * @param recordId 主键
+     * @return
+     */
+    public static ID[] items(String fieldPath, ID recordId) {
+        Entity father = MetadataHelper.getEntity(recordId.getEntityCode());
+        ID fatherRecordId = recordId;
+
+        String[] paths = fieldPath.split("\\.");
+        for (int i = 0; i < paths.length - 1; i++) {
+            String field = paths[i];
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(fatherRecordId, field);
+
+            fatherRecordId = (ID) o[0];
+            father = father.getField(field).getReferenceEntity();
+        }
+
+        Field lastField = father.getField(paths[paths.length - 1]);
+        return items(lastField, fatherRecordId);
     }
 
     /**
