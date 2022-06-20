@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
@@ -120,7 +119,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 if (isHtmlRequest(request)) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
-                    ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
+                    response.sendError(HttpStatus.FORBIDDEN.value());
                 }
                 return false;
             }
@@ -161,7 +160,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (isHtmlRequest(request)) {
                 sendRedirect(response, "/user/login", requestUri);
             } else {
-                ServletUtils.writeJson(response, RespBody.error(HttpStatus.UNAUTHORIZED.value()).toJSONString());
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
             }
 
             return false;
@@ -175,8 +174,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        // Notings
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
+        // Noting
     }
 
     @Override

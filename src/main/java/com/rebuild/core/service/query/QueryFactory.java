@@ -137,6 +137,26 @@ public class QueryFactory {
         return createQueryNoFilter(sql).setParameter(1, recordId).unique();
     }
 
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record record(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQuery(sql).setParameter(1, recordId).record();
+    }
+
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record recordNoFilter(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQueryNoFilter(sql).setParameter(1, recordId).record();
+    }
+
     private String buildUniqueSql(ID recordId, String... fields) {
         Assert.notNull(recordId, "[recordId] cannot be null");
 
