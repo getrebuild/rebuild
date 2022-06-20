@@ -70,6 +70,11 @@ public class RobotTriggerManager implements ConfigManager {
 
                     ActionContext ctx = new ActionContext(record, entity, cb.getJSON("actionContent"), cb.getID("id"));
                     TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
+                    if (o.getClass().getName().contains("NoRbv")) {
+                        log.warn("Trigger action {} is RBV", cb.getString("actionType"));
+                        continue;
+                    }
+
                     actions.add(o);
 
                     if (log.isDebugEnabled()) {
