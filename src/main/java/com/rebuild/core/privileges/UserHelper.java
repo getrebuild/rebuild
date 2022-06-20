@@ -12,6 +12,7 @@ import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
@@ -22,8 +23,10 @@ import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -233,34 +236,39 @@ public class UserHelper {
      * 解析用户列表
      *
      * @param userDefs
-     * @param record
+     * @param recordId
      * @param filterDisabled
      * @return
      */
-    public static Set<ID> parseUsers(Collection<String> userDefs, ID record, boolean filterDisabled) {
-        Entity entity = record == null ? null : MetadataHelper.getEntity(record.getEntityCode());
+    public static Set<ID> parseUsers(Collection<String> userDefs, ID recordId, boolean filterDisabled) {
+        Entity entity = recordId == null ? null : MetadataHelper.getEntity(recordId.getEntityCode());
 
         Set<ID> bizzs = new HashSet<>();
-        Set<String> fromFields = new HashSet<>();
+        Set<String> useFields = new HashSet<>();
         for (String def : userDefs) {
             if (ID.isId(def)) {
                 bizzs.add(ID.valueOf(def));
             } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
-                fromFields.add(def);
+                useFields.add(def);
             } else {
                 log.warn("Invalid id or field : " + def);
             }
         }
 
-        if (!fromFields.isEmpty()) {
+        if (!useFields.isEmpty()) {
             String sql = String.format("select %s from %s where %s = ?",
-                    StringUtils.join(fromFields.iterator(), ","), entity.getName(), entity.getPrimaryField().getName());
-            Object[] bizzValues = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
+                    StringUtils.join(useFields, ","), entity.getName(), entity.getPrimaryField().getName());
+            Record bizzValue = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
 
-            if (bizzValues != null) {
-                for (Object bizz : bizzValues) {
-                    if (bizz != null) {
-                        bizzs.add((ID) bizz);
+            if (bizzValue != null) {
+                for (String field : bizzValue.getAvailableFields()) {
+                    Object value = bizzValue.getObjectValue(field);
+                    if (value == null) continue;
+
+                    if (value instanceof ID[]) {
+                        CollectionUtils.addAll(bizzs, N2NReferenceSupport.items(field, recordId));
+                    } else {
+                        bizzs.add((ID) value);
                     }
                 }
             }

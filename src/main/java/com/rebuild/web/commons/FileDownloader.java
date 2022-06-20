@@ -179,7 +179,8 @@ public class FileDownloader extends BaseController {
 
         // Local storage || temp
         if (!QiniuCloud.instance().available() || temp) {
-            setDownloadHeaders(request, response, attname);
+            setDownloadHeaders(request, response, attname,
+                    request.getRequestURI().contains("/filex/access/") && filePath.toLowerCase().endsWith(".pdf"));
             writeLocalFile(filePath, temp, response);
         } else {
             String privateUrl = QiniuCloud.instance().makeUrl(filePath);
@@ -228,7 +229,6 @@ public class FileDownloader extends BaseController {
      * @param response
      * @return
      * @throws IOException
-     * @see #setDownloadHeaders(HttpServletRequest, HttpServletResponse, String)
      */
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
         if (!file.exists()) {
@@ -250,7 +250,6 @@ public class FileDownloader extends BaseController {
      * @param response
      * @return
      * @throws IOException
-     * @see #setDownloadHeaders(HttpServletRequest, HttpServletResponse, String)
      */
     public static boolean writeStream(InputStream is, HttpServletResponse response) throws IOException {
         response.setContentLength(is.available());
@@ -271,8 +270,9 @@ public class FileDownloader extends BaseController {
      * @param request
      * @param response
      * @param attname
+     * @param inline
      */
-    protected static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+    protected static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname, boolean inline) {
         // 特殊字符处理
         attname = attname.replace(" ", "-");
         attname = attname.replace("%", "-");
@@ -284,8 +284,12 @@ public class FileDownloader extends BaseController {
             attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         }
 
-        response.setHeader("Content-Disposition", "attachment;filename=" + attname);
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        if (inline) {
+            response.setHeader("Content-Disposition", "inline;filename=" + attname);
+        } else {
+            response.setHeader("Content-Disposition", "attachment;filename=" + attname);
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        }
     }
 
     /**

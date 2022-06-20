@@ -247,7 +247,7 @@ public class FieldWriteback extends FieldAggregation {
 
                 if (value != null) {
                     if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                        value = N2NReferenceSupport.items(sourceFieldMeta, actionContext.getSourceRecord());
+                        value = N2NReferenceSupport.items(sourceAny, actionContext.getSourceRecord());
                     }
 
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
