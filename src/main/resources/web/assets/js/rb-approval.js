@@ -701,7 +701,7 @@ class ApprovalStepViewer extends React.Component {
 
     if (sss.length < 2) {
       return (
-        <RF>
+        <RF key={`step-${$random()}`}>
           {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
           {sss}
         </RF>
@@ -711,7 +711,7 @@ class ApprovalStepViewer extends React.Component {
     const sm = s[0].signMode
     const clazz = sm === 'OR' || sm === 'AND' ? 'joint' : 'no-joint'
     return (
-      <RF>
+      <RF key={`step-${$random()}`}>
         {s[0].nodeName && <strong className="mb-1">{s[0].nodeName}</strong>}
         <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
           {sss}

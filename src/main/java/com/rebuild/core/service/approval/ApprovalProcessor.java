@@ -169,6 +169,9 @@ public class ApprovalProcessor extends SetUser {
             approvedStep.setInt("state", ApprovalState.BACKED.getState());
         } else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
             nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
+            // 自选审批人
+            nextApprovers.addAll(getSelfSelectedApprovers(nextNodes));
+
             if (nextApprovers.isEmpty()) {
                 throw new ApprovalException(Language.L("下一流程无审批人可用，请联系管理员配置"));
             }
@@ -452,7 +455,8 @@ public class ApprovalProcessor extends SetUser {
 
                 s.put("node", node);
                 String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
-                if (StringUtils.isBlank(nodeName) && !ApprovalState.CANCELED.name().equalsIgnoreCase(node)) {
+                if (StringUtils.isBlank(nodeName)
+                        && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
                     nodeName = nodeIndexNames.get(node);
                     if (StringUtils.isBlank(nodeName)) {
                         nodeName = Language.L("审批人") + "#" + nodeIndex;
@@ -493,5 +497,29 @@ public class ApprovalProcessor extends SetUser {
                 }
             }
         }
+    }
+
+    /**
+     * 会签时自选的审批人
+     *
+     * @param nextNodes
+     * @return
+     */
+    public Set<ID> getSelfSelectedApprovers(FlowNodeGroup nextNodes) {
+        String node = nextNodes.getApprovalNode() == null ? null : nextNodes.getApprovalNode().getNodeId();
+        if (node == null) return Collections.emptySet();
+
+        Object[][] array = Application.createQueryNoFilter(
+                "select approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T' and isCanceled = 'F'")
+                .setParameter(1, this.record)
+                .setParameter(2, this.approval)
+                .setParameter(3, node)
+                .array();
+
+        Set<ID> set = new HashSet<>();
+        for (Object[] o : array) {
+            set.add((ID) o[0]);
+        }
+        return set;
     }
 }
