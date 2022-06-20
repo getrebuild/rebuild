@@ -161,7 +161,7 @@ public class ApprovalAdminController extends BaseController {
         }
 
         // 本实体字段
-        Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE);
+        Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
         for (Field field : refFields) {
             if (isRefUserOrDeptField(field, filterNames, false)) {
                 fields.add(new String[] { field.getName(), EasyMetaFactory.getLabel(field)} );

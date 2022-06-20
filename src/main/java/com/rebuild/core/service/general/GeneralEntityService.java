@@ -31,8 +31,8 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
-import com.rebuild.core.service.trigger.RobotTriggerManual;
-import com.rebuild.core.service.trigger.RobotTriggerObserver;
+import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -199,11 +199,34 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @return
      * @throws DataSpecificationException
      */
-    private int deleteInternal(ID record) throws DataSpecificationException {
+    protected int deleteInternal(ID record) throws DataSpecificationException {
         Record delete = EntityHelper.forUpdate(record, UserContextHolder.getUser());
         if (!checkModifications(delete, BizzPermission.DELETE)) {
             return 0;
         }
+
+        // 手动删除明细记录，以执行触发器
+        Entity hasDetailEntity = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
+        if (hasDetailEntity != null) {
+            TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(hasDetailEntity, TriggerWhen.DELETE);
+
+            if (hasTriggers != null && hasTriggers.length > 0) {
+                String sql = String.format("select %s from %s where %s = ?",
+                        hasDetailEntity.getPrimaryField().getName(), hasDetailEntity.getName(),
+                        MetadataHelper.getDetailToMainField(hasDetailEntity).getName());
+
+                Object[][] details = Application.getQueryFactory().createQueryNoFilter(sql)
+                        .setParameter(1, record).array();
+
+                HeavyStopWatcher.createWatcher("PERFORMANCE ISSUE", "DELETE:" + details.length);
+                for (Object[] d : details) {
+                    // 明细无约束检查
+                    super.delete((ID) d[0]);
+                }
+                HeavyStopWatcher.clean();
+            }
+        }
+
         return super.delete(record);
     }
 
