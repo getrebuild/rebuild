@@ -86,9 +86,9 @@ public class ContentWithFieldVars {
 
         for (String field : fieldVars.keySet()) {
             Object value = record.getObjectValue(field);
-//            if (value instanceof ID[] && field.contains(".")) {
-//                value = N2NReferenceSupport.items(field, record.getPrimary());
-//            }
+            if (value instanceof ID[] && field.contains(".")) {
+                value = N2NReferenceSupport.items(field, record.getPrimary());
+            }
 
             value = FieldValueHelper.wrapFieldValue(value,
                     MetadataHelper.getLastJoinField(record.getEntity(), field), true);
