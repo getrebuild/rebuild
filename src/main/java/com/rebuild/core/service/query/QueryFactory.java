@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
@@ -60,10 +59,11 @@ public class QueryFactory {
      * @param ajql
      * @param filter
      * @return
+     * @see PersistManagerFactory#createQuery(String, Filter)
      */
     public Query createQuery(String ajql, Filter filter) {
         Assert.notNull(filter, "[filter] cannot be null");
-        return aPMFactory.createQuery(ajql)
+        return new QueryDecorator(ajql, aPMFactory, filter)
                 .setTimeout(QUERY_TIMEOUT)
                 .setSlowLoggerTime(SLOW_LOGGER_TIME)
                 .setFilter(filter);

@@ -16,14 +16,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.TransactionStatus;
@@ -181,11 +179,8 @@ public class RecordTransfomer extends SetUser {
             return null;
         }
 
-        String querySource = String.format(
-                "select %s from %s where %s = '%s'",
-                StringUtils.join(validFields, ","), sourceEntity.getName(),
-                sourceEntity.getPrimaryField().getName(), sourceRecordId);
-        Record source = Application.createQueryNoFilter(querySource).record();
+        validFields.add(sourceEntity.getPrimaryField().getName());
+        Record source = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
             if (e.getValue() == null) continue;
@@ -198,10 +193,6 @@ public class RecordTransfomer extends SetUser {
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
                         Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
-
-                if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                    sourceValue = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
-                }
 
                 Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
                 target.setObjectValue(targetField, targetValue);
