@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
@@ -134,6 +135,26 @@ public class QueryFactory {
     public Object[] uniqueNoFilter(ID recordId, String... fields) {
         String sql = buildUniqueSql(recordId, fields);
         return createQueryNoFilter(sql).setParameter(1, recordId).unique();
+    }
+
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record record(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQuery(sql).setParameter(1, recordId).record();
+    }
+
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record recordNoFilter(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQueryNoFilter(sql).setParameter(1, recordId).record();
     }
 
     private String buildUniqueSql(ID recordId, String... fields) {

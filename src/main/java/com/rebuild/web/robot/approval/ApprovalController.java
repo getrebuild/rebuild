@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -76,9 +78,9 @@ public class ApprovalController extends BaseController {
         ID useApproval = status.getApprovalId();
         if (useApproval != null) {
             data.put("approvalId", useApproval);
-            // 当前审批步骤
+            // 审批中
             if (stateVal < ApprovalState.APPROVED.getState()) {
-                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep();
+                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status.getCurrentStepNode());
                 data.put("currentStep", current);
 
                 for (Object o : current) {
@@ -93,7 +95,7 @@ public class ApprovalController extends BaseController {
 
             // 审批中提交人可撤回
             if (stateVal == ApprovalState.PROCESSING.getState()
-                    && user.equals(ApprovalHelper.getSubmitter(recordId))) {
+                    && user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                 data.put("canCancel", true);
             }
         }
@@ -109,30 +111,23 @@ public class ApprovalController extends BaseController {
         ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
         FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 
-        JSONArray approverList = new JSONArray();
-        for (ID o : nextNodes.getApproveUsers(user, recordId, null)) {
-            approverList.add(new Object[]{o, UserHelper.getName(o)});
-        }
+        Set<ID> approverList = nextNodes.getApproveUsers(user, recordId, null);
+        Set<ID> ccList = nextNodes.getCcUsers(user, recordId, null);
 
-        JSONArray ccList = new JSONArray();
-        for (ID o : nextNodes.getCcUsers(user, recordId, null)) {
-            ccList.add(new Object[]{o, UserHelper.getName(o)});
-        }
+        // 自选审批人
+        approverList.addAll(approvalProcessor.getSelfSelectedApprovers(nextNodes));
 
         JSONObject data = new JSONObject();
-        data.put("nextApprovers", approverList);
-        data.put("nextCcs", ccList);
+        data.put("nextApprovers", formatUsers(approverList));
+        data.put("nextCcs", formatUsers(ccList));
         data.put("approverSelfSelecting", nextNodes.allowSelfSelectingApprover());
         data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
         data.put("isLastStep", nextNodes.isLastStep());
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
-
-//        // 审批中提交人可撤回
-//        if (ApprovalHelper.getApprovalState(recordId) == ApprovalState.PROCESSING
-//                && user.equals(ApprovalHelper.getSubmitter(recordId))) {
-//            data.put("canCancel", true);
-//        }
+        // current
+        data.put("isRejectStep", approvalProcessor.getCurrentNode().getRejectStep());
+        data.put("currentNode", approvalProcessor.getCurrentNode().getNodeId());
 
         // 可修改字段
         JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
@@ -144,6 +139,14 @@ public class ApprovalController extends BaseController {
         }
 
         return data;
+    }
+
+    private JSONArray formatUsers(Collection<ID> users) {
+        JSONArray array = new JSONArray();
+        for (ID u : users) {
+            array.add(new Object[] { u, UserHelper.getName(u) });
+        }
+        return array;
     }
 
     @GetMapping("fetch-workedsteps")
@@ -158,11 +161,7 @@ public class ApprovalController extends BaseController {
 
         try {
             boolean success = new ApprovalProcessor(recordId, approvalId).submit(selectUsers);
-            if (success) {
-                return RespBody.ok();
-            } else {
-                return RespBody.errorl("无效审批流程，请联系管理员配置");
-            }
+            return success ? RespBody.ok() : RespBody.errorl("无效审批流程，请联系管理员配置");
 
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getMessage());
@@ -173,6 +172,7 @@ public class ApprovalController extends BaseController {
     public RespBody doApprove(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID approver = getRequestUser(request);
         final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
+        final String rejectNode = getParameter(request, "rejectNode", null);
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject selectUsers = post.getJSONObject("selectUsers");
@@ -194,7 +194,7 @@ public class ApprovalController extends BaseController {
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
+                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup, rejectNode);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -100,14 +101,19 @@ public class ErrorPageView extends BaseController {
     }
 
     @GetMapping("/error/request-support")
-    public void requestSupport(HttpServletResponse response) throws IOException {
+    public void requestSupport(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String tsid = null;
         try {
             tsid = new SysbaseSupport().submit();
         } catch (Exception e) {
             log.error(null, e);
         }
-        response.sendRedirect(
-                "https://getrebuild.com/report-issue?title=" + StringUtils.defaultIfBlank(tsid, "TS"));
+
+        String reason = request.getParameter("title");
+        String url = "https://getrebuild.com/report-issue?title=";
+        if (tsid != null) url += tsid;
+        if (StringUtils.isNotBlank(reason)) url += "&reason=" + CodecUtils.urlEncode(reason);
+
+        response.sendRedirect(url);
     }
 }

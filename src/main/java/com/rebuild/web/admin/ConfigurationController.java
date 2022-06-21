@@ -122,7 +122,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("storageStatus", QiniuCloud.instance().available());
 
         // 存储大小
-        long size = QiniuCloud.storageSize();
+        long size = QiniuCloud.getStorageSize();
         mv.getModel().put("_StorageSize", FileUtils.byteCountToDisplaySize(size));
         // 云存储
         mv.getModel().put("_StorageCloud", QiniuCloud.instance().available());

@@ -238,7 +238,7 @@ class RbAlert extends React.Component {
     const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
-      <div className="text-center ml-6 mr-6">
+      <div className="text-center ml-6 mr-6" ref={(c) => (this._element = c)}>
         <div className={`text-${type}`}>
           <i className={`modal-main-icon zmdi zmdi-${icon}`} />
         </div>
@@ -285,18 +285,18 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} titleOrOptions
-   * @param {*} options
+   * @param {*} titleOrOption
+   * @param {*} option
    */
-  static create(message, titleOrOptions, options) {
-    if (typeof titleOrOptions === 'object') {
-      options = titleOrOptions
-      titleOrOptions = null
+  static create(message, titleOrOption, option) {
+    if (typeof titleOrOption === 'object') {
+      option = titleOrOption
+      titleOrOption = null
     }
 
-    options = options || {}
-    const props = { ...options, title: titleOrOptions, message: message }
-    renderRbcomp(<RbAlert {...props} />, null, options.call)
+    option = option || {}
+    const props = { ...option, title: titleOrOption, message: message }
+    renderRbcomp(<RbAlert {...props} />, null, option.onRendered || option.call)
   }
 }
 
@@ -335,14 +335,14 @@ class RbHighbar extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} options
+   * @param {*} option
    */
-  static create(message, options) {
+  static create(message, option) {
     if (top !== self && parent.RbHighbar) {
-      parent.RbHighbar.create(message, options)
+      parent.RbHighbar.create(message, option)
     } else {
-      options = options || {}
-      renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
+      option = option || {}
+      renderRbcomp(<RbHighbar message={message} type={option.type} timeout={option.timeout} />)
     }
   }
 
@@ -1059,11 +1059,11 @@ class RbGritter extends React.Component {
  *
  * @param {*} jsx
  * @param {*} target id or object of element (or function of callback)
- * @param {*} call callback on mounted
+ * @param {*} callback callback on mounted
  */
-const renderRbcomp = function (jsx, target, call) {
+const renderRbcomp = function (jsx, target, callback) {
   if (typeof target === 'function') {
-    call = target
+    callback = target
     target = null
   }
 
@@ -1082,6 +1082,6 @@ const renderRbcomp = function (jsx, target, call) {
   }
 
   // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
-  ReactDOM.render(jsx, target, call)
+  ReactDOM.render(jsx, target, callback)
   return target
 }

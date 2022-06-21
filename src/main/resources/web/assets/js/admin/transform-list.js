@@ -54,7 +54,7 @@ class TransformList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('确认删除此记录转换映射？'), {
+    RbAlert.create($L('确认删除此记录转换？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -68,7 +68,7 @@ class TransformList extends ConfigList {
 class TransformEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('记录转换映射')
+    this.subtitle = $L('记录转换')
   }
 
   renderFrom() {

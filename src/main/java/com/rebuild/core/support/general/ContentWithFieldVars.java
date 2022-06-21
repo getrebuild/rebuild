@@ -56,10 +56,8 @@ public class ContentWithFieldVars {
         }
         if (fieldVars.isEmpty()) return content;
 
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fieldVars.keySet(), ","),
-                entity.getName(), entity.getPrimaryField().getName());
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+        Record o = Application.getQueryFactory().recordNoFilter(recordId, fieldVars.keySet().toArray(new String[0]));
+        o.setID(entity.getPrimaryField().getName(), recordId);
 
         return replaceWithRecord(content, o);
     }
@@ -90,6 +88,10 @@ public class ContentWithFieldVars {
 
         for (String field : fieldVars.keySet()) {
             Object value = record.getObjectValue(field);
+            if (value instanceof ID[] && field.contains(".") && record.getPrimary() != null) {
+                value = N2NReferenceSupport.items(field, record.getPrimary());
+            }
+
             value = FieldValueHelper.wrapFieldValue(value,
                     MetadataHelper.getLastJoinField(record.getEntity(), field), true);
             if (value != null) {

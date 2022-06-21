@@ -37,7 +37,7 @@ public class SysbaseSupport {
 
         JSONObject resJson;
         try {
-            String res = upload(file, "http://localhost:3000/api/misc/request-support");
+            String res = upload(file, "https://getrebuild.com/api/misc/request-support");
             log.info("Upload support file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {

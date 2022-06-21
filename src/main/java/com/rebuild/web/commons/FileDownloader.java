@@ -276,7 +276,7 @@ public class FileDownloader extends BaseController {
      * @param attname
      * @param inline
      */
-    protected static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname, boolean inline) {
+    public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname, boolean inline) {
         // 特殊字符处理
         attname = attname.replace(" ", "-");
         attname = attname.replace("%", "-");

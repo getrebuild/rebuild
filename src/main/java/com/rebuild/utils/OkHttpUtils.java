@@ -19,7 +19,9 @@ import org.springframework.http.HttpHeaders;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +38,7 @@ public class OkHttpUtils {
     private static OkHttpClient okHttpClient = null;
 
     public static final String RB_UA = String.format("RB/%s (%s/%s)",
-            Application.VER, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
+            Application.BUILD, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
 
     private static final Locale l = Locale.getDefault();
     public static final String RB_LANG = l.getLanguage() + "_" + l.getCountry();
@@ -112,7 +114,7 @@ public class OkHttpUtils {
      * POST with Headers
      *
      * @param url
-     * @param reqData
+     * @param reqData JSON or Map or Others
      * @param headers
      * @return
      * @throws IOException
@@ -154,20 +156,20 @@ public class OkHttpUtils {
     }
 
     /**
-     * GET binary into file
+     * GET binary file
      *
      * @param url
      * @return
      * @throws IOException
      */
     public static File readBinary(String url) throws IOException {
-        File tmp = RebuildConfiguration.getFileOfTemp("download." + UUID.randomUUID());
-        boolean success = readBinary(url, tmp, Collections.singletonMap(HttpHeaders.USER_AGENT, RB_UA));
+        File tmp = RebuildConfiguration.getFileOfTemp("download." + CommonsUtils.randomHex(true));
+        boolean success = readBinary(url, tmp, null);
         return success && tmp.exists() ? tmp : null;
     }
 
     /**
-     * GET binary with Headers
+     * GET binary into file
      *
      * @param url
      * @param dest
