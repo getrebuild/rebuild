@@ -49,7 +49,7 @@ public class ResultDecorator extends AjqlResultImpl {
         }
 
         if (this.pkIndex == -1 && !N2NIndexes.isEmpty()) {
-            log.warn("No field of primary in select items");
+            log.warn("No field of primary in select items, cannot provide n2n-value");
         }
     }
 

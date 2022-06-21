@@ -34,9 +34,10 @@ public class N2NReferenceSupport {
      */
     public static ID[] items(Field field, ID recordId) {
         if ((int) field.getOwnEntity().getEntityCode() != recordId.getEntityCode()) {
+            log.warn("Bad id for found n2n-value : {} > {}", recordId, field);
             return new ID[] { recordId };
         }
-
+        
         Object[][] array = Application.getPersistManagerFactory().createQuery(
                 "select referenceId from NreferenceItem where belongField = ? and recordId = ? order by seq")
                 .setParameter(1, field.getName())
