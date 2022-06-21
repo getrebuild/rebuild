@@ -61,7 +61,6 @@ public class FieldWritebackController extends BaseController {
         }
 
         // 我引用了谁 v2.7.1
-        // 通常用于一对一，如果业务上存在多对一可能冲突（会以最后触发的记录为准）
 
         for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
             if (MetadataHelper.isCommonsField(refFrom)) {
@@ -75,7 +74,7 @@ public class FieldWritebackController extends BaseController {
 
             String entityLabel = String.format("%s (%s.%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(sourceEntity), EasyMetaFactory.getLabel(refFrom));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.WB_ONE2ONE});
+            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
         }
 
         FieldAggregationController.sortEntities(entities, sourceEntity);

@@ -307,7 +307,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       return false
     }
     if (content.items.length === 0) {
-      RbHighbar.create($L('请至少添加 1 个聚合规则'))
+      RbHighbar.create($L('请至少添加 1 个更新规则'))
       return false
     }
 
