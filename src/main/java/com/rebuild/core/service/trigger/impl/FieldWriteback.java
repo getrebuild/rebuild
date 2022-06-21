@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
@@ -56,7 +57,12 @@ import java.util.*;
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
 
-    public static final String WB_ONE2ONE = "one2one";
+    /**
+     * 设：线索1、客户N（即 1 <:> N）
+     * 当线索作为目标，客户作为源时，更新客户时只会更新 1 个线索（one2one）
+     * 当客户作为目标，线索作为源时，更新线索时会更新 N 个客户
+     */
+    public static final String ONE2ONE_MODE = "one2one";
 
     private static final String DATE_EXPR = "#";
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
@@ -140,7 +146,7 @@ public class FieldWriteback extends FieldAggregation {
         sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
-        boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(WB_ONE2ONE);
+        boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(ONE2ONE_MODE);
 
         targetRecordIds = new HashSet<>();
 
@@ -149,12 +155,20 @@ public class FieldWriteback extends FieldAggregation {
             targetRecordIds.add(actionContext.getSourceRecord());
 
         } else if (isOne2One) {
-            // 只会存在一个记录
+            // 只会存在一个记录的
             Record afterRecord = operatingContext.getAfterRecord();
-            ID referenceId = afterRecord == null ? null : afterRecord.getID(targetFieldEntity[0]);
-            if (referenceId == null) return;
+            if (afterRecord == null) return;
 
-            targetRecordIds.add(referenceId);
+            ID referenceId;
+            if (afterRecord.hasValue(targetFieldEntity[0])) {
+                referenceId = afterRecord.getID(targetFieldEntity[0]);
+                if (NullValue.is(referenceId)) referenceId = null;
+            } else {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(afterRecord.getPrimary(), targetFieldEntity[0]);
+                referenceId = (ID) o[0];
+            }
+
+            if (referenceId != null) targetRecordIds.add(referenceId);
 
         } else {
             String sql = String.format("select %s from %s where %s = ?",
