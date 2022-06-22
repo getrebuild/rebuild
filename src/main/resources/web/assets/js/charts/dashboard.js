@@ -12,9 +12,10 @@ let dash_editable = false
 let refresh_timeout = 0
 let refresh_timer = null
 
-$(document).ready(function () {
-  win_resize(100)
+let on_resizestart = false
+let rendered_charts = []
 
+$(document).ready(function () {
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
 
@@ -91,14 +92,6 @@ $(document).ready(function () {
       }
     })
 
-    $('.J_dash-fullscreen').on('click', () => {
-      const $body = $(document.body)
-      if ($body.hasClass('fullscreen')) exitFullscreen()
-      else fullScreen()
-      $body.toggleClass('fullscreen')
-      win_resize()
-    })
-
     let dlgChartSelect
     $('.J_chart-select').on('click', () => {
       const appended = []
@@ -124,35 +117,41 @@ $(document).ready(function () {
     })
   })
 
-  $(window).resize(win_resize)
+  $('.J_dash-fullscreen').on('click', () => {
+    const $body = $(document.body)
+    if ($body.hasClass('fullscreen')) $fullscreen.exit()
+    else $fullscreen.open()
+    $body.toggleClass('fullscreen')
+  })
+
+  $addResizeHandler(() => {
+    if (on_resizestart === true) return
+    console.log('Resize dashboard ...')
+
+    rendered_charts.forEach((x) => x.resize())
+    // eslint-disable-next-line no-undef
+    BaseChart.currentFullscreen && BaseChart.currentFullscreen.toggleFullscreen(true)
+  })
 })
 
-let on_resizestart = false
-let rendered_charts = []
-const win_resize = function (t) {
-  if (on_resizestart === true) return
-  $setTimeout(
-    () => {
-      rendered_charts.forEach((x) => x.resize())
-    },
-    t || 400,
-    'resize-charts'
-  )
-}
-
-function fullScreen() {
-  const element = document.documentElement
-  if (element.requestFullscreen) element.requestFullscreen()
-  else if (element.msRequestFullscreen) element.msRequestFullscreen()
-  else if (element.mozRequestFullScreen) element.mozRequestFullScreen()
-  else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen()
-}
-
-function exitFullscreen() {
-  if (document.exitFullscreen) document.exitFullscreen()
-  else if (document.msExitFullscreen) document.msExitFullscreen()
-  else if (document.mozCancelFullScreen) document.mozCancelFullScreen()
-  else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+// 全屏工具
+const $fullscreen = {
+  open: function () {
+    const element = document.documentElement
+    if (element.requestFullscreen) element.requestFullscreen()
+    else if (element.msRequestFullscreen) element.msRequestFullscreen()
+    else if (element.mozRequestFullScreen) element.mozRequestFullScreen()
+    else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen()
+  },
+  exit: function () {
+    if (document.exitFullscreen) document.exitFullscreen()
+    else if (document.msExitFullscreen) document.msExitFullscreen()
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen()
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+  },
+  is: function () {
+    return !!(document.fullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement)
+  },
 }
 
 const dlgRefs = {}

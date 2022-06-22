@@ -80,18 +80,26 @@ class BaseChart extends React.Component {
     }
   }
 
-  toggleFullscreen() {
-    this.setState({ fullscreen: !this.state.fullscreen }, () => {
+  toggleFullscreen(forceFullscreen) {
+    const use = forceFullscreen === true ? true : !this.state.fullscreen
+    this.setState({ fullscreen: use }, () => {
       const $box = $(this._$box).parents('.grid-stack-item')
       const $stack = $('.chart-grid>.grid-stack')
-      const wh = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+
       if (this.state.fullscreen) {
-        this.__chartStackHeight = $stack.height()
-        $stack.css({ height: wh, overflow: 'hidden' })
+        BaseChart.currentFullscreen = this
+        if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
+
         $box.addClass('fullscreen')
+        let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+        height -= $('.announcement-wrapper').height() || 0
+        $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
-        $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
         $box.removeClass('fullscreen')
+        $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
+
+        BaseChart.currentFullscreen = null
+        this.__chartStackHeight = 1
       }
       this.resize()
     })
@@ -115,6 +123,9 @@ class BaseChart extends React.Component {
   renderChart(data) {
     this.setState({ chartdata: <div>{JSON.stringify(data)}</div> })
   }
+
+  // 当前全屏 CHART
+  static currentFullscreen = null
 }
 
 // 指标卡
