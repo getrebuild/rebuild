@@ -395,10 +395,8 @@ public class ApprovalStepService extends InternalPersistService {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
 
         // 其他状态不能自动审批
-        if (currentState == ApprovalState.DRAFT
-                || currentState == ApprovalState.REJECTED
-                || currentState == ApprovalState.REVOKED) {
-
+        if (!(currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED)) {
+            
             if (useApprover == null) useApprover = UserService.SYSTEM_USER;
             if (useApproval == null) useApproval = APPROVAL_NOID;
 
