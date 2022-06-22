@@ -183,12 +183,12 @@ class FeedsList extends React.Component {
             </li>
             <li className="list-inline-item mr-4">
               <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                <i className="zmdi zmdi-thumb-up" /> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                <i className="zmdi zmdi-thumb-up" /> {item.numLike > 0 && item.numLike} {$L('赞')}
               </a>
             </li>
             <li className="list-inline-item">
               <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
-                <i className="zmdi zmdi-comment-outline" /> {$L('评论')} {item.numComments > 0 && <span>({item.numComments})</span>}
+                <i className="zmdi zmdi-comment-outline" /> {item.numComments > 0 && item.numComments} {$L('评论')}
               </a>
             </li>
           </ul>
@@ -363,7 +363,7 @@ class FeedsComments extends React.Component {
                       </div>
                       <ul className="list-unstyled m-0">
                         {item.self && (
-                          <li className="list-inline-item mr-2">
+                          <li className="list-inline-item mr-3">
                             <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
                               <i className="zmdi zmdi-more" />
                               &nbsp;
@@ -376,9 +376,9 @@ class FeedsComments extends React.Component {
                             </div>
                           </li>
                         )}
-                        <li className="list-inline-item mr-3">
+                        <li className="list-inline-item mr-4">
                           <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                            <i className="zmdi zmdi-thumb-up" /> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                            <i className="zmdi zmdi-thumb-up" /> {item.numLike > 0 && item.numLike} {$L('赞')}
                           </a>
                         </li>
                         <li className="list-inline-item">
@@ -684,7 +684,9 @@ function __findMaskTexts(mask, options) {
 
 // 点赞
 function _handleLike(id, comp) {
-  event.preventDefault()
+  const e = event
+  $stopEvent(e, true)
+
   $.post(`/feeds/post/like?id=${id}`, (res) => {
     const _data = comp.state.data
     _data.forEach((item) => {
@@ -694,6 +696,13 @@ function _handleLike(id, comp) {
       }
     })
     comp.setState({ data: _data })
+
+    if (e && e.target && res.data) {
+      let $icon = $(e.target)
+      if (!$icon.hasClass('zmdi')) $icon = $icon.find('.zmdi')
+      $icon.addClass('animated bounceIn')
+      setTimeout(() => $icon.removeClass('animated bounceIn'), 1000)
+    }
   })
 }
 

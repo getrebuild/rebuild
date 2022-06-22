@@ -910,7 +910,7 @@ function UserPopup({ info }) {
       </div>
       <div className="infos">
         <strong>{info.name}</strong>
-        {info.dept && <p className="text-muted fs-12">{info.dept}</p>}
+        {info.dept && <p className="text-muted fs-12 up-2">{info.dept}</p>}
         {info.email && <p className="email">{info.email}</p>}
         {info.phone && <p className="phone">{info.phone}</p>}
       </div>

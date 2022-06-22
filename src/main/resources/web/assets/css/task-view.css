@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 #task-contents {
   background-color: #fff;
   height: 100%;
-  padding-bottom: 65px;
+  padding-bottom: 75px;
 }
 
 .view-body.readonly #task-contents {
@@ -172,7 +172,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 #task-comment .comments .comment-reply {
-  padding: 15px 25px;
+  padding: 20px 25px;
 }
 
 .status-checkbox > .custom-checkbox {
