@@ -38,12 +38,12 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -224,10 +224,11 @@ public class FieldWriteback extends FieldAggregation {
         // 变量值
         Record useSourceData = null;
         if (!fieldVars.isEmpty()) {
-            String sql = String.format("select %s from %s where %s = '%s'",
-                    StringUtils.join(fieldVars, ","), sourceEntity.getName(),
-                    sourceEntity.getPrimaryField().getName(), actionContext.getSourceRecord());
-            useSourceData = Application.createQueryNoFilter(sql).record();
+            String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
+                    StringUtils.join(fieldVars, ","),
+                    sourceEntity.getPrimaryField().getName(),
+                    sourceEntity.getName());
+            useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
         }
 
         for (Object o : items) {
@@ -260,10 +261,6 @@ public class FieldWriteback extends FieldAggregation {
                 Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceAny);
 
                 if (value != null) {
-                    if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                        value = N2NReferenceSupport.items(sourceAny, actionContext.getSourceRecord());
-                    }
-
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
                             .convertCompatibleValue(value, targetFieldEasy);
                     targetRecord.setObjectValue(targetField, newValue);

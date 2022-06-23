@@ -4270,6 +4270,7 @@ html.external-auth .auth-body.must-center .login {
 
 .user-popup .infos strong {
   font-size: 1.1rem;
+  font-weight: normal;
 }
 
 .user-popup .infos p {
@@ -4277,8 +4278,8 @@ html.external-auth .auth-body.must-center .login {
   line-height: 1.4;
 }
 
-.user-popup .infos p.phone,
-.user-popup .infos p.email {
+.user-popup .infos p.phone::after,
+.user-popup .infos p.email::after {
   font-family: 'Material-Design-Iconic-Font', serif;
 }
 

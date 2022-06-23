@@ -9,7 +9,6 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -248,7 +247,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 log.debug("The record owner has not changed, ignore : {}", record);
             }
         } else {
-            assignBefore = countObservers() > 0 ? record(assignAfter) : null;
+            assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
 
             delegateService.update(assignAfter);
             Application.getRecordOwningCache().cleanOwningUser(record);
@@ -349,7 +348,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             unsharedBefore.setNull("belongEntity");
             unsharedBefore.setNull("recordId");
             unsharedBefore.setNull("shareTo");
-            unsharedBefore = record(unsharedBefore);
+            unsharedBefore = recordSnap(unsharedBefore);
         }
 
         delegateService.delete(accessId);

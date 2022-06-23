@@ -9,13 +9,10 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import org.springframework.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -23,19 +20,26 @@ import org.springframework.util.Assert;
  *
  * @author devezhao
  * @since 2021/11/19
+ * @see com.rebuild.core.metadata.easymeta.EasyN2NReference
  */
+@Slf4j
 public class N2NReferenceSupport {
 
     /**
-     * 获取引用项（仅本实体 N2N 字段）
+     * 获取引用项（仅本实体 N2N 字段有效）
      *
      * @param field
      * @param recordId 主键
      * @return
      */
     public static ID[] items(Field field, ID recordId) {
-        Object[][] array = Application.createQueryNoFilter(
-                        "select referenceId from NreferenceItem where belongField = ? and recordId = ? order by seq")
+        if ((int) field.getOwnEntity().getEntityCode() != recordId.getEntityCode()) {
+            log.warn("Bad id for found n2n-value : {} > {}", recordId, field);
+            return new ID[] { recordId };
+        }
+        
+        Object[][] array = Application.getPersistManagerFactory().createQuery(
+                "select referenceId from NreferenceItem where belongField = ? and recordId = ? order by seq")
                 .setParameter(1, field.getName())
                 .setParameter(2, recordId)
                 .array();
@@ -62,7 +66,10 @@ public class N2NReferenceSupport {
         String[] paths = fieldPath.split("\\.");
         for (int i = 0; i < paths.length - 1; i++) {
             String field = paths[i];
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(fatherRecordId, field);
+            Object[] o = Application.getPersistManagerFactory().createQuery(
+                    String.format("select %s from %s where %s = ?", field, father.getName(), father.getPrimaryField().getName()))
+                    .setParameter(1, fatherRecordId)
+                    .unique();
 
             fatherRecordId = (ID) o[0];
             father = father.getField(field).getReferenceEntity();
@@ -70,28 +77,5 @@ public class N2NReferenceSupport {
 
         Field lastField = father.getField(paths[paths.length - 1]);
         return items(lastField, fatherRecordId);
-    }
-
-    /**
-     * 补充 N2N 字段真实的值
-     *
-     * @param record
-     * @return
-     */
-    public static boolean fillN2NValues(Record record) {
-        Field[] n2nFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.N2NREFERENCE);
-        if (n2nFields.length == 0) return false;
-
-        ID primaryId = record.getPrimary();
-        Assert.notNull(primaryId, "Record primary cannot be null");
-
-        boolean filled = false;
-        for (Field n2nField : n2nFields) {
-            if (record.hasValue(n2nField.getName(), false)) {
-                record.setIDArray(n2nField.getName(), items(n2nField, primaryId));
-                filled = true;
-            }
-        }
-        return filled;
     }
 }

@@ -46,7 +46,7 @@ public class QueryHelper {
 
     /**
      * @param sql
-     * @param useEntity
+     * @param useEntity 决定是否使用权限查询
      * @return
      */
     public static Query createQuery(String sql, Entity useEntity) {

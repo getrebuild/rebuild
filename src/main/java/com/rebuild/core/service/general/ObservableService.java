@@ -21,13 +21,10 @@ import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * 可注入观察者的服务
@@ -81,7 +78,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
     @Override
     public Record update(Record record) {
-        final Record before = countObservers() > 0 ? record(record) : null;
+        final Record before = countObservers() > 0 ? recordSnap(record) : null;
 
         record = delegateService.update(record);
 
@@ -99,7 +96,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         Record deleted = null;
         if (countObservers() > 0) {
             deleted = EntityHelper.forUpdate(recordId, currentUser);
-            deleted = record(deleted);
+            deleted = recordSnap(deleted);
 
             // 删除前触发，做一些状态保持
             setChanged();
@@ -121,27 +118,21 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @param base
      * @return
      */
-    protected Record record(Record base) {
+    protected Record recordSnap(Record base) {
         final ID primaryId = base.getPrimary();
         Assert.notNull(primaryId, "Record primary cannot be null");
 
-        StringBuilder sql = new StringBuilder("select ");
+        Set<String> fields = new HashSet<>();
         for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
-            sql.append(iter.next()).append(',');
+            fields.add(iter.next());
         }
-        sql.deleteCharAt(sql.length() - 1);
-        sql.append(" from ")
-                .append(base.getEntity().getName())
-                .append(" where ")
-                .append(base.getEntity().getPrimaryField().getName())
-                .append(" = ?");
 
-        Record snap = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
+        fields.add(base.getEntity().getPrimaryField().getName());
+        Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
+
         if (snap == null) {
             throw new NoRecordFoundException(primaryId);
         }
-
-        N2NReferenceSupport.fillN2NValues(snap);
         return snap;
     }
 

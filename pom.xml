@@ -273,7 +273,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.6.0</version>
+            <version>426ae97353</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

@@ -22,7 +22,6 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
@@ -106,11 +105,8 @@ public class AutoFillinManager implements ConfigManager {
 
         if (sourceFields.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        String ql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(sourceFields, ","),
-                sourceEntity.getName(),
-                sourceEntity.getPrimaryField().getName());
-        Record sourceRecord = Application.createQueryNoFilter(ql).setParameter(1, source).record();
+        sourceFields.add(sourceEntity.getPrimaryField().getName());
+        Record sourceRecord = Application.getQueryFactory().recordNoFilter(source, sourceFields.toArray(new String[0]));
 
         if (sourceRecord == null) return JSONUtils.EMPTY_ARRAY;
 
@@ -118,17 +114,11 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
-            Field sourceFieldMeta = sourceEntity.getField(sourceField);
             Field targetFieldMeta = targetEntity.getField(targetField);
 
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
-                if (EasyMetaFactory.getDisplayType(sourceFieldMeta) == DisplayType.N2NREFERENCE) {
-                    value = N2NReferenceSupport.items(sourceFieldMeta, source);
-                } else {
-                    value = sourceRecord.getObjectValue(sourceField);
-                }
-
+                value = sourceRecord.getObjectValue(sourceField);
                 value = conversionCompatibleValue(
                         sourceEntity.getField(sourceField),
                         targetFieldMeta,
