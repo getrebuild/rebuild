@@ -22,6 +22,8 @@ public class GeneralEntityServiceContextHolder {
 
     private static final ThreadLocal<Integer> REPEATED_CHECK_MODE = new NamedThreadLocal<>("Repeated check mode");
 
+    private static final ThreadLocal<ID> FROM_TRIGGERS = new NamedThreadLocal<>("From triggers");
+
     /**
      * 新建记录时允许跳过自动编号字段
      */
@@ -30,19 +32,15 @@ public class GeneralEntityServiceContextHolder {
     }
 
     /**
-     * @param clear
+     * @param once
      * @return
      * @see #setSkipSeriesValue()
      */
-    public static boolean isSkipSeriesValue(boolean clear) {
+    public static boolean isSkipSeriesValue(boolean once) {
         Boolean is = SKIP_SERIES_VALUE.get();
-        if (is != null && clear) {
-            SKIP_SERIES_VALUE.remove();
-        }
+        if (is != null && once) SKIP_SERIES_VALUE.remove();
         return is != null && is;
     }
-
-    // --
 
     /**
      * 允许强制修改（审批中的）记录
@@ -59,13 +57,28 @@ public class GeneralEntityServiceContextHolder {
      */
     public static boolean isAllowForceUpdateOnce() {
         ID recordId = ALLOW_FORCE_UPDATE.get();
-        if (recordId != null) {
-            ALLOW_FORCE_UPDATE.remove();
-        }
+        if (recordId != null) ALLOW_FORCE_UPDATE.remove();
         return recordId != null;
     }
 
-    // --
+    /**
+     * 从触发器执行允许跳过（某些）权限
+     *
+     * @param recordId
+     */
+    public static void setFromTriggers(ID recordId) {
+        FROM_TRIGGERS.set(recordId);
+    }
+
+    /**
+     * @return
+     * @see #setFromTriggers(ID)
+     */
+    public static boolean isFromTriggersOnce() {
+        ID recordId = FROM_TRIGGERS.get();
+        if (recordId != null) FROM_TRIGGERS.remove();
+        return recordId != null;
+    }
 
     // 检查全部
     public static final int RCM_CHECK_MAIN = 1;
@@ -89,10 +102,7 @@ public class GeneralEntityServiceContextHolder {
      */
     public static int getRepeatedCheckModeOnce() {
         Integer mode = REPEATED_CHECK_MODE.get();
-        if (mode != null) {
-            REPEATED_CHECK_MODE.remove();
-            return mode;
-        }
-        return 0;
+        if (mode != null) REPEATED_CHECK_MODE.remove();
+        return mode == null ? 0 : mode;
     }
 }

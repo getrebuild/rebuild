@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -97,6 +98,7 @@ public class AutoAssign extends TriggerAction {
         }
 
         PrivilegesGuardContextHolder.setSkipGuard(recordId);
+        GeneralEntityServiceContextHolder.setFromTriggers(recordId);
 
         try {
             Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
@@ -106,8 +108,10 @@ public class AutoAssign extends TriggerAction {
             if (orderedAssign) {
                 KVStorage.setCustomValue(orderedAssignKey, toUser);
             }
+
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isFromTriggersOnce();
         }
     }
 }

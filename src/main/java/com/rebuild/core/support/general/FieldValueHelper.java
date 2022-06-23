@@ -133,7 +133,7 @@ public class FieldValueHelper {
             if (MetadataHelper.containsEntity(id.getEntityCode())) {
                 mixValue.put("entity", MetadataHelper.getEntityName(id));
             } else {
-                log.warn("Entity no longer exists : {}", id);
+                log.warn("The entity of id no longer exists : {}", id);
             }
         }
         return mixValue;

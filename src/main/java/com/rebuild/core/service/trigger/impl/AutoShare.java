@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -65,11 +66,13 @@ public class AutoShare extends AutoAssign {
         final EntityService es = Application.getEntityService(actionContext.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
             PrivilegesGuardContextHolder.setSkipGuard(recordId);
+            GeneralEntityServiceContextHolder.setFromTriggers(recordId);
 
             try {
                 es.share(recordId, toUser, cascades, shareRights);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
     }
