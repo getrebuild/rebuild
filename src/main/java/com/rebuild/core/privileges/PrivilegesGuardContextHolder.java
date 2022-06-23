@@ -41,6 +41,7 @@ public class PrivilegesGuardContextHolder {
 
     /**
      * @return
+     * @see #setSkipGuard(ID)
      */
     public static ID getSkipGuardOnce() {
         ID recordId = SKIP_GUARD.get();

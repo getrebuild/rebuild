@@ -394,23 +394,40 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return Collections.emptyMap();
         }
 
+        final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTriggersOnce();
+
         Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
         Entity mainEntity = MetadataHelper.getEntity(recordMain.getEntityCode());
+
         for (String cas : cascadeEntities) {
-            Entity casEntity = MetadataHelper.getEntity(cas);
-
-            StringBuilder sql = new StringBuilder(
-                    String.format("select %s from %s where ( ", casEntity.getPrimaryField().getName(), casEntity.getName()));
-
-            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
-            for (Field field : reftoFields) {
-                sql.append(field.getName()).append(" = '").append(recordMain).append("' or ");
+            if (!MetadataHelper.containsEntity(cas)) {
+                log.warn("The entity not longer exists : {}", cas);
+                continue;
             }
-            // remove last ' or '
-            sql.replace(sql.length() - 4, sql.length(), " )");
 
-            Filter filter = Application.getPrivilegesManager().createQueryFilter(UserContextHolder.getUser(), action);
-            Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
+            Entity casEntity = MetadataHelper.getEntity(cas);
+            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
+            if (reftoFields.length == 0) {
+                log.warn("No any fields of refto found : {} << {}", cas, mainEntity.getName());
+                continue;
+            }
+
+            List<String> or = new ArrayList<>();
+            for (Field field : reftoFields) {
+                or.add(String.format("%s = '%s'", field.getName(), recordMain));
+            }
+
+            String sql = String.format("select %s from %s where ( %s )",
+                    casEntity.getPrimaryField().getName(), casEntity.getName(),
+                    StringUtils.join(or.iterator(), " or "));
+
+            Object[][] array;
+            if (fromTriggerNoFilter) {
+                array = Application.createQueryNoFilter(sql).array();
+            } else {
+                Filter filter = Application.getPrivilegesManager().createQueryFilter(UserContextHolder.getUser(), action);
+                array = Application.getQueryFactory().createQuery(sql, filter).array();
+            }
 
             Set<ID> records = new HashSet<>();
             for (Object[] o : array) {

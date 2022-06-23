@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -31,16 +32,8 @@ import java.util.Set;
 @Slf4j
 public class AutoShare extends AutoAssign {
 
-    // 允许无权限共享
-    final private boolean allowNoPermissionShare;
-
     public AutoShare(ActionContext context) {
-        this(context, Boolean.TRUE);
-    }
-
-    public AutoShare(ActionContext context, boolean allowNoPermissionShare) {
         super(context);
-        this.allowNoPermissionShare = allowNoPermissionShare;
     }
 
     @Override
@@ -53,12 +46,6 @@ public class AutoShare extends AutoAssign {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
-        if (!allowNoPermissionShare
-                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.SHARE)) {
-            log.warn("No permission to share record of target: " + recordId);
-            return;
-        }
-
         JSONArray shareTo = content.getJSONArray("shareTo");
         Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId, true);
         if (toUsers.isEmpty()) {
@@ -68,7 +55,7 @@ public class AutoShare extends AutoAssign {
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
         String[] cascades = null;
         if (StringUtils.isNotBlank(hasCascades)) {
-            cascades = hasCascades.split("[,]");
+            cascades = hasCascades.split(",");
         }
 
         int shareRights = BizzPermission.READ.getMask();
@@ -78,14 +65,14 @@ public class AutoShare extends AutoAssign {
         
         final EntityService es = Application.getEntityService(actionContext.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
-            if (allowNoPermissionShare) {
-                PrivilegesGuardContextHolder.setSkipGuard(recordId);
-            }
+            PrivilegesGuardContextHolder.setSkipGuard(recordId);
+            GeneralEntityServiceContextHolder.setFromTriggers(recordId);
 
             try {
                 es.share(recordId, toUser, cascades, shareRights);
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
     }
