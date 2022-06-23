@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
@@ -42,14 +43,25 @@ public class RecordTransfomer extends SetUser {
 
     final private Entity targetEntity;
     final private JSONObject transConfig;
+    final private boolean skipGuard;
 
     /**
      * @param targetEntity
      * @param transConfig
      */
     public RecordTransfomer(Entity targetEntity, JSONObject transConfig) {
+        this(targetEntity, transConfig, false);
+    }
+
+    /**
+     * @param targetEntity
+     * @param transConfig
+     * @param skipGuard 跳过权限
+     */
+    public RecordTransfomer(Entity targetEntity, JSONObject transConfig, boolean skipGuard) {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
+        this.skipGuard = skipGuard;
     }
 
     /**
@@ -199,12 +211,17 @@ public class RecordTransfomer extends SetUser {
             }
         }
 
+        if (this.skipGuard) {
+            PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        }
+
         GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
         try {
             target = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(target);
             return target.getPrimary();
         } finally {
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+            PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
     }
 

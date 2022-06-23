@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -34,16 +34,8 @@ import java.util.Set;
 @Slf4j
 public class AutoAssign extends TriggerAction {
 
-    // 允许无权限分派
-    final private boolean allowNoPermissionAssign;
-
     public AutoAssign(ActionContext context) {
-        this(context, Boolean.TRUE);
-    }
-
-    public AutoAssign(ActionContext context, boolean allowNoPermissionAssign) {
         super(context);
-        this.allowNoPermissionAssign = allowNoPermissionAssign;
     }
 
     @Override
@@ -60,12 +52,6 @@ public class AutoAssign extends TriggerAction {
     public void execute(OperatingContext operatingContext) throws TriggerException {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
-
-        if (!allowNoPermissionAssign
-                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
-            log.warn("No permission to assign record of target: " + recordId);
-            return;
-        }
 
         JSONArray assignTo = content.getJSONArray("assignTo");
         Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId, true);
@@ -108,12 +94,11 @@ public class AutoAssign extends TriggerAction {
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
         String[] cascades = null;
         if (StringUtils.isNotBlank(hasCascades)) {
-            cascades = hasCascades.split("[,]");
+            cascades = hasCascades.split(",");
         }
 
-        if (allowNoPermissionAssign) {
-            PrivilegesGuardContextHolder.setSkipGuard(recordId);
-        }
+        PrivilegesGuardContextHolder.setSkipGuard(recordId);
+        GeneralEntityServiceContextHolder.setFromTriggers(recordId);
 
         try {
             Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
@@ -123,8 +108,10 @@ public class AutoAssign extends TriggerAction {
             if (orderedAssign) {
                 KVStorage.setCustomValue(orderedAssignKey, toUser);
             }
+
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isFromTriggersOnce();
         }
     }
 }
