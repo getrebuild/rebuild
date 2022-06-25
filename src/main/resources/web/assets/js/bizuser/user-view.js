@@ -10,7 +10,7 @@ const userId = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_delete')
     .off('click')
-    .click(function () {
+    .on('click', () => {
       $.get(`/admin/bizuser/delete-checks?id=${userId}`, (res) => {
         if (res.data.hasMember === 0) {
           RbAlert.create($L('此用户可以被安全的删除'), $L('删除用户'), {
@@ -34,7 +34,7 @@ $(document).ready(function () {
       })
     })
 
-  $('.J_disable').click(() => {
+  $('.J_disable').on('click', () => {
     RbAlert.create($L('确认要禁用此用户吗？'), {
       confirmText: $L('禁用'),
       confirm: function () {
@@ -42,12 +42,13 @@ $(document).ready(function () {
       },
     })
   })
-  $('.J_enable').click(() => toggleDisabled(false))
 
-  $('.J_resetpwd').click(() => {
+  $('.J_enable').on('click', () => toggleDisabled(false))
+
+  $('.J_resetpwd').on('click', () => {
     const newpwd = $random(null, true, 8) + '!8'
     RbAlert.create(WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd)), {
-      confirm: function () {
+      onConfirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
           this.disabled()
@@ -57,19 +58,43 @@ $(document).ready(function () {
           } else RbHighbar.error(res.error_code)
         })
       },
+      onRendered: function () {
+        const $b = $(this._element).find('.modal-body b').addClass('newpwd').attr('title', $L('点击复制'))
+        // eslint-disable-next-line no-undef
+        new ClipboardJS($b[0], {
+          text: function () {
+            return newpwd
+          },
+        })
+      },
     })
   })
 
   if (rb.isAdminVerified) {
     $.get(`/admin/bizuser/check-user-status?id=${userId}`, (res) => {
-      if (res.data.system === true && rb.isAdminVerified === true) {
+      const lastLogin = res.data.lastLogin
+      if (lastLogin) {
+        const $login = $('.J_loginOn')
+        renderRbcomp(<DateShow date={lastLogin[0]} />, $login[0])
+
+        const ip = lastLogin[1]
+        $.get(`/commons/ip-location?ip=${ip}`, (res) => {
+          let L = ip
+          if (res.error_code === 0 && res.data.country !== 'N') {
+            L = res.data.country === 'R' ? $L('局域网') : [res.data.region, res.data.country].join(', ')
+          }
+          $(`<span class="ml-1" title="${ip}">(${L})</span>`).appendTo($login)
+        })
+      }
+
+      if (res.data.system === true) {
         $('.view-action').remove()
         $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用'))
         return
       }
 
-      $('.J_changeRole').click(() => renderRbcomp(<DlgEnableUser user={userId} roleSet={true} role={res.data.role} roleAppends={res.data.roleAppends} />))
-      $('.J_changeDept').click(() => renderRbcomp(<DlgEnableUser user={userId} deptSet={true} dept={res.data.dept} />))
+      $('.J_changeRole').on('click', () => renderRbcomp(<DlgEnableUser user={userId} roleSet={true} role={res.data.role} roleAppends={res.data.roleAppends} />))
+      $('.J_changeDept').on('click', () => renderRbcomp(<DlgEnableUser user={userId} deptSet={true} dept={res.data.dept} />))
 
       if (res.data.disabled === true) {
         $('.J_disable').remove()
@@ -77,7 +102,7 @@ $(document).ready(function () {
         if (!res.data.role || !res.data.dept) {
           $('.J_enable')
             .off('click')
-            .click(() =>
+            .on('click', () =>
               renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />)
             )
         }
@@ -97,6 +122,15 @@ $(document).ready(function () {
           .find('.message p')
           .text($L('当前用户处于未激活状态，因为其 %s', reasons.join(' / ')))
       }
+
+      if (res.data.roleAppends && res.data.roleAppends.length > 0) {
+        $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
+          const $p = $('.J_roles').removeClass('hide').find('p')
+          for (let k in res.data) {
+            $(`<a class="text-bold">${res.data[k]}</a>`).appendTo($p)
+          }
+        })
+      }
     })
   }
 })
@@ -109,6 +143,7 @@ const toggleDisabled = function (disabled, alert) {
     user: userId,
     enable: !disabled,
   }
+
   $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
     if (res.error_code === 0) {
       RbHighbar.success(disabled ? $L('用户已禁用') : $L('用户已启用'))
@@ -212,13 +247,13 @@ class DlgEnableUser extends RbModalHandler {
       }
     }
 
-    const $btns = $(this._btns).find('.btn').button('loading')
+    const $btn = $(this._btns).find('.btn').button('loading')
     $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         if (data.enable === true) RbHighbar.success($L('用户已激活'))
         _reload(data.enable ? 200 : 0)
       } else {
-        $btns.button('reset')
+        $btn.button('reset')
         RbHighbar.error(res.error_msg)
       }
     })

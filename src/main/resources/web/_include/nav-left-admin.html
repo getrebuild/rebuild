@@ -49,11 +49,11 @@
               <li th:class="${active == 'classifications'} ? 'active'">
                 <a th:href="@{/admin/metadata/classifications}"><i class="icon zmdi zmdi-layers"></i><span>[[${bundle.L('分类数据')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-trigger'} ? 'active'">
-                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
-              </li>
               <li th:class="${active == 'robot-approval'} ? 'active'">
                 <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('审批流程')}]]</span></a>
+              </li>
+              <li th:class="${active == 'robot-trigger'} ? 'active'">
+                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
               <li th:class="${active == 'robot-transforms'} ? 'active'">
                 <a th:href="@{/admin/robot/transforms}"><i class="icon zmdi zmdi-transform"></i><span>[[${bundle.L('记录转换')}]]</span></a>

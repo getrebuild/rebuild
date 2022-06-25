@@ -200,7 +200,7 @@ var $setTimeout__timers = {}
  */
 var $setTimeout = function (e, t, id) {
   if (id && $setTimeout__timers[id]) {
-    if (rb.env === 'dev') console.warn('Clear prev setTimeout : ' + id)
+    if (rb.env === 'dev') console.debug('Clear prev setTimeout : ' + id)
     clearTimeout($setTimeout__timers[id])
     $setTimeout__timers[id] = null
   }

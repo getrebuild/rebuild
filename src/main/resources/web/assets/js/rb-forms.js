@@ -278,13 +278,13 @@ class RbForm extends React.Component {
     const moreActions = []
     if (this.props.rawModel.mainMeta) {
       moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_ADDDETAIL)}>
+        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
           {$L('保存并继续添加')}
         </a>
       )
     } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_VIEW)}>
+        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
         </a>
       )
@@ -323,14 +323,15 @@ class RbForm extends React.Component {
         }
       })
     }
+
+    setTimeout(() => RbForm.renderAfter(this), 0)
   }
 
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
     data.forEach((item) => {
-      // eslint-disable-next-line react/no-string-refs
-      const fieldComp = this.refs[`fieldcomp-${item.target}`]
+      const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
         if (!item.fillinForce && fieldComp.getValue()) return
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
@@ -368,10 +369,16 @@ class RbForm extends React.Component {
     }
   }
 
+  // 获取字段组件
+  getFieldComp(field) {
+    // eslint-disable-next-line react/no-string-refs
+    return this.refs[`fieldcomp-${field}`] || null
+  }
+
   // 保存并添加明细
-  static __NEXT_ADDDETAIL = 102
+  static NEXT_ADDDETAIL = 102
   // 保存并打开
-  static __NEXT_VIEW = 104
+  static NEXT_VIEW = 104
   /**
    * @next {Number}
    */
@@ -414,7 +421,7 @@ class RbForm extends React.Component {
 
           const recordId = res.data.id
 
-          if (next === RbForm.__NEXT_ADDDETAIL) {
+          if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = { '$MAINID$': recordId }
             const dm = this.props.rawModel.detailMeta
             RbFormModal.create({
@@ -423,7 +430,7 @@ class RbForm extends React.Component {
               icon: dm.icon,
               initialValue: iv,
             })
-          } else if (next === RbForm.__NEXT_VIEW && window.RbViewModal) {
+          } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
           }
 
@@ -459,7 +466,12 @@ class RbForm extends React.Component {
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload(data.id)
     // 刷新视图
-    if (window.RbViewPage && next !== RbForm.__NEXT_ADDDETAIL) window.RbViewPage.reload()
+    if (window.RbViewPage && next !== RbForm.NEXT_ADDDETAIL) window.RbViewPage.reload()
+  }
+
+  // 渲染后调用
+  static renderAfter(form) {
+    console.log('renderAfter ...', form)
   }
 }
 

@@ -100,7 +100,18 @@ class MemberList extends React.Component {
           <div className="nav depts">
             {Object.keys(depts).map((item) => {
               return (
-                <a className="nav-link" data-toggle="pill" href="#" key={item} onClick={() => this.setState({ activeDept: item })}>
+                <a
+                  className="nav-link"
+                  data-toggle="pill"
+                  href="#"
+                  key={item}
+                  onClick={() => {
+                    if (this.state.activeDept && this.state.activeDept[2] === item[2]) {
+                      this.setState({ activeDept: null }, () => $('.depts a.active.show').removeClass('active show'))
+                    } else {
+                      this.setState({ activeDept: item })
+                    }
+                  }}>
                   {item} ({depts[item]})
                 </a>
               )
@@ -114,7 +125,14 @@ class MemberList extends React.Component {
   componentDidMount = () => this.loadMembers()
 
   loadMembers() {
-    $.get(`/admin/bizuser/team-members?team=${this.props.id}`, (res) => this.setState({ members: res.data || [] }))
+    $.get(`/admin/bizuser/team-members?team=${this.props.id}`, (res) => {
+      const data = res.data || []
+      this.setState({ members: data })
+
+      if (data.length > 0) {
+        $(`<span class="badge badge-pill badge-primary">${data.length}</span>`).appendTo($('.nav-tabs a:eq(1)'))
+      }
+    })
   }
 
   _removeMember(user) {
@@ -136,22 +154,23 @@ class MemberList extends React.Component {
   }
 }
 
-let memberList
 $(document).ready(() => {
   const teamId = window.__PageConfig.recordId
-  $('.nav-tabs a:eq(1)').click(() => {
-    if (!memberList)
-      renderRbcomp(<MemberList id={teamId} />, 'tab-members', function () {
-        memberList = this
-      })
-  })
 
-  $('.J_add-detail')
-    .off('click')
-    .click(() => renderRbcomp(<MemberAddDlg id={teamId} call={() => memberList && memberList.loadMembers()} />))
+  if (rb.isAdminUser) {
+    let memberList
+    renderRbcomp(<MemberList id={teamId} />, 'tab-members', function () {
+      memberList = this
+    })
+
+    $('.J_add-detail')
+      .off('click')
+      .on('click', () => renderRbcomp(<MemberAddDlg id={teamId} call={() => memberList.loadMembers()} />))
+  }
+
   $('.J_delete')
     .off('click')
-    .click(() => {
+    .on('click', () => {
       RbAlert.create($L('如果此团队已经被使用则不建议删除'), $L('删除团队'), {
         type: 'danger',
         confirmText: $L('删除'),

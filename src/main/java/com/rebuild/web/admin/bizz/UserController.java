@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -31,10 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author devezhao
@@ -80,6 +78,15 @@ public class UserController extends EntityController {
         if (checkedUser.getOwningDept() != null) {
             ret.put("dept", checkedUser.getOwningDept().getIdentity());
             ret.put("deptDisabled", checkedUser.getOwningDept().isDisabled());
+        }
+
+        Object[] lastLogin = Application.createQueryNoFilter(
+                "select loginTime,ipAddr from LoginLog where user = ? order by loginTime desc")
+                .setParameter(1, userId)
+                .unique();
+        if (lastLogin != null) {
+            ret.put("lastLogin",
+                    new Object[] { I18nUtils.formatDate((Date) lastLogin[0]), lastLogin[1] });
         }
 
         return RespBody.ok(ret);
