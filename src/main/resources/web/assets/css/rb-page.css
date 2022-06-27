@@ -514,12 +514,6 @@ a.btn {
   margin-top: 2px;
 }
 
-.badge.thin {
-  font-weight: normal;
-  font-style: normal;
-  line-height: 1.45;
-}
-
 .badge + .badge {
   margin-left: 3px;
 }

@@ -157,9 +157,13 @@ public class LoginController extends LoginAction {
     public RespBody userLogin(HttpServletRequest request, HttpServletResponse response) {
         String vcode = getParameter(request, "vcode");
         Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
-        if (needVcode != null && needVcode
-                && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-            return RespBody.errorl("验证码错误");
+        if ((needVcode != null && needVcode) || StringUtils.isNotBlank(vcode)) {
+            if (StringUtils.isBlank(vcode)) {
+                ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
+                return RespBody.error("VCODE");
+            } else if (!CaptchaUtil.ver(vcode, request)) {
+                return RespBody.errorl("验证码错误");
+            }
         }
 
         final String user = getParameterNotNull(request, "user");

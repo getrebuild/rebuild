@@ -24,12 +24,13 @@
         font-size: 32px;
         color: #4285f4;
       }
-      .card.entity .badge {
+      .card.entity i.badge {
         position: absolute;
         top: 11px;
         right: 11px;
-        font-size: 11px;
         text-transform: uppercase;
+        font-style: normal;
+        padding-bottom: 0;
       }
       .card.entity span {
         margin-top: 2px;
@@ -156,8 +157,8 @@
         $t.find('.icon').addClass(`zmdi-${item.icon}`)
         $t.find('span').text(item.entityLabel)
         $t.find('p').text(item.comments || '-')
-        if (item.builtin) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('内置')}</i>`).appendTo($t.find('a.card'))
-        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('明细')}</i>`).appendTo($t.find('a.card'))
+        if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card'))
+        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
         return $t
       }
     </script>
