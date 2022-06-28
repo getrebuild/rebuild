@@ -45,6 +45,8 @@ import java.io.IOException;
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
 
+    public static final String SK_DAVATAR = "davatarTime";
+
     @GetMapping("/user-avatar")
     public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(getRequestUser(request), request, response);
@@ -137,7 +139,7 @@ public class UserAvatar extends BaseController {
         record.setString("avatarUrl", uploadName);
         Application.getBean(UserService.class).update(record);
 
-        ServletUtils.setSessionAttribute(request, "davatarTime", System.currentTimeMillis());
+        ServletUtils.setSessionAttribute(request, SK_DAVATAR, System.currentTimeMillis());
         return RespBody.ok(uploadName);
     }
 

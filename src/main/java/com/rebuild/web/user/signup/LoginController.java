@@ -30,6 +30,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.web.user.UserAvatar;
 import com.wf.captcha.utils.CaptchaUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -180,11 +181,14 @@ public class LoginController extends LoginAction {
             return RespBody.error(hasError);
         }
 
-        // 清理
+        // 清理验证码
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
+        // 头像缓存
+        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         final User loginUser = Application.getUserStore().getUser(user);
+        final boolean isMobile = AppUtils.isRbMobile(request);
 
         Map<String, Object> resMap = new HashMap<>();
 
@@ -197,14 +201,14 @@ public class LoginController extends LoginAction {
             Application.getCommonsCache().putx("2FA" + userToken, loginUser.getId(), CommonsCache.TS_HOUR / 4); // 15m
             resMap.put("login2FaUserToken", userToken);
 
-            if (AppUtils.isRbMobile(request)) {
+            if (isMobile) {
                 request.getSession().invalidate();
             }
 
             return RespBody.ok(resMap);
         }
 
-        if (AppUtils.isRbMobile(request)) {
+        if (isMobile) {
             resMap = loginSuccessedH5(request, response, loginUser.getId());
         } else {
             Integer ed = loginSuccessed(
