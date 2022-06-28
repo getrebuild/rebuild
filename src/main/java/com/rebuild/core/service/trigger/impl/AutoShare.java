@@ -66,7 +66,7 @@ public class AutoShare extends AutoAssign {
         final EntityService es = Application.getEntityService(actionContext.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
             PrivilegesGuardContextHolder.setSkipGuard(recordId);
-            GeneralEntityServiceContextHolder.setFromTriggers(recordId);
+            GeneralEntityServiceContextHolder.setFromTrigger(recordId);
 
             try {
                 es.share(recordId, toUser, cascades, shareRights);
