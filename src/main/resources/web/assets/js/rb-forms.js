@@ -1074,7 +1074,7 @@ class RbFormTime extends RbFormDateTime {
 class RbFormImage extends RbFormElement {
   constructor(props) {
     super(props)
-    this._inputid = `${props.field}-input${$random()}`
+    this._inputid = `${props.field}-${$random()}-input`
 
     if (props.value) this.state.value = [...props.value] // clone
     if (this.props.uploadNumber) {
@@ -1749,6 +1749,7 @@ class RbFormBool extends RbFormElement {
 
   constructor(props) {
     super(props)
+    this._inputid = `${props.field}-${$random()}-`
   }
 
   renderElement() {
@@ -1757,7 +1758,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={`radio-${this.props.field}`}
+            name={`${this._inputid}T`}
             type="radio"
             checked={$isTrue(this.state.value)}
             data-value="T"
@@ -1769,7 +1770,7 @@ class RbFormBool extends RbFormElement {
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
-            name={`radio-${this.props.field}`}
+            name={`${this._inputid}F`}
             type="radio"
             checked={!$isTrue(this.state.value)}
             data-value="F"
@@ -1831,7 +1832,7 @@ class RbFormBarcode extends RbFormElement {
 class RbFormAvatar extends RbFormElement {
   constructor(props) {
     super(props)
-    this._inputid = `${props.field}-input${$random()}`
+    this._inputid = `${props.field}-${$random()}-input`
   }
 
   renderElement() {

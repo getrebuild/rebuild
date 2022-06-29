@@ -4600,6 +4600,14 @@ pre.unstyle {
   margin-top: 4px;
 }
 
+.protable .table tr td .custom-control {
+  padding-left: 2.1377rem;
+}
+
+.protable .table tr td .custom-control + .custom-control {
+  margin-left: 1.385rem;
+}
+
 .protable .table {
   border-bottom: 1px solid #dee2e6;
   margin: 0;
