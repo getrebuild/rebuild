@@ -106,19 +106,19 @@ class DlgChangePasswd extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('原密码')}</label>
             <div className="col-sm-7">
-              <input type="password" className="form-control form-control-sm" data-id="oldPasswd" onChange={this.handleChange} />
+              <input type="password" className="form-control form-control-sm" data-id="oldPasswd" onChange={this.handleChange} autoComplete="new-password" />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('新密码')}</label>
             <div className="col-sm-7">
-              <input type="password" className="form-control form-control-sm" data-id="newPasswd" onChange={this.handleChange} />
+              <input type="password" className="form-control form-control-sm" data-id="newPasswd" onChange={this.handleChange} autoComplete="new-password" />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('重复新密码')}</label>
             <div className="col-sm-7">
-              <input type="password" className="form-control form-control-sm" data-id="newPasswdAgain" onChange={this.handleChange} />
+              <input type="password" className="form-control form-control-sm" data-id="newPasswdAgain" onChange={this.handleChange} autoComplete="new-password" />
             </div>
           </div>
           <div className="form-group row footer">
@@ -142,9 +142,9 @@ class DlgChangePasswd extends RbFormHandler {
     if (!s.newPasswd) return RbHighbar.create($L('请输入新密码'))
     if (s.newPasswd !== s.newPasswdAgain) return RbHighbar.create($L('两次输入的新密码不一致'))
 
-    const $btns = $(this.refs['btns']).find('.btn').button('loading')
-    $.post(`/settings/user/save-passwd?oldp=${$encode(s.oldPasswd)}&newp=${$encode(s.newPasswd)}`, (res) => {
-      $btns.button('reset')
+    const $btn = $(this.refs['btns']).find('.btn').button('loading')
+    $.post('/settings/user/save-passwd', JSON.stringify({ oldp: s.oldPasswd, newp: s.newPasswd }), (res) => {
+      $btn.button('reset')
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('修改成功'))
