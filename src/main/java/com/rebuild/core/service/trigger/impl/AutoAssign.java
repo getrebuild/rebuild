@@ -98,7 +98,7 @@ public class AutoAssign extends TriggerAction {
         }
 
         PrivilegesGuardContextHolder.setSkipGuard(recordId);
-        GeneralEntityServiceContextHolder.setFromTriggers(recordId);
+        GeneralEntityServiceContextHolder.setFromTrigger(recordId);
 
         try {
             Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
@@ -111,7 +111,7 @@ public class AutoAssign extends TriggerAction {
 
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
-            GeneralEntityServiceContextHolder.isFromTriggersOnce();
+            GeneralEntityServiceContextHolder.isFromTrigger(true);
         }
     }
 }

@@ -514,12 +514,6 @@ a.btn {
   margin-top: 2px;
 }
 
-.badge.thin {
-  font-weight: normal;
-  font-style: normal;
-  line-height: 1.45;
-}
-
 .badge + .badge {
   margin-left: 3px;
 }
@@ -4604,6 +4598,14 @@ pre.unstyle {
 
 .protable .file-field .file-select label.btn-secondary {
   margin-top: 4px;
+}
+
+.protable .table tr td .custom-control {
+  padding-left: 2.1377rem;
+}
+
+.protable .table tr td .custom-control + .custom-control {
+  margin-left: 1.385rem;
 }
 
 .protable .table {

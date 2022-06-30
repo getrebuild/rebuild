@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -80,12 +82,20 @@ public class AggregationEvaluator {
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
         List<String[]> fields = new ArrayList<>();
+        Set<String> nonNumericFields = new HashSet<>();
         for (String m : matchsVars) {
             String[] fieldAndFunc = m.split(MetadataHelper.SPLITER_RE);
-            if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
+            Field field;
+            if ((field = MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0])) == null) {
                 throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }
             fields.add(fieldAndFunc);
+
+            // 数字型
+            if (fieldAndFunc.length > 1 || field.getType() == FieldType.LONG || field.getType() == FieldType.DECIMAL);
+            else {
+                nonNumericFields.add("nn:" + fieldAndFunc[0]);
+            }
         }
         if (fields.isEmpty()) {
             log.warn("No fields found in formula : {}", formula);
@@ -134,8 +144,9 @@ public class AggregationEvaluator {
             } else {
                 continue;
             }
-            
-            Object value = useSourceData[i] == null ? 0 : useSourceData[i];
+
+            Object value = useSourceData[i];
+            if (value == null) value = nonNumericFields.contains("nn:" + field[0]) ? "" : 0;
             envMap.put(fieldKey, value);
         }
 

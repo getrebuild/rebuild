@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user;
 
 import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
@@ -113,15 +114,15 @@ public class UserSettingsController extends EntityController {
         return RespBody.ok();
     }
 
-    @RequestMapping("/user/save-passwd")
+    @PostMapping("/user/save-passwd")
     public RespBody savePasswd(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String oldp = getParameterNotNull(request, "oldp");
-        String newp = getParameterNotNull(request, "newp");
 
-        Object[] o = Application.createQuery("select password from User where userId = ?")
-                .setParameter(1, user)
-                .unique();
+        JSONObject p = (JSONObject) ServletUtils.getRequestJson(request);
+        String oldp = p.getString("oldp");
+        String newp = p.getString("newp");
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(user, "password");
         if (o == null || !StringUtils.equals((String) o[0], EncryptUtils.toSHA256Hex(oldp))) {
             return RespBody.errorl("原密码输入有误");
         }

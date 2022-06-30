@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
@@ -35,8 +36,12 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * 文件下载/查看
@@ -100,8 +105,8 @@ public class FileDownloader extends BaseController {
 
                 BufferedImage bi = ImageIO.read(img);
                 if (bi == null) {
-                    log.debug("None image type : {}", filePath);
-                    writeStream(new FileInputStream(img), response);
+                    log.debug("Unsupport image type : {}", filePath);
+                    writeStream(Files.newInputStream(img.toPath()), response);
                     return;
                 }
 
@@ -146,10 +151,10 @@ public class FileDownloader extends BaseController {
     private int parseWidth(String imageView2) {
         if (!imageView2.contains("/w/")) {
             return 1000;
+        } else {
+            String w = imageView2.split("/w/")[1].split("/")[0];
+            return ObjectUtils.toInt(w, 1000);
         }
-
-        String w = imageView2.split("/w/")[1].split("/")[0];
-        return Integer.parseInt(w);
     }
 
     @GetMapping(value = {"download/**", "access/**"})
@@ -240,7 +245,7 @@ public class FileDownloader extends BaseController {
         long size = FileUtils.sizeOf(file);
         response.setHeader("Content-Length", String.valueOf(size));
 
-        try (InputStream fis = new FileInputStream(file)) {
+        try (InputStream fis = Files.newInputStream(file.toPath())) {
             return writeStream(fis, response);
         }
     }
@@ -319,4 +324,5 @@ public class FileDownloader extends BaseController {
         if (attname != null) url += "&attname=" + CodecUtils.urlEncode(attname);
         resp.sendRedirect(AppUtils.getContextPath(url));
     }
+
 }

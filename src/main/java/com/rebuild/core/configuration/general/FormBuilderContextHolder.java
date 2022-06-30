@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.engine.ID;
+import org.springframework.core.NamedThreadLocal;
 
 /**
  * 主/明细实体权限处理。创建明细实体必须指定主实体，以便验证权限
@@ -17,17 +18,22 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FormBuilderContextHolder {
 
-    private static final ThreadLocal<ID> MAINID_OF_DETAIL = new ThreadLocal<>();
+    private static final ThreadLocal<ID> MAINID_OF_DETAIL = new NamedThreadLocal<>("MainId from details");
 
-    public static void setMainIdOfDetail(ID mainId) {
-        MAINID_OF_DETAIL.set(mainId);
+    /**
+     * @param mainid
+     */
+    public static void setMainIdOfDetail(ID mainid) {
+        MAINID_OF_DETAIL.set(mainid);
     }
 
-    public static ID getMainIdOfDetail() {
-        return MAINID_OF_DETAIL.get();
-    }
-
-    public static void clear() {
-        MAINID_OF_DETAIL.remove();
+    /**
+     * @param once
+     * @return
+     */
+    public static ID getMainIdOfDetail(boolean once) {
+        ID mainid = MAINID_OF_DETAIL.get();
+        if (mainid != null && once) MAINID_OF_DETAIL.remove();
+        return mainid;
     }
 }

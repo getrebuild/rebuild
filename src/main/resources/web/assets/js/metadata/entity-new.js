@@ -31,7 +31,7 @@ $(document).ready(function () {
 
   const $copy = $('.btn-primary.copy').on('click', () => {
     const sourceEntity = $val('#copySourceEntity')
-    if (!sourceEntity) RbHighbar.create($L('请选择从哪个实体复制'))
+    if (!sourceEntity) return RbHighbar.create($L('请选择从哪个实体复制'))
 
     const entityLabel = $val('#newEntityLabel')
     if (!entityLabel) return RbHighbar.create($L('请输入实体名称'))
@@ -76,6 +76,8 @@ $(document).ready(function () {
         parent.RbModal.resize()
       })
       .trigger('change')
+
+    if (e.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#copySourceEntity')
   })
 
   $('#isDetail').on('click', function () {

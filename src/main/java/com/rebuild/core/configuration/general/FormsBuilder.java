@@ -110,7 +110,7 @@ public class FormsBuilder extends FormsManager {
         // 新建
         if (record == null) {
             if (hasMainEntity != null) {
-                ID mainid = FormBuilderContextHolder.getMainIdOfDetail();
+                ID mainid = FormBuilderContextHolder.getMainIdOfDetail(false);
                 Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
@@ -237,7 +237,7 @@ public class FormsBuilder extends FormsManager {
 
         // 明细实体
 
-        ID mainid = FormBuilderContextHolder.getMainIdOfDetail();
+        ID mainid = FormBuilderContextHolder.getMainIdOfDetail(false);
         if (mainid == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, dtmField.getName());
@@ -475,7 +475,7 @@ public class FormsBuilder extends FormsManager {
      * @param user4Desensitized 不传则不脱敏
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
-     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
+     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field, String)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());

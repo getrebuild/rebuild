@@ -37,7 +37,6 @@ import java.util.*;
 public class DataImporter extends HeavyTask<Integer> {
 
     final private ImportRule rule;
-    private ID owningUser;
 
     final private List<Object[]> traceLogs = new ArrayList<>();
     private String cellTraces = null;
@@ -54,7 +53,7 @@ public class DataImporter extends HeavyTask<Integer> {
         final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
         this.setTotal(rows.size() - 1);
 
-        owningUser = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
+        final ID defaultOwning = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
         GeneralEntityServiceContextHolder.setSkipSeriesValue();
 
         for (final Cell[] row : rows) {
@@ -69,7 +68,7 @@ public class DataImporter extends HeavyTask<Integer> {
             }
 
             try {
-                Record record = checkoutRecord(row);
+                Record record = checkoutRecord(row, defaultOwning);
                 if (record == null) {
                     traceLogs.add(new Object[] { fc.getRowNo(), "SKIP" });
                 } else {
@@ -98,11 +97,13 @@ public class DataImporter extends HeavyTask<Integer> {
     }
 
     /**
+     *
      * @param row
+     * @param defaultOwning
      * @return
      */
-    protected Record checkoutRecord(Cell[] row) {
-        Record recordHub = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
+    protected Record checkoutRecord(Cell[] row, ID defaultOwning) {
+        Record recordHub = EntityHelper.forNew(rule.getToEntity().getEntityCode(), defaultOwning);
 
         // 解析数据
         RecordCheckout recordCheckout = new RecordCheckout(rule.getFiledsMapping());
@@ -124,7 +125,7 @@ public class DataImporter extends HeavyTask<Integer> {
 
             if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE) {
                 // 更新
-                checkout = EntityHelper.forUpdate(repeat, this.owningUser);
+                checkout = EntityHelper.forUpdate(repeat, defaultOwning);
                 for (Iterator<String> iter = recordHub.getAvailableFieldIterator(); iter.hasNext(); ) {
                     String field = iter.next();
                     if (MetadataHelper.isCommonsField(field)) continue;

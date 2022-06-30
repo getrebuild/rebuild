@@ -80,8 +80,7 @@ $(document).ready(function () {
           // _data.push({ entityName: 'Role', entityLabel: $L('角色') })
 
           $(d).each(function () {
-            // 明细实体默认隐藏
-            $(`<option value="${this.entityName}" class="${this.mainEntity ? 'bosskey-show' : ''}">${this.entityLabel}${this.mainEntity ? ` (${$L('明细实体')})` : ''}</option>`).appendTo('#refEntity')
+            $(`<option value="${this.entityName}">${this.entityLabel}</option>`).appendTo('#refEntity')
           })
         })
       }
