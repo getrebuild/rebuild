@@ -207,7 +207,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .formula-calc .numbers li > a:active {
-  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.06);
 }
 
 .formula-calc ul li.empty-1 > a {
