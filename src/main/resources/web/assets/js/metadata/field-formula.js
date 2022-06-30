@@ -11,16 +11,22 @@ function verifyFormula(formula, entity, onConfirm) {
     if (res.error_code === 0) {
       onConfirm()
     } else {
-      RbAlert.create($L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？'), {
-        type: 'warning',
-        onConfirm: function () {
-          this.hide()
-          onConfirm()
-        },
-        onCancel: function () {
-          this.hide()
-        },
-      })
+      RbAlert.create(
+        <RF>
+          <p>{$L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？')}</p>
+          {res.error_msg && <pre className="text-danger">{res.error_msg}</pre>}
+        </RF>,
+        {
+          type: 'warning',
+          onConfirm: function () {
+            this.hide()
+            onConfirm()
+          },
+          onCancel: function () {
+            this.hide()
+          },
+        }
+      )
     }
   })
 }
