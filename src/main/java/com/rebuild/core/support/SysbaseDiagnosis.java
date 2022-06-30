@@ -32,7 +32,7 @@ public class SysbaseDiagnosis {
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
 
-    public static String _DENIEDMSG = null;
+    volatile public static String _DENIEDMSG = null;
 
     public void diagnose() {
         ServerStatus.getLastStatus(true);
@@ -58,12 +58,12 @@ public class SysbaseDiagnosis {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
-            // MULTIPLE RUNNING INSTANCES DETECTED!
             _DENIEDMSG = echoValidity.getString("deniedMsg");
 
         } else {
             dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
+            _DENIEDMSG = null;
         }
 
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);

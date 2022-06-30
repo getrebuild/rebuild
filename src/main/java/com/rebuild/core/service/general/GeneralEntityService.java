@@ -276,12 +276,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
         final String entityName = MetadataHelper.getEntityName(record);
 
-        // 如用户无更新权限，则降级为只读共享
-        if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
-            if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
-                    || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
-                rights = BizzPermission.READ.getMask();
-                log.warn("Downgrade share rights to READ(8) : {}", record);
+        boolean fromTriggerNoDowngrade = GeneralEntityServiceContextHolder.isFromTrigger(false);
+        if (!fromTriggerNoDowngrade) {
+            // 如用户无更新权限，则降级为只读共享
+            if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
+                if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
+                        || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
+                    rights = BizzPermission.READ.getMask();
+                    log.warn("Downgrade share rights to READ(8) : {}", record);
+                }
             }
         }
 
@@ -313,10 +316,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 log.debug("The record has been shared and has the same rights, ignore : {}", record);
             }
 
-            // 可以共享给自己
-//        } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-//            log.debug("Share to the same user as the record, ignore : {}", record);
         } else {
+//            // 可以共享给自己
+//            if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+//                log.debug("Share to the same user as the record, ignore : {}", record);
+//            }
+
             delegateService.create(sharedAfter);
             affected = 1;
             shareChange = true;
@@ -393,7 +398,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return Collections.emptyMap();
         }
 
-        final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTriggersOnce();
+        final boolean fromTriggerNoFilter = GeneralEntityServiceContextHolder.isFromTrigger(false);
 
         Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
         Entity mainEntity = MetadataHelper.getEntity(recordMain.getEntityCode());

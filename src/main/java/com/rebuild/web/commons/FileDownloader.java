@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
@@ -104,7 +105,7 @@ public class FileDownloader extends BaseController {
 
                 BufferedImage bi = ImageIO.read(img);
                 if (bi == null) {
-                    log.debug("None image type : {}", filePath);
+                    log.debug("Unsupportted image type : {}", filePath);
                     writeStream(Files.newInputStream(img.toPath()), response);
                     return;
                 }
@@ -150,10 +151,10 @@ public class FileDownloader extends BaseController {
     private int parseWidth(String imageView2) {
         if (!imageView2.contains("/w/")) {
             return 1000;
+        } else {
+            String w = imageView2.split("/w/")[1].split("/")[0];
+            return ObjectUtils.toInt(w, 1000);
         }
-
-        String w = imageView2.split("/w/")[1].split("/")[0];
-        return Integer.parseInt(w);
     }
 
     @GetMapping(value = {"download/**", "access/**"})
@@ -323,4 +324,5 @@ public class FileDownloader extends BaseController {
         if (attname != null) url += "&attname=" + CodecUtils.urlEncode(attname);
         resp.sendRedirect(AppUtils.getContextPath(url));
     }
+
 }

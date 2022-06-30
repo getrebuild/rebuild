@@ -66,17 +66,17 @@ public class GeneralEntityServiceContextHolder {
      *
      * @param recordId
      */
-    public static void setFromTriggers(ID recordId) {
+    public static void setFromTrigger(ID recordId) {
         FROM_TRIGGERS.set(recordId);
     }
 
     /**
      * @return
-     * @see #setFromTriggers(ID)
+     * @see #setFromTrigger(ID)
      */
-    public static boolean isFromTriggersOnce() {
+    public static boolean isFromTrigger(boolean once) {
         ID recordId = FROM_TRIGGERS.get();
-        if (recordId != null) FROM_TRIGGERS.remove();
+        if (recordId != null && once) FROM_TRIGGERS.remove();
         return recordId != null;
     }
 
