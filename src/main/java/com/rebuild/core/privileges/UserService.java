@@ -408,7 +408,7 @@ public class UserService extends BaseService {
      */
     public ID txSignUp(Record record) throws DataSpecificationException {
         if (!record.hasValue("password")) {
-            record.setString("password", CodecUtils.randomCode(8) + "!8");
+            record.setString("password", CodecUtils.randomCode(6) + "Rb!8");
         }
         if (!record.hasValue("isDisabled")) {
             record.setBoolean("isDisabled", Boolean.TRUE);

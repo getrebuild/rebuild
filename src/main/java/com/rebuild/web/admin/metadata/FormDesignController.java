@@ -9,8 +9,8 @@ package com.rebuild.web.admin.metadata;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -23,7 +23,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -63,6 +62,7 @@ public class FormDesignController extends BaseController {
     @RequestMapping({"form-update"})
     public void sets(@PathVariable String entity,
                      HttpServletRequest request, HttpServletResponse response) {
+        final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
 
         // 修改字段名称
@@ -88,13 +88,10 @@ public class FormDesignController extends BaseController {
             List<Record> willUpdate = new ArrayList<>();
             Entity entityMeta = MetadataHelper.getEntity(entity);
             for (Map.Entry<String, String> e : newLabels.entrySet()) {
-                Field fieldMeta = entityMeta.getField(e.getKey());
-                EasyField fieldEasy = EasyMetaFactory.valueOf(fieldMeta);
-                if (fieldEasy.isBuiltin() || fieldEasy.getMetaId() == null) {
-                    continue;
-                }
+                EasyField fieldEasy = EasyMetaFactory.valueOf(entityMeta.getField(e.getKey()));
+                if (fieldEasy.getMetaId() == null) continue;
 
-                Record fieldRecord = EntityHelper.forUpdate(fieldEasy.getMetaId(), UserService.SYSTEM_USER, false);
+                Record fieldRecord = EntityHelper.forUpdate(fieldEasy.getMetaId(), user, false);
                 fieldRecord.setString("fieldLabel", e.getValue());
                 willUpdate.add(fieldRecord);
             }

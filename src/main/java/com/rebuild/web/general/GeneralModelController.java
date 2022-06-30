@@ -131,7 +131,7 @@ public class GeneralModelController extends EntityController {
             return model;
 
         } finally {
-            FormBuilderContextHolder.clear();
+            FormBuilderContextHolder.getMainIdOfDetail(true);
         }
     }
 

@@ -99,7 +99,7 @@ public class SignUpController extends BaseController {
 
         String loginName = data.getString("loginName");
         String fullName = data.getString("fullName");
-        String passwd = CodecUtils.randomCode(8) + "!8";
+        String passwd = CodecUtils.randomCode(6) + "Rb!8";
 
         Record userNew = EntityHelper.forNew(EntityHelper.User, UserService.SYSTEM_USER);
         userNew.setString("email", email);

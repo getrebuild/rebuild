@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,20 @@ public class RecordCheckout {
             Object value = checkoutFieldValue(field, cellValue, true);
 
             if (value != null) {
-                record.setObjectValue(field.getName(), value);
+                if (field.getName().equalsIgnoreCase(EntityHelper.OwningUser)) {
+                    User owning = Application.getUserStore().getUser((ID) value);
+                    if (owning.getOwningDept() == null) {
+                        putTraceLog(cellValue, Language.L(EasyMetaFactory.getDisplayType(field)));
+                    } else {
+                        // 用户部门联动
+                        record.setObjectValue(field.getName(), value);
+                        record.setID(EntityHelper.OwningDept, (ID) owning.getOwningDept().getIdentity());
+                    }
+
+                } else {
+                    record.setObjectValue(field.getName(), value);
+                }
+
             } else {
                 putTraceLog(cellValue, Language.L(EasyMetaFactory.getDisplayType(field)));
             }
@@ -182,7 +196,7 @@ public class RecordCheckout {
         final String val = cell.asString();
         final Entity refEntity = field.getReferenceEntity();
 
-        // 支持ID
+        // 支持 ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == refEntity.getEntityCode()) {
             ID checkId = ID.valueOf(val);
             Object exists = Application.getQueryFactory().uniqueNoFilter(checkId, refEntity.getPrimaryField().getName());

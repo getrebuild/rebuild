@@ -125,7 +125,7 @@
           const $name = $(`<td><a href="field/${item.fieldName}" class="column-main">${item.fieldLabel}</a></td>`).appendTo($tr)
           if (item.fieldName === wpc.nameField) {
             $tr.addClass('primary')
-            $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('名称')}</span>`).appendTo($name)
+            $(`<span class="badge badge-pill badge-secondary font-weight-light ml-1 pb-0">${$L('名称')}</span>`).appendTo($name)
           } else if (!item.creatable) {
             $tr.addClass('muted')
           } else if (!item.nullable) {
