@@ -147,7 +147,7 @@ public class RecordTransfomer extends SetUser {
                 int fillbackMode = transConfig.getIntValue("fillbackMode");
 
                 // 仅更新，无业务规则
-                if (fillbackMode == 3) {
+                if (fillbackMode == 3 || fillbackMode == 0) {
                     Application.getCommonsService().update(updateSource, false);
                 }
                 // 忽略审批状态（进行中）强制更新
