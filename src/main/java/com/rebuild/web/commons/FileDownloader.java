@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
@@ -20,10 +19,10 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.ImageView2;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -32,10 +31,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,10 +84,10 @@ public class FileDownloader extends BaseController {
                 response.setContentType(mimeType);
             }
 
-            final int wh = imageView2 == null ? 0 : parseWidth(imageView2);
+            ImageView2 iv2 = new ImageView2(imageView2);
 
-            // 原图
-            if (wh <= 0 || wh >= 1000) {
+            // 使用原图
+            if (iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
                 writeLocalFile(filePath, temp, response);
             }
             // 粗略图
@@ -103,28 +100,7 @@ public class FileDownloader extends BaseController {
                     return;
                 }
 
-                BufferedImage bi = ImageIO.read(img);
-                if (bi == null) {
-                    log.debug("Unsupportted image type : {}", filePath);
-                    writeStream(Files.newInputStream(img.toPath()), response);
-                    return;
-                }
-
-                Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
-                if (bi.getWidth() > wh) {
-                    builder.size(wh, wh);
-                } else {
-                    builder.scale(1.0);
-                }
-
-                try {
-                    builder
-                            .outputFormat(mimeType != null && mimeType.contains("png") ? "png" : "jpg")
-                            .toOutputStream(response.getOutputStream());
-                } catch (IOException ex) {
-                    // ClientAbortException
-                    log.info("SUPPRESS : {}", ex.getLocalizedMessage());
-                }
+                writeLocalFile(iv2.thumb(img), response);
             }
 
         } else {
@@ -139,21 +115,6 @@ public class FileDownloader extends BaseController {
 
             String privateUrl = QiniuCloud.instance().makeUrl(filePath, 30 * 60);
             response.sendRedirect(privateUrl);
-        }
-    }
-
-    /**
-     * 宽度参数
-     *
-     * @param imageView2
-     * @return
-     */
-    private int parseWidth(String imageView2) {
-        if (!imageView2.contains("/w/")) {
-            return 1000;
-        } else {
-            String w = imageView2.split("/w/")[1].split("/")[0];
-            return ObjectUtils.toInt(w, 1000);
         }
     }
 
@@ -212,16 +173,19 @@ public class FileDownloader extends BaseController {
 
     // --
 
-    /**
-     * 本地文件下载
-     *
-     * @param filePath
-     * @param temp
-     * @param response
-     * @return
-     * @throws IOException
-     */
-    public static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
+    private static String checkFilePath(String filepath) {
+        filepath = CodecUtils.urlDecode(filepath);
+        filepath = filepath.replace("\\", "/");
+
+        if (filepath.contains("../")
+                || filepath.startsWith("_log/") || filepath.contains("/_log/")
+                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
+            throw new RebuildException("Attack path detected : " + filepath);
+        }
+        return filepath;
+    }
+
+    private static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
         filePath = checkFilePath(filePath);
         File file = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
         return writeLocalFile(file, response);
@@ -236,7 +200,7 @@ public class FileDownloader extends BaseController {
      * @throws IOException
      */
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
-        if (!file.exists()) {
+        if (file == null || !file.exists()) {
             response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
             response.sendError(HttpStatus.NOT_FOUND.value());
             return false;
@@ -298,22 +262,6 @@ public class FileDownloader extends BaseController {
     }
 
     /**
-     * @param filepath
-     * @return
-     */
-    private static String checkFilePath(String filepath) {
-        filepath = CodecUtils.urlDecode(filepath);
-        filepath = filepath.replace("\\", "/");
-
-        if (filepath.contains("../")
-                || filepath.startsWith("_log/") || filepath.contains("/_log/")
-                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
-            throw new RebuildException("Attack path detected : " + filepath);
-        }
-        return filepath;
-    }
-
-    /**
      * @param resp
      * @param file
      * @param attname
@@ -324,5 +272,4 @@ public class FileDownloader extends BaseController {
         if (attname != null) url += "&attname=" + CodecUtils.urlEncode(attname);
         resp.sendRedirect(AppUtils.getContextPath(url));
     }
-
 }
