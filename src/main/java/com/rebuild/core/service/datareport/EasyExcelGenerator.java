@@ -92,10 +92,8 @@ public class EasyExcelGenerator extends SetUser {
             iter.remove();
         }
 
-        ExcelWriter excelWriter = null;
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
-        try {
-            excelWriter = EasyExcel.write(tmp).withTemplate(template).build();
+        try (ExcelWriter excelWriter = EasyExcel.write(tmp).withTemplate(template).build()) {
             WriteSheet writeSheet = EasyExcel.writerSheet().registerWriteHandler(new FixsMergeStrategy()).build();
 
             // 有明细记录
@@ -107,12 +105,8 @@ public class EasyExcelGenerator extends SetUser {
             if (main != null) {
                 excelWriter.fill(main, writeSheet);
             }
-
-        } finally {
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
         }
+
         return tmp;
     }
 

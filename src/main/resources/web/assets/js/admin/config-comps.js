@@ -158,6 +158,25 @@ class ConfigList extends React.Component {
   }
 }
 
-const ShowEnable = (enable) => {
-  return enable ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+function ShowEnable(enable, cfgid) {
+  if (cfgid) {
+    const htmlid = `enable-${$random()}`
+    return (
+      <div className="switch-button switch-button-xs switch-button-success">
+        <input
+          type="checkbox"
+          defaultChecked={enable}
+          id={htmlid}
+          onClick={(e) => {
+            console.log(cfgid, e.target.checked)
+          }}
+        />
+        <span>
+          <label htmlFor={htmlid}></label>
+        </span>
+      </div>
+    )
+  } else {
+    return enable ? <span className="badge badge-grey font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+  }
 }
