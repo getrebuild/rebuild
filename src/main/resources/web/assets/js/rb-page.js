@@ -48,7 +48,7 @@ $(function () {
       })
     })
 
-    _initNavs()
+    _initNav()
     setTimeout(_initGlobalSearch, 500)
     setTimeout(_initGlobalCreate, 500)
   }
@@ -216,7 +216,7 @@ var _cancelAdmin = function () {
 /**
  * 初始化导航菜单
  */
-var _initNavs = function () {
+var _initNav = function () {
   var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
   // Nav
@@ -244,20 +244,17 @@ var _initNavs = function () {
   // SubNavs
   var $currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
-    e.preventDefault()
-    e.stopPropagation()
+    $stopEvent(e, true)
     var $this = $(this)
-    $this.toggleClass('open')
     var $sub = $this.find('.sub-menu')
-    // if (!$sub.hasClass('visible')) {
-    //   var subHeight = $sub.height()
-    //   $sub.css({ height: 0, overflow: 'hidden' })
-    //   $sub.animate({ height: subHeight + 22 }, 200)
-    // }
+
     $sub.toggleClass('visible')
     $currsntSubnav = $this
     $this.find('a').eq(0).tooltip('hide')
     $('.left-sidebar-scroll').perfectScrollbar('update')
+
+    if ($sub.hasClass('visible')) $this.addClass('open')
+    else $this.removeClass('open')
   })
   $('.sidebar-elements li.parent .sub-menu').click(function (e) {
     e.stopPropagation()
