@@ -106,9 +106,8 @@ public class OperatingContext {
 
     @Override
     public String toString() {
-        String clearTxt = "{ Operator: %s (), Action: %s, Record(s): %s(%d) }";
-        return String.format(clearTxt,
-                getOperator(), getAction().getName(), getAnyRecord().getPrimary(), getAffected().length);
+        return String.format("[ Action:%s, Record(s):%s(%d) ]",
+                getAction().getName(), getAnyRecord().getPrimary(), getAffected().length);
     }
 
     /**

@@ -22,7 +22,6 @@ import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.notification.MessageBuilder;
-import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -415,8 +414,6 @@ public class ApprovalStepService extends InternalPersistService {
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
         super.update(recordOfMain);
-
-        RobotTriggerObserver.forceTriggerSelf();
 
         Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
         return true;
