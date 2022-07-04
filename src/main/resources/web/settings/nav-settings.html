@@ -84,6 +84,12 @@
               </span>
               <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('菜单名称')}" />
             </div>
+            <div class="input-group mb-3 J_defaultOpen" style="display: none">
+              <label class="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0">
+                <input class="custom-control-input" type="checkbox" id="defaultOpen" />
+                <span class="custom-control-label">[[${bundle.L('默认展开')}]]</span>
+              </label>
+            </div>
             <div>
               <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.L('确定')}]]</button>
             </div>

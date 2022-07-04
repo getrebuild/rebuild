@@ -410,34 +410,31 @@ public class ApprovalStepService extends InternalPersistService {
     public boolean txAutoApproved(ID recordId, ID useApprover, ID useApproval) {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
 
-        // 其他状态不能自动审批
-        if (!(currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED)) {
-            
-            if (useApprover == null) useApprover = UserService.SYSTEM_USER;
-            if (useApproval == null) useApproval = APPROVAL_NOID;
-
-            ID stepId = createStepIfNeed(recordId, useApproval,
-                    FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT,
-                    CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
-
-            Record step = EntityHelper.forUpdate(stepId, useApprover, false);
-            step.setInt("state", ApprovalState.APPROVED.getState());
-            step.setString("remark", Language.L("自动审批"));
-            super.update(step);
-
-            // 更新记录审批状态
-            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
-            recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
-            recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
-            super.update(recordOfMain);
-
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
-            return true;
-
-        } else {
+        if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
             log.warn("Invalid state {} for auto approval", currentState);
             return false;
         }
+
+        if (useApprover == null) useApprover = UserService.SYSTEM_USER;
+        if (useApproval == null) useApproval = APPROVAL_NOID;
+
+        ID stepId = createStepIfNeed(recordId, useApproval,
+                FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT,
+                CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
+
+        Record step = EntityHelper.forUpdate(stepId, useApprover, false);
+        step.setInt("state", ApprovalState.APPROVED.getState());
+        step.setString("remark", Language.L("自动审批"));
+        super.update(step);
+
+        // 更新记录审批状态
+        Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+        recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
+        recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
+        super.update(recordOfMain);
+
+        Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
+        return true;
     }
 
     /**

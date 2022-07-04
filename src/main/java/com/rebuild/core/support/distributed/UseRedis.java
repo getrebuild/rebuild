@@ -37,8 +37,8 @@ public interface UseRedis {
             _log.debug("Use redis server : {}", jedis.info("server"));  // test NOAUTH
             return true;
         } catch (Exception ex) {
-            _log.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
-                    + " !!! falling back to EhCache");
+            _log.warn("Acquisition J/Redis failed : {}  !!! falling back to EhCache ({})",
+                    ThrowableUtils.getRootCause(ex).getLocalizedMessage(), getClass().getSimpleName());
             return false;
         } finally {
             IOUtils.closeQuietly(jedis);

@@ -49,23 +49,23 @@
               <li th:class="${active == 'classifications'} ? 'active'">
                 <a th:href="@{/admin/metadata/classifications}"><i class="icon zmdi zmdi-layers"></i><span>[[${bundle.L('分类数据')}]]</span></a>
               </li>
-              <li th:class="${active == 'robot-trigger'} ? 'active'">
-                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
-              </li>
               <li th:class="${active == 'robot-approval'} ? 'active'">
                 <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('审批流程')}]]</span></a>
+              </li>
+              <li th:class="${active == 'robot-trigger'} ? 'active'">
+                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
               <li th:class="${active == 'robot-transforms'} ? 'active'">
                 <a th:href="@{/admin/robot/transforms}"><i class="icon zmdi zmdi-transform"></i><span>[[${bundle.L('记录转换')}]]</span></a>
               </li>
-              <li th:class="${active == 'extforms'} ? 'active'">
-                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup> </a>
+              <li th:class="${active == 'report-templates'} ? 'active'">
+                <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.L('报表模板')}]]</span></a>
               </li>
               <li th:class="${active == 'data-imports'} ? 'active'">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
-              <li th:class="${active == 'report-templates'} ? 'active'">
-                <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.L('报表模板')}]]</span></a>
+              <li th:class="${active == 'extforms'} ? 'active'">
+                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup> </a>
               </li>
               <li class="divider">[[${bundle.L('高级功能')}]]</li>
               <li th:class="${active == 'projects'} ? 'active'">

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter */
+/* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<ReporEdit />))
@@ -28,7 +28,7 @@ class ReportList extends ConfigList {
                 {item[6] === 2 && <span className="badge badge-secondary badge-sm ml-1">{$L('列表模板')}</span>}
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>{ShowEnable(item[4])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>

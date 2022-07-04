@@ -238,7 +238,7 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     const that = this
-    let alertMsg = $L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？')
+    let alertMsg = WrapHtml($L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？'))
     const alertExt = {
       type: 'danger',
       confirm: function () {
@@ -264,7 +264,7 @@ class LevelBox extends React.Component {
     }
 
     if (item[3] !== true) {
-      alertMsg = $L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。')
+      alertMsg = WrapHtml($L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。'))
       alertExt.confirmText = $L('删除')
       alertExt.cancelText = $L('禁用')
       alertExt.cancel = function () {

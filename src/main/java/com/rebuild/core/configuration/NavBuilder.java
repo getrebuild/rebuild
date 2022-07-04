@@ -27,6 +27,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -326,9 +327,12 @@ public class NavBuilder extends NavManager {
         if (NAV_DIVIDER.equals(navType)) {
             navItemHtml = "<li class=\"divider\">" + navText;
         } else {
+            String parentClass = " parent";
+            if (BooleanUtils.toBoolean(item.getString("open"))) parentClass += " open";
+
             navItemHtml = String.format(
                     "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
-                    navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                    navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
                     navEntity == null ? StringUtils.EMPTY : navEntity,
                     subNavs == null ? navUrl : "###",
                     isOutUrl ? "_blank" : "_self",
@@ -372,6 +376,7 @@ public class NavBuilder extends NavManager {
 
     // TODO 目前仅处理了默认导航
 
+    @SuppressWarnings("SameParameterValue")
     private static JSONArray replaceLang(JSONArray resource) {
         JSONArray clone = (JSONArray) resource.clone();
         for (Object o : clone) {

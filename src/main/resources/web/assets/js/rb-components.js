@@ -214,7 +214,12 @@ class RbAlert extends React.Component {
     if (this.props.width) styles.maxWidth = ~~this.props.width
 
     return (
-      <div className="modal rbalert" ref={(c) => (this._dlg = c)}>
+      <div
+        className="modal rbalert"
+        ref={(c) => {
+          this._dlg = c
+          this._element = c
+        }}>
         <div className="modal-dialog modal-dialog-centered" style={styles}>
           <div className="modal-content">
             <div className="modal-header pb-0">

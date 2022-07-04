@@ -163,9 +163,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
         for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cascade delete - " + e.getKey() + " > " + e.getValue());
-            }
+            log.info("Cascading delete - {} > {} ", e.getKey(), e.getValue());
 
             for (ID id : e.getValue()) {
                 if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
@@ -175,7 +173,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     try {
                         deleted = this.deleteInternal(id);
                     } catch (DataSpecificationException ex) {
-                        log.warn("Cannot delete : " + id + " Ex : " + ex);
+                        log.warn("Cannot delete {} because {}", id, ex.getLocalizedMessage());
                     } finally {
                         if (deleted > 0) {
                             affected++;
@@ -184,7 +182,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         }
                     }
                 } else {
-                    log.warn("No have privileges to DELETE : " + currentUser + " > " + id);
+                    log.warn("No have privileges to DELETE : {} > {}", currentUser, id);
                 }
             }
         }
@@ -243,9 +241,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected = 0;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
-            if (log.isDebugEnabled()) {
-                log.debug("The record owner has not changed, ignore : {}", record);
-            }
+            log.debug("The record owner has not changed, ignore : {}", record);
         } else {
             assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
 
@@ -256,9 +252,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cascading assign - {} > {}", e.getKey(), e.getValue());
-            }
+            log.info("Cascading assign - {} > {}", e.getKey(), e.getValue());
+
             for (ID casid : e.getValue()) {
                 affected += assign(casid, to, null);
             }
@@ -329,7 +324,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            log.debug("Cascade share - {} > {}", e.getKey(), e.getValue());
+            log.info("Cascading share - {} > {}", e.getKey(), e.getValue());
 
             for (ID casid : e.getValue()) {
                 affected += share(casid, to, null, rights);

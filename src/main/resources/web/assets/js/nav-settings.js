@@ -6,11 +6,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const UNICON_NAME = 'texture'
+const TYPE_PARENT = '$PARENT$'
+
 let _Share2
 let _entityInfos = {}
 
 $(document).ready(function () {
-  $('.J_add-menu').click(() => render_item({}, true))
+  $('.J_add-menu').on('click', () => render_item({}, true))
 
   // 系统内置
   $('#sys-built > option').each(function () {
@@ -38,10 +40,13 @@ $(document).ready(function () {
             $('.J_menuName').val(d.label)
           }
         }
+
+        if ($ref.val() === TYPE_PARENT) $('.J_defaultOpen').show()
+        else $('.J_defaultOpen').hide()
       })
   })
 
-  $('.J_menuIcon').click(function () {
+  $('.J_menuIcon').on('click', () => {
     parent.clickIcon = function (s) {
       $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${s}`)
       parent.RbModal.hide()
@@ -49,7 +54,7 @@ $(document).ready(function () {
     parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
-  $('.J_menuConfirm').click(function () {
+  $('.J_menuConfirm').on('click', () => {
     const name = $val('.J_menuName')
     if (!name) return RbHighbar.create($L('请输入菜单名称'))
 
@@ -74,12 +79,14 @@ $(document).ready(function () {
       type: type,
       value: value,
       icon: icon,
+      open: $val($('#defaultOpen')),
     })
 
     item_currentid = null
     $('.J_config li').removeClass('active')
     $('.J_edit-tips').removeClass('hide')
     $('.J_edit-menu').addClass('hide')
+    $('#defaultOpen').attr('checked', false)
   })
 
   let overwriteMode = false
@@ -87,13 +94,13 @@ $(document).ready(function () {
   const _save = function (navs) {
     const $btn = $('.J_save').button('loading')
     const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
-    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), function (res) {
+    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
   }
 
-  $('.J_save').click(function () {
+  $('.J_save').on('click', () => {
     const navs = []
     $('.J_config>.dd-item').each(function () {
       const $item = build_item($(this), navs)
@@ -116,7 +123,7 @@ $(document).ready(function () {
   // 加载
 
   use_sortable('.J_config')
-  $.get(`/app/settings/nav-settings?id=${cfgid || ''}`, function (res) {
+  $.get(`/app/settings/nav-settings?id=${cfgid || ''}`, (res) => {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {
@@ -176,6 +183,8 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
+  if (data.value === TYPE_PARENT) data.open = item.attr('attr-open') === 'true'
+
   const $subNavs = item.find('ul>li')
   if ($subNavs.length > 0) {
     data.sub = []
@@ -189,10 +198,9 @@ const build_item = function (item) {
 
 let item_currentid
 let item_current_isNew
-let item_randomid = new Date().getTime()
 
 const render_item = function (data, isNew, append2) {
-  data.id = data.id || item_randomid++
+  data.id = data.id || $random()
   data.text = data.text || $L('未命名')
   data.icon = data.icon || UNICON_NAME
   append2 = append2 || '.J_config'
@@ -207,14 +215,14 @@ const render_item = function (data, isNew, append2) {
     $action
       .find('a.J_del')
       .off('click')
-      .click(function () {
+      .on('click', () => {
         $item.remove()
         fix_parents()
       })
     $action
       .find('a.J_addsub')
       .off('click')
-      .click(function () {
+      .on('click', () => {
         let $subUl = $item.find('ul')
         if ($subUl.length === 0) {
           $subUl = $('<ul></ul>').appendTo($item)
@@ -236,10 +244,11 @@ const render_item = function (data, isNew, append2) {
     'attr-type': data.type || 'ENTITY',
     'attr-value': data.value || '',
     'attr-icon': data.icon,
+    'attr-open': data.open || '',
   })
 
   // Event
-  $content3.off('click').click(function () {
+  $content3.off('click').on('click', () => {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
 
@@ -250,13 +259,21 @@ const render_item = function (data, isNew, append2) {
     $('.J_menuIcon i').attr('class', `zmdi zmdi-${data.icon}`)
     $('.J_menuUrl, .J_menuEntity').val('')
     if (data.type === 'URL') {
-      $('.J_menuType').eq(1).click()
+      $('.J_menuType').eq(1).on('click')
       $('.J_menuUrl').val(data.value)
     } else {
-      $('.J_menuType').eq(0).click()
+      $('.J_menuType').eq(0).on('click')
       data.value = $item.attr('attr-value') // force renew
       const $me = $('.J_menuEntity').val(data.value).trigger('change')
-      $me.attr('disabled', data.value === '$PARENT$')
+
+      if (data.value === TYPE_PARENT) {
+        $me.attr('disabled', true)
+        $('.J_defaultOpen').show()
+        $('#defaultOpen')[0].checked = data.open === true
+      } else {
+        $me.attr('disabled', false)
+        $('.J_defaultOpen').hide()
+      }
 
       // 实体已经不存在
       // if (_entity_data[data.value]) $me.removeClass('is-invalid')
@@ -278,7 +295,7 @@ const render_item = function (data, isNew, append2) {
 const fix_parents = function () {
   $('.J_config>li').each(function () {
     const $me = $(this)
-    if ($me.find('ul>li').length > 0) $me.attr({ 'attr-value': '$PARENT$' })
-    else if ($me.attr('attr-value') === '$PARENT$') $me.attr({ 'attr-value': '' })
+    if ($me.find('ul>li').length > 0) $me.attr({ 'attr-value': TYPE_PARENT })
+    else if ($me.attr('attr-value') === TYPE_PARENT) $me.attr({ 'attr-value': '' })
   })
 }

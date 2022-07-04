@@ -3047,7 +3047,7 @@ form {
 
 .search-container > .global-create > .dropdown > a {
   display: inline-block;
-  width: 35px;
+  width: 37px;
   line-height: 37px;
   height: 37px;
   text-align: center;
@@ -3066,9 +3066,13 @@ form {
   background-color: #f5f5f5;
 }
 
+.search-container > .global-search > .icon {
+  color: rgba(0, 0, 0, 0.3);
+}
+
 .rb-top-header .search-input-gs,
 .search-container > .global-create > .dropdown > a {
-  border-radius: 4px;
+  border-radius: 99px;
 }
 
 .preview-modal {
@@ -4747,4 +4751,26 @@ pre.unstyle {
   width: 88%;
   margin: 0 auto;
   text-align: left;
+}
+
+.switch-button.switch-button-xs label:before {
+  font-size: 12px;
+  transform: scale(0.8333);
+  font-weight: normal;
+  padding-right: 5px;
+}
+
+/* nav 2.10 */
+
+.rb-left-sidebar .sidebar-elements > li ul {
+  background-color: #f5f5f5;
+}
+
+.rb-left-sidebar .sidebar-elements > li > a:hover,
+.rb-left-sidebar .sidebar-elements > li ul li > a:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.rb-left-sidebar.v2 .sidebar-elements li.active > a {
+  background-color: rgba(0, 0, 0, 0.08);
 }

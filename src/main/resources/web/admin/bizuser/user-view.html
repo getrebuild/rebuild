@@ -4,6 +4,12 @@
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <title>[[${bundle.L('用户视图')}]]</title>
+    <style>
+      b.newpwd:hover {
+        cursor: pointer;
+        opacity: 0.8;
+      }
+    </style>
   </head>
   <body class="view-body">
     <div class="view-header">
@@ -64,6 +70,20 @@
               <dt class="col-12 col-lg-4">[[${bundle.L('修改时间')}]]</dt>
               <dd class="col-12 col-lg-8 J_modifiedOn"></dd>
             </dl>
+            <dl class="row">
+              <dt class="col-12 col-lg-4">[[${bundle.L('上次登录')}]]</dt>
+              <dd class="col-12 col-lg-8 J_loginOn"><span>[[${bundle.L('无')}]]</span></dd>
+            </dl>
+          </div>
+
+          <div>
+            <div class="alert alert-info alert-icon alert-icon-border alert-sm hide J_roles mt-5">
+              <div class="icon"><span class="zmdi zmdi-lock"></span></div>
+              <div class="message">
+                <span class="text-muted">[[${bundle.L('附加角色')}]]</span>
+                <p class="column-n2n"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -77,6 +97,7 @@
         onViewEditable: false,
       }
     </script>
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
