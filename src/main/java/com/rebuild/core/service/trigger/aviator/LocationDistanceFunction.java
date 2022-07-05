@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * Usage: LOCATIONDISTANCE(location1, location2)
+ * Usage: LOCATIONDISTANCE($location1, $location2)
  * Return: Number (米)
  *
  * @author devezhao

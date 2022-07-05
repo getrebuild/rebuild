@@ -44,6 +44,7 @@ public class AviatorUtils {
         addCustomFunction(new CurrentDateFunction());
         addCustomFunction(new LocationDistanceFunction());
         addCustomFunction(new RequestFunctuin());
+        addCustomFunction(new TextFunction());
     }
 
     /**
