@@ -203,26 +203,23 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return 0;
         }
 
-        // 手动删除明细记录，以执行触发器
-        Entity hasDetailEntity = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
-        if (hasDetailEntity != null) {
-            TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(hasDetailEntity, TriggerWhen.DELETE);
+        // 手动删除明细记录，以执行系统规则（如触发器）
+        Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
+        if (de != null) {
+            String sql = String.format("select %s from %s where %s = ?",
+                    de.getPrimaryField().getName(), de.getName(),
+                    MetadataHelper.getDetailToMainField(de).getName());
 
-            if (hasTriggers != null && hasTriggers.length > 0) {
-                String sql = String.format("select %s from %s where %s = ?",
-                        hasDetailEntity.getPrimaryField().getName(), hasDetailEntity.getName(),
-                        MetadataHelper.getDetailToMainField(hasDetailEntity).getName());
+            Object[][] details = Application.createQueryNoFilter(sql)
+                    .setParameter(1, record)
+                    .array();
 
-                Object[][] details = Application.getQueryFactory().createQueryNoFilter(sql)
-                        .setParameter(1, record).array();
-
-                HeavyStopWatcher.createWatcher("PERFORMANCE ISSUE", "DELETE:" + details.length);
-                for (Object[] d : details) {
-                    // 明细无约束检查
-                    super.delete((ID) d[0]);
-                }
-                HeavyStopWatcher.clean();
+            HeavyStopWatcher.createWatcher("PERFORMANCE ISSUE", "DELETE:" + details.length);
+            for (Object[] d : details) {
+                // 明细无约束检查
+                super.delete((ID) d[0]);
             }
+            HeavyStopWatcher.clean();
         }
 
         return super.delete(record);
