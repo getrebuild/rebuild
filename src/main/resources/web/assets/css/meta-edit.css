@@ -232,3 +232,8 @@ a#entityIcon:hover {
 .common-patt .badge:hover {
   color: #4285f4 !important;
 }
+
+.input-group-append > .btn-secondary + .btn-secondary {
+  border-top-right-radius: 2px !important;
+  border-bottom-right-radius: 2px !important;
+}

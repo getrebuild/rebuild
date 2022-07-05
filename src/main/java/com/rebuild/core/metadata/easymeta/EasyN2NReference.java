@@ -60,6 +60,13 @@ public class EasyN2NReference extends EasyReference {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         if (StringUtils.isBlank(valueExpr)) return null;
 
+        if (valueExpr.contains(VAR_CURRENT)) {
+            Object id = exprCurrent();
+            if (id == null) return null;
+            else if (id instanceof ID[]) return id;
+            else return new ID[] {(ID) id};
+        }
+
         List<ID> idArray = new ArrayList<>();
         for (String id : valueExpr.split(",")) {
             if (ID.isId(id)) idArray.add(ID.valueOf(id));
