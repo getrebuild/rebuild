@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * Wrap {@link Date}
+ *
  * @author devezhao
  * @since 2021/4/12
  */
