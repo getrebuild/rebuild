@@ -96,7 +96,10 @@ public class GroupAggregation extends FieldAggregation {
             String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
-            if (val != null) {
+            if (val == null) {
+                qFields.add(String.format("%s is null", targetField));
+                qFieldsFollow.add(String.format("%s is null", sourceField));
+            } else {
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
                         Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(
@@ -184,7 +187,7 @@ public class GroupAggregation extends FieldAggregation {
                 targetEntity.getPrimaryField().getName(), targetEntity.getName(),
                 StringUtils.join(qFields.iterator(), " and "));
 
-        Object[] targetRecord = Application.getQueryFactory().createQueryNoFilter(ql).unique();
+        Object[] targetRecord = Application.createQueryNoFilter(ql).unique();
         if (targetRecord != null) {
             targetRecordId = (ID) targetRecord[0];
             return;
