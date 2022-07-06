@@ -461,7 +461,9 @@ const _handleReference = function (isN2N) {
     const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon zmdi zmdi-account-o"></i></button>`).appendTo('.J_defaultValue-append')
     $current.on('click', () => {
       $dv.attr('data-value-id', CURRENT_BIZZ).val(CURRENT_BIZZ)
+      $dvClear.removeClass('hide')
     })
+    $dvClear.css({ right: 75 })
   }
 
   _loadRefsLabel($dv, $dvClear)
@@ -469,7 +471,10 @@ const _handleReference = function (isN2N) {
 
 const _loadRefsLabel = function ($dv, $dvClear) {
   const dvid = $dv.val()
-  if (dvid && dvid !== CURRENT_BIZZ) {
+
+  if (dvid === CURRENT_BIZZ) {
+    $dvClear && $dvClear.removeClass('hide')
+  } else if (dvid) {
     $.get(`/commons/search/read-labels?ids=${encodeURIComponent(dvid)}&ignoreMiss=true`, (res) => {
       if (res.data) {
         const ids = []
