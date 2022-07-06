@@ -67,9 +67,26 @@ class ConfigList extends React.Component {
   componentDidMount() {
     dlgActionAfter_List = this
     this.loadData()
+
     // 搜索
     const $btn = $('.input-search .btn').click(() => this.loadData())
     $('.input-search .form-control').keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+
+    // 简单排序
+    let asc = false
+    const $sort = $('.data-list .table th.use-sort').on('click', () => {
+      const index = ~~($sort.data('sort-index') || '1')
+      const s = this.state.data
+      s.sort((a, b) => {
+        if (asc) {
+          return (b[index] || '').localeCompare(a[index] || '')
+        } else {
+          return (a[index] || '').localeCompare(b[index] || '')
+        }
+      })
+      this.setState({ data: s })
+      asc = !asc
+    })
   }
 
   // 加载数据
