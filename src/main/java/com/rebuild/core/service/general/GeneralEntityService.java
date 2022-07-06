@@ -362,6 +362,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     // FIXME Transaction rolled back because it has been marked as rollback-only
     // 20210722 删除时出错会报以上错误
+    // 20220706 批量删除时存在（数据校验）
     @Override
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);
