@@ -397,6 +397,7 @@ const AdvControl = {
   append: function (item) {
     this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
       const $this = $(this)
+      if ($this.prop('disabled')) return
       item[$this.attr('name')] = $this.prop('checked')
     })
   },
@@ -404,6 +405,7 @@ const AdvControl = {
   set: function (item) {
     this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
       const $this = $(this)
+      if ($this.prop('disabled')) return
       const v = item[$this.attr('name')]
       if (v === true || v === false) $this.attr('checked', v)
     })
