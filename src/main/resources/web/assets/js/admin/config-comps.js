@@ -72,21 +72,26 @@ class ConfigList extends React.Component {
     const $btn = $('.input-search .btn').click(() => this.loadData())
     $('.input-search .form-control').keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
 
-    // 简单排序
-    let asc = false
-    const $sort = $('.data-list .table th.use-sort').on('click', () => {
-      const index = ~~($sort.data('sort-index') || '1')
-      const s = this.state.data
-      s.sort((a, b) => {
-        if (asc) {
-          return (b[index] || '').localeCompare(a[index] || '')
-        } else {
-          return (a[index] || '').localeCompare(b[index] || '')
-        }
-      })
-      this.setState({ data: s })
-      asc = !asc
+    $('.data-list .table th.use-sort').on('click', () => this._sortByName())
+  }
+
+  // 简单排序
+  _sortByName(data, callback) {
+    const $sort = $('.data-list .table th.use-sort')
+    const index = ~~($sort.data('sort-index') || 1)
+
+    if (!data) this.__asc = !this.__asc
+
+    const s = data || this.state.data
+    s.sort((a, b) => {
+      if (this.__asc) {
+        return (a[index] || '').localeCompare(b[index] || '')
+      } else {
+        return (b[index] || '').localeCompare(a[index] || '')
+      }
     })
+
+    this.setState({ data: s }, callback)
   }
 
   // 加载数据
@@ -99,7 +104,7 @@ class ConfigList extends React.Component {
 
     $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ data: res.data || [] }, () => {
+        this._sortByName(res.data || [], () => {
           $('.rb-loading-active').removeClass('rb-loading-active')
           $('.dataTables_info').text($L('共 %d 项', this.state.data.length))
 
