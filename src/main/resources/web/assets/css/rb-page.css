@@ -4654,6 +4654,23 @@ pre.unstyle {
   right: 0;
 }
 
+.protable .table thead th .tipping {
+  position: absolute;
+  font-size: 1.21rem;
+  margin-left: 6px;
+  margin-top: 1px;
+  cursor: help;
+  color: #777;
+}
+
+.protable .table thead th .tipping:hover {
+  opacity: 0.8;
+}
+
+.protable .table thead th.required .tipping {
+  margin-left: 16px;
+}
+
 .protable .table tbody .col-index[title] {
   background-color: #ea4335;
   color: #fff;

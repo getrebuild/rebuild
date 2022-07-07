@@ -47,6 +47,7 @@ class ProTable extends React.Component {
                 return (
                   <th key={item.field} data-field={item.field} style={colStyles} className={item.nullable ? '' : 'required'}>
                     {item.label}
+                    {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
                   </th>
                 )
@@ -96,6 +97,7 @@ class ProTable extends React.Component {
       this._initModel = res.data // 新建用
       this.setState({ formFields: res.data.elements }, () => {
         $(this._$scroller).perfectScrollbar()
+        // $(this._$scroller).find('thead .tipping').tooltip({})
       })
 
       // 编辑
