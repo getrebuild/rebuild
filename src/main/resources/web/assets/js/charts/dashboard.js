@@ -238,9 +238,9 @@ const add_widget = function (item) {
   const gsi = `<div class="grid-stack-item"><div id="${chid}" class="grid-stack-item-content"></div></div>`
   // Use gridstar
   if (item.size_x || item.size_y) {
-    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, 2, 12, 2, 12)
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, 2, 24)
   } else {
-    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 24)
   }
 
   item.editable = dash_editable
