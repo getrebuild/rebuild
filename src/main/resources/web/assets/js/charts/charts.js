@@ -5,6 +5,9 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// in `chart-design`
+const __PREVIEW = !!(window.__PageConfig || {}).chartConfig
+
 // 图表基类
 class BaseChart extends React.Component {
   constructor(props) {
@@ -130,7 +133,7 @@ class ChartIndex extends BaseChart {
       <div className="chart index" ref={(c) => (this._chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p>{data.index.label || this.label}</p>
-          <a href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+          <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
             <strong>{data.index.data}</strong>
           </a>
         </div>
