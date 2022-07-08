@@ -328,7 +328,7 @@ class DlgEditField extends RbAlert {
         </div>
         {this.props.displayType === 'NTEXT' && (
           <div className="form-group">
-            <label>{$L('高度')}</label>
+            <label>{$L('高度 (行数)')}</label>
             <input type="number" className="form-control form-control-sm" name="fieldHeight" value={this.state.fieldHeight || ''} onChange={this.handleChange} placeholder={$L('默认')} />
           </div>
         )}
