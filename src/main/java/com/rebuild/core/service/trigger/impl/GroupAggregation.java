@@ -7,12 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -42,6 +45,8 @@ import java.util.*;
 @Slf4j
 public class GroupAggregation extends FieldAggregation {
 
+    private GroupAggregationRefresh groupAggregationRefresh;
+
     public GroupAggregation(ActionContext context) {
         super(context);
     }
@@ -49,6 +54,23 @@ public class GroupAggregation extends FieldAggregation {
     @Override
     public ActionType getType() {
         return ActionType.GROUPAGGREGATION;
+    }
+
+    @Override
+    public void clean() {
+        super.clean();
+
+        // 新线程执行
+        if (groupAggregationRefresh != null) {
+            ThreadPool.exec(() -> {
+                UserContextHolder.setUser(UserService.SYSTEM_USER);
+                try {
+                    groupAggregationRefresh.refresh();
+                } finally {
+                    UserContextHolder.clearUser();
+                }
+            });
+        }
     }
 
     @Override
@@ -77,13 +99,18 @@ public class GroupAggregation extends FieldAggregation {
             groupFieldsMapping.put(sourceField, targetField);
         }
 
+        if (groupFieldsMapping.isEmpty()) {
+            log.warn("No group-fields specified");
+            return;
+        }
+
         // 1.源记录数据
 
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),
                 sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
 
-        Record sourceRecord = Application.getQueryFactory().createQueryNoFilter(ql)
+        Record sourceRecord = Application.createQueryNoFilter(ql)
                 .setParameter(1, actionContext.getSourceRecord())
                 .record();
 
@@ -91,6 +118,8 @@ public class GroupAggregation extends FieldAggregation {
 
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();
+        List<String[]> qFieldsRefresh = new ArrayList<>();
+
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
@@ -173,15 +202,20 @@ public class GroupAggregation extends FieldAggregation {
 
                 qFields.add(String.format("%s = '%s'", targetField, val));
                 qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
+                qFieldsRefresh.add(new String[] { targetField, sourceField, val.toString() });
             }
         }
 
-        if (qFields.isEmpty()) {
-            log.warn("Value(s) of group-field not specified");
+        if (qFieldsRefresh.isEmpty()) {
+            log.warn("All group-fields are null");
             return;
         }
 
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
+
+        if (operatingContext.getAction() == BizzPermission.UPDATE) {
+            this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
+        }
 
         ql = String.format("select %s from %s where ( %s )",
                 targetEntity.getPrimaryField().getName(), targetEntity.getName(),

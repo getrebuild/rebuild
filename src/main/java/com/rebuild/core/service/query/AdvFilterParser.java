@@ -123,7 +123,7 @@ public class AdvFilterParser extends SetUser {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
             }
-            if (Application.devMode()) log.info("Parse item : {} >> {}", item, itemSql);
+            if (Application.devMode()) log.info("[dev] Parse item : {} >> {}", item, itemSql);
         }
 
         if (indexItemSqls.isEmpty()) return null;

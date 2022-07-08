@@ -98,7 +98,7 @@ public class FieldAggregation extends TriggerAction {
 
             // 在整个触发链上只触发一次，避免循环调用
             if (tschain.contains(chainName)) {
-                if (Application.devMode()) log.warn("Record triggered only once on trigger-chain : {}", chainName);
+                if (Application.devMode()) log.warn("[dev] Record triggered only once on trigger-chain : {}", chainName);
                 return null;
             }
         }

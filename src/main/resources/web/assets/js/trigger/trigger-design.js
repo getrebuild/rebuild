@@ -200,7 +200,7 @@ function _handle512Change() {
 
 // 立即执行
 // eslint-disable-next-line no-unused-vars
-function _useExecDirect() {
+function useExecManual() {
   $('.footer .btn-light').removeClass('hide')
   $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv" title="${$L('增值功能')}"></sup></a>`)
     .appendTo('.footer .dropdown-menu')
@@ -214,7 +214,7 @@ function _useExecDirect() {
         confirm: function () {
           this.disabled(true)
           // eslint-disable-next-line no-undef
-          $.post(`/admin/robot/trigger/exec-direct?id=${wpc.configId}`, () => {
+          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
             this.hide()
             RbHighbar.success($L('执行成功'))
           })

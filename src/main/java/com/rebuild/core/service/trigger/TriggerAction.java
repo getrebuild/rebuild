@@ -11,7 +11,7 @@ import com.rebuild.core.service.general.OperatingContext;
 
 /**
  * 触发动作/操作定义。
- * 注意：如果是异步处理将没有事物，同时会丢失一些线程量
+ * 注意：如果是异步处理将没有事物，同时会丢失一些线程量（如果需要请手动设置）
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
