@@ -81,7 +81,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
     @Override
     public Record update(Record record) {
-        final Record before = countObservers() > 0 ? record(record) : null;
+        final Record before = countObservers() > 0 ? recordSnap(record) : null;
 
         record = delegateService.update(record);
 
@@ -99,7 +99,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         Record deleted = null;
         if (countObservers() > 0) {
             deleted = EntityHelper.forUpdate(recordId, currentUser);
-            deleted = record(deleted);
+            deleted = recordSnap(deleted);
 
             // 删除前触发，做一些状态保持
             setChanged();
@@ -121,7 +121,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @param base
      * @return
      */
-    protected Record record(Record base) {
+    protected Record recordSnap(Record base) {
         final ID primaryId = base.getPrimary();
         Assert.notNull(primaryId, "Record primary cannot be null");
 
