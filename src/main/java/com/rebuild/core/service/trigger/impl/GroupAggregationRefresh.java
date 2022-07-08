@@ -16,9 +16,6 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
-import com.rebuild.core.service.trigger.ActionFactory;
-import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.TriggerAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -31,6 +28,7 @@ import java.util.List;
  * 1. 新建产品A + 仓库A分组（组合A+A）
  * 2. 之后修改了仓库A > B（组合A+B），此时原（组合A+A）纪录不会更新
  * 3. 这里需要强制更新相关原纪录
+ * 4. NOTE 如果组合值均为空，则无法匹配任何目标记录，此时需要全量刷新（通过任一字段必填解决）
  *
  * @author RB
  * @since 2022/7/8
@@ -38,56 +36,69 @@ import java.util.List;
 @Slf4j
 public class GroupAggregationRefresh {
 
-    private GroupAggregation parent;
-    private List<String[]> fieldsRefresh;
+    final private GroupAggregation parent;
+    final private List<String[]> fieldsRefresh;
 
+    // fieldsRefresh = [TargetField, SourceField, Value]
     protected GroupAggregationRefresh(GroupAggregation parent, List<String[]> fieldsRefresh) {
         this.parent = parent;
         this.fieldsRefresh = fieldsRefresh;
     }
 
     public void refresh() {
-        // 目标记录
+        List<String> targetFields = new ArrayList<>();
         List<String> targetWhere = new ArrayList<>();
-        // 源记录
-        List<String> sourceWhere = new ArrayList<>();
-
         for (String[] s : fieldsRefresh) {
-            targetWhere.add(String.format("%s = '%s'", s[0], s[2]));
-            sourceWhere.add(String.format("%s = '%s'", s[1], s[2]));
+            targetFields.add(s[0]);
+            if (s[2] != null) {
+                targetWhere.add(String.format("%s = '%s'", s[0], s[2]));
+            }
         }
 
         Entity entity = this.parent.targetEntity;
-        String sql = String.format("select %s from %s where ( %s )",
-                entity.getPrimaryField().getName(), entity.getName(),
+        String sql = String.format("select %s,%s from %s where ( %s )",
+                StringUtils.join(targetFields, ","),
+                entity.getPrimaryField().getName(),
+                entity.getName(),
                 StringUtils.join(targetWhere, " or "));
         Object[][] targetArray = Application.createQueryNoFilter(sql).array();
-
-        entity = this.parent.sourceEntity;
-        sql = String.format("select %s from %s where ( %s )",
-                entity.getPrimaryField().getName(), entity.getName(),
-                StringUtils.join(sourceWhere, " or "));
-        Object[][] sourceArray = Application.createQueryNoFilter(sql).array();
-
-        log.info("Effect {} targets by {} sources ...", targetArray.length, sourceArray.length);
+        log.info("Effect {} target(s) ...", targetArray.length);
 
         ID triggerUser = UserContextHolder.getUser();
         ActionContext parentAc = parent.getActionContext();
 
-        for (Object[] o : sourceArray) {
-            ActionContext actionContext = new ActionContext((ID) o[0],
+        for (Object[] o : targetArray) {
+            ID targetRecordId = (ID) o[o.length - 1];
+            if (targetRecordId.equals(parent.targetRecordId)) continue;
+
+            ActionContext actionContext = new ActionContext(null,
                     parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());
-            TriggerAction triggerAction = ActionFactory.createAction(ActionType.GROUPAGGREGATION.name(), actionContext);
+
+            GroupAggregation ga = new GroupAggregation(actionContext);
+            ga.sourceEntity = parent.sourceEntity;
+            ga.targetEntity = parent.targetEntity;
+            ga.targetRecordId = targetRecordId;
+
+            List<String> qFieldsFollow = new ArrayList<>();
+            for (int i = 0; i < o.length - 1; i++) {
+                String[] source = fieldsRefresh.get(i);
+                if (o[i] == null) {
+                    qFieldsFollow.add(String.format("%s is null", source[1]));
+                } else {
+                    qFieldsFollow.add(String.format("%s = '%s'", source[1], o[i]));
+                }
+            }
+            ga.followSourceWhere = StringUtils.join(qFieldsFollow, " and ");
 
             Record record = EntityHelper.forUpdate((ID) o[0], triggerUser, false);
             OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, record, record);
 
             try {
-                triggerAction.execute(oCtx);
+                ga.execute(oCtx);
             } catch (Exception ex) {
                 log.error("Error on refresh trigger ({}) record : {}", parentAc.getConfigId(), o[0], ex);
             } finally {
-                triggerAction.clean();
+                ga.clean();
             }
         }
     }

@@ -119,6 +119,7 @@ public class GroupAggregation extends FieldAggregation {
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();
         List<String[]> qFieldsRefresh = new ArrayList<>();
+        boolean allNull = true;
 
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
@@ -129,10 +130,12 @@ public class GroupAggregation extends FieldAggregation {
                 qFields.add(String.format("%s is null", targetField));
                 qFieldsFollow.add(String.format("%s is null", sourceField));
             } else {
+                //noinspection ConstantConditions
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+                        MetadataHelper.getLastJoinField(sourceEntity, sourceField));
+                //noinspection ConstantConditions
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(targetEntity, targetField)));
+                        MetadataHelper.getLastJoinField(targetEntity, targetField));
 
                 // @see Dimension#getSqlName
 
@@ -141,7 +144,8 @@ public class GroupAggregation extends FieldAggregation {
                         || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME) {
 
                     String formatKey = sourceFieldEasy.getDisplayType() == DisplayType.DATE
-                            ? EasyFieldConfigProps.DATE_FORMAT : EasyFieldConfigProps.DATETIME_FORMAT;
+                            ? EasyFieldConfigProps.DATE_FORMAT
+                            : EasyFieldConfigProps.DATETIME_FORMAT;
                     int sourceFieldLength = StringUtils.defaultIfBlank(
                             sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat())
                             .length();
@@ -185,10 +189,7 @@ public class GroupAggregation extends FieldAggregation {
                     // 需要匹配等级的值
                     if (sourceFieldLevel != targetFieldLevel) {
                         ID parent = getItemWithLevel((ID) val, targetFieldLevel);
-                        if (parent == null) {
-                            log.error("Bad source value of classification (Maybe levels?) : {}", val);
-                            return;
-                        }
+                        Assert.isTrue(parent != null, Language.L("分类字段等级不兼容"));
 
                         val = parent;
                         sourceRecord.setID(sourceField, (ID) val);
@@ -202,11 +203,13 @@ public class GroupAggregation extends FieldAggregation {
 
                 qFields.add(String.format("%s = '%s'", targetField, val));
                 qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
-                qFieldsRefresh.add(new String[] { targetField, sourceField, val.toString() });
+                allNull = false;
             }
+
+            qFieldsRefresh.add(new String[] { targetField, sourceField, val == null ? null : val.toString() });
         }
 
-        if (qFieldsRefresh.isEmpty()) {
+        if (allNull) {
             log.warn("All group-fields are null");
             return;
         }
@@ -259,7 +262,7 @@ public class GroupAggregation extends FieldAggregation {
     private ID getItemWithLevel(ID itemId, int specLevel) {
         ID current = itemId;
         for (int i = 0; i < 4; i++) {
-            Object[] o = Application.getQueryFactory().createQueryNoFilter(
+            Object[] o = Application.createQueryNoFilter(
                             "select level,parent from ClassificationData where itemId = ?")
                     .setParameter(1, current)
                     .unique();
