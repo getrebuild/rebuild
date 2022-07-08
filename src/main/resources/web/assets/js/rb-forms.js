@@ -1767,7 +1767,7 @@ class RbFormBool extends RbFormElement {
   renderElement() {
     return (
       <div className="mt-1">
-        <label className="custom-control custom-radio custom-control-inline">
+        <label className="custom-control custom-radio custom-control-inline mb-1">
           <input
             className="custom-control-input"
             name={`${this._htmlid}T`}
@@ -1779,7 +1779,7 @@ class RbFormBool extends RbFormElement {
           />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
-        <label className="custom-control custom-radio custom-control-inline">
+        <label className="custom-control custom-radio custom-control-inline mb-1">
           <input
             className="custom-control-input"
             name={`${this._htmlid}F`}
