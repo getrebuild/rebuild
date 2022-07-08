@@ -224,7 +224,6 @@ const render_item = function (data) {
       .appendTo($action)
       .click(function () {
         const _onConfirm = function (nv) {
-          console.log(nv)
           // 字段名
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
           else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))

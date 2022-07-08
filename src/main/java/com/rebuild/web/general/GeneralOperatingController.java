@@ -189,7 +189,8 @@ public class GeneralOperatingController extends BaseController {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         } catch (UnexpectedRollbackException rolledback) {
-            return RespBody.error();
+            log.error("ROLLEDBACK", rolledback);
+            return RespBody.error("ROLLEDBACK OCCURED");
         }
 
         return JSONUtils.toJSONObject(
