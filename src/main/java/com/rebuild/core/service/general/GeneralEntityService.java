@@ -689,9 +689,30 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 触发器
 
         ID opUser = UserContextHolder.getUser();
-        Record before = approvalRecord.clone();
         RobotTriggerManual triggerManual = new RobotTriggerManual();
 
+        // 需处理明细
+
+        Entity de = approvalRecord.getEntity().getDetailEntity();
+        TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
+                state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
+        if (hasTriggers != null && hasTriggers.length > 0) {
+            String sql = String.format("select %s from %s where %s = ?",
+                    de.getPrimaryField().getName(), de.getName(),
+                    MetadataHelper.getDetailToMainField(de).getName());
+
+            Object[][] details = Application.createQueryNoFilter(sql)
+                    .setParameter(1, record)
+                    .array();
+
+            for (Object[] d : details) {
+                Record dAfter = EntityHelper.forUpdate((ID) d[0], UserService.SYSTEM_USER, false);
+                triggerManual.onApproved(
+                        OperatingContext.create(opUser, BizzPermission.UPDATE, null, dAfter));
+            }
+        }
+
+        Record before = approvalRecord.clone();
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
             triggerManual.onRevoked(
