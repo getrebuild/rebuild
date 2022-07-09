@@ -15,7 +15,6 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,12 +46,12 @@ public class CommonPageView extends BaseController {
     @GetMapping("/*.txt")
     public void txtSuffix(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String url = request.getRequestURI();
-        url = url.substring(url.lastIndexOf("/") + 1);
 
+        String name = url.substring(url.lastIndexOf("/") + 1);
         String content = null;
 
         // WXWORK
-        if (url.startsWith("WW_verify_")) {
+        if (name.startsWith("WW_verify_")) {
             String fileKey = RebuildConfiguration.get(ConfigurationItem.WxworkAuthFile);
             File file = RebuildConfiguration.getFileOfData(fileKey);
             if (file.exists() && file.isFile()) {
@@ -61,7 +60,12 @@ public class CommonPageView extends BaseController {
         }
         // OTHERS
         else {
-            content = CommonsUtils.getStringOfRes("web/" + url);
+            File file = RebuildConfiguration.getFileOfData(name);
+            if (file.exists() && file.isFile()) {
+                content = FileUtils.readFileToString(file);
+            } else {
+                content = CommonsUtils.getStringOfRes("web/" + name);
+            }
         }
 
         if (content == null) {
