@@ -23,6 +23,7 @@ import com.rebuild.core.configuration.NavBuilder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -37,7 +38,11 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.sql.*;
 import java.time.DateTimeException;
 import java.time.ZoneId;
@@ -60,6 +65,8 @@ public class Installer implements InstallState {
     private boolean quickMode;
 
     private JSONObject installProps;
+
+    private String EXISTS_SN;
 
     private Installer() { }
 
@@ -105,7 +112,7 @@ public class Installer implements InstallState {
         File dest = RebuildConfiguration.getFileOfData(INSTALL_FILE);
         try {
             FileUtils.deleteQuietly(dest);
-            try (OutputStream os = new FileOutputStream(dest)) {
+            try (OutputStream os = Files.newOutputStream(dest.toPath())) {
                 installProps.store(os, "REBUILD (v2) INSTALLER MAGIC !!! DO NOT EDIT !!!");
                 log.info("Saved installation file : " + dest);
             }
@@ -163,6 +170,12 @@ public class Installer implements InstallState {
         JedisPool pool = BootConfiguration.createJedisPoolInternal();
         for (Object o : Application.getContext().getBeansOfType(UseRedis.class).values()) {
             if (!((BaseCacheTemplate<?>) o).reinjectJedisPool(pool)) break;
+        }
+
+        // L
+        if (EXISTS_SN != null) {
+            System.setProperty("SN", EXISTS_SN);
+            License.siteApiNoCache("api/authority/query");
         }
 
         Application.init();
@@ -345,7 +358,7 @@ public class Installer implements InstallState {
             return;
         }
 
-        ub.setWhere("LOGIN_NAME = 'admin'");
+        ub.setWhere(String.format("USER_ID = '%s'", UserService.ADMIN_USER));
         executeSql(ub.toSql());
     }
 
@@ -410,23 +423,29 @@ public class Installer implements InstallState {
      */
     public boolean isRbDatabase() {
         String rbSql = SqlBuilder.buildSelect("system_config")
-                .addColumn("VALUE")
-                .setWhere("ITEM = 'DBVer'")
+                .addColumns("ITEM", "VALUE")
+                .setWhere("ITEM = 'DBVer' or ITEM = 'SN'")
                 .toSql();
 
+        EXISTS_SN = null;
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery(rbSql)) {
-                    if (rs.next()) {
-                        String dbVer = rs.getString(1);
-                        log.info("Check exists REBUILD database version : " + dbVer);
-                        return true;
+                    while (rs.next()) {
+                        String name = rs.getString(1);
+                        String value = rs.getString(2);
+                        if ("DBVer".equalsIgnoreCase(name)) {
+                            log.info("Check exists REBUILD database version : {}", value);
+                        } else if ("SN".equalsIgnoreCase(name)) {
+                            EXISTS_SN = value;
+                        }
                     }
+                    return true;
                 }
             }
 
         } catch (SQLException ex) {
-            log.info("Check REBUILD database error : " + ex.getLocalizedMessage());
+            log.error("Check REBUILD database error : " + ex.getLocalizedMessage());
         }
         return false;
     }
