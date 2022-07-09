@@ -241,6 +241,7 @@
                     <select th:case="'BOOL'" class="form-control form-control-sm J_defaultValue" th:data-o="${fieldDefaultValue}">
                       <option value="T">[[${bundle.L('是')}]]</option>
                       <option value="F" selected>[[${bundle.L('否')}]]</option>
+                      <option value="N">[[${bundle.L('无')}]]</option>
                     </select>
                     <div th:case="*" class="input-group">
                       <input

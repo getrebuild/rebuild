@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -167,6 +168,21 @@ public class ApprovalAdminController extends BaseController {
                 fields.add(new String[] { field.getName(), EasyMetaFactory.getLabel(field)} );
             }
         }
+        // 引用实体字段
+        for (Field field : refFields) {
+            if (field.getType() != FieldType.REFERENCE) continue;
+            if (MetadataHelper.isCommonsField(field)) continue;
+
+            String parentName = field.getName() + ".";
+            String parentLabel = EasyMetaFactory.getLabel(field) + ".";
+
+            Field[] refFields2 = MetadataSorter.sortFields(field.getReferenceEntity(), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
+            for (Field field2 : refFields2) {
+                if (isRefUserOrDeptField(field2, filterNames, false)) {
+                    fields.add(new String[] { parentName + field2.getName(), parentLabel + EasyMetaFactory.getLabel(field2)} );
+                }
+            }
+        }
 
         return JSONUtils.toJSONObjectArray(
                 new String[] {  "id", "text" }, fields.toArray(new String[0][]));
@@ -212,7 +228,7 @@ public class ApprovalAdminController extends BaseController {
                     shows.add(new String[] { idOrField, fieldText });
                 }
 
-            } else if (entity.containsField(idOrField)) {
+            } else if (MetadataHelper.getLastJoinField(entity, idOrField) != null) {
                 String fieldLabel = EasyMetaFactory.getLabel(entity, idOrField);
                 shows.add(new String[] { idOrField, fieldLabel });
             }

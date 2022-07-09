@@ -194,6 +194,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
 }
 
+.chart.ApprovalList .table,
+.chart.FeedsSchedule .table,
+.chart.ProjectTasks .table {
+  border-bottom: 1px solid #dee2e6;
+}
+
 .chart.ApprovalList .table th,
 .chart.FeedsSchedule .table th,
 .chart.ProjectTasks .table th {

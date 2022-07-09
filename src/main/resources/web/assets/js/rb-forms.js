@@ -1772,7 +1772,7 @@ class RbFormBool extends RbFormElement {
             className="custom-control-input"
             name={`${this._htmlid}T`}
             type="radio"
-            checked={$isTrue(this.state.value)}
+            checked={this.state.value === 'T'}
             data-value="T"
             onChange={this.changeValue}
             disabled={this.props.readonly}
@@ -1784,7 +1784,7 @@ class RbFormBool extends RbFormElement {
             className="custom-control-input"
             name={`${this._htmlid}F`}
             type="radio"
-            checked={!$isTrue(this.state.value)}
+            checked={this.state.value === 'F'}
             data-value="F"
             onChange={this.changeValue}
             disabled={this.props.readonly}

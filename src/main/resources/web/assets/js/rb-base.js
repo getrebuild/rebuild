@@ -438,7 +438,7 @@ var $stopEvent = function (e, preventDefault) {
 }
 
 /**
- * 是否为 true 或 'true'
+ * 是否为 true
  */
 var $isTrue = function (a) {
   return a === true || a === 'true' || a === 'T'
