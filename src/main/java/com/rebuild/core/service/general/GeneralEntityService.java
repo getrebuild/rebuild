@@ -33,7 +33,6 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.service.trigger.impl.GroupAggregation;
-import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -151,7 +150,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 先更新
         record = super.update(record);
 
-        // 传导分组聚合触发器
+        // 传导给明细（若有）
+        // 仅分组聚合触发器
         Entity de = record.getEntity().getDetailEntity();
         if (de != null) {
             TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(de, TriggerWhen.UPDATE);
@@ -164,11 +164,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             if (hasGroupAggregation) {
-                List<ID> details = queryDetails(record.getPrimary(), de, true);
+                RobotTriggerManual triggerManual = new RobotTriggerManual();
+                ID opUser = UserService.SYSTEM_USER;
 
-                for (ID did : details) {
-                    Record detailUpdate = EntityHelper.forUpdate(did, UserService.SYSTEM_USER, false);
-                    super.update(detailUpdate);
+                for (ID did : queryDetails(record.getPrimary(), de, 1)) {
+                    Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
+                    triggerManual.onUpdate(
+                            OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
                 }
             }
         }
@@ -231,17 +233,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return 0;
         }
 
-        // 手动删除明细记录，以执行系统规则（如触发器）
+        // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
         Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
         if (de != null) {
-            List<ID> details = queryDetails(record, de, false);
-
-            HeavyStopWatcher.createWatcher("PERFORMANCE ISSUE", "DELETE:" + details.size());
-            for (ID did : details) {
+            for (ID did : queryDetails(record, de, 0)) {
                 // 明细无约束检查 checkModifications
                 super.delete(did);
             }
-            HeavyStopWatcher.clean();
         }
 
         return super.delete(record);
@@ -331,10 +329,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
         } else {
-//            // 可以共享给自己
-//            if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-//                log.debug("Share to the same user as the record, ignore : {}", record);
-//            }
+            // 可以共享给自己
+            if (log.isDebugEnabled()
+                    && to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+                log.debug("Share to the same user as the record, ignore : {}", record);
+            }
 
             delegateService.create(sharedAfter);
             affected = 1;
@@ -710,15 +709,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         ID opUser = UserContextHolder.getUser();
         RobotTriggerManual triggerManual = new RobotTriggerManual();
 
-        // 需处理明细
+        // 传导给明细（若有）
 
         Entity de = approvalRecord.getEntity().getDetailEntity();
         TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
                 state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
 
         if (hasTriggers != null && hasTriggers.length > 0) {
-            for (ID did : queryDetails(record, de, false)) {
-                Record dAfter = EntityHelper.forUpdate(did, UserService.SYSTEM_USER, false);
+            for (ID did : queryDetails(record, de, 0)) {
+                Record dAfter = EntityHelper.forUpdate(did, opUser, false);
                 triggerManual.onApproved(
                         OperatingContext.create(opUser, BizzPermission.UPDATE, null, dAfter));
             }
@@ -736,13 +735,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
     }
 
-    private List<ID> queryDetails(ID mainid, Entity detail, boolean one) {
+    private List<ID> queryDetails(ID mainid, Entity detail, int maxSize) {
         String sql = String.format("select %s from %s where %s = ?",
                 detail.getPrimaryField().getName(), detail.getName(),
                 MetadataHelper.getDetailToMainField(detail).getName());
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainid);
-        if (one) query.setLimit(1);
+        if (maxSize > 0) query.setLimit(maxSize);
 
         Object[][] array = query.array();
         List<ID> ids = new ArrayList<>();

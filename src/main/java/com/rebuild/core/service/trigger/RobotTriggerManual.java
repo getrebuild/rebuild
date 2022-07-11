@@ -34,4 +34,11 @@ public class RobotTriggerManual extends RobotTriggerObserver {
     public void onRevoked(OperatingContext context) {
         execAction(context, TriggerWhen.REVOKED);
     }
+
+    // -- PUBLIC
+
+    @Override
+    public void onUpdate(OperatingContext context) {
+        super.onUpdate(context);
+    }
 }
