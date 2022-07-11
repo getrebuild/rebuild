@@ -18,8 +18,10 @@ import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NamedThreadLocal;
 
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
@@ -33,7 +35,15 @@ import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 @Slf4j
 public class RobotTriggerObserver extends OperatingObserver {
 
-    private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new ThreadLocal<>();
+    private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
+
+    private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
+
+    @Override
+    public void update(final Observable o, Object arg) {
+        if (isSkipTriggers(false)) return;
+        super.update(o, arg);
+    }
 
     @Override
     protected void onCreate(OperatingContext context) {
@@ -187,6 +197,8 @@ public class RobotTriggerObserver extends OperatingObserver {
         return effectId;
     }
 
+    // --
+
     /**
      * 获取当前（线程）触发源（如有）
      *
@@ -201,5 +213,23 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     public static void forceTriggerSelfOnce() {
         getTriggerSource().setSkipOnce();
+    }
+
+    /**
+     * 跳过触发器的执行
+     */
+    public static void setSkipTriggers() {
+        SKIP_TRIGGERS.set(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setSkipTriggers()
+     */
+    public static boolean isSkipTriggers(boolean once) {
+        Boolean is = SKIP_TRIGGERS.get();
+        if (is != null && once) SKIP_TRIGGERS.remove();
+        return is != null && is;
     }
 }
