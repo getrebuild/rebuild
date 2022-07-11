@@ -47,9 +47,10 @@ public class RecycleStore {
      * 添加待转存记录
      *
      * @param recordId
+     * @return
      */
-    public void add(ID recordId) {
-        this.add(recordId, null);
+    public boolean add(ID recordId) {
+        return this.add(recordId, null);
     }
 
     /**
@@ -57,10 +58,14 @@ public class RecycleStore {
      *
      * @param recordId
      * @param with
+     * @return
      */
-    public void add(ID recordId, ID with) {
+    public boolean add(ID recordId, ID with) {
         JSON s = new RecycleBean(recordId).serialize();
+        if (s == null) return false;
+
         data.add(new Object[] { recordId, s, with });
+        return true;
     }
 
     /**
@@ -76,13 +81,13 @@ public class RecycleStore {
      * @return
      */
     public int store() {
-        Record record = EntityHelper.forNew(EntityHelper.RecycleBin, UserService.SYSTEM_USER);
-        record.setID("deletedBy", this.user);
-        record.setDate("deletedOn", CalendarUtils.now());
+        final Record base = EntityHelper.forNew(EntityHelper.RecycleBin, UserService.SYSTEM_USER);
+        base.setID("deletedBy", this.user);
+        base.setDate("deletedOn", CalendarUtils.now());
 
         int affected = 0;
         for (Object[] o : data) {
-            Record clone = record.clone();
+            Record clone = base.clone();
             ID recordId = (ID) o[0];
             Entity belongEntity = MetadataHelper.getEntity(recordId.getEntityCode());
             clone.setString("belongEntity", belongEntity.getName());

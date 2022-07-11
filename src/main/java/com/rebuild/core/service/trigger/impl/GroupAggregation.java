@@ -9,13 +9,11 @@ package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -60,16 +58,8 @@ public class GroupAggregation extends FieldAggregation {
     public void clean() {
         super.clean();
 
-        // 新线程执行
         if (groupAggregationRefresh != null) {
-            ThreadPool.exec(() -> {
-                UserContextHolder.setUser(UserService.SYSTEM_USER);
-                try {
-                    groupAggregationRefresh.refresh();
-                } finally {
-                    UserContextHolder.clearUser();
-                }
-            });
+            groupAggregationRefresh.refresh();
         }
     }
 

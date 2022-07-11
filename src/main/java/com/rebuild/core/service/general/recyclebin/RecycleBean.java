@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author devezhao
  * @since 2019/8/19
  */
+@Slf4j
 public class RecycleBean implements Serializable {
     private static final long serialVersionUID = -1058552856844427594L;
 
@@ -53,6 +55,11 @@ public class RecycleBean implements Serializable {
                 .append(" = ?")
                 .toString();
         Record queryed = Application.createQueryNoFilter(sql).setParameter(1, this.recordId).record();
+        if (queryed == null) {
+            log.warn("Serialize record not exists : {}", this.recordId);
+            return null;
+        }
+
         JSONObject s = (JSONObject) queryed.serialize();
 
         Entity detailEntity = entity.getDetailEntity();

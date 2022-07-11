@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class KVStorage {
 
+    private static final Object SETNULL = new Object();
+
     /**
      * 存储
      *
@@ -45,6 +47,13 @@ public class KVStorage {
 
     /**
      * @param key
+     */
+    public static void removeCustomValue(String key) {
+        setCustomValue(key, SETNULL);
+    }
+
+    /**
+     * @param key
      * @param value
      */
     protected static void setValue(final String key, Object value) {
@@ -52,6 +61,15 @@ public class KVStorage {
                 "select configId from SystemConfig where item = ?")
                 .setParameter(1, key)
                 .unique();
+
+        // 删除
+        if (value == SETNULL) {
+            if (exists != null) {
+                Application.getCommonsService().delete((ID) exists[0]);
+                Application.getCommonsCache().evict(key);
+            }
+            return;
+        }
 
         Record record;
         if (exists == null) {
