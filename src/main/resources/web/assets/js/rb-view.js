@@ -808,7 +808,7 @@ const RbViewPage = {
           const entity = e.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
-          RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
+          RbFormModal.create({ title: $L('新建%s', title), entity: entity[0], icon: e.icon, initialValue: iv })
         }
       })
 

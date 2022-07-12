@@ -118,7 +118,7 @@ public class FieldWriteback extends FieldAggregation {
             if (!tschainAdded) {
                 tschainAdded = true;
                 tschain.add(chainName);
-                TRIGGERS_CHAIN.set(tschain);
+                TRIGGER_CHAIN.set(tschain);
             }
 
             Record targetRecord = targetRecordData.clone();

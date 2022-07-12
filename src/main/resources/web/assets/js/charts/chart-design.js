@@ -62,8 +62,15 @@ $(document).ready(() => {
     render_preview()
   }
 
+  let _AdvFilter
   $('.J_filter').on('click', () => {
-    renderRbcomp(<AdvFilter title={$L('数据过滤条件')} entity={wpc.sourceEntity} filter={dataFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+    if (_AdvFilter) {
+      _AdvFilter.show()
+    } else {
+      renderRbcomp(<AdvFilter title={$L('数据过滤条件')} entity={wpc.sourceEntity} filter={dataFilter} onConfirm={saveFilter} inModal canNoFilters />, null, function () {
+        _AdvFilter = this
+      })
+    }
   })
 
   const $cts = $('.chart-type > a').on('click', function () {

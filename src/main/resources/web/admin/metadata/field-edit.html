@@ -241,6 +241,7 @@
                     <select th:case="'BOOL'" class="form-control form-control-sm J_defaultValue" th:data-o="${fieldDefaultValue}">
                       <option value="T">[[${bundle.L('是')}]]</option>
                       <option value="F" selected>[[${bundle.L('否')}]]</option>
+                      <option value="N">[[${bundle.L('无')}]]</option>
                     </select>
                     <div th:case="*" class="input-group">
                       <input
@@ -264,7 +265,7 @@
                     <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
                     <p
                       class="form-text"
-                      th:utext="${bundle.L('本公式仅做前端计算，如公式中所用字段未布局/未显示，则无法进行计算。你也可以通过 [触发器 (自动更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
+                      th:utext="${bundle.L('本公式仅做前端计算，如公式中所用字段未布局/未显示，则无法进行计算。你也可以通过 [触发器 (字段更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
                     ></p>
                   </div>
                 </div>
@@ -345,7 +346,14 @@
                       </span>
                     </label>
                     <div>
-                      <input type="text" class="form-control form-control-sm" id="advPattern" th:placeholder="${bundle.L('格式验证 (支持 Java 正则表达式)')}" data-toggle="dropdown" autocomplete="off" />
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        id="advPattern"
+                        th:placeholder="${bundle.L('格式验证 (支持 Java 正则表达式)')}"
+                        data-toggle="dropdown"
+                        autocomplete="off"
+                      />
                       <div class="dropdown-menu common-patt">
                         <h5>[[${bundle.L('常用')}]]</h5>
                         <a class="badge" data-patt="^([0-9A-Z]{15}|[0-9A-Z]{17}|[0-9A-Z]{18}|[0-9A-Z]{20})$">[[${bundle.L('税号')}]]</a>

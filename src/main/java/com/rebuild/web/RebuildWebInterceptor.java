@@ -53,6 +53,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static final ThreadLocal<RequestEntry> REQUEST_ENTRY = new NamedThreadLocal<>("RequestEntry");
 
     private static final int CODE_STARTING = 600;
+    private static final int CODE_DENIEDMSG = 601;
+    private static final int CODE_MAINTAIN = 602;
+    private static final int CODE_UNSAFE_USE = 603;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -175,7 +178,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
-        // Noting
+        // Notings
     }
 
     @Override
@@ -295,13 +298,13 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         Object allowIp = CommonsUtils.invokeMethod(
                 "com.rebuild.rbv.commons.SafeUses#checkIp", ipAddr);
         if (!(Boolean) allowIp) {
-            throw new DefinedException(DefinedException.CODE_UNSAFE_USE, Language.L("你的 IP 地址不在允许范围内"));
+            throw new DefinedException(CODE_UNSAFE_USE, Language.L("你的 IP 地址不在允许范围内"));
         }
 
         Object allowTime = CommonsUtils.invokeMethod(
                 "com.rebuild.rbv.commons.SafeUses#checkTime", CalendarUtils.now());
         if (!(Boolean) allowTime) {
-            throw new DefinedException(DefinedException.CODE_UNSAFE_USE, Language.L("当前时间不允许使用"));
+            throw new DefinedException(CODE_UNSAFE_USE, Language.L("当前时间不允许使用"));
         }
     }
 

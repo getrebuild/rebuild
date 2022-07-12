@@ -30,18 +30,24 @@ public class BulkDelete extends BulkOperator {
         final ID[] records = prepareRecords();
         this.setTotal(records.length);
 
+        String lastError = null;
         for (ID id : records) {
             if (Application.getPrivilegesManager().allowDelete(context.getOpUser(), id)) {
                 try {
                     ges.delete(id, context.getCascades());
                     this.addSucceeded();
                 } catch (DataSpecificationException ex) {
-                    log.warn("Cannot delete `{}` because : {}", id, ex.getLocalizedMessage());
+                    lastError = ex.getLocalizedMessage();
+                    log.warn("Cannot delete `{}` because : {}", id, lastError);
                 }
             } else {
                 log.warn("No have privileges to DELETE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
+        }
+
+        if (getSucceeded() == 0 && lastError != null) {
+            throw new DataSpecificationException(lastError);
         }
 
         return getSucceeded();

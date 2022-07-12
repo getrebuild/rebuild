@@ -17,6 +17,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
+import com.rebuild.core.service.trigger.TriggerSource;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -126,9 +127,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
         }
 
-        OperatingContext triggerSource = RobotTriggerObserver.getTriggerSource();
+        TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
         if (triggerSource != null) {
-            record.setID("channelWith", triggerSource.getAnyRecord().getPrimary());
+            record.setID("channelWith", triggerSource.getOriginRecord());
         }
 
         if (context.getOperationIp() != null) {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -25,7 +26,6 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +43,8 @@ import java.util.*;
 @Slf4j
 public class GroupAggregation extends FieldAggregation {
 
+    private GroupAggregationRefresh groupAggregationRefresh;
+
     public GroupAggregation(ActionContext context) {
         super(context);
     }
@@ -50,6 +52,15 @@ public class GroupAggregation extends FieldAggregation {
     @Override
     public ActionType getType() {
         return ActionType.GROUPAGGREGATION;
+    }
+
+    @Override
+    public void clean() {
+        super.clean();
+
+        if (groupAggregationRefresh != null) {
+            groupAggregationRefresh.refresh();
+        }
     }
 
     @Override
@@ -78,13 +89,18 @@ public class GroupAggregation extends FieldAggregation {
             groupFieldsMapping.put(sourceField, targetField);
         }
 
+        if (groupFieldsMapping.isEmpty()) {
+            log.warn("No group-fields specified");
+            return;
+        }
+
         // 1.源记录数据
 
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),
                 sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
 
-        Record sourceRecord = Application.getQueryFactory().createQueryNoFilter(ql)
+        Record sourceRecord = Application.createQueryNoFilter(ql)
                 .setParameter(1, actionContext.getSourceRecord())
                 .record();
 
@@ -92,16 +108,24 @@ public class GroupAggregation extends FieldAggregation {
 
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();
+        List<String[]> qFieldsRefresh = new ArrayList<>();
+        boolean allNull = true;
+
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
-            if (val != null) {
+            if (val == null) {
+                qFields.add(String.format("%s is null", targetField));
+                qFieldsFollow.add(String.format("%s is null", sourceField));
+            } else {
+                //noinspection ConstantConditions
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+                        MetadataHelper.getLastJoinField(sourceEntity, sourceField));
+                //noinspection ConstantConditions
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(targetEntity, targetField)));
+                        MetadataHelper.getLastJoinField(targetEntity, targetField));
 
                 // @see Dimension#getSqlName
 
@@ -110,7 +134,8 @@ public class GroupAggregation extends FieldAggregation {
                         || sourceFieldEasy.getDisplayType() == DisplayType.DATETIME) {
 
                     String formatKey = sourceFieldEasy.getDisplayType() == DisplayType.DATE
-                            ? EasyFieldConfigProps.DATE_FORMAT : EasyFieldConfigProps.DATETIME_FORMAT;
+                            ? EasyFieldConfigProps.DATE_FORMAT
+                            : EasyFieldConfigProps.DATETIME_FORMAT;
                     int sourceFieldLength = StringUtils.defaultIfBlank(
                             sourceFieldEasy.getExtraAttr(formatKey), sourceFieldEasy.getDisplayType().getDefaultFormat())
                             .length();
@@ -154,10 +179,7 @@ public class GroupAggregation extends FieldAggregation {
                     // 需要匹配等级的值
                     if (sourceFieldLevel != targetFieldLevel) {
                         ID parent = getItemWithLevel((ID) val, targetFieldLevel);
-                        if (parent == null) {
-                            log.error("Bad source value of classification (Maybe levels?) : {}", val);
-                            return;
-                        }
+                        Assert.isTrue(parent != null, Language.L("分类字段等级不兼容"));
 
                         val = parent;
                         sourceRecord.setID(sourceField, (ID) val);
@@ -171,21 +193,28 @@ public class GroupAggregation extends FieldAggregation {
 
                 qFields.add(String.format("%s = '%s'", targetField, val));
                 qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
+                allNull = false;
             }
+
+            qFieldsRefresh.add(new String[] { targetField, sourceField, val == null ? null : val.toString() });
         }
 
-        if (qFields.isEmpty()) {
-            log.warn("Value(s) of group-field not specified");
+        if (allNull) {
+            log.warn("All group-fields are null");
             return;
         }
 
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
 
+        if (operatingContext.getAction() == BizzPermission.UPDATE) {
+            this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
+        }
+
         ql = String.format("select %s from %s where ( %s )",
                 targetEntity.getPrimaryField().getName(), targetEntity.getName(),
                 StringUtils.join(qFields.iterator(), " and "));
 
-        Object[] targetRecord = Application.getQueryFactory().createQueryNoFilter(ql).unique();
+        Object[] targetRecord = Application.createQueryNoFilter(ql).unique();
         if (targetRecord != null) {
             targetRecordId = (ID) targetRecord[0];
             return;
@@ -217,14 +246,13 @@ public class GroupAggregation extends FieldAggregation {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
 
-        RobotTriggerObserver.forceTriggerSelf();
         targetRecordId = newTargetRecord.getPrimary();
     }
 
     private ID getItemWithLevel(ID itemId, int specLevel) {
         ID current = itemId;
         for (int i = 0; i < 4; i++) {
-            Object[] o = Application.getQueryFactory().createQueryNoFilter(
+            Object[] o = Application.createQueryNoFilter(
                             "select level,parent from ClassificationData where itemId = ?")
                     .setParameter(1, current)
                     .unique();
