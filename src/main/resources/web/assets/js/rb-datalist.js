@@ -668,7 +668,7 @@ CellRenders.addRender('STATE', function (v, s, k) {
   }
 })
 
-CellRenders.addRender('DECIMAL', function (v, s, k) {
+const renderNumber = function (v, s, k) {
   if ((v + '').substr(0, 1) === '-') {
     return (
       <td key={k}>
@@ -680,7 +680,9 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
   } else {
     return CellRenders.renderSimple(v, s, k)
   }
-})
+}
+CellRenders.addRender('DECIMAL', renderNumber)
+CellRenders.addRender('NUMBER', renderNumber)
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
   const vLen = (v.text || []).length

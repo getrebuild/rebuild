@@ -22,8 +22,6 @@ public class DefinedException extends RebuildException {
     public static final int CODE_RECORDS_REPEATED = 499;
     // 审批警告
     public static final int CODE_APPROVE_WARN = 498;
-    // 不在安全使用范围（IP、时段）
-    public static final int CODE_UNSAFE_USE = 497;
 
     // 错误码
     private int errorCode = Controller.CODE_ERROR;

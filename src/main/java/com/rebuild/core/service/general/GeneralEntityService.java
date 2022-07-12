@@ -32,7 +32,7 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.trigger.*;
-import com.rebuild.core.support.HeavyStopWatcher;
+import com.rebuild.core.service.trigger.impl.GroupAggregation;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -104,16 +104,22 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                 || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
+        // 明细实体 Service
+        final EntityService des = Application.getEntityService(record.getEntity().getDetailEntity().getEntityCode());
+
+        // 先删除
         for (Record d : details) {
-            if (d instanceof DeleteRecord) {
-                delete(d.getPrimary());
-                continue;
-            }
+            if (d instanceof DeleteRecord) des.delete(d.getPrimary());
+        }
+
+        // 再保存
+        for (Record d : details) {
+            if (d instanceof DeleteRecord) continue;
 
             if (checkDetailsRepeated) {
                 d.setID(dtf, mainid);  // for check
 
-                List<Record> repeated = getAndCheckRepeated(d, 20);
+                List<Record> repeated = des.getAndCheckRepeated(d, 20);
                 if (!repeated.isEmpty()) {
                     throw new RepeatedRecordsException(repeated);
                 }
@@ -121,9 +127,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             if (d.getPrimary() == null) {
                 d.setID(dtf, mainid);
-                create(d);
+                des.create(d);
             } else {
-                update(d);
+                des.update(d);
             }
         }
 
@@ -143,7 +149,36 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (!checkModifications(record, BizzPermission.UPDATE)) {
             return record;
         }
-        return super.update(record);
+
+        // 先更新
+        record = super.update(record);
+
+        // 传导给明细（若有）
+        // 仅分组聚合触发器
+        Entity de = record.getEntity().getDetailEntity();
+        if (de != null) {
+            TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(de, TriggerWhen.UPDATE);
+            boolean hasGroupAggregation = false;
+            for (TriggerAction ta : hasTriggers) {
+                if (ta instanceof GroupAggregation) {
+                    hasGroupAggregation = true;
+                    break;
+                }
+            }
+
+            if (hasGroupAggregation) {
+                RobotTriggerManual triggerManual = new RobotTriggerManual();
+                ID opUser = UserService.SYSTEM_USER;
+
+                for (ID did : queryDetails(record.getPrimary(), de, 1)) {
+                    Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
+                    triggerManual.onUpdate(
+                            OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
+                }
+            }
+        }
+
+        return record;
     }
 
     @Override
@@ -161,9 +196,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
         for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cascade delete - " + e.getKey() + " > " + e.getValue());
-            }
+            log.info("Cascading delete - {} > {} ", e.getKey(), e.getValue());
 
             for (ID id : e.getValue()) {
                 if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
@@ -173,7 +206,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     try {
                         deleted = this.deleteInternal(id);
                     } catch (DataSpecificationException ex) {
-                        log.warn("Cannot delete : " + id + " Ex : " + ex);
+                        log.warn("Cannot delete {} because {}", id, ex.getLocalizedMessage());
                     } finally {
                         if (deleted > 0) {
                             affected++;
@@ -182,7 +215,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         }
                     }
                 } else {
-                    log.warn("No have privileges to DELETE : " + currentUser + " > " + id);
+                    log.warn("No have privileges to DELETE : {} > {}", currentUser, id);
                 }
             }
         }
@@ -203,25 +236,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return 0;
         }
 
-        // 手动删除明细记录，以执行触发器
-        Entity hasDetailEntity = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
-        if (hasDetailEntity != null) {
-            TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(hasDetailEntity, TriggerWhen.DELETE);
-
-            if (hasTriggers != null && hasTriggers.length > 0) {
-                String sql = String.format("select %s from %s where %s = ?",
-                        hasDetailEntity.getPrimaryField().getName(), hasDetailEntity.getName(),
-                        MetadataHelper.getDetailToMainField(hasDetailEntity).getName());
-
-                Object[][] details = Application.getQueryFactory().createQueryNoFilter(sql)
-                        .setParameter(1, record).array();
-
-                HeavyStopWatcher.createWatcher("PERFORMANCE ISSUE", "DELETE:" + details.length);
-                for (Object[] d : details) {
-                    // 明细无约束检查
-                    super.delete((ID) d[0]);
-                }
-                HeavyStopWatcher.clean();
+        // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
+        Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
+        if (de != null) {
+            for (ID did : queryDetails(record, de, 0)) {
+                // 明细无约束检查 checkModifications
+                super.delete(did);
             }
         }
 
@@ -241,11 +261,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected = 0;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
-            if (log.isDebugEnabled()) {
-                log.debug("The record owner has not changed, ignore : {}", record);
-            }
+            log.debug("The record owner has not changed, ignore : {}", record);
         } else {
-            assignBefore = countObservers() > 0 ? record(assignAfter) : null;
+            assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
 
             delegateService.update(assignAfter);
             Application.getRecordOwningCache().cleanOwningUser(record);
@@ -254,9 +272,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cascading assign - {} > {}", e.getKey(), e.getValue());
-            }
+            log.info("Cascading assign - {} > {}", e.getKey(), e.getValue());
+
             for (ID casid : e.getValue()) {
                 affected += assign(casid, to, null);
             }
@@ -315,10 +332,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
         } else {
-//            // 可以共享给自己
-//            if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-//                log.debug("Share to the same user as the record, ignore : {}", record);
-//            }
+            // 可以共享给自己
+            if (log.isDebugEnabled()
+                    && to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
+                log.debug("Share to the same user as the record, ignore : {}", record);
+            }
 
             delegateService.create(sharedAfter);
             affected = 1;
@@ -327,7 +345,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            log.debug("Cascade share - {} > {}", e.getKey(), e.getValue());
+            log.info("Cascading share - {} > {}", e.getKey(), e.getValue());
 
             for (ID casid : e.getValue()) {
                 affected += share(casid, to, null, rights);
@@ -351,7 +369,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             unsharedBefore.setNull("belongEntity");
             unsharedBefore.setNull("recordId");
             unsharedBefore.setNull("shareTo");
-            unsharedBefore = record(unsharedBefore);
+            unsharedBefore = recordSnap(unsharedBefore);
         }
 
         delegateService.delete(accessId);
@@ -692,9 +710,23 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 触发器
 
         ID opUser = UserContextHolder.getUser();
-        Record before = approvalRecord.clone();
         RobotTriggerManual triggerManual = new RobotTriggerManual();
 
+        // 传导给明细（若有）
+
+        Entity de = approvalRecord.getEntity().getDetailEntity();
+        TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
+                state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
+
+        if (hasTriggers != null && hasTriggers.length > 0) {
+            for (ID did : queryDetails(record, de, 0)) {
+                Record dAfter = EntityHelper.forUpdate(did, opUser, false);
+                triggerManual.onApproved(
+                        OperatingContext.create(opUser, BizzPermission.UPDATE, null, dAfter));
+            }
+        }
+
+        Record before = approvalRecord.clone();
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
             triggerManual.onRevoked(
@@ -704,5 +736,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             triggerManual.onApproved(
                     OperatingContext.create(opUser, BizzPermission.UPDATE, before, approvalRecord));
         }
+    }
+
+    private List<ID> queryDetails(ID mainid, Entity detail, int maxSize) {
+        String sql = String.format("select %s from %s where %s = ?",
+                detail.getPrimaryField().getName(), detail.getName(),
+                MetadataHelper.getDetailToMainField(detail).getName());
+
+        Query query = Application.createQueryNoFilter(sql).setParameter(1, mainid);
+        if (maxSize > 0) query.setLimit(maxSize);
+
+        Object[][] array = query.array();
+        List<ID> ids = new ArrayList<>();
+
+        for (Object[] o : array) ids.add((ID) o[0]);
+        return ids;
     }
 }

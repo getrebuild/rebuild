@@ -84,7 +84,7 @@ public class QiniuCloud {
             this.auth = Auth.create(account[0], account[1]);
             this.bucketName = account[2];
         } else {
-            log.warn("No QiniuCloud configuration! Using local storage.");
+            log.info("No QiniuCloud configuration! Using local storage.");
         }
     }
 

@@ -13,24 +13,24 @@
       .zmdi.err400,
       .zmdi.err401,
       .zmdi.err403,
-      .zmdi.err404,
-      .zmdi.err600 {
+      .zmdi.err404 {
         color: #4285f4 !important;
       }
-      .zmdi.err600::before {
-        content: '\f17a';
+      .zmdi.err600::before,
+      .zmdi.err602::before {
         color: #fbbc05;
-        font-size: 5rem;
+        font-size: 6rem;
+        content: '\f17a';
       }
-      .zmdi.err497::before {
+      .zmdi.err601::before,
+      .zmdi.err603::before {
         content: '\f119';
       }
-
       .error-description > pre:empty {
         display: none;
       }
       .error-container a[target='_blank']:hover {
-          text-decoration: underline;
+        text-decoration: underline;
       }
       @media (max-width: 576px) {
         .rb-error .error-container {

@@ -23,13 +23,16 @@ const AdvFilters = {
     this.__entity = entity
 
     this.__el.find('.J_advfilter').on('click', () => {
-      this.showAdvFilter(null, this.current)
+      // this.showAdvFilter(null, this.current)  // 2.9.4 取消 useCopyId，可能引起误解
+      this.showAdvFilter()
       this.current = null
     })
     const $all = $('.adv-search .dropdown-item:eq(0)')
     $all.on('click', () => this._effectFilter($all, 'aside'))
 
     this.loadFilters()
+
+    this.__savedCached = []
   },
 
   loadFilters() {
@@ -184,9 +187,15 @@ const AdvFilters = {
       }
     } else {
       this.current = id
-      this._getFilter(id, (res) => {
+      if (this.__savedCached[id]) {
+        const res = this.__savedCached[id]
         renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
-      })
+      } else {
+        this._getFilter(id, (res) => {
+          this.__savedCached[id] = res
+          renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+        })
+      }
     }
   },
 
@@ -201,6 +210,7 @@ const AdvFilters = {
       if (res.error_code === 0) {
         $storage.set(_RbList().__defaultFilterKey, res.data.id)
         that.loadFilters()
+        if (that.current) that.__savedCached[that.current] = null
       } else {
         RbHighbar.error(res.error_msg)
       }

@@ -52,7 +52,7 @@ $(document).ready(function () {
           $item.remove()
         })
       } else {
-        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null })
+        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null, height: this.height || null })
         AdvControl.set(this)
       }
     })
@@ -128,7 +128,7 @@ $(document).ready(function () {
       const item = { field: $this.data('field') }
       if (item.field === DIVIDER_LINE) {
         item.colspan = 4
-        item.label = $this.find('span').text()
+        item.label = $this.find('span').text() || ''
       } else {
         item.colspan = 2 // default
         if ($this.parent().hasClass('w-100')) item.colspan = 4
@@ -140,6 +140,8 @@ $(document).ready(function () {
         if (tip) item.tip = tip
         item.__newLabel = $this.find('span').text()
         if (item.__newLabel === $this.data('label')) delete item.__newLabel
+        const height = $this.attr('data-height')
+        if (height) item.height = height
 
         AdvControl.append(item)
       }
@@ -198,6 +200,8 @@ const render_item = function (data) {
   else if (data.nullable === false) $handle.addClass('not-nullable')
   // 填写提示
   if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
+  // 高度
+  if (data.height) $handle.attr('data-height', data.height)
 
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
   if (data.displayType) {
@@ -219,7 +223,7 @@ const render_item = function (data) {
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
-        const call = function (nv) {
+        const _onConfirm = function (nv) {
           // 字段名
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
           else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
@@ -232,15 +236,20 @@ const render_item = function (data) {
             if ($tip.length === 0) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle span'))
             $tip.attr('title', nv.fieldTips)
           }
+
+          // NTEXT 高度
+          if (data.displayTypeName === 'NTEXT') $item.find('.dd-handle').attr('data-height', nv.fieldHeight || '')
         }
+
         const ov = {
           fieldTips: $item.find('.dd-handle>span>i').attr('title'),
           fieldLabel: $item.find('.dd-handle>span').text(),
           fieldLabelOld: $item.find('.dd-handle').data('label'),
+          fieldHeight: $item.find('.dd-handle').attr('data-height') || null,
         }
         if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
-        renderRbcomp(<DlgEditField call={call} {...ov} />)
+        renderRbcomp(<DlgEditField onConfirm={_onConfirm} {...ov} displayType={data.displayTypeName} />)
       })
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
@@ -256,11 +265,12 @@ const render_item = function (data) {
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
-        const call = function (nv) {
+        const _onConfirm = function (nv) {
           $item.find('.dd-handle span').text(nv.dividerName || '')
         }
+
         const ov = $item.find('.dd-handle span').text()
-        renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
+        renderRbcomp(<DlgEditDivider onConfirm={_onConfirm} dividerName={ov || ''} />)
       })
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
@@ -316,6 +326,12 @@ class DlgEditField extends RbAlert {
             maxLength="200"
           />
         </div>
+        {this.props.displayType === 'NTEXT' && (
+          <div className="form-group">
+            <label>{$L('高度 (行数)')}</label>
+            <input type="number" className="form-control form-control-sm" name="fieldHeight" value={this.state.fieldHeight || ''} onChange={this.handleChange} placeholder={$L('默认')} />
+          </div>
+        )}
         <div className="form-group">
           <label>
             {$L('字段名称')} <span>({$L('部分内置字段不能修改')})</span>
@@ -347,7 +363,7 @@ class DlgEditField extends RbAlert {
   }
 
   confirm = () => {
-    typeof this.props.call === 'function' && this.props.call(this.state || {})
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this.state || {})
     this.hide()
   }
 }
@@ -397,6 +413,7 @@ const AdvControl = {
   append: function (item) {
     this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
       const $this = $(this)
+      if ($this.prop('disabled')) return
       item[$this.attr('name')] = $this.prop('checked')
     })
   },
@@ -404,6 +421,7 @@ const AdvControl = {
   set: function (item) {
     this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
       const $this = $(this)
+      if ($this.prop('disabled')) return
       const v = item[$this.attr('name')]
       if (v === true || v === false) $this.attr('checked', v)
     })

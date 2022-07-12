@@ -15,6 +15,8 @@ const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
 const SHOW_ADVPATTERN = ['TEXT', 'PHONE', 'EMAIL']
 const SHOW_SCANCODE = ['TEXT']
 
+const CURRENT_BIZZ = '{CURRENT}'
+
 $(document).ready(function () {
   const dt = wpc.fieldType
   const extConfig = wpc.extConfig
@@ -288,15 +290,13 @@ const _handleSeries = function () {
 }
 
 const _handleDate = function (dt) {
-  $('.J_defaultValue')
-    .datetimepicker({
-      format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
-      minView: dt === 'DATE' ? 2 : 0,
-      clearBtn: true,
-    })
-    .attr('readonly', true)
+  $('.J_defaultValue').datetimepicker({
+    format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
+    minView: dt === 'DATE' ? 2 : 0,
+    clearBtn: true,
+  })
 
-  $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+  $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
     .on('click', () => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
@@ -361,7 +361,7 @@ const _handleClassification = function (useClassification) {
     }
   }
 
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
 
   $.get(`/admin/metadata/classification/info?id=${useClassification}`, (res) => {
     $('#useClassification a')
@@ -432,7 +432,7 @@ const _handleReference = function (isN2N) {
     }
   }
 
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
   $append.on('click', () => _showSearcher())
 
@@ -456,13 +456,26 @@ const _handleReference = function (isN2N) {
     _ReferenceSearcher.hide()
   }
 
+  // Bizz
+  if (['User', 'Department', 'Team'].includes(referenceEntity)) {
+    const $current = $(`<button class="btn btn-secondary" type="button" title="${$L('当前用户')}"><i class="icon zmdi zmdi-account-o"></i></button>`).appendTo('.J_defaultValue-append')
+    $current.on('click', () => {
+      $dv.attr('data-value-id', CURRENT_BIZZ).val(CURRENT_BIZZ)
+      $dvClear.removeClass('hide')
+    })
+    $dvClear.css({ right: 75 })
+  }
+
   _loadRefsLabel($dv, $dvClear)
 }
 
 const _loadRefsLabel = function ($dv, $dvClear) {
   const dvid = $dv.val()
-  if (dvid) {
-    $.get(`/commons/search/read-labels?ids=${dvid}&ignoreMiss=true`, (res) => {
+
+  if (dvid === CURRENT_BIZZ) {
+    $dvClear && $dvClear.removeClass('hide')
+  } else if (dvid) {
+    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(dvid)}&ignoreMiss=true`, (res) => {
       if (res.data) {
         const ids = []
         const labels = []
