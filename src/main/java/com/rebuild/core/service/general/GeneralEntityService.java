@@ -104,9 +104,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                 || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
+        // 明细实体 Service
+        final EntityService des = Application.getEntityService(record.getEntity().getDetailEntity().getEntityCode());
+
         // 先删除
         for (Record d : details) {
-            if (d instanceof DeleteRecord) delete(d.getPrimary());
+            if (d instanceof DeleteRecord) des.delete(d.getPrimary());
         }
 
         // 再保存
@@ -116,7 +119,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (checkDetailsRepeated) {
                 d.setID(dtf, mainid);  // for check
 
-                List<Record> repeated = getAndCheckRepeated(d, 20);
+                List<Record> repeated = des.getAndCheckRepeated(d, 20);
                 if (!repeated.isEmpty()) {
                     throw new RepeatedRecordsException(repeated);
                 }
@@ -124,9 +127,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             if (d.getPrimary() == null) {
                 d.setID(dtf, mainid);
-                create(d);
+                des.create(d);
             } else {
-                update(d);
+                des.update(d);
             }
         }
 
