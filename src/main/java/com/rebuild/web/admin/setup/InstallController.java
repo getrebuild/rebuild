@@ -22,6 +22,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -120,12 +121,13 @@ public class InstallController extends BaseController implements InstallState {
             if (info.length() > 80) {
                 info = info.substring(0, 80) + "...";
             }
-            pool.destroy();
 
             return RespBody.ok(Language.L("连接成功 : %s", info));
 
         } catch (Exception ex) {
             return RespBody.errorl("连接错误 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        } finally {
+            IOUtils.closeQuietly(pool);
         }
     }
 

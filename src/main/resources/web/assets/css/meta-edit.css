@@ -98,12 +98,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: absolute;
   display: inline-block;
   height: 32px;
-  width: 16px;
-  font-size: 1.2rem;
+  width: 1.4rem;
   right: 40px;
   top: 2px;
   text-align: center;
   padding-top: 6px;
+  color: #737373 !important;
+  font-size: 1.308rem;
 }
 
 .J_defaultValue-clear:hover {
@@ -231,4 +232,9 @@ a#entityIcon:hover {
 
 .common-patt .badge:hover {
   color: #4285f4 !important;
+}
+
+.input-group-append > .btn-secondary + .btn-secondary {
+  border-top-right-radius: 2px !important;
+  border-bottom-right-radius: 2px !important;
 }

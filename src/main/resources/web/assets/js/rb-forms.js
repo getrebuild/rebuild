@@ -873,13 +873,22 @@ class RbFormDecimal extends RbFormNumber {
 class RbFormTextarea extends RbFormElement {
   constructor(props) {
     super(props)
+
+    this._height = this.props.useMdedit ? 0 : ~~this.props.height
+    if (this._height && this._height > 0) {
+      if (this._height === 1) this._height = 37
+      else this._height = this._height * 20 + 12
+    }
   }
 
   renderElement() {
     return (
       <React.Fragment>
         <textarea
-          ref={(c) => (this._fieldValue = c)}
+          ref={(c) => {
+            this._fieldValue = c
+            this._height > 0 && c && $(c).attr('style', `height:${this._height}px !important`)
+          }}
           className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
@@ -896,12 +905,15 @@ class RbFormTextarea extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
+    const style = {}
+    if (this._height > 0) style.maxHeight = this._height
+
     if (this.props.useMdedit) {
       const md2html = SimpleMDE.prototype.markdown(this.state.value)
-      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} />
+      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} style={style} />
     } else {
       return (
-        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
+        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>
           {this.state.value.split('\n').map((line, idx) => {
             return <p key={`line-${idx}`}>{line}</p>
           })}
@@ -1814,24 +1826,24 @@ class RbFormBool extends RbFormElement {
   renderElement() {
     return (
       <div className="mt-1">
-        <label className="custom-control custom-radio custom-control-inline">
+        <label className="custom-control custom-radio custom-control-inline mb-1">
           <input
             className="custom-control-input"
             name={`${this._htmlid}T`}
             type="radio"
-            checked={$isTrue(this.state.value)}
+            checked={this.state.value === 'T'}
             data-value="T"
             onChange={this.changeValue}
             disabled={this.props.readonly}
           />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
-        <label className="custom-control custom-radio custom-control-inline">
+        <label className="custom-control custom-radio custom-control-inline mb-1">
           <input
             className="custom-control-input"
             name={`${this._htmlid}F`}
             type="radio"
-            checked={!$isTrue(this.state.value)}
+            checked={this.state.value === 'F'}
             data-value="F"
             onChange={this.changeValue}
             disabled={this.props.readonly}

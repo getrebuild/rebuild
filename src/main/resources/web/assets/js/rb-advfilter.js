@@ -29,6 +29,7 @@ class AdvFilter extends React.Component {
 
     this.state = { items: [], ...props, ...extras }
     this._itemsRef = []
+    this._htmlid = `useEquation-${$random()}`
   }
 
   render() {
@@ -79,15 +80,15 @@ class AdvFilter extends React.Component {
           <div className="mb-1">
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
+                <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('或关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
+                <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">{$L('且关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
+                <input className="custom-control-input" type="radio" name={this._htmlid} data-id="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
                 <span className="custom-control-label pl-1">
                   {$L('高级表达式')}
                   <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
@@ -187,7 +188,12 @@ class AdvFilter extends React.Component {
 
   handleChange = (e) => {
     const name = e.target.dataset.id || e.target.name
-    this.setState({ [name]: e.target.value })
+    const value = e.target.value
+    this.setState({ [name]: value }, () => {
+      if (name === 'useEquation' && value === '9999') {
+        if (this.state.equation === 'AND') this.setState({ equation: null })
+      }
+    })
   }
 
   onRef = (c) => this._itemsRef.push(c)

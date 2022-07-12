@@ -13,6 +13,10 @@ import com.rebuild.core.service.general.EntityService;
 /**
  * 触发动作定义
  *
+ * 动作传导：
+ * 1. 主记录删除/审批/撤销审批会传导至明细
+ * 2. 主记录更新（仅分组聚合）会传导至明细
+ *
  * @author devezhao zhaofang123@gmail.com
  * @see BizzPermission
  * @since 2019/05/23

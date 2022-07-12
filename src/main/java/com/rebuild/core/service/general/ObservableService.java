@@ -152,7 +152,10 @@ public abstract class ObservableService extends Observable implements ServiceSpe
             log.warn("RecycleBin inactivated! DELETE {} by {}", recordId, currentUser);
         }
 
-        if (recycleBin != null) recycleBin.add(recordId);
-        return recycleBin;
+        if (recycleBin != null && recycleBin.add(recordId)) {
+            return recycleBin;
+        } else {
+            return null;
+        }
     }
 }

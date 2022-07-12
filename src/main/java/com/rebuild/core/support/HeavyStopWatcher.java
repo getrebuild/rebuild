@@ -67,7 +67,7 @@ public class HeavyStopWatcher {
      * @return
      */
     public static StopWatch clean() {
-        return clean(0);
+        return clean(1000);
     }
 
     /**

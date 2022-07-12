@@ -27,7 +27,7 @@ $(document).ready(function () {
     })
   }
 
-  $.get(`/admin/field/picklist-gets?isAll=true&${query}`, function (res) {
+  $.get(`/admin/field/picklist-gets?isAll=true&${query}`, (res) => {
     $(res.data).each(function () {
       if (this.hide === true) {
         render_unset([this.id, this.text])
@@ -39,14 +39,20 @@ $(document).ready(function () {
   })
 
   $('.J_confirm').on('click', () => {
+    if ($('.J_config>li').length > maxOptions) {
+      RbHighbar.create($L('最多支持 %d 个选项', maxOptions))
+      return false
+    }
+
     const text = $val('.J_text')
+
     if (!text) {
       RbHighbar.create($L('请输入选项值'))
       return false
     }
 
+    const id = $('.J_text').attr('attr-id')
     const color = $('.colors >a>i').parent().data('color') || ''
-    const id = $('.J_text').attr('data-key')
 
     let exists = null
     $('.J_config .dd3-content, .unset-list .dd-handle>span').each(function () {
@@ -57,7 +63,16 @@ $(document).ready(function () {
       return false
     }
 
-    // New
+    if (exists) {
+      if (exists !== id) {
+        RbHighbar.create($L('选项值重复'))
+        return false
+      }
+    }
+
+    $('.J_text').val('').attr('attr-id', '')
+    $('.J_confirm').text($L('添加'))
+
     if (!id) {
       if ($('.J_config>li').length >= maxOptions) {
         RbHighbar.create($L('最多支持 %d 个选项', maxOptions))
@@ -152,7 +167,7 @@ render_item_after = function (item, data) {
   item.find('.dd3-action').prepend($edit)
   $edit.on('click', () => {
     $('.J_confirm').text($L('修改'))
-    $('.J_text').val(data[1]).attr('data-key', data[0]).focus()
+    $('.J_text').val($edit.parent().prev().text()).attr('attr-id', data[0]).focus()
 
     data[3] = item.attr('data-color')
     if (data[3]) $(`.colors>a[data-color="${data[3]}"]`).trigger('click')

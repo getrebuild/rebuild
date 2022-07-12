@@ -41,6 +41,7 @@ import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -187,6 +188,9 @@ public class GeneralOperatingController extends BaseController {
         } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
+        } catch (UnexpectedRollbackException rolledback) {
+            log.error("ROLLEDBACK", rolledback);
+            return RespBody.error("ROLLEDBACK OCCURED");
         }
 
         return JSONUtils.toJSONObject(

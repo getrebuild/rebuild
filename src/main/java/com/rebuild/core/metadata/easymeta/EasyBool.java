@@ -39,6 +39,7 @@ public class EasyBool extends EasyField implements MixValue {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
+        if ("N".equals(valueExpr)) return null;
         return StringUtils.isBlank(valueExpr) ? Boolean.FALSE : BooleanUtils.toBoolean(valueExpr);
     }
 

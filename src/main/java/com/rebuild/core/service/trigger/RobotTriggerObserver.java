@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
-import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
@@ -19,8 +18,10 @@ import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NamedThreadLocal;
 
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
@@ -34,8 +35,15 @@ import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 @Slf4j
 public class RobotTriggerObserver extends OperatingObserver {
 
-    private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
-    private static final ThreadLocal<String> TRIGGER_SOURCE_LAST = new ThreadLocal<>();
+    private static final ThreadLocal<TriggerSource> TRIGGER_SOURCE = new NamedThreadLocal<>("Trigger source");
+
+    private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
+
+    @Override
+    public void update(final Observable o, Object arg) {
+        if (isSkipTriggers(false)) return;
+        super.update(o, arg);
+    }
 
     @Override
     protected void onCreate(OperatingContext context) {
@@ -102,7 +110,6 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
         final ID primaryId = context.getAnyRecord().getPrimary();
-        final String sourceName = primaryId + ":" + when.name().charAt(0);
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_ACTION_HOLDS.get(primaryId)
@@ -111,25 +118,33 @@ public class RobotTriggerObserver extends OperatingObserver {
             return;
         }
 
-        final boolean originTriggerSource = getTriggerSource() == null;
+        final TriggerSource triggerSource = getTriggerSource();
+        final boolean originTriggerSource = triggerSource == null;
+
         // 设置原始触发源
         if (originTriggerSource) {
-            TRIGGER_SOURCE.set(context);
+            TRIGGER_SOURCE.set(new TriggerSource(context, when));
+
         } else {
-            // 自己触发自己，避免无限执行
-            boolean x = primaryId.equals(getTriggerSource().getAnyRecord().getPrimary());
-            boolean xor = x || sourceName.equals(TRIGGER_SOURCE_LAST.get());
-            if (x || xor) {
-                if (Application.devMode()) log.warn("Self trigger, ignore : {}", sourceName);
-                return;
+            // 是否自己触发自己，避免无限执行
+            boolean isOriginRecord = primaryId.equals(triggerSource.getOriginRecord());
+
+            String lastKey = triggerSource.getLastSourceKey();
+            triggerSource.addNext(context, when);
+            String currentKey = triggerSource.getLastSourceKey();
+
+            if (isOriginRecord && lastKey.equals(currentKey)) {
+                if (!triggerSource.isSkipOnce()) {
+                    log.warn("Self trigger, ignore : {} < {}", currentKey, lastKey);
+                    return;
+                }
             }
         }
 
-        TRIGGER_SOURCE_LAST.set(sourceName);
-
+        int depth = triggerSource == null ? 1 : triggerSource.getSourceDepth();
         try {
             for (TriggerAction action : beExecuted) {
-                log.info("Trigger [ {} ] executing on record ({}) : {}", action.getType(), when.name(), primaryId);
+                log.info("Trigger.{} [ {} ] executing on record ({}) : {}", depth, action.getType(), when.name(), primaryId);
 
                 try {
                     action.execute(context);
@@ -162,8 +177,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         } finally {
             if (originTriggerSource) {
+                log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
-                TRIGGER_SOURCE_LAST.remove();
             }
         }
     }
@@ -182,19 +197,39 @@ public class RobotTriggerObserver extends OperatingObserver {
         return effectId;
     }
 
+    // --
+
     /**
      * 获取当前（线程）触发源（如有）
      *
      * @return
      */
-    public static OperatingContext getTriggerSource() {
+    public static TriggerSource getTriggerSource() {
         return TRIGGER_SOURCE.get();
     }
 
     /**
      * 强制自执行
      */
-    public static void forceTriggerSelf() {
-        TRIGGER_SOURCE_LAST.set(null);
+    public static void forceTriggerSelfOnce() {
+        getTriggerSource().setSkipOnce();
+    }
+
+    /**
+     * 跳过触发器的执行
+     */
+    public static void setSkipTriggers() {
+        SKIP_TRIGGERS.set(true);
+    }
+
+    /**
+     * @param once
+     * @return
+     * @see #setSkipTriggers()
+     */
+    public static boolean isSkipTriggers(boolean once) {
+        Boolean is = SKIP_TRIGGERS.get();
+        if (is != null && once) SKIP_TRIGGERS.remove();
+        return is != null && is;
     }
 }

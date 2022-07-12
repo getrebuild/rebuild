@@ -7,12 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.general.FieldValueHelper;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author devezhao
@@ -20,6 +30,8 @@ import com.rebuild.core.support.general.FieldValueHelper;
  */
 public class EasyReference extends EasyField implements MixValue {
     private static final long serialVersionUID = -5001745527956303569L;
+
+    protected static final String VAR_CURRENT = "{CURRENT}";
 
     protected EasyReference(Field field, DisplayType displayType) {
         super(field, displayType);
@@ -44,7 +56,44 @@ public class EasyReference extends EasyField implements MixValue {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
+        if (StringUtils.isBlank(valueExpr)) return null;
+
+        if (valueExpr.contains(VAR_CURRENT)) {
+            Object id = exprCurrent();
+            if (id instanceof ID[]) return ((ID[]) id)[0];
+            else return id;
+        } else {
+            return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
+        }
+    }
+
+    /**
+     * @see #VAR_CURRENT
+     * @return returns ID or ID[]
+     */
+    protected Object exprCurrent() {
+        final ID cu = UserContextHolder.getUser(true);
+        if (cu == null) return null;
+
+        Entity ref = getRawMeta().getReferenceEntity();
+        if (ref.getEntityCode() == EntityHelper.User) return cu;
+
+        User user = Application.getUserStore().getUser(cu);
+
+        if (ref.getEntityCode() == EntityHelper.Department) {
+            Department dept = user.getOwningDept();
+            return dept == null ? null : dept.getIdentity();
+        }
+
+        if (ref.getEntityCode() == EntityHelper.Team) {
+            List<ID> ts = new ArrayList<>();
+            for (Team t : user.getOwningTeams()) {
+                ts.add((ID) t.getIdentity());
+            }
+            return ts.isEmpty() ? null : ts.toArray(new ID[0]);
+        }
+
+        return null;
     }
 
     @Override

@@ -361,5 +361,5 @@ renderContentComp = function (props) {
   })
 
   // eslint-disable-next-line no-undef
-  _useExecDirect()
+  useExecManual()
 }
