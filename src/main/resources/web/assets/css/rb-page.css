@@ -941,8 +941,7 @@ select.form-control:not([disabled]) {
 }
 
 .rbform .type-BOOL .mt-1 + .form-text {
-  margin-top: -7px;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear,

@@ -59,6 +59,7 @@ public class GroupAggregation extends FieldAggregation {
         super.clean();
 
         if (groupAggregationRefresh != null) {
+            log.info("Clear after refresh : {}", groupAggregationRefresh);
             groupAggregationRefresh.refresh();
         }
     }
