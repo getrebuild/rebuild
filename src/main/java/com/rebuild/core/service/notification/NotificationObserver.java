@@ -33,59 +33,61 @@ public class NotificationObserver extends OperatingObserver {
 
     @Override
     public void onAssign(OperatingContext context) {
-        final ID related = context.getAfterRecord().getPrimary();
+        final ID relatedId = context.getAfterRecord().getPrimary();
         if (NotificationOnce.didBegin()) {
-            NotificationOnce.getMergeSet().add(related);
+            NotificationOnce.getMergeSet().add(relatedId);
             return;
         }
 
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 
-        String content = buildMessage(context.getAffected(), related, false);
+        String content = buildMessage(context.getAffected(), relatedId, false);
         content = MessageFormat.format(content,
-                from, context.getAffected().length, EasyMetaFactory.valueOf(related.getEntityCode()).getLabel());
+                from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
+        
         Application.getNotifications().send(
-                MessageBuilder.createMessage(to, content, Message.TYPE_ASSIGN));
+                MessageBuilder.createMessage(to, content, Message.TYPE_ASSIGN, relatedId));
     }
 
     @Override
     public void onShare(OperatingContext context) {
-        final ID related = context.getAfterRecord().getID("recordId");
+        final ID relatedId = context.getAfterRecord().getID("recordId");
         if (NotificationOnce.didBegin()) {
-            NotificationOnce.getMergeSet().add(related);
+            NotificationOnce.getMergeSet().add(relatedId);
             return;
         }
 
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID("shareTo");
 
-        String content = buildMessage(context.getAffected(), related, true);
+        String content = buildMessage(context.getAffected(), relatedId, true);
         content = MessageFormat.format(content,
-                from, context.getAffected().length, EasyMetaFactory.valueOf(related.getEntityCode()).getLabel());
+                from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
+
         Application.getNotifications().send(
-                MessageBuilder.createMessage(to, content, Message.TYPE_SAHRE));
+                MessageBuilder.createMessage(to, content, Message.TYPE_SAHRE, relatedId));
     }
 
     /**
      * @param affected
-     * @param related
+     * @param relatedId
      * @param shareType
      * @return
      */
-    private String buildMessage(ID[] affected, ID related, boolean shareType) {
+    private String buildMessage(ID[] affected, ID relatedId, boolean shareType) {
         String message = Language.L("@{0} 共享了 {1} 条{2}记录给你");
         if (affected.length > 1) {
             for (ID id : affected) {
-                if (id.getEntityCode().intValue() != related.getEntityCode().intValue()) {
-                    message = Language.L("@{0} 共享了{2}及其关联记录共 {1} 条记录给你", related);
+                if (id.getEntityCode().intValue() != relatedId.getEntityCode().intValue()) {
+                    message = Language.L("@{0} 共享了{2}及其关联记录共 {1} 条记录给你", relatedId);
                     break;
                 }
             }
 
-            message += Language.L("，包括 @%s 等", related);
+            message += Language.L("，包括 @%s 等", relatedId);
         } else {
-            message += " @" + related;
+            message += " @" + relatedId;
         }
 
         if (!shareType) {

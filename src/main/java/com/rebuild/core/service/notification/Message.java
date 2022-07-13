@@ -9,6 +9,9 @@ package com.rebuild.core.service.notification;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 
 /**
  * 通知消息。
@@ -17,6 +20,8 @@ import com.rebuild.core.privileges.UserService;
  * @author devezhao
  * @since 10/17/2018
  */
+@Data
+@Setter(AccessLevel.NONE)
 public class Message {
 
     // 未分类
@@ -35,41 +40,21 @@ public class Message {
     private ID fromUser;
     private ID toUser;
     private String message;
-    private ID relatedRecord;
     private int type;
+    private ID relatedRecord;
 
     /**
      * @param fromUser
      * @param toUser
      * @param message
-     * @param relatedRecord
      * @param type
+     * @param relatedRecord
      */
-    public Message(ID fromUser, ID toUser, String message, ID relatedRecord, int type) {
+    public Message(ID fromUser, ID toUser, String message, int type, ID relatedRecord) {
         this.fromUser = fromUser == null ? UserService.SYSTEM_USER : fromUser;
         this.toUser = toUser;
         this.message = message;
-        this.relatedRecord = relatedRecord;
         this.type = type;
-    }
-
-    public ID getFromUser() {
-        return fromUser;
-    }
-
-    public ID getToUser() {
-        return toUser;
-    }
-
-    public ID getRelatedRecord() {
-        return relatedRecord;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public int getType() {
-        return type;
+        this.relatedRecord = relatedRecord;
     }
 }
