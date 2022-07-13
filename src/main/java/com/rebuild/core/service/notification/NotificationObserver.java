@@ -44,7 +44,7 @@ public class NotificationObserver extends OperatingObserver {
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 
-        String content = buildMessage(context.getAffected(), related, BizzPermission.ASSIGN);
+        String content = buildMessage(context.getAffected(), relatedId, BizzPermission.ASSIGN);
         content = MessageFormat.format(content,
                 from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
         
@@ -63,7 +63,7 @@ public class NotificationObserver extends OperatingObserver {
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID("shareTo");
 
-        String content = buildMessage(context.getAffected(), related, BizzPermission.SHARE);
+        String content = buildMessage(context.getAffected(), relatedId, BizzPermission.SHARE);
         content = MessageFormat.format(content,
                 from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
 
