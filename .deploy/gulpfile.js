@@ -24,20 +24,18 @@ const BABEL_OPTIONS = {
 }
 
 const WEB_ROOT = '../src/main/resources/web'
-const RBV_ROOT = '../@rbv/main/resources/web'
+const RBV_ROOT = '../rbv/main/resources/web'
 const OUT_ROOT = '../target/classes/web'
 
 function compileJs(m) {
-  return (
-    src(`${m || WEB_ROOT}/assets/js/**/*.js`)
-      .pipe(babel(BABEL_OPTIONS))
-      .pipe(
-        debug({
-          title: 'Compiled .js : ',
-        })
-      )
-      .pipe(dest(`${OUT_ROOT}/assets/js`))
-  )
+  return src(`${m || WEB_ROOT}/assets/js/**/*.js`)
+    .pipe(babel(BABEL_OPTIONS))
+    .pipe(
+      debug({
+        title: 'Compiled .js : ',
+      })
+    )
+    .pipe(dest(`${OUT_ROOT}/assets/js`))
 }
 
 function compileCss(m) {
@@ -62,7 +60,7 @@ function _useAssetsHex(file) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
       } catch (err1) {
-        if (file.includes('frontjs-sdk.js')) console.log('No `@rbv` exists :', file)
+        if (file.includes('frontjs-sdk.js')) console.log('No `rbv` exists :', file)
         else console.log('Cannot #revHash :', file, err1)
 
         // Use date

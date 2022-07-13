@@ -392,7 +392,7 @@ class RbList extends React.Component {
   }
 
   /**
-   * 设置高级过滤器ID
+   * 设置高级过滤器 ID
    */
   setAdvFilter(id) {
     this.advFilterId = id
@@ -414,11 +414,10 @@ class RbList extends React.Component {
    * 搜索
    */
   search(filter, fromAdv) {
-    // 选择的过滤条件与当前的排他
-    if (fromAdv === true) this.advFilterId = null
     this.pageNo = 1
     this.fetchList(filter)
 
+    // 高级查询
     if (fromAdv === true) {
       $('.J_advfilter .indicator-primary').remove()
       if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')

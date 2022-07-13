@@ -19,6 +19,13 @@ class MarkdownUtilsTest {
     }
 
     @Test
+    void cleanMd() {
+        System.out.println(MarkdownUtils.cleanMd("你有 2 条日程提醒（注意要两个换行符）\n" +
+                "\n- 123" +
+                "\n- [456](/rebuild/789)"));
+    }
+
+    @Test
     void testExt() {
         // Table
         System.out.println(MarkdownUtils.render(

@@ -31,7 +31,7 @@ public class MessageBuilder {
      * @return
      */
     public static Message createMessage(ID toUser, String message) {
-        return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
+        return new Message(null, toUser, message, Message.TYPE_DEFAULT, null);
     }
 
     /**
@@ -41,17 +41,7 @@ public class MessageBuilder {
      * @return
      */
     public static Message createMessage(ID toUser, String message, int type) {
-        return new Message(null, toUser, message, null, type);
-    }
-
-    /**
-     * @param toUser
-     * @param message
-     * @param relatedRecord
-     * @return
-     */
-    public static Message createApproval(ID toUser, String message, ID relatedRecord) {
-        return new Message(null, toUser, message, relatedRecord, Message.TYPE_APPROVAL);
+        return new Message(null, toUser, message, type, null);
     }
 
     /**
@@ -62,7 +52,17 @@ public class MessageBuilder {
      * @return
      */
     public static Message createMessage(ID toUser, String message, int type, ID relatedRecord) {
-        return new Message(null, toUser, message, relatedRecord, type);
+        return new Message(null, toUser, message, type, relatedRecord);
+    }
+
+    /**
+     * @param toUser
+     * @param message
+     * @param relatedRecord
+     * @return
+     */
+    public static Message createApproval(ID toUser, String message, ID relatedRecord) {
+        return new Message(null, toUser, message, Message.TYPE_APPROVAL, relatedRecord);
     }
 
     // --
@@ -83,12 +83,11 @@ public class MessageBuilder {
     }
 
     /**
-     * 格式化消息，支持转换 MD 语法
+     * 格式化消息
      *
      * @param message
-     * @param md2html
+     * @param md2html 转换 MD 到 HTML {@link MarkdownUtils#render(String)}
      * @return
-     * @see MarkdownUtils#render(String)
      */
     public static String formatMessage(String message, boolean md2html) {
         // 匹配 `@ID`
@@ -101,32 +100,24 @@ public class MessageBuilder {
             }
         }
 
-        if (md2html) {
-            message = MarkdownUtils.render(message);
-        }
-        return message;
+        if (md2html) return MarkdownUtils.render(message);
+        else return message;
     }
 
-    /**
-     * @param atid
-     * @return
-     */
     protected static String parseAtId(String atid) {
-        if (!ID.isId(atid)) {
-            return atid;
-        }
+        if (!ID.isId(atid)) return atid;
 
         final ID id = ID.valueOf(atid);
         if (id.getEntityCode() == EntityHelper.User) {
             if (Application.getUserStore().existsUser(id)) {
                 return Application.getUserStore().getUser(id).getFullName();
             } else {
-                return "[无效用户]";
+                return FieldValueHelper.MISS_REF_PLACE;
             }
         }
 
-        String recordLabel = FieldValueHelper.getLabelNotry(id);
-        String recordUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
-        return String.format("[%s](%s)", recordLabel, recordUrl);
+        String idLabel = FieldValueHelper.getLabelNotry(id);
+        String viewUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
+        return String.format("[%s](%s)", idLabel, viewUrl);
     }
 }

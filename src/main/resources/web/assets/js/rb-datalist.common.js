@@ -678,7 +678,7 @@ const RbListCommon = {
       $btn.trigger('click')
     })
 
-    // via 过滤
+    // Via 过滤
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`

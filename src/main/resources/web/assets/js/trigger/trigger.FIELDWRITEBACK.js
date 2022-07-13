@@ -493,7 +493,7 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="2000" placeholder="// Support AviatorScript" autoFocus />
+        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="6000" placeholder="// Support AviatorScript" autoFocus />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">

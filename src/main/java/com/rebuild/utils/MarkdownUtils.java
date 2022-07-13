@@ -14,6 +14,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.jsoup.Jsoup;
 
 import java.util.Arrays;
 
@@ -46,5 +47,16 @@ public class MarkdownUtils {
         md = md.replace("&gt; ", "> ");  // for MD quote
         Node document = PARSER.parse(md);
         return RENDERER.render(document);
+    }
+
+    /**
+     * 清理 MD 格式
+     *
+     * @param md
+     * @return
+     */
+    public static String cleanMd(String md) {
+        String html = render(md);
+        return Jsoup.parse(html).body().text();
     }
 }
