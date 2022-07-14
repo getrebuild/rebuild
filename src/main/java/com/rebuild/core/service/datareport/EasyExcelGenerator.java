@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
@@ -31,6 +32,7 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
 
@@ -39,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -104,6 +107,15 @@ public class EasyExcelGenerator extends SetUser {
             // 主记录
             if (main != null) {
                 excelWriter.fill(main, writeSheet);
+            }
+
+            // 公式生效
+            Workbook wb = excelWriter.writeContext().writeWorkbookHolder().getWorkbook();
+            wb.setForceFormulaRecalculation(true);
+
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
             }
         }
 
@@ -268,8 +280,18 @@ public class EasyExcelGenerator extends SetUser {
 
                 if (dt == DisplayType.SIGN) {
                     fieldValue = buildSignData((String) fieldValue);
-                }  else {
-                    fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
+                } else {
+
+                    if (dt == DisplayType.NUMBER) {
+                        // Keep Type
+                    } else if (dt == DisplayType.DECIMAL) {
+                        String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
+                        int scale = StringUtils.isBlank(format) ? 2 : format.split("\\.")[1].length();
+                        // Keep Type
+                        fieldValue = ObjectUtils.round(((BigDecimal) fieldValue).doubleValue(), scale);
+                    } else {
+                        fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
+                    }
 
                     if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
                         fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
