@@ -86,7 +86,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/rbv/main/java</source>
+                                <source>${basedir}/@rbv/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -99,7 +99,7 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/rbv/main/resources</directory>
+                                    <directory>${basedir}/@rbv/main/resources</directory>
                                 </resource>
                             </resources>
                         </configuration>
@@ -112,7 +112,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/rbv/test/java</source>
+                                <source>${basedir}/@rbv/test/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -125,7 +125,7 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/rbv/test/resources</directory>
+                                    <directory>${basedir}/@rbv/test/resources</directory>
                                 </resource>
                             </resources>
                         </configuration>

@@ -5,7 +5,7 @@
   "main": ".eslintrc.js",
   "scripts": {
     "lint": "eslint --ext .js src/main/resources/web/assets/js/* &",
-    "lint-rbv": "eslint --ext .js rbv/main/resources/web/assets/js/* &"
+    "lint-rbv": "eslint --ext .js @rbv/main/resources/web/assets/js/* &"
   },
   "author": "REBUILD",
   "license": "GPL-3.0",
