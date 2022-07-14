@@ -112,11 +112,6 @@ public class EasyExcelGenerator extends SetUser {
             // 公式生效
             Workbook wb = excelWriter.writeContext().writeWorkbookHolder().getWorkbook();
             wb.setForceFormulaRecalculation(true);
-
-        } finally {
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
         }
 
         return tmp;
