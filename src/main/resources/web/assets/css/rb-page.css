@@ -4794,3 +4794,13 @@ pre.unstyle {
 .nav-tabs > li.nav-item a.nav-link .icon {
   margin-left: 0;
 }
+
+.tablesort thead th:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.tablesort thead th.no-sort {
+  cursor: default;
+  opacity: unset;
+}

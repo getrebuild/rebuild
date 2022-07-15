@@ -71,28 +71,12 @@ class ConfigList extends React.Component {
 
     // 搜索
     const $btn = $('.input-search .btn').click(() => this.loadData())
-    $('.input-search .form-control').keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
-
-    $('.data-list .table th.use-sort').on('click', () => this._sortByName())
-  }
-
-  // 简单排序
-  _sortByName(data, callback) {
-    const $sort = $('.data-list .table th.use-sort')
-    const index = ~~($sort.data('sort-index') || 1)
-
-    if (!data) this.__asc = !this.__asc
-
-    const s = data || this.state.data
-    s.sort((a, b) => {
-      if (this.__asc) {
-        return (a[index] || '').localeCompare(b[index] || '')
-      } else {
-        return (b[index] || '').localeCompare(a[index] || '')
-      }
+    $('.input-search .form-control').keydown((e) => {
+      if (e.which === 13) $btn.trigger('click')
     })
 
-    this.setState({ data: s }, callback)
+    // 简单排序
+    if ($.tablesort) $('.tablesort').tablesort()
   }
 
   // 加载数据
@@ -107,7 +91,7 @@ class ConfigList extends React.Component {
       if (res.error_code === 0) {
         const data = res.data || []
         if (this.renderEntityTree(data) !== false) {
-          this._sortByName(res.data || [], () => {
+          this.setState({ data: res.data }, () => {
             $('.rb-loading-active').removeClass('rb-loading-active')
             $('.dataTables_info').text($L('共 %d 项', this.state.data.length))
 
