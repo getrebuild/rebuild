@@ -140,33 +140,7 @@ public class RecordTransfomer extends SetUser {
             }
 
             // 回填
-
-            String fillbackField = transConfig.getString("fillbackField");
-            if (StringUtils.isNotBlank(fillbackField) && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
-                Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
-                updateSource.setID(fillbackField, newId);
-
-                // TODO 此配置未开放
-                int fillbackMode = transConfig.getIntValue("fillbackMode");
-
-                // 仅更新，无业务规则
-                if (fillbackMode == 3 || fillbackMode == 0) {
-                    Application.getCommonsService().update(updateSource, false);
-                }
-                // 忽略审批状态（进行中）强制更新
-                else if (fillbackMode == 2) {
-                    GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-                    try {
-                        Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
-                    } finally {
-                        GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
-                    }
-                }
-                // 默认
-                else {
-                    Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
-                }
-            }
+            fillback(sourceRecordId, newId);
 
             TransactionManual.commit(tx);
             return newId;
@@ -175,6 +149,46 @@ public class RecordTransfomer extends SetUser {
             TransactionManual.rollback(tx);
             throw ex;
         }
+    }
+
+    /**
+     * @param sourceRecordId
+     * @param newId
+     * @return
+     */
+    protected boolean fillback(ID sourceRecordId, ID newId) {
+        final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        String fillbackField = transConfig.getString("fillbackField");
+        if (StringUtils.isBlank(fillbackField)
+                || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
+            return false;
+        }
+        
+        Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
+        updateSource.setID(fillbackField, newId);
+
+        // TODO 此配置未开放
+        int fillbackMode = transConfig.getIntValue("fillbackMode");
+
+        // 仅更新，无业务规则
+        if (fillbackMode == 3 || fillbackMode == 0) {
+            Application.getCommonsService().update(updateSource, false);
+        }
+        // 忽略审批状态（进行中）强制更新
+        else if (fillbackMode == 2) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
+            try {
+                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+            } finally {
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            }
+        }
+        // 默认
+        else {
+            Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+        }
+
+        return true;
     }
 
     private ID saveRecord(

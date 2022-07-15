@@ -141,7 +141,7 @@ class RbViewForm extends React.Component {
     }
 
     const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
+    $.post('/app/entity/record-save?singleField=true', JSON.stringify(data), (res) => {
       $btn.button('reset')
 
       if (res.error_code === 0) {
@@ -526,7 +526,7 @@ class TransformRich extends React.Component {
   render() {
     return (
       <RF>
-        {WrapHtml($L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
+        {WrapHtml(this.props.previewMode ? $L('转换明细记录前需先选择主记录') : $L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
         {this.props.mainEntity && (
           <div className="widget-sm mt-3">
             <div>
@@ -548,8 +548,13 @@ class TransformRich extends React.Component {
 
   getMainId() {
     if (this._$select) {
-      const v = $(this._$select).val()
-      return v ? v : false
+      let v = $(this._$select).val()
+      v = v ? v : false
+
+      if (v === false) {
+        RbHighbar.create($L('请选择主记录'))
+      }
+      return v
     }
     return true
   }
@@ -825,39 +830,38 @@ const RbViewPage = {
 
       const entity = item.entity.split('.')
       $item.on('click', () => {
+        let _TransformRich
+
         if (item.previewMode) {
           const previewid = `${that.__id}.${item.transid}`
-          RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+          if (item.mainEntity) {
+            RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
+              icon: 'info-outline',
+              onConfirm: function () {
+                const mainid = _TransformRich.getMainId()
+                if (mainid === false) return
+
+                this.hide()
+                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` })
+              },
+            })
+          } else {
+            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+          }
           return
         }
 
-        let _TransformRich
         RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
           tabIndex: 1,
           onConfirm: function () {
             const mainid = _TransformRich.getMainId()
-            if (mainid === false) {
-              RbHighbar.create($L('请选择主记录'))
-              return
-            }
+            if (mainid === false) return
 
             this.disabled(true)
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
-                // RbHighbar.success($L('转换成功'))
-                setTimeout(() => {
-                  if (item.transmode) {
-                    RbFormModal.create({
-                      id: res.data,
-                      title: $L('编辑%s', item.entityLabel),
-                      entity: entity[0],
-                      icon: item.icon,
-                    })
-                  } else {
-                    that.clickView(`!#/View/${item.entity}/${res.data}`)
-                  }
-                }, 200)
+                setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
               } else {
                 this.disabled(false)
                 res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)

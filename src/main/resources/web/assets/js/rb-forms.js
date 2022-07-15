@@ -119,8 +119,8 @@ class RbFormModal extends React.Component {
     if (!state.id) state.id = null
 
     // 比较初始参数决定是否可复用
-    const stateNew = [state.id, state.entity, state.initialValue]
-    const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
+    const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
+    const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
 
     if (this.state.destroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
       state = { formComponent: null, initialValue: null, previewid: null, inLoad: true, ...state }
@@ -239,8 +239,9 @@ class RbForm extends React.Component {
       }
     }
 
-    const NADD = [5, 10, 20]
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
+    const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
@@ -273,7 +274,7 @@ class RbForm extends React.Component {
         </div>
 
         <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} $$$main={this} />
+          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
         </div>
       </div>
     )
@@ -421,13 +422,17 @@ class RbForm extends React.Component {
       return
     }
 
+    const $$$parent = this.props.$$$parent
+    const previewid = $$$parent.state.previewid
+
     const $btn = $(this._$formAction).find('.btn').button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    let url = '/app/entity/record-save'
+    if (previewid) url += '?previewid=' + previewid
+    $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
-        const $$$parent = this.props.$$$parent
         setTimeout(() => {
           $$$parent.hide(true)
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
@@ -445,7 +450,7 @@ class RbForm extends React.Component {
             })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-          } else if ($$$parent.state.previewid && window.RbViewPage) {
+          } else if (previewid && window.RbViewPage) {
             window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
           }
 

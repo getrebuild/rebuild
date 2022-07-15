@@ -23,7 +23,7 @@ import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.service.general.transform.FormBuilder;
+import com.rebuild.core.service.general.transform.TransformerPreview;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -124,13 +124,13 @@ public class GeneralModelController extends EntityController {
             }
         }
 
-        // 转换预览
-        String previewid = request.getParameter("previewid");
+        // 转换预览模式
+        final String previewid = request.getParameter("previewid");
 
         try {
             JSON model;
             if (StringUtils.isNotBlank(previewid)) {
-                model = new FormBuilder(previewid, user).buildForm(false);
+                model = new TransformerPreview(previewid, user).buildForm(false);
             } else {
                 model = FormsBuilder.instance.buildForm(entity, user, id);
             }
@@ -179,10 +179,17 @@ public class GeneralModelController extends EntityController {
     }
 
     @RequestMapping("detail-models")
-    public JSON entityFormDetails(@PathVariable String entity, @IdParam(name = "mainid") ID id,
-                           HttpServletRequest request) {
+    public JSON entityFormDetails(
+            @PathVariable String entity, @IdParam(name = "mainid", required = false) ID id,
+            HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final Entity metaEntity = MetadataHelper.getEntity(entity);
+
+        // 转换预览模式
+        final String previewid = request.getParameter("previewid");
+        if (StringUtils.isNotBlank(previewid)) {
+            return new TransformerPreview(previewid, user).buildForm(true);
+        }
 
         Field dtf = MetadataHelper.getDetailToMainField(metaEntity);
         String sql = String.format("select %s from %s where %s = ? order by autoId asc",

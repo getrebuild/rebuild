@@ -364,7 +364,8 @@ public class FormsBuilder extends FormsManager {
                     el.put("value", value);
                 }
 
-                ID pv = dt == DisplayType.REFERENCE ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
+                ID pv = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
+                        ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
                 if (pv != null) {
                     el.put("_cascadingFieldParentValue", pv);
                 }
@@ -549,7 +550,6 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
                     }
                 }
-
             }
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
@@ -560,7 +560,6 @@ public class FormsBuilder extends FormsManager {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
                 }
-
             }
             // 其他
             else if (entity.containsField(field)) {
@@ -570,7 +569,6 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(field, mixValue);
                     }
                 }
-
             } else {
                 log.warn("Unknown value pair : " + field + " = " + value);
             }
