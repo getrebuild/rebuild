@@ -84,7 +84,10 @@
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                       <input class="custom-control-input" type="checkbox" id="transformMode" value="2" />
-                      <span class="custom-control-label">[[${bundle.L('预览模式')}]]</span>
+                      <span class="custom-control-label">
+                        [[${bundle.L('预览模式')}]]
+                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('启用预览模式会打开新建页面，否则将直接转换')}"></i>
+                      </span>
                     </label>
                   </div>
                 </div>
