@@ -78,8 +78,7 @@ class ProTable extends React.Component {
         </table>
 
         {(this.state.inlineForms || []).length === 0 && (
-          <div className="text-center text-muted mt-6" style={{ paddingTop: 2, paddingBottom: 1 }}>
-            <i className="x14 zmdi zmdi-playlist-plus mr-1 fs-16" />
+          <div className="text-center text-muted mt-6">
             {$L('请添加明细')}
           </div>
         )}
