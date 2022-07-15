@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.FormBuilderContextHolder;
+import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
@@ -114,12 +114,12 @@ public class GeneralModelController extends EntityController {
                 // 新建明细记录时必须指定主实体
                 String mainid = ((JSONObject) initialVal).getString(FormsBuilder.DV_MAINID);
                 if (ID.isId(mainid)) {
-                    FormBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
+                    FormsBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
                 }
                 // v2.8
                 else if (FormsBuilder.DV_MAINID.equals(mainid)) {
                     ID fakeMainid = EntityHelper.newUnsavedId(metaEntity.getMainEntity().getEntityCode());
-                    FormBuilderContextHolder.setMainIdOfDetail(fakeMainid);
+                    FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
                 }
             }
         }
@@ -142,7 +142,7 @@ public class GeneralModelController extends EntityController {
             return model;
 
         } finally {
-            FormBuilderContextHolder.getMainIdOfDetail(true);
+            FormsBuilderContextHolder.getMainIdOfDetail(true);
         }
     }
 

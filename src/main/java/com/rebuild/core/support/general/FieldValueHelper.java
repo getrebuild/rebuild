@@ -130,11 +130,15 @@ public class FieldValueHelper {
 
         JSONObject mixValue = JSONUtils.toJSONObject(
                 new String[] { "id", "text" }, new Object[] { id, text });
-        if (id != null && !EntityHelper.isUnsavedId(id)) {
-            if (MetadataHelper.containsEntity(id.getEntityCode())) {
-                mixValue.put("entity", MetadataHelper.getEntityName(id));
-            } else {
-                log.warn("The entity of id no longer exists : {}", id);
+        if (id != null) {
+            if (!EntityHelper.isUnsavedId(id)) {
+                if (MetadataHelper.containsEntity(id.getEntityCode())) {
+                    mixValue.put("entity", MetadataHelper.getEntityName(id));
+                } else {
+                    log.warn("The entity of id no longer exists : {}", id);
+                }
+            } else if (ApprovalStepService.APPROVAL_NOID.equals(id)) {
+                mixValue.put("entity", "RobotApprovalConfig");
             }
         }
         return mixValue;

@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
-import com.rebuild.core.configuration.general.FormBuilderContextHolder;
+import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -85,7 +85,7 @@ public class TransformerPreview {
             targetEntity = targetEntity.getDetailEntity();
 
             JSONArray detailModels = new JSONArray();
-            FormBuilderContextHolder.setMainIdOfDetail(fakeMainid);
+            FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
             try {
                 for (ID did : ids) {
                     Record targetRecord = (Record) transfomer.transformRecord(
@@ -97,7 +97,7 @@ public class TransformerPreview {
                     detailModels.add(model);
                 }
             } finally {
-                FormBuilderContextHolder.getMainIdOfDetail(true);
+                FormsBuilderContextHolder.getMainIdOfDetail(true);
             }
 
             return detailModels;
@@ -121,7 +121,7 @@ public class TransformerPreview {
         if (mainid != null) {
             Field dtfField = MetadataHelper.getDetailToMainField(targetEntity);
             targetRecord.setID(dtfField.getName(), mainid);
-            FormBuilderContextHolder.setMainIdOfDetail(mainid);
+            FormsBuilderContextHolder.setMainIdOfDetail(mainid);
         }
 
         try {
@@ -134,7 +134,7 @@ public class TransformerPreview {
             return model;
 
         } finally {
-            if (mainid != null) FormBuilderContextHolder.getMainIdOfDetail(true);
+            if (mainid != null) FormsBuilderContextHolder.getMainIdOfDetail(true);
         }
     }
 
