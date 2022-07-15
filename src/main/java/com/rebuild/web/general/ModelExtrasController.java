@@ -14,12 +14,9 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AutoFillinManager;
-import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -71,10 +68,7 @@ public class ModelExtrasController extends BaseController {
         ID sourceRecord = getIdParameterNotNull(request, "source");
         ID mainid = getIdParameter(request, "mainid");
 
-        ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
-        Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
-
-        RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
+        RecordTransfomer transfomer = new RecordTransfomer(transid);
         if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }

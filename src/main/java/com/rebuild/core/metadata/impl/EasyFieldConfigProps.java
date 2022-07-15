@@ -57,9 +57,13 @@ public class EasyFieldConfigProps {
     public static final String TIME_FORMAT = "timeFormat";
 
     /**
-     * 允许上传数量 1,5
+     * 允许上传数量 1,9
      */
     public static final String FILE_UPLOADNUMBER = "uploadNumber";
+    /**
+     * 允许上传文件类型
+     */
+    public static final String FILE_SUFFIX = "fileSuffix";
 
     /**
      * 允许上传数量

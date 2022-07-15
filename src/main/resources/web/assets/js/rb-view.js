@@ -86,12 +86,13 @@ class RbViewForm extends React.Component {
   }
 
   showAgain(handle) {
-    this.checkDrityData(handle)
+    this._checkDrityData(handle)
   }
 
   // 脏数据检查
-  checkDrityData(handle) {
+  _checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
+
     $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
@@ -824,11 +825,11 @@ const RbViewPage = {
 
       const entity = item.entity.split('.')
       $item.on('click', () => {
-        // if (item.transmode) {
-        //   const iv = { '$COPYID$': `${that.__id}.${item.transid}` }
-        //   RbFormModal.create({ title: item.entityLabel, entity: entity[0], icon: item.icon, initialValue: iv })
-        //   return
-        // }
+        if (item.previewMode) {
+          const previewid = `${that.__id}.${item.transid}`
+          RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+          return
+        }
 
         let _TransformRich
         RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {

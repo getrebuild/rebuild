@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -157,17 +158,20 @@ public class FieldValueHelper {
                 throw new NoRecordFoundException("No ClassificationData found by id : " + id);
             }
             return hasValue;
-
         } else if (id.getEntityCode() == EntityHelper.PickList) {
             String hasValue = PickListManager.instance.getLabel(id);
             if (hasValue == null) {
                 throw new NoRecordFoundException("No PickList found by id : " + id);
             }
             return hasValue;
-
         } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
             return Language.L("自动审批");
-
+        } else if (MetadataHelper.isBizzEntity(id.getEntityCode())) {
+            String hasName = UserHelper.getName(id);
+            if (hasName == null) {
+                throw new NoRecordFoundException("No Bizz found by id : " + id);
+            }
+            return hasName;
         }
 
         Field nameField = entity.getNameField();

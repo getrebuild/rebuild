@@ -23,12 +23,14 @@ import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.transform.FormBuilder;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -122,8 +124,17 @@ public class GeneralModelController extends EntityController {
             }
         }
 
+        // 转换预览
+        String previewid = request.getParameter("previewid");
+
         try {
-            JSON model = FormsBuilder.instance.buildForm(entity, user, id);
+            JSON model;
+            if (StringUtils.isNotBlank(previewid)) {
+                model = new FormBuilder(previewid, user).buildForm(false);
+            } else {
+                model = FormsBuilder.instance.buildForm(entity, user, id);
+            }
+
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
                 FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);

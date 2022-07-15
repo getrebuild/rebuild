@@ -13,7 +13,9 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -46,11 +48,13 @@ public class RecordTransfomer extends SetUser {
     final private boolean skipGuard;
 
     /**
-     * @param targetEntity
-     * @param transConfig
+     * @param trnasid
      */
-    public RecordTransfomer(Entity targetEntity, JSONObject transConfig) {
-        this(targetEntity, transConfig, false);
+    public RecordTransfomer(ID trnasid) {
+        ConfigBean config = TransformManager.instance.getTransformConfig(trnasid, null);
+        this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
+        this.transConfig = (JSONObject) config.getJSON("config");
+        this.skipGuard = false;
     }
 
     /**
@@ -107,7 +111,7 @@ public class RecordTransfomer extends SetUser {
             }
 
             final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
-            final ID newId = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, map);
+            final ID newId = saveRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, map);
             if (newId == null) {
                 throw new ConfigurationException("Cannot transform record of main : " + transConfig);
             }
@@ -131,7 +135,7 @@ public class RecordTransfomer extends SetUser {
                 }
 
                 for (Object[] o : details) {
-                    transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) o[0], map);
+                    saveRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) o[0], map);
                 }
             }
 
@@ -173,9 +177,24 @@ public class RecordTransfomer extends SetUser {
         }
     }
 
-    private ID transformRecord(
+    private ID saveRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
             ID sourceRecordId, Map<String, Object> defaultValue) {
+        return (ID) transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, defaultValue, true);
+    }
+
+    /**
+     * @param sourceEntity
+     * @param targetEntity
+     * @param fieldsMapping
+     * @param sourceRecordId
+     * @param defaultValue
+     * @param save
+     * @return Returns ID or Record
+     */
+    protected Object transformRecord(
+            Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
+            ID sourceRecordId, Map<String, Object> defaultValue, boolean save) {
 
         Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
@@ -210,6 +229,8 @@ public class RecordTransfomer extends SetUser {
                 target.setObjectValue(targetField, targetValue);
             }
         }
+
+        if (!save) return target;
 
         if (this.skipGuard) {
             PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);

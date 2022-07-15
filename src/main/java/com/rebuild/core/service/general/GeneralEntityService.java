@@ -31,6 +31,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.service.trigger.impl.GroupAggregation;
 import com.rebuild.core.support.i18n.Language;
@@ -170,7 +171,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 RobotTriggerManual triggerManual = new RobotTriggerManual();
                 ID opUser = UserService.SYSTEM_USER;
 
-                for (ID did : queryDetails(record.getPrimary(), de, 1)) {
+                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), 1)) {
                     Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
                     triggerManual.onUpdate(
                             OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
@@ -239,7 +240,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
         Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
         if (de != null) {
-            for (ID did : queryDetails(record, de, 0)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(record, 0)) {
                 // 明细无约束检查 checkModifications
                 super.delete(did);
             }
@@ -718,7 +719,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
                 state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
         if (hasTriggers != null && hasTriggers.length > 0) {
-            for (ID did : queryDetails(record, de, 0)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(record, 0)) {
                 Record dAfter = EntityHelper.forUpdate(did, opUser, false);
                 triggerManual.onApproved(
                         OperatingContext.create(opUser, BizzPermission.UPDATE, null, dAfter));
@@ -735,20 +736,5 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             triggerManual.onApproved(
                     OperatingContext.create(opUser, BizzPermission.UPDATE, before, approvalRecord));
         }
-    }
-
-    private List<ID> queryDetails(ID mainid, Entity detail, int maxSize) {
-        String sql = String.format("select %s from %s where %s = ?",
-                detail.getPrimaryField().getName(), detail.getName(),
-                MetadataHelper.getDetailToMainField(detail).getName());
-
-        Query query = Application.createQueryNoFilter(sql).setParameter(1, mainid);
-        if (maxSize > 0) query.setLimit(maxSize);
-
-        Object[][] array = query.array();
-        List<ID> ids = new ArrayList<>();
-
-        for (Object[] o : array) ids.add((ID) o[0]);
-        return ids;
     }
 }

@@ -68,7 +68,7 @@ public class TransformManager implements ConfigManager {
 
             JSONObject item = EasyMetaFactory.toJSON(targetEntity);
             item.put("transid", c.getID("id"));
-            item.put("transmode", config.getIntValue("transformMode") == 2);
+            item.put("previewMode", config.getIntValue("transformMode") == 2);
             data.add(item);
         }
         return data;
