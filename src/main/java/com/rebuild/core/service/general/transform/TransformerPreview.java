@@ -34,20 +34,20 @@ import java.util.List;
 
 public class TransformerPreview {
 
-    final private ID sourceId;
     final private ID configId;
+    final private ID sourceId;
     final private ID user;
 
     final private ID mainid;
 
     /**
-     * @param previewid SOURCEID.TRANSID.[MAINID]
+     * @param previewid TRANSID.SOURCEID.[MAINID]
      * @param user
      */
     public TransformerPreview(String previewid, ID user) {
         String[] ids = previewid.split("\\.");
-        this.sourceId = ID.valueOf(ids[0]);
-        this.configId = ID.valueOf(ids[1]);
+        this.configId = ID.valueOf(ids[0]);
+        this.sourceId = ID.valueOf(ids[1]);
         this.mainid = ids.length > 2 ? ID.valueOf(ids[2]) : null;
         this.user = user;
     }
