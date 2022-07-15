@@ -15,8 +15,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.NoRecordFoundException;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -67,8 +67,9 @@ public class QueryHelper {
      *
      * @param recordId
      * @return
+     * @throws NoRecordFoundException
      */
-    public static Record recordNoFilter(ID recordId) {
+    public static Record recordNoFilter(ID recordId) throws NoRecordFoundException {
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         List<String> fields = new ArrayList<>();
@@ -79,10 +80,10 @@ public class QueryHelper {
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(fields, ","), entity.getName(),
                 entity.getPrimaryField().getName());
+        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
 
-        Record record = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
-        Assert.notNull(record, "RECORD NOT EXISTS : " + recordId);
-        return record;
+        if (o == null) throw new NoRecordFoundException(recordId);
+        else return o;
     }
 
     /**
@@ -127,5 +128,20 @@ public class QueryHelper {
 
         for (Object[] o : array) ids.add((ID) o[0]);
         return ids;
+    }
+
+    /**
+     * 根据明细 ID 得到主记录 ID
+     *
+     * @param detailId
+     * @return
+     * @throws NoRecordFoundException
+     */
+    public static ID getMainIdByDetail(ID detailId) throws NoRecordFoundException {
+        Field dtmField = MetadataHelper.getDetailToMainField(MetadataHelper.getEntity(detailId.getEntityCode()));
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(detailId, dtmField.getName());
+
+        if (o == null) throw new NoRecordFoundException(detailId);
+        else return (ID) o[0];
     }
 }

@@ -105,7 +105,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                 || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
-        // 明细实体 Service
+        // 使用明细实体 Service
         final EntityService des = Application.getEntityService(record.getEntity().getDetailEntity().getEntityCode());
 
         // 先删除
@@ -242,6 +242,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (de != null) {
             for (ID did : QueryHelper.detailIdsNoFilter(record, 0)) {
                 // 明细无约束检查 checkModifications
+                // 不使用明细实体 Service
                 super.delete(did);
             }
         }
@@ -362,7 +363,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     @Override
     public int unshare(ID record, ID accessId) {
-        ID currentUser = UserContextHolder.getUser();
+        final ID currentUser = UserContextHolder.getUser();
 
         Record unsharedBefore = null;
         if (countObservers() > 0) {
@@ -384,6 +385,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     // FIXME Transaction rolled back because it has been marked as rollback-only
     // 20210722 删除时出错会报以上错误
+    // 20220715 批量删除时有多个触发器，数据校验未通过可能会发生
     @Override
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);
@@ -405,9 +407,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     /**
      * 获取级联操作记录
      *
-     * @param recordMain      主记录
+     * @param recordMain 主记录
      * @param cascadeEntities 级联实体
-     * @param action          动作
+     * @param action 动作
      * @return
      */
     protected Map<String, Set<ID>> getCascadedRecords(ID recordMain, String[] cascadeEntities, Permission action) {
@@ -517,7 +519,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 // 需要验证主记录
                 String recordType = Language.L("记录");
                 if (mainEntity != null) {
-                    recordId = getMainId(entity, recordId);
+                    recordId = QueryHelper.getMainIdByDetail(recordId);
                     recordType = Language.L("主记录");
                 }
 
@@ -607,32 +609,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @param record
      */
     private void setSeriesValue(Record record) {
+        boolean skip = GeneralEntityServiceContextHolder.isSkipSeriesValue(false);
         Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
+
         for (Field field : seriesFields) {
             // 不强制生成
-            if (record.hasValue(field.getName())
-                    && GeneralEntityServiceContextHolder.isSkipSeriesValue(false)) {
+            if (record.hasValue(field.getName()) && skip) {
                 continue;
             }
+
             record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
         }
-    }
-
-    /**
-     * 获取主记录ID
-     *
-     * @param detailEntity
-     * @param detailId
-     * @return
-     * @throws NoRecordFoundException
-     */
-    private ID getMainId(Entity detailEntity, ID detailId) throws NoRecordFoundException {
-        Field dtmField = MetadataHelper.getDetailToMainField(detailEntity);
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(detailId, dtmField.getName());
-        if (o == null) {
-            throw new NoRecordFoundException(detailId);
-        }
-        return (ID) o[0];
     }
 
     @Override

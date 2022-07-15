@@ -23,6 +23,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
@@ -175,6 +176,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
             log.warn(errorLog, Application.devMode() ? ex : null);
+        } else if (ex instanceof ClientAbortException) {
+            log.warn("ClientAbortException : " + errorMsg, Application.devMode() ? ex : null);
         } else {
             log.error(errorLog, ex);
 
