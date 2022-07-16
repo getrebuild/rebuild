@@ -58,7 +58,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // RB metas
   window.rb = window.rb || {}
   $('meta[name^="rb."]').each(function (idx, item) {
-    var k = $(item).attr('name').substr(3) // remove `rb.`
+    var k = $(item).attr('name').substring(3) // remove `rb.`
     var v = $(item).attr('content')
     if (v === 'true') window.rb[k] = true
     else if (v === 'false') window.rb[k] = false
@@ -100,7 +100,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
     beforeSend: function (xhr, settings) {
       // URL prefix
-      if (settings.url.substr(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      if (settings.url.substring(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
       return settings
     },
   })
@@ -216,7 +216,7 @@ var $urlp = function (key, qstr) {
   qstr = qstr || window.location.search
   if (!qstr) return !key || key === '*' ? {} : null
   qstr = qstr.replace(/%20/g, ' ')
-  qstr = qstr.substr(1) // remove first '?'
+  qstr = qstr.substring(1) // remove first '?'
   var params = qstr.split('&')
   var map = {}
   for (var i = 0, j = params.length; i < j; i++) {
@@ -354,20 +354,21 @@ var $storage = {
   },
 }
 
-var $random__times = 0
-var $random__charts = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 /**
  * 随机数
  */
 var $random = function (prefix, alphabetic, maxLength) {
   if (alphabetic) {
-    var c = ''
-    for (var i = 0; i < (maxLength || 20); i++) {
-      c += $random__charts.charAt(Math.floor(Math.random() * $random__charts.length))
+    maxLength = maxLength || 24
+    var c = prefix || ''
+    while (c.length < maxLength) {
+      c += Math.random().toString(36).replace(/[^a-z1-9]+/g, '')
     }
-    return (prefix || '') + c
+    return c.substring(0, maxLength)
+  } else {
+    var c = (prefix || '') + (Math.floor(Math.random() * 888888888888) + 100000000000)
+    return c.substring(0, Math.min(maxLength || 12, 12))
   }
-  return (prefix || '') + new Date().getTime() + '' + $random__times++
 }
 
 /**

@@ -1072,7 +1072,7 @@ const renderRbcomp = function (jsx, target, callback) {
     target = null
   }
 
-  target = target || $random('react-container-')
+  target = target || $random('react-container-', true, 32)
   if ($.type(target) === 'string') {
     // element id
     const container = document.getElementById(target)
