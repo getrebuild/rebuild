@@ -479,7 +479,8 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
+                    let reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
+                    if (item.previewMode) reportUrl += '&preview=yes'
                     return (
                       <li key={item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
