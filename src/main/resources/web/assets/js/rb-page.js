@@ -528,7 +528,7 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imgOnly = $input.attr('accept') === 'image/*'
   var local = $input.data('local')
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 100)) // default 100MB
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
@@ -537,7 +537,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
 
-      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpe', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
+      var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
       $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
@@ -549,7 +549,7 @@ var $createUploader = function (input, next, complete, error) {
             if (imgOnly && msg.contains('FILE TYPE')) {
               RbHighbar.create($L('请上传图片'))
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('超出文件大小限制') + ' (100MB)')
+              RbHighbar.create($L('超出文件大小限制'))
             } else {
               RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }
