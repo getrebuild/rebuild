@@ -84,12 +84,18 @@ public class ConfigurationController extends BaseController {
             return RespBody.errorl("无效主页地址/域名");
         }
 
+        String dPortalOfficePreviewUrl = defaultIfBlank(data, ConfigurationItem.PortalOfficePreviewUrl);
+        if (StringUtils.isNotBlank(dPortalOfficePreviewUrl) && !RegexUtils.isUrl(dPortalOfficePreviewUrl)) {
+            return RespBody.errorl("无效文档预览服务地址");
+        }
+
         // 验证数字参数
         ConfigurationItem[] validNumbers = new ConfigurationItem[] {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays,
-                ConfigurationItem.PasswordExpiredDays
+                ConfigurationItem.PasswordExpiredDays,
+                ConfigurationItem.PortalUploadMaxSize,
         };
         for (ConfigurationItem item : validNumbers) {
             String number = defaultIfBlank(data, item);

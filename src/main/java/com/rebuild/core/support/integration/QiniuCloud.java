@@ -327,9 +327,7 @@ public class QiniuCloud {
      */
     public static long getStorageSize() {
         Long size = (Long) Application.getCommonsCache().getx("_StorageSize");
-        if (size != null) {
-            return size;
-        }
+        if (size != null) return size;
 
         if (QiniuCloud.instance().available()) {
             size = QiniuCloud.instance().stats();
