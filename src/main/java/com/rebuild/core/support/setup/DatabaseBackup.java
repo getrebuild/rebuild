@@ -62,7 +62,7 @@ public class DatabaseBackup {
         File dest = new File(backups, destName);
 
         String cmd = String.format(
-                "-u%s -p%s -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
+                "-u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
 
         ProcessBuilder builder = new ProcessBuilder();
