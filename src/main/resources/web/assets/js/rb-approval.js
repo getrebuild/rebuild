@@ -514,11 +514,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         )
       })
     } else {
-      this.post2(state, null, true)
+      this.post2(state, null)
     }
   }
 
-  post2(state, rejectNode, showAlert) {
+  post2(state, rejectNode) {
     const aformData = {}
     if (this.state.aform && state === 10) {
       const fd = this._rbform.__FormData
@@ -563,16 +563,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       })
     }
 
-    if (showAlert) {
-      RbAlert.create(state === 11 ? $L('确认驳回此审批？') : $L('确认同意此审批？'), {
-        onConfirm: function () {
-          this.hide()
-          fn()
-        },
-      })
-    } else {
-      fn()
-    }
+    fn()
   }
 }
 
