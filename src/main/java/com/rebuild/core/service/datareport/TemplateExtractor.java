@@ -41,7 +41,9 @@ public class TemplateExtractor {
     protected static final String PH__EMPTY = PLACEHOLDER + "EMPTY";
     // 当前用户
     protected static final String PH__CURRENTUSER = PLACEHOLDER + "CURRENTUSER";
-
+    // 序号
+    protected static final String PH__NUMBER = PLACEHOLDER + "NUMBER";
+    
     // ${xxx}
     private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
     // {xxx}

@@ -60,6 +60,8 @@ public class EasyExcelGenerator extends SetUser {
 
     private boolean hasMain = false;
 
+    protected int phNumber = 1;
+
     /**
      * @param reportId
      * @param recordId
@@ -201,8 +203,10 @@ public class EasyExcelGenerator extends SetUser {
                     .setParameter(1, this.recordId)
                     .list();
 
+            phNumber = 1;
             for (Record c : list) {
                 datas.add(buildData(c, varsMapOfDetail));
+                phNumber++;
             }
         }
 
@@ -216,8 +220,10 @@ public class EasyExcelGenerator extends SetUser {
                     .setParameter(1, this.recordId)
                     .list();
 
+            phNumber = 1;
             for (Record c : list) {
                 datas.add(buildData(c, varsMapOfApproval));
+                phNumber++;
             }
         }
 
@@ -253,7 +259,10 @@ public class EasyExcelGenerator extends SetUser {
                     data.put(varName, phEmpty);
                 } else if (varName.equalsIgnoreCase(TemplateExtractor.PH__CURRENTUSER)) {
                     data.put(varName, phCurrentuser);
-                } else {
+                } else if (varName.equalsIgnoreCase(TemplateExtractor.PH__NUMBER)) {
+                    data.put(varName, phNumber);
+                }
+                else {
                     data.put(varName, invalidFieldTip);
                 }
             }
