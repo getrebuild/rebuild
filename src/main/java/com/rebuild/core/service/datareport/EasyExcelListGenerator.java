@@ -23,7 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.rebuild.core.service.datareport.TemplateExtractor.*;
+import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
  * Excel 列表导出
