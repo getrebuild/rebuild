@@ -46,6 +46,8 @@ const RevTypes = {
   16: $L('分派'),
   32: $L('共享'),
   64: $L('取消共享'),
+  991: $L('审批通过'),
+  992: $L('审批撤销')
 }
 
 class DataList extends React.Component {

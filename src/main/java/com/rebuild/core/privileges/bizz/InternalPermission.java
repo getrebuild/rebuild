@@ -15,7 +15,21 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
  * @see BizzPermission
  * @since 10/12/2018
  */
-public class ZeroPermission {
+public class InternalPermission {
 
+    /**
+     * 扩展权限
+     */
     public static final Permission ZERO = new BizzPermission("ZERO", 0, true);
+
+    /**
+     * 删除前触发的动作
+     */
+    public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
+
+    /**
+     * 审批
+     */
+    public static final Permission APPROVAL = new BizzPermission("APPROVAL", 0, false);
+
 }

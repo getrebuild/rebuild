@@ -9,6 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Observable;
@@ -52,7 +53,7 @@ public abstract class OperatingObserver implements Observer {
             onCreate(ctx);
         } else if (ctx.getAction() == BizzPermission.UPDATE) {
             onUpdate(ctx);
-        } else if (ctx.getAction() == ObservableService.DELETE_BEFORE) {
+        } else if (ctx.getAction() == InternalPermission.DELETE_BEFORE) {
             onDeleteBefore(ctx);
         } else if (ctx.getAction() == BizzPermission.DELETE) {
             onDelete(ctx);
