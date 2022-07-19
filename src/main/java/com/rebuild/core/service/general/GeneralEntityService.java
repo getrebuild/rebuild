@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
@@ -723,5 +724,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             triggerManual.onApproved(
                     OperatingContext.create(opUser, BizzPermission.UPDATE, before, approvalRecord));
         }
+
+        // 手动记录历史
+        new RevisionHistoryObserver().onApprovalManual(
+                OperatingContext.create(opUser, InternalPermission.APPROVAL, before, approvalRecord));
     }
 }

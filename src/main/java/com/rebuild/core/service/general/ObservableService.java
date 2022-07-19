@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -15,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
@@ -35,11 +35,6 @@ import java.util.*;
  */
 @Slf4j
 public abstract class ObservableService extends Observable implements ServiceSpec {
-
-    /**
-     * 删除前触发的动作
-     */
-    public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 
     final protected ServiceSpec delegateService;
 
@@ -100,7 +95,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
             // 删除前触发，做一些状态保持
             setChanged();
-            notifyObservers(OperatingContext.create(currentUser, DELETE_BEFORE, deleted, null));
+            notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, null));
         }
 
         int affected = delegateService.delete(recordId);
