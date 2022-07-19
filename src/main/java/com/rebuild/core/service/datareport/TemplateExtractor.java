@@ -38,7 +38,7 @@ public class TemplateExtractor {
     // 占位
     public static final String PLACEHOLDER = "__";
     // 空
-    protected static final String PH__EMPTY = PLACEHOLDER + "EMPTY";
+    protected static final String PH__KEEP = PLACEHOLDER + "KEEP";
     // 当前用户
     protected static final String PH__CURRENTUSER = PLACEHOLDER + "CURRENTUSER";
     // 序号

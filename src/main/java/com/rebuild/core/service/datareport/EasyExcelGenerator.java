@@ -255,11 +255,11 @@ public class EasyExcelGenerator extends SetUser {
                     varName = varName.substring(1);
                 }
 
-                // {.__EMPTY:块}
-                if (varName.startsWith(PH__EMPTY)) {
-                    String phEmpty = varName.length() > PH__EMPTY.length()
-                            ? varName.substring(PH__EMPTY.length() + 1) : "";
-                    data.put(varName, phEmpty);
+                // {.__KEEP:块}
+                if (varName.startsWith(PH__KEEP)) {
+                    String phKeep = varName.length() > PH__KEEP.length()
+                            ? varName.substring(PH__KEEP.length() + 1) : "";
+                    data.put(varName, phKeep);
                 } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
                     data.put(varName, phCurrentuser);
                 } else if (varName.equalsIgnoreCase(PH__NUMBER)) {
