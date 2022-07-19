@@ -56,8 +56,6 @@ public class FormsBuilder extends FormsManager {
     public static final String DIVIDER_LINE = "$DIVIDER$";
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
-    // 复制记录
-    public static final String DV_COPYID = "$COPYID$";
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
 
@@ -112,7 +110,7 @@ public class FormsBuilder extends FormsManager {
         // 新建
         if (record == null) {
             if (hasMainEntity != null) {
-                ID mainid = FormBuilderContextHolder.getMainIdOfDetail(false);
+                ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
                 Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
@@ -168,10 +166,10 @@ public class FormsBuilder extends FormsManager {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
         }
 
-        Record data = null;
+        Record recordData = null;
         if (record != null) {
-            data = findRecord(record, user, elements);
-            if (data == null) {
+            recordData = findRecord(record, user, elements);
+            if (recordData == null) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
             }
         }
@@ -185,7 +183,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, data, user, !viewMode);
+        buildModelElements(elements, entityMeta, recordData, user, !viewMode);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
@@ -198,8 +196,8 @@ public class FormsBuilder extends FormsManager {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
-        if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
-            model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
+        if (recordData != null && recordData.hasValue(EntityHelper.ModifiedOn)) {
+            model.set("lastModified", recordData.getDate(EntityHelper.ModifiedOn).getTime());
         }
 
         if (approvalState != null) {
@@ -239,7 +237,7 @@ public class FormsBuilder extends FormsManager {
 
         // 明细实体
 
-        ID mainid = FormBuilderContextHolder.getMainIdOfDetail(false);
+        ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
         if (mainid == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, dtmField.getName());
@@ -259,11 +257,11 @@ public class FormsBuilder extends FormsManager {
      *
      * @param elements
      * @param entity
-     * @param data
+     * @param recordData
      * @param user
      * @param useAdvControl
      */
-    protected void buildModelElements(JSONArray elements, Entity entity, Record data, ID user, boolean useAdvControl) {
+    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
 
@@ -287,20 +285,20 @@ public class FormsBuilder extends FormsManager {
             Object requiredOnUpdate = el.remove("requiredOnUpdate");
             if (useAdvControl) {
                 // 显示
-                if (displayOnCreate != null && !(Boolean) displayOnCreate && data == null) {
+                if (displayOnCreate != null && !(Boolean) displayOnCreate && recordData == null) {
                     iter.remove();
                     continue;
                 }
-                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && data != null) {
+                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && recordData != null) {
                     iter.remove();
                     continue;
                 }
 
                 // 必填
-                if (requiredOnCreate != null && (Boolean) requiredOnCreate && data == null) {
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && recordData == null) {
                     el.put("nullable", false);
                 }
-                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && data != null) {
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && recordData != null) {
                     el.put("nullable", false);
                 }
             }
@@ -314,7 +312,7 @@ public class FormsBuilder extends FormsManager {
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
 
-            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaAuto);
+            el.put("readonly", (recordData != null && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
             final Boolean nullable = el.getBoolean("nullable");
@@ -360,13 +358,14 @@ public class FormsBuilder extends FormsManager {
             }
 
             // 编辑/视图
-            if (data != null) {
-                Object value = wrapFieldValue(data, easyField, user);
+            if (recordData != null) {
+                Object value = wrapFieldValue(recordData, easyField, user);
                 if (value != null) {
                     el.put("value", value);
                 }
 
-                ID pv = dt == DisplayType.REFERENCE ? getCascadingFieldParentValue(easyField, data.getPrimary()) : null;
+                ID pv = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
+                        ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
                 if (pv != null) {
                     el.put("_cascadingFieldParentValue", pv);
                 }
@@ -440,9 +439,7 @@ public class FormsBuilder extends FormsManager {
      * @return
      */
     protected Record findRecord(ID id, ID user, JSONArray elements) {
-        if (elements.isEmpty()) {
-            return null;
-        }
+        if (elements.isEmpty()) return null;
 
         Entity entity = MetadataHelper.getEntity(id.getEntityCode());
         StringBuilder sql = new StringBuilder("select ");
@@ -482,19 +479,19 @@ public class FormsBuilder extends FormsManager {
      * @param user4Desensitized 不传则不脱敏
      * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
-     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field, String)
+     * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
 
-        // 特殊字段
-        if (field.getDisplayType() == DisplayType.BARCODE
-                || (field.getDisplayType() == DisplayType.N2NREFERENCE && FieldValueHelper.hasLength(value))) {
+        // 使用主键
+        if (field.getDisplayType() == DisplayType.BARCODE) {
             value = data.getPrimary();
         }
 
         // 处理日期格式
-        if (field.getDisplayType() == DisplayType.REFERENCE && value instanceof ID && ((ID) value).getLabelRaw() != null) {
+        if (field.getDisplayType() == DisplayType.REFERENCE
+                && value instanceof ID && ((ID) value).getLabelRaw() != null) {
             Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
             if (nameField.getType() == FieldType.DATE || nameField.getType() == FieldType.TIMESTAMP) {
                 Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(((ID) value).getLabelRaw());
@@ -553,7 +550,6 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
                     }
                 }
-
             }
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
@@ -564,7 +560,6 @@ public class FormsBuilder extends FormsManager {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
                 }
-
             }
             // 其他
             else if (entity.containsField(field)) {
@@ -574,7 +569,6 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(field, mixValue);
                     }
                 }
-
             } else {
                 log.warn("Unknown value pair : " + field + " = " + value);
             }

@@ -45,7 +45,7 @@ $(document).ready(function () {
 
   $('.J_enable').on('click', () => toggleDisabled(false))
 
-  $('.J_resetpwd').click(() => {
+  $('.J_resetpwd').on('click', () => {
     const newpwd = $random(null, true, 6) + 'Rb!8'
     RbAlert.create(WrapHtml($L('密码将重置为 **%s** 是否确认？', newpwd)), {
       onConfirm: function () {

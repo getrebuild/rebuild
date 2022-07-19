@@ -72,7 +72,9 @@ class RbFormModal extends React.Component {
     const id = this.state.id || ''
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
-    $.post(`/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), (res) => {
+    let url = `/app/${entity}/form-model?id=${id}`
+    if (this.state.previewid) url += `&previewid=${this.state.previewid}`
+    $.post(url, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg
@@ -117,15 +119,15 @@ class RbFormModal extends React.Component {
     if (!state.id) state.id = null
 
     // 比较初始参数决定是否可复用
-    const stateNew = [state.id, state.entity, state.initialValue]
-    const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
+    const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
+    const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
 
     if (this.state.destroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
-      state = { formComponent: null, initialValue: null, inLoad: true, ...state }
+      state = { formComponent: null, initialValue: null, previewid: null, inLoad: true, ...state }
       this.setState(state, () => this.showAfter({ destroy: false }, true))
     } else {
       this.showAfter({ ...state, destroy: false })
-      this.checkDrityData()
+      this._checkDrityData()
     }
   }
 
@@ -136,7 +138,7 @@ class RbFormModal extends React.Component {
     })
   }
 
-  checkDrityData() {
+  _checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
 
     $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
@@ -162,7 +164,10 @@ class RbFormModal extends React.Component {
     $(this._rbmodal).modal('hide')
 
     const state = { destroy: destroy === true }
-    if (destroy === true) state.id = null
+    if (state.destroy) {
+      state.id = null
+      state.previewid = null
+    }
     this.setState(state)
   }
 
@@ -234,8 +239,9 @@ class RbForm extends React.Component {
       }
     }
 
-    const NADD = [5, 10, 20]
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
+    const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
@@ -268,7 +274,7 @@ class RbForm extends React.Component {
         </div>
 
         <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} $$$main={this} />
+          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
         </div>
       </div>
     )
@@ -316,10 +322,17 @@ class RbForm extends React.Component {
     // 新纪录初始值
     if (this.isNew) {
       this.props.children.map((child) => {
-        const val = child.props.value
+        let val = child.props.value
         if (val && child.props.readonly !== true) {
-          // {id:xxx, text:xxx}
-          this.setFieldValue(child.props.field, typeof val === 'object' ? val.id : val)
+          if (typeof val === 'object') {
+            if ($.isArray(val)) {
+              // [file1, file2, image1]
+            } else {
+              // {id:xxx, text:xxx}
+              val = val.id
+            }
+          }
+          this.setFieldValue(child.props.field, val)
         }
       })
     }
@@ -409,14 +422,19 @@ class RbForm extends React.Component {
       return
     }
 
+    const $$$parent = this.props.$$$parent
+    const previewid = $$$parent.state.previewid
+
     const $btn = $(this._$formAction).find('.btn').button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    let url = '/app/entity/record-save'
+    if (previewid) url += '?previewid=' + previewid
+    $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
         setTimeout(() => {
-          this.props.$$$parent.hide(true)
+          $$$parent.hide(true)
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
           const recordId = res.data.id
@@ -432,6 +450,8 @@ class RbForm extends React.Component {
             })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+          } else if (previewid && window.RbViewPage) {
+            window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
           }
 
           // ...
@@ -525,7 +545,7 @@ class RbFormElement extends React.Component {
     if (!props.onView) {
       // 必填字段
       if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
-      props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
+      // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
     if (!props.onView) this.onEditModeChanged()
   }
@@ -1101,6 +1121,7 @@ class RbFormImage extends RbFormElement {
     this._htmlid = `${props.field}-${$random()}-input`
 
     if (props.value) this.state.value = [...props.value] // clone
+
     if (this.props.uploadNumber) {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
@@ -1114,7 +1135,7 @@ class RbFormImage extends RbFormElement {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
-    if (value.length === 0 && !showUpload) {
+    if (value.length === 0 && this.props.readonly) {
       return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
     }
 
@@ -1224,7 +1245,7 @@ class RbFormFile extends RbFormImage {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
-    if (value.length === 0 && !showUpload) {
+    if (value.length === 0 && this.props.readonly) {
       return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
     }
 
@@ -1245,7 +1266,7 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} />
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} />
           <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
@@ -1827,27 +1848,11 @@ class RbFormBool extends RbFormElement {
     return (
       <div className="mt-1">
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input
-            className="custom-control-input"
-            name={`${this._htmlid}T`}
-            type="radio"
-            checked={this.state.value === 'T'}
-            data-value="T"
-            onChange={this.changeValue}
-            disabled={this.props.readonly}
-          />
+          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this.changeValue} disabled={this.props.readonly} />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input
-            className="custom-control-input"
-            name={`${this._htmlid}F`}
-            type="radio"
-            checked={this.state.value === 'F'}
-            data-value="F"
-            onChange={this.changeValue}
-            disabled={this.props.readonly}
-          />
+          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this.changeValue} disabled={this.props.readonly} />
           <span className="custom-control-label">{this._Options['F']}</span>
         </label>
       </div>

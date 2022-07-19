@@ -77,11 +77,7 @@ class ProTable extends React.Component {
           </tbody>
         </table>
 
-        {(this.state.inlineForms || []).length === 0 && (
-          <div className="text-center text-muted mt-6">
-            {$L('请添加明细')}
-          </div>
-        )}
+        {(this.state.inlineForms || []).length === 0 && <div className="text-center text-muted mt-6">{$L('请添加明细')}</div>}
       </div>
     )
   }
@@ -109,6 +105,12 @@ class ProTable extends React.Component {
       // 编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
+          res.data && res.data.forEach((item) => this.addLine(item))
+        })
+      }
+      // 转换
+      else if (this.props.previewid) {
+        $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
           res.data && res.data.forEach((item) => this.addLine(item))
         })
       }

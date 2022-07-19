@@ -30,6 +30,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.*;
+import com.rebuild.core.service.general.transform.TransformerPreview;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -112,6 +113,7 @@ public class GeneralOperatingController extends BaseController {
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
         }
 
+        boolean isNew = record.getPrimary() == null;
         try {
             record = ies.createOrUpdate(record);
 
@@ -135,12 +137,19 @@ public class GeneralOperatingController extends BaseController {
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
         }
 
+        String previewid = request.getParameter("previewid");
+        if (isNew && StringUtils.isNotBlank(previewid)) {
+            // NOTE 新事物
+            new TransformerPreview(previewid, user).fillback(record.getPrimary());
+        }
+
         JSONObject ret = new JSONObject();
         ret.put("id", record.getPrimary());
 
         // 单字段修改立即返回新值
-        boolean viaSingle = getBoolParameter(request, "single");
-        if (viaSingle) {
+        // FIXME 是否整个返回 ??? 因为可能其他字段也更新了
+        boolean singleField = getBoolParameter(request, "singleField");
+        if (singleField) {
             for (String field : record.getAvailableFields()) {
                 Field fieldMeta = record.getEntity().getField(field);
                 if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {

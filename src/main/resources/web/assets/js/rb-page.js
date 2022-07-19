@@ -130,7 +130,7 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document.body).keydown(function (e) {
+  $(document.body).on('keydown', function (e) {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
@@ -165,7 +165,7 @@ $(function () {
   })
 
   // Theme
-  $('.use-theme a').click(function () {
+  $('.use-theme a').on('click', function () {
     if (rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
@@ -221,7 +221,7 @@ var _initNav = function () {
 
   // Nav
   if (isOffcanvas) {
-    $('.rb-toggle-left-sidebar').click(function () {
+    $('.rb-toggle-left-sidebar').on('click', function () {
       $(document.body).toggleClass('open-left-sidebar')
       return false
     })
@@ -232,7 +232,7 @@ var _initNav = function () {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
 
-    $('.rb-toggle-left-sidebar').click(function () {
+    $('.rb-toggle-left-sidebar').on('click', function () {
       $el.toggleClass('rb-collapsible-sidebar-collapsed')
       $.cookie('rb.sidebarCollapsed', $el.hasClass('rb-collapsible-sidebar-collapsed'), { expires: 180 })
 
@@ -241,12 +241,30 @@ var _initNav = function () {
     })
   }
 
+  if (!$('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed')) {
+    $('.sidebar-elements>li.parent.open').each(function () {
+      var $sm = $(this).find('.sub-menu')
+      if (!$sm.hasClass('visible')) $sm.addClass('visible')
+    })
+  }
+
   // SubNavs
   var $currsntSubnav
-  $('.sidebar-elements li.parent').click(function (e) {
+
+  // MinNav && SubnavOpen
+  function closeSubnav() {
+    if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && $currsntSubnav && $currsntSubnav.hasClass('open')) {
+      $currsntSubnav.removeClass('open')
+      $currsntSubnav.find('.sub-menu').removeClass('visible')
+    }
+  }
+
+  $('.sidebar-elements li.parent').on('click', function (e) {
     $stopEvent(e, true)
     var $this = $(this)
     var $sub = $this.find('.sub-menu')
+    // eslint-disable-next-line eqeqeq
+    if (!($currsntSubnav && $currsntSubnav.data('id') === $this.data('id'))) closeSubnav()
 
     $sub.toggleClass('visible')
     $currsntSubnav = $this
@@ -256,15 +274,11 @@ var _initNav = function () {
     if ($sub.hasClass('visible')) $this.addClass('open')
     else $this.removeClass('open')
   })
-  $('.sidebar-elements li.parent .sub-menu').click(function (e) {
+  $('.sidebar-elements li.parent .sub-menu').on('click', function (e) {
     e.stopPropagation()
   })
-  $(document.body).click(function () {
-    // MinNav && SubnavOpen
-    if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && $currsntSubnav && $currsntSubnav.hasClass('open')) {
-      $currsntSubnav.removeClass('open')
-      $currsntSubnav.find('.sub-menu').removeClass('visible')
-    }
+  $(document.body).on('click', function () {
+    closeSubnav()
     if (isOffcanvas) {
       $(document.body).removeClass('open-left-sidebar')
     }
@@ -276,20 +290,20 @@ var _initNav = function () {
     $(document.body).trigger('click')
   }
 
-  $('.nav-settings').click(function () {
+  $('.nav-settings').on('click', function () {
     RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
   })
 
   // WHEN SMALL-WIDTH
   $('.left-sidebar-toggle')
-    .click(function () {
+    .on('click', function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
       $('.left-sidebar-spacer').toggleClass('open')
     })
     .text($('.left-sidebar-content li.active>a:last').text() || 'REBUILD')
 
   if ($('.page-aside .aside-header').length > 0) {
-    $('.page-aside .aside-header').click(function () {
+    $('.page-aside .aside-header').on('click', function () {
       $(this).toggleClass('collapsed')
       $('.page-aside .aside-nav').toggleClass('show')
     })
@@ -514,7 +528,7 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imgOnly = $input.attr('accept') === 'image/*'
   var local = $input.data('local')
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 100)) // default 100MB
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
@@ -523,7 +537,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
 
-      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpe', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
+      var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
       $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
@@ -535,7 +549,7 @@ var $createUploader = function (input, next, complete, error) {
             if (imgOnly && msg.contains('FILE TYPE')) {
               RbHighbar.create($L('请上传图片'))
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('超出文件大小限制') + ' (100MB)')
+              RbHighbar.create($L('超出文件大小限制'))
             } else {
               RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }

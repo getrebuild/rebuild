@@ -5,11 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$().ready(function () {
+$(function () {
   RbForm.renderAfter = function (F) {
     if (F.state.entity !== 'User' || !F.isNew) return
 
-    const newpwd = $random(null, true, 8) + '!8'
+    const newpwd = $random(null, true, 6) + 'rB!8'
     setFieldValue(F, 'password', newpwd)
 
     F.onFieldValueChange((o) => {

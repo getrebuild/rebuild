@@ -514,11 +514,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         )
       })
     } else {
-      this.post2(state)
+      this.post2(state, null, true)
     }
   }
 
-  post2(state, rejectNode) {
+  post2(state, rejectNode, showAlert) {
     const aformData = {}
     if (this.state.aform && state === 10) {
       const fd = this._rbform.__FormData
@@ -546,19 +546,33 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       useGroup: this.state.useGroup,
     }
 
-    this.disabled(true)
-    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
-      if (res.error_code === 498) {
-        this.setState({ bizMessage: res.error_msg })
-        this.getNextStep()
-      } else if (res.error_code > 0) {
-        RbHighbar.error(res.error_msg)
-      } else {
-        _reload(this, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
-        typeof this.props.call === 'function' && this.props.call()
-      }
-      this.disabled()
-    })
+    const that = this
+    function fn() {
+      that.disabled(true)
+      $.post(`/app/entity/approval/approve?record=${that.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
+        if (res.error_code === 498) {
+          that.setState({ bizMessage: res.error_msg })
+          that.getNextStep()
+        } else if (res.error_code > 0) {
+          RbHighbar.error(res.error_msg)
+        } else {
+          _reload(that, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
+          typeof that.props.call === 'function' && that.props.call()
+        }
+        that.disabled()
+      })
+    }
+
+    if (showAlert) {
+      RbAlert.create(state === 11 ? $L('确认驳回此审批？') : $L('确认同意此审批？'), {
+        onConfirm: function () {
+          this.hide()
+          fn()
+        },
+      })
+    } else {
+      fn()
+    }
   }
 }
 
