@@ -72,14 +72,14 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     // 删除做特殊处理
 
-    private static final Map<ID, TriggerAction[]> DELETE_ACTION_HOLDS = new ConcurrentHashMap<>();
+    private static final Map<ID, TriggerAction[]> DELETE_BEFORE_HOLD = new ConcurrentHashMap<>();
 
     @Override
     protected void onDeleteBefore(OperatingContext context) {
         final ID primary = context.getAnyRecord().getPrimary();
 
-        TriggerAction[] actionsOnDelete = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
-        for (TriggerAction action : actionsOnDelete) {
+        TriggerAction[] deleteActions = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
+        for (TriggerAction action : deleteActions) {
             try {
                 action.prepare(context);
             } catch (Exception ex) {
@@ -89,7 +89,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                 log.error("Preparing context of trigger failed : {}", action, ex);
             }
         }
-        DELETE_ACTION_HOLDS.put(primary, actionsOnDelete);
+        DELETE_BEFORE_HOLD.put(primary, deleteActions);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         try {
             execAction(context, TriggerWhen.DELETE);
         } finally {
-            DELETE_ACTION_HOLDS.remove(primary);
+            DELETE_BEFORE_HOLD.remove(primary);
         }
     }
 
@@ -112,7 +112,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         final ID primaryId = context.getAnyRecord().getPrimary();
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
-                ? DELETE_ACTION_HOLDS.get(primaryId)
+                ? DELETE_BEFORE_HOLD.get(primaryId)
                 : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
         if (beExecuted == null || beExecuted.length == 0) {
             return;

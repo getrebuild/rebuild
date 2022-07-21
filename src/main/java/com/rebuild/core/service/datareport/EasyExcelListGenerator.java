@@ -23,7 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
+
 /**
+ * Excel 列表导出
+ *
  * @author devezhao
  * @since 2021/8/25
  */
@@ -31,8 +36,6 @@ import java.util.Map;
 public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     private JSONObject queryData;
-
-    private int count = 0;
 
     public EasyExcelListGenerator(ID reportId, JSONObject queryData) {
         this(DataReportManager.instance.getTemplateFile(
@@ -57,17 +60,20 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         List<String> validFields = new ArrayList<>();
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            String varName = e.getKey();
+            if (varName.startsWith(NROW_PREFIX + PLACEHOLDER)) {
+                continue;
+            }
+            
             String validField = e.getValue();
-            if (validField != null && e.getKey().startsWith(TemplateExtractor.NROW_PREFIX)) {
+            if (validField != null && e.getKey().startsWith(NROW_PREFIX)) {
                 validFields.add(validField);
             } else {
                 log.warn("Invalid field `{}` in template : {}", e.getKey(), this.template);
             }
         }
 
-        if (validFields.isEmpty()) {
-            return Collections.emptyList();
-        }
+        if (validFields.isEmpty()) return Collections.emptyList();
 
         queryData.put("fields", validFields);  // 使用模板字段
 
@@ -78,14 +84,16 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
                 .list();
 
         List<Map<String, Object>> datas = new ArrayList<>();
+
+        phNumber = 1;
         for (Record c : list) {
             datas.add(buildData(c, varsMap));
-            count++;
+            phNumber++;
         }
         return datas;
     }
 
     public int getExportCount() {
-        return count;
+        return phNumber - 1;
     }
 }
