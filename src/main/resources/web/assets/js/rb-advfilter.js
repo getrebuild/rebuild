@@ -18,13 +18,14 @@ class AdvFilter extends React.Component {
 
     const extras = { useEquation: 'OR' }
     if (props.filter) {
-      if (props.filter.equation) {
-        extras.equation = props.filter.equation
-        if (props.filter.equation === 'OR') extras.useEquation = 'OR'
-        else if (props.filter.equation === 'AND') extras.useEquation = 'AND'
+      const clone = JSON.parse(JSON.stringify(props.filter)) // bugfix
+      if (clone.equation) {
+        extras.equation = clone.equation
+        if (clone.equation === 'OR') extras.useEquation = 'OR'
+        else if (clone.equation === 'AND') extras.useEquation = 'AND'
         else extras.useEquation = '9999'
       }
-      this.__items = props.filter.items
+      this.__items = clone.items
     }
 
     this.state = { items: [], ...props, ...extras }

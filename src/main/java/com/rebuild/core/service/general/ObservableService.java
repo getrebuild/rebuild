@@ -95,7 +95,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
             // 删除前触发，做一些状态保持
             setChanged();
-            notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, null));
+            notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, deleted));
         }
 
         int affected = delegateService.delete(recordId);

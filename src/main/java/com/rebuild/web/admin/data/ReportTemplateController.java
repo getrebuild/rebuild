@@ -21,7 +21,6 @@ import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -81,8 +80,12 @@ public class ReportTemplateController extends BaseController {
 
         Set<String> invalidVars = new HashSet<>();
         for (Map.Entry<String, String> e : vars.entrySet()) {
+            String varName = e.getKey();
             if (e.getValue() == null) {
-                invalidVars.add(e.getKey());
+                if (!(varName.startsWith(TemplateExtractor.PLACEHOLDER)
+                        || varName.startsWith(TemplateExtractor.NROW_PREFIX + TemplateExtractor.PLACEHOLDER))) {
+                    invalidVars.add(e.getKey());
+                }
             }
         }
 

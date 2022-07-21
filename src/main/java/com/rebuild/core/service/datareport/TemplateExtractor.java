@@ -31,10 +31,19 @@ import java.util.regex.Pattern;
 public class TemplateExtractor {
 
     // 列表（即多条记录）
-    protected static final String NROW_PREFIX = ".";
+    public static final String NROW_PREFIX = ".";
     // 审批节点字段
     protected static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
 
+    // 占位
+    public static final String PLACEHOLDER = "__";
+    // 空
+    protected static final String PH__KEEP = PLACEHOLDER + "KEEP";
+    // 当前用户
+    protected static final String PH__CURRENTUSER = PLACEHOLDER + "CURRENTUSER";
+    // 序号
+    protected static final String PH__NUMBER = PLACEHOLDER + "NUMBER";
+    
     // ${xxx}
     private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
     // {xxx}
@@ -79,35 +88,35 @@ public class TemplateExtractor {
                 ? MetadataHelper.getEntity(EntityHelper.RobotApprovalStep) : null;
 
         Map<String, String> map = new HashMap<>();
-        for (final String field : vars) {
+        for (final String varName : vars) {
             // 列表型字段
-            if (field.startsWith(NROW_PREFIX)) {
-                final String listField = field.substring(1);
+            if (varName.startsWith(NROW_PREFIX)) {
+                String listField = varName.substring(1);
 
                 // 审批
-                if (field.startsWith(APPROVAL_PREFIX)) {
+                if (varName.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
-                        map.put(field, stepNodeField);
+                        map.put(varName, stepNodeField);
                     } else {
-                        map.put(field, null);
+                        map.put(varName, null);
                     }
                 } else if (detailEntity != null) {
                     if (MetadataHelper.getLastJoinField(detailEntity, listField) != null) {
-                        map.put(field, listField);
+                        map.put(varName, listField);
                     } else {
-                        map.put(field, transformRealField(detailEntity, listField));
+                        map.put(varName, transformRealField(detailEntity, listField));
                     }
                 } else if (MetadataHelper.getLastJoinField(entity, listField) != null) {
-                    map.put(field, listField);
+                    map.put(varName, listField);
                 } else {
-                    map.put(field, transformRealField(entity, field));
+                    map.put(varName, transformRealField(entity, varName));
                 }
 
-            } else if (MetadataHelper.getLastJoinField(entity, field) != null) {
-                map.put(field, field);
+            } else if (MetadataHelper.getLastJoinField(entity, varName) != null) {
+                map.put(varName, varName);
             } else {
-                map.put(field, transformRealField(entity, field));
+                map.put(varName, transformRealField(entity, varName));
             }
         }
         return map;
@@ -147,20 +156,25 @@ public class TemplateExtractor {
      * @return
      */
     protected String transformRealField(Entity entity, String fieldPath) {
+        if (fieldPath.startsWith(PLACEHOLDER)) return null;
+
+        if (fieldPath.contains("$")) {
+            fieldPath = fieldPath.replace("$", ".");
+            if (MetadataHelper.getLastJoinField(entity, fieldPath) != null) {
+                return fieldPath;
+            }
+        }
+
         String[] paths = fieldPath.split("\\.");
         List<String> realPaths = new ArrayList<>();
 
         Field lastField;
         Entity father = entity;
         for (String field : paths) {
-            if (father == null) {
-                return null;
-            }
+            if (father == null) return null;
 
             lastField = findFieldByLabel(father, field);
-            if (lastField == null) {
-                return null;
-            }
+            if (lastField == null) return null;
 
             realPaths.add(lastField.getName());
 

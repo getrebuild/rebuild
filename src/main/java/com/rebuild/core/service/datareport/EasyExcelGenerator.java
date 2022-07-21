@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
@@ -44,6 +45,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.rebuild.core.service.datareport.TemplateExtractor.*;
+
 /**
  * 报表生成 easyexcel
  * https://alibaba-easyexcel.github.io/quickstart/fill.html
@@ -58,6 +61,8 @@ public class EasyExcelGenerator extends SetUser {
     private ID recordId;
 
     private boolean hasMain = false;
+
+    protected int phNumber = 1;
 
     /**
      * @param reportId
@@ -135,26 +140,32 @@ public class EasyExcelGenerator extends SetUser {
         List<String> fieldsOfApproval = new ArrayList<>();
 
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
-            final String field = e.getKey();
+            final String varName = e.getKey();
 
-            if (field.startsWith(TemplateExtractor.APPROVAL_PREFIX)) {
-                varsMapOfApproval.put(field, e.getValue());
-            } else if (field.startsWith(TemplateExtractor.NROW_PREFIX)) {
-                varsMapOfDetail.put(field, e.getValue());
+            if (varName.startsWith(APPROVAL_PREFIX)) {
+                varsMapOfApproval.put(varName, e.getValue());
+            } else if (varName.startsWith(NROW_PREFIX)) {
+                varsMapOfDetail.put(varName, e.getValue());
             } else {
-                varsMapOfMain.put(field, e.getValue());
+                varsMapOfMain.put(varName, e.getValue());
             }
 
             String validField = e.getValue();
+
+            // 占位字段
+            if (varName.startsWith(PLACEHOLDER)
+                    || varName.startsWith(NROW_PREFIX + PLACEHOLDER)) {
+                continue;
+            }
             // 无效字段
-            if (validField == null) {
+            else if (validField == null) {
                 log.warn("Invalid field `{}` in template : {}", e.getKey(), this.template);
                 continue;
             }
 
-            if (field.startsWith(TemplateExtractor.APPROVAL_PREFIX)) {
+            if (varName.startsWith(APPROVAL_PREFIX)) {
                 fieldsOfApproval.add(validField);
-            } else if (field.startsWith(TemplateExtractor.NROW_PREFIX)) {
+            } else if (varName.startsWith(NROW_PREFIX)) {
                 fieldsOfDetail.add(validField);
             } else {
                 fieldsOfMain.add(validField);
@@ -194,8 +205,10 @@ public class EasyExcelGenerator extends SetUser {
                     .setParameter(1, this.recordId)
                     .list();
 
+            phNumber = 1;
             for (Record c : list) {
                 datas.add(buildData(c, varsMapOfDetail));
+                phNumber++;
             }
         }
 
@@ -209,8 +222,10 @@ public class EasyExcelGenerator extends SetUser {
                     .setParameter(1, this.recordId)
                     .list();
 
+            phNumber = 1;
             for (Record c : list) {
                 datas.add(buildData(c, varsMapOfApproval));
+                phNumber++;
             }
         }
 
@@ -227,17 +242,32 @@ public class EasyExcelGenerator extends SetUser {
 
         final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
+        final String phCurrentuser = UserHelper.getName(getUser());
 
         final Map<String, Object> data = new HashMap<>();
 
-        // 无效字段填充
+        // 非实体字段填充
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            String varName = e.getKey();
+
             if (e.getValue() == null) {
-                String varName = e.getKey();
-                if (varName.startsWith(TemplateExtractor.NROW_PREFIX)) {
+                if (varName.startsWith(NROW_PREFIX)) {
                     varName = varName.substring(1);
                 }
-                data.put(varName, invalidFieldTip);
+
+                // {.__KEEP:块}
+                if (varName.startsWith(PH__KEEP)) {
+                    String phKeep = varName.length() > PH__KEEP.length()
+                            ? varName.substring(PH__KEEP.length() + 1) : "";
+                    data.put(varName, phKeep);
+                } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
+                    data.put(varName, phCurrentuser);
+                } else if (varName.equalsIgnoreCase(PH__NUMBER)) {
+                    data.put(varName, phNumber);
+                }
+                else {
+                    data.put(varName, invalidFieldTip);
+                }
             }
         }
 
@@ -256,7 +286,8 @@ public class EasyExcelGenerator extends SetUser {
                     break;
                 }
             }
-            if (varName.startsWith(TemplateExtractor.NROW_PREFIX)) {
+
+            if (varName.startsWith(NROW_PREFIX)) {
                 varName = varName.substring(1);
             }
 

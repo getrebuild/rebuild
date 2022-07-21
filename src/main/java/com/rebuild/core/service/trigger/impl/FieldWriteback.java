@@ -154,8 +154,9 @@ public class FieldWriteback extends FieldAggregation {
             // 自己更新自己
             targetRecordIds.add(actionContext.getSourceRecord());
 
-        } else if (isOne2One) {
-            // 只会存在一个记录的
+        }
+        // 只会存在一个目标的情况
+        else if (isOne2One) {
             Record afterRecord = operatingContext.getAfterRecord();
             if (afterRecord == null) return;
 
@@ -170,7 +171,9 @@ public class FieldWriteback extends FieldAggregation {
 
             if (referenceId != null) targetRecordIds.add(referenceId);
 
-        } else {
+        }
+        // 可能存在多个目标的情况
+        else {
             String sql = String.format("select %s from %s where %s = ?",
                     targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
             Object[][] array = Application.createQueryNoFilter(sql)

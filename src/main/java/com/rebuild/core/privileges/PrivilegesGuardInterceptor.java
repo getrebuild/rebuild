@@ -80,7 +80,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             BulkContext context = (BulkContext) firstArgument;
             Entity entity = context.getMainEntity();
             if (!Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), context.getAction())) {
-                log.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
+                log.error("User [ {} ] not allowed execute action [ {} ]. Entity : {}",
+                        caller, context.getAction(), context.getMainEntity());
                 throw new AccessDeniedException(formatHumanMessage(context.getAction(), entity, null));
             }
             return;
@@ -101,26 +102,37 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             throw new IllegalArgumentException("First argument must be Record or ID : " + idOrRecord);
         }
 
-        // 忽略权限检查
+        // 忽略
         if (EasyMetaFactory.valueOf(entity).isPlainEntity()) return;
 
+        // 检查权限
         Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 
+        // 跳过
+        ID skipGuardId;
+        if ((skipGuardId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
+            log.info("Allow no permission({}) passed once : {}",
+                    action.getName(), ObjectUtils.defaultIfNull(recordId, skipGuardId));
+            return;
+        }
+
         boolean allowed;
+        String errorMsg = null;
         if (action == BizzPermission.CREATE) {
             // 明细实体
             if (entity.getMainEntity() != null) {
-                Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()),
-                        "FIRST ARGUMENT MUST BE RECORD");
+                Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()), "FIRST ARGUMENT MUST BE RECORD");
 
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
                 ID mainid = ((Record) idOrRecord).getID(dtmField.getName());
                 Assert.notNull(mainid, "DETAIL RECORD MUST HAVE `MAINID`");
 
-                if (!Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
-                    throw new AccessDeniedException(Language.L("你没有添加明细权限"));
+                if (Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
+                    allowed = true;
+                } else {
+                    allowed = false;
+                    errorMsg = Language.L("你没有添加明细权限");
                 }
-                allowed = true;
 
             } else {
                 allowed = Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), action);
@@ -131,18 +143,12 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             allowed = Application.getPrivilegesManager().allow(caller, recordId, action);
         }
 
-        // 无权限操作
-        ID skipId;
-        if (!allowed && (skipId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
-            allowed = true;
-            log.warn("Allow no permission({}) passed once : {}",
-                    action.getName(), ObjectUtils.defaultIfNull(recordId, skipId));
-        }
-
         if (!allowed) {
-            log.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. "
-                    + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
-            throw new AccessDeniedException(formatHumanMessage(action, entity, recordId));
+            log.warn("User [ {} ] not allowed execute action [ {} ]. "
+                    + (recordId == null ? "Entity : " + entity : "Record : " + recordId), caller, action);
+
+            if (errorMsg == null) errorMsg = formatHumanMessage(action, entity, recordId);
+            throw new AccessDeniedException(errorMsg);
         }
     }
 
