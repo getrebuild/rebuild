@@ -10,15 +10,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
-    if (['ID', 'AVATAR', 'IMAGE', 'FILE', 'BARCODE', 'SERIES', 'SIGN'].includes(field.type)) {
+    if (['ID', 'AVATAR', 'IMAGE', 'FILE', 'BARCODE', 'SERIES', 'SIGN', 'LOCATION'].includes(field.type)) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
     if (
       field.type === 'PICKLIST' ||
       field.type === 'STATE' ||
-      field.type === 'MULTISELECT' ||
       field.type === 'BOOL' ||
+      field.type === 'MULTISELECT' ||
       field.type === 'REFERENCE' ||
       field.type === 'N2NREFERENCE' ||
       field.type === 'CLASSIFICATION'
@@ -117,25 +117,25 @@ class FieldValueSet extends React.Component {
     if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
       if (isNaN(value)) {
         RbHighbar.create($L('%s 格式不正确', field.label))
-        return null
+        return false
       } else if ($isTrue(field.notNegative) && ~~value < 0) {
         RbHighbar.create($L('%s 不能为负数', field.label))
-        return null
+        return false
       }
     } else if (field.type === 'EMAIL') {
       if (!$regex.isMail(value)) {
         RbHighbar.create($L('%s 格式不正确', field.label))
-        return null
+        return false
       }
     } else if (field.type === 'URL') {
       if (!$regex.isUrl(value)) {
         RbHighbar.create($L('%s 格式不正确', field.label))
-        return null
+        return false
       }
     } else if (field.type === 'PHONE') {
       if (!$regex.isTel(value)) {
         RbHighbar.create($L('%s 格式不正确', field.label))
-        return null
+        return false
       }
     }
 
@@ -143,7 +143,28 @@ class FieldValueSet extends React.Component {
   }
 
   setValue(val) {
-    console.log(val)
+    if (!this._$value) return
+
+    const field = this.props.field
+    if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'BOOL') {
+      $(this._$value).val(val).trigger('change')
+    } else if (field.type === 'MULTISELECT') {
+      field.options.forEach((item) => {
+        if ((val & item.mask) !== 0) {
+          const o = new Option(item.text, item.mask, true, true)
+          this.__$select2.append(o)
+        }
+      })
+    } else if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
+      $.get(`/commons/search/read-labels?ids=${val}`, (res) => {
+        for (let id in res.data || {}) {
+          const o = new Option(res.data[id], id, true, true)
+          this.__$select2.append(o)
+        }
+      })
+    } else {
+      $(this._$value).val(val)
+    }
   }
 }
 

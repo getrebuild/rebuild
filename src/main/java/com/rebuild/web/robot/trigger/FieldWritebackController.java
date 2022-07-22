@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -26,7 +25,7 @@ import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import com.rebuild.web.general.BatchUpdateController;
+import com.rebuild.web.general.MetaFormatter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -105,21 +104,8 @@ public class FieldWritebackController extends BaseController {
             // FIXME 是否过滤系统级引用实体 ???
             if (MetadataHelper.isCommonsField(fieldRef)) continue;
 
-            Entity refEntity = fieldRef.getReferenceEntity();
-            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
-
-            String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
-
-            for (Field field : MetadataSorter.sortFields(refEntity)) {
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-
-                JSONObject subField = (JSONObject) easyField.toJSON();
-                subField.put("name", fieldRefName + subField.getString("name"));
-                subField.put("label", fieldRefLabel + subField.getString("label"));
-                sourceFields.add(subField);
-            }
+            JSONArray res = MetaFormatter.buildFields(fieldRef);
+            if (res != null) sourceFields.addAll(res);
         }
 
         // 目标字段
@@ -133,7 +119,7 @@ public class FieldWritebackController extends BaseController {
                     continue;
                 }
 
-                targetFields.add(BatchUpdateController.buildField(easyField));
+                targetFields.add(MetaFormatter.buildRichField(easyField));
             }
         }
 

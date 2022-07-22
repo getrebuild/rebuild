@@ -54,17 +54,19 @@ $(document).ready(() => {
 
   const $btn = $('.J_save').on('click', function () {
     const fm = fieldsMapping.buildMapping()
+    if (fm === false) return
     if (!fm) {
       RbHighbar.create($L('请至少添加 1 个字段映射'))
       return
     }
 
-    console.log(fm)
-
     const tips = []
 
     const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
-    if (fieldsMappingDetail && !fmd) tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    if (fmd === false) return
+    if (fieldsMappingDetail && !fmd) {
+      tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
+    }
 
     function _save() {
       const config = {
@@ -141,7 +143,7 @@ const _VFIXED = 'VFIXED'
 class FieldsMapping extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, useVfixed: [] }
+    this.state = { ...props, useVfixed: {} }
     this._FieldValueSet = []
   }
 
@@ -149,17 +151,7 @@ class FieldsMapping extends React.Component {
     const mapping = this.props.data || {}
     const that = this
 
-    $(this._$fieldsMapping)
-      .find('select.J_vfixed')
-      .select2({
-        allowClear: false,
-      })
-      .on('change', function () {
-        let useVfixed = that.state.useVfixed
-        useVfixed[$(this).data('field')] = $(this).val() === _VFIXED
-        that.setState({ useVfixed })
-      })
-
+    let useVfixed = {}
     $(this._$fieldsMapping)
       .find('select.J_mapping')
       .each(function () {
@@ -190,14 +182,38 @@ class FieldsMapping extends React.Component {
           })
 
         if ($.isArray(mapping[fieldName])) {
-          let useVfixed = that.state.useVfixed
           useVfixed[fieldName] = true
-          that.setState({ useVfixed }, () => {
-            that._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
-          })
         } else {
           $s2.val(mapping[fieldName] || null).trigger('change')
         }
+      })
+
+    this.setState({ useVfixed })
+
+    for (let fieldName in mapping) {
+      if ($.isArray(mapping[fieldName])) {
+        this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
+
+        const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
+        $this.val(_VFIXED)
+        $this.parents('.row').addClass('active')
+      }
+    }
+
+    $(this._$fieldsMapping)
+      .find('.J_vfixed')
+      .select2({
+        allowClear: false,
+      })
+      .on('change', function () {
+        const $this = $(this)
+        let useVfixed = that.state.useVfixed
+        let fieldName = $this.data('field')
+        useVfixed[fieldName] = $this.val() === _VFIXED
+        that.setState({ useVfixed })
+
+        if (useVfixed[fieldName]) $this.parents('.row').addClass('active')
+        else $this.parents('.row').removeClass('active')
       })
   }
 
@@ -224,7 +240,7 @@ class FieldsMapping extends React.Component {
                 <span className={`badge ${item.nullable ? '' : 'req'}`}>{item.label}</span>
               </div>
               <div className="col-2 pr-0">
-                <select className="form-control form-control-sm J_vfixed" data-field={item.name} defaultValue="FIELD">
+                <select className={`form-control form-control-sm J_vfixed J_vfixed-${item.name}`} data-field={item.name} defaultValue="FIELD">
                   <option value="FIELD">{$L('字段值')}</option>
                   <option value={_VFIXED}>{$L('固定值')}</option>
                 </select>
@@ -260,19 +276,29 @@ class FieldsMapping extends React.Component {
         if (that.state.useVfixed[target]) {
           val = that._FieldValueSet[target].val()
 
-          if (val) val = [val, _VFIXED] // array
+          if (val === false) {
+            mapping = false
+            return false
+          }
+          if (!val) {
+            RbHighbar.create($L('请填写固定值'))
+            mapping = false
+            return false
+          }
+
+          val = [val, _VFIXED] // array
         }
 
         // req tips
         if ($this.data('req') && !val) {
           mapping[target] = null
         } else if (val) {
-          mapping[target] = val || null
+          mapping[target] = val
           hasMapping = true
         }
       })
 
-    return hasMapping ? mapping : null
+    return mapping === false ? false : hasMapping ? mapping : null
   }
 }
 
