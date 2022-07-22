@@ -99,7 +99,9 @@ function modeSave(newOption, next) {
   })
 }
 
-// 添加仪表盘
+const CLASS_TYPES = ['PICKLIST', 'STATE', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE', 'DATE', 'DATETIME']
+
+// 模式选项
 class DlgMode1Option extends RbFormHandler {
   render() {
     return (
@@ -124,6 +126,30 @@ class DlgMode1Option extends RbFormHandler {
                 <span>
                   <label htmlFor="advListHideCharts" />
                 </span>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏分类')}</label>
+            <div className="col-sm-7">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListShowClass" defaultChecked={wpc.extConfig && !!wpc.extConfig.advListShowClass} />
+                <span>
+                  <label htmlFor="advListShowClass" />
+                </span>
+              </div>
+              <div className="clearfix"></div>
+              <div className={`J_advListShowClass mt-2 ${this.state.advListShowClass ? '' : 'hide'}`}>
+                <select className="form-control form-control-sm">
+                  {this.state.advListShowClassFields &&
+                    this.state.advListShowClassFields.map((item) => {
+                      return (
+                        <option key={item.name} value={item.name}>
+                          {item.label}
+                        </option>
+                      )
+                    })}
+                </select>
               </div>
             </div>
           </div>
@@ -153,10 +179,44 @@ class DlgMode1Option extends RbFormHandler {
     )
   }
 
+  componentDidMount() {
+    const that = this
+    let $class2
+    $('#advListShowClass').on('change', function () {
+      if ($val(this)) {
+        that.setState({ advListShowClass: true })
+      } else {
+        that.setState({ advListShowClass: null })
+      }
+
+      if (!$class2) {
+        $class2 = $('.J_advListShowClass select')
+        $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+          const _data = []
+          res.data.forEach((item) => {
+            if (CLASS_TYPES.includes(item.type)) _data.push(item)
+          })
+
+          that.setState({ advListShowClassFields: _data }, () => {
+            $class2
+              .select2({ placeholder: $L('选择分类字段') })
+              .val((wpc.extConfig && wpc.extConfig.advListShowClass) || null)
+              .trigger('change')
+          })
+        })
+      }
+    })
+
+    if (wpc.extConfig && wpc.extConfig.advListShowClass) {
+      $('#advListShowClass').trigger('change')
+    }
+  }
+
   save = () => {
     const o = {
       advListHideFilters: $val('#advListHideFilters'),
       advListHideCharts: $val('#advListHideCharts'),
+      advListShowClass: this.state.advListShowClass ? $val('.J_advListShowClass select') : null,
       advListFilterPane: $val('#advListFilterPane'),
     }
 

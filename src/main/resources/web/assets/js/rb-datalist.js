@@ -1216,6 +1216,23 @@ const ChartsWidget = {
   },
 }
 
+// 分类
+const ClassWidget = {
+  init() {
+    $('.J_load-class').on('click', () => this._loaded !== true && this.load())
+  },
+
+  load() {
+    $.get(`/app/${wpc.entity[0]}/widget-class-data`, (res) => {
+      this._loaded = true
+      res.data &&
+        res.data.forEach((item) => {
+          console.log(item)
+        })
+    })
+  },
+}
+
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
@@ -1225,7 +1242,7 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('#asideFilters, #asideWidgets').length > 0) {
+  if ($('#asideFilters, #asideWidgets, #asideClass').length > 0) {
     $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
@@ -1237,7 +1254,8 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     })()
 
-    ChartsWidget.init()
+    if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    if ($('#asideClass').length > 0) ClassWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')
