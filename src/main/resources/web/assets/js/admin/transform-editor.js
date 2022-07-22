@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FieldValueSet*/
 
 const wpc = window.__PageConfig
 
@@ -58,6 +59,8 @@ $(document).ready(() => {
       return
     }
 
+    console.log(fm)
+
     const tips = []
 
     const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
@@ -82,8 +85,12 @@ $(document).ready(() => {
 
       $btn.button('loading')
       $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
-        if (res.error_code === 0) location.href = '../transforms'
-        else RbHighbar.error(res.error_msg)
+        if (res.error_code === 0) {
+          if (rb.env === 'dev') location.reload()
+          else location.href = '../transforms'
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
         $btn.button('reset')
       })
     }
@@ -129,10 +136,13 @@ $(document).ready(() => {
   }, 100)
 })
 
+const _VFIXED = 'VFIXED'
+
 class FieldsMapping extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
+    this.state = { ...props, useVfixed: [] }
+    this._FieldValueSet = []
   }
 
   componentDidMount() {
@@ -140,7 +150,18 @@ class FieldsMapping extends React.Component {
     const that = this
 
     $(this._$fieldsMapping)
-      .find('select')
+      .find('select.J_vfixed')
+      .select2({
+        allowClear: false,
+      })
+      .on('change', function () {
+        let useVfixed = that.state.useVfixed
+        useVfixed[$(this).data('field')] = $(this).val() === _VFIXED
+        that.setState({ useVfixed })
+      })
+
+    $(this._$fieldsMapping)
+      .find('select.J_mapping')
       .each(function () {
         const $this = $(this)
 
@@ -154,7 +175,7 @@ class FieldsMapping extends React.Component {
           }
         })
 
-        $this
+        const $s2 = $this
           .select2({
             placeholder: $L('选择源字段'),
             allowClear: true,
@@ -165,10 +186,18 @@ class FieldsMapping extends React.Component {
           })
           .on('change', function () {
             if ($this.val()) $this.parents('.row').addClass('active')
-            else $this.parents('.row ').removeClass('active')
+            else $this.parents('.row').removeClass('active')
           })
-          .val(mapping[fieldName] || null)
-          .trigger('change')
+
+        if ($.isArray(mapping[fieldName])) {
+          let useVfixed = that.state.useVfixed
+          useVfixed[fieldName] = true
+          that.setState({ useVfixed }, () => {
+            that._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
+          })
+        } else {
+          $s2.val(mapping[fieldName] || null).trigger('change')
+        }
       })
   }
 
@@ -182,22 +211,31 @@ class FieldsMapping extends React.Component {
 
     return (
       <div ref={(c) => (this._$fieldsMapping = c)}>
-        <div className="row mb-0">
-          <div className="col-7">
-            <div className="form-control-plaintext text-bold">{_source.label}</div>
-          </div>
-          <div className="col-5">
-            <div className="form-control-plaintext text-bold">{_target.label}</div>
-          </div>
+        <div className="row title2">
+          <div className="col-4 text-bold">{_target.label}</div>
+          <div className="col-2"></div>
+          <div className="col-5 text-bold">{_source.label}</div>
         </div>
-        {_target.fields.map((item) => {
+
+        {_target.fields.map((item, idx) => {
           return (
-            <div className="row" key={item.name}>
-              <div className="col-7">
-                <select className="form-control form-control-sm" data-field={item.name} data-req={!item.nullable} />
+            <div className="row" key={idx}>
+              <div className="col-4">
+                <span className={`badge ${item.nullable ? '' : 'req'}`}>{item.label}</span>
+              </div>
+              <div className="col-2 pr-0">
+                <select className="form-control form-control-sm J_vfixed" data-field={item.name} defaultValue="FIELD">
+                  <option value="FIELD">{$L('字段值')}</option>
+                  <option value={_VFIXED}>{$L('固定值')}</option>
+                </select>
               </div>
               <div className="col-5">
-                <span className={`badge ${item.nullable ? '' : 'req'}`}>{item.label}</span>
+                <div className={this.state.useVfixed[item.name] ? 'hide' : ''}>
+                  <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable} />
+                </div>
+                <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
+                  <FieldValueSet entity={_target.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />
+                </div>
               </div>
             </div>
           )
@@ -207,20 +245,29 @@ class FieldsMapping extends React.Component {
   }
 
   buildMapping() {
-    const mapping = {}
+    let mapping = {}
     let hasMapping = false
-    $(this._$fieldsMapping)
-      .find('select')
-      .each(function () {
-        const $this = $(this)
-        const req = $this.data('req')
-        const field = $this.val()
 
-        if (req && !field) {
-          mapping[$this.data('field')] = null // tips
+    const that = this
+    $(this._$fieldsMapping)
+      .find('select.J_mapping')
+      .each(function () {
+        if (!mapping) return
+
+        const $this = $(this)
+        const target = $this.data('field') // Target field
+        let val = $this.val()
+        if (that.state.useVfixed[target]) {
+          val = that._FieldValueSet[target].val()
+
+          if (val) val = [val, _VFIXED] // array
         }
-        if (field) {
-          mapping[$this.data('field')] = field
+
+        // req tips
+        if ($this.data('req') && !val) {
+          mapping[target] = null
+        } else if (val) {
+          mapping[target] = val || null
           hasMapping = true
         }
       })

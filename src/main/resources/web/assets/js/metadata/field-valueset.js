@@ -141,6 +141,10 @@ class FieldValueSet extends React.Component {
 
     return typeof value === 'object' ? value.join(',') : value
   }
+
+  setValue(val) {
+    console.log(val)
+  }
 }
 
 // 获取字段值文本
