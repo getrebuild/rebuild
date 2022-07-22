@@ -722,7 +722,7 @@ const RbViewPage = {
   initTrans(config) {
     const that = this
     config.forEach((item) => {
-      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
 
       const entity = item.entity.split('.')
       $item.on('click', () => {

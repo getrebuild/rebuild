@@ -512,7 +512,7 @@ class TransformRich extends React.Component {
   render() {
     return (
       <RF>
-        {WrapHtml(this.props.previewMode ? $L('转换明细记录需选择主记录') : $L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
+        {WrapHtml(this.props.previewMode ? $L('转换明细记录需选择主记录') : $L('确认将当前记录转换为 **%s** 吗？', this.props.transName || this.props.entityLabel))}
         {this.props.mainEntity && (
           <div className="widget-sm mt-3">
             <div>
