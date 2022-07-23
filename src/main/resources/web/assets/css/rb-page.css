@@ -3454,22 +3454,26 @@ form {
   display: none;
 }
 
-#asideFilters .dropdown-item {
+#asideFilters .dropdown-item,
+#asideClass .dropdown-item {
   padding: 8px 10px;
   border-radius: 2px;
   font-size: 1rem;
   cursor: pointer;
 }
 
-#asideFilters .dropdown-item:hover {
+#asideFilters .dropdown-item:hover,
+#asideClass .dropdown-item:hover {
   background-color: #eee;
 }
 
-#asideFilters .dropdown-item:active {
+#asideFilters .dropdown-item:active,
+#asideClass .dropdown-item:active {
   color: #404040;
 }
 
-#asideFilters .dropdown-item.active {
+#asideFilters .dropdown-item.active,
+#asideClass .dropdown-item.active {
   background-color: #4285f4;
   color: #fff;
 }

@@ -99,7 +99,7 @@ function modeSave(newOption, next) {
   })
 }
 
-const CLASS_TYPES = ['PICKLIST', 'STATE', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE', 'DATE', 'DATETIME']
+const CLASS_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 
 // 模式选项
 class DlgMode1Option extends RbFormHandler {

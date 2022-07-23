@@ -1155,7 +1155,9 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_load-charts').on('click', () => {
+      this._chartLoaded !== true && this.loadWidget()
+    })
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
@@ -1191,7 +1193,7 @@ const ChartsWidget = {
 
   loadWidget: function () {
     $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
-      this.chartLoaded = true
+      this._chartLoaded = true
       this.__config = res.data || {}
       res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
     })
@@ -1219,16 +1221,29 @@ const ChartsWidget = {
 // 分类
 const ClassWidget = {
   init() {
-    $('.J_load-class').on('click', () => this._loaded !== true && this.load())
+    $('.J_load-class').on('click', () => {
+      this._classLoaded !== true && this.loadClass()
+    })
   },
 
-  load() {
+  loadClass() {
     $.get(`/app/${wpc.entity[0]}/widget-class-data`, (res) => {
-      this._loaded = true
+      this._classLoaded = true
+
+      const $wrap = $('<div></div>').appendTo('#asideClass')
+      $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo($wrap)
+
       res.data &&
         res.data.forEach((item) => {
-          console.log(item)
+          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo($wrap)
         })
+
+      const $items = $wrap.find('.dropdown-item').on('click', function () {
+        $items.removeClass('active')
+        $(this).addClass('active')
+
+        console.log($(this).data('id'))
+      })
     })
   },
 }
