@@ -1155,7 +1155,9 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_load-charts').on('click', () => {
+      this._chartLoaded !== true && this.loadWidget()
+    })
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
@@ -1191,7 +1193,7 @@ const ChartsWidget = {
 
   loadWidget: function () {
     $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
-      this.chartLoaded = true
+      this._chartLoaded = true
       this.__config = res.data || {}
       res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
     })
@@ -1216,6 +1218,36 @@ const ChartsWidget = {
   },
 }
 
+// 分类
+const ClassWidget = {
+  init() {
+    $('.J_load-class').on('click', () => {
+      this._classLoaded !== true && this.loadClass()
+    })
+  },
+
+  loadClass() {
+    $.get(`/app/${wpc.entity[0]}/widget-class-data`, (res) => {
+      this._classLoaded = true
+
+      const $wrap = $('<div></div>').appendTo('#asideClass')
+      $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo($wrap)
+
+      res.data &&
+        res.data.forEach((item) => {
+          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo($wrap)
+        })
+
+      const $items = $wrap.find('.dropdown-item').on('click', function () {
+        $items.removeClass('active')
+        $(this).addClass('active')
+
+        console.log($(this).data('id'))
+      })
+    })
+  },
+}
+
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
@@ -1225,7 +1257,7 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('#asideFilters, #asideWidgets').length > 0) {
+  if ($('#asideFilters, #asideWidgets, #asideClass').length > 0) {
     $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
@@ -1237,7 +1269,8 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     })()
 
-    ChartsWidget.init()
+    if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    if ($('#asideClass').length > 0) ClassWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')
