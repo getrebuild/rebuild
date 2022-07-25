@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.record.RecordVisitor;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -231,16 +233,25 @@ public class RecordTransfomer extends SetUser {
             if (e.getValue() == null) continue;
 
             String targetField = e.getKey();
-            String sourceField = (String) e.getValue();
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
-            Object sourceValue = source.getObjectValue(sourceField);
-            if (sourceValue != null) {
-                EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+            Object sourceAny = e.getValue();
 
-                Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
-                target.setObjectValue(targetField, targetValue);
+            if (sourceAny instanceof JSONArray) {
+                Object sourceValue = ((JSONArray) sourceAny).get(0);
+                RecordVisitor.setValueByLiteral(targetField, sourceValue.toString(), target);
+
+            } else {
+                String sourceField = (String) sourceAny;
+                Object sourceValue = source.getObjectValue(sourceField);
+
+                if (sourceValue != null) {
+                    EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
+                            Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+
+                    Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
+                    target.setObjectValue(targetField, targetValue);
+                }
             }
         }
 
@@ -256,14 +267,15 @@ public class RecordTransfomer extends SetUser {
             return target.getPrimary();
         } finally {
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            if (this.skipGuard) PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
     }
 
-    private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
+    private List<String> checkAndWarnFields(Entity entity, Collection<?> fields) {
         List<String> valid = new ArrayList<>();
-        for (Object field : fieldsName) {
+        for (Object field : fields) {
             if (field == null) continue;
+            if (field instanceof JSONArray) continue;  // VFIXED
 
             if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);

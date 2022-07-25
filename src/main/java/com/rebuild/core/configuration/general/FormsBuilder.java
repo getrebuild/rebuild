@@ -493,9 +493,15 @@ public class FormsBuilder extends FormsManager {
         if (field.getDisplayType() == DisplayType.REFERENCE
                 && value instanceof ID && ((ID) value).getLabelRaw() != null) {
             Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
+
             if (nameField.getType() == FieldType.DATE || nameField.getType() == FieldType.TIMESTAMP) {
-                Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(((ID) value).getLabelRaw());
-                ((ID) value).setLabel(newLabel);
+                Object rawLabel = ((ID) value).getLabelRaw();
+                try {
+                    Object newLabel = EasyMetaFactory.valueOf(nameField).wrapValue(rawLabel);
+                    ((ID) value).setLabel(newLabel);
+                } catch (IllegalArgumentException ex) {
+                    log.warn("Field [{}] format error : {}", nameField, ex.getLocalizedMessage());
+                }
             }
         }
 

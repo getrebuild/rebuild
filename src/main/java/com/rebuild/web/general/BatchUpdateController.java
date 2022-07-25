@@ -12,23 +12,17 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.MultiSelectManager;
-import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.state.StateManager;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.*;
@@ -90,48 +84,10 @@ public class BatchUpdateController extends BaseController {
                 continue;
             }
 
-            updatableFields.add(buildField(easyField));
+            updatableFields.add(MetaFormatter.buildRichField(easyField));
         }
         return updatableFields;
     }
 
-    /**
-     * @param field
-     * @return
-     */
-    public static JSONObject buildField(EasyField field) {
-        JSONObject map = (JSONObject) field.toJSON();
 
-        // 字段选项
-        DisplayType dt = field.getDisplayType();
-
-        if (dt == DisplayType.PICKLIST) {
-            map.put("options", PickListManager.instance.getPickList(field.getRawMeta()));
-
-        } else if (dt == DisplayType.STATE) {
-            map.put("options", StateManager.instance.getStateOptions(field.getRawMeta()));
-
-        } else if (dt == DisplayType.MULTISELECT) {
-            map.put("options", MultiSelectManager.instance.getSelectList(field.getRawMeta()));
-
-        } else if (dt == DisplayType.BOOL) {
-            JSONArray options = new JSONArray();
-            options.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new Object[] { true, Language.L("是") }));
-            options.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new Object[] { false, Language.L("否") }));
-            map.put("options", options);
-
-        } else if (dt == DisplayType.NUMBER) {
-            map.put(EasyFieldConfigProps.NUMBER_NOTNEGATIVE,
-                    field.getExtraAttr(EasyFieldConfigProps.NUMBER_FORMAT));
-        } else if (dt == DisplayType.DECIMAL) {
-            map.put(EasyFieldConfigProps.DECIMAL_FORMAT,
-                    field.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT));
-        }
-
-        return map;
-    }
 }
