@@ -1224,25 +1224,32 @@ const ClassWidget = {
     $('.J_load-class').on('click', () => {
       this._classLoaded !== true && this.loadClass()
     })
+
+    this._$wrap = $('<div></div>').appendTo('#asideClass')
+    $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo(this._$wrap)
   },
 
   loadClass() {
     $.get(`/app/${wpc.entity[0]}/widget-class-data`, (res) => {
       this._classLoaded = true
 
-      const $wrap = $('<div></div>').appendTo('#asideClass')
-      $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo($wrap)
-
       res.data &&
         res.data.forEach((item) => {
-          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo($wrap)
+          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo(this._$wrap)
         })
 
-      const $items = $wrap.find('.dropdown-item').on('click', function () {
+      const $items = this._$wrap.find('.dropdown-item').on('click', function () {
         $items.removeClass('active')
         $(this).addClass('active')
 
-        console.log($(this).data('id'))
+        // Clean via
+        $('.J_via-filter').remove()
+
+        const v = $(this).data('id')
+        if (v === '$ALL$') wpc.protocolFilter = null
+        else wpc.protocolFilter = `class:${wpc.entity[0]}:${v}`
+
+        RbListPage.reload()
       })
     })
   },

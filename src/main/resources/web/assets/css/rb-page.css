@@ -562,11 +562,12 @@ div.dataTables_filter .filter-badge {
   background-color: #fff;
   color: #a04100;
   border: 1px solid #ddd;
-  padding: 6px 12px;
+  padding: 4px 10px;
   font-size: 1rem;
   font-weight: normal;
   border-radius: 99px;
-  margin-top: 1px;
+  margin-top: 3px;
+  cursor: default;
 }
 
 div.dataTables_filter .filter-badge .close {
@@ -574,7 +575,7 @@ div.dataTables_filter .filter-badge .close {
   text-shadow: none;
   font-weight: normal;
   color: #bbb;
-  margin-left: 7px;
+  margin-left: 6px;
 }
 
 div.dataTables_filter .filter-badge:hover {
@@ -1737,13 +1738,9 @@ th.column-fixed {
   user-select: none;
 }
 
-.main-content > .nav-tabs-classic + .card {
+.main-content > .card.card-table.card-datalist {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-  border-top: 2px solid #fff;
-}
-
-.main-content > .nav-tabs-classic + .card.card-table {
   border-top: 2px solid #4285f4;
 }
 
@@ -3460,6 +3457,7 @@ form {
   border-radius: 2px;
   font-size: 1rem;
   cursor: pointer;
+  text-transform: none;
 }
 
 #asideFilters .dropdown-item:hover,

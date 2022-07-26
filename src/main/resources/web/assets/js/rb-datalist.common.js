@@ -682,7 +682,7 @@ const RbListCommon = {
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`
-      const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
+      const $cleanVia = $(`<div class="badge filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
       $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
         RbListPage.reload()
