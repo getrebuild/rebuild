@@ -12,6 +12,7 @@ class RbModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._htmlid = $random('modal-body-', true, 20)
   }
 
   render() {
@@ -21,7 +22,13 @@ class RbModal extends React.Component {
     const iframe = !this.props.children // No child
 
     return (
-      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} style={styles} ref={(c) => (this._rbmodal = c)}>
+      <div
+        className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`}
+        style={styles}
+        ref={(c) => {
+          this._rbmodal = c
+          this._element = c
+        }}>
         <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
@@ -30,7 +37,7 @@ class RbModal extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
+            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
               {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
               {iframe && <RbSpinner />}
             </div>
@@ -207,6 +214,7 @@ class RbAlert extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._htmlid = $random('alert-body-', true, 20)
   }
 
   render() {
@@ -227,7 +235,9 @@ class RbAlert extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body">{this.renderContent()}</div>
+            <div className="modal-body" id={this._htmlid}>
+              {this.renderContent()}
+            </div>
           </div>
         </div>
       </div>

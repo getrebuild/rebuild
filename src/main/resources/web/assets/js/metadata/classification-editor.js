@@ -452,7 +452,7 @@ class DlgImports extends RbModalHandler {
     this.setState({ inProgress: true })
     const url = `/admin/metadata/classification/imports/file?dest=${this.props.id}&file=${$encode(this.state.uploadFile)}`
     $.post(url, (res) => {
-      if (res.error_code === 0) this.__checkState(res.data)
+      if (res.error_code === 0) this._checkState(res.data)
       else RbHighbar.error(res.error_msg)
     })
   }
@@ -467,15 +467,18 @@ class DlgImports extends RbModalHandler {
         this.hide()
         that.setState({ inProgress: true })
         $.post(url, (res) => {
-          if (res.error_code === 0) that.__checkState(res.data)
+          if (res.error_code === 0) that._checkState(res.data)
           else RbHighbar.error(res.error_msg)
         })
       },
     })
   }
 
-  __checkState(taskid) {
-    if (!this.__mp) this.__mp = new Mprogress({ template: 1, start: true })
+  _checkState(taskid) {
+    if (!this.__mp) {
+      const mp_parent = $(this._dlg._element).find('.modal-body').attr('id')
+      this.__mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+    }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
@@ -492,7 +495,7 @@ class DlgImports extends RbModalHandler {
           setTimeout(() => location.reload(), 1500)
         } else {
           this.__mp.set(cp)
-          setTimeout(() => this.__checkState(taskid), 1000)
+          setTimeout(() => this._checkState(taskid), 1000)
         }
       }
     })
