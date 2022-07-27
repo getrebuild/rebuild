@@ -10,38 +10,39 @@ RbForm.postAfter = function (data) {
   location.href = `${rb.baseUrl}/admin/bizuser/role/${data.id}`
 }
 
-const wpc = window.__PageConfig
-const roleId = wpc.recordId
+let roleId = window.__PageConfig.recordId
 
 // 自定义
 let advFilters = {}
 let advFilterSettings = {}
 
 $(document).ready(function () {
-  $('.J_new-role').click(() => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
+  $('.J_new-role').on('click', () => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
+
+  loadRoles()
 
   if (roleId) {
-    $('.J_save').attr('disabled', false).click(updatePrivileges)
+    $('.J_save').attr('disabled', false)
     loadPrivileges()
   }
 
-  loadRoles()
+  $('.J_save').on('click', updatePrivileges)
 
   // ENTITY
 
   // 单个操作
-  $('#priv-entity tbody .priv').click(function () {
+  $('#priv-entity tbody .priv').on('click', function () {
     const $this = $(this)
-    clickPriv($this, $this.data('action'))
+    _clickPriv($this, $this.data('action'))
   })
   // 批量操作
-  $('#priv-entity thead th>a').click(function () {
+  $('#priv-entity thead th>a').on('click', function () {
     const action = $(this).data('action')
     const $items = $(`#priv-entity tbody .priv[data-action="${action}"]`)
-    clickPriv($items, action)
+    _clickPriv($items, action)
   })
   // 批量操作
-  $('#priv-entity tbody .name>a').click(function () {
+  $('#priv-entity tbody .name>a').on('click', function () {
     const $items = $(this).parent().parent().find('.priv')
     const clz = $items.eq(0).hasClass('R0') ? 'R4' : 'R0'
     $items.removeClass('R0 R1 R2 R3 R4').addClass(clz)
@@ -49,16 +50,16 @@ $(document).ready(function () {
 
   // ZERO
 
-  $('#priv-zero tbody .priv').click(function () {
-    clickPriv($(this), 'Z')
+  $('#priv-zero tbody .priv').on('click', function () {
+    _clickPriv($(this), 'Z')
   })
-  $('#priv-zero thead th>a').click(function () {
+  $('#priv-zero thead th>a').on('click', function () {
     const $privZero = $('#priv-zero tbody .priv[data-action="Z"]')
-    clickPriv($privZero, 'Z')
+    _clickPriv($privZero, 'Z')
   })
-  $('#priv-zero tbody .name>a').click(function () {
+  $('#priv-zero tbody .name>a').on('click', function () {
     const $el = $(this).parent().next().find('i.priv')
-    clickPriv($el, 'Z')
+    _clickPriv($el, 'Z')
   })
 
   // CUSTOM
@@ -71,7 +72,7 @@ $(document).ready(function () {
     'S': $L('共享'),
   }
 
-  $('#priv-entity tbody td>a.cp').click(function () {
+  $('#priv-entity tbody td>a.cp').on('click', function () {
     if (rb.commercial < 1) {
       RbHighbar.error(WrapHtml($L('免费版不支持自定义权限功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
@@ -113,7 +114,7 @@ $(document).ready(function () {
   })
 })
 
-const clickPriv = function (elements, action) {
+const _clickPriv = function (elements, action) {
   if (action === 'C' || action === 'Z') {
     if (elements.first().hasClass('R0')) elements.removeClass('R0').addClass('R4')
     else elements.removeClass('R4').addClass('R0')
@@ -139,7 +140,15 @@ const loadRoles = function () {
       <AsideTree
         data={res.data}
         activeItem={roleId}
-        onItemClick={(item) => (location.href = `${rb.baseUrl}/admin/bizuser/role/${item.id}`)}
+        onItemClick={(item) => {
+          location.href = `${rb.baseUrl}/admin/bizuser/role/${item.id}`
+
+          // history.pushState(item.id, null, `${rb.baseUrl}/admin/bizuser/role/${item.id}`)
+          // roleId = item.id
+          // // reset
+          // $('.table-priv i.priv').attr('class', 'priv R0')
+          // loadPrivileges()
+        }}
         extrasAction={(item) => {
           return (
             <React.Fragment>
