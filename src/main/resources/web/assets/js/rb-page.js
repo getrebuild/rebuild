@@ -565,7 +565,7 @@ var $createUploader = function (input, next, complete, error) {
       })
     })
   } else {
-    const idname = $input.attr('id') || $input.attr('name') || 'H5Upload-' + $random()
+    const idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
