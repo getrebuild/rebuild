@@ -542,7 +542,7 @@ var $createUploader = function (input, next, complete, error) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
-            typeof next === 'function' && next({ percent: res.total.percent })
+            typeof next === 'function' && next({ percent: res.total.percent, file: file })
           },
           error: function (err) {
             var msg = (err.message || err.error || 'UnknowError').toUpperCase()
@@ -553,19 +553,21 @@ var $createUploader = function (input, next, complete, error) {
             } else {
               RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }
-            typeof error === 'function' && error()
+            console.log('Upload error:', err)
+            typeof error === 'function' && error({ error: msg, file: file })
             return false
           },
           complete: function (res) {
             if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
-            typeof complete === 'function' && complete({ key: res.key })
+            typeof complete === 'function' && complete({ key: res.key, file: file })
           },
         })
       })
     })
   } else {
+    const idname = $input.attr('id') || $input.attr('name') || 'H5Upload-' + $random()
     $input.html5Uploader({
-      name: $input.attr('id') || $input.attr('name') || 'H5Upload',
+      name: idname,
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
@@ -578,21 +580,26 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total })
+        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
           if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
-          complete({ key: e.data })
+          complete({ key: e.data, file: file })
         } else {
           RbHighbar.error($L('上传失败，请稍后重试'))
-          typeof error === 'function' && error()
+          typeof error === 'function' && error({ error: e.error_msg, file: file })
         }
+
+        $input.val(null) // reset
       },
       onClientError: function (e, file) {
         RbHighbar.error($L('上传失败，请稍后重试'))
-        typeof error === 'function' && error()
+        console.log('Upload error:', e)
+        typeof error === 'function' && error({ error: e, file: file })
+
+        $input.val(null) // reset
       },
     })
   }

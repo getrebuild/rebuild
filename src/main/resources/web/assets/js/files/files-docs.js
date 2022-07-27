@@ -15,6 +15,7 @@ let currentFolder
 // 目录树
 const FolderTree = {
   _filesNav: null,
+
   load: function () {
     $.get('/files/tree-folder', (res) => {
       __FolderData = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
@@ -95,6 +96,7 @@ const FolderTree = {
 const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
   if (item.id === __DEFAULT_ALL) item = { text: $L('无') }
+
   let options = [
     <option
       key={`opt-${item.id}`}
@@ -173,7 +175,10 @@ class FolderEditDlg extends RbFormHandler {
     }
     if (!_data.name) return RbHighbar.create($L('请输入目录名称'))
 
-    _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
+    _data.metadata = {
+      entity: 'AttachmentFolder',
+      id: this.props.id || null,
+    }
 
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(_data), () => {
@@ -188,6 +193,8 @@ class FileUploadDlg extends RbFormHandler {
   state = { ...this.props }
 
   render() {
+    const files = this.state.files || {}
+
     return (
       <RbModal title={$L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form" ref={(c) => (this._dropArea = c)}>
@@ -205,13 +212,17 @@ class FileUploadDlg extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('文件')}</label>
             <div className="col-sm-7">
               <div className="file-field files">
-                {(this.state.files || []).map((item) => {
-                  let fileName = $fileCutName(item)
+                {Object.keys(files).map((file) => {
+                  let s = files[file]
+
                   return (
-                    <div key={'file-' + item} className="img-thumbnail" title={fileName}>
-                      <i className="file-icon" data-type={$fileExtName(fileName)} />
-                      <span>{fileName}</span>
-                      <b title={$L('移除')} onClick={() => this._removeFile(item)}>
+                    <div key={file} className="img-thumbnail" title={file}>
+                      <i className="file-icon" data-type={$fileExtName(file)} />
+                      <span>{file}</span>
+                      <span className="status" style={{ width: `${isNaN(s) ? 100 : Math.max(s, 0)}%` }}>
+                        {isNaN(s) && <i className="zmdi zmdi-check text-success" />}
+                      </span>
+                      <b title={$L('移除')} onClick={() => this._removeFile(file)}>
                         <span className="zmdi zmdi-close" />
                       </b>
                     </div>
@@ -220,7 +231,7 @@ class FileUploadDlg extends RbFormHandler {
               </div>
               <label className="upload-box">
                 {$L('点击选择或拖动文件至此')}
-                <input type="file" ref={(c) => (this._upload = c)} className="hide" />
+                <input type="file" ref={(c) => (this._$upload = c)} className="hide" />
               </label>
             </div>
           </div>
@@ -240,27 +251,19 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   componentDidMount() {
-    let mp
-    const mp_end = function () {
-      if (mp) mp.end()
-      mp = null
-    }
-    $createUploader(
-      this._upload,
-      (res) => {
-        if (!mp) mp = new Mprogress({ template: 1, start: true })
-        mp.set(res.percent / 100)
-      },
-      (res) => {
-        const files = this.state.files || []
-        files.push(res.key)
-        this.setState({ files: files })
-        mp_end()
-      },
-      () => mp_end()
-    )
-
     const that = this
+
+    function fn(file, s) {
+      const files = that.state.files || {}
+      files[file.name] = s
+      that.setState({ files: files })
+    }
+
+    $createUploader(
+      this._$upload,
+      (res) => fn(res.file, res.percent),
+      (res) => fn(res.file, res.key)
+    )
 
     // 拖拽上传
     const $da = $(this._dropArea)
@@ -278,8 +281,8 @@ class FileUploadDlg extends RbFormHandler {
       e.preventDefault()
       const files = e.originalEvent.dataTransfer.files
       if (!files || files.length === 0) return false
-      that._upload.files = files
-      $(that._upload).trigger('change')
+      that._$upload.files = files
+      $(that._$upload).trigger('change')
       $da.find('.upload-box').removeClass('active')
     })
 
@@ -287,8 +290,8 @@ class FileUploadDlg extends RbFormHandler {
     document.addEventListener('paste', (e) => {
       const data = e.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
-        that._upload.files = data.files
-        $(that._upload).trigger('change')
+        that._$upload.files = data.files
+        $(that._$upload).trigger('change')
       }
     })
   }
@@ -299,20 +302,28 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _removeFile(file) {
-    const files = this.state.files
-    files.remove(file)
+    const files = this.state.files || {}
+    delete files[file]
     this.setState({ files: files })
   }
 
   _post = () => {
-    if ((this.state.files || []).length === 0) return RbHighbar.create($L('请选择文件'))
+    if (!this.state.files || Object.keys(this.state.files).length === 0) return RbHighbar.create($L('请选择文件'))
+
+    let files = []
+    for (let k in this.state.files) {
+      const file = this.state.files[k]
+      if (file && isNaN(file)) files.push(file)
+    }
 
     this.disabled(true)
-    $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
+    $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(files), (res) => {
       if (res.error_code === 0) {
         this.hide()
         this.props.call && this.props.call()
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }

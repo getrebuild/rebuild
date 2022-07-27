@@ -70,6 +70,8 @@ public class FileDownloader extends BaseController {
         String imageView2 = request.getQueryString();
         if (imageView2 != null && imageView2.contains("imageView2/")) {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
+            // svg does support
+            if (filePath.toLowerCase().endsWith(".svg")) imageView2 = null;
         } else {
             imageView2 = null;
         }
