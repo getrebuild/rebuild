@@ -60,6 +60,7 @@ public class GroupAggregationController extends BaseController {
                 sourceFields.add(buildField(field));
             }
         }
+
         // 明细实体则包括主实体
         if (sourceEntity.getMainEntity() != null) {
             String prefixName = MetadataHelper.getDetailToMainField(sourceEntity).getName() + ".";
