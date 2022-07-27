@@ -50,10 +50,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
         List<Record> creates = new ArrayList<>();
         for (Field field : fileFields) {
             if (record.hasValue(field.getName(), false)) {
-                Object value = record.getObjectValue(field.getName());
-                JSONArray filesJson = value instanceof JSON ? (JSONArray) value : parseFilesJson(value.toString());
-
-                for (Object file : filesJson) {
+                JSONArray files = parseFilesJson(record.getObjectValue(field.getName()));
+                for (Object file : files) {
                     Record add = createAttachment(
                             field, context.getAfterRecord().getPrimary(), (String) file, context.getOperator());
                     creates.add(add);
@@ -78,8 +76,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
         for (Field field : fileFields) {
             String fieldName = field.getName();
             if (record.hasValue(fieldName)) {
-                JSONArray beforeFiles = parseFilesJson(before.getString(fieldName));  // 修改前
-                JSONArray afterFiles = parseFilesJson(record.getString(fieldName));      // 修改后
+                JSONArray beforeFiles = parseFilesJson(before.getObjectValue(fieldName));  // 修改前
+                JSONArray afterFiles = parseFilesJson(record.getObjectValue(fieldName));   // 修改后
 
                 for (Iterator<Object> iter = afterFiles.iterator(); iter.hasNext(); ) {
                     Object a = iter.next();
@@ -150,11 +148,10 @@ public class AttachmentAwareObserver extends OperatingObserver {
                 updates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
     }
 
-    private JSONArray parseFilesJson(String files) {
-        if (StringUtils.isBlank(files)) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
-        return JSON.parseArray(files);
+    private JSONArray parseFilesJson(Object files) {
+        if (files instanceof JSON) return (JSONArray) files;
+        else if (files == null || StringUtils.isBlank(files.toString())) return JSONUtils.EMPTY_ARRAY;
+        else return JSON.parseArray(files.toString());
     }
 
     private Record createAttachment(Field field, ID recordId, String filePath, ID user) {
