@@ -1204,10 +1204,11 @@ class RbFormImage extends RbFormElement {
         if (mp) mp.end()
         mp = null
       }
+
       $createUploader(
         this._fieldValue__input,
         (res) => {
-          if (!mp) mp = new Mprogress({ template: 1, start: true })
+          if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
         (res) => {
@@ -1948,10 +1949,11 @@ class RbFormAvatar extends RbFormElement {
         if (mp) mp.end()
         mp = null
       }
+
       $createUploader(
         this._fieldValue__input,
         (res) => {
-          if (!mp) mp = new Mprogress({ template: 1, start: true })
+          if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
         (res) => {

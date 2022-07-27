@@ -1166,7 +1166,7 @@ class RichTextEditor extends React.Component {
     $createUploader(
       this._$fileInput,
       (res) => {
-        if (!mp) mp = new Mprogress({ template: 1, start: true })
+        if (!mp) mp = new Mprogress({ template: 2, start: true })
         mp.set(res.percent / 100)
       },
       (res) => {
