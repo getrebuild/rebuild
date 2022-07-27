@@ -55,18 +55,12 @@ public class GeneralListController extends EntityController {
             throws IOException {
         final ID user = getRequestUser(request);
         final Entity listEntity = checkPageOfEntity(user, entity, response);
-        if (listEntity == null) return null;
+        if (listEntity == null) return null;  // 404
 
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
-        // 使用主实体列表配置
-        final EasyEntity mainEntity = listEntity.getMainEntity() == null
-                ? easyEntity : EasyMetaFactory.valueOf(listEntity.getMainEntity());
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
-        Integer listMode = getIntParameter(request, "forceListMode");
-        if (listMode == null) {
-            listMode = ObjectUtils.toInt(mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
-        }
+        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
         if (listMode == 2) {
             listPage = "/general/record-list2";  // Mode2
         }
@@ -87,9 +81,9 @@ public class GeneralListController extends EntityController {
             listConfig = DataListManager.instance.getFieldsLayout(entity, user);
 
             // 扩展配置
-            String advListHideFilters = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
-            String advListHideCharts = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
-            String advListShowClass = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCLASS);
+            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            String advListShowClass = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCLASS);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_SHOWCLASS, StringUtils.isNotBlank(advListShowClass));
@@ -99,7 +93,7 @@ public class GeneralListController extends EntityController {
 
             // 查询面板
 
-            String advListFilterpane = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
+            String advListFilterpane = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterpane);
 
             if (BooleanUtils.toBoolean(advListFilterpane)) {

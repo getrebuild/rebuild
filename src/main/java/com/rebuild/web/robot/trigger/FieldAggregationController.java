@@ -43,12 +43,10 @@ public class FieldAggregationController extends BaseController {
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
 
-        // 我引用了谁
+        // 1. 我引用了谁
 
         for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isApprovalField(refFrom.getName())) {
-                continue;
-            }
+            if (MetadataHelper.isApprovalField(refFrom.getName())) continue;
 
             Entity refEntity = refFrom.getReferenceEntity();
             String entityLabel = String.format("%s (%s)",

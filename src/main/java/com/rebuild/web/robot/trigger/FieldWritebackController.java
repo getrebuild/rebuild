@@ -48,35 +48,41 @@ public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
-        List<String[]> entities = new ArrayList<>();
+        List<String[]> temp = new ArrayList<>();
 
-        // 谁引用了我
+        // 1. 我引用了谁 v2.7.1
+
+        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isCommonsField(refFrom)) continue;
+
+            Entity refEntity = refFrom.getReferenceEntity();
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
+            temp.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
+        }
+
+        FieldAggregationController.sortEntities(temp, null);
+        List<String[]> entities = new ArrayList<>(temp);
+        temp.clear();
+
+        // 2. 谁引用了我
 
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity)) {
-            String entityLabel = String.format("%s (%s)",
+            String entityLabel = String.format("%s (%s) (N)",
                     EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
-            entities.add(new String[] {
+            temp.add(new String[] {
                     refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
         }
 
-        // 我引用了谁 v2.7.1
+        FieldAggregationController.sortEntities(temp, null);
+        entities.addAll(temp);
+        temp.clear();
 
-        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isCommonsField(refFrom)) {
-                continue;
-            }
+        // 3. 自己
+        FieldAggregationController.sortEntities(temp, sourceEntity);
+        entities.addAll(temp);
+        temp.clear();
 
-            Entity refEntity = refFrom.getReferenceEntity();
-            if (refEntity.equals(sourceEntity)) {  // 排除自引用
-                continue;
-            }
-
-            String entityLabel = String.format("%s (%s.%s)",
-                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(sourceEntity), EasyMetaFactory.getLabel(refFrom));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
-        }
-
-        FieldAggregationController.sortEntities(entities, sourceEntity);
         return entities;
     }
 

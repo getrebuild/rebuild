@@ -108,10 +108,10 @@ class DlgMode1Option extends RbFormHandler {
       <RbModal title={$L('标准模式选项')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('隐藏侧栏常用查询')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“常用查询”')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && wpc.extConfig.advListHideFilters} />
+                <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
                 <span>
                   <label htmlFor="advListHideFilters" />
                 </span>
@@ -119,21 +119,10 @@ class DlgMode1Option extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('隐藏侧栏图表')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分类”')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && wpc.extConfig.advListHideCharts} />
-                <span>
-                  <label htmlFor="advListHideCharts" />
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏分类')}</label>
-            <div className="col-sm-7">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListShowClass" defaultChecked={wpc.extConfig && !!wpc.extConfig.advListShowClass} />
+                <input type="checkbox" id="advListShowClass" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowClass} />
                 <span>
                   <label htmlFor="advListShowClass" />
                 </span>
@@ -150,6 +139,17 @@ class DlgMode1Option extends RbFormHandler {
                       )
                     })}
                 </select>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“图表”')}</label>
+            <div className="col-sm-7">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
+                <span>
+                  <label htmlFor="advListHideCharts" />
+                </span>
               </div>
             </div>
           </div>
@@ -214,8 +214,8 @@ class DlgMode1Option extends RbFormHandler {
 
   save = () => {
     const o = {
-      advListHideFilters: $val('#advListHideFilters'),
-      advListHideCharts: $val('#advListHideCharts'),
+      advListHideFilters: !$val('#advListHideFilters'),
+      advListHideCharts: !$val('#advListHideCharts'),
       advListShowClass: this.state.advListShowClass ? $val('.J_advListShowClass select') : null,
       advListFilterPane: $val('#advListFilterPane'),
     }
