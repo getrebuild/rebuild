@@ -196,6 +196,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.231rem;
   margin-right: 8px;
   margin-top: 10px;
+  font-weight: bold;
 }
 
 .aside-2tree li > a > .icon {
