@@ -8,9 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.series;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -50,25 +51,34 @@ public class SeriesGenerator {
      * @return
      */
     public String generate() {
+        return generate(null);
+    }
+
+    /**
+     * @param record
+     * @return
+     */
+    public String generate(Record record) {
         String seriesFormat = config.getString("seriesFormat");
         if (StringUtils.isBlank(seriesFormat)) {
             seriesFormat = DisplayType.SERIES.getDefaultFormat();
         }
 
-        List<SeriesVar> vars = explainVars(seriesFormat);
+        List<SeriesVar> vars = explainVars(seriesFormat, record);
         for (SeriesVar var : vars) {
             seriesFormat = seriesFormat.replace("{" + var.getSymbols() + "}", var.generate());
         }
         return seriesFormat;
     }
 
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\{(\\w+)}");
+    private static final Pattern VAR_PATTERN = Pattern.compile("\\{(@?[\\w.]+)}");
 
     /**
      * @param format
+     * @param record
      * @return
      */
-    protected List<SeriesVar> explainVars(String format) {
+    protected List<SeriesVar> explainVars(String format, Record record) {
         List<SeriesVar> vars = new ArrayList<>();
 
         Matcher varMatcher = VAR_PATTERN.matcher(format);
@@ -76,6 +86,9 @@ public class SeriesGenerator {
             String s = varMatcher.group(1);
             if ("0".equals(s.substring(0, 1))) {
                 vars.add(new IncreasingVar(s, field, config.getString("seriesZero")));
+            } else if (s.startsWith(FieldVar.PREFIX)) {
+                // {@FIELD}
+                vars.add(new FieldVar(s, record));
             } else {
                 vars.add(new TimeVar(s));
             }

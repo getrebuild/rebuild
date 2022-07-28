@@ -280,7 +280,7 @@ public class RecordTransfomer extends SetUser {
             if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);
             } else {
-                log.warn("Unknown field `{}` in `{}`", field, entity.getName());
+                log.warn("Invalid field : {} in {}", field, entity.getName());
             }
         }
         return valid;

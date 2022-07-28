@@ -250,7 +250,7 @@ public class UserHelper {
             } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
                 useFields.add(def);
             } else {
-                log.warn("Invalid id or field : " + def);
+                log.warn("Invalid field or id : {}", def);
             }
         }
 

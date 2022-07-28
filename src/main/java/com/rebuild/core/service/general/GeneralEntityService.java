@@ -616,7 +616,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 continue;
             }
 
-            record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
+            record.setString(field.getName(), SeriesGeneratorFactory.generate(field, record));
         }
     }
 
