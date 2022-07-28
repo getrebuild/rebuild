@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
@@ -57,8 +58,10 @@ public class FileShareController extends BaseController {
         String fileUrl = getParameterNotNull(request, "url");
         int mtime = getIntParameter(request, "time", 5);
 
-        String shareKey = CodecUtils.randomCode(40);
-        Application.getCommonsCache().put(shareKey, fileUrl, mtime * 60);
+        String shareKey = CodecUtils.randomCode(20);
+        String shareKey2 = EncryptUtils.toMD5Hex(shareKey);
+
+        Application.getCommonsCache().put(shareKey2, fileUrl, mtime * 60);
 
         String shareUrl = RebuildConfiguration.getHomeUrl("s/" + shareKey);
         return JSONUtils.toJSONObject("shareUrl", shareUrl);
@@ -67,9 +70,10 @@ public class FileShareController extends BaseController {
     @GetMapping("/s/{shareKey}")
     public ModelAndView viewSharedFile(@PathVariable String shareKey,
                                        HttpServletResponse response) throws IOException {
+        String shareKey2 = EncryptUtils.toMD5Hex(shareKey);
         String fileUrl;
         if (!RebuildConfiguration.getBool(ConfigurationItem.FileSharable)
-                || (fileUrl = Application.getCommonsCache().get(shareKey)) == null) {
+                || (fileUrl = Application.getCommonsCache().get(shareKey2)) == null) {
             response.sendError(403, Language.L("分享的文件已过期"));
             return null;
         }

@@ -226,6 +226,9 @@ class RbPreview extends React.Component {
         .find('>div.fp-content')
         .height($(window).height() - 60)
     })
+
+    // in `/s/`
+    setTimeout(() => $('.sharebox.must-center').remove(), 400)
   }
 
   componentWillUnmount() {

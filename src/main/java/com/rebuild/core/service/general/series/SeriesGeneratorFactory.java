@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.series;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
@@ -34,7 +35,18 @@ public class SeriesGeneratorFactory {
      * @return
      */
     public static String generate(Field field) {
-        return create(field).generate();
+        return generate(field, null);
+    }
+
+    /**
+     * 生成
+     *
+     * @param field
+     * @param record
+     * @return
+     */
+    public static String generate(Field field, Record record) {
+        return create(field).generate(record);
     }
 
     /**

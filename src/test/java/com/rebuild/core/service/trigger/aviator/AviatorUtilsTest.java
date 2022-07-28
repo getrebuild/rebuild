@@ -70,4 +70,9 @@ class AviatorUtilsTest {
         Assertions.assertThrows(ExpressionRuntimeException.class,
                 () -> AviatorUtils.eval("p(2*num)", finalEnvMap, false));
     }
+
+    @Test
+    void testJava() {
+        AviatorUtils.evalQuietly("p(StringUtils.upperCase('abcd'));");
+    }
 }

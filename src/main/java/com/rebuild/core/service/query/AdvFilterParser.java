@@ -202,7 +202,7 @@ public class AdvFilterParser extends SetUser {
 
         Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
-            log.warn("Unknown field '{}' in '{}'", field, rootEntity.getName());
+            log.warn("Invalid field : {} in {}", field, rootEntity.getName());
             return null;
         }
 
