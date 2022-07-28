@@ -17,8 +17,6 @@ class RbFormModal extends React.Component {
   }
 
   render() {
-    if (this.state.destroy) return null
-
     const mw = { maxWidth: this.props.width || 1064 }
     return (
       <div className="modal-wrapper">
@@ -118,15 +116,19 @@ class RbFormModal extends React.Component {
     state = state || {}
     if (!state.id) state.id = null
 
-    // 比较初始参数决定是否可复用
-    const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
-    const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
+    let reset = this.state.reset === true
+    if (!reset) {
+      // 比较初始参数决定是否可复用
+      const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
+      const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
+      reset = !$same(stateNew, stateOld)
+    }
 
-    if (this.state.destroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
+    if (reset) {
       state = { formComponent: null, initialValue: null, previewid: null, inLoad: true, ...state }
-      this.setState(state, () => this.showAfter({ destroy: false }, true))
+      this.setState(state, () => this.showAfter({ reset: false }, true))
     } else {
-      this.showAfter({ ...state, destroy: false })
+      this.showAfter({ ...state, reset: false })
       this._checkDrityData()
     }
   }
@@ -160,11 +162,11 @@ class RbFormModal extends React.Component {
     })
   }
 
-  hide(destroy) {
+  hide(reset) {
     $(this._rbmodal).modal('hide')
 
-    const state = { destroy: destroy === true }
-    if (state.destroy) {
+    const state = { reset: reset === true }
+    if (state.reset) {
       state.id = null
       state.previewid = null
     }
