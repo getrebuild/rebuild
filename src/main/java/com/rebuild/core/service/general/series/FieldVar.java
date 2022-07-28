@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
  * 字段值系列
  *
  * @author devezhao
- * @since 12/24/2018
+ * @since 07/28/2022
  */
 @Slf4j
 public class FieldVar extends SeriesVar {
