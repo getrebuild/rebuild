@@ -14,6 +14,7 @@ import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -35,6 +36,12 @@ public class AviatorUtils {
         AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, false);
         AVIATOR.setOption(Options.MAX_LOOP_COUNT, 32767);
         AVIATOR.setOption(Options.ALLOWED_CLASS_SET, Collections.emptySet());
+
+        try {
+            // https://commons.apache.org/proper/commons-lang/javadocs/api-release/index.html
+            AVIATOR.addStaticFunctions("StringUtils", StringUtils.class);
+        } catch (Exception ignored) {
+        }
 
         addCustomFunction(new DateDiffFunction());
         addCustomFunction(new DateAddFunction());
