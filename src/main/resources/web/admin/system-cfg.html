@@ -34,27 +34,22 @@
       .syscfg.edit a.img-thumbnail:hover b {
         display: inline-block;
       }
-      .syscfg a[target='_blank']:hover {
-        text-decoration: underline;
-      }
-
       .bgimg-img {
         display: inline-block;
         width: 192px;
         height: 108px;
         background: #eee url(../assets/img/bg.jpg) repeat 0 0;
+        background-image: url(../commons/theme/use-bgimg);
         background-size: cover;
+      }
+      .syscfg a[target='_blank']:hover {
+        text-decoration: underline;
       }
       td p > code {
         background-color: rgb(245, 247, 249);
         padding: 1px 3px;
         border-radius: 2px;
         margin-right: 3px;
-      }
-    </style>
-    <style th:if="${commercial > 1}">
-      .bgimg-img {
-        background-image: url(../commons/theme/use-bgimg);
       }
     </style>
   </head>
