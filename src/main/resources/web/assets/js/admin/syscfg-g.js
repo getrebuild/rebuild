@@ -77,7 +77,7 @@ const _toggleImage = function (el) {
   let $current
   const $input = $img.find('input')
   $initUploader($input, null, (res) => {
-    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
+    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key.replace(/ /g, '%20')}?local=true)`)
     changeValue({ target: { name: $current.data('id'), value: res.key } })
   })
 
