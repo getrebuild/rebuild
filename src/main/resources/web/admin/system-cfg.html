@@ -77,11 +77,11 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('名称')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td width="40%">[[${bundle.L('名称')}]]</td>
+                        <td th:data-id="AppName" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td>LOGO</td>
                         <td class="fs-0 applogo">
                           <a class="img-thumbnail" data-id="LOGO">
                             <i class="logo-img"></i>
@@ -119,7 +119,7 @@
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('自定义登录页图')}]] <sup class="rbv"></sup></td>
+                        <td>[[${bundle.L('自定义登录页图')}]]</td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
                             <i class="bgimg-img"></i>
@@ -245,7 +245,7 @@
                         <td width="40%">[[${bundle.L('在视图页显示修改历史')}]]</td>
                         <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr>
                         <td>[[${bundle.L('文件上传大小限制')}]]</td>
                         <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
                       </tr>
