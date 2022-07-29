@@ -37,12 +37,8 @@ useEditComp = function (name) {
     )
   } else if ('DefaultLanguage' === name) {
     // 借用贵宝地
-    if (rb.commercial >= 10) {
-      _toggleImage('.applogo')
-      _toggleImage('.bgimg')
-    } else {
-      $('.applogo b, .bgimg b').remove()
-    }
+    _toggleImage('.applogo')
+    _toggleImage('.bgimg')
 
     const options = []
     for (let k in wpc._LANGS) {
@@ -81,7 +77,7 @@ const _toggleImage = function (el) {
   let $current
   const $input = $img.find('input')
   $initUploader($input, null, (res) => {
-    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
+    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key.replace(/ /g, '%20')}?local=true)`)
     changeValue({ target: { name: $current.data('id'), value: res.key } })
   })
 

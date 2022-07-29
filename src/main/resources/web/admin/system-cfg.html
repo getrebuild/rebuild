@@ -34,27 +34,22 @@
       .syscfg.edit a.img-thumbnail:hover b {
         display: inline-block;
       }
-      .syscfg a[target='_blank']:hover {
-        text-decoration: underline;
-      }
-
       .bgimg-img {
         display: inline-block;
         width: 192px;
         height: 108px;
         background: #eee url(../assets/img/bg.jpg) repeat 0 0;
+        background-image: url(../commons/theme/use-bgimg);
         background-size: cover;
+      }
+      .syscfg a[target='_blank']:hover {
+        text-decoration: underline;
       }
       td p > code {
         background-color: rgb(245, 247, 249);
         padding: 1px 3px;
         border-radius: 2px;
         margin-right: 3px;
-      }
-    </style>
-    <style th:if="${commercial > 1}">
-      .bgimg-img {
-        background-image: url(../commons/theme/use-bgimg);
       }
     </style>
   </head>
@@ -77,11 +72,11 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('名称')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td width="40%">[[${bundle.L('名称')}]]</td>
+                        <td th:data-id="AppName" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td>LOGO</td>
                         <td class="fs-0 applogo">
                           <a class="img-thumbnail" data-id="LOGO">
                             <i class="logo-img"></i>
@@ -119,7 +114,7 @@
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('自定义登录页图')}]] <sup class="rbv"></sup></td>
+                        <td>[[${bundle.L('自定义登录页图')}]]</td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
                             <i class="bgimg-img"></i>

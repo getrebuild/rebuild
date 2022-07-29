@@ -86,10 +86,10 @@ public class FileDownloader extends BaseController {
                 response.setContentType(mimeType);
             }
 
-            ImageView2 iv2 = new ImageView2(imageView2);
+            ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
 
             // 使用原图
-            if (iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
+            if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
                 writeLocalFile(filePath, temp, response);
             }
             // 粗略图
