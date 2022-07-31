@@ -280,7 +280,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected = 0;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
-            log.debug("The recordId owner has not changed, ignore : {}", record);
+            log.debug("The record owner has not changed, ignore : {}", record);
         } else {
             assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
 
@@ -347,14 +347,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 sharedAfter.setID("accessId", (ID) hasShared[0]);
 
             } else {
-                log.debug("The recordId has been shared and has the same rights, ignore : {}", record);
+                log.debug("The record has been shared and has the same rights, ignore : {}", record);
             }
 
         } else {
             // 可以共享给自己
             if (log.isDebugEnabled()
                     && to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-                log.debug("Share to the same user as the recordId, ignore : {}", record);
+                log.debug("Share to the same user as the record, ignore : {}", record);
             }
 
             delegateService.create(sharedAfter);
@@ -549,7 +549,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     }
 
                 } catch (NoRecordFoundException ignored) {
-                    log.warn("No recordId found for check : " + recordId);
+                    log.warn("No record found for check : " + recordId);
                     return false;
                 }
 
@@ -597,7 +597,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @param recordOfNew
      */
     private void appendDefaultValue(Record recordOfNew) {
-        Assert.isNull(recordOfNew.getPrimary(), "Must be new recordId");
+        Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
         Entity entity = recordOfNew.getEntity();
         if (MetadataHelper.isBizzEntity(entity) || !MetadataHelper.hasPrivilegesField(entity)) {
@@ -702,7 +702,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
                 "Only REVOKED or APPROVED allowed");
 
-        Record approvalRecord = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+        Record approvalRecord = EntityHelper.forUpdate(recordId, approvalUser, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
         if (state == ApprovalState.APPROVED
                 && approvalUser != null
