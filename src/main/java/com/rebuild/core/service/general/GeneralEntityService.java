@@ -34,6 +34,7 @@ import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.service.trigger.impl.GroupAggregation;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -95,44 +96,63 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
-        record = super.createOrUpdate(record);
-        if (details == null || details.isEmpty()) return record;
+        // 含明细
+        final boolean hasDetails = details != null && !details.isEmpty();
 
-        // 主记录+明细记录处理
-
-        String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
-        ID mainid = record.getPrimary();
-
-        boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
-                || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
-
-        // 先删除
-        for (Record d : details) {
-            if (d instanceof DeleteRecord) delete(d.getPrimary());
+        boolean hasAutoApprovalForDetails = false;
+        if (hasDetails) {
+            Entity de = record.getEntity().getDetailEntity();
+            TriggerAction[] hasTriggers = de == null ? null
+                    : RobotTriggerManager.instance.getActions(de, TriggerWhen.APPROVED);
+            hasAutoApprovalForDetails = hasTriggers != null && hasTriggers.length > 0;
+            AutoApproval.setLazyAutoApproval();
         }
 
-        // 再保存
-        for (Record d : details) {
-            if (d instanceof DeleteRecord) continue;
+        try {
+            record = super.createOrUpdate(record);
+            if (!hasDetails) return record;
 
-            if (checkDetailsRepeated) {
-                d.setID(dtf, mainid);  // for check
+            // 主记录+明细记录处理
 
-                List<Record> repeated = getAndCheckRepeated(d, 20);
-                if (!repeated.isEmpty()) {
-                    throw new RepeatedRecordsException(repeated);
+            final String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+            final ID mainid = record.getPrimary();
+
+            final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
+                    || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
+
+            // 先删除
+            for (Record d : details) {
+                if (d instanceof DeleteRecord) delete(d.getPrimary());
+            }
+
+            // 再保存
+            for (Record d : details) {
+                if (d instanceof DeleteRecord) continue;
+
+                if (checkDetailsRepeated) {
+                    d.setID(dtf, mainid);  // for check
+
+                    List<Record> repeated = getAndCheckRepeated(d, 20);
+                    if (!repeated.isEmpty()) {
+                        throw new RepeatedRecordsException(repeated);
+                    }
+                }
+
+                if (d.getPrimary() == null) {
+                    d.setID(dtf, mainid);
+                    create(d);
+                } else {
+                    update(d);
                 }
             }
 
-            if (d.getPrimary() == null) {
-                d.setID(dtf, mainid);
-                create(d);
-            } else {
-                update(d);
+            return record;
+
+        } finally {
+            if (hasAutoApprovalForDetails) {
+                AutoApproval.executeLazyAutoApproval();
             }
         }
-
-        return record;
     }
 
     @Override
@@ -152,8 +172,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 先更新
         record = super.update(record);
 
-        // 传导给明细（若有）
-        // 仅分组聚合触发器
+        // 主记录修改时传导给明细（若有），以便触发分组聚合触发器
         Entity de = record.getEntity().getDetailEntity();
         if (de != null) {
             TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(de, TriggerWhen.UPDATE);
@@ -699,6 +718,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         RobotTriggerManual triggerManual = new RobotTriggerManual();
 
         // 传导给明细（若有）
+        // FIXME 此时明细可能尚未做好变更（例如新建自动审批）
 
         Entity de = approvalRecord.getEntity().getDetailEntity();
         TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
