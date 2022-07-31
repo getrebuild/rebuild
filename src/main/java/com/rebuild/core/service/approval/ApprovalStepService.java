@@ -402,6 +402,9 @@ public class ApprovalStepService extends InternalPersistService {
         if (useApprover == null) useApprover = UserService.SYSTEM_USER;
         if (useApproval == null) useApproval = APPROVAL_NOID;
 
+        // 作废之前
+        cancelAliveSteps(recordId, null, null, null, false);
+
         ID stepId = createStepIfNeed(recordId, useApproval,
                 FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT);
         Record step = EntityHelper.forUpdate(stepId, useApprover, false);
