@@ -102,7 +102,7 @@ public class ApprovalProcessor extends SetUser {
         Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 
         // 非主事物
-        shareIfNeed(this.record, ccs4share);
+        share2CcIfNeed(this.record, ccs4share);
 
         return true;
     }
@@ -188,7 +188,7 @@ public class ApprovalProcessor extends SetUser {
                 .txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData, checkUseGroup);
 
         // 非主事物
-        shareIfNeed(this.record, ccs4share);
+        share2CcIfNeed(this.record, ccs4share);
     }
 
     /**
@@ -453,18 +453,22 @@ public class ApprovalProcessor extends SetUser {
             for (Object[] o : group) {
                 JSONObject s = formatStep(o, flowNode == null ? FlowNode.SIGN_OR : flowNode.getSignMode());
 
-                s.put("node", node);
-                String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
-                if (StringUtils.isBlank(nodeName)
-                        && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
-                    nodeName = nodeIndexNames.get(node);
-                    if (StringUtils.isBlank(nodeName)) {
-                        nodeName = Language.L("审批人") + "#" + nodeIndex;
-                        nodeIndexNames.put(node, nodeName);
+                if (FlowNode.NODE_AUTOAPPROVAL.equals(node)) {
+                    // No name
+                } else {
+                    String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
+                    if (StringUtils.isBlank(nodeName)
+                            && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
+                        nodeName = nodeIndexNames.get(node);
+                        if (StringUtils.isBlank(nodeName)) {
+                            nodeName = Language.L("审批人") + "#" + nodeIndex;
+                            nodeIndexNames.put(node, nodeName);
+                        }
                     }
+                    s.put("nodeName", nodeName);
                 }
-                s.put("nodeName", nodeName);
 
+                s.put("node", node);
                 step.add(s);
             }
             steps.add(step);
@@ -482,21 +486,6 @@ public class ApprovalProcessor extends SetUser {
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
-    }
-
-    private void shareIfNeed(ID recordId, Set<ID> shareTo) {
-        final EntityService es = Application.getEntityService(recordId.getEntityCode());
-        for (ID user : shareTo) {
-            if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
-                // force share
-                PrivilegesGuardContextHolder.setSkipGuard(recordId);
-                try {
-                    es.share(recordId, user, null);
-                } finally {
-                    PrivilegesGuardContextHolder.getSkipGuardOnce();
-                }
-            }
-        }
     }
 
     /**
@@ -521,5 +510,26 @@ public class ApprovalProcessor extends SetUser {
             set.add((ID) o[0]);
         }
         return set;
+    }
+
+    /**
+     * 共享给抄送人
+     *
+     * @param recordId
+     * @param shareTo
+     */
+    protected static void share2CcIfNeed(ID recordId, Set<ID> shareTo) {
+        final EntityService es = Application.getEntityService(recordId.getEntityCode());
+        for (ID user : shareTo) {
+            if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
+                // force share
+                PrivilegesGuardContextHolder.setSkipGuard(recordId);
+                try {
+                    es.share(recordId, user, null);
+                } finally {
+                    PrivilegesGuardContextHolder.getSkipGuardOnce();
+                }
+            }
+        }
     }
 }

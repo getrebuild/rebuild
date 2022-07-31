@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -19,6 +20,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,13 +62,21 @@ public class AutoApproval extends TriggerAction {
         }
 
         ID recordId = operatingContext.getAnyRecord().getPrimary();
-        String useApprover = ((JSONObject) actionContext.getActionContent()).getString("useApprover");
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
-        Application.getBean(ApprovalStepService.class).txAutoApproved(
-                recordId,
-                ID.isId(useApprover) ? ID.valueOf(useApprover) : null,
-                ID.isId(useApproval) ? ID.valueOf(useApproval) : null);
+//        ID approver = operatingContext.getOperator();
+        ID approver = UserService.SYSTEM_USER;
+        ID approvalId = ID.isId(useApproval) ? ID.valueOf(useApproval) : null;
+
+        // v2.10
+        boolean submitMode = ((JSONObject) actionContext.getActionContent()).getBooleanValue("submitMode");
+
+        if (submitMode) {
+            Assert.notNull(useApproval, "[useApproval] not be null");
+            Application.getBean(ApprovalStepService.class).txAutoSubmit(recordId, approver, approvalId);
+        } else {
+            Application.getBean(ApprovalStepService.class).txAutoApproved(recordId, approver, approvalId);
+        }
     }
 
     @Override
