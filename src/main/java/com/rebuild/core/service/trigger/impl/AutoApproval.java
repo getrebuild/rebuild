@@ -64,9 +64,7 @@ public class AutoApproval extends TriggerAction {
         ID recordId = operatingContext.getAnyRecord().getPrimary();
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
-//        String useApprover = ((JSONObject) actionContext.getActionContent()).getString("useApprover");
 //        ID approver = operatingContext.getOperator();
-//        if (ID.isId(useApprover)) approver = ID.valueOf(useApprover);
         ID approver = UserService.SYSTEM_USER;
         ID approvalId = ID.isId(useApproval) ? ID.valueOf(useApproval) : null;
 
@@ -74,7 +72,7 @@ public class AutoApproval extends TriggerAction {
         boolean submitMode = ((JSONObject) actionContext.getActionContent()).getBooleanValue("submitMode");
 
         if (submitMode) {
-            Assert.notNull(useApproval, "[useApproval] not null");
+            Assert.notNull(useApproval, "[useApproval] not be null");
             Application.getBean(ApprovalStepService.class).txAutoSubmit(recordId, approver, approvalId);
         } else {
             Application.getBean(ApprovalStepService.class).txAutoApproved(recordId, approver, approvalId);

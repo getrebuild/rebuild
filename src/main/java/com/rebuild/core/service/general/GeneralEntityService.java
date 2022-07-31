@@ -702,10 +702,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
                 "Only REVOKED or APPROVED allowed");
 
+        if (approvalUser == null) {
+            approvalUser = UserService.SYSTEM_USER;
+            log.warn("Use system user for approval");
+        }
+
         Record approvalRecord = EntityHelper.forUpdate(recordId, approvalUser, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
         if (state == ApprovalState.APPROVED
-                && approvalUser != null
                 && MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
             approvalRecord.setID(EntityHelper.ApprovalLastUser, approvalUser);
         }

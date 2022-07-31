@@ -453,18 +453,22 @@ public class ApprovalProcessor extends SetUser {
             for (Object[] o : group) {
                 JSONObject s = formatStep(o, flowNode == null ? FlowNode.SIGN_OR : flowNode.getSignMode());
 
-                s.put("node", node);
-                String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
-                if (StringUtils.isBlank(nodeName)
-                        && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
-                    nodeName = nodeIndexNames.get(node);
-                    if (StringUtils.isBlank(nodeName)) {
-                        nodeName = Language.L("审批人") + "#" + nodeIndex;
-                        nodeIndexNames.put(node, nodeName);
+                if (FlowNode.NODE_AUTOAPPROVAL.equals(node)) {
+                    // No name
+                } else {
+                    String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
+                    if (StringUtils.isBlank(nodeName)
+                            && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
+                        nodeName = nodeIndexNames.get(node);
+                        if (StringUtils.isBlank(nodeName)) {
+                            nodeName = Language.L("审批人") + "#" + nodeIndex;
+                            nodeIndexNames.put(node, nodeName);
+                        }
                     }
+                    s.put("nodeName", nodeName);
                 }
-                s.put("nodeName", nodeName);
 
+                s.put("node", node);
                 step.add(s);
             }
             steps.add(step);
