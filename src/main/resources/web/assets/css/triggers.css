@@ -489,3 +489,8 @@ textarea.formula-code {
     left: 112px;
   }
 }
+
+input.form-control-sm,
+select.form-control-sm {
+  max-width: 485px;
+}

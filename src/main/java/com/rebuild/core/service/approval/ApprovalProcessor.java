@@ -102,7 +102,7 @@ public class ApprovalProcessor extends SetUser {
         Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 
         // 非主事物
-        shareIfNeed(this.record, ccs4share);
+        share2CcIfNeed(this.record, ccs4share);
 
         return true;
     }
@@ -188,7 +188,7 @@ public class ApprovalProcessor extends SetUser {
                 .txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData, checkUseGroup);
 
         // 非主事物
-        shareIfNeed(this.record, ccs4share);
+        share2CcIfNeed(this.record, ccs4share);
     }
 
     /**
@@ -484,21 +484,6 @@ public class ApprovalProcessor extends SetUser {
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
     }
 
-    private void shareIfNeed(ID recordId, Set<ID> shareTo) {
-        final EntityService es = Application.getEntityService(recordId.getEntityCode());
-        for (ID user : shareTo) {
-            if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
-                // force share
-                PrivilegesGuardContextHolder.setSkipGuard(recordId);
-                try {
-                    es.share(recordId, user, null);
-                } finally {
-                    PrivilegesGuardContextHolder.getSkipGuardOnce();
-                }
-            }
-        }
-    }
-
     /**
      * 会签时自选的审批人
      *
@@ -521,5 +506,26 @@ public class ApprovalProcessor extends SetUser {
             set.add((ID) o[0]);
         }
         return set;
+    }
+
+    /**
+     * 共享给抄送人
+     *
+     * @param recordId
+     * @param shareTo
+     */
+    protected static void share2CcIfNeed(ID recordId, Set<ID> shareTo) {
+        final EntityService es = Application.getEntityService(recordId.getEntityCode());
+        for (ID user : shareTo) {
+            if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
+                // force share
+                PrivilegesGuardContextHolder.setSkipGuard(recordId);
+                try {
+                    es.share(recordId, user, null);
+                } finally {
+                    PrivilegesGuardContextHolder.getSkipGuardOnce();
+                }
+            }
+        }
     }
 }

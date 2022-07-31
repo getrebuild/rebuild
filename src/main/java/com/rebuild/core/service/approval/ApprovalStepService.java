@@ -12,8 +12,10 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -64,7 +66,7 @@ public class ApprovalStepService extends InternalPersistService {
      * @param nextApprovers
      */
     public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
-        final ID submitter = UserContextHolder.getUser();
+        final ID submitter = recordOfMain.getEditor();
         final ID recordId = recordOfMain.getPrimary();
         final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
 
@@ -301,7 +303,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         // 撤销
         if (isRevoke) {
-            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED, null);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED, opUser);
         } else {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
@@ -330,7 +332,7 @@ public class ApprovalStepService extends InternalPersistService {
                 .unique();
         if (hadApprover != null) return null;
 
-        Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, UserContextHolder.getUser());
+        Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
         step.setID("recordId", recordId);
         step.setID("approvalId", approvalId);
         step.setString("node", node);
@@ -409,16 +411,14 @@ public class ApprovalStepService extends InternalPersistService {
      */
     public boolean txAutoApproved(ID recordId, ID useApprover, ID useApproval) {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
-
         if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
-            log.warn("Invalid state {} for auto approval", currentState);
+            log.warn("Invalid state {} for auto approval : {}", currentState, recordId);
             return false;
         }
 
-        if (useApprover == null) useApprover = UserService.SYSTEM_USER;
         if (useApproval == null) useApproval = APPROVAL_NOID;
 
-        // 作废之前
+        // 作废之前的
         cancelAliveSteps(recordId, null, null, null, false);
 
         ID stepId = createStepIfNeed(recordId, useApproval,
@@ -431,13 +431,53 @@ public class ApprovalStepService extends InternalPersistService {
         super.update(step);
 
         // 更新记录审批状态
-        Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+        Record recordOfMain = EntityHelper.forUpdate(recordId, useApprover, false);
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
         super.update(recordOfMain);
 
         Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
         return true;
+    }
+
+    /**
+     * 自动提交
+     *
+     * @param recordId
+     * @param useApprover
+     * @param useApproval
+     * @see ApprovalProcessor#submit(JSONObject)
+     */
+    public void txAutoSubmit(ID recordId, ID useApprover, ID useApproval) {
+        final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
+        if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
+            log.warn("Invalid state {} for auto submit : {}", currentState, recordId);
+            return;
+        }
+
+        ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, useApproval);
+        FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
+
+        Set<ID> approverList = nextNodes.getApproveUsers(useApprover, recordId, null);
+        if (approverList.isEmpty()) {
+            throw new ConfigurationException(Language.L("选择的审批流程至少配置一个审批人"));
+        }
+
+        Record recordOfMain = EntityHelper.forUpdate(recordId, useApprover, false);
+        recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
+        recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+        recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
+        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
+            recordOfMain.setNull(EntityHelper.ApprovalLastUser);
+        }
+
+        Set<ID> ccList = nextNodes.getCcUsers(useApprover, recordId, null);
+        Set<ID> ccs4share = nextNodes.getCcUsers4Share(useApprover, recordId, null);
+
+        txSubmit(recordOfMain, ccList, approverList);
+
+        // 非主事物
+        ApprovalProcessor.share2CcIfNeed(recordId, ccs4share);
     }
 
     /**
