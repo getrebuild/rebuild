@@ -81,7 +81,7 @@ public class TableBuilder {
                     } else if (axis instanceof Numerical) {
                         text = chart.wrapAxisValue((Numerical) axis, row[i], true);
                     } else {
-                        text = chart.wrapAxisValue((Dimension) axis, row[i]);
+                        text = chart.wrapAxisValue((Dimension) axis, row[i], true);
                     }
                     td = new TD(text);
                 }

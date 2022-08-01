@@ -48,7 +48,7 @@ class BaseChart extends React.Component {
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opers}
         </div>
-        <div ref={(c) => (this._$body = c)} className={'chart-body rb-loading ' + (!this.state.chartdata && 'rb-loading-active')}>
+        <div ref={(c) => (this._$body = c)} className={`chart-body rb-loading ${!this.state.chartdata && 'rb-loading-active'}`}>
           {this.state.chartdata || <RbSpinner />}
         </div>
       </div>
@@ -60,13 +60,13 @@ class BaseChart extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.__echarts) this.__echarts.dispose()
+    if (this._echarts) this._echarts.dispose()
   }
 
   loadChartData() {
     this.setState({ chartdata: null })
     $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
-      if (this.__echarts) this.__echarts.dispose()
+      if (this._echarts) this._echarts.dispose()
 
       if (res.error_code === 0) this.renderChart(res.data)
       else this.renderError(res.error_msg)
@@ -74,12 +74,12 @@ class BaseChart extends React.Component {
   }
 
   buildDataUrl() {
-    return (this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview') + '?id=' + (this.state.id || '')
+    return `${this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview'}?id=${this.state.id || ''}`
   }
 
   resize() {
-    if (this.__echarts) {
-      $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + (this.state.id || ''))
+    if (this._echarts) {
+      $setTimeout(() => this._echarts.resize(), 400, `resize-chart-${this.state.id || ''}`)
     }
   }
 
@@ -189,15 +189,21 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      const cols = $tb.find('tbody td').click(function () {
+      const $cols = $tb.find('tbody td').on('mousedown', function () {
         if (colLast === this) {
           $(this).toggleClass('active')
           return
         }
         colLast = this
-        cols.removeClass('active')
+        $cols.removeClass('active')
         $(this).addClass('active')
       })
+
+      $tb.find('tbody td>a').each(function () {
+        const $a = $(this)
+        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}` })
+      })
+
       this._$tb = $tb
     })
   }
@@ -320,7 +326,7 @@ class ChartLine extends BaseChart {
       return
     }
 
-    const elid = 'echarts-line-' + (this.state.id || 'id')
+    const elid = `echarts-line-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart line" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
@@ -370,7 +376,7 @@ class ChartLine extends BaseChart {
         option.grid.top = 40
       }
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -383,7 +389,7 @@ class ChartBar extends BaseChart {
       return
     }
 
-    const elid = 'echarts-bar-' + (this.state.id || 'id')
+    const elid = `echarts-bar-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart bar" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
@@ -427,7 +433,7 @@ class ChartBar extends BaseChart {
         option.grid.top = 40
       }
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -440,7 +446,7 @@ class ChartPie extends BaseChart {
       return
     }
 
-    const elid = 'echarts-pie-' + (this.state.id || 'id')
+    const elid = `echarts-pie-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart pie" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -464,7 +470,7 @@ class ChartPie extends BaseChart {
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -477,7 +483,7 @@ class ChartFunnel extends BaseChart {
       return
     }
 
-    const elid = 'echarts-funnel-' + (this.state.id || 'id')
+    const elid = `echarts-funnel-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart funnel" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -510,7 +516,7 @@ class ChartFunnel extends BaseChart {
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -524,7 +530,7 @@ class ChartTreemap extends BaseChart {
       return
     }
 
-    const elid = 'echarts-treemap-' + (this.state.id || 'id')
+    const elid = `echarts-treemap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
 
@@ -571,7 +577,7 @@ class ChartTreemap extends BaseChart {
         },
       }
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -719,7 +725,7 @@ class ApprovalList extends BaseChart {
   }
 
   buildDataUrl() {
-    return super.buildDataUrl() + '&state=' + this.state.viewState
+    return `${super.buildDataUrl()}&state=${this.state.viewState}`
   }
 }
 
@@ -829,7 +835,7 @@ class ChartRadar extends BaseChart {
       return
     }
 
-    const elid = 'echarts-radar-' + (this.state.id || 'id')
+    const elid = `echarts-radar-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart radar" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
@@ -892,7 +898,7 @@ class ChartRadar extends BaseChart {
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -905,7 +911,7 @@ class ChartScatter extends BaseChart {
       return
     }
 
-    const elid = 'echarts-scatter-' + (this.state.id || 'id')
+    const elid = `echarts-scatter-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart scatter" id={elid} /> }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
@@ -979,7 +985,7 @@ class ChartScatter extends BaseChart {
         option.grid.top = 40
       }
 
-      this.__echarts = renderEChart(option, elid)
+      this._echarts = renderEChart(option, elid)
     })
   }
 }
@@ -1076,7 +1082,7 @@ class ProjectTasks extends BaseChart {
         if (this._$tb) this._$tb.find('.ProjectTasks').css('height', this._$tb.height() - 13)
       },
       400,
-      'resize-chart-' + this.state.id
+      `resize-chart-${this.state.id}`
     )
   }
 

@@ -263,10 +263,10 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     /**
      * @param numerical
      * @param value
-     * @param thousands 是否千分位
+     * @param useThousands 使用千分位
      * @return
      */
-    protected String wrapAxisValue(Numerical numerical, Object value, boolean thousands) {
+    protected String wrapAxisValue(Numerical numerical, Object value, boolean useThousands) {
         if (ChartsHelper.isZero(value)) {
             return ChartsHelper.VALUE_ZERO;
         }
@@ -277,7 +277,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             format = StringUtils.rightPad(format, format.length() + numerical.getScale(), "0");
         }
 
-        if (thousands) {
+        if (useThousands) {
             format = "#," + format;
         }
 
@@ -295,6 +295,18 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected String wrapAxisValue(Dimension dimension, Object value) {
+        return wrapAxisValue(dimension, value, Boolean.FALSE);
+    }
+
+    /**
+     * 获取纬度标签
+     *
+     * @param dimension
+     * @param value
+     * @param useRefLink 使用链接
+     * @return
+     */
+    protected String wrapAxisValue(Dimension dimension, Object value, boolean useRefLink) {
         if (value == null) {
             return ChartsHelper.VALUE_NONE;
         }
@@ -309,6 +321,11 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 || axisType == DisplayType.PICKLIST
                 || axisType == DisplayType.STATE) {
             label = (String) FieldValueHelper.wrapFieldValue(value, axisField, true);
+
+            if (useRefLink && axisType == DisplayType.REFERENCE) {
+                label = String.format("<a href='/app/list-and-view?id=%s'>%s</a>", value, label);
+            }
+
         } else {
             label = value.toString();
         }
