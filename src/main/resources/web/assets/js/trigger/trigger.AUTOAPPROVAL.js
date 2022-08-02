@@ -27,6 +27,7 @@ class ContentAutoApproval extends ActionContentSpec {
                   )
                 })}
               </select>
+              <p className="form-text">{WrapHtml($L('需要先添加 [审批流程](../approvals) 才能在此处选择'))}</p>
             </div>
           </div>
           <div className="form-group row">

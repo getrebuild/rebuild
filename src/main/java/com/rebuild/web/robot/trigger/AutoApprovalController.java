@@ -25,14 +25,12 @@ public class AutoApprovalController extends BaseController {
 
     @RequestMapping("auto-approval-alist")
     public JSON approvalList(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled from RobotApprovalConfig where belongEntity = ? order by name")
-                .setParameter(1, entity)
+                "select configId,name from RobotApprovalConfig where belongEntity = ? and isDisabled = ? order by name")
+                .setParameter(1, getParameterNotNull(request, "entity"))
                 .setParameter(2, false)
                 .array();
 
-        return JSONUtils.toJSONObjectArray(new String[] { "id", "text", "disabled" }, array);
+        return JSONUtils.toJSONObjectArray(new String[] { "id", "text" }, array);
     }
 }
