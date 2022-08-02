@@ -4806,3 +4806,14 @@ pre.unstyle {
   cursor: default;
   opacity: unset;
 }
+
+.map-suggestion.dropdown-menu {
+  max-width: unset;
+  width: 100%;
+  padding: 0;
+}
+
+.map-suggestion.dropdown-menu .dropdown-item {
+  padding: 8px 10px;
+  cursor: pointer;
+}

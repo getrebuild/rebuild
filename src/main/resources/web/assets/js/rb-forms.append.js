@@ -409,6 +409,8 @@ class BaiduMapModal extends RbModal {
   }
 
   render() {
+    const ss = this.state.suggestion || []
+
     return this.state.destroy === true ? null : (
       <div className="modal" ref={(c) => (this._rbmodal = c)}>
         <div className="modal-dialog modal-xl">
@@ -424,21 +426,44 @@ class BaiduMapModal extends RbModal {
                 <div className="map-pin">
                   <div className="row">
                     <div className="col-6">
-                      <div className="input-group w-100">
-                        <input
-                          type="text"
-                          ref={(c) => (this._searchValue = c)}
-                          className="form-control form-control-sm"
-                          placeholder={$L('查找位置')}
-                          onKeyDown={(e) => {
-                            e.which === 13 && this._search()
-                          }}
-                          defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
-                        />
-                        <div className="input-group-append">
-                          <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                            <i className="icon zmdi zmdi-search" />
-                          </button>
+                      <div className="dropdown">
+                        <div className="input-group w-100">
+                          <input
+                            type="text"
+                            ref={(c) => (this._$searchValue = c)}
+                            className="form-control form-control-sm dropdown-toggle"
+                            placeholder={$L('查找位置')}
+                            defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
+                            onKeyDown={(e) => {
+                              if (e.which === 38 || e.which === 40) this._updown(e.which)
+                              else if (e.which === 13) this._search()
+                              else this._suggest()
+                            }}
+                            onFocus={() => this._suggest()}
+                          />
+                          <div className="input-group-append">
+                            <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                              <i className="icon zmdi zmdi-search" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`}>
+                          {ss.map((item) => {
+                            return (
+                              <a
+                                key={$random()}
+                                className="dropdown-item"
+                                title={item.address}
+                                onClick={(e) => {
+                                  $stopEvent(e, true)
+                                  $(this._$searchValue).val(item.address)
+                                  this._BaiduMap.center(item.location)
+                                  this.setState({ suggestion: [] })
+                                }}>
+                                {item.address}
+                              </a>
+                            )
+                          })}
                         </div>
                       </div>
                     </div>
@@ -456,9 +481,9 @@ class BaiduMapModal extends RbModal {
                   lnglat={this.props.lnglat}
                   canPin={this.props.canPin}
                   onPin={(latlng) => {
-                    if (this._searchValue) {
+                    if (this._$searchValue) {
                       this._latlngValue = latlng
-                      $(this._searchValue).val(latlng.text)
+                      $(this._$searchValue).val(latlng.text)
                     }
                   }}
                 />
@@ -468,6 +493,17 @@ class BaiduMapModal extends RbModal {
         </div>
       </div>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    $(this._rbmodal).on('click', (e) => {
+      if (e.target && e.target.tagName === 'INPUT') return
+      setTimeout(() => {
+        this.setState({ suggestion: [] })
+      }, 100)
+    })
   }
 
   // show(lnglat) {
@@ -482,7 +518,45 @@ class BaiduMapModal extends RbModal {
   }
 
   _search() {
-    this._BaiduMap.search($val(this._searchValue))
+    this._BaiduMap.search($val(this._$searchValue))
+    this.setState({ suggestion: [] })
+  }
+
+  _suggest() {
+    if (this._sugTimer) {
+      clearTimeout(this._sugTimer)
+      this._sugTimer = null
+    }
+
+    let q = $(this._$searchValue).val()
+    q = $.trim(q)
+
+    this._sugTimer = setTimeout(() => {
+      if (!q || q.length < 3) {
+        this.setState({ suggestion: [] })
+        return
+      }
+
+      this._sugCached = this._sugCached || {}
+      if (this._sugCached[q]) {
+        this.setState({ suggestion: this._sugCached[q] })
+        return
+      }
+
+      $.get(`/commons/map/suggest?q=${$encode(q)}`, (res) => {
+        const result = res.data ? res.data.result || [] : []
+        const ss = []
+        result.forEach((item) => {
+          item.address && ss.push({ address: item.address.replaceAll('-', ''), location: item.location })
+        })
+        this.setState({ suggestion: ss })
+        this._sugCached[q] = ss
+      })
+    }, 600)
+  }
+
+  _updown(key) {
+    // TODO
   }
 
   _onConfirm() {
@@ -491,7 +565,7 @@ class BaiduMapModal extends RbModal {
       return
     }
 
-    const val = { ...this._latlngValue, text: $val(this._searchValue) }
+    const val = { ...this._latlngValue, text: $val(this._$searchValue) }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(val)
     this.hide()
   }
