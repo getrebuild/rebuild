@@ -161,7 +161,10 @@ public class RobotTriggerObserver extends OperatingObserver {
                     if (ex instanceof MissingMetaExcetion
                             || ex instanceof ExpressionRuntimeException
                             || ex instanceof RepeatedRecordsException) {
-                        throw new TriggerException(Language.L("触发器执行失败 : %s", ex.getLocalizedMessage()));
+                        String errMsg = ex.getLocalizedMessage();
+                        if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
+                        
+                        throw new TriggerException(Language.L("触发器执行失败 : %s", errMsg));
                     } else if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {
