@@ -17,6 +17,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.CommonsService;
@@ -26,7 +27,6 @@ import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -111,8 +111,9 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         // 跳过
         ID skipGuardId;
         if ((skipGuardId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
-            log.info("Allow no permission({}) passed once : {}",
-                    action.getName(), ObjectUtils.defaultIfNull(recordId, skipGuardId));
+            if (!EntityHelper.isUnsavedId(skipGuardId)) {
+                log.info("Allow no permission({}) passed once : {}", action.getName(), skipGuardId);
+            }
             return;
         }
 

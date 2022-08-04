@@ -49,6 +49,9 @@ public class RecordTransfomer extends SetUser {
     final private JSONObject transConfig;
     final private boolean skipGuard;
 
+    // 所有新建的记录
+    private List<ID> newIds = new ArrayList<>();
+
     /**
      * @param trnasid
      */
@@ -68,6 +71,13 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
+    }
+
+    /**
+     * @return
+     */
+    public List<ID> getNewIds() {
+        return newIds;
     }
 
     /**
@@ -117,17 +127,26 @@ public class RecordTransfomer extends SetUser {
             if (newId == null) {
                 throw new ConfigurationException("Cannot transform record of main : " + transConfig);
             }
+            newIds.add(newId);
 
             // 明细记录（如有）
 
             JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
             if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
                 Entity sourceDetailEntity = sourceEntity.getDetailEntity();
-                Field sourceDtf = MetadataHelper.getDetailToMainField(sourceDetailEntity);
+                Field sourceRefField;
+
+                // v2.10 1 > 2（主+明细）
+                if (sourceDetailEntity == null) {
+                    sourceDetailEntity = sourceEntity;
+                    sourceRefField = sourceDetailEntity.getPrimaryField();
+                } else {
+                    sourceRefField = MetadataHelper.getDetailToMainField(sourceDetailEntity);
+                }
 
                 String sql = String.format(
                         "select %s from %s where %s = '%s'",
-                        sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceDtf.getName(), sourceRecordId);
+                        sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceRefField.getName(), sourceRecordId);
                 Object[][] details = Application.createQueryNoFilter(sql).array();
 
                 Entity targetDetailEntity = targetEntity.getDetailEntity();
@@ -137,7 +156,8 @@ public class RecordTransfomer extends SetUser {
                 }
 
                 for (Object[] o : details) {
-                    saveRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) o[0], map);
+                    ID newId2 = saveRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) o[0], map);
+                    if (newId2 != null) newIds.add(newId2);
                 }
             }
 

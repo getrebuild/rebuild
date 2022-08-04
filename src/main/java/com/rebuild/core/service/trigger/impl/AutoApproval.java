@@ -51,20 +51,19 @@ public class AutoApproval extends TriggerAction {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         this.operatingContext = operatingContext;
 
         List<AutoApproval> lazyed;
         if ((lazyed = isLazyAutoApproval(false)) != null) {
             lazyed.add(this);
             log.info("Lazy AutoApproval : {}", lazyed);
-            return;
+            return "lazy";
         }
 
         ID recordId = operatingContext.getAnyRecord().getPrimary();
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
-//        ID approver = operatingContext.getOperator();
         ID approver = UserService.SYSTEM_USER;
         ID approvalId = ID.isId(useApproval) ? ID.valueOf(useApproval) : null;
 
@@ -77,6 +76,7 @@ public class AutoApproval extends TriggerAction {
         } else {
             Application.getBean(ApprovalStepService.class).txAutoApproved(recordId, approver, approvalId);
         }
+        return "approval:" + recordId;
     }
 
     @Override
