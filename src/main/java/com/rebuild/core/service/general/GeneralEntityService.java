@@ -105,7 +105,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             TriggerAction[] hasTriggers = de == null ? null
                     : RobotTriggerManager.instance.getActions(de, TriggerWhen.APPROVED);
             hasAutoApprovalForDetails = hasTriggers != null && hasTriggers.length > 0;
-            AutoApproval.setLazyAutoApproval();
+
+            // 自动审批延迟执行
+            if (hasAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
         }
 
         try {

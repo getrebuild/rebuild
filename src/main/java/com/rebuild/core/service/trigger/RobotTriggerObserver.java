@@ -114,7 +114,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_BEFORE_HOLD.get(primaryId)
-                : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
+                : RobotTriggerManager.instance.getActions(getRealRecordId(context), when);
         if (beExecuted == null || beExecuted.length == 0) {
             return;
         }
@@ -204,12 +204,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      *
      * @return
      */
-    private ID getEffectedId(OperatingContext context) {
-        ID effectId = context.getAnyRecord().getPrimary();
-        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
-            effectId = context.getAnyRecord().getID("recordId");
+    private ID getRealRecordId(OperatingContext context) {
+        ID recordId = context.getAnyRecord().getPrimary();
+        if (recordId.getEntityCode() == EntityHelper.ShareAccess) {
+            recordId = context.getAnyRecord().getID("recordId");
         }
-        return effectId;
+        return recordId;
     }
 
     // --

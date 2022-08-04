@@ -81,7 +81,7 @@ public class AutoApproval extends TriggerAction {
 
     @Override
     public String toString() {
-        String s = super.toString();
+        String s = super.toString().split("\\.")[1];
         if (operatingContext != null) s += "#OperatingContext:" + operatingContext;
         return s;
     }
