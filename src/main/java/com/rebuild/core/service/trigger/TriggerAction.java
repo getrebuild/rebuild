@@ -59,6 +59,6 @@ public abstract class TriggerAction {
 
     @Override
     public String toString() {
-        return super.toString() + "#" + actionContext.getConfigId();
+        return getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + "#" + actionContext.getConfigId();
     }
 }

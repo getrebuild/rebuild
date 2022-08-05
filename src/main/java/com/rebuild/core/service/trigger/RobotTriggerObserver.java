@@ -151,6 +151,7 @@ public class RobotTriggerObserver extends OperatingObserver {
             for (TriggerAction action : beExecuted) {
                 String w = String.format("Trigger.%d [ %s ] executed on record (%s) : %s",
                         depth, action.getType(), when.name(), primaryId);
+                System.out.println("[dev] " + w.replace("executed", "executing"));
 
                 try {
                     Object ret = action.execute(context);
