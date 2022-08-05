@@ -231,7 +231,7 @@ public class MetaEntityController extends BaseController {
         File dest = RebuildConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
         if (dest.exists()) FileUtils.deleteQuietly(dest);
 
-        new MetaSchemaGenerator(entity).generate(dest);
+        new MetaSchemaGenerator(entity, true).generate(dest);
 
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));

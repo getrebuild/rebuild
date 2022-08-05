@@ -48,7 +48,7 @@ public class RBStore {
      */
     public static JSON fetchMetaschema(String fileUri) {
         return fetchRemoteJson("metaschemas/" +
-                StringUtils.defaultIfBlank(fileUri, "index-3.0.json"));
+                StringUtils.defaultIfBlank(fileUri, "index-4.0.json"));
     }
 
     /**

@@ -47,7 +47,7 @@ public class CopyEntity extends Entity2Schema {
 
         // 导出
 
-        JSONObject schemadata = (JSONObject) new MetaSchemaGenerator(sourceEntity).generate();
+        JSONObject schemadata = (JSONObject) new MetaSchemaGenerator(sourceEntity, false).generate();
         String uniqueEntityName = clearConfig(schemadata, entityName);
 
         JSONObject detailSchema = schemadata.getJSONObject("detail");
@@ -73,10 +73,6 @@ public class CopyEntity extends Entity2Schema {
         schema.remove(MetaSchemaGenerator.CFG_APPROVALS);
         schema.remove(MetaSchemaGenerator.CFG_TRIGGERS);
         schema.remove(MetaSchemaGenerator.CFG_FILTERS);
-
-        // 以下保留
-//        schema.remove(MetaSchemaGenerator.CFG_FILLINS);
-//        schema.remove(MetaSchemaGenerator.CFG_LAYOUTS);
 
         String uniqueEntityName = toPinyinName(entityName);
         for (int i = 0; i < 5; i++) {
