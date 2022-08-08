@@ -57,7 +57,10 @@ class InitModels extends React.Component {
                     <div key={item.key}>
                       <label className="custom-control custom-checkbox m-0" title={item.desc} ref={(c) => (this._$refs[item.key] = c)}>
                         <input className="custom-control-input" type="checkbox" value={item.key} data-refs={item.refs} onClick={(e) => this._handleSelect(e)} disabled={item.exists} />
-                        <span className="custom-control-label text-bold">{item.name}</span>
+                        <span className="custom-control-label text-bold">
+                          {item.name}
+                          {item.rbv && <i className="zmdi zmdi-info-outline text-warning zicon ml-1 J_rbv-tip" title={$L('部分功能可能需要商业版才能正常运行')} />}
+                        </span>
                         <p>{item.desc}</p>
                       </label>
                     </div>
@@ -77,7 +80,10 @@ class InitModels extends React.Component {
       const s = {}
       if (res.error_code > 0) s.hasError = $L('暂无可用业务实体')
       else s.data = res.data
-      this.setState(s, () => typeof this.props.onLoad === 'function' && this.props.onLoad())
+      this.setState(s, () => {
+        $('i.J_rbv-tip').tooltip()
+        typeof this.props.onLoad === 'function' && this.props.onLoad()
+      })
     })
   }
 
