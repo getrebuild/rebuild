@@ -124,7 +124,7 @@ public class PickListManager implements ConfigManager {
         }
 
         Object[] o = Application.createQueryNoFilter(
-                        "select text,color from PickList where itemId = ?")
+                "select text,color from PickList where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
         if (o != null) cached = o;

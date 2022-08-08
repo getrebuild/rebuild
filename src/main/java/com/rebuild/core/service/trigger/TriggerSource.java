@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.Application;
 import com.rebuild.core.service.general.OperatingContext;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +26,7 @@ public class TriggerSource {
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
         addNext(origin, originAction);
-        if (Application.devMode()) log.warn("[dev] New trigger-source : {}", this);
+        System.out.println("[dev] New trigger-source : " + this);
     }
 
     public void addNext(OperatingContext next, TriggerWhen nextAction) {

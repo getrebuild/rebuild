@@ -17,7 +17,6 @@ import cn.devezhao.persist4j.dialect.Type;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -123,7 +122,7 @@ public class AdvFilterParser extends SetUser {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
             }
-            if (Application.devMode()) log.info("[dev] Parse item : {} >> {}", item, itemSql);
+            System.out.println("[dev] Parse item : " + item + " >> " + itemSql);
         }
 
         if (indexItemSqls.isEmpty()) return null;

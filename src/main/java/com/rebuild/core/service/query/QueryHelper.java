@@ -68,19 +68,10 @@ public class QueryHelper {
      * @param recordId
      * @return
      * @throws NoRecordFoundException
+     * @see QueryFactory#recordNoFilter(ID, String...)
      */
     public static Record recordNoFilter(ID recordId) throws NoRecordFoundException {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-
-        List<String> fields = new ArrayList<>();
-        for (Field field : entity.getFields()) {
-            fields.add(field.getName());
-        }
-
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fields, ","), entity.getName(),
-                entity.getPrimaryField().getName());
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+        Record o = Application.getQueryFactory().recordNoFilter(recordId);
 
         if (o == null) throw new NoRecordFoundException(recordId);
         else return o;

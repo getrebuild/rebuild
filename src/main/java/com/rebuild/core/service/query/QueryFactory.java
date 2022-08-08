@@ -18,6 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 查询服务
  *
@@ -161,8 +164,12 @@ public class QueryFactory {
         Assert.notNull(recordId, "[recordId] cannot be null");
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        List<String> set = new ArrayList<>();
         if (fields.length == 0) {
-            fields = new String[]{entity.getPrimaryField().getName()};
+            for (Field field : entity.getFields()) {
+                set.add(field.getName());
+            }
+            fields = set.toArray(new String[0]);
         }
 
         return String.format("select %s from %s where %s = ?",

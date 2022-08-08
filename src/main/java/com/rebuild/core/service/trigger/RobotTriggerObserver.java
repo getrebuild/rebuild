@@ -157,8 +157,12 @@ public class RobotTriggerObserver extends OperatingObserver {
                     Object ret = action.execute(context);
                     log.info(w + " > " + (ret == null ? "N" : ret));
 
+                    String log = ret == null ? "" : ret.toString();
+                    if (originTriggerSource) {
+                        log += "; chain:" + getTriggerSource();
+                    }
                     CommonsLog.createLog(TYPE_TRIGGER,
-                            context.getOperator(), action.getActionContext().getConfigId(), String.valueOf(ret));
+                            context.getOperator(), action.getActionContext().getConfigId(), log);
 
                 } catch (Throwable ex) {
                     log.info(w);
