@@ -235,10 +235,10 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
             }
         }
-        // NOTE 优先维度排序
-        if (!sorts.isEmpty()) {
-            return String.join(", ", sorts);
-        }
+//        // NOTE 优先维度排序
+//        if (!sorts.isEmpty()) {
+//            return String.join(", ", sorts);
+//        }
 
         for (Numerical num : getNumericals()) {
             FormatSort fs = num.getFormatSort();
