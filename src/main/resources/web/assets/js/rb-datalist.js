@@ -1230,7 +1230,7 @@ const ClassWidget = {
   },
 
   loadClass() {
-    $.get(`/app/${wpc.entity[0]}/widget-class-data`, (res) => {
+    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
       this._classLoaded = true
 
       res.data &&
@@ -1247,7 +1247,7 @@ const ClassWidget = {
 
         const v = $(this).data('id')
         if (v === '$ALL$') wpc.protocolFilter = null
-        else wpc.protocolFilter = `class:${wpc.entity[0]}:${v}`
+        else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
 
         RbListPage.reload()
       })

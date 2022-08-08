@@ -35,7 +35,6 @@ import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.service.trigger.impl.AutoApproval;
-import com.rebuild.core.service.trigger.impl.GroupAggregation;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +50,7 @@ import java.util.*;
  * <br>- 会带有系统设置规则的执行
  * <br>- 会开启一个事务，详见 <tt>application-bean.xml</tt> 配置
  *
- * 如有需要，其他实体可根据自身业务继承并复写
+ * <p>如有需要，其他实体可根据自身业务继承并复写</p>
  *
  * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
  *
@@ -99,13 +98,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 含明细
         final boolean hasDetails = details != null && !details.isEmpty();
 
-        boolean hasAutoApprovalForDetails = false;
+        boolean lazyAutoApprovalForDetails = false;
         if (hasDetails) {
-            Entity de = record.getEntity().getDetailEntity();
-            TriggerAction[] hasTriggers = de == null ? null
-                    : RobotTriggerManager.instance.getActions(de, TriggerWhen.APPROVED);
-            hasAutoApprovalForDetails = hasTriggers != null && hasTriggers.length > 0;
-            AutoApproval.setLazyAutoApproval();
+            TriggerAction[] hasTriggers = getSpecTriggers(
+                    record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
+            lazyAutoApprovalForDetails = hasTriggers.length > 0;
+
+            // 自动审批延迟执行，因为明细尚未保存好
+            if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
         }
 
         try {
@@ -149,7 +149,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (hasAutoApprovalForDetails) {
+            if (lazyAutoApprovalForDetails) {
                 AutoApproval.executeLazyAutoApproval();
             }
         }
@@ -173,26 +173,16 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         record = super.update(record);
 
         // 主记录修改时传导给明细（若有），以便触发分组聚合触发器
-        Entity de = record.getEntity().getDetailEntity();
-        if (de != null) {
-            TriggerAction[] hasTriggers = RobotTriggerManager.instance.getActions(de, TriggerWhen.UPDATE);
-            boolean hasGroupAggregation = false;
-            for (TriggerAction ta : hasTriggers) {
-                if (ta instanceof GroupAggregation) {
-                    hasGroupAggregation = true;
-                    break;
-                }
-            }
+        TriggerAction[] hasTriggers = getSpecTriggers(record.getEntity().getDetailEntity(),
+                ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
+        if (hasTriggers.length > 0) {
+            RobotTriggerManual triggerManual = new RobotTriggerManual();
+            ID opUser = UserService.SYSTEM_USER;
 
-            if (hasGroupAggregation) {
-                RobotTriggerManual triggerManual = new RobotTriggerManual();
-                ID opUser = UserService.SYSTEM_USER;
-
-                for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), 1)) {
-                    Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
-                    triggerManual.onUpdate(
-                            OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
-                }
+            for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), 1)) {
+                Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
+                triggerManual.onUpdate(
+                        OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
             }
         }
 
@@ -723,14 +713,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 传导给明细（若有）
         // FIXME 此时明细可能尚未做好变更（例如新建自动审批）
 
-        Entity de = approvalRecord.getEntity().getDetailEntity();
-        TriggerAction[] hasTriggers = de == null ? null : RobotTriggerManager.instance.getActions(de,
+        TriggerAction[] hasTriggers = getSpecTriggers(approvalRecord.getEntity().getDetailEntity(), null,
                 state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
-        if (hasTriggers != null && hasTriggers.length > 0) {
+        if (hasTriggers.length > 0) {
             for (ID did : QueryHelper.detailIdsNoFilter(recordId, 0)) {
                 Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
-                triggerManual.onApproved(
-                        OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+
+                if (state == ApprovalState.REVOKED) {
+                    triggerManual.onRevoked(
+                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                } else {
+                    triggerManual.onApproved(
+                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                }
             }
         }
 
@@ -748,5 +743,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 手动记录历史
         new RevisionHistoryObserver().onApprovalManual(
                 OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
+    }
+
+    // 获取指定的触发器
+    private TriggerAction[] getSpecTriggers(Entity entity, ActionType specType, TriggerWhen... when) {
+        if (entity == null || when.length == 0) return new TriggerAction[0];
+
+        TriggerAction[] triggers = RobotTriggerManager.instance.getActions(entity, when);
+        if (triggers.length == 0 || specType == null) return triggers;
+
+        List<TriggerAction> specTriggers = new ArrayList<>();
+        for (TriggerAction t : triggers) {
+            if (t.getType() == specType) specTriggers.add(t);
+        }
+        return specTriggers.toArray(new TriggerAction[0]);
     }
 }

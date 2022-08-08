@@ -93,13 +93,17 @@ public class FieldAggregation extends TriggerAction {
         List<String> tschain = TRIGGER_CHAIN.get();
         if (tschain == null) {
             tschain = new ArrayList<>();
+            if (Application.devMode()) log.warn("[dev] New trigger-chain : {}", this);
         } else {
-            log.info("Occured trigger-chain : {} > {} (current)", StringUtils.join(tschain, " > "), chainName);
+            String w = String.format("Occured trigger-chain : %s > %s (current)", StringUtils.join(tschain, " > "), chainName);
 
-            // 在整个触发链上只触发一次，避免循环调用
+            // 在整个触发链上只触发1次，避免循环调用
+            // FIXME 20220804 某些场景是否允许2次，而非1次???
             if (tschain.contains(chainName)) {
-                if (Application.devMode()) log.warn("[dev] Record triggered only once on trigger-chain : {}", chainName);
+                log.warn(w + "! TRIGGER ONCE ONLY : {}", chainName);
                 return null;
+            } else {
+                log.info(w);
             }
         }
 
@@ -111,15 +115,15 @@ public class FieldAggregation extends TriggerAction {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return;
+        if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
         if (targetRecordId == null) {
             log.warn("No target record found");
-            return;
+            return null;
         }
 
         // 聚合数据过滤
@@ -187,7 +191,10 @@ public class FieldAggregation extends TriggerAction {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
+
+            return "target:" + targetRecord.getPrimary();
         }
+        return "target-empty";
     }
 
     @Override
@@ -223,8 +230,12 @@ public class FieldAggregation extends TriggerAction {
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 
-    @Override
-    public void clean() {
+    /**
+     * @return
+     */
+    public static Object cleanTriggerChain() {
+        Object o = TRIGGER_CHAIN.get();
         TRIGGER_CHAIN.remove();
+        return o;
     }
 }

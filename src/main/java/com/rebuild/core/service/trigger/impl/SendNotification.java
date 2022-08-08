@@ -56,7 +56,7 @@ public class SendNotification extends TriggerAction {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) {
+    public Object execute(OperatingContext operatingContext) {
         ThreadPool.exec(() -> {
             try {
                 // FIXME 等待事物完成
@@ -67,6 +67,7 @@ public class SendNotification extends TriggerAction {
                 log.error(null, ex);
             }
         });
+        return "async";
     }
 
     private void executeAsync(OperatingContext operatingContext) {

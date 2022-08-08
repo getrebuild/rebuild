@@ -12,6 +12,14 @@
         padding: 10px 15px 5px;
         text-align: right;
       }
+      .preview-tools select.form-control-sm {
+        width: 100px;
+        display: inline-block;
+        height: 36px !important;
+        min-height: 36px;
+        margin-right: 6px;
+        transform: translateY(-1.5px);
+      }
       .preview-content {
         margin: 0 20px 20px;
       }
@@ -22,9 +30,9 @@
       }
       .table th {
         background-color: #eee !important;
-        width: auto;
-        min-width: 110px;
-        max-width: 180px;
+        width: 13.33%;
+        min-width: 120px;
+        max-width: 240px;
       }
       .table th.divider {
         width: 100%;
@@ -55,6 +63,20 @@
   </head>
   <body>
     <div class="preview-tools d-print-none">
+      <select class="form-control form-control-sm">
+        <option value="10">[[${bundle.L('默认大小')}]]</option>
+        <option value="10">100%</option>
+        <option value="11">110%</option>
+        <option value="12">120%</option>
+        <option value="13">130%</option>
+        <option value="14">140%</option>
+        <option value="15">150%</option>
+        <option value="16">160%</option>
+        <option value="17">170%</option>
+        <option value="18">180%</option>
+        <option value="19">190%</option>
+        <option value="20">200%</option>
+      </select>
       <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
       <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
     </div>

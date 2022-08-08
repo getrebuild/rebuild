@@ -37,7 +37,7 @@ public class EasyEntityConfigProps {
     /**
      * 列表分类
      */
-    public static final String ADV_LIST_SHOWCLASS = "advListShowClass";
+    public static final String ADV_LIST_SHOWCATEGORY = "advListShowCategory";
     /**
      * 列表查询面板
      */

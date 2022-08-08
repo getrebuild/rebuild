@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,8 +19,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.AdminGuard;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -89,7 +88,7 @@ public class PickListService extends BaseConfigurationService implements AdminGu
 
         // MultiSelect 专用
         long nextMaskValue = 0;
-        if (EasyMetaFactory.getDisplayType(field) == DisplayType.MULTISELECT) {
+        if (field.getType() == FieldType.LONG) {
             Object[] max = Application.createQueryNoFilter(
                     "select max(maskValue) from PickList where belongEntity = ? and belongField = ?")
                     .setParameter(1, field.getOwnEntity().getName())

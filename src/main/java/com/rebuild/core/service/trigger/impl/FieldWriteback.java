@@ -80,17 +80,17 @@ public class FieldWriteback extends FieldAggregation {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return;
+        if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
-        if (targetRecordIds.isEmpty()) return;
+        if (targetRecordIds.isEmpty()) return null;
 
         if (targetRecordData.isEmpty()) {
             log.info("No data of target record available : {}", targetRecordId);
-            return;
+            return "target-empty";
         }
 
         final ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
@@ -100,6 +100,7 @@ public class FieldWriteback extends FieldAggregation {
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         boolean tschainAdded = false;
+        List<ID> affected = new ArrayList<>();
         for (ID targetRecordId : targetRecordIds) {
             if (operatingContext.getAction() == BizzPermission.DELETE
                     && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
@@ -129,12 +130,14 @@ public class FieldWriteback extends FieldAggregation {
 
             try {
                 useService.createOrUpdate(targetRecord);
+                affected.add(targetRecord.getPrimary());
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
+        return "target:" + affected;
     }
 
     @Override

@@ -30,7 +30,7 @@ public abstract class TriggerAction {
 
     abstract public ActionType getType();
 
-    abstract public void execute(OperatingContext operatingContext) throws TriggerException;
+    abstract public Object execute(OperatingContext operatingContext) throws TriggerException;
 
     /**
      * 如果是删除动作，会先调用此方法。可在此方法中保持一些数据状态，以便删除后还可继续使用
@@ -59,6 +59,6 @@ public abstract class TriggerAction {
 
     @Override
     public String toString() {
-        return super.toString() + "#" + actionContext.getConfigId();
+        return getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + "#" + actionContext.getConfigId();
     }
 }

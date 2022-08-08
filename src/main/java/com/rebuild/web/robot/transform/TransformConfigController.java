@@ -77,9 +77,13 @@ public class TransformConfigController extends BaseController {
         mv.getModelMap().put("sourceEntity", buildEntity(sourceEntity, true));
         mv.getModelMap().put("targetEntity", buildEntity(targetEntity, false));
 
-        // 明细（两个实体均有明细才返回）
-        if (sourceEntity.getDetailEntity() != null && targetEntity.getDetailEntity() != null) {
-            mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
+        // v2.10 目标为主实体
+        if (targetEntity.getDetailEntity() != null) {
+            if (sourceEntity.getDetailEntity() != null) {
+                mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
+            } else {
+                mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity, true));
+            }
             mv.getModelMap().put("targetDetailEntity", buildEntity(targetEntity.getDetailEntity(), false));
         }
 

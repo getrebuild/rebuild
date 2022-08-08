@@ -9,6 +9,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 $(document).ready(() => {
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
+
+  const $size = $('.preview-tools select').on('change', function () {
+    const s = $(this).val()
+    $('.preview-content').css('font-size', (13 * ~~s) / 10)
+    $storage.set('PRINTSIZE', s)
+  })
+  const s = $storage.get('PRINTSIZE')
+  if (s) $size.val(s).trigger('change')
 })
 
 class PreviewTable extends React.Component {

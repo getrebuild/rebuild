@@ -29,22 +29,20 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * 分类数据
+ * 列表字段分类数据
  *
  * @author ZHAO
  * @since 07/23/2022
  */
-public class DataListClass {
+public class DataListCategory {
 
     /**
-     *
-     *
      * @param entity
      * @param user
      * @return
      */
     public static JSON datas(Entity entity, ID user) {
-        final Field classField = getFieldOfClass(entity);
+        final Field classField = getFieldOfCategory(entity);
         if (classField == null) return null;
 
         final String ckey = String.format("DLC1.%s.%s", entity.getName(), classField.getName());
@@ -107,9 +105,9 @@ public class DataListClass {
      * @param entity
      * @return
      */
-    public static Field getFieldOfClass(Entity entity) {
-        String classField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCLASS);
-        if (StringUtils.isBlank(classField) || !entity.containsField(classField)) return null;
-        return entity.getField(classField);
+    public static Field getFieldOfCategory(Entity entity) {
+        String categoryField = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
+        if (StringUtils.isBlank(categoryField) || !entity.containsField(categoryField)) return null;
+        return entity.getField(categoryField);
     }
 }

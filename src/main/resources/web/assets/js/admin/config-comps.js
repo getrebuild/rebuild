@@ -76,7 +76,16 @@ class ConfigList extends React.Component {
     })
 
     // 简单排序
-    if ($.tablesort) $('.tablesort').tablesort()
+    if ($.tablesort) {
+      $('.tablesort').tablesort()
+
+      // 数字排序
+      $('table th.int-sort').each(function () {
+        $(this).data('sortBy', (th, td) => {
+          return ~~$(td).text()
+        })
+      })
+    }
   }
 
   // 加载数据

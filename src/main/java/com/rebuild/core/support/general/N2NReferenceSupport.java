@@ -14,6 +14,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * 多引用字段支持
@@ -77,5 +80,26 @@ public class N2NReferenceSupport {
 
         Field lastField = father.getField(paths[paths.length - 1]);
         return items(lastField, fatherRecordId);
+    }
+
+    /**
+     * 获取指定字段的全部引用项（不含排除）
+     *
+     * @param field
+     * @param excluded 排除指定记录
+     * @return
+     */
+    public static Set<ID> itemsUsed(Field field, ID excluded) {
+        String sql = "select referenceId from NreferenceItem where belongEntity = ? and belongField = ?";
+        if (excluded != null) sql += String.format(" and recordId <> '%s'", excluded);
+
+        Object[][] array = Application.createQueryNoFilter(sql)
+                .setParameter(1, field.getOwnEntity().getName())
+                .setParameter(2, field.getName())
+                .array();
+
+        Set<ID> set = new HashSet<>();
+        for (Object[] o : array) set.add((ID) o[0]);
+        return set;
     }
 }

@@ -122,16 +122,16 @@ class DlgMode1Option extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分类”')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListShowClass" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowClass} />
+                <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
                 <span>
-                  <label htmlFor="advListShowClass" />
+                  <label htmlFor="advListShowCategory" />
                 </span>
               </div>
               <div className="clearfix"></div>
-              <div className={`J_advListShowClass mt-2 ${this.state.advListShowClass ? '' : 'hide'}`}>
+              <div className={`J_advListShowCategory mt-2 ${this.state.advListShowCategory ? '' : 'hide'}`}>
                 <select className="form-control form-control-sm">
-                  {this.state.advListShowClassFields &&
-                    this.state.advListShowClassFields.map((item) => {
+                  {this.state.advListShowCategoryFields &&
+                    this.state.advListShowCategoryFields.map((item) => {
                       return (
                         <option key={item.name} value={item.name}>
                           {item.label}
@@ -182,33 +182,33 @@ class DlgMode1Option extends RbFormHandler {
   componentDidMount() {
     const that = this
     let $class2
-    $('#advListShowClass').on('change', function () {
+    $('#advListShowCategory').on('change', function () {
       if ($val(this)) {
-        that.setState({ advListShowClass: true })
+        that.setState({ advListShowCategory: true })
       } else {
-        that.setState({ advListShowClass: null })
+        that.setState({ advListShowCategory: null })
       }
 
       if (!$class2) {
-        $class2 = $('.J_advListShowClass select')
+        $class2 = $('.J_advListShowCategory select')
         $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
           const _data = []
           res.data.forEach((item) => {
             if (CLASS_TYPES.includes(item.type)) _data.push(item)
           })
 
-          that.setState({ advListShowClassFields: _data }, () => {
+          that.setState({ advListShowCategoryFields: _data }, () => {
             $class2
               .select2({ placeholder: $L('选择分类字段') })
-              .val((wpc.extConfig && wpc.extConfig.advListShowClass) || null)
+              .val((wpc.extConfig && wpc.extConfig.advListShowCategory) || null)
               .trigger('change')
           })
         })
       }
     })
 
-    if (wpc.extConfig && wpc.extConfig.advListShowClass) {
-      $('#advListShowClass').trigger('change')
+    if (wpc.extConfig && wpc.extConfig.advListShowCategory) {
+      $('#advListShowCategory').trigger('change')
     }
   }
 
@@ -216,7 +216,7 @@ class DlgMode1Option extends RbFormHandler {
     const o = {
       advListHideFilters: !$val('#advListHideFilters'),
       advListHideCharts: !$val('#advListHideCharts'),
-      advListShowClass: this.state.advListShowClass ? $val('.J_advListShowClass select') : null,
+      advListShowCategory: this.state.advListShowCategory ? $val('.J_advListShowCategory select') : null,
       advListFilterPane: $val('#advListFilterPane'),
     }
 

@@ -17,8 +17,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
-import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
+import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -88,8 +88,8 @@ public class TransformerPreview {
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
             try {
                 for (ID did : ids) {
-                    Record targetRecord = (Record) transfomer.transformRecord(
-                            sourceEntity, targetEntity, fieldsMapping, did, null, false);
+                    Record targetRecord = transfomer.transformRecord(
+                            sourceEntity, targetEntity, fieldsMapping, did, null);
                     fillLabelOfReference(targetRecord);
 
                     JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, user);
@@ -113,8 +113,8 @@ public class TransformerPreview {
             throw new ConfigurationException("Invalid config of transform : " + transConfig);
         }
 
-        Record targetRecord = (Record) transfomer.transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceId, null, false);
+        Record targetRecord = transfomer.transformRecord(
+                sourceEntity, targetEntity, fieldsMapping, sourceId, null);
         fillLabelOfReference(targetRecord);
 
         // 转为明细

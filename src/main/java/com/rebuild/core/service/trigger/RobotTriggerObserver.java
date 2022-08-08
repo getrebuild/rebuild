@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +114,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_BEFORE_HOLD.get(primaryId)
-                : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
+                : RobotTriggerManager.instance.getActions(getRealRecordId(context), when);
         if (beExecuted == null || beExecuted.length == 0) {
             return;
         }
@@ -124,6 +125,10 @@ public class RobotTriggerObserver extends OperatingObserver {
         // 设置原始触发源
         if (originTriggerSource) {
             TRIGGER_SOURCE.set(new TriggerSource(context, when));
+
+            // 强制清理一次，正常不会出现此情况
+            Object o = FieldAggregation.cleanTriggerChain();
+            if (o != null) log.warn("Force clean last trigger-chain : {}", o);
 
         } else {
             // 是否自己触发自己，避免无限执行
@@ -144,24 +149,35 @@ public class RobotTriggerObserver extends OperatingObserver {
         int depth = triggerSource == null ? 1 : triggerSource.getSourceDepth();
         try {
             for (TriggerAction action : beExecuted) {
-                log.info("Trigger.{} [ {} ] executing on record ({}) : {}", depth, action.getType(), when.name(), primaryId);
+                String w = String.format("Trigger.%d [ %s ] executed on record (%s) : %s",
+                        depth, action.getType(), when.name(), primaryId);
+                System.out.println("[dev] " + w.replace("executed", "executing"));
 
                 try {
-                    action.execute(context);
-                    CommonsLog.createLog(TYPE_TRIGGER, context.getOperator(), action.getActionContext().getConfigId());
+                    Object ret = action.execute(context);
+                    log.info(w + " > " + (ret == null ? "N" : ret));
+
+                    CommonsLog.createLog(TYPE_TRIGGER,
+                            context.getOperator(), action.getActionContext().getConfigId(), String.valueOf(ret));
 
                 } catch (Throwable ex) {
+                    log.info(w);
+
                     // DataValidate 直接抛出
                     if (ex instanceof DataValidateException) throw ex;
 
                     log.error("Trigger execution failed : {} << {}", action, context, ex);
-                    CommonsLog.createLog(TYPE_TRIGGER, context.getOperator(), action.getActionContext().getConfigId(), ex);
+                    CommonsLog.createLog(TYPE_TRIGGER,
+                            context.getOperator(), action.getActionContext().getConfigId(), ex);
 
                     // FIXME 触发器执行失败是否抛出
                     if (ex instanceof MissingMetaExcetion
                             || ex instanceof ExpressionRuntimeException
                             || ex instanceof RepeatedRecordsException) {
-                        throw new TriggerException(Language.L("触发器执行失败 : %s", ex.getLocalizedMessage()));
+                        String errMsg = ex.getLocalizedMessage();
+                        if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
+
+                        throw new TriggerException(Language.L("触发器执行失败 : %s", errMsg));
                     } else if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {
@@ -169,9 +185,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                     }
 
                 } finally {
-                    if (originTriggerSource) {
-                        action.clean();
-                    }
+                    action.clean();
                 }
             }
 
@@ -179,6 +193,8 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (originTriggerSource) {
                 log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
+
+                FieldAggregation.cleanTriggerChain();
             }
         }
     }
@@ -189,12 +205,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      *
      * @return
      */
-    private ID getEffectedId(OperatingContext context) {
-        ID effectId = context.getAnyRecord().getPrimary();
-        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
-            effectId = context.getAnyRecord().getID("recordId");
+    private ID getRealRecordId(OperatingContext context) {
+        ID recordId = context.getAnyRecord().getPrimary();
+        if (recordId.getEntityCode() == EntityHelper.ShareAccess) {
+            recordId = context.getAnyRecord().getID("recordId");
         }
-        return effectId;
+        return recordId;
     }
 
     // --

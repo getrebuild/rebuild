@@ -23,7 +23,7 @@ public class MetaSchemaGeneratorTest extends TestSupport {
     public void testGenerate() {
         if (MetadataHelper.containsEntity(Account)) {
             Entity test = MetadataHelper.getEntity(Account);
-            MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
+            MetaSchemaGenerator generator = new MetaSchemaGenerator(test, true);
             JSON schema = generator.generate();
             System.out.println(JSON.toJSONString(schema, true));
         }
@@ -33,7 +33,7 @@ public class MetaSchemaGeneratorTest extends TestSupport {
     public void testGenerateHaveDetail() {
         if (MetadataHelper.containsEntity(SalesOrder)) {
             Entity test = MetadataHelper.getEntity(SalesOrder);
-            MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
+            MetaSchemaGenerator generator = new MetaSchemaGenerator(test, true);
             JSON schema = generator.generate();
             System.out.println(JSON.toJSONString(schema, true));
         }

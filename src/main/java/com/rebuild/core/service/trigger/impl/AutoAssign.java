@@ -49,14 +49,15 @@ public class AutoAssign extends TriggerAction {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         JSONArray assignTo = content.getJSONArray("assignTo");
         Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId, true);
         if (toUsers.isEmpty()) {
-            return;
+            log.warn("No andy users found : {}", assignTo);
+            return null;
         }
 
         ID toUser = null;
@@ -113,5 +114,6 @@ public class AutoAssign extends TriggerAction {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             GeneralEntityServiceContextHolder.isFromTrigger(true);
         }
+        return "assign:" + toUser;
     }
 }

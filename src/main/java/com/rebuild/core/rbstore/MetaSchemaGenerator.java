@@ -38,6 +38,9 @@ import java.io.IOException;
  */
 public class MetaSchemaGenerator {
 
+    // 保持 ID
+    public static final String KEEP_ID = "_id";
+
     public static final String CFG_FILLINS = "fillins";
     public static final String CFG_LAYOUTS = "layouts";
     public static final String CFG_FILTERS = "filters";
@@ -46,12 +49,14 @@ public class MetaSchemaGenerator {
     public static final String CFG_TRANSFORMS = "transforms";
 
     final private Entity mainEntity;
+    final private boolean keepId;
 
     /**
      * @param entity
      */
-    public MetaSchemaGenerator(Entity entity) {
+    public MetaSchemaGenerator(Entity entity, boolean keepId) {
         this.mainEntity = entity;
+        this.keepId = keepId;
     }
 
     /**
@@ -109,12 +114,12 @@ public class MetaSchemaGenerator {
         schemaEntity.put(CFG_FILTERS, performFilters(entity));
         // 触发器
         schemaEntity.put(CFG_TRIGGERS, performTriggers(entity));
+        // 记录转换
+        schemaEntity.put(CFG_TRANSFORMS, performTransforms(entity));
 
         if (!detail) {
             // 审批流程
             schemaEntity.put(CFG_APPROVALS, performApprovals(entity));
-            // 字段转换
-            schemaEntity.put(CFG_TRANSFORMS, performTransforms(entity));
         }
 
         // TODO 报表模板?
@@ -163,7 +168,8 @@ public class MetaSchemaGenerator {
         JSONArray items = new JSONArray();
         for (ConfigBean e : entries) {
             items.add(new Object[] {
-                    e.getString("text"), e.getBoolean("default"), e.getLong("mask"), e.getString("color")
+                    e.getString("text"), e.getBoolean("default"), e.getLong("mask"),
+                    e.getString("color"), this.keepId ? e.getID("id") : null
             });
         }
         return items;
@@ -267,7 +273,7 @@ public class MetaSchemaGenerator {
 
     private JSON performTransforms(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
-                "select targetEntity,name,config from TransformConfig where belongEntity = ? and isDisabled = 'F'")
+                "select targetEntity,name,config,configId from TransformConfig where belongEntity = ? and isDisabled = 'F'")
                 .setParameter(1, entity.getName())
                 .array();
 
@@ -276,9 +282,11 @@ public class MetaSchemaGenerator {
             JSON mappingConfig = parseJSON(o[2]);
             if (mappingConfig == null) continue;
 
-            JSON config = JSONUtils.toJSONObject(
+            JSONObject config = JSONUtils.toJSONObject(
                     new String[] { "targetEntity", "name", "config" },
                     new Object[] { o[0], o[1], mappingConfig });
+            if (this.keepId) config.put(KEEP_ID, o[3]);
+
             transforms.add(config);
         }
         return transforms;
