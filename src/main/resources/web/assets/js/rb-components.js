@@ -986,7 +986,7 @@ UserPopup.create = function (el) {
 }
 
 // ~~ HTML 内容
-const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>

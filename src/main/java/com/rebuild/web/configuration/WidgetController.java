@@ -15,7 +15,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
-import com.rebuild.core.configuration.general.DataListClass;
+import com.rebuild.core.configuration.general.DataListCategory;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
@@ -66,9 +66,9 @@ public class WidgetController extends BaseController implements ShareTo {
         return RespBody.ok(config == null ? null : config.toJSON());
     }
 
-    @GetMapping("widget-class-data")
-    public RespBody getClassData(@PathVariable String entity) {
-        JSON data = DataListClass.datas(MetadataHelper.getEntity(entity), null);
+    @GetMapping("widget-category-data")
+    public RespBody getCategoryData(@PathVariable String entity) {
+        JSON data = DataListCategory.datas(MetadataHelper.getEntity(entity), null);
         return RespBody.ok(data);
     }
 }

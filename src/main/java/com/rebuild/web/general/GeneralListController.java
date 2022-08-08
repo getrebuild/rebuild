@@ -83,13 +83,13 @@ public class GeneralListController extends EntityController {
             // 扩展配置
             String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
             String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
-            String advListShowClass = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCLASS);
+            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
-            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_SHOWCLASS, StringUtils.isNotBlank(advListShowClass));
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY, StringUtils.isNotBlank(advListShowCategory));
 
             mv.getModel().put("hideAside",
-                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowClass));
+                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowCategory));
 
             // 查询面板
 
