@@ -14,10 +14,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * JSON format
@@ -29,8 +26,8 @@ public class JSONUtils {
 
     public static final String EMPTY_OBJECT_STR = "{}";
     public static final String EMPTY_ARRAY_STR = "[]";
-    public static final JSONObject EMPTY_OBJECT = JSON.parseObject(EMPTY_OBJECT_STR);
-    public static final JSONArray EMPTY_ARRAY = JSON.parseArray(EMPTY_ARRAY_STR);
+    public static final JSONObject EMPTY_OBJECT = new JSONObject(Collections.emptyMap());
+    public static final JSONArray EMPTY_ARRAY = new JSONArray(Collections.emptyList());
 
     /**
      * @param key
