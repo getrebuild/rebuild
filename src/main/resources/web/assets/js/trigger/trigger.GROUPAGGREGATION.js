@@ -188,6 +188,15 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$autoCreate = c)} />
                 <span className="custom-control-label">{$L('目标记录不存在时自动新建')}</span>
               </label>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
+                  <span className="custom-control-label">
+                    {$L('自动设置目标字段为只读')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </form>
@@ -220,6 +229,7 @@ class ContentGroupAggregation extends ActionContentSpec {
 
     if (content) {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
+      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       this.saveAdvFilter(content.dataFilter)
     } else {
       $(this._$autoCreate).attr('checked', true)
@@ -387,6 +397,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       items: this.state.items || [],
       dataFilter: this._advFilter__data,
       autoCreate: $(this._$autoCreate).prop('checked'),
+      readonlyFields: $(this._$readonlyFields).prop('checked'),
       groupFields: this.state.groupFields || [],
     }
 

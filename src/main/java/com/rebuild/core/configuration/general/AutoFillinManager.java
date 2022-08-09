@@ -226,9 +226,8 @@ public class AutoFillinManager implements ConfigManager {
     @SuppressWarnings("unchecked")
     public Set<String> getAutoReadonlyFields(String entity) {
         Map<String, Set<String>> fieldsMap = (Map<String, Set<String>>) Application.getCommonsCache().getx(CKEY_AFARF);
-        if (fieldsMap == null) {
-            fieldsMap = this.initAutoReadonlyFields();
-        }
+        if (fieldsMap == null) fieldsMap = this.initAutoReadonlyFields();
+
         return Collections.unmodifiableSet(fieldsMap.getOrDefault(entity, Collections.emptySet()));
     }
 
