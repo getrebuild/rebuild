@@ -18,6 +18,7 @@ import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.CommonsLock;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
@@ -62,6 +63,11 @@ public class TriggerAdminController extends BaseController {
 
         Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
         ActionType actionType = ActionType.valueOf((String) config[1]);
+        if (!License.isCommercial() && actionType.getActionClass().contains(".rbv.")) {
+            response.sendError(404,
+                    Language.L("免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+            return null;
+        }
 
         ModelAndView mv = createModelAndView("/admin/robot/trigger-design");
         mv.getModel().put("configId", configId);
