@@ -32,10 +32,6 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
     private JSONArray indexSchemas;
 
-    public BusinessModelImporter() {
-        super();
-    }
-
     public void setModelFiles(String[] modelFiles) {
         this.modelFiles = modelFiles;
     }
@@ -148,5 +144,12 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
             }
         }
         throw new RebuildException("No metaschema found : " + key);
+    }
+
+    /**
+     * @return
+     */
+    public JSONArray getIndexSchemas() {
+        return indexSchemas;
     }
 }
