@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 触发源
+ *
  * @author RB
  * @since 2022/07/04
  */
@@ -22,6 +24,7 @@ import java.util.List;
 public class TriggerSource {
 
     private final List<Object[]> sources = new ArrayList<>();
+
     private boolean skipOnce = false;
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
