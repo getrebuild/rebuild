@@ -149,23 +149,23 @@ public class RobotTriggerObserver extends OperatingObserver {
         int depth = triggerSource == null ? 1 : triggerSource.getSourceDepth();
         try {
             for (TriggerAction action : beExecuted) {
-                String w = String.format("Trigger.%d [ %s ] executed on record (%s) : %s",
+                String w = String.format("Trigger.%d [ %s ] executing on record (%s) : %s",
                         depth, action.getType(), when.name(), primaryId);
-                System.out.println("[dev] " + w.replace("executed", "executing"));
+                log.info(w);
 
                 try {
                     Object ret = action.execute(context);
-                    log.info(w + " > " + (ret == null ? "N" : ret));
+                    System.out.println("[dev] " + w + " > " + (ret == null ? "N" : ret));
 
-                    String log = ret == null ? "" : ret.toString();
+                    String log = ret == null ? null : ret.toString();
                     if (originTriggerSource) {
-                        log += "; chain:" + getTriggerSource();
+                        if (log != null) log += "; ";
+                        log += "chain:" + getTriggerSource();
                     }
                     CommonsLog.createLog(TYPE_TRIGGER,
                             context.getOperator(), action.getActionContext().getConfigId(), log);
 
                 } catch (Throwable ex) {
-                    log.info(w);
 
                     // DataValidate 直接抛出
                     if (ex instanceof DataValidateException) throw ex;
@@ -197,7 +197,6 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (originTriggerSource) {
                 log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
-
                 FieldAggregation.cleanTriggerChain();
             }
         }
