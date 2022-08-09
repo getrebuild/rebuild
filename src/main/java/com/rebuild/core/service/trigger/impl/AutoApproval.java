@@ -114,9 +114,9 @@ public class AutoApproval extends TriggerAction {
             for (AutoApproval a : lazyed) {
                 log.info("Lazy AutoApproval execute : {}", a);
 
-                // FIXME 临时修复调拨库存无效问题
-                Object o = FieldAggregation.cleanTriggerChain();
-                if (o != null) log.warn("Lazy AutoApproval clean last trigger-chain : {}", o);
+//                // FIXME 临时修复调拨库存无效问题(1)
+//                Object o = FieldAggregation.cleanTriggerChain();
+//                if (o != null) log.warn("Lazy AutoApproval clean last trigger-chain : {}", o);
 
                 a.execute(a.operatingContext);
             }

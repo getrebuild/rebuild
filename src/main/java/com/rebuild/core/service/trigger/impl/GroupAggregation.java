@@ -59,6 +59,9 @@ public class GroupAggregation extends FieldAggregation {
         super.clean();
 
         if (groupAggregationRefresh != null) {
+            // FIXME 临时修复调拨库存无效问题(2)
+            cleanTriggerChain();
+
             log.info("Clear after refresh : {}", groupAggregationRefresh);
             groupAggregationRefresh.refresh();
         }
