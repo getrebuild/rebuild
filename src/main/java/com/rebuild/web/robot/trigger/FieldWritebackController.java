@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -26,7 +25,7 @@ import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import com.rebuild.web.general.BatchUpdateController;
+import com.rebuild.web.general.MetaFormatter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,35 +48,41 @@ public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
-        List<String[]> entities = new ArrayList<>();
+        List<String[]> temp = new ArrayList<>();
 
-        // 谁引用了我
+        // 1. 我引用了谁 v2.7.1
+
+        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isCommonsField(refFrom)) continue;
+
+            Entity refEntity = refFrom.getReferenceEntity();
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
+            temp.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
+        }
+
+        FieldAggregationController.sortEntities(temp, null);
+        List<String[]> entities = new ArrayList<>(temp);
+        temp.clear();
+
+        // 2. 谁引用了我
 
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity)) {
-            String entityLabel = String.format("%s (%s)",
+            String entityLabel = String.format("%s (%s) (N)",
                     EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
-            entities.add(new String[] {
+            temp.add(new String[] {
                     refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
         }
 
-        // 我引用了谁 v2.7.1
+        FieldAggregationController.sortEntities(temp, null);
+        entities.addAll(temp);
+        temp.clear();
 
-        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isCommonsField(refFrom)) {
-                continue;
-            }
+        // 3. 自己
+        FieldAggregationController.sortEntities(temp, sourceEntity);
+        entities.addAll(temp);
+        temp.clear();
 
-            Entity refEntity = refFrom.getReferenceEntity();
-            if (refEntity.equals(sourceEntity)) {  // 排除自引用
-                continue;
-            }
-
-            String entityLabel = String.format("%s (%s.%s)",
-                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(sourceEntity), EasyMetaFactory.getLabel(refFrom));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
-        }
-
-        FieldAggregationController.sortEntities(entities, sourceEntity);
         return entities;
     }
 
@@ -105,21 +110,8 @@ public class FieldWritebackController extends BaseController {
             // FIXME 是否过滤系统级引用实体 ???
             if (MetadataHelper.isCommonsField(fieldRef)) continue;
 
-            Entity refEntity = fieldRef.getReferenceEntity();
-            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
-
-            String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
-
-            for (Field field : MetadataSorter.sortFields(refEntity)) {
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-
-                JSONObject subField = (JSONObject) easyField.toJSON();
-                subField.put("name", fieldRefName + subField.getString("name"));
-                subField.put("label", fieldRefLabel + subField.getString("label"));
-                sourceFields.add(subField);
-            }
+            JSONArray res = MetaFormatter.buildFields(fieldRef);
+            if (res != null) sourceFields.addAll(res);
         }
 
         // 目标字段
@@ -133,7 +125,7 @@ public class FieldWritebackController extends BaseController {
                     continue;
                 }
 
-                targetFields.add(BatchUpdateController.buildField(easyField));
+                targetFields.add(MetaFormatter.buildRichField(easyField));
             }
         }
 

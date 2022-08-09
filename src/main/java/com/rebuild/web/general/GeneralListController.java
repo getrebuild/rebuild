@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
@@ -54,18 +55,12 @@ public class GeneralListController extends EntityController {
             throws IOException {
         final ID user = getRequestUser(request);
         final Entity listEntity = checkPageOfEntity(user, entity, response);
-        if (listEntity == null) return null;
+        if (listEntity == null) return null;  // 404
 
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
-        // 使用主实体列表配置
-        final EasyEntity mainEntity = listEntity.getMainEntity() == null
-                ? easyEntity : EasyMetaFactory.valueOf(listEntity.getMainEntity());
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
-        Integer listMode = getIntParameter(request, "forceListMode");
-        if (listMode == null) {
-            listMode = ObjectUtils.toInt(mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
-        }
+        int listMode = ObjectUtils.toInt(easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_MODE), 1);
         if (listMode == 2) {
             listPage = "/general/record-list2";  // Mode2
         }
@@ -86,12 +81,28 @@ public class GeneralListController extends EntityController {
             listConfig = DataListManager.instance.getFieldsLayout(entity, user);
 
             // 扩展配置
-            String advListHideFilters = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
-            String advListHideCharts = mainEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+            String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+            String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY, StringUtils.isNotBlank(advListShowCategory));
+
             mv.getModel().put("hideAside",
-                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
+                    BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts) && StringUtils.isBlank(advListShowCategory));
+
+            // 查询面板
+
+            String advListFilterpane = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterpane);
+
+            if (BooleanUtils.toBoolean(advListFilterpane)) {
+                JSONArray paneFields = new JSONArray();
+                for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
+                    paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
+                }
+                mv.getModel().put("paneFields", paneFields);
+            }
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);

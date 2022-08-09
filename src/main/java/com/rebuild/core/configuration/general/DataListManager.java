@@ -20,13 +20,12 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.ChartManager;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 数据列表
@@ -93,7 +92,7 @@ public class DataListManager extends BaseLayoutManager {
                 String field = item.getString("field");
                 Field lastField = MetadataHelper.getLastJoinField(entityMeta, field);
                 if (lastField == null) {
-                    log.warn("Unknown field '" + field + "' in '" + entity + "'");
+                    log.warn("Invalid field : {} in {}", field, entity);
                     continue;
                 }
 
@@ -195,12 +194,59 @@ public class DataListManager extends BaseLayoutManager {
      * @param entity
      * @return
      */
-    public ConfigBean getListStatsField(ID user, String entity) {
+    public ConfigBean getListStats(ID user, String entity) {
         ConfigBean e = getLayout(user, entity, TYPE_LISTSTATS);
-        if (e == null) {
-            return null;
-        }
+        if (e == null) return null;
         return e.clone();
+    }
+
+    /**
+     * 列表-查询面板
+     *
+     * @param user
+     * @param entity
+     * @return
+     */
+    public ConfigBean getListFilterPane(ID user, String entity) {
+        ConfigBean e = getLayout(user, entity, TYPE_LISTFILTERPANE);
+        if (e == null) return null;
+        return e.clone();
+    }
+
+    /**
+     * 列表-查询面板-字段
+     *
+     * @param user
+     * @param entity
+     * @return
+     */
+    public Set<String> getListFilterPaneFields(ID user, String entity) {
+        ConfigBean cb = getListFilterPane(user, entity);
+
+        Entity entity2 = MetadataHelper.getEntity(entity);
+        Set<String> paneFields = new LinkedHashSet<>();
+
+        if (cb != null && cb.getJSON("config") != null) {
+            JSONObject configJson = (JSONObject) cb.getJSON("config");
+            for (Object o : configJson.getJSONArray("items")) {
+                JSONObject item = (JSONObject) o;
+                String field = item.getString("field");
+                if (entity2.containsField(field)) paneFields.add(field);
+            }
+        }
+
+        // 使用快速查询字段
+        if (paneFields.isEmpty()) {
+            Set<String> quickFields = ParseHelper.buildQuickFields(entity2, null);
+            quickFields.remove(EntityHelper.QuickCode);
+
+            for (String s : quickFields) {
+                if (s.startsWith("&")) s = s.substring(1);
+                paneFields.add(s);
+            }
+        }
+
+        return paneFields;
     }
 
     /**

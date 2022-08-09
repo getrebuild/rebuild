@@ -48,7 +48,7 @@ $(function () {
       })
     })
 
-    _initNavs()
+    _initNav()
     setTimeout(_initGlobalSearch, 500)
     setTimeout(_initGlobalCreate, 500)
   }
@@ -130,7 +130,7 @@ $(function () {
   }
 
   var bosskey = 0
-  $(document.body).keydown(function (e) {
+  $(document.body).on('keydown', function (e) {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
@@ -165,7 +165,7 @@ $(function () {
   })
 
   // Theme
-  $('.use-theme a').click(function () {
+  $('.use-theme a').on('click', function () {
     if (rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
@@ -216,12 +216,12 @@ var _cancelAdmin = function () {
 /**
  * 初始化导航菜单
  */
-var _initNavs = function () {
+var _initNav = function () {
   var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
   // Nav
   if (isOffcanvas) {
-    $('.rb-toggle-left-sidebar').click(function () {
+    $('.rb-toggle-left-sidebar').on('click', function () {
       $(document.body).toggleClass('open-left-sidebar')
       return false
     })
@@ -232,7 +232,7 @@ var _initNavs = function () {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
 
-    $('.rb-toggle-left-sidebar').click(function () {
+    $('.rb-toggle-left-sidebar').on('click', function () {
       $el.toggleClass('rb-collapsible-sidebar-collapsed')
       $.cookie('rb.sidebarCollapsed', $el.hasClass('rb-collapsible-sidebar-collapsed'), { expires: 180 })
 
@@ -241,33 +241,44 @@ var _initNavs = function () {
     })
   }
 
+  if (!$('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed')) {
+    $('.sidebar-elements>li.parent.open').each(function () {
+      var $sm = $(this).find('.sub-menu')
+      if (!$sm.hasClass('visible')) $sm.addClass('visible')
+    })
+  }
+
   // SubNavs
   var $currsntSubnav
-  $('.sidebar-elements li.parent').click(function (e) {
-    e.preventDefault()
-    e.stopPropagation()
-    var $this = $(this)
-    $this.toggleClass('open')
-    var $sub = $this.find('.sub-menu')
-    // if (!$sub.hasClass('visible')) {
-    //   var subHeight = $sub.height()
-    //   $sub.css({ height: 0, overflow: 'hidden' })
-    //   $sub.animate({ height: subHeight + 22 }, 200)
-    // }
-    $sub.toggleClass('visible')
-    $currsntSubnav = $this
-    $this.find('a').eq(0).tooltip('hide')
-    $('.left-sidebar-scroll').perfectScrollbar('update')
-  })
-  $('.sidebar-elements li.parent .sub-menu').click(function (e) {
-    e.stopPropagation()
-  })
-  $(document.body).click(function () {
-    // MinNav && SubnavOpen
+
+  // MinNav && SubnavOpen
+  function closeSubnav() {
     if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && $currsntSubnav && $currsntSubnav.hasClass('open')) {
       $currsntSubnav.removeClass('open')
       $currsntSubnav.find('.sub-menu').removeClass('visible')
     }
+  }
+
+  $('.sidebar-elements li.parent').on('click', function (e) {
+    $stopEvent(e, true)
+    var $this = $(this)
+    var $sub = $this.find('.sub-menu')
+    // eslint-disable-next-line eqeqeq
+    if (!($currsntSubnav && $currsntSubnav.data('id') === $this.data('id'))) closeSubnav()
+
+    $sub.toggleClass('visible')
+    $currsntSubnav = $this
+    $this.find('a').eq(0).tooltip('hide')
+    $('.left-sidebar-scroll').perfectScrollbar('update')
+
+    if ($sub.hasClass('visible')) $this.addClass('open')
+    else $this.removeClass('open')
+  })
+  $('.sidebar-elements li.parent .sub-menu').on('click', function (e) {
+    e.stopPropagation()
+  })
+  $(document.body).on('click', function () {
+    closeSubnav()
     if (isOffcanvas) {
       $(document.body).removeClass('open-left-sidebar')
     }
@@ -279,20 +290,20 @@ var _initNavs = function () {
     $(document.body).trigger('click')
   }
 
-  $('.nav-settings').click(function () {
+  $('.nav-settings').on('click', function () {
     RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
   })
 
   // WHEN SMALL-WIDTH
   $('.left-sidebar-toggle')
-    .click(function () {
+    .on('click', function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
       $('.left-sidebar-spacer').toggleClass('open')
     })
     .text($('.left-sidebar-content li.active>a:last').text() || 'REBUILD')
 
   if ($('.page-aside .aside-header').length > 0) {
-    $('.page-aside .aside-header').click(function () {
+    $('.page-aside .aside-header').on('click', function () {
       $(this).toggleClass('collapsed')
       $('.page-aside .aside-nav').toggleClass('show')
     })
@@ -517,7 +528,7 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imgOnly = $input.attr('accept') === 'image/*'
   var local = $input.data('local')
-  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 100)) // default 100MB
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
@@ -526,35 +537,37 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
 
-      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpe', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
+      var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
       $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
-            typeof next === 'function' && next({ percent: res.total.percent })
+            typeof next === 'function' && next({ percent: res.total.percent, file: file })
           },
           error: function (err) {
             var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
               RbHighbar.create($L('请上传图片'))
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('超出文件大小限制') + ' (100MB)')
+              RbHighbar.create($L('超出文件大小限制'))
             } else {
               RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }
-            typeof error === 'function' && error()
+            console.log('Upload error:', err)
+            typeof error === 'function' && error({ error: msg, file: file })
             return false
           },
           complete: function (res) {
             if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
-            typeof complete === 'function' && complete({ key: res.key })
+            typeof complete === 'function' && complete({ key: res.key, file: file })
           },
         })
       })
     })
   } else {
+    const idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
-      name: $input.attr('id') || $input.attr('name') || 'H5Upload',
+      name: idname,
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
@@ -567,21 +580,26 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total })
+        typeof next === 'function' && next({ percent: (e.loaded * 100) / e.total, file: file })
       },
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
           if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
-          complete({ key: e.data })
+          complete({ key: e.data, file: file })
         } else {
           RbHighbar.error($L('上传失败，请稍后重试'))
-          typeof error === 'function' && error()
+          typeof error === 'function' && error({ error: e.error_msg, file: file })
         }
+
+        $input.val(null) // reset
       },
       onClientError: function (e, file) {
         RbHighbar.error($L('上传失败，请稍后重试'))
-        typeof error === 'function' && error()
+        console.log('Upload error:', e)
+        typeof error === 'function' && error({ error: e, file: file })
+
+        $input.val(null) // reset
       },
     })
   }
@@ -919,7 +937,7 @@ var $select2MatcherAll = function (params, data) {
 
   function _matcher(item, s) {
     s = s.toLowerCase()
-    return item.text.toLowerCase().indexOf(s) > -1 || item.id.toLowerCase().indexOf(s) > -1
+    return (item.text || '').toLowerCase().indexOf(s) > -1 || (item.id || '').toLowerCase().indexOf(s) > -1
   }
 
   if (data.children) {

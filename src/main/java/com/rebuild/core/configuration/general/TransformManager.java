@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 记录转换映射
+ * 记录转换
  *
  * @author devezhao
  * @since 2020/10/27
@@ -44,11 +44,12 @@ public class TransformManager implements ConfigManager {
     public JSONArray getTransforms(String sourceEntity, ID user) {
         JSONArray data = new JSONArray();
         for (ConfigBean c : getRawTransforms(sourceEntity)) {
+            JSONObject config = (JSONObject) c.getJSON("config");
             // 过滤尚未配置或禁用的
-            if (c.getJSON("config") == null || c.getBoolean("disabled")) continue;
+            if (config == null || c.getBoolean("disabled")) continue;
 
             // 无字段映射
-            JSONObject fieldsMapping = ((JSONObject) c.getJSON("config")).getJSONObject("fieldsMapping");
+            JSONObject fieldsMapping = config.getJSONObject("fieldsMapping");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) continue;
 
             String target = c.getString("target");
@@ -67,6 +68,8 @@ public class TransformManager implements ConfigManager {
 
             JSONObject item = EasyMetaFactory.toJSON(targetEntity);
             item.put("transid", c.getID("id"));
+            item.put("previewMode", config.getIntValue("transformMode") == 2);
+            item.put("transName", c.getString("name"));
             data.add(item);
         }
         return data;

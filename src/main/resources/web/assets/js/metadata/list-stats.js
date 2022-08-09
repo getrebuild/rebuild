@@ -13,8 +13,6 @@ $(document).ready(function () {
     const fields = res.data.fields || []
 
     const $to = $('.set-fields')
-    if (fields.length > 0) $to.empty()
-
     fields.forEach((item) => {
       const $a = $(`<a class="item" data-field="${item.name}">${item.label} +</a>`).appendTo($to)
       $a.on('click', () => {
@@ -28,18 +26,19 @@ $(document).ready(function () {
         const field = fields.find((x) => x.name === item.field)
         render_set({ ...item, name: item.field, specLabel: item.label, label: field ? field.label : `[${item.field.toUpperCase()}]` })
       })
+
+      refreshConfigStar()
     }
 
     parent.RbModal.resize()
   })
 
-  // // 字段排序
+  // 字段排序
   $('.set-items')
     .sortable({
       containment: 'parent',
-      cursor: 'move',
-      opacity: 0.8,
       placeholder: 'ui-state-highlight',
+      opacity: 0.8,
     })
     .disableSelection()
 
@@ -52,13 +51,11 @@ $(document).ready(function () {
     const config = { items: [] }
     $('.set-items > span').each(function () {
       const $this = $(this)
-      if ($this.attr('data-field')) {
-        config.items.push({
-          field: $this.attr('data-field'),
-          calc: $this.attr('data-calc'),
-          label2: $this.attr('data-label'),
-        })
-      }
+      config.items.push({
+        field: $this.attr('data-field'),
+        calc: $this.attr('data-calc'),
+        label2: $this.attr('data-label'),
+      })
     })
 
     $btn.button('loading')
@@ -68,6 +65,8 @@ $(document).ready(function () {
       else RbHighbar.error(res.error_msg)
     })
   })
+
+  $('.J_tips').on('closed.bs.alert', () => parent.RbModal.resize())
 })
 
 // 支持的计算类型
@@ -89,7 +88,6 @@ const render_set = function (item) {
   }
 
   const $to = $('.set-items')
-  $to.find('>span.text-muted').remove()
 
   const calc = item.calc || 'SUM'
   const $item = $(`<span data-field="${item.name}" data-calc="${calc}" data-label="${item.label2 || ''}"></span>`).appendTo($to)
@@ -123,6 +121,7 @@ const render_set = function (item) {
               $item.attr({
                 'data-label': s.label || '',
               })
+              refreshConfigStar()
             }}
           />,
           null,
@@ -134,5 +133,13 @@ const render_set = function (item) {
     } else {
       $item.attr('data-calc', calc).find('.item > span').text(`${item.label} (${CALC_TYPES[calc]})`)
     }
+  })
+}
+
+const refreshConfigStar = function () {
+  $('.set-items > span').each(function () {
+    const $this = $(this)
+    if ($this.attr('data-label')) $this.find('.item').addClass('star')
+    else $this.find('.item').removeClass('star')
   })
 }

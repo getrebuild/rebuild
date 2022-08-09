@@ -126,7 +126,19 @@ public class CommonsUtils {
      * @return
      */
     public static String randomHex() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return randomHex(false);
+    }
+
+    /**
+     * 随机 Hex(32)
+     *
+     * @param simple Remove `-`
+     * @return
+     */
+    public static String randomHex(boolean simple) {
+        String hex = UUID.randomUUID().toString();
+        if (simple) hex = hex.replace("-", "");
+        return hex;
     }
 
     /**

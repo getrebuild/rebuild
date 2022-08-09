@@ -46,12 +46,8 @@ public class ClassificationController extends BaseController {
     }
 
     @RequestMapping("classification/{id}")
-    public ModelAndView page(@PathVariable ID id,
-                             HttpServletRequest request, HttpServletResponse resp) throws IOException {
-        Object[] data = Application.createQuery(
-                "select name,openLevel from Classification where dataId = ?")
-                .setParameter(1, id)
-                .unique();
+    public ModelAndView page(@PathVariable ID id, HttpServletResponse resp) throws IOException {
+        Object[] data = Application.getQueryFactory().uniqueNoFilter(id, "name", "openLevel");
         if (data == null) {
             resp.sendError(404,  Language.L("分类数据不存在"));
             return null;
@@ -73,11 +69,7 @@ public class ClassificationController extends BaseController {
 
     @RequestMapping("classification/info")
     public JSONAware info(@IdParam ID classId) {
-        Object[] data = Application.createQuery(
-                "select name,openLevel from Classification where dataId = ?")
-                .setParameter(1, classId)
-                .unique();
-
+        Object[] data = Application.getQueryFactory().uniqueNoFilter(classId, "name", "openLevel");
         if (data == null) {
             return RespBody.errorl("分类数据不存在");
         } else {

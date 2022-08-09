@@ -1,6 +1,15 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #46 (v2.10)
+alter table `robot_approval_step`
+  add column`IS_BACKED` char(1) default 'F' comment '是否退回',
+  add column `NODE_BATCH` varchar(100) comment '审批节点批次';
+
+-- #45 (v2.10)
+alter table `pick_list`
+  add column `COLOR` varchar(10);
+
 -- #44 (v2.9)
 -- ************ Entity [CommonsLock] DDL ************
 create table if not exists `commons_lock` (

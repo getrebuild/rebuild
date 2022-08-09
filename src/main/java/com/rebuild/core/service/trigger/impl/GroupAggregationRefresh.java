@@ -12,8 +12,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +25,10 @@ import java.util.List;
 /**
  * 分组聚合目标数据刷新。
  * 场景举例：
- * 1. 新建产品A + 仓库A分组（组合A+A）
- * 2. 之后修改了仓库A > B（组合A+B），此时原（组合A+A）纪录不会更新
- * 3. 这里需要强制更新相关原纪录
- * 4. NOTE 如果组合值均为空，则无法匹配任何目标记录，此时需要全量刷新（通过任一字段必填解决）
+ * 1.1 新建产品A + 仓库A分组（组合A+A）
+ * 1.2 修改仓库A > B（组合A+B），此时原（组合A+A）纪录不会更新
+ * 2. 这里需要强制更新相关原纪录
+ * 3. NOTE 如果组合值均为空，则无法匹配任何目标记录，此时需要全量刷新（通过任一字段必填解决）
  *
  * @author RB
  * @since 2022/7/8
@@ -62,9 +62,9 @@ public class GroupAggregationRefresh {
                 entity.getName(),
                 StringUtils.join(targetWhere, " or "));
         Object[][] targetArray = Application.createQueryNoFilter(sql).array();
-        log.info("Effect {} target(s) ...", targetArray.length);
+        log.info("Refreshing target(s) : {}", targetArray.length);
 
-        ID triggerUser = UserContextHolder.getUser();
+        ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();
 
         for (Object[] o : targetArray) {
@@ -101,5 +101,10 @@ public class GroupAggregationRefresh {
                 ga.clean();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return parent.toString() + "#Refresh";
     }
 }

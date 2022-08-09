@@ -42,14 +42,15 @@ public class AutoShare extends AutoAssign {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         JSONArray shareTo = content.getJSONArray("shareTo");
         Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId, true);
         if (toUsers.isEmpty()) {
-            return;
+            log.warn("No andy users found : {}", shareTo);
+            return null;
         }
 
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
@@ -75,5 +76,6 @@ public class AutoShare extends AutoAssign {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
+        return "share:" + toUsers;
     }
 }

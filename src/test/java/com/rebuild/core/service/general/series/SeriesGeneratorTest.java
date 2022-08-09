@@ -26,13 +26,13 @@ import java.util.*;
 public class SeriesGeneratorTest extends TestSupport {
 
     @Test
-    public void testTimeVar() {
+    void testTimeVar() {
         String r = new TimeVar("YYMMDD").generate();
         System.out.println(r);
     }
 
     @Test
-    public void testIncrementVar() {
+    void testIncrementVar() {
         IncreasingVar var = new IncreasingVar("0000", getSeriesField(), null);
         System.out.println(var.generate());
         System.out.println(var.generate());
@@ -40,7 +40,7 @@ public class SeriesGeneratorTest extends TestSupport {
     }
 
     @Test
-    public void testIncrementVarNThreads() {
+    void testIncrementVarNThreads() {
         final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
         final Set<String> set = Collections.synchronizedSet(new HashSet<>());
         final int N = 100;
@@ -56,7 +56,7 @@ public class SeriesGeneratorTest extends TestSupport {
     }
 
     @Test
-    public void testGenerate() {
+    void testGenerate() {
         Map<String, String> config = new HashMap<>();
         config.put("seriesFormat", "Y-{YYYYMMDD}-{0000}");
         config.put("seriesZero", "M");

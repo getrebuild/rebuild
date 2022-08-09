@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.notification;
 
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -42,7 +44,7 @@ public class NotificationObserver extends OperatingObserver {
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 
-        String content = buildMessage(context.getAffected(), relatedId, false);
+        String content = buildMessage(context.getAffected(), relatedId, BizzPermission.ASSIGN);
         content = MessageFormat.format(content,
                 from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
         
@@ -61,7 +63,7 @@ public class NotificationObserver extends OperatingObserver {
         ID from = context.getOperator();
         ID to = context.getAfterRecord().getID("shareTo");
 
-        String content = buildMessage(context.getAffected(), relatedId, true);
+        String content = buildMessage(context.getAffected(), relatedId, BizzPermission.SHARE);
         content = MessageFormat.format(content,
                 from, context.getAffected().length, EasyMetaFactory.valueOf(relatedId.getEntityCode()).getLabel());
 
@@ -72,10 +74,10 @@ public class NotificationObserver extends OperatingObserver {
     /**
      * @param affected
      * @param relatedId
-     * @param shareType
+     * @param action
      * @return
      */
-    private String buildMessage(ID[] affected, ID relatedId, boolean shareType) {
+    private String buildMessage(ID[] affected, ID relatedId, Permission action) {
         String message = Language.L("@{0} 共享了 {1} 条{2}记录给你");
         if (affected.length > 1) {
             for (ID id : affected) {
@@ -90,8 +92,8 @@ public class NotificationObserver extends OperatingObserver {
             message += " @" + relatedId;
         }
 
-        if (!shareType) {
-            message = message.replace(Language.L(" 共享"), Language.L(" 分派"));
+        if (action == BizzPermission.ASSIGN) {
+            message = message.replace(Language.L("共享"), Language.L("分派"));
         }
         return message;
     }

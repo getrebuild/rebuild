@@ -42,16 +42,17 @@
                 <div class="row rb-datatable-body">
                   <div class="col-sm-12">
                     <div class="rb-loading rb-loading-active data-list">
-                      <table class="table table-hover table-striped table-fixed">
+                      <table class="table table-hover table-striped table-fixed tablesort">
                         <thead>
                           <tr>
-                            <th class="use-sort pointer" data-sort-index="3">[[${bundle.L('名称')}]]</th>
+                            <th>[[${bundle.L('名称')}]]</th>
                             <th>[[${bundle.L('源实体')}]]</th>
                             <th>[[${bundle.L('触发类型')}]]</th>
-                            <th>[[${bundle.L('触发动作')}]]</th>
-                            <th width="80">[[${bundle.L('启用')}]]</th>
-                            <th width="120">[[${bundle.L('修改时间')}]]</th>
-                            <th width="120"></th>
+                            <th class="no-sort">[[${bundle.L('触发动作')}]]</th>
+                            <th width="80" class="int-sort">[[${bundle.L('优先级')}]]</th>
+                            <th width="80" class="no-sort">[[${bundle.L('启用')}]]</th>
+                            <th width="120" class="no-sort">[[${bundle.L('修改时间')}]]</th>
+                            <th width="120" class="no-sort"></th>
                           </tr>
                         </thead>
                         <tbody id="dataList"></tbody>
@@ -76,6 +77,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/jquery.tablesort.min.js}"></script>
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/trigger/trigger-list.js}" type="text/babel"></script>
   </body>

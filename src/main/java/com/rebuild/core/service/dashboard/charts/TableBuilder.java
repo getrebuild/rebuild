@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
+import cn.devezhao.commons.ObjectUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -80,7 +81,7 @@ public class TableBuilder {
                     } else if (axis instanceof Numerical) {
                         text = chart.wrapAxisValue((Numerical) axis, row[i], true);
                     } else {
-                        text = chart.wrapAxisValue((Dimension) axis, row[i]);
+                        text = chart.wrapAxisValue((Dimension) axis, row[i], true);
                     }
                     td = new TD(text);
                 }
@@ -90,10 +91,15 @@ public class TableBuilder {
 
         // 合并纬度单元格
         for (int i = 0; i < chart.getDimensions().length; i++) {
+            // 行号
+            if (chart.isShowLineNumber() && i == 0) continue;
+
             TD last = null;
+            int sumMinus = 0;  // 合并的单元格
+            int childrenLen = tbody.children.size();
             for (TR tr : tbody.children) {
                 TD current = tr.children.get(i);
-                if (last == null) {
+                if (last == null || childrenLen-- <= 1) {
                     last = current;
                     continue;
                 }
@@ -101,9 +107,15 @@ public class TableBuilder {
                 if (last.content.equals(current.content)) {
                     last.rowspan++;
                     current.rowspan = 0;
+                    sumMinus++;
                 } else {
                     last = current;
                 }
+            }
+
+            if (chart.isShowSums() && sumMinus > 0 && StringUtils.isNotBlank(last.content)) {
+                int num = ObjectUtils.toInt(last.content) - sumMinus;
+                last.content = String.valueOf(num);
             }
         }
 

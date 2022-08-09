@@ -15,6 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.InternalPermission;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerSource;
@@ -37,18 +39,12 @@ public class RevisionHistoryObserver extends OperatingObserver {
         // 激活
         if (RecycleBinCleanerJob.isEnableRevisionHistory()) {
             super.updateByAction(ctx);
-        } else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
+        } else if (ctx.getAction() != InternalPermission.DELETE_BEFORE) {
             log.warn("RevisionHistory inactivated! {} {} by {}",
                     ctx.getAction().getName(), ctx.getAnyRecord().getPrimary(), ctx.getOperator());
         }
     }
 
-    /**
-     * 忽略的
-     *
-     * @param ctx
-     * @return
-     */
     private boolean isIgnore(OperatingContext ctx) {
         int entity = ctx.getAnyRecord().getEntity().getEntityCode();
         return entity == EntityHelper.FeedsComment || entity == EntityHelper.ProjectTaskComment;
@@ -139,7 +135,22 @@ public class RevisionHistoryObserver extends OperatingObserver {
         return record;
     }
 
-    // TODO 异步无法获知是否关联操作
+    /**
+     * 审批通过/撤销
+     *
+     * @param context
+     */
+    public void onApprovalManual(OperatingContext context) {
+        Record revision = newRevision(context, true);
+        if (context.getAfterRecord().getInt(EntityHelper.ApprovalState) == ApprovalState.APPROVED.getState()) {
+            revision.setInt("revisionType", 991);
+        } else {
+            revision.setInt("revisionType", 992);
+        }
+        Application.getCommonsService().create(revision);
+    }
+
+    // FIXME 异步无法获知是否关联操作
     @Override
     protected boolean isAsync() {
         return false;

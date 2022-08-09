@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global SelectReport TransformRich */
 
 const wpc = window.__PageConfig || {}
 const TYPE_DIVIDER = '$DIVIDER$'
@@ -86,12 +87,13 @@ class RbViewForm extends React.Component {
   }
 
   showAgain(handle) {
-    this.checkDrityData(handle)
+    this._checkDrityData(handle)
   }
 
   // 脏数据检查
-  checkDrityData(handle) {
+  _checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
+
     $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
@@ -140,7 +142,7 @@ class RbViewForm extends React.Component {
     }
 
     const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
+    $.post('/app/entity/record-save?singleField=true', JSON.stringify(data), (res) => {
       $btn.button('reset')
 
       if (res.error_code === 0) {
@@ -448,110 +450,10 @@ class MixRelatedList extends React.Component {
   }
 }
 
-// 选择报表
+// for view-addons.js
 // eslint-disable-next-line no-unused-vars
-class SelectReport extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
-                <i className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('选择报表')}</h5>
-              {this.state.reports && this.state.reports.length === 0 && (
-                <p className="text-muted">
-                  {$L('暂无报表')}
-                  {rb.isAdminUser && (
-                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
-                    </a>
-                  )}
-                </p>
-              )}
-              <div>
-                <ul className="list-unstyled">
-                  {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
-                    return (
-                      <li key={item.id}>
-                        <a target="_blank" href={reportUrl} className="text-truncate">
-                          {item.name}
-                          <i className="zmdi zmdi-download" />
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available`, (res) => this.setState({ reports: res.data }))
-    $(this._dlg).modal({ show: true, keyboard: true })
-  }
-
-  hide = () => $(this._dlg).modal('hide')
-  show = () => $(this._dlg).modal('show')
-
-  /**
-   * @param {*} entity
-   * @param {*} id
-   */
-  static create(entity, id) {
-    if (this.__cached) {
-      this.__cached.show()
-      return
-    }
-    const that = this
-    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
-      that.__cached = this
-    })
-  }
-}
-
-class TransformRich extends React.Component {
-  render() {
-    return (
-      <RF>
-        {WrapHtml($L('确认将当前记录转换为 **%s** 吗？', this.props.entityLabel))}
-        {this.props.mainEntity && (
-          <div className="mt-3 trans-to-wrap">
-            <div>
-              <select className="form-control form-control-sm" ref={(c) => (this._$select = c)}></select>
-            </div>
-          </div>
-        )}
-      </RF>
-    )
-  }
-
-  componentDidMount() {
-    $initReferenceSelect2(this._$select, {
-      placeholder: $L('选择主记录'),
-      entity: this.props.entity,
-      name: `${this.props.mainEntity}Id`,
-    })
-  }
-
-  getMainId() {
-    if (this._$select) {
-      const v = $(this._$select).val()
-      return v ? v : false
-    }
-    return true
-  }
+var _showFilterForAddons = function (opt) {
+  renderRbcomp(<AdvFilter entity={opt.entity} filter={opt.filter} confirm={opt.onConfirm} title={$L('附加过滤条件')} inModal canNoFilters />)
 }
 
 // 视图页操作类
@@ -820,31 +722,50 @@ const RbViewPage = {
   initTrans(config) {
     const that = this
     config.forEach((item) => {
-      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
+
+      const entity = item.entity.split('.')
       $item.on('click', () => {
         let _TransformRich
-        RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
-          tabIndex: 1,
-          onConfirm: function () {
-            const mainid = _TransformRich.getMainId()
-            if (mainid === false) {
-              RbHighbar.create($L('请选择主记录'))
-              return
-            }
 
-            this.disabled(true)
-            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
-              if (res.error_code === 0) {
+        if (item.previewMode) {
+          const previewid = `${item.transid}.${that.__id}`
+          if (item.mainEntity) {
+            RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
+              icon: 'info-outline',
+              onConfirm: function () {
+                const mainid = _TransformRich.getMainId()
+                if (mainid === false) return
+
                 this.hide()
-                RbHighbar.success($L('转换成功'))
-                setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
-              } else {
-                this.disabled(false)
-                res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
-              }
+                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` })
+              },
             })
-          },
-        })
+          } else {
+            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+          }
+
+          // end: previewMode
+        } else {
+          RbAlert.create(<TransformRich {...item} ref={(c) => (_TransformRich = c)} />, {
+            tabIndex: 1,
+            onConfirm: function () {
+              const mainid = _TransformRich.getMainId()
+              if (mainid === false) return
+
+              this.disabled(true)
+              $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
+                if (res.error_code === 0) {
+                  this.hide()
+                  setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+                } else {
+                  this.disabled(false)
+                  res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
+                }
+              })
+            },
+          })
+        }
       })
 
       $('.J_trans .dropdown-divider').before($item)

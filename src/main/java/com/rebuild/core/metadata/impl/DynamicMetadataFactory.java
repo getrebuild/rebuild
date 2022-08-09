@@ -190,10 +190,22 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
         }
 
         // 处理父级级联的父子级关系
+        // 多个子级可能使用同一个父级字段，这里仅保留一个子级，对使用效果无影响（已布局的情况下）
         for (String child : cascadingFieldsChild) {
             String[] fs = child.split(SPLITER_RE);
-            Element fieldElement = (Element) rootElement.selectSingleNode(
-                    String.format("entity[@name='%s']/field[@name='%s']", fs[0], fs[1]));
+            Element fieldElement;
+
+            // 明细>主实体
+            if (fs[1].contains(".")) {
+                String[] pfs = fs[1].split("\\.");
+                fieldElement = (Element) rootElement.selectSingleNode(
+                        String.format("entity[@name='%s']/field[@name='%s']", pfs[0], pfs[1]));
+                fs[2] = fs[0] + "." + fs[2];
+            } else {
+                fieldElement = (Element) rootElement.selectSingleNode(
+                        String.format("entity[@name='%s']/field[@name='%s']", fs[0], fs[1]));
+            }
+
             if (fieldElement == null) {
                 log.warn("No field found: {}.{}", fs[0], fs[1]);
                 continue;

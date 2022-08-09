@@ -483,7 +483,7 @@ public class PrivilegesManager {
      * @param entry
      * @return
      * @see ZeroPrivileges
-     * @see ZeroPermission
+     * @see InternalPermission
      */
     public boolean allow(ID user, ZeroEntry entry) {
         Boolean a = userAllow(user);
@@ -497,7 +497,7 @@ public class PrivilegesManager {
         }
 
         if (role.hasPrivileges(entry.name())) {
-            return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
+            return role.getPrivileges(entry.name()).allowed(InternalPermission.ZERO);
         }
         return entry.getDefaultVal();
     }

@@ -37,7 +37,6 @@ public class ContentWithFieldVars {
      * @param content
      * @param recordId
      * @return
-     * @see #replaceWithRecord(String, Record)
      */
     public static String replaceWithRecord(String content, ID recordId) {
         if (StringUtils.isBlank(content) || recordId == null) {
@@ -45,21 +44,20 @@ public class ContentWithFieldVars {
         }
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String pkName = entity.getPrimaryField().getName();
         // 主键占位符
-        content = content.replace("{ID}", String.format("{%s}", entity.getPrimaryField().getName()));
+        content = content.replace("{ID}", String.format("{%s}", pkName));
 
-        Map<String, String> fieldVars = new HashMap<>();
+        Set<String> fieldVars = new HashSet<>();
         for (String field : matchsVars(content)) {
             if (MetadataHelper.getLastJoinField(entity, field) != null) {
-                fieldVars.put(field, null);
+                fieldVars.add(field);
             }
         }
         if (fieldVars.isEmpty()) return content;
 
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fieldVars.keySet(), ","),
-                entity.getName(), entity.getPrimaryField().getName());
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+        fieldVars.add(pkName);
+        Record o = Application.getQueryFactory().recordNoFilter(recordId, fieldVars.toArray(new String[0]));
 
         return replaceWithRecord(content, o);
     }
@@ -90,6 +88,7 @@ public class ContentWithFieldVars {
 
         for (String field : fieldVars.keySet()) {
             Object value = record.getObjectValue(field);
+
             value = FieldValueHelper.wrapFieldValue(value,
                     MetadataHelper.getLastJoinField(record.getEntity(), field), true);
             if (value != null) {

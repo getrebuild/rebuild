@@ -28,8 +28,17 @@ public class RbAssert {
     /**
      * @param expression
      * @param message
+     * @see #is(boolean, String)
      */
     public static void isAllow(boolean expression, String message) {
+        is(expression, message);
+    }
+
+    /**
+     * @param expression
+     * @param message
+     */
+    public static void is(boolean expression, String message) {
         if (!expression) {
             throw new DefinedException(message);
         }

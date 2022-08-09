@@ -150,7 +150,7 @@ public class LoginController extends LoginAction {
             mv.getModel().put("ssoWxwork", "#");
         }
 
-        mv.getModelMap().put("UsersMsg", SystemDiagnosis.getUsersDanger());
+        mv.getModelMap().put("UsersMsg", SysbaseDiagnosis.getUsersDanger());
         return mv;
     }
 

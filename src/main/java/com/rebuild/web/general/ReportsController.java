@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -23,6 +24,9 @@ import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.support.CommonsLog;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.CsrfToken;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -30,6 +34,8 @@ import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +51,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 2019/8/3
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/{entity}/")
 public class ReportsController extends BaseController {
@@ -72,12 +79,24 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         File file = new EasyExcelGenerator(reportId, recordId).generate();
+        RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
+
         String fileName = getReportName(entity, reportId, file);
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
             writeSuccess(response, data);
+
+        } else if (getBoolParameter(request, "preview")) {
+            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&%s=%s",
+                    CodecUtils.urlEncode(file.getName()), CsrfToken.URL_CSRFTOKEN, CsrfToken.generate()));
+            String previewUrl = StringUtils.defaultIfBlank(
+                    RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
+                    "https://view.officeapps.live.com/op/embed.aspx?src=");
+
+            previewUrl += CodecUtils.urlEncode(fileUrl);
+            response.sendRedirect(previewUrl);
 
         } else {
             FileDownloader.downloadTempFile(response, file, fileName);
@@ -118,6 +137,7 @@ public class ReportsController extends BaseController {
             return RespBody.ok(data);
 
         } catch (Exception ex) {
+            log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

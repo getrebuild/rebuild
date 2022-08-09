@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .grid-stack .grid-stack-item {
   padding: 0;
   margin: 0;
+  max-height: none !important;
 }
 
 .grid-stack .grid-stack-item .grid-stack-item-content {

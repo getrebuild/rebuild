@@ -25,9 +25,20 @@
       .set-items .item > span {
         margin: 0 4px;
       }
-      .axis-target .ui-sortable-placeholder.ui-state-highlight {
-        width: 7px;
+      .set-items .item.star > span::after {
+        content: '*';
+        margin-left: 4px;
+        font-weight: bold;
+      }
+      .axis-target .ui-state-highlight {
         height: 0;
+        display: inline-block;
+        min-width: 15px;
+      }
+      .axis-target:empty::after {
+        content: attr(_title);
+        font-style: italic;
+        color: #999;
       }
     </style>
   </head>
@@ -43,13 +54,9 @@
         </div>
 
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
-        <div class="axis-target set-items">
-          <span class="text-muted">[[${bundle.L('无')}]]</span>
-        </div>
+        <div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
         <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
-        <div class="axis-target set-fields">
-          <span class="text-muted">[[${bundle.L('无可用字段')}]]</span>
-        </div>
+        <div class="axis-target set-fields" th:_title="${bundle.L('无可用字段')}"></div>
       </div>
 
       <div class="dialog-footer">

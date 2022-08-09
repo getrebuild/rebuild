@@ -63,7 +63,7 @@ public class MetaFieldController extends BaseController {
     }
 
     @RequestMapping("list-field")
-    public List<Map<String, Object>> listField(@EntityParam Entity entity) {
+    public List<Map<String, Object>> listField(@EntityParam Entity entity, HttpServletRequest req) {
         List<Map<String, Object>> fieldList = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
@@ -78,6 +78,26 @@ public class MetaFieldController extends BaseController {
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
             map.put("creatable", field.isCreatable());
+            map.put("displayType", Language.L(easyMeta.getDisplayType()));
+
+            DisplayType dt = easyMeta.getDisplayType();
+            map.put("displayType", Language.L(dt));
+
+            if (getBoolParameter(req, "refname")) {
+                if (dt == DisplayType.CLASSIFICATION) {
+                    String classid = easyMeta.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
+                    if (ID.isId(classid)) {
+                        Object[] name = Application.getQueryFactory().unique(ID.valueOf(classid), "name");
+                        if (name != null) {
+                            map.put("displayTypeRef", new Object[] { classid, name[0] });
+                        }
+                    }
+                } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+                    Entity ref = field.getReferenceEntity();
+                    map.put("displayTypeRef", new Object[] { ref.getName(), EasyMetaFactory.getLabel(ref) });
+                }
+            }
+
             fieldList.add(map);
         }
         return fieldList;
@@ -200,10 +220,10 @@ public class MetaFieldController extends BaseController {
         Entity referenceEntity = refField.getReferenceEntity();
 
         List<JSONObject> list = getCoReferenceFields(currentEntity, referenceEntity, false);
-//        // TODO 开放明细实体关联主实体父级级联
-//        if (currentEntity.getMainEntity() != null) {
-//            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
-//        }
+        // 明细实体关联主实体父级级联
+        if (currentEntity.getMainEntity() != null) {
+            list.addAll(getCoReferenceFields(currentEntity.getMainEntity(), referenceEntity, true));
+        }
 
         return RespBody.ok(list);
     }

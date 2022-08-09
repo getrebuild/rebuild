@@ -710,7 +710,7 @@ class ValueTagsEditor extends React.Component {
               onKeyDown={(e) => e.keyCode === 13 && this.toggleEditMode(true)}
             />
             <span className="input-group-btn">
-              <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)}>
+              <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)} title={$L('添加标签')}>
                 <i className="icon zmdi zmdi-plus text-primary" />
               </button>
             </span>
@@ -957,7 +957,7 @@ class TaskCommentsList extends React.Component {
                       {this.props.editable && (
                         <ul className="list-unstyled m-0">
                           {item.isManageable && (
-                            <li className="list-inline-item mr-3">
+                            <li className="list-inline-item mr-4">
                               <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
                                 <i className="zmdi zmdi-delete" /> {$L('删除')}
                               </a>
@@ -1166,7 +1166,7 @@ class RichTextEditor extends React.Component {
     $createUploader(
       this._$fileInput,
       (res) => {
-        if (!mp) mp = new Mprogress({ template: 1, start: true })
+        if (!mp) mp = new Mprogress({ template: 2, start: true })
         mp.set(res.percent / 100)
       },
       (res) => {

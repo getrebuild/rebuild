@@ -16,6 +16,7 @@
           <div class="tab-container">
             <ul class="nav nav-tabs">
               <li class="nav-item" th:if="${advListHideFilters != 'true'}"><a class="nav-link" href="#asideFilters" data-toggle="tab">[[${bundle.L('常用查询')}]]</a></li>
+              <li class="nav-item" th:if="${advListShowCategory}"><a class="nav-link J_load-class" href="#asideClass" data-toggle="tab">[[${bundle.L('Category')}]]</a></li>
               <li class="nav-item" th:if="${advListHideCharts != 'true'}"><a class="nav-link J_load-charts" href="#asideWidgets" data-toggle="tab">[[${bundle.L('图表')}]]</a></li>
             </ul>
             <div class="tab-content rb-scroller">
@@ -28,6 +29,7 @@
                 </div>
               </div>
               <div class="tab-pane" id="asideFilters"></div>
+              <div class="tab-pane" id="asideClass"></div>
               <div class="tab-pane" id="asideWidgets">
                 <div class="charts-wrap"></div>
                 <div class="text-center">
@@ -46,16 +48,16 @@
               <a class="nav-link active"><span class="icon zmdi" th:classappend="${'zmdi-' + detailEntityIcon}"></span> [[${detailEntityLabel}]]</a>
             </li>
           </ul>
-          <div class="card card-table">
+          <div class="card card-table card-topcolor">
             <div class="card-body">
               <div class="dataTables_wrapper container-fluid">
                 <div class="row rb-datatable-header">
-<!--                  <div class="col-12">-->
-<!--                    <div class="quick-filter-pane">-->
-<!--                      <div class="ph-item-mt"></div>-->
-<!--                      <div class="ph-item rb"></div>-->
-<!--                    </div>-->
-<!--                  </div>-->
+                  <div class="col-12" th:if="${advListFilterPane == 'true'}">
+                    <div class="quick-filter-pane v2">
+                      <div class="ph-item-mt"></div>
+                      <div class="ph-item rb"></div>
+                    </div>
+                  </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="adv-search float-left">
@@ -118,6 +120,7 @@
         listConfig: [(${DataListConfig})],
         advFilter: true,
         statsField: true,
+        paneFields: [(${paneFields ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
@@ -128,7 +131,7 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-filter-pane.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-filterpane.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>

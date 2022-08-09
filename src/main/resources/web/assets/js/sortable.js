@@ -18,7 +18,7 @@ $(document).ready(function () {
 
 const render_unset = function (data, target) {
   const $item = $(`<li class="dd-item" data-key="${data[0]}"><div class="dd-handle"><span>${data[1]}</span></div></li>`).appendTo(target || '.unset-list')
-  $item.click(function () {
+  $item.on('click', function () {
     render_item(data)
     $item.remove()
   })
@@ -30,11 +30,9 @@ const render_unset = function (data, target) {
 var render_unset_after = function (item, data) {}
 
 const render_item = function (data, target) {
-  const $item = $(
-    `<li class="dd-item dd3-item" data-key="${data[0]}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${data[1]}</div></li>`
-  ).appendTo(target || '.J_config')
+  const $item = $(`<li class="dd-item dd3-item" data-key="${data[0]}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${data[1]}</div></li>`).appendTo(target || '.J_config')
   const $del = $(`<div class="dd3-action"><a title="${$L('移除')}" class="J_del"><i class="zmdi zmdi-close"></i></a></div>`).appendTo($item)
-  $del.find('a').click(function () {
+  $del.find('a').on('click', function () {
     data[1] = $item.find('.dd3-content').text()
     render_unset(data)
     $item.remove()

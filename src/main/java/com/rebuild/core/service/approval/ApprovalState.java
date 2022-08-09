@@ -25,10 +25,13 @@ public enum ApprovalState implements StateSpec {
     CANCELED(12, "撤回"),  // 或无效的
     REVOKED(13, "撤销"),
 
+    BACKED(21, "退回"),
+    EXPIRED(22, "过期"),
+
     ;
 
-    private int state;
-    private String name;
+    private final int state;
+    private final String name;
 
     /**
      * @param state

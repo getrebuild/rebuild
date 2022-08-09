@@ -9,7 +9,7 @@ package com.rebuild.core.service;
 
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SystemDiagnosis;
+import com.rebuild.core.support.SysbaseDiagnosis;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
@@ -45,7 +45,7 @@ public class PerHourJob extends DistributedJobLock {
             doCleanTempFiles();
         }
 
-        new SystemDiagnosis().diagnose();
+        new SysbaseDiagnosis().diagnose();
 
         // DO OTHERS HERE ...
 
@@ -67,18 +67,18 @@ public class PerHourJob extends DistributedJobLock {
 
         try {
             new DatabaseBackup().backup(backups);
-            SystemDiagnosis.setItem(SystemDiagnosis.DatabaseBackupFail, null);
+            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DatabaseBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DatabaseBackup] failed!", e);
-            SystemDiagnosis.setItem(SystemDiagnosis.DatabaseBackupFail, e.getLocalizedMessage());
+            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DatabaseBackupFail, e.getLocalizedMessage());
         }
 
         try {
             new DatafileBackup().backup(backups);
-            SystemDiagnosis.setItem(SystemDiagnosis.DataFileBackupFail, null);
+            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DataFileBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DataFileBackup] failed!", e);
-            SystemDiagnosis.setItem(SystemDiagnosis.DataFileBackupFail, e.getLocalizedMessage());
+            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DataFileBackupFail, e.getLocalizedMessage());
         }
 
         int keepDays = RebuildConfiguration.getInt(ConfigurationItem.DBBackupsKeepingDays);

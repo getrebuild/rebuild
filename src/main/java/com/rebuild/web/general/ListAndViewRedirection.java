@@ -35,7 +35,7 @@ public class ListAndViewRedirection extends BaseController {
     @GetMapping({ "/app/list-and-view", "/app/redirect" })
     public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
         String url = null;
-
+        
         if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 

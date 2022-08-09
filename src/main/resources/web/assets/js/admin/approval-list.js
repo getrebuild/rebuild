@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter */
+/* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<ApprovalEdit />))
@@ -22,12 +22,12 @@ class ApprovalList extends ConfigList {
       <React.Fragment>
         {(this.state.data || []).map((item) => {
           return (
-            <tr key={'k-' + item[0]}>
+            <tr key={item[0]}>
               <td>
                 <a href={`approval/${item[0]}`}>{item[3]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>{ShowEnable(item[4])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>

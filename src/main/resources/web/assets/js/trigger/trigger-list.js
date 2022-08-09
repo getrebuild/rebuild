@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter */
+/* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
@@ -59,7 +59,10 @@ class TriggerList extends ConfigList {
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>
+                <span className="badge badge-light font-weight-light">{item[9]}</span>
+              </td>
+              <td>{ShowEnable(item[4])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>

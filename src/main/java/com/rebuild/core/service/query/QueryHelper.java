@@ -52,7 +52,7 @@ public class QueryHelper {
 
     /**
      * @param sql
-     * @param useEntity
+     * @param useEntity 决定是否使用权限查询
      * @return
      */
     public static Query createQuery(String sql, Entity useEntity) {
@@ -68,19 +68,10 @@ public class QueryHelper {
      * @param recordId
      * @return
      * @throws NoRecordFoundException
+     * @see QueryFactory#recordNoFilter(ID, String...)
      */
     public static Record recordNoFilter(ID recordId) throws NoRecordFoundException {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-
-        List<String> fields = new ArrayList<>();
-        for (Field field : entity.getFields()) {
-            fields.add(field.getName());
-        }
-
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fields, ","), entity.getName(),
-                entity.getPrimaryField().getName());
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+        Record o = Application.getQueryFactory().recordNoFilter(recordId);
 
         if (o == null) throw new NoRecordFoundException(recordId);
         else return o;
@@ -105,6 +96,29 @@ public class QueryHelper {
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
 
         return Application.createQueryNoFilter(sql).setParameter(1, mainId).list();
+    }
+
+    /**
+     * 获取明细 ID
+     *
+     * @param mainId
+     * @param maxSize
+     * @return
+     */
+    public static List<ID> detailIdsNoFilter(ID mainId, int maxSize) {
+        Entity detailEntity = MetadataHelper.getEntity(mainId.getEntityCode()).getDetailEntity();
+        String sql = String.format("select %s from %s where %s = ?",
+                detailEntity.getPrimaryField().getName(), detailEntity.getName(),
+                MetadataHelper.getDetailToMainField(detailEntity).getName());
+
+        Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);
+        if (maxSize > 0) query.setLimit(maxSize);
+
+        Object[][] array = query.array();
+        List<ID> ids = new ArrayList<>();
+
+        for (Object[] o : array) ids.add((ID) o[0]);
+        return ids;
     }
 
     /**

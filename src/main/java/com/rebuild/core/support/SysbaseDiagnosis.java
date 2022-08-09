@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
  * @author devezhao
  * @since 2020/12/7
  */
-public class SystemDiagnosis {
+public class SysbaseDiagnosis {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 

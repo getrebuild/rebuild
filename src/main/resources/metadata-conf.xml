@@ -134,7 +134,8 @@
         <field name="isDefault" type="bool" default-value="F"/>
         <field name="isHide" type="bool" default-value="F"/>
         <field name="maskValue" type="long" default-value="0" description="(MultiSelect专用)"/>
-        <index field-list="belongEntity,belongField"/>
+        <field name="color" type="string" max-length="10"/>
+        <index field-list="belongEntity,belongField,seq"/>
     </entity>
 
     <entity name="LayoutConfig" type-code="013" description="布局 (表单/列表/导航/视图(相关项/新建))" queryable="false">
@@ -294,7 +295,9 @@
         <field name="prevNode" type="string" max-length="100" nullable="false" updatable="false" description="上一审批节点"/>
         <field name="isCanceled" type="bool" default-value="F" description="是否取消"/>
         <field name="isWaiting" type="bool" default-value="F" description="是否生效"/>
-        <index field-list="recordId,approvalId,node,isCanceled,isWaiting"/>
+        <field name="isBacked" type="bool" default-value="F" description="是否退回"/>
+        <field name="nodeBatch" type="string" max-length="100" updatable="false" description="审批节点批次"/>
+        <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
     <entity name="RebuildApi" type-code="030" description="API 密钥" queryable="false">

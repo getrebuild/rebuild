@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
+    <title>[[${bundle.L('技术全览')}]]</title>
+    <style>
+      #overview,
+      #graph {
+        width: 100%;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
+                  <li class="active"><a href="overview">[[${bundle.L('技术全览')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('技术全览')}]]</div>
+        </div>
+        <div class="main-content container-fluid pt-1">
+          <div class="row">
+            <div class="col">
+              <h4>[[${bundle.L('实体构成')}]]</h4>
+              <div id="overview"></div>
+            </div>
+            <div class="col">
+              <h4>[[${bundle.L('引用关系')}]]</h4>
+              <div id="graph"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        id: '[[${entityMetaId}]]',
+        entityName: '[[${entityName}]]',
+        entityLabel: '[[${entityLabel}]]',
+        overview: [(${overview})],
+        graph: [(${graph})],
+      }
+    </script>
+    <script th:src="@{/assets/lib/charts/echarts.min.5.js?v=5.3.2}"></script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
+    <script type="text/babel">
+      const wpc = window.__PageConfig
+      $(document).ready(() => {
+        const LABELS = {
+          'FIELDS': [$L('字段'), location.href.replace('/overview', '/fields')],
+          'AUTOFILLINS': [$L('字段回填')],
+          'APPROVALS': [$L('审批流程'), `${rb.baseUrl}/admin/robot/approvals#entity=${wpc.entityName}`],
+          'TRANSFORMS': [$L('记录转换'), `${rb.baseUrl}/admin/robot/transforms#entity=${wpc.entityName}`],
+          'TRIGGERS': [$L('触发器'), `${rb.baseUrl}/admin/robot/triggers#entity=${wpc.entityName}`],
+          'EXTFORMS': [$L('外部表单'), `${rb.baseUrl}/admin/extforms#entity=${wpc.entityName}`],
+          'REPORTS': [$L('报表模板'), `${rb.baseUrl}/admin/data/report-templates#entity=${wpc.entityName}`],
+        }
+
+        const odata = []
+        for (let name in wpc.overview) {
+          const value = wpc.overview[name].length
+          if (value === 0) continue
+          const L = LABELS[name]
+          odata.push({ name: `${value} ${L[0]}`, value: value, link: L[1] ? L[1] : null })
+        }
+
+        const chart1 = echarts.init(document.getElementById('overview'))
+        chart1.setOption({
+          textStyle: {
+            fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+          },
+          series: [
+            {
+              name: wpc.entityLabel,
+              type: 'treemap',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              breadcrumb: { show: false },
+              label: {
+                color: '#fff',
+              },
+              nodeClick: 'link',
+              data: odata,
+            },
+          ],
+        })
+
+        const gdata = [{ name: wpc.entityLabel }]
+        const glinks = []
+        wpc.graph['REFS'].forEach((r) => {
+          gdata.push({ name: r[1] })
+          glinks.push({ target: r[1], source: wpc.entityLabel, value: 1 })
+        })
+        wpc.graph['REFTOS'].forEach((r) => {
+          gdata.push({ name: r[1] })
+          glinks.push({ source: r[1], target: wpc.entityLabel, value: 1 })
+        })
+
+        console.log(gdata)
+
+        const chart2 = echarts.init(document.getElementById('graph'))
+        chart2.setOption({
+          textStyle: {
+            fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+          },
+          series: [
+            {
+              type: 'sankey',
+              layout: 'none',
+              emphasis: {
+                focus: 'adjacency',
+              },
+              lineStyle: {
+                color: 'gradient',
+                curveness: 0.5,
+              },
+              label: {
+                color: '#000',
+              },
+              // orient: 'vertical',
+              top: 0,
+              bottom: 0,
+              left: 0,
+              data: gdata,
+              links: glinks,
+            },
+          ],
+        })
+
+        $addResizeHandler(() => {
+          chart1.resize()
+          chart2.resize()
+        })
+      })
+    </script>
+  </body>
+</html>

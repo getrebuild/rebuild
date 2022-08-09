@@ -108,6 +108,13 @@ public class FlowNode {
     /**
      * @return
      */
+    public boolean getRejectStep() {
+        return getDataMap().getBooleanValue("rejectStep");
+    }
+
+    /**
+     * @return
+     */
     public boolean allowSelfSelecting() {
         if (getDataMap().containsKey("selfSelecting")) {
             return getDataMap().getBooleanValue("selfSelecting");

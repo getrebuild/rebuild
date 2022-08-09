@@ -23,7 +23,6 @@ import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -251,14 +250,13 @@ public class UserHelper {
             } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
                 useFields.add(def);
             } else {
-                log.warn("Invalid id or field : " + def);
+                log.warn("Invalid field or id : {}", def);
             }
         }
 
         if (!useFields.isEmpty()) {
-            String sql = String.format("select %s from %s where %s = ?",
-                    StringUtils.join(useFields, ","), entity.getName(), entity.getPrimaryField().getName());
-            Record bizzValue = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
+            useFields.add(entity.getPrimaryField().getName());
+            Record bizzValue = Application.getQueryFactory().recordNoFilter(recordId, useFields.toArray(new String[0]));
 
             if (bizzValue != null) {
                 for (String field : bizzValue.getAvailableFields()) {
@@ -266,7 +264,7 @@ public class UserHelper {
                     if (value == null) continue;
 
                     if (value instanceof ID[]) {
-                        CollectionUtils.addAll(bizzs, N2NReferenceSupport.items(field, recordId));
+                        CollectionUtils.addAll(bizzs, (ID[]) value);
                     } else {
                         bizzs.add((ID) value);
                     }

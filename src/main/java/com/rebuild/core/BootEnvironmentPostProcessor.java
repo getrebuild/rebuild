@@ -107,7 +107,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
 
         // `application-bean.xml` 占位符必填
         if (dbUrl == null) {
-            dbUrl = "jdbc:mysql://127.0.0.1:3306/rebuild20?characterEncoding=UTF8";
+            dbUrl = "jdbc:mysql://127.0.0.1:3306/rebuild30?characterEncoding=UTF8";
             confPs.put("db.url", dbUrl);
         }
         if (env.getProperty("db.user") == null) confPs.put("db.user", "rebuild");

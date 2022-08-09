@@ -21,6 +21,7 @@ import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -130,5 +131,15 @@ public class ReportTemplateController extends BaseController {
         }
 
         FileDownloader.downloadTempFile(response, file, null);
+    }
+
+    @GetMapping("/report-templates/download")
+    public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        @SuppressWarnings("deprecation")
+        File template = DataReportManager.instance.getTemplateFile(reportId);
+        String attname = QiniuCloud.parseFileName(template.getName());
+
+        FileDownloader.setDownloadHeaders(request, response, attname, false);
+        FileDownloader.writeLocalFile(template, response);
     }
 }

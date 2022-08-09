@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -130,10 +131,14 @@ public class FieldValueHelper {
         JSONObject mixValue = JSONUtils.toJSONObject(
                 new String[] { "id", "text" }, new Object[] { id, text });
         if (id != null) {
-            if (MetadataHelper.containsEntity(id.getEntityCode())) {
-                mixValue.put("entity", MetadataHelper.getEntityName(id));
-            } else {
-                log.warn("The entity of id no longer exists : {}", id);
+            if (!EntityHelper.isUnsavedId(id)) {
+                if (MetadataHelper.containsEntity(id.getEntityCode())) {
+                    mixValue.put("entity", MetadataHelper.getEntityName(id));
+                } else {
+                    log.warn("The entity of id no longer exists : {}", id);
+                }
+            } else if (ApprovalStepService.APPROVAL_NOID.equals(id)) {
+                mixValue.put("entity", "RobotApprovalConfig");
             }
         }
         return mixValue;
@@ -157,17 +162,20 @@ public class FieldValueHelper {
                 throw new NoRecordFoundException("No ClassificationData found by id : " + id);
             }
             return hasValue;
-
         } else if (id.getEntityCode() == EntityHelper.PickList) {
             String hasValue = PickListManager.instance.getLabel(id);
             if (hasValue == null) {
                 throw new NoRecordFoundException("No PickList found by id : " + id);
             }
             return hasValue;
-
         } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
             return Language.L("自动审批");
-
+        } else if (MetadataHelper.isBizzEntity(id.getEntityCode())) {
+            String hasName = UserHelper.getName(id);
+            if (hasName == null) {
+                throw new NoRecordFoundException("No Bizz found by id : " + id);
+            }
+            return hasName;
         }
 
         Field nameField = entity.getNameField();

@@ -135,7 +135,7 @@
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传数量')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
                     <input
-                      class="bslider form-control"
+                      class="bslider form-control form-control-sm"
                       id="uploadNumber"
                       type="text"
                       data-slider-value="[0,9]"
@@ -145,6 +145,13 @@
                       data-slider-tooltip="show"
                     />
                     <div class="form-text J_minmax" th:utext="${bundle.L('最少上传 **0** 个，最多上传 **9** 个')}"></div>
+                  </div>
+                </div>
+                <div th:if="${fieldType == 'FILE' && false}" class="form-group row J_for-FILE">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传类型')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input type="text" class="form-control form-control-sm" id="fileSuffix" th:placeholder="${bundle.L('不限')}" />
+                    <div class="form-text" th:utext="${bundle.L('如有多个类型请使用逗号或空格分开')}"></div>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
@@ -231,7 +238,7 @@
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('编码规则')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <input class="form-control form-control-sm" type="text" id="barcodeFormat" />
-                      <p class="form-text mb-0 help" th:utext="${bundle.L('可使用固定值、内置变量或他们的组合。内置变量如 `{ID}` (其中 ID 为字段内部标识)')}"></p>
+                      <p class="form-text mb-0 help" th:utext="${bundle.L('可使用固定值、字段变量或他们的组合。字段变量如 `{ID}` (其中 ID 为字段内部标识)')}"></p>
                     </div>
                   </div>
                 </div>

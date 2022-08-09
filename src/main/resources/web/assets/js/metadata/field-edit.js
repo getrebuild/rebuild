@@ -231,7 +231,7 @@ $(document).ready(function () {
 
 // Render item to PickList box
 const picklistItemRender = function (data) {
-  const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle">${data.text}</div></li>`).appendTo('#picklist-items')
+  const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle" style="color:${data.color || 'inherit'} !important">${data.text}</div></li>`).appendTo('#picklist-items')
   if ($isTrue(data['default'])) $item.addClass('default')
 }
 

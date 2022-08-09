@@ -9,13 +9,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 公共部分
 
 $(document).ready(() => {
-  $('.card-header>a').on('click', (e) => {
+  $('.card-header .J_edit').on('click', (e) => {
     $stopEvent(e, true)
     enableEditMode()
+
+    $('.card-header .J_edit').addClass('hide')
+    $('.card-header .J_save').removeClass('hide')
   })
 
   $('.edit-footer>.btn-link').on('click', () => location.reload())
-  $('.edit-footer>.btn-primary').on('click', () => post(__data))
+  $('.edit-footer>.btn-primary, .card-header .J_save').on('click', (e) => {
+    $stopEvent(e, true)
+    post(__data)
+  })
 
   if (window.ClipboardJS) {
     $('a[data-clipboard-text]').each(function () {
@@ -73,7 +79,7 @@ const post = function (data) {
 
   if (!(data = postBefore(data))) return false
 
-  const $btn = $('.edit-footer>.btn-primary').button('loading')
+  const $btn = $('.edit-footer>.btn-primary, .card-header .J_save').button('loading')
   $.post(location.href, JSON.stringify(data), (res) => {
     $btn.button('reset')
     if (res.error_code === 0) location.reload()

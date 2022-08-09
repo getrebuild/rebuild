@@ -84,12 +84,18 @@ public class ConfigurationController extends BaseController {
             return RespBody.errorl("无效主页地址/域名");
         }
 
+        String dPortalOfficePreviewUrl = defaultIfBlank(data, ConfigurationItem.PortalOfficePreviewUrl);
+        if (StringUtils.isNotBlank(dPortalOfficePreviewUrl) && !RegexUtils.isUrl(dPortalOfficePreviewUrl)) {
+            return RespBody.errorl("无效文档预览服务地址");
+        }
+
         // 验证数字参数
         ConfigurationItem[] validNumbers = new ConfigurationItem[] {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays,
-                ConfigurationItem.PasswordExpiredDays
+                ConfigurationItem.PasswordExpiredDays,
+                ConfigurationItem.PortalUploadMaxSize,
         };
         for (ConfigurationItem item : validNumbers) {
             String number = defaultIfBlank(data, item);
@@ -122,7 +128,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("storageStatus", QiniuCloud.instance().available());
 
         // 存储大小
-        long size = QiniuCloud.storageSize();
+        long size = QiniuCloud.getStorageSize();
         mv.getModel().put("_StorageSize", FileUtils.byteCountToDisplaySize(size));
         // 云存储
         mv.getModel().put("_StorageCloud", QiniuCloud.instance().available());
@@ -389,7 +395,13 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Saml")) {
-                mv.getModel().put(name, RebuildConfiguration.get(item));
+                String value = RebuildConfiguration.get(item);
+//                if (value != null && item == ConfigurationItem.SamlIdPCert) {
+//                    String[] vs = value.split("\n");
+//                    value = StringUtils.join(
+//                            new String[] { vs[0], vs[1], "**********", vs[vs.length - 2], vs[vs.length - 1] }, "\n");
+//                }
+                mv.getModel().put(name, value);
             }
         }
 

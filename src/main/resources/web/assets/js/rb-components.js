@@ -12,6 +12,7 @@ class RbModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._htmlid = $random('modal-body-', true, 20)
   }
 
   render() {
@@ -21,7 +22,13 @@ class RbModal extends React.Component {
     const iframe = !this.props.children // No child
 
     return (
-      <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} style={styles} ref={(c) => (this._rbmodal = c)}>
+      <div
+        className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`}
+        style={styles}
+        ref={(c) => {
+          this._rbmodal = c
+          this._element = c
+        }}>
         <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
@@ -30,7 +37,7 @@ class RbModal extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
+            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
               {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
               {iframe && <RbSpinner />}
             </div>
@@ -207,6 +214,7 @@ class RbAlert extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._htmlid = $random('alert-body-', true, 20)
   }
 
   render() {
@@ -214,7 +222,12 @@ class RbAlert extends React.Component {
     if (this.props.width) styles.maxWidth = ~~this.props.width
 
     return (
-      <div className="modal rbalert" ref={(c) => (this._dlg = c)}>
+      <div
+        className="modal rbalert"
+        ref={(c) => {
+          this._dlg = c
+          this._element = c
+        }}>
         <div className="modal-dialog modal-dialog-centered" style={styles}>
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -222,7 +235,9 @@ class RbAlert extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body">{this.renderContent()}</div>
+            <div className="modal-body" id={this._htmlid}>
+              {this.renderContent()}
+            </div>
           </div>
         </div>
       </div>
@@ -238,7 +253,7 @@ class RbAlert extends React.Component {
     const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
-      <div className="text-center ml-6 mr-6">
+      <div className="text-center ml-6 mr-6" ref={(c) => (this._element = c)}>
         <div className={`text-${type}`}>
           <i className={`modal-main-icon zmdi zmdi-${icon}`} />
         </div>
@@ -285,18 +300,18 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} titleOrOptions
-   * @param {*} options
+   * @param {*} titleOrOption
+   * @param {*} option
    */
-  static create(message, titleOrOptions, options) {
-    if (typeof titleOrOptions === 'object') {
-      options = titleOrOptions
-      titleOrOptions = null
+  static create(message, titleOrOption, option) {
+    if (typeof titleOrOption === 'object') {
+      option = titleOrOption
+      titleOrOption = null
     }
 
-    options = options || {}
-    const props = { ...options, title: titleOrOptions, message: message }
-    renderRbcomp(<RbAlert {...props} />, null, options.call)
+    option = option || {}
+    const props = { ...option, title: titleOrOption, message: message }
+    renderRbcomp(<RbAlert {...props} />, null, option.onRendered || option.call)
   }
 }
 
@@ -335,14 +350,14 @@ class RbHighbar extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} options
+   * @param {*} option
    */
-  static create(message, options) {
+  static create(message, option) {
     if (top !== self && parent.RbHighbar) {
-      parent.RbHighbar.create(message, options)
+      parent.RbHighbar.create(message, option)
     } else {
-      options = options || {}
-      renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
+      option = option || {}
+      renderRbcomp(<RbHighbar message={message} type={option.type} timeout={option.timeout} />)
     }
   }
 
@@ -910,7 +925,7 @@ function UserPopup({ info }) {
       </div>
       <div className="infos">
         <strong>{info.name}</strong>
-        {info.dept && <p className="text-muted fs-12">{info.dept}</p>}
+        {info.dept && <p className="text-muted fs-12 up-2">{info.dept}</p>}
         {info.email && <p className="email">{info.email}</p>}
         {info.phone && <p className="phone">{info.phone}</p>}
       </div>
@@ -971,7 +986,7 @@ UserPopup.create = function (el) {
 }
 
 // ~~ HTML 内容
-const WrapHtml = (htmlContent) => <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
@@ -1059,15 +1074,15 @@ class RbGritter extends React.Component {
  *
  * @param {*} jsx
  * @param {*} target id or object of element (or function of callback)
- * @param {*} call callback on mounted
+ * @param {*} callback callback on mounted
  */
-const renderRbcomp = function (jsx, target, call) {
+const renderRbcomp = function (jsx, target, callback) {
   if (typeof target === 'function') {
-    call = target
+    callback = target
     target = null
   }
 
-  target = target || $random('react-container-')
+  target = target || $random('react-container-', true, 32)
   if ($.type(target) === 'string') {
     // element id
     const container = document.getElementById(target)
@@ -1082,6 +1097,6 @@ const renderRbcomp = function (jsx, target, call) {
   }
 
   // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
-  ReactDOM.render(jsx, target, call)
+  ReactDOM.render(jsx, target, callback)
   return target
 }

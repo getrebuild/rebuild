@@ -77,7 +77,7 @@ public class LoginLogController extends EntityController {
 
         HttpSession s = Application.getSessionStore().getSession(user);
         if (s != null) {
-            log.warn("Kill session via admin : " + user + " < " + s.getId());
+            log.warn("Admin kill session : {} > {} ", s.getId(), user);
             try {
                 s.invalidate();
             } catch (Exception ignored) {

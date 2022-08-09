@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -111,7 +112,7 @@ public class DataListWrapper {
                     nameValue = value;
                 }
 
-                // 如果最终没能取得名称字段，则补充
+                // 如果最终没能取得名称字段则补充
                 if (field.getType() == FieldType.PRIMARY) {
                     if (nameValue == null) {
                         nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
@@ -124,12 +125,7 @@ public class DataListWrapper {
                     ((ID) value).setLabel(nameValue);
                 }
 
-                if (field.getType() == FieldType.REFERENCE_LIST) {
-                    ID valueUseRecordId = (ID) raw[selectFieldsLen - 1];
-                    row[colIndex] = wrapFieldValue(valueUseRecordId, field, fieldItem.getFieldPath());
-                } else {
-                    row[colIndex] = wrapFieldValue(value, field, null);
-                }
+                row[colIndex] = wrapFieldValue(value, field);
             }
         }
 
@@ -139,36 +135,40 @@ public class DataListWrapper {
     }
 
     /**
-     * @param value
-     * @param field
-     * @return
+     * @see FieldValueHelper#wrapFieldValue(Object, EasyField, boolean)
      */
-    protected Object wrapFieldValue(Object value, Field field, String fieldPath) {
+    protected Object wrapFieldValue(Object value, Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
         if (easyField.getDisplayType() == DisplayType.ID) {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
+
+        final Object origin = value;
 
         boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
                 || easyField.getDisplayType() == DisplayType.PICKLIST
                 || easyField.getDisplayType() == DisplayType.STATE
                 || easyField.getDisplayType() == DisplayType.BOOL;
 
-        if (easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
-            value = N2NReferenceSupport.items(fieldPath, (ID) value);
-        }
-
         value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
 
         if (value != null && isUseDesensitized(easyField)) {
             value = FieldValueHelper.desensitized(easyField, value);
         }
+
+        // v2.10 Color
+        if (value != null && easyField.getDisplayType() == DisplayType.PICKLIST) {
+            String color = PickListManager.instance.getColor((ID) origin);
+            if (color != null) {
+                value = JSONUtils.toJSONObject(
+                        new String[]{ "text", "color" }, new Object[]{ value, color });
+            }
+        }
+
         return value;
     }
 
     /**
-     * @param easyField
-     * @return
      * @see FieldValueHelper#isUseDesensitized(EasyField, ID)
      */
     private boolean isUseDesensitized(EasyField easyField) {

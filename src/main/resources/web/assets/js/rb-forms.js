@@ -17,8 +17,6 @@ class RbFormModal extends React.Component {
   }
 
   render() {
-    if (this.state.destroy) return null
-
     const mw = { maxWidth: this.props.width || 1064 }
     return (
       <div className="modal-wrapper">
@@ -72,7 +70,9 @@ class RbFormModal extends React.Component {
     const id = this.state.id || ''
     const initialValue = this.state.initialValue || {} // 默认值填充（仅新建有效）
 
-    $.post(`/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), (res) => {
+    let url = `/app/${entity}/form-model?id=${id}`
+    if (this.state.previewid) url += `&previewid=${this.state.previewid}`
+    $.post(url, JSON.stringify(initialValue), (res) => {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         const error = (res.data || {}).error || res.error_msg
@@ -116,16 +116,20 @@ class RbFormModal extends React.Component {
     state = state || {}
     if (!state.id) state.id = null
 
-    // 比较初始参数决定是否可复用
-    const stateNew = [state.id, state.entity, state.initialValue]
-    const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
+    let reset = this.state.reset === true
+    if (!reset) {
+      // 比较初始参数决定是否可复用
+      const stateNew = [state.id, state.entity, state.initialValue, state.previewid]
+      const stateOld = [this.state.id, this.state.entity, this.state.initialValue, this.state.previewid]
+      reset = !$same(stateNew, stateOld)
+    }
 
-    if (this.state.destroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
-      state = { formComponent: null, initialValue: null, inLoad: true, ...state }
-      this.setState(state, () => this.showAfter({ destroy: false }, true))
+    if (reset) {
+      state = { formComponent: null, initialValue: null, previewid: null, inLoad: true, ...state }
+      this.setState(state, () => this.showAfter({ reset: false }, true))
     } else {
-      this.showAfter({ ...state, destroy: false })
-      this.checkDrityData()
+      this.showAfter({ ...state, reset: false })
+      this._checkDrityData()
     }
   }
 
@@ -136,7 +140,7 @@ class RbFormModal extends React.Component {
     })
   }
 
-  checkDrityData() {
+  _checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
 
     $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
@@ -158,11 +162,14 @@ class RbFormModal extends React.Component {
     })
   }
 
-  hide(destroy) {
+  hide(reset) {
     $(this._rbmodal).modal('hide')
 
-    const state = { destroy: destroy === true }
-    if (destroy === true) state.id = null
+    const state = { reset: reset === true }
+    if (state.reset) {
+      state.id = null
+      state.previewid = null
+    }
     this.setState(state)
   }
 
@@ -234,8 +241,9 @@ class RbForm extends React.Component {
       }
     }
 
-    const NADD = [5, 10, 20]
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
+    const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
@@ -258,7 +266,7 @@ class RbForm extends React.Component {
                 {NADD.map((n) => {
                   return (
                     <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
-                      {$L('添加 %d 个', n)}
+                      {$L('添加 %d 条', n)}
                     </a>
                   )
                 })}
@@ -268,7 +276,7 @@ class RbForm extends React.Component {
         </div>
 
         <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} ref={(c) => (this._ProTable = c)} />
+          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
         </div>
       </div>
     )
@@ -278,13 +286,13 @@ class RbForm extends React.Component {
     const moreActions = []
     if (this.props.rawModel.mainMeta) {
       moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_ADDDETAIL)}>
+        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
           {$L('保存并继续添加')}
         </a>
       )
     } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
-        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.__NEXT_VIEW)}>
+        <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
         </a>
       )
@@ -316,21 +324,29 @@ class RbForm extends React.Component {
     // 新纪录初始值
     if (this.isNew) {
       this.props.children.map((child) => {
-        const val = child.props.value
+        let val = child.props.value
         if (val && child.props.readonly !== true) {
-          // {id:xxx, text:xxx}
-          this.setFieldValue(child.props.field, typeof val === 'object' ? val.id : val)
+          if (typeof val === 'object') {
+            if ($.isArray(val)) {
+              // [file1, file2, image1]
+            } else {
+              // {id:xxx, text:xxx}
+              val = val.id
+            }
+          }
+          this.setFieldValue(child.props.field, val)
         }
       })
     }
+
+    setTimeout(() => RbForm.renderAfter(this), 0)
   }
 
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
     data.forEach((item) => {
-      // eslint-disable-next-line react/no-string-refs
-      const fieldComp = this.refs[`fieldcomp-${item.target}`]
+      const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
         if (!item.fillinForce && fieldComp.getValue()) return
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
@@ -368,10 +384,16 @@ class RbForm extends React.Component {
     }
   }
 
+  // 获取字段组件
+  getFieldComp(field) {
+    // eslint-disable-next-line react/no-string-refs
+    return this.refs[`fieldcomp-${field}`] || null
+  }
+
   // 保存并添加明细
-  static __NEXT_ADDDETAIL = 102
+  static NEXT_ADDDETAIL = 102
   // 保存并打开
-  static __NEXT_VIEW = 104
+  static NEXT_VIEW = 104
   /**
    * @next {Number}
    */
@@ -402,19 +424,24 @@ class RbForm extends React.Component {
       return
     }
 
+    const $$$parent = this.props.$$$parent
+    const previewid = $$$parent.state.previewid
+
     const $btn = $(this._$formAction).find('.btn').button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    let url = '/app/entity/record-save'
+    if (previewid) url += '?previewid=' + previewid
+    $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
         setTimeout(() => {
-          this.props.$$$parent.hide(true)
+          $$$parent.hide(true)
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
           const recordId = res.data.id
 
-          if (next === RbForm.__NEXT_ADDDETAIL) {
+          if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = { '$MAINID$': recordId }
             const dm = this.props.rawModel.detailMeta
             RbFormModal.create({
@@ -423,8 +450,10 @@ class RbForm extends React.Component {
               icon: dm.icon,
               initialValue: iv,
             })
-          } else if (next === RbForm.__NEXT_VIEW && window.RbViewModal) {
+          } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+          } else if (previewid && window.RbViewPage) {
+            window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
           }
 
           // ...
@@ -459,7 +488,12 @@ class RbForm extends React.Component {
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload(data.id)
     // 刷新视图
-    if (window.RbViewPage && next !== RbForm.__NEXT_ADDDETAIL) window.RbViewPage.reload()
+    if (window.RbViewPage && next !== RbForm.NEXT_ADDDETAIL) window.RbViewPage.reload()
+  }
+
+  // 渲染后调用
+  static renderAfter(form) {
+    console.log('renderAfter ...', form)
   }
 }
 
@@ -513,7 +547,7 @@ class RbFormElement extends React.Component {
     if (!props.onView) {
       // 必填字段
       if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
-      props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
+      // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
     if (!props.onView) this.onEditModeChanged()
   }
@@ -1089,6 +1123,7 @@ class RbFormImage extends RbFormElement {
     this._htmlid = `${props.field}-${$random()}-input`
 
     if (props.value) this.state.value = [...props.value] // clone
+
     if (this.props.uploadNumber) {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
@@ -1102,7 +1137,7 @@ class RbFormImage extends RbFormElement {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
-    if (value.length === 0 && !showUpload) {
+    if (value.length === 0 && this.props.readonly) {
       return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
     }
 
@@ -1171,10 +1206,11 @@ class RbFormImage extends RbFormElement {
         if (mp) mp.end()
         mp = null
       }
+
       $createUploader(
         this._fieldValue__input,
         (res) => {
-          if (!mp) mp = new Mprogress({ template: 1, start: true })
+          if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
         (res) => {
@@ -1212,7 +1248,7 @@ class RbFormFile extends RbFormImage {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
-    if (value.length === 0 && !showUpload) {
+    if (value.length === 0 && this.props.readonly) {
       return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
     }
 
@@ -1233,7 +1269,7 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} />
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} />
           <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
@@ -1309,6 +1345,28 @@ class RbFormPickList extends RbFormElement {
 
   renderViewElement() {
     return super.renderViewElement(__findOptionText(this.state.options, this.state.value))
+
+    // Use badge
+    // const value = this.state.value
+    // if ((this.state.options || []).length === 0 || !value) return super.renderViewElement(null)
+
+    // // eslint-disable-next-line eqeqeq
+    // const o = this.state.options.find((x) => x.id == value)
+    // if (!o || !o.text) {
+    //   return super.renderViewElement(`[${value.toUpperCase()}]`)
+    // }
+
+    // if (o.color) {
+    //   return (
+    //     <div className="form-control-plaintext">
+    //       <span className="badge badge-color" style={{ backgroundColor: o.color }}>
+    //         {o.text}
+    //       </span>
+    //     </div>
+    //   )
+    // } else {
+    //   return super.renderViewElement(o.text)
+    // }
   }
 
   onEditModeChanged(destroy) {
@@ -1419,6 +1477,12 @@ class RbFormReference extends RbFormElement {
         if (v && typeof v === 'string') {
           __addRecentlyUse(v)
           that.triggerAutoFillin(v)
+
+          // v2.10 FIXME 父级改变后清除明细
+          if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
+            const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
+            that.props.$$$parent._ProTable.clear(field)
+          }
         }
         that.handleChange({ target: { value: v } }, true)
       })
@@ -1445,13 +1509,32 @@ class RbFormReference extends RbFormElement {
     }
     if (!cascadingField) return null
 
+    let $$$parent = this.props.$$$parent
+
+    // v2.10 使用主表单
+    if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
+      $$$parent = $$$parent.props.$$$main
+      cascadingField = cascadingField.split('.')[1]
+    }
+
     let v
     if (this.props.onView) {
-      v = (this.props.$$$parent.__ViewData || {})[cascadingField]
+      v = ($$$parent.__ViewData || {})[cascadingField]
+
+      // v2.10 无值时使用后台值
+      if (!v && this.props._cascadingFieldParentValue) {
+        v = { id: this.props._cascadingFieldParentValue }
+      }
     } else {
-      const fieldComp = this.props.$$$parent.refs[`fieldcomp-${cascadingField}`]
+      const fieldComp = $$$parent.refs[`fieldcomp-${cascadingField}`]
       v = fieldComp ? fieldComp.getValue() : null
+
+      // v2.10 无布局时使用后台值
+      if (!fieldComp && this.props._cascadingFieldParentValue) {
+        v = { id: this.props._cascadingFieldParentValue }
+      }
     }
+
     return v ? v.id || v : null
   }
 
@@ -1768,27 +1851,11 @@ class RbFormBool extends RbFormElement {
     return (
       <div className="mt-1">
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input
-            className="custom-control-input"
-            name={`${this._htmlid}T`}
-            type="radio"
-            checked={this.state.value === 'T'}
-            data-value="T"
-            onChange={this.changeValue}
-            disabled={this.props.readonly}
-          />
+          <input className="custom-control-input" name={`${this._htmlid}T`} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this.changeValue} disabled={this.props.readonly} />
           <span className="custom-control-label">{this._Options['T']}</span>
         </label>
         <label className="custom-control custom-radio custom-control-inline mb-1">
-          <input
-            className="custom-control-input"
-            name={`${this._htmlid}F`}
-            type="radio"
-            checked={this.state.value === 'F'}
-            data-value="F"
-            onChange={this.changeValue}
-            disabled={this.props.readonly}
-          />
+          <input className="custom-control-input" name={`${this._htmlid}F`} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this.changeValue} disabled={this.props.readonly} />
           <span className="custom-control-label">{this._Options['F']}</span>
         </label>
       </div>
@@ -1884,10 +1951,11 @@ class RbFormAvatar extends RbFormElement {
         if (mp) mp.end()
         mp = null
       }
+
       $createUploader(
         this._fieldValue__input,
         (res) => {
-          if (!mp) mp = new Mprogress({ template: 1, start: true })
+          if (!mp) mp = new Mprogress({ template: 2, start: true })
           mp.set(res.percent / 100) // 0.x
         },
         (res) => {

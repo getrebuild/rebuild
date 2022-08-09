@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.PersistManagerImpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -29,8 +30,6 @@ import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
-import com.rebuild.core.service.trigger.ActionFactory;
-import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
@@ -41,6 +40,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.rebuild.core.rbstore.MetaSchemaGenerator.KEEP_ID;
 
 /**
  * 元数据模型导入
@@ -147,14 +148,32 @@ public class MetaschemaImporter extends HeavyTask<String> {
         try {
             for (Map.Entry<Field, JSONObject> e : picklistHolders.entrySet()) {
                 Field field = e.getKey();
-                Application.getBean(PickListService.class).updateBatch(
-                        MetadataHelper.getField(field.getOwnEntity().getName(), field.getName()), e.getValue());
+                JSONObject config = e.getValue();
+
+                JSONArray options = config.getJSONArray("show");
+                for (Object o : options) {
+                    String keepId = ((JSONObject) o).getString(KEEP_ID);
+                    if (ID.isId(keepId)) {
+                        Record c = EntityHelper.forNew(EntityHelper.PickList, UserService.SYSTEM_USER, true);
+                        c.setString("belongEntity", field.getOwnEntity().getName());
+                        c.setString("belongField", field.getName());
+                        c.setString("text", "temp");
+
+                        ((PersistManagerImpl) Application.getPersistManagerFactory().createPersistManager())
+                                .saveInternal(c, ID.valueOf(keepId));
+                        ((JSONObject) o).put("id", keepId);
+                    }
+                }
+
+                Application.getBean(PickListService.class).updateBatch(field, config);
             }
-        } finally {
-            if (sessionUser == null) UserContextHolder.clear();
+        } catch (Exception ex) {
+            log.warn("Importing PickList error : {}", ex.getLocalizedMessage());
         }
+
         setCompleted(100);
 
+        if (sessionUser == null) UserContextHolder.clear();
         return entityName;
     }
 
@@ -326,6 +345,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
                 option.put("mask", item.getLongValue(2));
             }
 
+            // v2.10: Color, Id
+            if (item.size() > 3) option.put("color", item.getString(3));
+            if (item.size() > 4) option.put(KEEP_ID, item.getString(4));
+
             shown.add(option);
         }
 
@@ -363,24 +386,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Application.getBean(AdvFilterService.class).create(record);
     }
 
-    private void performTrigger(String entity,JSONObject config) {
+    private void performTrigger(String entity, JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
-
-        String actionType = config.getString("actionType");
-        boolean available = false;
-        for (ActionType type : ActionFactory.getAvailableActions()) {
-            if (type.name().equalsIgnoreCase(actionType)) {
-                available = true;
-                break;
-            }
-        }
-
-        if (!available) {
-            log.warn("Trigger `{}` unavailable", actionType);
-            return;
-        }
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
@@ -404,6 +413,15 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
-        Application.getBean(TransformConfigService.class).create(record);
+        String keepId = config.getString(KEEP_ID);
+        if (ID.isId(keepId)) {
+            ((PersistManagerImpl) Application.getPersistManagerFactory().createPersistManager())
+                    .saveInternal(record, ID.valueOf(keepId));
+            record = EntityHelper.forUpdate(record.getPrimary(), UserService.SYSTEM_USER, false);
+
+            Application.getBean(TransformConfigService.class).update(record);
+        } else {
+            Application.getBean(TransformConfigService.class).create(record);
+        }
     }
 }

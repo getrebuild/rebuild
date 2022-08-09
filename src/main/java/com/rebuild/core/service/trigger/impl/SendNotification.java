@@ -56,7 +56,7 @@ public class SendNotification extends TriggerAction {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) {
+    public Object execute(OperatingContext operatingContext) {
         ThreadPool.exec(() -> {
             try {
                 // FIXME 等待事物完成
@@ -67,6 +67,7 @@ public class SendNotification extends TriggerAction {
                 log.error(null, ex);
             }
         });
+        return "async";
     }
 
     private void executeAsync(OperatingContext operatingContext) {
@@ -183,15 +184,16 @@ public class SendNotification extends TriggerAction {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
 
         String message = content.getString("content");
+        String emailSubject = content.getString("title");
+        if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");
 
         if (operatingContext.getAction() == BizzPermission.DELETE) {
             message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord());
+            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, operatingContext.getBeforeRecord());
         } else {
             message = ContentWithFieldVars.replaceWithRecord(message, actionContext.getSourceRecord());
+            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, actionContext.getSourceRecord());
         }
-
-        String emailSubject = content.getString("title");
-        if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");
 
         return new String[] { message, emailSubject };
     }

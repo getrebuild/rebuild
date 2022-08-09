@@ -233,10 +233,8 @@ public class ReferenceSearchController extends EntityController {
     // 获取记录的名称字段值
     @GetMapping("read-labels")
     public RespBody referenceLabel(HttpServletRequest request) {
-        final String ids = getParameter(request, "ids", null);
-        if (StringUtils.isBlank(ids)) {
-            return RespBody.ok();
-        }
+        final String ids = getParameter(request, "ids", getParameter(request, "id", null));
+        if (StringUtils.isBlank(ids)) return RespBody.ok();
 
         final ID user = getRequestUser(request);
 

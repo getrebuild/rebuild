@@ -38,12 +38,12 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -80,17 +80,17 @@ public class FieldWriteback extends FieldAggregation {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return;
+        if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
-        if (targetRecordIds.isEmpty()) return;
+        if (targetRecordIds.isEmpty()) return null;
 
         if (targetRecordData.isEmpty()) {
             log.info("No data of target record available : {}", targetRecordId);
-            return;
+            return "target-empty";
         }
 
         final ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
@@ -100,6 +100,7 @@ public class FieldWriteback extends FieldAggregation {
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         boolean tschainAdded = false;
+        List<ID> affected = new ArrayList<>();
         for (ID targetRecordId : targetRecordIds) {
             if (operatingContext.getAction() == BizzPermission.DELETE
                     && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
@@ -129,12 +130,14 @@ public class FieldWriteback extends FieldAggregation {
 
             try {
                 useService.createOrUpdate(targetRecord);
+                affected.add(targetRecord.getPrimary());
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
+        return "target:" + affected;
     }
 
     @Override
@@ -185,7 +188,7 @@ public class FieldWriteback extends FieldAggregation {
             }
 
             if (targetRecordIds.isEmpty()) {
-                log.warn("No target record(s) found");
+                log.warn("No target record(s) found : {}", actionContext.getConfigId());
                 return;
             }
         }
@@ -227,10 +230,11 @@ public class FieldWriteback extends FieldAggregation {
         // 变量值
         Record useSourceData = null;
         if (!fieldVars.isEmpty()) {
-            String sql = String.format("select %s from %s where %s = '%s'",
-                    StringUtils.join(fieldVars, ","), sourceEntity.getName(),
-                    sourceEntity.getPrimaryField().getName(), actionContext.getSourceRecord());
-            useSourceData = Application.createQueryNoFilter(sql).record();
+            String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
+                    StringUtils.join(fieldVars, ","),
+                    sourceEntity.getPrimaryField().getName(),
+                    sourceEntity.getName());
+            useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
         }
 
         for (Object o : items) {
@@ -263,10 +267,6 @@ public class FieldWriteback extends FieldAggregation {
                 Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceAny);
 
                 if (value != null) {
-                    if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                        value = N2NReferenceSupport.items(sourceAny, actionContext.getSourceRecord());
-                    }
-
                     Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
                             .convertCompatibleValue(value, targetFieldEasy);
                     targetRecord.setObjectValue(targetField, newValue);

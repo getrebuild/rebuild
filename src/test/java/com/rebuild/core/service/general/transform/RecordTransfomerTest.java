@@ -32,7 +32,7 @@ class RecordTransfomerTest extends TestSupport {
         filterItems.add(likeTest);
         JSONObject advFilterExp = JSONUtils.toJSONObject("items", filterItems);
 
-        Assertions.assertTrue(new RecordTransfomer(null, advFilterExp).checkFilter(newId));
+        Assertions.assertTrue(new RecordTransfomer(null, advFilterExp, true).checkFilter(newId));
     }
 
     @Test

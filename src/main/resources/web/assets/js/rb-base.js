@@ -58,7 +58,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // RB metas
   window.rb = window.rb || {}
   $('meta[name^="rb."]').each(function (idx, item) {
-    var k = $(item).attr('name').substr(3) // remove `rb.`
+    var k = $(item).attr('name').substring(3) // remove `rb.`
     var v = $(item).attr('content')
     if (v === 'true') window.rb[k] = true
     else if (v === 'false') window.rb[k] = false
@@ -100,7 +100,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
     beforeSend: function (xhr, settings) {
       // URL prefix
-      if (settings.url.substr(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      if (settings.url.substring(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
       return settings
     },
   })
@@ -200,7 +200,7 @@ var $setTimeout__timers = {}
  */
 var $setTimeout = function (e, t, id) {
   if (id && $setTimeout__timers[id]) {
-    if (rb.env === 'dev') console.warn('Clear prev setTimeout : ' + id)
+    if (rb.env === 'dev') console.debug('Clear prev setTimeout : ' + id)
     clearTimeout($setTimeout__timers[id])
     $setTimeout__timers[id] = null
   }
@@ -216,7 +216,7 @@ var $urlp = function (key, qstr) {
   qstr = qstr || window.location.search
   if (!qstr) return !key || key === '*' ? {} : null
   qstr = qstr.replace(/%20/g, ' ')
-  qstr = qstr.substr(1) // remove first '?'
+  qstr = qstr.substring(1) // remove first '?'
   var params = qstr.split('&')
   var map = {}
   for (var i = 0, j = params.length; i < j; i++) {
@@ -283,7 +283,7 @@ var $regex = {
   _Mail: /^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
   _Number: /^[-+]?[0-9]+$/, // 数字
   _Decimal: /^[-+]?\d*\.?\d+$/, // 包括小数点的数字
-  _Mobile: /^(1[356789])\d{9}$/, // CN Mobile
+  _Mobile: /^(1[3456789])\d{9}$/, // CN Mobile
   _Tel: /^(\(\d{1,5}\))?(\d{3,4}-)?\d{7,8}(-\d{1,6})?$/, // (国际码)区号-号码-分机
   _Text: /^[a-z\d\u4E00-\u9FA5]+$/i, // 不含特殊字符和标点
   isDate: function (val) {
@@ -354,20 +354,21 @@ var $storage = {
   },
 }
 
-var $random__times = 0
-var $random__charts = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 /**
  * 随机数
  */
 var $random = function (prefix, alphabetic, maxLength) {
   if (alphabetic) {
-    var c = ''
-    for (var i = 0; i < (maxLength || 20); i++) {
-      c += $random__charts.charAt(Math.floor(Math.random() * $random__charts.length))
+    maxLength = maxLength || 24
+    var c = prefix || ''
+    while (c.length < maxLength) {
+      c += Math.random().toString(36).replace(/[^a-z1-9]+/g, '')
     }
-    return (prefix || '') + c
+    return c.substring(0, maxLength)
+  } else {
+    var c = (prefix || '') + (Math.floor(Math.random() * 888888888888) + 100000000000)
+    return c.substring(0, Math.min(maxLength || 12, 12))
   }
-  return (prefix || '') + new Date().getTime() + '' + $random__times++
 }
 
 /**

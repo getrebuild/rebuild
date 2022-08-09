@@ -15,9 +15,8 @@ import com.rebuild.api.BaseApi;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
-
-import java.util.UUID;
 
 /**
  * 页面 Token 验证
@@ -51,7 +50,7 @@ public class PageTokenVerify extends BaseApi {
      * @return
      */
     public static String generate(ID user) {
-        String ptoken = UUID.randomUUID().toString().replace("-", "");
+        String ptoken = CommonsUtils.randomHex(true);
         Application.getCommonsCache().putx("RBPT." + ptoken, user, TOKEN_EXPIRES);
         return ptoken;
     }

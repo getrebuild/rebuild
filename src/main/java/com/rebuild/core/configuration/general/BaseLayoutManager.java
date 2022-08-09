@@ -34,6 +34,8 @@ public class BaseLayoutManager extends ShareToManager {
     public static final String TYPE_DATALIST = "DATALIST";
     // 列表-统计字段
     public static final String TYPE_LISTSTATS = "LISTSTATS";
+    // 列表-查询面板
+    public static final String TYPE_LISTFILTERPANE = "LISTFILTERPANE";
     // 列表-图表 of Widget
     public static final String TYPE_WCHARTS = "WCHARTS";
     // 视图-相关项

@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -15,19 +14,17 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * 可注入观察者的服务
@@ -38,11 +35,6 @@ import java.util.Observer;
  */
 @Slf4j
 public abstract class ObservableService extends Observable implements ServiceSpec {
-
-    /**
-     * 删除前触发的动作
-     */
-    public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 
     final protected ServiceSpec delegateService;
 
@@ -103,7 +95,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
             // 删除前触发，做一些状态保持
             setChanged();
-            notifyObservers(OperatingContext.create(currentUser, DELETE_BEFORE, deleted, deleted));
+            notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, deleted));
         }
 
         int affected = delegateService.delete(recordId);
@@ -125,23 +117,17 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         final ID primaryId = base.getPrimary();
         Assert.notNull(primaryId, "Record primary cannot be null");
 
-        StringBuilder sql = new StringBuilder("select ");
+        Set<String> fields = new HashSet<>();
         for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
-            sql.append(iter.next()).append(',');
+            fields.add(iter.next());
         }
-        sql.deleteCharAt(sql.length() - 1);
-        sql.append(" from ")
-                .append(base.getEntity().getName())
-                .append(" where ")
-                .append(base.getEntity().getPrimaryField().getName())
-                .append(" = ?");
 
-        Record snap = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
+        fields.add(base.getEntity().getPrimaryField().getName());
+        Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
+
         if (snap == null) {
             throw new NoRecordFoundException(primaryId);
         }
-
-        N2NReferenceSupport.fillN2NValues(snap);
         return snap;
     }
 

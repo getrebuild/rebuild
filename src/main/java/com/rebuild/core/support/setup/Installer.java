@@ -38,6 +38,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
+import java.io.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -146,7 +147,7 @@ public class Installer implements InstallState {
         }
 
         try {
-            this.installClassification();
+            this.installClassificationAsync();
         } catch (Exception ex) {
             log.error("Error installing classification data", ex);
         }
@@ -404,7 +405,7 @@ public class Installer implements InstallState {
     /**
      * 分类数据（异步）
      */
-    protected void installClassification() {
+    protected void installClassificationAsync() {
         String[][] init = new String[][] {
                 new String[] { "018-0000000000000001", "CHINA-PCAS.json" },
                 new String[] { "018-0000000000000002", "CHINA-ICNEA.json" },

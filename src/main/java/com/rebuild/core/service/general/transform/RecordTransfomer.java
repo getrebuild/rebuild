@@ -11,23 +11,24 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.record.RecordVisitor;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
-import com.rebuild.core.service.TransactionManual;
+import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.transaction.TransactionStatus;
 
 import java.util.*;
 
@@ -47,12 +48,17 @@ public class RecordTransfomer extends SetUser {
     final private JSONObject transConfig;
     final private boolean skipGuard;
 
+    // 所有新建的记录
+    private List<ID> newIds = new ArrayList<>();
+
     /**
-     * @param targetEntity
-     * @param transConfig
+     * @param trnasid
      */
-    public RecordTransfomer(Entity targetEntity, JSONObject transConfig) {
-        this(targetEntity, transConfig, false);
+    public RecordTransfomer(ID trnasid) {
+        ConfigBean config = TransformManager.instance.getTransformConfig(trnasid, null);
+        this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
+        this.transConfig = (JSONObject) config.getJSON("config");
+        this.skipGuard = false;
     }
 
     /**
@@ -64,6 +70,13 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
+    }
+
+    /**
+     * @return
+     */
+    public List<ID> getNewIds() {
+        return newIds;
     }
 
     /**
@@ -86,95 +99,142 @@ public class RecordTransfomer extends SetUser {
 
     /**
      * @param sourceRecordId
+     * @param mainId
      * @return
      * @see #checkFilter(ID)
      */
     public ID transform(ID sourceRecordId, ID mainId) {
-        // 手动事务，因为可能要转换多条记录
-        TransactionStatus tx = TransactionManual.newTransaction();
+        // 检查配置
+        Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        Entity sourceDetailEntity = null;
+
+        // 主
+        JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
+        if (fieldsMapping == null || fieldsMapping.isEmpty()) {
+            throw new ConfigurationException("Invalid config of transform : " + transConfig);
+        }
+
+        // 明细
+        JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
+        Object[][] sourceDetails = null;
+        if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
+            sourceDetailEntity = sourceEntity.getDetailEntity();
+            Field sourceRefField;
+
+            // v2.10 1 > 2（主+明细）
+            if (sourceDetailEntity == null) {
+                sourceDetailEntity = sourceEntity;
+                sourceRefField = sourceDetailEntity.getPrimaryField();
+            } else {
+                sourceRefField = MetadataHelper.getDetailToMainField(sourceDetailEntity);
+            }
+
+            String sql = String.format(
+                    "select %s from %s where %s = '%s'",
+                    sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceRefField.getName(), sourceRecordId);
+            sourceDetails = Application.createQueryNoFilter(sql).array();
+        }
+
+        Map<String, Object> dvMap = null;
+        if (mainId != null) {
+            Field targetDtf = MetadataHelper.getDetailToMainField(targetEntity);
+            dvMap = Collections.singletonMap(targetDtf.getName(), mainId);
+        }
+
+        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap);
+        ID newId;
+
+        // 有多条（主+明细）
+        if (sourceDetails != null && sourceDetails.length > 0) {
+            Entity targetDetailEntity = targetEntity.getDetailEntity();
+            List<Record> detailsList = new ArrayList<>();
+            for (Object[] d : sourceDetails) {
+                detailsList.add(transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null));
+            }
+
+            newId = saveRecord(main, detailsList);
+        } else {
+            newId = saveRecord(main, null);
+        }
+
+        // 回填
+        fillback(sourceRecordId, newId);
+
+        return newId;
+    }
+
+    private ID saveRecord(Record record, List<Record> detailsList) {
+        if (this.skipGuard) {
+            PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
+        }
+
+        if (detailsList != null && !detailsList.isEmpty()) {
+            record.setObjectValue(GeneralEntityService.HAS_DETAILS, detailsList);
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS);
+        } else {
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
+        }
 
         try {
-            // 主记录
-
-            Map<String, Object> map = null;
-            if (mainId != null) {
-                Field targetDtf = MetadataHelper.getDetailToMainField(targetEntity);
-                map = Collections.singletonMap(targetDtf.getName(), mainId);
-            }
-
-            JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
-            if (fieldsMapping == null || fieldsMapping.isEmpty()) {
-                throw new ConfigurationException("Invalid config of transform : " + transConfig);
-            }
-
-            final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
-            final ID newId = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, map);
-            if (newId == null) {
-                throw new ConfigurationException("Cannot transform record of main : " + transConfig);
-            }
-
-            // 明细记录（如有）
-
-            JSONObject fieldsMappingDetail = transConfig.getJSONObject("fieldsMappingDetail");
-            if (fieldsMappingDetail != null && !fieldsMappingDetail.isEmpty()) {
-                Entity sourceDetailEntity = sourceEntity.getDetailEntity();
-                Field sourceDtf = MetadataHelper.getDetailToMainField(sourceDetailEntity);
-
-                String sql = String.format(
-                        "select %s from %s where %s = '%s'",
-                        sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceDtf.getName(), sourceRecordId);
-                Object[][] details = Application.createQueryNoFilter(sql).array();
-
-                Entity targetDetailEntity = targetEntity.getDetailEntity();
-                if (details.length > 0) {
-                    Field targetDtf = MetadataHelper.getDetailToMainField(targetDetailEntity);
-                    map = Collections.singletonMap(targetDtf.getName(), newId);
-                }
-
-                for (Object[] o : details) {
-                    transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) o[0], map);
-                }
-            }
-
-            // 回填
-
-            String fillbackField = transConfig.getString("fillbackField");
-            if (StringUtils.isNotBlank(fillbackField) && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
-                Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
-                updateSource.setID(fillbackField, newId);
-
-                // TODO 此配置未开放
-                int fillbackMode = transConfig.getIntValue("fillbackMode");
-
-                // 仅更新，无业务规则
-                if (fillbackMode == 3 || fillbackMode == 0) {
-                    Application.getCommonsService().update(updateSource, false);
-                }
-                // 忽略审批状态（进行中）强制更新
-                else if (fillbackMode == 2) {
-                    GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
-                    try {
-                        Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
-                    } finally {
-                        GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
-                    }
-                }
-                // 默认
-                else {
-                    Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
-                }
-            }
-
-            TransactionManual.commit(tx);
-            return newId;
-
-        } catch (Exception ex) {
-            TransactionManual.rollback(tx);
-            throw ex;
+            record = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(record);
+            return record.getPrimary();
+        } finally {
+            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+            if (this.skipGuard) PrivilegesGuardContextHolder.getSkipGuardOnce();
         }
     }
 
-    private ID transformRecord(
+    /**
+     * @param sourceRecordId
+     * @param newId
+     * @return
+     */
+    protected boolean fillback(ID sourceRecordId, ID newId) {
+        final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
+        String fillbackField = transConfig.getString("fillbackField");
+        if (StringUtils.isBlank(fillbackField)
+                || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
+            return false;
+        }
+        
+        Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
+        updateSource.setID(fillbackField, newId);
+
+        // TODO 此配置未开放
+        int fillbackMode = transConfig.getIntValue("fillbackMode");
+
+        // 仅更新，无业务规则
+        if (fillbackMode == 3 || fillbackMode == 0) {
+            Application.getCommonsService().update(updateSource, false);
+        }
+        // 忽略审批状态（进行中）强制更新
+        else if (fillbackMode == 2) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
+            try {
+                Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+            } finally {
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            }
+        }
+        // 默认
+        else {
+            Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+        }
+
+        return true;
+    }
+
+    /**
+     * 转换
+     *
+     * @param sourceEntity
+     * @param targetEntity
+     * @param fieldsMapping
+     * @param sourceRecordId
+     * @param defaultValue
+     * @return
+     */
+    protected Record transformRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
             ID sourceRecordId, Map<String, Object> defaultValue) {
 
@@ -188,60 +248,52 @@ public class RecordTransfomer extends SetUser {
 
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
-            log.warn("No fields for transform");
+            log.warn("No fields for transform : {}", fieldsMapping);
             return null;
         }
 
-        String querySource = String.format(
-                "select %s from %s where %s = '%s'",
-                StringUtils.join(validFields, ","), sourceEntity.getName(),
-                sourceEntity.getPrimaryField().getName(), sourceRecordId);
-        Record source = Application.createQueryNoFilter(querySource).record();
+        validFields.add(sourceEntity.getPrimaryField().getName());
+        Record source = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
             if (e.getValue() == null) continue;
 
             String targetField = e.getKey();
-            String sourceField = (String) e.getValue();
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
-            Object sourceValue = source.getObjectValue(sourceField);
-            if (sourceValue != null) {
-                EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
-                EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
-                        Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+            Object sourceAny = e.getValue();
 
-                if (targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
-                    sourceValue = N2NReferenceSupport.items(sourceFieldEasy.getRawMeta(), sourceRecordId);
+            if (sourceAny instanceof JSONArray) {
+                Object sourceValue = ((JSONArray) sourceAny).get(0);
+                RecordVisitor.setValueByLiteral(targetField, sourceValue.toString(), target);
+
+            } else {
+                String sourceField = (String) sourceAny;
+                Object sourceValue = source.getObjectValue(sourceField);
+
+                if (sourceValue != null) {
+                    EasyField sourceFieldEasy = EasyMetaFactory.valueOf(
+                            Objects.requireNonNull(MetadataHelper.getLastJoinField(sourceEntity, sourceField)));
+
+                    Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
+                    target.setObjectValue(targetField, targetValue);
                 }
-
-                Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
-                target.setObjectValue(targetField, targetValue);
             }
         }
 
-        if (this.skipGuard) {
-            PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
-        }
-
-        GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
-        try {
-            target = Application.getEntityService(targetEntity.getEntityCode()).createOrUpdate(target);
-            return target.getPrimary();
-        } finally {
-            GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
-            PrivilegesGuardContextHolder.getSkipGuardOnce();
-        }
+        return target;
     }
 
-    private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
+    private List<String> checkAndWarnFields(Entity entity, Collection<?> fields) {
         List<String> valid = new ArrayList<>();
-        for (Object field : fieldsName) {
+        for (Object field : fields) {
             if (field == null) continue;
+            if (field instanceof JSONArray) continue;  // VFIXED
 
             if (MetadataHelper.getLastJoinField(entity, (String) field) != null) {
                 valid.add((String) field);
             } else {
-                log.warn("Unknown field `{}` in `{}`", field, entity.getName());
+                log.warn("Invalid field : {} in {}", field, entity.getName());
             }
         }
         return valid;

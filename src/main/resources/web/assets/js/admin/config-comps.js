@@ -66,32 +66,26 @@ class ConfigList extends React.Component {
 
   componentDidMount() {
     dlgActionAfter_List = this
+
     this.loadData()
 
     // 搜索
     const $btn = $('.input-search .btn').click(() => this.loadData())
-    $('.input-search .form-control').keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
-
-    $('.data-list .table th.use-sort').on('click', () => this._sortByName())
-  }
-
-  // 简单排序
-  _sortByName(data, callback) {
-    const $sort = $('.data-list .table th.use-sort')
-    const index = ~~($sort.data('sort-index') || 1)
-
-    if (!data) this.__asc = !this.__asc
-
-    const s = data || this.state.data
-    s.sort((a, b) => {
-      if (this.__asc) {
-        return (a[index] || '').localeCompare(b[index] || '')
-      } else {
-        return (b[index] || '').localeCompare(a[index] || '')
-      }
+    $('.input-search .form-control').keydown((e) => {
+      if (e.which === 13) $btn.trigger('click')
     })
 
-    this.setState({ data: s }, callback)
+    // 简单排序
+    if ($.tablesort) {
+      $('.tablesort').tablesort()
+
+      // 数字排序
+      $('table th.int-sort').each(function () {
+        $(this).data('sortBy', (th, td) => {
+          return ~~$(td).text()
+        })
+      })
+    }
   }
 
   // 加载数据
@@ -104,15 +98,16 @@ class ConfigList extends React.Component {
 
     $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
       if (res.error_code === 0) {
-        this._sortByName(res.data || [], () => {
-          $('.rb-loading-active').removeClass('rb-loading-active')
-          $('.dataTables_info').text($L('共 %d 项', this.state.data.length))
+        const data = res.data || []
+        if (this.renderEntityTree(data) !== false) {
+          this.setState({ data: res.data }, () => {
+            $('.rb-loading-active').removeClass('rb-loading-active')
+            $('.dataTables_info').text($L('共 %d 项', this.state.data.length))
 
-          if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
-          else $('.list-nodata').addClass('hide')
-
-          this.renderEntityTree()
-        })
+            if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
+            else $('.list-nodata').addClass('hide')
+          })
+        }
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -120,32 +115,47 @@ class ConfigList extends React.Component {
   }
 
   // 渲染实体树
-  renderEntityTree() {
+  renderEntityTree(data) {
     if (this.__treeRendered) return
     this.__treeRendered = true
 
-    const ues = {}
-    $(this.state.data).each(function () {
-      ues[this[1]] = this[2]
+    const es = {}
+    $(data || this.state.data).each(function () {
+      es[this[1]] = this[2]
     })
 
-    const uesSorted = []
-    for (let k in ues) uesSorted.push([k, ues[k]])
-    uesSorted.sort((x, y) => {
+    const sorted = []
+    for (let k in es) sorted.push([k, es[k]])
+    sorted.sort((x, y) => {
       return x[1] > y[1] ? 1 : x[1] < y[1] ? -1 : 0
     })
 
     const $dest = $('.aside-tree ul')
-    uesSorted.forEach((item) => {
-      $(`<li data-entity="${item[0]}"><a class="text-truncate">${item[1]}</a></li>`).appendTo($dest)
+    sorted.forEach((item) => {
+      $(`<li data-entity="${item[0]}"><a class="text-truncate" href="#entity=${item[0]}">${item[1]}</a></li>`).appendTo($dest)
     })
 
     const that = this
-    $dest.find('li').click(function () {
+    $dest.find('li').on('click', function () {
       $dest.find('li').removeClass('active')
       $(this).addClass('active')
-      that.loadData($(this).data('entity') || '$ALL$')
+      const entity = $(this).data('entity') || '$ALL$'
+      that.loadData(entity)
+
+      if (entity === '$ALL$') {
+        history.pushState(null, null, location.href.split('#')[0])
+      }
     })
+
+    // INIT
+    const entity = $urlp('entity', location.hash) || null
+    if (entity) {
+      const $entity = $dest.find(`li[data-entity="${entity}"]`)
+      if ($entity.length > 0) {
+        $entity[0].click()
+        return false
+      }
+    }
   }
 
   // 删除数据
@@ -162,6 +172,25 @@ class ConfigList extends React.Component {
   }
 }
 
-const ShowEnable = (enable) => {
-  return enable ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+function ShowEnable(enable, cfgid) {
+  if (cfgid) {
+    const htmlid = `enable-${$random()}`
+    return (
+      <div className="switch-button switch-button-xs switch-button-success">
+        <input
+          type="checkbox"
+          defaultChecked={enable}
+          id={htmlid}
+          onClick={(e) => {
+            console.log(cfgid, e.target.checked)
+          }}
+        />
+        <span>
+          <label htmlFor={htmlid}></label>
+        </span>
+      </div>
+    )
+  } else {
+    return enable ? <span className="badge badge-grey font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+  }
 }

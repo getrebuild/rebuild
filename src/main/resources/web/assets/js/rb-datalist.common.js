@@ -517,7 +517,9 @@ class BatchUpdate extends BatchOperator {
         that.disabled(true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp = new Mprogress({ template: 1, start: true })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
+            const mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+
             that.__checkState(res.data, mp)
           } else {
             that.disabled(false)
@@ -548,9 +550,7 @@ class BatchUpdate extends BatchOperator {
           }, 500)
         } else {
           mp && mp.set(cp)
-          setTimeout(() => {
-            this.__checkState(taskid, mp)
-          }, 1000)
+          setTimeout(() => this.__checkState(taskid, mp), 1000)
         }
       }
     })
@@ -682,7 +682,7 @@ const RbListCommon = {
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`
-      const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
+      const $cleanVia = $(`<div class="badge filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
       $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
         RbListPage.reload()

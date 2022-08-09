@@ -34,24 +34,24 @@ public class ApprovalHelper {
     /**
      * 获取提交人
      *
-     * @param record
+     * @param recordId
      * @return
      */
-    public static ID getSubmitter(ID record) {
-        Object[] approvalId = Application.getQueryFactory().uniqueNoFilter(record, EntityHelper.ApprovalId);
-        Assert.notNull(approvalId, "Cannot found approval of record : " + record);
-        return getSubmitter(record, (ID) approvalId[0]);
+    public static ID getSubmitter(ID recordId) {
+        Object[] approvalId = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalId);
+        Assert.notNull(approvalId, "Cannot found approval of record : " + recordId);
+        return getSubmitter(recordId, (ID) approvalId[0]);
     }
 
     /**
      * 获取提交人
      *
-     * @param record
-     * @param approval
+     * @param recordId
+     * @param approvalId
      * @return
      */
-    public static ID getSubmitter(ID record, ID approval) {
-        return Application.getBean(ApprovalStepService.class).getSubmitter(record, approval);
+    public static ID getSubmitter(ID recordId, ID approvalId) {
+        return Application.getBean(ApprovalStepService.class).getSubmitter(recordId, approvalId);
     }
 
     /**

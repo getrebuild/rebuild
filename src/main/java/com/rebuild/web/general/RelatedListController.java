@@ -14,11 +14,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -54,15 +57,19 @@ public class RelatedListController extends BaseController {
 
         String related = getParameterNotNull(request, "related");
         String q = getParameter(request, "q");
-        String sort = getParameter(request, "sort", "modifiedOn:desc");
+        String sql = buildBaseSql(mainid, related, q, false, user, null);
 
-        String sql = buildMainSql(mainid, related, q, false, user);
+        Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
+
+        String sort = getParameter(request, "sort", "modifiedOn:desc");
+        // 名称字段排序
+        if ("NAME".equalsIgnoreCase(sort)) {
+            sort = relatedEntity.getNameField().getName() + ":asc";
+        }
         sql += " order by " + sort.replace(":", " ");
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
-
-        Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
         Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
 
@@ -91,12 +98,16 @@ public class RelatedListController extends BaseController {
 
     @GetMapping("related-counts")
     public Map<String, Integer> relatedCounts(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String[] relateds = getParameterNotNull(request, "relateds").split(",");
 
-        final ID user = getRequestUser(request);
+        // 附件过滤条件
+        Map<String, JSONObject> vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
+                MetadataHelper.getEntity(mainid.getEntityCode()).getName(), user);
+
         Map<String, Integer> countMap = new HashMap<>();
         for (String related : relateds) {
-            String sql = buildMainSql(mainid, related, null, true, user);
+            String sql = buildBaseSql(mainid, related, null, true, user, vtabFilters);
             if (sql != null) {
                 // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
 
@@ -108,8 +119,9 @@ public class RelatedListController extends BaseController {
         return  countMap;
     }
 
-    private String buildMainSql(ID recordOfMain, String relatedExpr, String q, boolean count, ID user) {
-        // Entity.Field
+    private String buildBaseSql(ID mainid, String relatedExpr, String q, boolean count, ID user,
+                                Map<String, JSONObject> vtabFilters) {
+        // formatted: Entity.Field
         String[] ef = relatedExpr.split("\\.");
         Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
 
@@ -119,7 +131,7 @@ public class RelatedListController extends BaseController {
             relatedFields.add(ef[1]);
         } else {
             // v1.9 之前会把所有相关的查出来
-            Entity mainEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
+            Entity mainEntity = MetadataHelper.getEntity(mainid.getEntityCode());
             for (Field field : relatedEntity.getFields()) {
                 if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
                         && ArrayUtils.contains(field.getReferenceEntities(), mainEntity)) {
@@ -130,12 +142,26 @@ public class RelatedListController extends BaseController {
 
         if (relatedFields.isEmpty()) return null;
 
-        String mainWhere = "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')";
-        mainWhere = MessageFormat.format(mainWhere, recordOfMain);
+        String where = MessageFormat.format(
+                "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')", mainid);
+
+        if (vtabFilters == null) {
+            vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
+                    MetadataHelper.getEntity(mainid.getEntityCode()).getName(), user);
+        }
+
+        // 附件过滤条件
+        JSONObject hasFilter = vtabFilters.get(relatedExpr);
+        if (ParseHelper.validAdvFilter(hasFilter)) {
+            String filterSql = new AdvFilterParser(hasFilter).toSqlWhere();
+            if (filterSql != null) {
+                where += " and " + filterSql;
+            }
+        }
 
         // @see FeedsListController#fetchFeeds
         if (relatedEntity.getEntityCode() == EntityHelper.Feeds) {
-            mainWhere += String.format(" and (type = %d or type = %d)",
+            where += String.format(" and (type = %d or type = %d)",
                     FeedsType.FOLLOWUP.getMask(),
                     FeedsType.SCHEDULE.getMask());
 
@@ -144,7 +170,7 @@ public class RelatedListController extends BaseController {
             for (Team t : Application.getUserStore().getUser(user).getOwningTeams()) {
                 in.add(String.format("scope = '%s'", t.getIdentity()));
             }
-            mainWhere += " and ( " + StringUtils.join(in, " or ") + " )";
+            where += " and ( " + StringUtils.join(in, " or ") + " )";
         }
 
         if (StringUtils.isNotBlank(q)) {
@@ -153,7 +179,7 @@ public class RelatedListController extends BaseController {
             if (!searchFields.isEmpty()) {
                 String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
                 String searchWhere = " and ( " + StringUtils.join(searchFields.iterator(), like + " or ") + like + " )";
-                mainWhere += searchWhere;
+                where += searchWhere;
             }
         }
 
@@ -173,7 +199,7 @@ public class RelatedListController extends BaseController {
             }
         }
 
-        sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(mainWhere);
+        sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(where);
         return sql.toString();
     }
 }

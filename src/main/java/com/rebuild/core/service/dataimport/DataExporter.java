@@ -144,13 +144,11 @@ public class DataExporter extends SetUser {
     }
 
     /**
-     * 数据
-     *
-     * @param control
+     * @param builder
      * @return
      */
-    protected List<List<String>> buildData(DataListBuilderImpl control) {
-        JSONArray data = ((JSONObject) control.getJSONResult()).getJSONArray("data");
+    protected List<List<String>> buildData(DataListBuilderImpl builder) {
+        JSONArray data = ((JSONObject) builder.getJSONResult()).getJSONArray("data");
 
         List<List<String>> into = new ArrayList<>();
         for (Object row : data) {
@@ -181,6 +179,8 @@ public class DataExporter extends SetUser {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
+                } else if (dt == DisplayType.PICKLIST && cellVal instanceof JSONObject) {
+                    cellVal = ((JSONObject) cellVal).getString("text");
                 }
 
                 if (easyField instanceof MixValue &&

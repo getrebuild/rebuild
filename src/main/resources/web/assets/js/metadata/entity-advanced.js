@@ -99,30 +99,67 @@ function modeSave(newOption, next) {
   })
 }
 
-// 添加仪表盘
+const CLASS_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+
+// 模式选项
 class DlgMode1Option extends RbFormHandler {
   render() {
     return (
       <RbModal title={$L('标准模式选项')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('隐藏侧栏常用查询')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“常用查询”')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && wpc.extConfig.advListHideFilters} />
+                <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
                 <span>
                   <label htmlFor="advListHideFilters" />
                 </span>
               </div>
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('隐藏侧栏图表')}</label>
+          <div className="form-group row bosskey-show">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分类”')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && wpc.extConfig.advListHideCharts} />
+                <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
+                <span>
+                  <label htmlFor="advListShowCategory" />
+                </span>
+              </div>
+              <div className="clearfix"></div>
+              <div className={`J_advListShowCategory mt-2 ${this.state.advListShowCategory ? '' : 'hide'}`}>
+                <select className="form-control form-control-sm">
+                  {this.state.advListShowCategoryFields &&
+                    this.state.advListShowCategoryFields.map((item) => {
+                      return (
+                        <option key={item.name} value={item.name}>
+                          {item.label}
+                        </option>
+                      )
+                    })}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“图表”')}</label>
+            <div className="col-sm-7">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
                 <span>
                   <label htmlFor="advListHideCharts" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="form-group row bosskey-show">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部查询面板')}</label>
+            <div className="col-sm-7">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
+                <span>
+                  <label htmlFor="advListFilterPane" />
                 </span>
               </div>
             </div>
@@ -142,10 +179,45 @@ class DlgMode1Option extends RbFormHandler {
     )
   }
 
+  componentDidMount() {
+    const that = this
+    let $class2
+    $('#advListShowCategory').on('change', function () {
+      if ($val(this)) {
+        that.setState({ advListShowCategory: true })
+      } else {
+        that.setState({ advListShowCategory: null })
+      }
+
+      if (!$class2) {
+        $class2 = $('.J_advListShowCategory select')
+        $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+          const _data = []
+          res.data.forEach((item) => {
+            if (CLASS_TYPES.includes(item.type)) _data.push(item)
+          })
+
+          that.setState({ advListShowCategoryFields: _data }, () => {
+            $class2
+              .select2({ placeholder: $L('选择分类字段') })
+              .val((wpc.extConfig && wpc.extConfig.advListShowCategory) || null)
+              .trigger('change')
+          })
+        })
+      }
+    })
+
+    if (wpc.extConfig && wpc.extConfig.advListShowCategory) {
+      $('#advListShowCategory').trigger('change')
+    }
+  }
+
   save = () => {
     const o = {
-      advListHideFilters: $val('#advListHideFilters'),
-      advListHideCharts: $val('#advListHideCharts'),
+      advListHideFilters: !$val('#advListHideFilters'),
+      advListHideCharts: !$val('#advListHideCharts'),
+      advListShowCategory: this.state.advListShowCategory ? $val('.J_advListShowCategory select') : null,
+      advListFilterPane: $val('#advListFilterPane'),
     }
 
     this.disabled(true)

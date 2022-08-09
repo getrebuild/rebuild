@@ -22,7 +22,6 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
@@ -63,24 +62,27 @@ public class AutoFillinManager implements ConfigManager {
         String cascadingField = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
         if (StringUtils.isNotBlank(cascadingField)) {
             String[] fs = cascadingField.split(MetadataHelper.SPLITER_RE);
-            ConfigBean fake = new ConfigBean()
-                    .set("source", fs[1])
-                    .set("target", fs[0])
-                    .set("whenCreate", true)
-                    .set("whenUpdate", true)
-                    .set("fillinForce", true);
+            // 不含明细
+            if (!fs[0].contains(".")) {
+                ConfigBean fake = new ConfigBean()
+                        .set("source", fs[1])
+                        .set("target", fs[0])
+                        .set("whenCreate", true)
+                        .set("whenUpdate", true)
+                        .set("fillinForce", true);
 
-            // 移除冲突的表单回填配置
-            for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
-                ConfigBean cb = iter.next();
-                if (cb.getString("source").equals(fake.getString("source"))
-                        && cb.getString("target").equals(fake.getString("target"))) {
-                    iter.remove();
-                    break;
+                // 移除冲突的表单回填配置
+                for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+                    ConfigBean cb = iter.next();
+                    if (cb.getString("source").equals(fake.getString("source"))
+                            && cb.getString("target").equals(fake.getString("target"))) {
+                        iter.remove();
+                        break;
+                    }
                 }
-            }
 
-            config.add(fake);
+                config.add(fake);
+            }
         }
 
         if (config.isEmpty()) return JSONUtils.EMPTY_ARRAY;
@@ -103,11 +105,8 @@ public class AutoFillinManager implements ConfigManager {
 
         if (sourceFields.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        String ql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(sourceFields, ","),
-                sourceEntity.getName(),
-                sourceEntity.getPrimaryField().getName());
-        Record sourceRecord = Application.createQueryNoFilter(ql).setParameter(1, source).record();
+        sourceFields.add(sourceEntity.getPrimaryField().getName());
+        Record sourceRecord = Application.getQueryFactory().recordNoFilter(source, sourceFields.toArray(new String[0]));
 
         if (sourceRecord == null) return JSONUtils.EMPTY_ARRAY;
 
@@ -115,17 +114,11 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
-            Field sourceFieldMeta = sourceEntity.getField(sourceField);
             Field targetFieldMeta = targetEntity.getField(targetField);
 
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
-                if (EasyMetaFactory.getDisplayType(sourceFieldMeta) == DisplayType.N2NREFERENCE) {
-                    value = N2NReferenceSupport.items(sourceFieldMeta, source);
-                } else {
-                    value = sourceRecord.getObjectValue(sourceField);
-                }
-
+                value = sourceRecord.getObjectValue(sourceField);
                 value = conversionCompatibleValue(
                         sourceEntity.getField(sourceField),
                         targetFieldMeta,
@@ -233,9 +226,8 @@ public class AutoFillinManager implements ConfigManager {
     @SuppressWarnings("unchecked")
     public Set<String> getAutoReadonlyFields(String entity) {
         Map<String, Set<String>> fieldsMap = (Map<String, Set<String>>) Application.getCommonsCache().getx(CKEY_AFARF);
-        if (fieldsMap == null) {
-            fieldsMap = this.initAutoReadonlyFields();
-        }
+        if (fieldsMap == null) fieldsMap = this.initAutoReadonlyFields();
+
         return Collections.unmodifiableSet(fieldsMap.getOrDefault(entity, Collections.emptySet()));
     }
 

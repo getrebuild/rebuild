@@ -34,24 +34,22 @@
       .syscfg.edit a.img-thumbnail:hover b {
         display: inline-block;
       }
-
       .bgimg-img {
         display: inline-block;
         width: 192px;
         height: 108px;
         background: #eee url(../assets/img/bg.jpg) repeat 0 0;
+        background-image: url(../commons/theme/use-bgimg);
         background-size: cover;
+      }
+      .syscfg a[target='_blank']:hover {
+        text-decoration: underline;
       }
       td p > code {
         background-color: rgb(245, 247, 249);
         padding: 1px 3px;
         border-radius: 2px;
         margin-right: 3px;
-      }
-    </style>
-    <style th:if="${commercial > 1}">
-      .bgimg-img {
-        background-image: url(../commons/theme/use-bgimg);
       }
     </style>
   </head>
@@ -66,18 +64,19 @@
               <div class="card">
                 <div class="card-header pb-1">
                   [[${bundle.L('通用配置')}]]
-                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>
                 <div class="card-body">
                   <h5>[[${bundle.L('通用')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('名称')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td width="40%">[[${bundle.L('名称')}]]</td>
+                        <td th:data-id="AppName" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td>LOGO</td>
                         <td class="fs-0 applogo">
                           <a class="img-thumbnail" data-id="LOGO">
                             <i class="logo-img"></i>
@@ -92,29 +91,30 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('主页地址/域名')}]]
-                          <p>[[${bundle.L('所有外部链接将以此作为前缀')}]]</p>
-                        </td>
-                        <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
+                        <td>[[${bundle.L('主页地址/域名')}]]</td>
+                        <td data-id="HomeURL" th:data-value="${HomeURL}" th:data-form-text="${bundle.L('所有外部链接将以此作为前缀')}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('默认语言')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('页脚')}]]
-                          <p class="link">[(${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')})]</p>
+                        <td>[[${bundle.L('页脚')}]]</td>
+                        <td
+                          data-id="PageFooter"
+                          th:data-value="${PageFooter}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
+                        >
+                          <pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre>
                         </td>
-                        <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true"><pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre></td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('登录页每日一图')}]]</td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('自定义登录页图')}]] <sup class="rbv"></sup></td>
+                        <td>[[${bundle.L('自定义登录页图')}]]</td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
                             <i class="bgimg-img"></i>
@@ -138,11 +138,14 @@
                         <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('公开注册')}]]
-                          <p class="link">[(${bundle.L('允许用户 [自助注册](https://getrebuild.com/docs/admin/users#3.%20%E8%87%AA%E5%8A%A9%E6%B3%A8%E5%86%8C)')})]</p>
+                        <td>[[${bundle.L('公开注册')}]]</td>
+                        <td
+                          data-id="OpenSignUp"
+                          th:data-value="${OpenSignUp}"
+                          th:data-form-text="${bundle.L('允许用户 [自助注册](https://getrebuild.com/docs/admin/users#3.%20%E8%87%AA%E5%8A%A9%E6%B3%A8%E5%86%8C)')}"
+                        >
+                          [[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]
                         </td>
-                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('登录验证码显示模式')}]]</td>
@@ -168,7 +171,11 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('启用两步验证')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'Login2FAMode' : ''}" th:data-value="${Login2FAMode}" th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}">
+                        <td
+                          th:data-id="${commercial > 1 ? 'Login2FAMode' : ''}"
+                          th:data-value="${Login2FAMode}"
+                          th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}"
+                        >
                           <th:block th:if="${Login2FAMode == '0'}">[[${bundle.L('不启用')}]]</th:block>
                           <th:block th:if="${Login2FAMode == '1'}">[[${bundle.L('手机或邮箱')}]]</th:block>
                           <th:block th:if="${Login2FAMode == '2'}">[[${bundle.L('仅手机')}]]</th:block>
@@ -196,10 +203,10 @@
                         >
                           <pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
                         </td>
+                      </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
-                      </tr>
                       </tr>
                     </tbody>
                   </table>
@@ -207,29 +214,22 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">
-                          [[${bundle.L('数据自动备份')}]]
-                          <p>[[${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}]]</p>
+                        <td width="40%">[[${bundle.L('数据自动备份')}]]</td>
+                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}" th:data-form-text="${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}">
+                          [[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]
                         </td>
-                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('备份保留时间')}]]</td>
-                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">
-                          [[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]
-                        </td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('变更历史保留时间')}]]</td>
-                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">
-                          [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
-                        </td>
+                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回收站保留时间')}]]</td>
-                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">
-                          [[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]
-                        </td>
+                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -239,6 +239,18 @@
                       <tr>
                         <td width="40%">[[${bundle.L('在视图页显示修改历史')}]]</td>
                         <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('文件上传大小限制')}]]</td>
+                        <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('文档预览服务地址')}]]</td>
+                        <td data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('百度地图 AK')}]]</td>
+                        <td data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -266,7 +278,7 @@
                     <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('帮助文档')}]]</a></li>
                     <li><a class="link" target="_blank" href="https://getrebuild.com/">[[${bundle.L('技术支持')}]]</a></li>
                   </ul>
-                  <div class="text-muted link" th:if="${commercial < 10}">
+                  <div class="text-muted link" th:if="${commercial < 11}">
                     &copy;
                     <span
                       th:utext="${bundle.L('[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。')}"

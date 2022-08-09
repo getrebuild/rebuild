@@ -17,9 +17,9 @@ git:
   submodules: false
 
 before_script:
-  - mysql -e "CREATE DATABASE rebuild20 COLLATE utf8mb4_general_ci;"
-  - mysql -e "CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON rebuild20.* TO 'rebuild'@'127.0.0.1'; FLUSH PRIVILEGES;"
-  - mysql -D rebuild20 < src/main/resources/scripts/db-init.sql
+  - mysql -e "CREATE DATABASE rebuild30 COLLATE utf8mb4_general_ci;"
+  - mysql -e "CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON rebuild30.* TO 'rebuild'@'127.0.0.1'; FLUSH PRIVILEGES;"
+  - mysql -D rebuild30 < src/main/resources/scripts/db-init.sql
 
 # codecov
 after_success:

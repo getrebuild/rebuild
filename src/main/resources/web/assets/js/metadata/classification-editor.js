@@ -238,7 +238,7 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     const that = this
-    let alertMsg = $L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？')
+    let alertMsg = WrapHtml($L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？'))
     const alertExt = {
       type: 'danger',
       confirm: function () {
@@ -264,7 +264,7 @@ class LevelBox extends React.Component {
     }
 
     if (item[3] !== true) {
-      alertMsg = $L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。')
+      alertMsg = WrapHtml($L('删除后子分类也将被一并删除。[] 如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。'))
       alertExt.confirmText = $L('删除')
       alertExt.cancelText = $L('禁用')
       alertExt.cancel = function () {
@@ -452,7 +452,7 @@ class DlgImports extends RbModalHandler {
     this.setState({ inProgress: true })
     const url = `/admin/metadata/classification/imports/file?dest=${this.props.id}&file=${$encode(this.state.uploadFile)}`
     $.post(url, (res) => {
-      if (res.error_code === 0) this.__checkState(res.data)
+      if (res.error_code === 0) this._checkState(res.data)
       else RbHighbar.error(res.error_msg)
     })
   }
@@ -467,15 +467,18 @@ class DlgImports extends RbModalHandler {
         this.hide()
         that.setState({ inProgress: true })
         $.post(url, (res) => {
-          if (res.error_code === 0) that.__checkState(res.data)
+          if (res.error_code === 0) that._checkState(res.data)
           else RbHighbar.error(res.error_msg)
         })
       },
     })
   }
 
-  __checkState(taskid) {
-    if (!this.__mp) this.__mp = new Mprogress({ template: 1, start: true })
+  _checkState(taskid) {
+    if (!this.__mp) {
+      const mp_parent = $(this._dlg._element).find('.modal-body').attr('id')
+      this.__mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+    }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
@@ -492,7 +495,7 @@ class DlgImports extends RbModalHandler {
           setTimeout(() => location.reload(), 1500)
         } else {
           this.__mp.set(cp)
-          setTimeout(() => this.__checkState(taskid), 1000)
+          setTimeout(() => this._checkState(taskid), 1000)
         }
       }
     })

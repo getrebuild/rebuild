@@ -11,7 +11,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.general.FormsBuilder;
+import com.rebuild.core.support.i18n.Language;
 
 /**
  * 审批可修改字段表单
@@ -39,6 +41,10 @@ public class FormBuilder {
      */
     public JSONArray build(JSONArray elements) {
         Record data = UseFormsBuilder.instance.findRecord(record, user, elements);
+        if (data == null) {
+            throw new DefinedException(403, Language.L("无法读取审批记录"));
+        }
+
         UseFormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user);
         return elements;
     }
@@ -52,6 +58,7 @@ public class FormBuilder {
             super.buildModelElements(elements, entity, data, user, false);
         }
 
+        // Make it's access
         protected Record findRecord(ID id, ID user, JSONArray elements) {
             return super.findRecord(id, user, elements);
         }

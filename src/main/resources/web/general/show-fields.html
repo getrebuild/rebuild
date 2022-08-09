@@ -58,13 +58,9 @@
           $.get(`${settingsUrl}/alist`, (res) => {
             const ccfg = res.data.find((x) => x[0] === cfgid)
             if (rb.isAdminUser) {
-              renderRbcomp(
-                <Share2 title={$L('列显示')} list={res.data} configName={ccfg ? ccfg[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />,
-                'shareTo',
-                function () {
-                  shareToComp = this
-                }
-              )
+              renderRbcomp(<Share2 title={$L('列显示')} list={res.data} configName={ccfg ? ccfg[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
+                shareToComp = this
+              })
             } else {
               const data = res.data.map((x) => {
                 x[4] = entity
@@ -91,14 +87,10 @@
           const _save = function () {
             const $btn = $(this).button('loading')
             const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
-            $.post(
-              `${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`,
-              JSON.stringify(config),
-              function (res) {
-                if (res.error_code === 0) parent.location.reload()
-                $btn.button('reset')
-              }
-            )
+            $.post(`${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(config), function (res) {
+              if (res.error_code === 0) parent.location.reload()
+              $btn.button('reset')
+            })
           }
 
           if (overwriteMode) {

@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.general.OperatingContext;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  * @author RB
  * @since 2022/07/04
  */
+@Slf4j
 public class TriggerSource {
 
     private final List<Object[]> sources = new ArrayList<>();
@@ -24,6 +26,7 @@ public class TriggerSource {
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
         addNext(origin, originAction);
+        System.out.println("[dev] New trigger-source : " + this);
     }
 
     public void addNext(OperatingContext next, TriggerWhen nextAction) {

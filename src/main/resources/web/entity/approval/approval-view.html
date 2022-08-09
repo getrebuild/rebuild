@@ -18,6 +18,7 @@
     <div class="main-content container-fluid p-0">
       <div class="rbflow-design preview" id="rbflow"></div>
     </div>
+
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/approval-design.js}" type="text/babel"></script>
@@ -43,18 +44,25 @@
             })
         }
 
-        const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(window.__PageConfig.id) : null
+        const id = window.__PageConfig.id
+
+        const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(id) : null
         if (ph) $('.J_close').click(() => ph.hide())
         else $('.J_close').remove()
 
-        $.get(`/app/entity/approval/flow-definition?id=${window.__PageConfig.id}`, function (res) {
+        $.get(`/app/entity/approval/flow-definition?id=${id}`, function (res) {
           ph && ph.hideLoading()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
           } else {
             // @see `wpc` in approval-design.js
             wpc = { ...res.data, preview: true }
-            renderRbcomp(<RbFlowCanvas />, 'rbflow')
+            renderRbcomp(<RbFlowCanvas />, 'rbflow', function () {
+              if (id === '028-0000000000000000') {
+                $('.end-node').css('margin-top', 5)
+                $('.start-node .text').text($L('系统用户'))
+              }
+            })
           }
         })
       })

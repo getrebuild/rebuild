@@ -126,27 +126,32 @@ class RbList extends React.Component {
   }
 
   componentDidMount() {
+    // FIXME 拖到底部才能左右滚动
+
     const $scroller = $(this._rblistScroller)
     $scroller.perfectScrollbar({
-      wheelSpeed: 2,
+      suppressScrollY: true,
     })
 
-    // enable pin
-    if ($(window).height() > 666 && $(window).width() >= 1280) {
-      $('.main-content').addClass('pb-0')
-      // $('.main-content .rb-datatable-header').addClass('header-fixed')
-      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
+    // // enable pin
+    // if ($(window).height() > 666 && $(window).width() >= 1280) {
+    //   $('.main-content').addClass('pb-0')
+    //   // $('.main-content .rb-datatable-header').addClass('header-fixed')
+    //   if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
-      $addResizeHandler(() => {
-        let mh = $(window).height() - 208
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
-        $scroller.css({ maxHeight: mh })
-        $scroller.perfectScrollbar('update')
-      })()
-    } else {
-      $('.main-content .rb-datatable-header').addClass('header-fixed')
-    }
+    //   $addResizeHandler(() => {
+    //     let mh = $(window).height() - 208
+    //     if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+    //     if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
+    //     $scroller.css({ maxHeight: mh })
+    //     $scroller.perfectScrollbar('update')
+    //   })()
+    // } else {
+    //   $('.main-content .rb-datatable-header').addClass('header-fixed')
+    // }
+
+    // v2.10
+    $('.main-content .rb-datatable-header').addClass('header-fixed footer-fixed')
 
     if (supportFixedColumns) {
       let slLast = 0
@@ -566,7 +571,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+    <td key={k} title={$L('共 %d 项', vLen)}>
       <div className="column-files" style={s}>
         {v.map((item) => {
           const fileName = $fileCutName(item)
@@ -734,6 +739,23 @@ CellRenders.addRender('SIGN', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('PICKLIST', function (v, s, k) {
+  // Use badge
+  if (typeof v === 'object') {
+    return (
+      <td key={k} className="td-sm column-state">
+        <div style={s} title={v.text}>
+          <span className="badge badge-primary" style={{ backgroundColor: v.color }}>
+            {v.text}
+          </span>
+        </div>
+      </td>
+    )
+  } else {
+    return CellRenders.renderSimple(v, s, k)
+  }
+})
+
 // ~ 分页组件
 
 class RbListPagination extends React.Component {
@@ -885,23 +907,31 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_edit').click(() => {
+    $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] })
       }
     })
-    $('.J_delete').click(() => {
+
+    $('.J_delete').on('click', () => {
       if ($('.J_delete').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
-      const deleteAfter = function () {
-        that._RbList.reload()
-      }
+
       const needEntity = wpc.type === 'DetailList' || wpc.type === 'DetailView' ? null : entity[0]
-      renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
+      renderRbcomp(
+        <DeleteConfirm
+          ids={ids}
+          entity={needEntity}
+          deleteAfter={() => {
+            that._RbList.reload()
+          }}
+        />
+      )
     })
-    $('.J_view').click(() => {
+
+    $('.J_view').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         location.hash = `!/View/${entity[0]}/${ids[0]}`
@@ -909,20 +939,23 @@ const RbListPage = {
       }
     })
 
-    $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
+    $('.J_columns').on('click', () => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置列显示')))
 
     // 权限实体才有
-    $('.J_assign').click(() => {
+
+    $('.J_assign').on('click', () => {
       if ($('.J_assign').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
-    $('.J_share').click(() => {
+
+    $('.J_share').on('click', () => {
       if ($('.J_share').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
-    $('.J_unshare').click(() => {
+
+    $('.J_unshare').on('click', () => {
       if ($('.J_unshare').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
@@ -941,7 +974,7 @@ const RbListPage = {
     // Filter Pane
     if ($('.quick-filter-pane').length > 0) {
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<AdvFilterPane entity={entity[0]} />, $('.quick-filter-pane')[0])
+      renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $('.quick-filter-pane')[0])
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)
@@ -1123,7 +1156,7 @@ const ChartsWidget = {
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
     $('.J_load-charts').on('click', () => {
-      this.chartLoaded !== true && this.loadWidget()
+      this._chartLoaded !== true && this.loadWidget()
     })
     $('.J_add-chart').on('click', () => this.showChartSelect())
 
@@ -1142,6 +1175,7 @@ const ChartsWidget = {
       this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
       return
     }
+
     // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
       ChartsWidget.__chartSelect = this
@@ -1159,7 +1193,7 @@ const ChartsWidget = {
 
   loadWidget: function () {
     $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
-      this.chartLoaded = true
+      this._chartLoaded = true
       this.__config = res.data || {}
       res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
     })
@@ -1184,6 +1218,43 @@ const ChartsWidget = {
   },
 }
 
+// 分类
+const ClassWidget = {
+  init() {
+    $('.J_load-class').on('click', () => {
+      this._classLoaded !== true && this.loadClass()
+    })
+
+    this._$wrap = $('<div></div>').appendTo('#asideClass')
+    $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo(this._$wrap)
+  },
+
+  loadClass() {
+    $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
+      this._classLoaded = true
+
+      res.data &&
+        res.data.forEach((item) => {
+          $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo(this._$wrap)
+        })
+
+      const $items = this._$wrap.find('.dropdown-item').on('click', function () {
+        $items.removeClass('active')
+        $(this).addClass('active')
+
+        // Clean via
+        $('.J_via-filter').remove()
+
+        const v = $(this).data('id')
+        if (v === '$ALL$') wpc.protocolFilter = null
+        else wpc.protocolFilter = `category:${wpc.entity[0]}:${v}`
+
+        RbListPage.reload()
+      })
+    })
+  },
+}
+
 $(document).ready(() => {
   window.RbListCommon && window.RbListCommon.init(wpc)
 
@@ -1193,7 +1264,7 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('#asideFilters, #asideWidgets').length > 0) {
+  if ($('#asideFilters, #asideWidgets, #asideClass').length > 0) {
     $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
@@ -1204,7 +1275,9 @@ $(document).ready(() => {
       $content.height($(window).height() - 147)
       $content.perfectScrollbar('update')
     })()
-    ChartsWidget.init()
+
+    if ($('#asideWidgets').length > 0) ChartsWidget.init()
+    if ($('#asideClass').length > 0) ClassWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')

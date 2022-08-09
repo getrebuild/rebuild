@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration#%E4%BA%91%E5%AD%98%E5%82%A8" />
-    <title>[[${bundle.L('云存储配置')}]]</title>
+    <title>[[${bundle.L('云存储')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -16,7 +16,8 @@
               <div class="card">
                 <div class="card-header pb-1">
                   [[${bundle.L('云存储')}]]
-                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                  <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>
                 <div class="card-body">
                   <h5>[[${bundle.L('七牛云 QINIU')}]]</h5>
@@ -24,30 +25,22 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('访问域名')}]]</td>
-                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">
-                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[3]}]]
-                        </td>
+                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[3]}]]</td>
                       </tr>
                       <tr>
                         <td>
                           [[${bundle.L('存储空间')}]]
                           <p>[[${bundle.L('存储空间变更需你自行迁移原有数据')}]]</p>
                         </td>
-                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">
-                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]
-                        </td>
+                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥 AK')}]]</td>
-                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">
-                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[0]}]]
-                        </td>
+                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[0]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥 SK')}]]</td>
-                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">
-                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[1]}]]
-                        </td>
+                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[1]}]]</td>
                       </tr>
                     </tbody>
                   </table>

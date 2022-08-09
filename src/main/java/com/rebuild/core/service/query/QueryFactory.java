@@ -18,6 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 查询服务
  *
@@ -59,10 +62,11 @@ public class QueryFactory {
      * @param ajql
      * @param filter
      * @return
+     * @see PersistManagerFactory#createQuery(String, Filter)
      */
     public Query createQuery(String ajql, Filter filter) {
         Assert.notNull(filter, "[filter] cannot be null");
-        return aPMFactory.createQuery(ajql)
+        return new QueryDecorator(ajql, aPMFactory, filter)
                 .setTimeout(QUERY_TIMEOUT)
                 .setSlowLoggerTime(SLOW_LOGGER_TIME)
                 .setFilter(filter);
@@ -136,12 +140,36 @@ public class QueryFactory {
         return createQueryNoFilter(sql).setParameter(1, recordId).unique();
     }
 
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record record(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQuery(sql).setParameter(1, recordId).record();
+    }
+
+    /**
+     * @param recordId
+     * @param fields
+     * @return
+     */
+    public Record recordNoFilter(ID recordId, String... fields) {
+        String sql = buildUniqueSql(recordId, fields);
+        return createQueryNoFilter(sql).setParameter(1, recordId).record();
+    }
+
     private String buildUniqueSql(ID recordId, String... fields) {
         Assert.notNull(recordId, "[recordId] cannot be null");
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        List<String> set = new ArrayList<>();
         if (fields.length == 0) {
-            fields = new String[]{entity.getPrimaryField().getName()};
+            for (Field field : entity.getFields()) {
+                set.add(field.getName());
+            }
+            fields = set.toArray(new String[0]);
         }
 
         return String.format("select %s from %s where %s = ?",

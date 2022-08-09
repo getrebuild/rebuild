@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
+import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,9 +77,13 @@ public class TransformConfigController extends BaseController {
         mv.getModelMap().put("sourceEntity", buildEntity(sourceEntity, true));
         mv.getModelMap().put("targetEntity", buildEntity(targetEntity, false));
 
-        // 明细（两个实体均有明细才返回）
-        if (sourceEntity.getDetailEntity() != null && targetEntity.getDetailEntity() != null) {
-            mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
+        // v2.10 目标为主实体
+        if (targetEntity.getDetailEntity() != null) {
+            if (sourceEntity.getDetailEntity() != null) {
+                mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
+            } else {
+                mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity, true));
+            }
             mv.getModelMap().put("targetDetailEntity", buildEntity(targetEntity.getDetailEntity(), false));
         }
 
@@ -87,41 +92,34 @@ public class TransformConfigController extends BaseController {
         return mv;
     }
 
-    private JSONObject buildEntity(Entity entity, boolean isSource) {
+    private JSONObject buildEntity(Entity entity, boolean sourceTyp) {
         JSONObject entityData = JSONUtils.toJSONObject(
                 new String[] { "entity", "label" },
                 new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
 
         JSONArray fields = new JSONArray();
-        if (isSource) {
+        if (sourceTyp) {
             fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
         }
 
         for (Field field : MetadataSorter.sortFields(entity)) {
-            if (!isSource && !field.isCreatable()) continue;
+            if (!sourceTyp && !field.isCreatable()) continue;
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
 
-            fields.add(easyField.toJSON());
+            if (sourceTyp) {
+                fields.add(easyField.toJSON());
+            } else {
+                fields.add(MetaFormatter.buildRichField(easyField));
+            }
         }
 
         // 二级字段（父级）
-        if (isSource && entity.getMainEntity() != null) {
+        if (sourceTyp && entity.getMainEntity() != null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
-            String namePrefix = dtmField.getName() + ".";
-            String labelPrefix = EasyMetaFactory.getLabel(dtmField) + ".";
 
-            for (Field field : MetadataSorter.sortFields(dtmField.getReferenceEntity())) {
-                if (!field.isQueryable() || MetadataHelper.isCommonsField(field)) continue;
-
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-
-                JSONObject o = (JSONObject) easyField.toJSON();
-                o.put("name", namePrefix + o.getString("name"));
-                o.put("label", labelPrefix + o.getString("label"));
-                fields.add(o);
-            }
+            JSONArray res = MetaFormatter.buildFields(dtmField);
+            if (res != null) fields.addAll(res);
         }
 
         entityData.put("fields", fields);

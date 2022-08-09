@@ -161,7 +161,7 @@ class DatabaseConf extends React.Component {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('数据库名称')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbName" value={this.state.dbName || ''} onChange={this.handleValue} placeholder="rebuild20" />
+              <input type="text" className="form-control form-control-sm" name="dbName" value={this.state.dbName || ''} onChange={this.handleValue} placeholder="rebuild30" />
               <div className="form-text">{$L('如数据库不存在系统将自动创建')}</div>
             </div>
           </div>
@@ -228,7 +228,7 @@ class DatabaseConf extends React.Component {
       dbType: 'mysql',
       dbHost: this.state.dbHost || '127.0.0.1',
       dbPort: this.state.dbPort || 3306,
-      dbName: this.state.dbName || 'rebuild20',
+      dbName: this.state.dbName || 'rebuild30',
       dbUser: this.state.dbUser || 'rebuild',
       dbPassword: this.state.dbPassword || 'rebuild',
     }

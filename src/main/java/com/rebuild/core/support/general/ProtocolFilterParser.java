@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -14,8 +15,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
+import com.rebuild.core.configuration.general.DataListCategory;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -23,6 +26,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -42,7 +46,7 @@ public class ProtocolFilterParser {
     final private String protocolExpr;
 
     /**
-     * @param protocolExpr via:xxx:[field] ref:xxx:[id]
+     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value
      */
     public ProtocolFilterParser(String protocolExpr) {
         this.protocolExpr = protocolExpr;
@@ -59,6 +63,9 @@ public class ProtocolFilterParser {
             }
             case "ref": {
                 return parseRef(ps[1], ps.length > 2 ? ps[2] : null);
+            }
+            case "category": {
+                return parseCategory(ps[1], ps[2]);
             }
             default: {
                 log.warn("Unknown protocol expr : {}", protocolExpr);
@@ -146,6 +153,32 @@ public class ProtocolFilterParser {
         return sqls.isEmpty() ? null
                 : "( " + StringUtils.join(sqls, " and ") + " )";
     }
+
+    /**
+     * @param entity
+     * @param value
+     * @return
+     * @see AdvFilterParser#parseItem(JSONObject, JSONObject)
+     */
+    public String parseCategory(String entity, String value) {
+        Entity rootEntity = MetadataHelper.getEntity(entity);
+        Field classField = DataListCategory.getFieldOfCategory(rootEntity);
+        if (classField == null) return "(9=9)";
+
+        DisplayType dt = EasyMetaFactory.getDisplayType(classField);
+
+        if (dt == DisplayType.MULTISELECT) {
+            return String.format("%s && %d", classField.getName(), ObjectUtils.toInt(value));
+        } else if (dt == DisplayType.N2NREFERENCE) {
+            return String.format(
+                    "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                    rootEntity.getPrimaryField().getName(), classField.getName(), StringEscapeUtils.escapeSql(value));
+        } else {
+            return String.format("%s = '%s'", classField.getName(), StringEscapeUtils.escapeSql(value));
+        }
+    }
+
+    // --
 
     /**
      * 附加过滤条件

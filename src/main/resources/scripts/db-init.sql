@@ -7,12 +7,12 @@
 -- #1 database/user
 -- 首次使用请移除以下注释以创建数据库和用户
 /*
-CREATE DATABASE rebuild20 COLLATE utf8mb4_general_ci;
+CREATE DATABASE rebuild30 COLLATE utf8mb4_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
-GRANT ALL PRIVILEGES ON rebuild20.* TO 'rebuild'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON rebuild30.* TO 'rebuild'@'127.0.0.1';
 GRANT RELOAD ON *.* TO 'rebuild'@'127.0.0.1';
 FLUSH PRIVILEGES;
-USE rebuild20;
+USE rebuild30;
 */
 
 -- #2 schemas
@@ -187,12 +187,13 @@ create table if not exists `pick_list` (
   `IS_DEFAULT`         char(1) default 'F',
   `IS_HIDE`            char(1) default 'F',
   `MASK_VALUE`         bigint(20) default '0' comment '(MultiSelect专用)',
+  `COLOR`              varchar(10),
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`ITEM_ID`),
-  index IX0_pick_list (`BELONG_ENTITY`, `BELONG_FIELD`)
+  index IX0_pick_list (`BELONG_ENTITY`, `BELONG_FIELD`, `SEQ`)
 )Engine=InnoDB;
 
 -- ************ Entity [LayoutConfig] DDL ************
@@ -435,12 +436,14 @@ create table if not exists `robot_approval_step` (
   `PREV_NODE`          varchar(100) not null comment '上一审批节点',
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
   `IS_WAITING`         char(1) default 'F' comment '是否生效',
+  `IS_BACKED`          char(1) default 'F' comment '是否退回',
+  `NODE_BATCH`         varchar(100) comment '审批节点批次',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`STEP_ID`),
-  index IX0_robot_approval_step (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`)
+  index IX0_robot_approval_step (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`, `IS_BACKED`, `NODE_BATCH`)
 )Engine=InnoDB;
 
 -- ************ Entity [RebuildApi] DDL ************
@@ -846,4 +849,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 44);
+  values ('021-9000000000000001', 'DBVer', 46);

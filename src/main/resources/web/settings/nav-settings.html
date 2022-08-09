@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('导航菜单')}]]</title>
-    <style type="text/css">
+    <style>
       .dd3-content > .zmdi {
         position: absolute;
         width: 28px;
@@ -43,7 +43,7 @@
       <div class="row m-0">
         <div class="col-5 mt-2 pr-0">
           <div class="sortable-box h380 rb-scroller">
-            <ol class="dd-list J_config"></ol>
+            <ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
           </div>
           <div class="actions">
             <button type="button" class="btn btn-secondary btn-sm J_add-menu">+ [[${bundle.L('添加菜单项')}]]</button>
@@ -83,6 +83,12 @@
                 <span class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></span>
               </span>
               <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('菜单名称')}" />
+            </div>
+            <div class="input-group mb-3 J_defaultOpen" style="display: none">
+              <label class="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0">
+                <input class="custom-control-input" type="checkbox" id="defaultOpen" />
+                <span class="custom-control-label">[[${bundle.L('默认展开')}]]</span>
+              </label>
             </div>
             <div>
               <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.L('确定')}]]</button>

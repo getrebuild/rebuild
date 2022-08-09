@@ -16,7 +16,7 @@ import org.springframework.core.NamedThreadLocal;
  * @author devezhao
  * @since 2020/9/28
  */
-public class FormBuilderContextHolder {
+public class FormsBuilderContextHolder {
 
     private static final ThreadLocal<ID> MAINID_OF_DETAIL = new NamedThreadLocal<>("MainId from details");
 

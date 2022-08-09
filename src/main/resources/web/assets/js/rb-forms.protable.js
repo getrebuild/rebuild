@@ -77,11 +77,7 @@ class ProTable extends React.Component {
           </tbody>
         </table>
 
-        {(this.state.inlineForms || []).length === 0 && (
-          <div className="text-center text-muted mt-6">
-            {$L('请添加明细')}
-          </div>
-        )}
+        {(this.state.inlineForms || []).length === 0 && <div className="text-center text-muted mt-6">{$L('请添加明细')}</div>}
       </div>
     )
   }
@@ -112,6 +108,12 @@ class ProTable extends React.Component {
           res.data && res.data.forEach((item) => this.addLine(item))
         })
       }
+      // 转换
+      else if (this.props.previewid) {
+        $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
+          res.data && res.data.forEach((item) => this.addLine(item))
+        })
+      }
     })
   }
 
@@ -123,7 +125,7 @@ class ProTable extends React.Component {
     const key = `form-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} key={key} ref={ref}>
+      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={key} ref={ref}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
@@ -151,7 +153,17 @@ class ProTable extends React.Component {
     this.setState({ inlineForms: forms })
   }
 
-  editLine(id) {}
+  editLine(id) {
+    console.log('TODO :', id)
+  }
+
+  clear(field) {
+    this.state.inlineForms &&
+      this.state.inlineForms.forEach((c) => {
+        const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
+        fieldComp && fieldComp.setValue(null)
+      })
+  }
 
   buildFormData() {
     const datas = []
@@ -194,6 +206,7 @@ class ProTable extends React.Component {
 class InlineForm extends RbForm {
   constructor(props) {
     super(props)
+    this._InlineForm = true
   }
 
   render() {
@@ -230,7 +243,7 @@ class InlineForm extends RbForm {
 
     if (error) return error
 
-    // 未修改
+    // 是否修改
     if (Object.keys(data).length > 0) {
       data.metadata = {
         entity: this.state.entity,

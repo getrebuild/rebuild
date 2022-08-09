@@ -180,6 +180,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: 0;
 }
 
+.file-field.files .img-thumbnail span.status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: rgba(66, 133, 244, 0.1);
+  border-radius: 2px;
+  text-align: right;
+}
+
+.file-field.files .img-thumbnail span.status > .zmdi {
+  font-size: 1.231rem;
+  margin-right: 8px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
 .aside-2tree li > a > .icon {
   font-size: 12px;
   color: #aaa;

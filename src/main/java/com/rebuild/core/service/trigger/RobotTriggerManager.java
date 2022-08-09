@@ -153,7 +153,7 @@ public class RobotTriggerManager implements ConfigManager {
         Application.getCommonsCache().evict(CKEY_TARF);
     }
 
-    private static final String CKEY_TARF = "TriggersAutoReadonlyFields";
+    private static final String CKEY_TARF = "TriggersAutoReadonlyFields2";
     /**
      * 获取触发器中涉及的自动只读字段
      *
@@ -163,18 +163,18 @@ public class RobotTriggerManager implements ConfigManager {
     public Set<String> getAutoReadonlyFields(String entity) {
         @SuppressWarnings("unchecked")
         Map<String, Set<String>> fieldsMap = (Map<String, Set<String>>) Application.getCommonsCache().getx(CKEY_TARF);
-        if (fieldsMap == null) {
-            fieldsMap = this.initAutoReadonlyFields();
-        }
+        if (fieldsMap == null) fieldsMap = this.initAutoReadonlyFields();
+
         return Collections.unmodifiableSet(fieldsMap.getOrDefault(entity, Collections.emptySet()));
     }
 
     synchronized
     private Map<String, Set<String>> initAutoReadonlyFields() {
         Object[][] array = Application.createQueryNoFilter(
-                "select actionContent from RobotTriggerConfig where (actionType = ? or actionType = ?) and isDisabled = 'F'")
+                "select actionContent,actionType from RobotTriggerConfig where (actionType = ? or actionType = ? or actionType = ?) and isDisabled = 'F'")
                 .setParameter(1, ActionType.FIELDAGGREGATION.name())
                 .setParameter(2, ActionType.FIELDWRITEBACK.name())
+                .setParameter(3, ActionType.GROUPAGGREGATION.name())
                 .array();
 
         CaseInsensitiveMap<String, Set<String>> fieldsMap = new CaseInsensitiveMap<>();
@@ -185,7 +185,9 @@ public class RobotTriggerManager implements ConfigManager {
             }
 
             String targetEntity = content.getString("targetEntity");
-            targetEntity = targetEntity.split("\\.")[1];  // Field.Entity
+            if (!ActionType.GROUPAGGREGATION.name().equals(o[1])) {
+                targetEntity = targetEntity.split("\\.")[1];  // Field.Entity
+            }
 
             Set<String> fields = fieldsMap.computeIfAbsent(targetEntity, k -> new HashSet<>());
             for (Object item : content.getJSONArray("items")) {
