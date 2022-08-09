@@ -70,7 +70,7 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     public FieldAggregation(ActionContext context) {
-        this(context, 9);
+        this(context, 32);
     }
 
     protected FieldAggregation(ActionContext context, int maxTriggerDepth) {
