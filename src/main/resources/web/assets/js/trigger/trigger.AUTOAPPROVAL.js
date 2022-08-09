@@ -21,8 +21,8 @@ class ContentAutoApproval extends ActionContentSpec {
                 <option value="">{$L('不使用')}</option>
                 {(this.state.approvalList || []).map((item) => {
                   return (
-                    <option key={item.id} value={item.id} disabled={item.disabled === true}>
-                      {item.text}
+                    <option key={item.id} value={item.id}>
+                      {item.text || `@${item.id.toUpperCase()}`}
                     </option>
                   )
                 })}
@@ -37,7 +37,7 @@ class ContentAutoApproval extends ActionContentSpec {
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$submitMode = c)} />
                 <span className="custom-control-label">{$L('提交模式')}</span>
               </label>
-              <p className="form-text">{$L('仅提交不做自动审批。选择的审批流程至少配置一个审批人，否则会提交失败')}</p>
+              <p className="form-text">{$L('仅提交不审批。选择的审批流程至少配置一个审批人，否则会提交失败')}</p>
             </div>
           </div>
         </form>

@@ -62,14 +62,15 @@ public class GroupAggregationRefresh {
                 entity.getName(),
                 StringUtils.join(targetWhere, " or "));
         Object[][] targetArray = Application.createQueryNoFilter(sql).array();
-        log.info("Refreshing target(s) : {}", targetArray.length);
+        log.info("Refreshing target record(s) : {}", targetArray.length);
 
         ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();
 
         for (Object[] o : targetArray) {
             ID targetRecordId = (ID) o[o.length - 1];
-            if (targetRecordId.equals(parent.targetRecordId)) continue;
+            // FIXME 临时修复调拨库存无效问题(2)
+//            if (targetRecordId.equals(parent.targetRecordId)) continue;
 
             ActionContext actionContext = new ActionContext(null,
                     parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());

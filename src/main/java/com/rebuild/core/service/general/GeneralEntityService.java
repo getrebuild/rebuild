@@ -173,6 +173,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         record = super.update(record);
 
         // 主记录修改时传导给明细（若有），以便触发分组聚合触发器
+        // FIXME 只传递给一个
         TriggerAction[] hasTriggers = getSpecTriggers(record.getEntity().getDetailEntity(),
                 ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
         if (hasTriggers.length > 0) {

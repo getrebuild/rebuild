@@ -38,7 +38,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
-import java.io.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -399,7 +398,19 @@ public class Installer implements InstallState {
         bmi.setUser(UserService.SYSTEM_USER);
         TaskExecutors.run(bmi);
 
-        return bmi.getCreatedEntity().toArray(new String[0]);
+        Map<String, Integer> sorted = new HashMap<>();
+        int seq = 0;
+        for (Object o : bmi.getIndexSchemas()) {
+            sorted.put(((JSONObject) o).getString("key"), seq++);
+        }
+
+        List<String> created = bmi.getCreatedEntity();
+        created.sort((o1, o2) -> {
+            int i1 = sorted.getOrDefault(o1, 99);
+            int i2 = sorted.getOrDefault(o2, 99);
+            return Integer.compare(i1, i2);
+        });
+        return created.toArray(new String[0]);
     }
 
     /**

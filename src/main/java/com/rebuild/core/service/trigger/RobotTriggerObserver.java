@@ -228,13 +228,6 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     /**
-     * 强制自执行
-     */
-    public static void forceTriggerSelfOnce() {
-        getTriggerSource().setSkipOnce();
-    }
-
-    /**
      * 跳过触发器的执行
      */
     public static void setSkipTriggers() {
