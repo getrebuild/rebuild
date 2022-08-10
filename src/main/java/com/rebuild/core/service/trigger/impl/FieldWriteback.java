@@ -86,7 +86,11 @@ public class FieldWriteback extends FieldAggregation {
         if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
-        if (targetRecordIds.isEmpty()) return null;
+
+        if (targetRecordIds.isEmpty()) {
+            log.debug("No target record(a) found");
+            return "target-0";
+        }
 
         if (targetRecordData.isEmpty()) {
             log.info("No data of target record available : {}", targetRecordId);
@@ -137,7 +141,8 @@ public class FieldWriteback extends FieldAggregation {
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }
-        return "target:" + affected;
+
+        return "affected:" + affected;
     }
 
     @Override

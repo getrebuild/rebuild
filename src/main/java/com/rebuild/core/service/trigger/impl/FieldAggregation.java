@@ -100,7 +100,7 @@ public class FieldAggregation extends TriggerAction {
             // 在整个触发链上只触发1次，避免循环调用
             // FIXME 20220804 某些场景是否允许2次，而非1次???
             if (tschain.contains(chainName)) {
-                log.warn(w + "! TRIGGER ONCE ONLY : {}", chainName);
+                log.warn(w + "!!! TRIGGER ONCE ONLY");
                 return null;
             } else {
                 log.info(w);
@@ -121,9 +121,10 @@ public class FieldAggregation extends TriggerAction {
         if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
+
         if (targetRecordId == null) {
-            log.warn("No target record found");
-            return null;
+            log.info("No target record(s) found");
+            return "target-0";
         }
 
         // 聚合数据过滤
@@ -192,7 +193,7 @@ public class FieldAggregation extends TriggerAction {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
 
-            return "target:" + targetRecord.getPrimary();
+            return "affected:" + targetRecord.getPrimary();
         }
         return "target-empty";
     }

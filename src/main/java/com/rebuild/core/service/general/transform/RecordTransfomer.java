@@ -48,9 +48,6 @@ public class RecordTransfomer extends SetUser {
     final private JSONObject transConfig;
     final private boolean skipGuard;
 
-    // 所有新建的记录
-    private List<ID> newIds = new ArrayList<>();
-
     /**
      * @param trnasid
      */
@@ -70,13 +67,6 @@ public class RecordTransfomer extends SetUser {
         this.targetEntity = targetEntity;
         this.transConfig = transConfig;
         this.skipGuard = skipGuard;
-    }
-
-    /**
-     * @return
-     */
-    public List<ID> getNewIds() {
-        return newIds;
     }
 
     /**

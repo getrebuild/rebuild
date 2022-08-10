@@ -69,8 +69,7 @@ public class GroupAggregationRefresh {
 
         for (Object[] o : targetArray) {
             ID targetRecordId = (ID) o[o.length - 1];
-            // FIXME 临时修复调拨库存无效问题(2)
-//            if (targetRecordId.equals(parent.targetRecordId)) continue;
+            if (targetRecordId.equals(parent.targetRecordId)) continue;
 
             ActionContext actionContext = new ActionContext(null,
                     parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());

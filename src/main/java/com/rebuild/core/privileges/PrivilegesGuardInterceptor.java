@@ -17,7 +17,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.CommonsService;
@@ -111,9 +110,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         // 跳过
         ID skipGuardId;
         if ((skipGuardId = PrivilegesGuardContextHolder.getSkipGuardOnce()) != null) {
-            if (!EntityHelper.isUnsavedId(skipGuardId)) {
-                log.info("Allow no permission({}) passed once : {}", action.getName(), skipGuardId);
-            }
+            log.debug("Allow no permission({}) passed once : {}", action.getName(), skipGuardId);
             return;
         }
 
