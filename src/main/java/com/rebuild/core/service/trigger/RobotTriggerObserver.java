@@ -119,12 +119,13 @@ public class RobotTriggerObserver extends OperatingObserver {
             return;
         }
 
-        final TriggerSource triggerSource = getTriggerSource();
+        TriggerSource triggerSource = getTriggerSource();
         final boolean originTriggerSource = triggerSource == null;
 
         // 设置原始触发源
         if (originTriggerSource) {
             TRIGGER_SOURCE.set(new TriggerSource(context, when));
+            triggerSource = getTriggerSource();
 
             // 强制清理一次，正常不会出现此情况
             Object o = FieldAggregation.cleanTriggerChain();
@@ -146,24 +147,24 @@ public class RobotTriggerObserver extends OperatingObserver {
             }
         }
 
-        int depth = triggerSource == null ? 1 : triggerSource.getSourceDepth();
+        final String sourceId = triggerSource.getSourceId();
         try {
             for (TriggerAction action : beExecuted) {
-                String w = String.format("Trigger.%d [ %s ] executing on record (%s) : %s",
-                        depth, action.getType(), when.name(), primaryId);
+                String w = String.format("Trigger.%s [ %s ] executing on record (%s) : %s",
+                        sourceId, action.getType(), when.name(), primaryId);
                 log.info(w);
 
                 try {
                     Object ret = action.execute(context);
                     System.out.println("[dev] " + w + " > " + (ret == null ? "N" : ret));
 
-                    String log = ret == null ? null : ret.toString();
+                    String logContent = ret == null ? null : ret.toString();
                     if (originTriggerSource) {
-                        if (log != null) log += "; ";
-                        log += "chain:" + getTriggerSource();
+                        if (logContent != null) logContent += "; ";
+                        logContent += "chain:" + getTriggerSource();
                     }
                     CommonsLog.createLog(TYPE_TRIGGER,
-                            context.getOperator(), action.getActionContext().getConfigId(), log);
+                            context.getOperator(), action.getActionContext().getConfigId(), logContent);
 
                 } catch (Throwable ex) {
 
@@ -190,6 +191,11 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                 } finally {
                     action.clean();
+
+                    // 原始触发源则清理
+                    if (originTriggerSource) {
+                        FieldAggregation.cleanTriggerChain();
+                    }
                 }
             }
 
@@ -197,7 +203,6 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (originTriggerSource) {
                 log.info("Clear trigger-source : {}", getTriggerSource());
                 TRIGGER_SOURCE.remove();
-                FieldAggregation.cleanTriggerChain();
             }
         }
     }

@@ -59,10 +59,9 @@ public class GroupAggregation extends FieldAggregation {
         super.clean();
 
         if (groupAggregationRefresh != null) {
-            // FIXME 临时修复调拨库存无效问题(2)
-            cleanTriggerChain();
-
             log.info("Clear after refresh : {}", groupAggregationRefresh);
+
+            cleanTriggerChain();
             groupAggregationRefresh.refresh();
         }
     }
@@ -257,20 +256,16 @@ public class GroupAggregation extends FieldAggregation {
         ID current = itemId;
         for (int i = 0; i < 4; i++) {
             Object[] o = Application.createQueryNoFilter(
-                            "select level,parent from ClassificationData where itemId = ?")
+                    "select level,parent from ClassificationData where itemId = ?")
                     .setParameter(1, current)
                     .unique();
 
             if (o == null) break;
             if ((int) o[0] < specLevel) break;
 
-            if ((int) o[0] == specLevel) {
-                return current;
-            } else {
-                current = (ID) o[1];
-            }
+            if ((int) o[0] == specLevel) return current;
+            else current = (ID) o[1];
         }
-
         return null;
     }
 }

@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.general.OperatingContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +24,23 @@ import java.util.List;
 @Slf4j
 public class TriggerSource {
 
+    private String id;
     private final List<Object[]> sources = new ArrayList<>();
 
     private boolean skipOnce = false;
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
+        this.id = RandomUtils.nextInt(1000, 9999) + "-";
         addNext(origin, originAction);
         System.out.println("[dev] New trigger-source : " + this);
     }
 
     public void addNext(OperatingContext next, TriggerWhen nextAction) {
         sources.add(new Object[] { next, nextAction });
+    }
+
+    public String getSourceId() {
+        return this.id + sources.size();
     }
 
     public OperatingContext getOrigin() {
@@ -52,10 +59,6 @@ public class TriggerSource {
         Object[] last = sources.get(sources.size() - 1);
         return ((OperatingContext) last[0]).getAnyRecord().getPrimary()
                 + ":" + ((TriggerWhen) last[1]).name().charAt(0);
-    }
-
-    public int getSourceDepth() {
-        return sources.size();
     }
 
     public void setSkipOnce() {
