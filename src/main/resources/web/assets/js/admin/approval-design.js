@@ -654,10 +654,10 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('或签 (一名审批人同意或拒绝)')}</span>
             </label>
           </div>
-          <div className="form-group mt-4">
+          <div className="form-group mt-4 hide" title="FIXME 默认启用无需配置???">
             <label className="text-bold">{$L('驳回时')}</label>
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep === true} onChange={this.handleChange} />
+              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep !== false} onChange={this.handleChange} />
               <span className="custom-control-label">{$L('允许退回到指定步骤 (否则为整体驳回)')}</span>
             </label>
           </div>
