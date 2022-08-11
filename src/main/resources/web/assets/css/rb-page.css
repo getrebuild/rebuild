@@ -3321,7 +3321,7 @@ form {
 }
 
 .modal.select-list .modal-body li + li {
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .modal.select-list .modal-body li a {
