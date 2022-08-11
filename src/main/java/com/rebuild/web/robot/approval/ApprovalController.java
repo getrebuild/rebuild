@@ -154,6 +154,11 @@ public class ApprovalController extends BaseController {
         return new ApprovalProcessor(recordId).getWorkedSteps();
     }
 
+    @GetMapping("fetch-backsteps")
+    public JSON fetchBackSteps(@IdParam(name = "record") ID recordId) {
+        return new ApprovalProcessor(recordId).getBackSteps();
+    }
+
     @PostMapping("submit")
     public RespBody doSubmit(HttpServletRequest request,
                              @IdParam(name = "record") ID recordId, @IdParam(name = "approval") ID approvalId) {

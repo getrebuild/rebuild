@@ -360,9 +360,7 @@ public class ApprovalStepService extends InternalPersistService {
         if (node != null) sql += " and node = '" + node + "'";
         if (darftOnly) sql += " and state = " + ApprovalState.DRAFT.getState();
 
-        Object[][] canceled = Application.createQueryNoFilter(sql)
-                .setParameter(1, recordId)
-                .array();
+        Object[][] canceled = Application.createQueryNoFilter(sql).setParameter(1, recordId).array();
 
         for (Object[] o : canceled) {
             if (excludeStep != null && excludeStep.equals(o[0])) {

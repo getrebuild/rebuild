@@ -746,7 +746,7 @@ body {
 
 .timeline.approved-steps .timeline-item.state0::before {
   border-color: #fff;
-  background-color: #409eff;
+  background-color: #4285f4;
 }
 
 .timeline.approved-steps .timeline-item.state10::before {

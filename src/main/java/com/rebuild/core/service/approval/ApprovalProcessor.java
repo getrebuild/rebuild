@@ -180,15 +180,19 @@ public class ApprovalProcessor extends SetUser {
             nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
         }
 
-        Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
-        Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+        Set<ID> ccs = null;
+        Set<ID> ccs4share = null;
+        if (state == ApprovalState.APPROVED) {
+            ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+            ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+        }
 
         FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
         Application.getBean(ApprovalStepService.class)
                 .txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData, checkUseGroup);
 
         // 非主事物
-        share2CcIfNeed(this.record, ccs4share);
+        if (ccs4share != null) share2CcIfNeed(this.record, ccs4share);
     }
 
     /**
@@ -385,7 +389,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 获取已执行流程列表
+     * 获取已执行步骤
      *
      * @return returns [ [S,S], [S], [SSS], [S] ]
      */
@@ -419,13 +423,13 @@ public class ApprovalProcessor extends SetUser {
         }
 
         JSONArray steps = new JSONArray();
-        JSONObject submitter = JSONUtils.toJSONObject(
+        JSONObject submitStep = JSONUtils.toJSONObject(
                 new String[]{"submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState"},
                 new Object[]{firstStep[5],
                         UserHelper.getName((ID) firstStep[5]),
                         CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
                         status.getApprovalId(), status.getApprovalName(), status.getCurrentState().getState()});
-        steps.add(submitter);
+        steps.add(submitStep);
 
         int nodeIndex = 0;
         Map<String, String> nodeIndexNames = new HashMap<>();
@@ -486,6 +490,45 @@ public class ApprovalProcessor extends SetUser {
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
+    }
+
+    /**
+     * 获取可回退节点
+     *
+     * @return
+     */
+    public JSONArray getBackSteps() {
+        ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+        this.approval = status.getApprovalId();
+
+        String currentNode = getCurrentNodeId(status);
+        if (FlowNode.NODE_ROOT.equals(currentNode)) return JSONUtils.EMPTY_ARRAY;
+
+        FlowParser flowParser = getFlowParser();
+        LinkedList<String[]> set = new LinkedList<>();
+        while (currentNode != null) {
+            FlowNode node = flowParser.getNode(currentNode);
+            set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
+
+            currentNode = node.prevNodes;
+            if (FlowNode.NODE_ROOT.equals(currentNode)) currentNode = null;
+        }
+        if (set.size() < 2) return JSONUtils.EMPTY_ARRAY;
+
+        // 移除当前步骤
+        set.removeLast();
+
+        JSONArray back = new JSONArray();
+        int nodeIndex = 0;
+        for (String[] s : set) {
+            nodeIndex++;
+
+            if (StringUtils.isBlank(s[1])) {
+                s[1] = Language.L("审批人") + "#" + nodeIndex;
+            }
+            back.add(JSONUtils.toJSONObject(new String[] { "node", "nodeName" }, s ));
+        }
+        return back;
     }
 
     /**

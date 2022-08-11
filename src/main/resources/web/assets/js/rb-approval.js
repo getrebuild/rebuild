@@ -458,27 +458,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const that = this
     if (state === 11 && this.state.isRejectStep) {
       this.disabled(true)
-      $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
+      $.get(`/app/entity/approval/fetch-backsteps?record=${this.props.id}`, (res) => {
         this.disabled()
 
-        const ss = []
-        for (let i = 1; i < (res.data || []).length - 1; i++) {
-          let node = null
-          for (let j = 0; j < res.data[i].length; j++) {
-            let s = res.data[i][j]
-            if (s.state === 10) {
-              node = s
-            } else if (s.state !== 10) {
-              node = null
-              break
-            }
-          }
-
-          if (node && node.node !== this.state.currentNode) {
-            ss.push({ node: node.node, nodeName: node.nodeName })
-          }
-        }
-
+        const ss = res.data || []
         RbAlert.create(
           <RF>
             <div>{$L('请选择驳回方式')}</div>
@@ -503,7 +486,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             onConfirm: function () {
               this.disabled(true)
               const node = $(this._element).find('select').val()
-              that.post2(state, node === '0' ? null : node)
+              that.post2(state, node === '0' ? null : node, this)
             },
             onRendered: function () {
               $(this._element).find('select').select2({
@@ -518,7 +501,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
   }
 
-  post2(state, rejectNode) {
+  post2(state, rejectNode, _alert) {
     const aformData = {}
     if (this.state.aform && state === 10) {
       const fd = this._rbform.__FormData
@@ -549,17 +532,21 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const that = this
     function fn() {
       that.disabled(true)
+      _alert && _alert.disabled(true)
       $.post(`/app/entity/approval/approve?record=${that.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
+        that.disabled()
+        _alert && _alert.disabled()
+
         if (res.error_code === 498) {
           that.setState({ bizMessage: res.error_msg })
           that.getNextStep()
         } else if (res.error_code > 0) {
           RbHighbar.error(res.error_msg)
         } else {
+          _alert && _alert.hide()
           _reload(that, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
           typeof that.props.call === 'function' && that.props.call()
         }
-        that.disabled()
       })
     }
 
