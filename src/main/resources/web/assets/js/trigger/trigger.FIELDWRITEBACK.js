@@ -256,17 +256,18 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   addItem() {
-    const tf = $(this._$targetField).val()
+    const targetField = $(this._$targetField).val()
     const mode = $(this._$updateMode).val()
-    if (!tf) return RbHighbar.create($L('请选择目标字段'))
+    if (!targetField) return RbHighbar.create($L('请选择目标字段'))
 
     let sourceField = null
     if (mode === 'FIELD') {
       sourceField = $(this._$sourceField).val()
+      if (!sourceField) return RbHighbar.create('请选择源字段')
 
       // 目标字段=源字段
-      const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-      if (tfFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
+      const targetFieldFull = `${$(this._$targetEntity).val().split('.')[0]}.${targetField}`.replace('$PRIMARY$.', '')
+      if (targetFieldFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
       // ...
     } else if (mode === 'FORMULA') {
@@ -276,15 +277,15 @@ class ContentFieldWriteback extends ActionContentSpec {
       sourceField = this._$sourceValue.val()
       if (!sourceField) return
     } else if (mode === 'VNULL') {
-      const tf2 = this.state.targetFields.find((x) => x.name === tf)
-      if (!tf2.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', `[ ${tf2.label} ]`))
+      const tf = this.state.targetFields.find((x) => x.name === targetField)
+      if (!tf.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', `[ ${tf.label} ]`))
     }
 
     const items = this.state.items || []
-    const exists = items.find((x) => x.targetField === tf)
+    const exists = items.find((x) => x.targetField === targetField)
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
-    items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
+    items.push({ targetField: targetField, updateMode: mode, sourceField: sourceField })
     this.setState({ items: items }, () => this._$sourceFormula && this._$sourceFormula.clear())
   }
 
