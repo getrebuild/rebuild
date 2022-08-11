@@ -10,10 +10,10 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.general.OperatingContext;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 触发源
@@ -24,15 +24,20 @@ import java.util.List;
 @Slf4j
 public class TriggerSource {
 
+    private static final AtomicLong TSNO = new AtomicLong(0);
+
     private String id;
     private final List<Object[]> sources = new ArrayList<>();
 
     private boolean skipOnce = false;
 
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
-        this.id = RandomUtils.nextInt(1000, 9999) + "-";
+        this.id = TSNO.incrementAndGet() + "-";
         addNext(origin, originAction);
         System.out.println("[dev] New trigger-source : " + this);
+
+        // Clear
+        if (this.id.length() > 4) TSNO.set(0);
     }
 
     public void addNext(OperatingContext next, TriggerWhen nextAction) {

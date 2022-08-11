@@ -145,6 +145,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                     return;
                 }
             }
+
+            // FIXME 20220811 此处的判断可能不需要，因为有 `trigger-chain`
         }
 
         final String sourceId = triggerSource.getSourceId();

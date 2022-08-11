@@ -81,19 +81,20 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
-        final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
+        final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
+                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return "trigger-once";
 
         this.prepare(operatingContext);
 
         if (targetRecordIds.isEmpty()) {
-            log.debug("No target record(a) found");
+            log.debug("No target record(s) found");
             return "target-0";
         }
 
         if (targetRecordData.isEmpty()) {
-            log.info("No data of target record available : {}", targetRecordId);
+            log.info("No data of target record(s) : {}", targetRecordIds);
             return "target-empty";
         }
 
@@ -381,7 +382,6 @@ public class FieldWriteback extends FieldAggregation {
      * @see com.rebuild.core.metadata.EntityRecordCreator
      */
     private Object checkoutFieldValue(Object value, EasyField field) {
-
         DisplayType dt = field.getDisplayType();
         Object newValue = null;
 
