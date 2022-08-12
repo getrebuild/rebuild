@@ -694,11 +694,21 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
     <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
-          return (
-            <span key={item} className="badge" title={item}>
-              {item}
-            </span>
-          )
+          if (typeof item === 'object') {
+            const style2 = { borderColor: item.color, backgroundColor: item.color, color: '#fff' }
+            // const style2 = { borderColor: item.color, color: item.color }
+            return (
+              <span key={item} className="badge" title={item} style={style2}>
+                {item.text}
+              </span>
+            )
+          } else {
+            return (
+              <span key={item} className="badge" title={item}>
+                {item}
+              </span>
+            )
+          }
         })}
       </div>
     </td>
@@ -742,10 +752,12 @@ CellRenders.addRender('SIGN', function (v, s, k) {
 CellRenders.addRender('PICKLIST', function (v, s, k) {
   // Use badge
   if (typeof v === 'object') {
+    const style2 = { borderColor: v.color, backgroundColor: v.color, color: '#fff' }
+    // const style2 = { borderColor: v.color, color: v.color, backgroundColor: '#fff' }
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v.text}>
-          <span className="badge badge-primary" style={{ backgroundColor: v.color }}>
+          <span className="badge" style={style2}>
             {v.text}
           </span>
         </div>

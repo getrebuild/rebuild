@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,6 +19,7 @@ import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
+import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
@@ -91,9 +93,9 @@ public class DataExporter extends SetUser {
      * @param dest
      */
     protected void exportCsv(File dest) {
-        DataListBuilderImpl control = new DataListBuilderImpl(queryData, getUser());
+        DataListBuilderImpl builder = new DataListBuilderImpl2(queryData, getUser());
 
-        List<String> head = this.buildHead(control);
+        List<String> head = this.buildHead(builder);
 
         try (FileOutputStream fos = new FileOutputStream(dest, true)) {
             try (OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
@@ -101,7 +103,7 @@ public class DataExporter extends SetUser {
                     writer.write("\ufeff");
                     writer.write(mergeLine(head));
 
-                    for (List<String> row : this.buildData(control)) {
+                    for (List<String> row : this.buildData(builder)) {
                         writer.newLine();
                         writer.write(mergeLine(row));
                         count++;
@@ -179,8 +181,6 @@ public class DataExporter extends SetUser {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
-                } else if (dt == DisplayType.PICKLIST && cellVal instanceof JSONObject) {
-                    cellVal = ((JSONObject) cellVal).getString("text");
                 }
 
                 if (easyField instanceof MixValue &&
@@ -202,5 +202,26 @@ public class DataExporter extends SetUser {
 
     public int getExportCount() {
         return count;
+    }
+
+    /**
+     * Simplify
+     */
+    static class DataListBuilderImpl2 extends DataListBuilderImpl {
+        DataListBuilderImpl2(JSONObject query, ID user) {
+            super(query, user);
+        }
+
+        @Override
+        protected boolean isNeedReload() {
+            return false;
+        }
+
+        @Override
+        protected DataListWrapper createDataListWrapper(int totalRows, Object[][] data, Query query) {
+            DataListWrapper wrapper = super.createDataListWrapper(totalRows, data, query);
+            wrapper.setSecWrapper(false);
+            return wrapper;
+        }
     }
 }

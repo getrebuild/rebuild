@@ -14,18 +14,14 @@ const maxOptions = isMulti ? 20 : 40
 $(document).ready(function () {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
 
-  if (!isMulti) {
-    const $cs = $('.colors').removeClass('hide')
-    parent.RbModal.resize()
-
-    _COLORS.forEach((c) => {
-      $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
-    })
-    $cs.find('>a').on('click', function () {
-      $cs.find('>a .zmdi').remove()
-      $('<i class="zmdi zmdi-check"></i>').appendTo(this)
-    })
-  }
+  const $cs = $('.colors')
+  _COLORS.forEach((c) => {
+    $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
+  })
+  $cs.find('>a').on('click', function () {
+    $cs.find('>a .zmdi').remove()
+    $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+  })
 
   $.get(`/admin/field/picklist-gets?isAll=true&${query}`, (res) => {
     $(res.data).each(function () {
