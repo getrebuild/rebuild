@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
+import com.googlecode.aviator.runtime.type.AviatorJavaType;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -58,6 +59,14 @@ public class TextFunction extends AbstractFunction {
             }
             return texts.isEmpty() ? arg2 : new AviatorString(StringUtils.join(texts, ", "));
         }
+
+        if (arg1 instanceof AviatorJavaType) {
+            log.warn("Invalid value with type : {}={}", ((AviatorJavaType) arg1).getName(), o);
+        } else {
+            log.warn("Invalid value with type : {}", o);
+        }
+
+        // TODO 更多字段类型支持
 
         return arg2;
     }
