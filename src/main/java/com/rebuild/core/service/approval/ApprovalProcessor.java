@@ -450,7 +450,8 @@ public class ApprovalProcessor extends SetUser {
             FlowNode flowNode = null;
             try {
                 flowNode = getFlowParser().getNode(node);
-            } catch (ApprovalException | ConfigurationException ignored) {
+            } catch (ApprovalException | ConfigurationException ex) {
+                log.warn("Cannot parse node : {}", node, ex);
             }
 
             JSONArray step = new JSONArray();
@@ -459,10 +460,15 @@ public class ApprovalProcessor extends SetUser {
 
                 if (FlowNode.NODE_AUTOAPPROVAL.equals(node)) {
                     // No name
+                } else if (FlowNode.NODE_REVOKED.equals(node)) {
+                    String nodeName = Language.L("管理员撤销");
+                    s.put("nodeName", nodeName);
+                } else if (FlowNode.NODE_CANCELED.equals(node)) {
+                    String nodeName = Language.L("提交人撤回");
+                    s.put("nodeName", nodeName);
                 } else {
                     String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
-                    if (StringUtils.isBlank(nodeName)
-                            && !(ApprovalState.CANCELED.name().equals(node) || ApprovalState.REVOKED.name().equals(node))) {
+                    if (StringUtils.isBlank(nodeName)) {
                         nodeName = nodeIndexNames.get(node);
                         if (StringUtils.isBlank(nodeName)) {
                             nodeName = Language.L("审批人") + "#" + nodeIndex;
