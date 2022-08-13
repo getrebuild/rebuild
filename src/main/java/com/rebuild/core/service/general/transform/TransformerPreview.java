@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.NullValue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.FormsBuilder;
@@ -65,6 +66,7 @@ public class TransformerPreview {
         Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, transConfig, false);
+        transfomer.setUser(this.user);
 
         // 明细
         if (isDetails) {
@@ -90,6 +92,14 @@ public class TransformerPreview {
                 for (ID did : ids) {
                     Record targetRecord = transfomer.transformRecord(
                             sourceEntity, targetEntity, fieldsMapping, did, null);
+
+                    // 预览模式下无法保持所属用户，需使用当前用户
+                    if (!targetRecord.getID(EntityHelper.OwningUser).equals(this.user)) {
+                        targetRecord.setID(EntityHelper.OwningUser, this.user);
+                        targetRecord.setID(EntityHelper.OwningDept,
+                                (ID) Application.getUserStore().getUser(this.user).getOwningDept().getIdentity());
+                    }
+
                     fillLabelOfReference(targetRecord);
 
                     JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, user);

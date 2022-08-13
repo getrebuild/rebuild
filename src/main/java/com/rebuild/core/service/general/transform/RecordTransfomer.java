@@ -186,29 +186,22 @@ public class RecordTransfomer extends SetUser {
                 || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
-        
+
         Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
         updateSource.setID(fillbackField, newId);
 
-        // TODO 此配置未开放
+        // 此配置未开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-
-        // 仅更新，无业务规则
-        if (fillbackMode == 3 || fillbackMode == 0) {
-            Application.getCommonsService().update(updateSource, false);
-        }
-        // 忽略审批状态（进行中）强制更新
-        else if (fillbackMode == 2) {
+        if (fillbackMode == 2) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
             } finally {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
-        }
-        // 默认
-        else {
-            Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
+        } else {
+            // FIXME 回填仅更新，无业务规则
+            Application.getCommonsService().update(updateSource, false);
         }
 
         return true;
@@ -245,6 +238,9 @@ public class RecordTransfomer extends SetUser {
         validFields.add(sourceEntity.getPrimaryField().getName());
         Record source = Application.getQueryFactory().recordNoFilter(sourceRecordId, validFields.toArray(new String[0]));
 
+        // 所属用户
+        ID specOwningUser = null;
+
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
             if (e.getValue() == null) continue;
 
@@ -269,6 +265,15 @@ public class RecordTransfomer extends SetUser {
                     target.setObjectValue(targetField, targetValue);
                 }
             }
+
+            if (EntityHelper.OwningUser.equals(targetField)) {
+                specOwningUser = target.getID(EntityHelper.OwningUser);
+            }
+        }
+
+        if (specOwningUser != null) {
+            target.setID(EntityHelper.OwningDept,
+                    (ID) Application.getUserStore().getUser(specOwningUser).getOwningDept().getIdentity());
         }
 
         return target;

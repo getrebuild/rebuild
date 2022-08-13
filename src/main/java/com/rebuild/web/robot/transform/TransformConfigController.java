@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -51,8 +52,6 @@ public class TransformConfigController extends BaseController {
 
     @GetMapping("transform/{id}")
     public ModelAndView pageEditor(@PathVariable String id, HttpServletResponse response) throws IOException {
-        ModelAndView mv = createModelAndView("/admin/robot/transform-editor");
-
         ID configId = ID.isId(id) ? ID.valueOf(id) : null;
         if (configId == null) {
             response.sendError(404);
@@ -67,6 +66,7 @@ public class TransformConfigController extends BaseController {
             return null;
         }
 
+        ModelAndView mv = createModelAndView("/admin/robot/transform-editor");
         mv.getModelMap().put("configId", configId);
         mv.getModelMap().put("config", config.getJSON("config"));
 
@@ -98,12 +98,10 @@ public class TransformConfigController extends BaseController {
                 new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
 
         JSONArray fields = new JSONArray();
-        if (sourceTyp) {
-            fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
-        }
 
         for (Field field : MetadataSorter.sortFields(entity)) {
             if (!sourceTyp && !field.isCreatable()) continue;
+
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
 
@@ -114,11 +112,16 @@ public class TransformConfigController extends BaseController {
             }
         }
 
+        if (sourceTyp) {
+            fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
+        } else {
+            fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
+        }
+
         // 二级字段（父级）
         if (sourceTyp && entity.getMainEntity() != null) {
-            Field dtmField = MetadataHelper.getDetailToMainField(entity);
-
-            JSONArray res = MetaFormatter.buildFields(dtmField);
+            Field dtf = MetadataHelper.getDetailToMainField(entity);
+            JSONArray res = MetaFormatter.buildFields(dtf);
             if (res != null) fields.addAll(res);
         }
 
