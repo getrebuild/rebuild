@@ -180,10 +180,10 @@ public class ApprovalProcessor extends SetUser {
             nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
         }
 
-        Set<ID> ccs = null;
+        Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);;
         Set<ID> ccs4share = null;
+        // 审批时共享
         if (state == ApprovalState.APPROVED) {
-            ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
             ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
         }
 

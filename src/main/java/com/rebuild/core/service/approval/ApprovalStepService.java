@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -491,9 +492,9 @@ public class ApprovalStepService extends InternalPersistService {
                 .setParameter(2, approvalId)
                 .unique();
 
-        // 2.上一节点审批
+        // 2.获取回退到的节点备用
         Object[][] prevNodes = Application.createQueryNoFilter(
-                        "select approver,isCanceled,stepId from RobotApprovalStep where node = ? and recordId = ? and approvalId = ? and createdOn >= ?")
+                "select approver,isCanceled,stepId from RobotApprovalStep where node = ? and recordId = ? and approvalId = ? and createdOn >= ? order by createdOn desc")
                 .setParameter(1, rejectNode)
                 .setParameter(2, recordId)
                 .setParameter(3, approvalId)
@@ -503,8 +504,14 @@ public class ApprovalStepService extends InternalPersistService {
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
         String nodeBatch = getBatchNo(recordId, approvalId, rejectNode);
 
-        // 3.复制回退节点
+        Set<ID> unique = new HashSet<>();
+
+        // 3.复制退回到的节点
         for (Object[] o : prevNodes) {
+            // 多次退回会有多个节点，这里通过审批人排重
+            if (unique.contains((ID) o[0])) continue;
+            unique.add((ID) o[0]);
+
             Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
             step.setString("node", rejectNode);
             step.setString("prevNode", currentNode);
