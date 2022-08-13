@@ -345,7 +345,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180" /> {$L('审批流程图')}
+                      <i className="icon mdi mdi-progress-check" /> {$L('审批流程')}
                     </a>
                   </div>
                 )
@@ -630,7 +630,7 @@ class ApprovalStepViewer extends React.Component {
               <blockquote className="blockquote timeline-blockquote mb-0">
                 <p>
                   <a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}>
-                    <i className="zmdi zmdi-usb zmdi-hc-rotate-180" /> {s.approvalName}
+                    <i className="mdi mdi-progress-check" /> {s.approvalName}
                   </a>
                 </p>
               </blockquote>

@@ -437,7 +437,7 @@ class DlgAddNode extends React.Component {
                 <div className="col-4">
                   <a className="condition" onClick={() => this.state.call('condition')}>
                     <div>
-                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180" />
+                      <i className="mdi mdi-source-merge" />
                     </div>
                     <p>{$L('条件分支')}</p>
                   </a>

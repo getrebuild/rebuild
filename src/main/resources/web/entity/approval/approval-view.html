@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
-    <title>[[${bundle.L('审批流程图')}]]</title>
+    <title>[[${bundle.L('审批流程')}]]</title>
     <style>
       .rbflow-design .box-scale.preview button,
       .rbflow-design .box-scale.preview .aclose,
@@ -19,8 +19,8 @@
   </head>
   <body class="view-body" style="background-color: #f5f5f7">
     <div class="view-header">
-      <i class="header-icon zmdi zmdi-usb zmdi-hc-rotate-180"></i>
-      <h3 class="title">[[${bundle.L('审批流程图')}]]</h3>
+      <i class="header-icon mdi mdi-progress-check"></i>
+      <h3 class="title">[[${bundle.L('审批流程')}]]</h3>
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_back hide" th:title="${bundle.L('回退')}"><i class="zmdi zmdi-arrow-left"></i></a>
@@ -40,7 +40,7 @@
       }
     </script>
     <script type="text/babel">
-      // Clean
+      // clear
       window.$addResizeHandler__calls = []
 
       $(document).ready(function () {
@@ -59,8 +59,10 @@
         const id = window.__PageConfig.id
 
         const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(id) : null
-        if (ph) $('.J_close').click(() => ph.hide())
-        else $('.J_close').remove()
+        $('.J_close').on('click', () => {
+          if (ph) ph.hide()
+          else window.close()
+        })
 
         $.get(`/app/entity/approval/flow-definition?id=${id}`, function (res) {
           ph && ph.hideLoading()
