@@ -322,7 +322,8 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 || axisType == DisplayType.STATE) {
             label = (String) FieldValueHelper.wrapFieldValue(value, axisField, true);
 
-            if (useRefLink && axisType == DisplayType.REFERENCE) {
+            if (useRefLink && axisType == DisplayType.REFERENCE
+                    && ID.valueOf(value.toString()).getEntityCode() > 100) {
                 label = String.format("<a href='/app/list-and-view?id=%s'>%s</a>", value, label);
             }
 
