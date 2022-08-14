@@ -65,6 +65,7 @@ public class TransformerPreview {
         Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, transConfig, false);
+        transfomer.setUser(this.user);
 
         // 明细
         if (isDetails) {
@@ -89,7 +90,8 @@ public class TransformerPreview {
             try {
                 for (ID did : ids) {
                     Record targetRecord = transfomer.transformRecord(
-                            sourceEntity, targetEntity, fieldsMapping, did, null);
+                            sourceEntity, targetEntity, fieldsMapping, did, null, true);
+
                     fillLabelOfReference(targetRecord);
 
                     JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, user);
@@ -114,7 +116,7 @@ public class TransformerPreview {
         }
 
         Record targetRecord = transfomer.transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceId, null);
+                sourceEntity, targetEntity, fieldsMapping, sourceId, null, true);
         fillLabelOfReference(targetRecord);
 
         // 转为明细

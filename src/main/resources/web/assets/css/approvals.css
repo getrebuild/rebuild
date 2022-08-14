@@ -351,7 +351,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .rbflow-design .add-node-btn {
   user-select: none;
   width: 240px;
-  padding: 20px 0 32px;
+  padding: 20px 0 28px;
   display: flex;
   -webkit-box-pack: center;
   justify-content: center;
@@ -387,7 +387,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .rbflow-design .end-node .end-node-circle {
   width: 10px;
   height: 10px;
-  margin: auto;
+  margin: -8px auto auto;
   border-radius: 50%;
   background: #cacaca;
 }
@@ -496,7 +496,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .node-wrap-box::before {
   content: '';
   position: absolute;
-  top: -12px;
+  top: -8px;
   left: 50%;
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
@@ -671,21 +671,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .zoom .zoom-out i {
   font-size: 22px;
   color: #777;
-}
-
-.rbflow-design .box-scale.preview button,
-.rbflow-design .box-scale.preview .aclose,
-.rbflow-design .box-scale.preview .arrow {
-  display: none !important;
-}
-
-.rbflow-design .box-scale.preview .auto-judge,
-.rbflow-design .box-scale.preview .node-wrap-box {
-  cursor: default;
-}
-
-.rbflow-design .box-scale.preview .node-wrap:first-child {
-  margin-bottom: -15px;
 }
 
 .fields-table .custom-control {

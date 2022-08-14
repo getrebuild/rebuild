@@ -10,11 +10,15 @@ package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
+import com.googlecode.aviator.runtime.type.AviatorJavaType;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,12 +42,33 @@ public class TextFunction extends AbstractFunction {
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
         Object o = arg1.getValue(env);
-        if (!ID.isId(o)) return arg2;
 
-        ID anyid = o instanceof ID ? (ID) o : ID.valueOf(o.toString());
-        String text = FieldValueHelper.getLabel(anyid, null);
+        // 引用
+        if (ID.isId(o)) {
+            ID anyid = o instanceof ID ? (ID) o : ID.valueOf(o.toString());
+            String text = FieldValueHelper.getLabel(anyid, null);
+            return text == null ? arg2 : new AviatorString(text);
+        }
 
-        return text == null ? arg2 : new AviatorString(text);
+        // 多引用
+        if (o instanceof ID[]) {
+            List<String> texts = new ArrayList<>();
+            for (ID anyid : (ID[]) o) {
+                String t = FieldValueHelper.getLabel(anyid, null);
+                if (t != null) texts.add(t);
+            }
+            return texts.isEmpty() ? arg2 : new AviatorString(StringUtils.join(texts, ", "));
+        }
+
+        if (arg1 instanceof AviatorJavaType) {
+            log.warn("Invalid value with type : {}={}", ((AviatorJavaType) arg1).getName(), o);
+        } else {
+            log.warn("Invalid value with type : {}", o);
+        }
+
+        // TODO 更多字段类型支持
+
+        return arg2;
     }
 
     @Override

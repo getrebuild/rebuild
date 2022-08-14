@@ -19,7 +19,7 @@ $(document).ready(() => {
 
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
 
-  $(document.body).click(function (e) {
+  $(document.body).on('click', function (e) {
     if (donotCloseSidebar) return
     const $target = $(e.target)
     if (e.target && ($target.hasClass('rb-right-sidebar') || $target.parents('div.rb-right-sidebar').length > 0)) return
@@ -207,7 +207,7 @@ class SimpleNode extends NodeSpec {
 
     return (
       <div className="node-wrap">
-        <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
+        <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} data-node={this.props.nodeId}>
           <div className="title">
             <span>{data.nodeName || NT[1]}</span>
             {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title={$L('移除')} onClick={this.removeNodeQuick} />}
@@ -317,7 +317,7 @@ class ConditionBranch extends NodeGroupSpec {
         {this.state.isFirst && <div className="top-left-cover-line" />}
         {this.state.isFirst && <div className="bottom-left-cover-line" />}
         <div className="condition-node">
-          <div className="condition-node-box animated fadeIn" title={rb.env === 'dev' ? this.props.nodeId : null}>
+          <div className="condition-node-box animated fadeIn" data-node={this.props.nodeId}>
             <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
               <div className="title-wrapper">
                 <span className="editable-title float-left">{data.nodeName || $L('分支条件')}</span>
@@ -437,7 +437,7 @@ class DlgAddNode extends React.Component {
                 <div className="col-4">
                   <a className="condition" onClick={() => this.state.call('condition')}>
                     <div>
-                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180" />
+                      <i className="mdi mdi-source-merge" />
                     </div>
                     <p>{$L('条件分支')}</p>
                   </a>
@@ -654,10 +654,10 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('或签 (一名审批人同意或拒绝)')}</span>
             </label>
           </div>
-          <div className="form-group mt-4">
+          <div className="form-group mt-4 bosskey-show" title="FIXME 默认启用无需配置">
             <label className="text-bold">{$L('驳回时')}</label>
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep === true} onChange={this.handleChange} />
+              <input className="custom-control-input" type="checkbox" name="rejectStep" checked={this.state.rejectStep !== false} onChange={this.handleChange} />
               <span className="custom-control-label">{$L('允许退回到指定步骤 (否则为整体驳回)')}</span>
             </label>
           </div>
@@ -885,7 +885,7 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const $btns = $('.J_save').click(() => {
+    const $btns = $('.J_save').on('click', () => {
       const s = this.serialize()
       if (!s) return
 
@@ -912,7 +912,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       })
     })
 
-    $('.J_copy').click(() => renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled />))
+    $('.J_copy').on('click', () => renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled />))
   }
 
   zoom(v) {

@@ -1325,7 +1325,8 @@ select.form-control:not([disabled]) {
   padding-top: 81px;
 }
 
-.list-nodata .zmdi {
+.list-nodata .zmdi,
+.list-nodata .mdi {
   font-size: 48px;
   color: #aaa;
 }
@@ -3321,7 +3322,7 @@ form {
 }
 
 .modal.select-list .modal-body li + li {
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .modal.select-list .modal-body li a {
@@ -4821,4 +4822,12 @@ pre.unstyle {
 .map-suggestion.dropdown-menu .dropdown-item {
   padding: 8px 10px;
   cursor: pointer;
+}
+
+/* mdi7 */
+
+.modal-header > .icon.mdi,
+.header-icon.mdi {
+  font-size: 2rem;
+  line-height: 1;
 }

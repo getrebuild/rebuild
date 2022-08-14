@@ -48,7 +48,7 @@ public class DataReportManager implements ConfigManager {
         JSONArray list = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
-                list.add(e.toJSON());
+                list.add(e.toJSON("id", "name"));
             }
         }
         return list;

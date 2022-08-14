@@ -54,7 +54,7 @@ public class FlowNode {
     // 多人联合审批类型
 
     public static final String SIGN_AND = "AND";  // 会签（默认）
-    public static final String SIGN_OR = "OR";      // 或签
+    public static final String SIGN_OR = "OR";    // 或签
     public static final String SIGN_ALL = "ALL";  // 逐个审批（暂未用）
 
     // --
@@ -109,7 +109,8 @@ public class FlowNode {
      * @return
      */
     public boolean getRejectStep() {
-        return getDataMap().getBooleanValue("rejectStep");
+        Boolean b = getDataMap().getBoolean("rejectStep");
+        return b == null || b;
     }
 
     /**

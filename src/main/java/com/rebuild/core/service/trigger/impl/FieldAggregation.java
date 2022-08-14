@@ -116,7 +116,8 @@ public class FieldAggregation extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
-        final String chainName = actionContext.getConfigId() + ":" + operatingContext.getAction().getName();
+        final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
+                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return "trigger-once";
 
@@ -167,35 +168,37 @@ public class FieldAggregation extends TriggerAction {
         }
 
         // 有需要才执行
-        if (!targetRecord.isEmpty()) {
-            final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
-
-            // 跳过权限
-            PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
-            // 强制更新 (v2.9)
-            if (forceUpdate) {
-                GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
-            }
-
-            // 会关联触发下一触发器（如有）
-            tschain.add(chainName);
-            TRIGGER_CHAIN.set(tschain);
-
-            ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
-                    ? Application.getEntityService(targetEntity.getEntityCode())
-                    : Application.getService(targetEntity.getEntityCode());
-
-            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
-            try {
-                useService.update(targetRecord);
-            } finally {
-                PrivilegesGuardContextHolder.getSkipGuardOnce();
-                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
-            }
-
-            return "affected:" + targetRecord.getPrimary();
+        if (targetRecord.isEmpty()) {
+            log.info("No data of target record : {}", targetRecordId);
+            return "target-empty";
         }
-        return "target-empty";
+
+        final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
+
+        // 跳过权限
+        PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+        // 强制更新 (v2.9)
+        if (forceUpdate) {
+            GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
+        }
+
+        // 会关联触发下一触发器（如有）
+        tschain.add(chainName);
+        TRIGGER_CHAIN.set(tschain);
+
+        ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
+                ? Application.getEntityService(targetEntity.getEntityCode())
+                : Application.getService(targetEntity.getEntityCode());
+
+        targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+        try {
+            useService.update(targetRecord);
+        } finally {
+            PrivilegesGuardContextHolder.getSkipGuardOnce();
+            GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+        }
+
+        return "affected:" + targetRecord.getPrimary();
     }
 
     @Override

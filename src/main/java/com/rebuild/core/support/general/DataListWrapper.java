@@ -13,7 +13,10 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -23,6 +26,8 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +49,9 @@ public class DataListWrapper {
 
     // 信息脱敏
     protected boolean useDesensitized = false;
+
+    private boolean secWrapper = true;
+
 
     /**
      * @param total
@@ -143,7 +151,7 @@ public class DataListWrapper {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
 
-        final Object origin = value;
+        final Object originValue = value;
 
         boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
                 || easyField.getDisplayType() == DisplayType.PICKLIST
@@ -157,11 +165,35 @@ public class DataListWrapper {
         }
 
         // v2.10 Color
-        if (value != null && easyField.getDisplayType() == DisplayType.PICKLIST) {
-            String color = PickListManager.instance.getColor((ID) origin);
-            if (color != null) {
-                value = JSONUtils.toJSONObject(
-                        new String[]{ "text", "color" }, new Object[]{ value, color });
+        if (value != null && this.secWrapper) {
+            if (easyField.getDisplayType() == DisplayType.PICKLIST) {
+                String color = PickListManager.instance.getColor((ID) originValue);
+                if (StringUtils.isNotBlank(color)) {
+                    value = JSONUtils.toJSONObject(
+                            new String[]{ "text", "color" }, new Object[]{ value, color });
+                }
+
+            } else if (easyField.getDisplayType() == DisplayType.MULTISELECT) {
+                // @see MultiSelectManager#getLabels
+
+                List<Object> colorLabels = new ArrayList<>();
+                ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(field, false);
+                for (ConfigBean e : entries) {
+                    long m = e.get("mask", Long.class);
+                    if (((long) originValue & m) != 0) {
+                        String text = e.getString("text");
+                        String color = e.getString("color");
+
+                        if (StringUtils.isBlank(color)) {
+                            colorLabels.add(text);
+                        } else {
+                            colorLabels.add(JSONUtils.toJSONObject(
+                                    new String[]{ "text", "color" }, new Object[]{ text, color }));
+                        }
+                    }
+                }
+
+                ((JSONObject) value).put("text", colorLabels);
             }
         }
 
@@ -195,5 +227,14 @@ public class DataListWrapper {
         int fieldIndex = queryJoinFields.get(fieldPath[0]);
         Object check = original[fieldIndex];
         return check == null || Application.getPrivilegesManager().allowRead(user, (ID) check);
+    }
+
+    /**
+     * 进一步封装查询结果
+     *
+     * @param secWrapper
+     */
+    public void setSecWrapper(boolean secWrapper) {
+        this.secWrapper = secWrapper;
     }
 }

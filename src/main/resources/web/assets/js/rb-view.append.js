@@ -460,16 +460,20 @@ class SelectReport extends React.Component {
                 </p>
               )}
               <div>
-                <ul className="list-unstyled">
+                <ul className={`list-unstyled ${rb._officePreviewUrl && 'report-has-preview'}`}>
                   {(this.state.reports || []).map((item) => {
-                    let reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
-                    if (item.previewMode) reportUrl += '&preview=yes'
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
                     return (
                       <li key={item.id}>
-                        <a target="_blank" href={reportUrl} className="text-truncate">
+                        <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
                           <i className="zmdi zmdi-download" />
                         </a>
+                        {rb._officePreviewUrl && (
+                          <a target="_blank" className="preview" href={`${reportUrl}&preview=yes`} title={$L('在线查看')}>
+                            <i className="zmdi zmdi-globe-alt" />
+                          </a>
+                        )}
                       </li>
                     )
                   })}
