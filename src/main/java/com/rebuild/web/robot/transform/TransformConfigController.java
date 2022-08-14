@@ -100,14 +100,13 @@ public class TransformConfigController extends BaseController {
         JSONArray fields = new JSONArray();
 
         for (Field field : MetadataSorter.sortFields(entity)) {
-            if (!sourceTyp && !field.isCreatable()) continue;
-
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
 
             if (sourceTyp) {
                 fields.add(easyField.toJSON());
-            } else {
+            } else if (!MetadataHelper.isCommonsField(field)) {
+                // v2.10 非可创建字段也支持
                 fields.add(MetaFormatter.buildRichField(easyField));
             }
         }

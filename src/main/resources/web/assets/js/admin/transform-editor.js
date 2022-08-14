@@ -234,11 +234,11 @@ class FieldsMapping extends React.Component {
         </div>
 
         {_target.fields.map((item, idx) => {
-          const clazz = item.creatable ? (item.nullable ? '' : 'req') : 'ro'
+          const isCommon = item.name === 'owningUser'
           return (
             <div className="row" key={idx}>
               <div className="col-4">
-                <span className={`badge ${clazz}`}>{item.label}</span>
+                <span className={`badge ${!item.nullable && 'req'} ${isCommon && 'readonly'}`}>{item.label}</span>
               </div>
               <div className="col-2 pr-0">
                 <select className={`form-control form-control-sm J_vfixed J_vfixed-${item.name}`} data-field={item.name} defaultValue="FIELD">
@@ -248,7 +248,7 @@ class FieldsMapping extends React.Component {
               </div>
               <div className="col-5">
                 <div className={this.state.useVfixed[item.name] ? 'hide' : ''}>
-                  <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && item.creatable} />
+                  <select className="form-control form-control-sm J_mapping" data-field={item.name} data-req={!item.nullable && !isCommon} />
                 </div>
                 <div className={this.state.useVfixed[item.name] ? '' : 'hide'}>
                   <FieldValueSet entity={_target.entity} field={item} placeholder={$L('固定值')} defaultValue={null} ref={(c) => (this._FieldValueSet[item.name] = c)} />

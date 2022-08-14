@@ -131,7 +131,7 @@ public class RecordTransfomer extends SetUser {
             dvMap = Collections.singletonMap(targetDtf.getName(), mainId);
         }
 
-        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap);
+        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false);
         ID newId;
 
         // 有多条（主+明细）
@@ -139,7 +139,8 @@ public class RecordTransfomer extends SetUser {
             Entity targetDetailEntity = targetEntity.getDetailEntity();
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
-                detailsList.add(transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null));
+                detailsList.add(
+                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false));
             }
 
             newId = saveRecord(main, detailsList);
@@ -215,11 +216,12 @@ public class RecordTransfomer extends SetUser {
      * @param fieldsMapping
      * @param sourceRecordId
      * @param defaultValue
+     * @param ignoreUncreateable
      * @return
      */
     protected Record transformRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
-            ID sourceRecordId, Map<String, Object> defaultValue) {
+            ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable) {
 
         Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
@@ -246,6 +248,7 @@ public class RecordTransfomer extends SetUser {
 
             String targetField = e.getKey();
             EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+            if (ignoreUncreateable && !targetFieldEasy.isCreatable()) continue;
 
             Object sourceAny = e.getValue();
 

@@ -15,7 +15,6 @@ import cn.devezhao.persist4j.engine.NullValue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.FormsBuilder;
@@ -91,14 +90,7 @@ public class TransformerPreview {
             try {
                 for (ID did : ids) {
                     Record targetRecord = transfomer.transformRecord(
-                            sourceEntity, targetEntity, fieldsMapping, did, null);
-
-                    // 预览模式下无法保持所属用户，需使用当前用户
-                    if (!targetRecord.getID(EntityHelper.OwningUser).equals(this.user)) {
-                        targetRecord.setID(EntityHelper.OwningUser, this.user);
-                        targetRecord.setID(EntityHelper.OwningDept,
-                                (ID) Application.getUserStore().getUser(this.user).getOwningDept().getIdentity());
-                    }
+                            sourceEntity, targetEntity, fieldsMapping, did, null, true);
 
                     fillLabelOfReference(targetRecord);
 
@@ -124,7 +116,7 @@ public class TransformerPreview {
         }
 
         Record targetRecord = transfomer.transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceId, null);
+                sourceEntity, targetEntity, fieldsMapping, sourceId, null, true);
         fillLabelOfReference(targetRecord);
 
         // 转为明细
