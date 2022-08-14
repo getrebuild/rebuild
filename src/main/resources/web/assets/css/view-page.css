@@ -863,12 +863,12 @@ body {
   text-align: center;
 }
 
-.report-has-preview li a.preview > .zmdi {
+.report-has-preview li a.preview > .mdi {
   float: none !important;
   display: block !important;
   color: #555 !important;
 }
 
-.report-has-preview li a.preview:hover > .zmdi {
+.report-has-preview li a.preview:hover > .mdi {
   color: #fff !important;
 }

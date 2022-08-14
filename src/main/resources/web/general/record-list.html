@@ -95,9 +95,9 @@
                           <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('共享')}]]</a>
                           <a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> [[${bundle.L('取消共享')}]]</a>
                           <div class="dropdown-divider"></div>
-                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> [[${bundle.L('数据导出')}]]</a>
+                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('数据导出')}]]</a>
                           <a class="dropdown-item admin-show" th:href="|${baseUrl}/admin/data/data-imports?entity=${entityName}|">
-                            <i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('数据导入')}]]
+                            <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('列显示')}]]</a>

@@ -3353,15 +3353,14 @@ form {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.modal.select-list .modal-body li a > .zmdi {
+.modal.select-list .modal-body li a > .mdi {
   float: right;
-  margin-top: 2px;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: #fff;
   display: none;
 }
 
-.modal.select-list .modal-body li a:hover > .zmdi {
+.modal.select-list .modal-body li a:hover > .mdi {
   display: inline-block;
 }
 
