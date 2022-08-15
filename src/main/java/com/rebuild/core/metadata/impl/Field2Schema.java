@@ -37,7 +37,7 @@ import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -98,9 +98,9 @@ public class Field2Schema extends SetUser {
         }
 
         String fieldName = toPinyinName(fieldLabel);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
-                fieldName += RandomUtils.nextInt(99);
+                fieldName += RandomUtils.nextInt(0, 9);
             } else {
                 break;
             }
@@ -346,7 +346,7 @@ public class Field2Schema extends SetUser {
     protected String toPinyinName(final String text) {
         String identifier = text;
         if (text.length() < 4) {
-            identifier = "rb" + text + RandomUtils.nextInt(10);
+            identifier = "rb" + text + RandomUtils.nextInt(1000, 9999);
         }
 
         // 全英文直接返回
@@ -360,7 +360,7 @@ public class Field2Schema extends SetUser {
         identifier = HanLP.convertToPinyinString(identifier, "", false);
         identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
         if (StringUtils.isBlank(identifier)) {
-            identifier = String.valueOf(System.currentTimeMillis() / 1000);
+            identifier = "rb" + RandomUtils.nextInt(1000, 9999);
         }
 
         char start = identifier.charAt(0);
@@ -372,7 +372,7 @@ public class Field2Schema extends SetUser {
         if (identifier.length() > 42) {
             identifier = identifier.substring(0, 42);
         } else if (identifier.length() < 4) {
-            identifier += RandomUtils.nextInt(9999);
+            identifier += RandomUtils.nextInt(1000, 9999);
         }
 
         return identifier;

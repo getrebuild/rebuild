@@ -200,7 +200,7 @@ class LevelBox extends React.Component {
     })
     if (repeated) return RbHighbar.create($L('分类项重复'))
 
-    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${name}`
+    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${$encode(name)}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}&level=${this.props.level}`
     let isUnhide = null
