@@ -138,7 +138,7 @@ public class GroupAggregationRefresh {
             try {
                 ga.execute(oCtx);
             } catch (Exception ex) {
-                log.error("Error on refresh trigger ({}) record : {}", parentAc.getConfigId(), o[0], ex);
+                log.error("Error on trigger ({}) refresh record : {}", parentAc.getConfigId(), o[0], ex);
             } finally {
                 ga.clean();
             }

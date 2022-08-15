@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 /**
- * 分组聚合
+ * 分组聚合，场景 N[+N]>1
  *
  * @author devezhao
  * @since 2021/6/28
@@ -62,6 +62,11 @@ public class GroupAggregation extends FieldAggregation {
             log.info("Clear after refresh : {}", groupAggregationRefresh);
             groupAggregationRefresh.refresh();
         }
+    }
+
+    @Override
+    public Object execute(OperatingContext operatingContext) throws TriggerException {
+        return super.execute(operatingContext);
     }
 
     @Override
@@ -222,7 +227,10 @@ public class GroupAggregation extends FieldAggregation {
         }
 
         // 是否自动创建记录
-        if (!actionContent.getBoolean("autoCreate")) return;
+        if (!actionContent.getBoolean("autoCreate")) {
+            this.groupAggregationRefresh = null;  // 无更新也就无需刷新
+            return;
+        }
 
         // 不必担心必填字段，必填只是前端约束
         // 还可以通过设置字段默认值来完成必填字段的自动填写

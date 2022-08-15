@@ -47,7 +47,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 /**
- * 字段更新
+ * 字段更新，场景 1>1 1>N
  *
  * @author devezhao
  * @since 2020/2/7
@@ -164,7 +164,7 @@ public class FieldWriteback extends FieldAggregation {
             targetRecordIds.add(actionContext.getSourceRecord());
 
         }
-        // 只会存在一个目标的情况
+        // 1>1
         else if (isOne2One) {
             Record afterRecord = operatingContext.getAfterRecord();
             if (afterRecord == null) return;
@@ -181,7 +181,7 @@ public class FieldWriteback extends FieldAggregation {
             if (referenceId != null) targetRecordIds.add(referenceId);
 
         }
-        // 可能存在多个目标的情况
+        // 1>N
         else {
             String sql = String.format("select %s from %s where %s = ?",
                     targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
