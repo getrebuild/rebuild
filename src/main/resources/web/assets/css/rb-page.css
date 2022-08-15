@@ -4247,12 +4247,22 @@ html.external-auth .auth-body.must-center .login {
 .user-popup {
   position: fixed;
   z-index: 1;
-  width: 300px;
+  width: 280px;
   max-height: 90px;
   background-color: #fff;
   left: 0;
   right: 0;
   display: none;
+}
+
+.user-popup::before {
+  content: '▼';
+  position: absolute;
+  bottom: -10px;
+  left: 130px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .user-popup .avatar {
