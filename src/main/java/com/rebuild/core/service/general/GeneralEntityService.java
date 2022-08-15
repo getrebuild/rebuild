@@ -173,14 +173,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         record = super.update(record);
 
         // 主记录修改时传导给明细（若有），以便触发分组聚合触发器
-        // FIXME 只传递给一个
+        // FIXME 此时明细可能尚未做好更新，因此是无意义的更新
+
         TriggerAction[] hasTriggers = getSpecTriggers(record.getEntity().getDetailEntity(),
                 ActionType.GROUPAGGREGATION, TriggerWhen.UPDATE);
         if (hasTriggers.length > 0) {
             RobotTriggerManual triggerManual = new RobotTriggerManual();
             ID opUser = UserService.SYSTEM_USER;
 
-            for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary(), 1)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(record.getPrimary())) {
                 Record dUpdate = EntityHelper.forUpdate(did, opUser, false);
                 triggerManual.onUpdate(
                         OperatingContext.create(opUser, BizzPermission.UPDATE, dUpdate, dUpdate));
@@ -248,7 +249,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 手动删除明细记录，以执行系统规则（如触发器、附件删除等）
         Entity de = MetadataHelper.getEntity(record.getEntityCode()).getDetailEntity();
         if (de != null) {
-            for (ID did : QueryHelper.detailIdsNoFilter(record, 0)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(record)) {
                 // 明细无约束检查 checkModifications
                 // 不使用明细实体 Service
                 super.delete(did);
@@ -712,12 +713,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         RobotTriggerManual triggerManual = new RobotTriggerManual();
 
         // 传导给明细（若有）
-        // FIXME 此时明细可能尚未做好变更（例如新建自动审批）
 
         TriggerAction[] hasTriggers = getSpecTriggers(approvalRecord.getEntity().getDetailEntity(), null,
                 state == ApprovalState.APPROVED ? TriggerWhen.APPROVED : TriggerWhen.REVOKED);
         if (hasTriggers.length > 0) {
-            for (ID did : QueryHelper.detailIdsNoFilter(recordId, 0)) {
+            for (ID did : QueryHelper.detailIdsNoFilter(recordId)) {
                 Record dAfter = EntityHelper.forUpdate(did, approvalUser, false);
 
                 if (state == ApprovalState.REVOKED) {

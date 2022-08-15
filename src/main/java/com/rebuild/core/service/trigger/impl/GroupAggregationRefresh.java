@@ -22,13 +22,14 @@ import org.apache.commons.lang.StringUtils;
 import java.util.*;
 
 /**
- * 分组聚合目标数据刷新。
+ * 分组聚合目标数据刷新
+ *
  * 场景举例：
- * 1.1 新建产品A + 仓库A分组（组合A+A）
- * 1.2 修改仓库A > B（组合B+A），此时原（组合A+A）纪录不会触发更新
+ * 1.1 新建记录：产品A + 仓库A分组（组合A+A）
+ * 1.2 修改记录：仓库A > B（组合B+A），此时原（组合A+A）纪录不会触发更新
  * 2. 因此需要通过强制更新原纪录刷新原组合（组合A+A）记录
- * 3. NOTE 如果组合值均为空，则无法匹配任何目标记录，此时需要全量刷新（通过任一字段必填解决）
- * 4. NOTE 如果只有一个分组字段则全部刷新（性能差）
+ * 3. NOTE 如果组合值均为空，则无法匹配任何原目标记录，此时需要全量刷新（性能差）（可通过任一字段必填解决）
+ * 4. NOTE 如果只有一个分组字段，因为无法获知之前的值，则需要全量刷新（性能差）
  *
  * @author RB
  * @since 2022/7/8
@@ -71,7 +72,7 @@ public class GroupAggregationRefresh {
                 entity.getName(),
                 StringUtils.join(targetWhere, " or "));
         Object[][] targetArray = Application.createQueryNoFilter(sql).array();
-        log.info("May refresh target record(s) : {}", targetArray.length);
+        log.info("Maybe refresh target record(s) : {}", targetArray.length);
 
         ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();

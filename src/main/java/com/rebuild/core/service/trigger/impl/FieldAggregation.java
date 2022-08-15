@@ -210,7 +210,7 @@ public class FieldAggregation extends TriggerAction {
             GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
         }
 
-        if (operatingContext.getAction() == BizzPermission.UPDATE) {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
             this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext);
         }
 

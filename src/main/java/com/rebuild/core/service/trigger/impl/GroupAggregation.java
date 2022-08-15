@@ -212,7 +212,7 @@ public class GroupAggregation extends FieldAggregation {
 
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
 
-        if (operatingContext.getAction() == BizzPermission.UPDATE) {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == GroupAggregation.class) {
             this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
         }
 
