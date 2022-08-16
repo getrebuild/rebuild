@@ -483,7 +483,11 @@ class DlgImports extends RbModalHandler {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          this.__mp.end()
+          setTimeout(() => {
+            if (this.__mp) this.__mp.end()
+            this.__mp = null
+          }, 510)
+
           RbHighbar.error(res.data.hasError)
           return
         }

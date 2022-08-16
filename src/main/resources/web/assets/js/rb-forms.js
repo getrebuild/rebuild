@@ -1203,8 +1203,10 @@ class RbFormImage extends RbFormElement {
 
       let mp
       const mp_end = function () {
-        if (mp) mp.end()
-        mp = null
+        setTimeout(() => {
+          if (mp) mp.end()
+          mp = null
+        }, 510)
       }
 
       $createUploader(
@@ -1948,8 +1950,10 @@ class RbFormAvatar extends RbFormElement {
     } else {
       let mp
       const mp_end = function () {
-        if (mp) mp.end()
-        mp = null
+        setTimeout(() => {
+          if (mp) mp.end()
+          mp = null
+        }, 510)
       }
 
       $createUploader(

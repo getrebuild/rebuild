@@ -534,7 +534,10 @@ class BatchUpdate extends BatchOperator {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          mp && mp.end()
+          setTimeout(() => {
+            if (mp) mp.end()
+          }, 510)
+
           RbHighbar.error(res.data.hasError)
           return
         }

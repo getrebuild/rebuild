@@ -313,8 +313,10 @@ class FeedsEditor extends React.Component {
 
     let mp
     const mp_end = function () {
-      if (mp) mp.end()
-      mp = null
+      setTimeout(() => {
+        if (mp) mp.end()
+        mp = null
+      }, 510)
     }
 
     $createUploader(
