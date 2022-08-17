@@ -23,7 +23,7 @@ $(document).ready(function () {
     }
 
     $new.button('loading')
-    $.post(`/admin/entity/entity-new?nameField=${$val('#nameField')}`, JSON.stringify(data), (res) => {
+    $.post(`/admin/entity/entity-new?nameField=${$val('#nameField')}&seriesField=${$val('#seriesField')}`, JSON.stringify(data), (res) => {
       if (res.error_code === 0) parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
       else RbHighbar.error(res.error_msg)
     })

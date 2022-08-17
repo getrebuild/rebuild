@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FIELD_TYPES */
 
 const wpc = window.__PageConfig
 const DIVIDER_LINE = '$DIVIDER$'
@@ -48,7 +49,7 @@ $(document).ready(function () {
           '.form-preview'
         )
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
-        $action.find('a').click(function () {
+        $action.find('a').on('click', function () {
           $item.remove()
         })
       } else {
@@ -66,38 +67,17 @@ $(document).ready(function () {
       .disableSelection()
   })
 
-  $('.J_add-divider').click(function () {
+  $('.J_add-divider').on('click', function () {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 })
   })
 
   // @see field-new.html
-  const FIELD_TYPES = {
-    'TEXT': $L('文本'),
-    'NTEXT': $L('多行文本'),
-    'PHONE': $L('电话'),
-    'EMAIL': $L('邮箱'),
-    'URL': $L('链接'),
-    'NUMBER': $L('整数'),
-    'DECIMAL': $L('小数'),
-    'SERIES': $L('自动编号'),
-    'DATE': $L('日期'),
-    'DATETIME': $L('日期时间'),
-    'TIME': $L('时间'),
-    'PICKLIST': $L('下拉列表'),
-    'CLASSIFICATION': $L('分类'),
-    'MULTISELECT': $L('多选'),
-    'REFERENCE': $L('引用'),
-    'N2NREFERENCE': $L('多引用'),
-    'FILE': $L('附件'),
-    'IMAGE': $L('图片'),
-    'AVATAR': $L('头像'),
-    'BARCODE': $L('二维码'),
-    'LOCATION': $L('位置'),
-    'SIGN': $L('签名'),
-    'BOOL': $L('布尔'),
+  // @see field-type.js
+  for (let k in FIELD_TYPES) {
+    const ft = FIELD_TYPES[k]
+    if (!ft[2]) render_type({ name: k, label: ft[0], icon: ft[1] })
   }
-  for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })
 
   // SAVE
 
@@ -119,7 +99,7 @@ $(document).ready(function () {
     })
   }
 
-  $('.J_save').click(function () {
+  $('.J_save').on('click', function () {
     const formElements = []
     $('.form-preview .J_field').each(function () {
       const $this = $(this)
@@ -222,7 +202,7 @@ const render_item = function (data) {
 
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
-      .click(function () {
+      .on('click', function () {
         const _onConfirm = function (nv) {
           // 字段名
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
@@ -254,7 +234,7 @@ const render_item = function (data) {
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
-      .click(function () {
+      .on('click', function () {
         render_unset(data)
         $item.remove()
       })
@@ -264,7 +244,7 @@ const render_item = function (data) {
     $item.addClass('divider')
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
-      .click(function () {
+      .on('click', function () {
         const _onConfirm = function (nv) {
           $item.find('.dd-handle span').text(nv.dividerName || '')
         }
@@ -275,7 +255,7 @@ const render_item = function (data) {
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
-      .click(function () {
+      .on('click', function () {
         $item.remove()
       })
   }
@@ -287,7 +267,7 @@ const render_unset = function (data) {
   if (data.creatable === false) $item.find('.dd-handle').addClass('readonly')
   else if (data.nullable === false) $item.find('.dd-handle').addClass('not-nullable')
 
-  $item.click(function () {
+  $item.on('click', function () {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item(data)
     $item.remove()
@@ -296,8 +276,8 @@ const render_unset = function (data) {
 }
 
 const render_type = function (fieldType) {
-  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
-  $item.click(function () {
+  const $item = $(`<li class="dd-item"><div class="dd-handle"><i class="icon mdi ${fieldType.icon || 'mdi-form-textbox'}"></i> ${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
+  $item.on('click', function () {
     if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType.name}`, $L('添加字段'), { disposeOnHide: true })
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })

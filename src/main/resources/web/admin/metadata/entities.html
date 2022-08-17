@@ -58,6 +58,20 @@
         padding: 0;
         color: #777;
       }
+      .new-entity .card.entity .card-body {
+        padding: 7px;
+      }
+      .new-entity .card.entity .card-body .float-left,
+      .new-entity .card.entity .card-body .ml-7 {
+        display: block;
+        width: 100%;
+        clear: both;
+        margin: 0 !important;
+        text-align: center;
+      }
+      .new-entity .card.entity .card-body .ml-7 .text-muted {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -129,9 +143,9 @@
           const $new = render_entity({
             icon: 'plus',
             entityLabel: $L('添加实体'),
-            comments: $L('添加一个新的实体'),
           })
           $new
+            .addClass('new-entity')
             .find('a.card')
             .attr('href', 'javascript:;')
             .click(function () {
@@ -153,10 +167,14 @@
 
       const render_entity = function (item) {
         const $t = $($('#entity-tmpl').html()).appendTo('#entityList')
-        $t.find('a.card').attr('href', `entity/${item.entityName}/base`)
+        $t.find('a.card').attr({
+          href: `entity/${item.entityName}/base`,
+          title: item.comments || null,
+        })
         $t.find('.icon').addClass(`zmdi-${item.icon}`)
         $t.find('span').text(item.entityLabel)
         $t.find('p').text(item.comments || '-')
+
         if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card'))
         if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
         return $t

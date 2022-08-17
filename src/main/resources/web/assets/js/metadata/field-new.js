@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FIELD_TYPES */
 
 $(document).ready(function () {
   const entity = $urlp('entity')
@@ -44,7 +45,7 @@ $(document).ready(function () {
         if ($val('#saveAndNew')) {
           RbHighbar.success($L('字段已添加'))
           $('#fieldLabel, #comments').val('')
-          $('#type').val('TEXT').trigger('change')
+          // $('#type').val('TEXT').trigger('change')
           $('#fieldLabel').focus()
 
           // @see `field-new.html`
@@ -59,6 +60,14 @@ $(document).ready(function () {
       }
     })
   })
+
+  for (let k in FIELD_TYPES) {
+    const t = FIELD_TYPES[k]
+    const $o = $(`<option value="${k}">${t[0]}</option>`).appendTo('#type')
+    if (t[2]) $o.addClass('bosskey-show')
+  }
+
+  // $('#type, #refEntity').select2({})
 
   let referenceLoaded = false
   let classificationLoaded = false

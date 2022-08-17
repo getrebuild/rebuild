@@ -3,6 +3,11 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('添加字段')}]]</title>
+    <style>
+      .select2-container--default .select2-results > .select2-results__options {
+        max-height: 151px;
+      }
+    </style>
   </head>
   <body class="dialog">
     <div class="main-content">
@@ -16,34 +21,7 @@
         <div class="form-group row">
           <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('字段类型')}]]</label>
           <div class="col-sm-7">
-            <select class="form-control form-control-sm" id="type">
-              <option value="TEXT">[[${bundle.L('文本')}]]</option>
-              <option value="NTEXT">[[${bundle.L('多行文本')}]]</option>
-              <option value="PHONE">[[${bundle.L('电话')}]]</option>
-              <option value="EMAIL">[[${bundle.L('邮箱')}]]</option>
-              <option value="URL">[[${bundle.L('链接')}]]</option>
-              <option value="NUMBER">[[${bundle.L('整数')}]]</option>
-              <option value="DECIMAL">[[${bundle.L('小数')}]]</option>
-              <option value="SERIES">[[${bundle.L('自动编号')}]]</option>
-              <option value="DATE">[[${bundle.L('日期')}]]</option>
-              <option value="DATETIME">[[${bundle.L('日期时间')}]]</option>
-              <option value="TIME">[[${bundle.L('时间')}]]</option>
-              <option value="PICKLIST">[[${bundle.L('下拉列表')}]]</option>
-              <option value="CLASSIFICATION">[[${bundle.L('分类')}]]</option>
-              <option value="MULTISELECT">[[${bundle.L('多选')}]]</option>
-              <option value="REFERENCE">[[${bundle.L('引用')}]]</option>
-              <option value="N2NREFERENCE">[[${bundle.L('多引用')}]]</option>
-              <option value="FILE">[[${bundle.L('文件')}]]</option>
-              <option value="IMAGE">[[${bundle.L('图片')}]]</option>
-              <option value="AVATAR">[[${bundle.L('头像')}]]</option>
-              <option value="BARCODE">[[${bundle.L('二维码')}]]</option>
-              <option value="LOCATION">[[${bundle.L('位置')}]]</option>
-              <option value="SIGN">[[${bundle.L('签名')}]]</option>
-              <option value="BOOL">[[${bundle.L('布尔')}]]</option>
-              <optgroup th:label="${bundle.L('保留类型')}" class="bosskey-show">
-                <option value="STATE">[[${bundle.L('状态')}]]</option>
-              </optgroup>
-            </select>
+            <select class="form-control form-control-sm" id="type"></select>
           </div>
         </div>
         <div class="form-group row hide J_dt-REFERENCE J_dt-N2NREFERENCE">
@@ -88,6 +66,7 @@
       </form>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-new.js}" type="text/babel"></script>
   </body>
 </html>

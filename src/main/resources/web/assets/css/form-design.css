@@ -227,18 +227,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
-.field-list .dd-item:hover .dd-handle::before {
+.field-list .dd-item:hover .dd-handle::before,
+.type-list .dd-item:hover .dd-handle::before {
   color: #fff;
 }
 
 .field-list .dd-item span.ft {
   right: 32px;
-}
-
-.type-list .dd-item .dd-handle:hover,
-.type-list .dd-item .dd-handle:hover::before {
-  background-color: transparent;
-  color: #4285f4;
 }
 
 form.field-attr {
@@ -310,4 +305,16 @@ form.field-attr label > span {
 
 .field-aside .nav.nav-tabs {
   margin-top: 7px;
+}
+
+.type-list .dd-handle {
+  padding-left: 38px !important;
+}
+
+.type-list .dd-handle .icon.mdi {
+  font-size: 1.4rem;
+  width: 20px;
+  position: absolute;
+  left: 13px;
+  margin-top: -1px;
 }

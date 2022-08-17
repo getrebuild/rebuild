@@ -53,6 +53,7 @@ public class Entity2Schema extends Field2Schema {
      * @param mainEntity
      * @param haveNameField
      * @return
+     * @see #createEntity(String, String, String, String, boolean)
      */
     public String createEntity(String entityLabel, String comments, String mainEntity, boolean haveNameField) {
         return createEntity(null, entityLabel, comments, mainEntity, haveNameField);
