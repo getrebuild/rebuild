@@ -74,7 +74,7 @@ public class TransformerPreview {
                 return JSONUtils.EMPTY_ARRAY;
             }
 
-            List<ID> ids = QueryHelper.detailIdsNoFilter(sourceId, 0);
+            List<ID> ids = QueryHelper.detailIdsNoFilter(sourceId);
             if (ids.isEmpty()) {
                 return JSONUtils.EMPTY_ARRAY;
             }

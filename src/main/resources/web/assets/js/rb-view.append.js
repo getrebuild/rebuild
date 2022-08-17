@@ -467,11 +467,11 @@ class SelectReport extends React.Component {
                       <li key={item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
-                          <i className="zmdi zmdi-download" />
+                          <i className="mdi mdi-download" />
                         </a>
                         {rb._officePreviewUrl && (
                           <a target="_blank" className="preview" href={`${reportUrl}&preview=yes`} title={$L('在线查看')}>
-                            <i className="zmdi zmdi-globe-alt" />
+                            <i className="mdi mdi-open-in-new" />
                           </a>
                         )}
                       </li>

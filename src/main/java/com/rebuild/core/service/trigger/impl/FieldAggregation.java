@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -39,14 +40,15 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 字段聚合。问题：
- * - 目标记录可能不允许修改（如审批已完成），此时会抛出异常
+ * 字段聚合，场景 N>1
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/29
  */
 @Slf4j
 public class FieldAggregation extends TriggerAction {
+
+    private FieldAggregationRefresh fieldAggregationRefresh;
 
     /**
      * 更新自己
@@ -81,6 +83,16 @@ public class FieldAggregation extends TriggerAction {
     @Override
     public ActionType getType() {
         return ActionType.FIELDAGGREGATION;
+    }
+
+    @Override
+    public void clean() {
+        super.clean();
+
+        if (fieldAggregationRefresh != null) {
+            log.info("Clear after refresh : {}", fieldAggregationRefresh);
+            fieldAggregationRefresh.refresh();
+        }
     }
 
     /**
@@ -196,6 +208,10 @@ public class FieldAggregation extends TriggerAction {
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+        }
+
+        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
+            this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext);
         }
 
         return "affected:" + targetRecord.getPrimary();

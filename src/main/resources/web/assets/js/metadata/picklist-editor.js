@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']
 
 const isMulti = $urlp('multi') === 'true'
-const maxOptions = isMulti ? 20 : 40
+const maxOptions = isMulti ? 20 : 100
 
 $(document).ready(function () {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`

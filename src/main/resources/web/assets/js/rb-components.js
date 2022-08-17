@@ -960,7 +960,8 @@ UserPopup.create = function (el) {
   $(el).on({
     mouseover: function (e) {
       _clear()
-      const pos = { top: Math.max(e.clientY - 90, 0), left: e.clientX, display: 'block' }
+      const pos = { top: Math.max(e.clientY - 90, 0), left: Math.max(e.clientX - 140, 0), display: 'block' }
+      pos.top = $(this).position().top - 10
 
       UserPopup.__timer = setTimeout(function () {
         $.get(`/account/user-info?id=${uid}`, (res) => {

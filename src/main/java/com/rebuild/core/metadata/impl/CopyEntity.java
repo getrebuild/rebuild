@@ -18,7 +18,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.RbAssert;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 /**
  * 复制实体
@@ -75,9 +75,9 @@ public class CopyEntity extends Entity2Schema {
         schema.remove(MetaSchemaGenerator.CFG_FILTERS);
 
         String uniqueEntityName = toPinyinName(entityName);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             if (MetadataHelper.containsEntity(uniqueEntityName)) {
-                uniqueEntityName += RandomUtils.nextInt(99);
+                uniqueEntityName += RandomUtils.nextInt(0, 9);
             } else {
                 break;
             }

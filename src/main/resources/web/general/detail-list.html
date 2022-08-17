@@ -91,12 +91,12 @@
                         <div class="dropdown-menu dropdown-menu-right">
                           <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除')}]]</a>
                           <div class="dropdown-divider"></div>
-                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> [[${bundle.L('数据导出')}]]</a>
+                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('数据导出')}]]</a>
                           <a class="dropdown-item admin-show" th:href="|${baseUrl}/admin/data/data-imports?entity=${entityName}|">
-                            <i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('数据导入')}]]
+                            <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
                           </a>
-                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> [[${bundle.L('批量修改')}]] </a>
-                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('列显示')}]]</a>
+                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
+                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
                     </div>

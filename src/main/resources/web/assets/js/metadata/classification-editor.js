@@ -200,7 +200,7 @@ class LevelBox extends React.Component {
     })
     if (repeated) return RbHighbar.create($L('分类项重复'))
 
-    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${name}`
+    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${$encode(name)}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}&level=${this.props.level}`
     let isUnhide = null
@@ -483,7 +483,11 @@ class DlgImports extends RbModalHandler {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          this.__mp.end()
+          setTimeout(() => {
+            if (this.__mp) this.__mp.end()
+            this.__mp = null
+          }, 510)
+
           RbHighbar.error(res.data.hasError)
           return
         }

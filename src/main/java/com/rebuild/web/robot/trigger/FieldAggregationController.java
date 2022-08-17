@@ -54,7 +54,8 @@ public class FieldAggregationController extends BaseController {
             entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName() });
         }
 
-        sortEntities(entities, sourceEntity);
+        // v3.0 字段聚合无需自己
+        sortEntities(entities, null);
         return entities;
     }
 
@@ -130,10 +131,10 @@ public class FieldAggregationController extends BaseController {
     }
 
     /**
-     * 排序+添加自己
+     * 排序
      *
      * @param entities
-     * @param sourceEntity
+     * @param sourceEntity 添加自己
      */
     protected static void sortEntities(List<String[]> entities, Entity sourceEntity) {
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);

@@ -113,7 +113,7 @@ public class TransformConfigController extends BaseController {
 
         if (sourceTyp) {
             fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
-        } else {
+        } else if (entity.containsField(EntityHelper.OwningUser)) {
             fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
         }
 

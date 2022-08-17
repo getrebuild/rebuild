@@ -28,7 +28,7 @@ import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 /**
  * 创建实体
@@ -77,9 +77,9 @@ public class Entity2Schema extends Field2Schema {
             }
         } else {
             entityName = toPinyinName(entityLabel);
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 6; i++) {
                 if (MetadataHelper.containsEntity(entityName)) {
-                    entityName += RandomUtils.nextInt(99);
+                    entityName += RandomUtils.nextInt(0, 9);
                 } else {
                     break;
                 }

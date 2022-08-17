@@ -313,8 +313,10 @@ class FeedsEditor extends React.Component {
 
     let mp
     const mp_end = function () {
-      if (mp) mp.end()
-      mp = null
+      setTimeout(() => {
+        if (mp) mp.end()
+        mp = null
+      }, 510)
     }
 
     $createUploader(
@@ -366,7 +368,7 @@ class FeedsEditor extends React.Component {
     }
 
     this.__lastInputKey = e.key
-    if (e.key === '@') {
+    if (e.key === '@' || e.keyCode === 229) {
       this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
     }
   }

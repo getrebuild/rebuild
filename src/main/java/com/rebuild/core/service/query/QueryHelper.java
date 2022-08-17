@@ -102,18 +102,15 @@ public class QueryHelper {
      * 获取明细 ID
      *
      * @param mainId
-     * @param maxSize
      * @return
      */
-    public static List<ID> detailIdsNoFilter(ID mainId, int maxSize) {
+    public static List<ID> detailIdsNoFilter(ID mainId) {
         Entity detailEntity = MetadataHelper.getEntity(mainId.getEntityCode()).getDetailEntity();
         String sql = String.format("select %s from %s where %s = ?",
                 detailEntity.getPrimaryField().getName(), detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);
-        if (maxSize > 0) query.setLimit(maxSize);
-
         Object[][] array = query.array();
         List<ID> ids = new ArrayList<>();
 
