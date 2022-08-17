@@ -130,28 +130,25 @@ class RbList extends React.Component {
 
     const $scroller = $(this._rblistScroller)
     $scroller.perfectScrollbar({
-      suppressScrollY: true,
+      // suppressScrollY: true,
+      // wheelSpeed: 1,
     })
 
-    // // enable pin
-    // if ($(window).height() > 666 && $(window).width() >= 1280) {
-    //   $('.main-content').addClass('pb-0')
-    //   // $('.main-content .rb-datatable-header').addClass('header-fixed')
-    //   if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
+    // use pin
+    if ($(window).height() > 666 && $(window).width() >= 1280) {
+      $('.main-content').addClass('pb-0')
+      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
-    //   $addResizeHandler(() => {
-    //     let mh = $(window).height() - 208
-    //     if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
-    //     if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
-    //     $scroller.css({ maxHeight: mh })
-    //     $scroller.perfectScrollbar('update')
-    //   })()
-    // } else {
-    //   $('.main-content .rb-datatable-header').addClass('header-fixed')
-    // }
-
-    // v2.10
-    $('.main-content .rb-datatable-header').addClass('header-fixed footer-fixed')
+      $addResizeHandler(() => {
+        let mh = $(window).height() - 208
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
+        $scroller.css({ maxHeight: mh })
+        $scroller.perfectScrollbar('update')
+      })()
+    } else {
+      $('.main-content .rb-datatable-header').addClass('header-fixed')
+    }
 
     if (supportFixedColumns) {
       let slLast = 0

@@ -4738,47 +4738,6 @@ pre.unstyle {
   margin-left: 0;
 }
 
-/* datalist style v3 */
-
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  position: fixed;
-  bottom: 0;
-  right: 25px;
-  left: 535px;
-}
-
-.rb-aside.rb-aside-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  left: 305px;
-}
-
-.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  left: 365px;
-}
-
-.rb-aside.rb-aside-collapsed.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  left: 135px;
-}
-
-.rb-collapsible-sidebar:not(.rb-aside) .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  left: 255px;
-}
-
-.rb-collapsible-sidebar.rb-collapsible-sidebar-collapsed:not(.rb-aside) .dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-footer {
-  left: 85px;
-}
-
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list {
-  margin-bottom: 35px;
-}
-
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .rb-datatable-body .table {
-  margin-bottom: 15px;
-}
-
-.dataTables_wrapper .rb-datatable-header.footer-fixed + .data-list .list-nodata {
-  padding-top: 72px;
-}
-
 .rbalert .widget-sm {
   width: 88%;
   margin: 0 auto;
@@ -4839,4 +4798,9 @@ pre.unstyle {
 .header-icon.mdi {
   font-size: 2rem;
   line-height: 1;
+}
+
+.over-tab {
+  margin-top: -63px;
+  transition: margin-top 0.4s;
 }
