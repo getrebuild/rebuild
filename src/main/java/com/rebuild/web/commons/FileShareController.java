@@ -17,11 +17,10 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,33 +34,30 @@ import java.util.Collections;
  * @author ZHAO
  * @since 2019/9/26
  */
-@Controller
+@RestController
 public class FileShareController extends BaseController {
 
     // URL of public
     @GetMapping("/filex/make-url")
-    @ResponseBody
     public JSON makeUrl(HttpServletRequest request) {
         String fileUrl = getParameterNotNull(request, "url");
-        String publicUrl = makePublicUrl(fileUrl);
-        return JSONUtils.toJSONObject("publicUrl", publicUrl);
+        return JSONUtils.toJSONObject("publicUrl", makePublicUrl(fileUrl));
     }
 
     // URL of share
     @GetMapping("/filex/make-share")
-    @ResponseBody
     public JSON makeSharedFile(HttpServletRequest request) {
         Assert.isTrue(
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
                 Language.L("不允许分享文件"));
 
         String fileUrl = getParameterNotNull(request, "url");
-        int mtime = getIntParameter(request, "time", 5);
+        int time = getIntParameter(request, "time", 5);
 
         String shareKey = CodecUtils.randomCode(20);
         String shareKey2 = EncryptUtils.toMD5Hex(shareKey);
 
-        Application.getCommonsCache().put(shareKey2, fileUrl, mtime * 60);
+        Application.getCommonsCache().put(shareKey2, fileUrl, time * 60);
 
         String shareUrl = RebuildConfiguration.getHomeUrl("s/" + shareKey);
         return JSONUtils.toJSONObject("shareUrl", shareUrl);
