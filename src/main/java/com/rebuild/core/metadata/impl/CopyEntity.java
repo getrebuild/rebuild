@@ -10,6 +10,7 @@ package com.rebuild.core.metadata.impl;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
@@ -62,6 +63,11 @@ public class CopyEntity extends Entity2Schema {
         MetaschemaImporter importer = new MetaschemaImporter(schemadata);
         importer.setUser(user);
         TaskExecutors.run(importer);
+
+        String hasError = importer.getErrorMessage();
+        if (hasError != null) {
+            throw new RebuildException(hasError);
+        }
 
         // TODO 保留审批字段？
 

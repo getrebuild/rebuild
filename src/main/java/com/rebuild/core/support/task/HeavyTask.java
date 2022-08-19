@@ -45,7 +45,7 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
     final private Date beginTime;
     private Date completedTime;
 
-    private String errorMessage;
+    protected String errorMessage;
 
     protected HeavyTask() {
         this.beginTime = CalendarUtils.now();
