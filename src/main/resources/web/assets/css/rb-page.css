@@ -194,8 +194,8 @@ button[disabled] {
 }
 
 .badge {
-  font-weight: normal;
-  font-style: normal;
+  font-weight: normal !important;
+  font-style: normal !important;
 }
 
 .badge.badge-light,
