@@ -57,7 +57,8 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
                 this.addSucceeded();
 
             } catch (Exception ex) {
-                log.error("Cannot importing entity : {}", (data == null ? "<null>" : data), ex);
+                log.error("Cannot import entity : {}", (data == null ? "<null>" : data), ex);
+                this.errorMessage = ex.getLocalizedMessage();
             }
             this.addCompleted();
         }

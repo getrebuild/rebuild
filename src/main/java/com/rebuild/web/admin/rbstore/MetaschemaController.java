@@ -53,7 +53,7 @@ public class MetaschemaController extends BaseController {
 
         try {
             TaskExecutors.run(bmi);
-            return bmi.getSucceeded() > 0 ? RespBody.ok() : RespBody.error();
+            return bmi.getSucceeded() > 0 ? RespBody.ok() : RespBody.error(bmi.getErrorMessage());
 
         } catch (Exception ex) {
             log.error("Cannot import entities : {}", StringUtils.join(mainKeys, ", "), ex);

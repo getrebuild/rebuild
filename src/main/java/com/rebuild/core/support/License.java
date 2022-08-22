@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 
 import java.util.HashMap;
@@ -102,16 +103,16 @@ public final class License {
     }
 
     public static JSONObject siteApi(String api) {
-        return siteApi(api, ExpiresMap.HOUR_IN_SECOND * 2);
+        return siteApi(api, ExpiresMap.HOUR_IN_SECOND * 2, null);
     }
 
     public static JSONObject siteApiNoCache(String api) {
-        return siteApi(api, 0);
+        return siteApi(api, 0, null);
     }
 
-    private static JSONObject siteApi(String api, int ttl) {
-        if (ttl > 0) {
-            JSONObject c = MCACHED.get(api, ttl);
+    private static JSONObject siteApi(String api, int t, String domain) {
+        if (t > 0) {
+            JSONObject c = MCACHED.get(api, t);
             if (c != null) return c;
         }
 
@@ -120,13 +121,15 @@ public final class License {
         if (!api.contains("/authority/new")) hs.put("X-SiteApi-SN", SN());
 
         try {
-            String result = OkHttpUtils.get("https://getrebuild.com/" + api, hs);
+            String apiUrl = StringUtils.defaultIfEmpty(domain, "https://getrebuild.com/") + api;
+            String result = OkHttpUtils.get(apiUrl, hs);
+
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
 
                 String hasError = o.getString("error");
                 if (hasError != null) {
-                    log.error("Error result : {}", result);
+                    log.error("Result return error : {}", result);
                 } else {
                     MCACHED.put(api, o);
                 }
@@ -138,7 +141,12 @@ public final class License {
         } catch (Exception ex) {
             log.error("Call site api `{}` error : {}", api, ex.toString());
         }
-        return null;
+
+        if (domain == null) {
+            return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
+        } else {
+            return null;
+        }
     }
 
     private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();

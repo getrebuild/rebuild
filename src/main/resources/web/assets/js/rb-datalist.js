@@ -140,8 +140,8 @@ class RbList extends React.Component {
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
-        let mh = $(window).height() - 208
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 40 // Has tab
+        let mh = $(window).height() - 210
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 38 // Has tab
         if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')

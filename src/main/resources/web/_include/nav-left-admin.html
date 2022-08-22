@@ -8,7 +8,7 @@
             <ul class="sidebar-elements">
               <li class="divider">[[${bundle.L('系统')}]]</li>
               <li th:class="${active == 'systems'} ? 'active'">
-                <a th:href="@{/admin/systems}"><i class="icon mdi mdi-cog-outline"></i><span>[[${bundle.L('通用配置')}]]</span></a>
+                <a th:href="@{/admin/systems}"><i class="icon mdi mdi-cog"></i><span>[[${bundle.L('通用配置')}]]</span></a>
               </li>
               <li class="parent">
                 <a><i class="icon mdi mdi-integrated-circuit-chip"></i><span>[[${bundle.L('服务集成')}]]</span></a>
@@ -62,7 +62,7 @@
                 <a th:href="@{/admin/data/report-templates}"><i class="icon mdi mdi-microsoft-excel"></i><span>[[${bundle.L('报表模板')}]]</span></a>
               </li>
               <li th:class="${active == 'data-imports'} ? 'active'">
-                <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-database-import-outline"></i><span>[[${bundle.L('数据导入')}]]</span></a>
+                <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
               <li th:class="${active == 'extforms'} ? 'active'">
                 <a th:href="@{/admin/extforms}"><i class="icon mdi mdi-format-list-group-plus"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup> </a>
@@ -76,20 +76,20 @@
               </li>
               <li class="divider">[[${bundle.L('用户')}]]</li>
               <li th:class="${active == 'users'} ? 'active'">
-                <a th:href="@{/admin/bizuser/users}"><i class="icon mdi mdi-account-supervisor-outline"></i><span>[[${bundle.L('部门用户')}]]</span></a>
+                <a th:href="@{/admin/bizuser/users}"><i class="icon mdi mdi-account-multiple"></i><span>[[${bundle.L('部门用户')}]]</span></a>
               </li>
               <li th:class="${active == 'role-privileges'} ? 'active'">
-                <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon mdi mdi-account-lock-outline"></i><span>[[${bundle.L('角色权限')}]]</span></a>
+                <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon mdi mdi-account-lock"></i><span>[[${bundle.L('角色权限')}]]</span></a>
               </li>
               <li th:class="${active == 'teams'} ? 'active'">
-                <a th:href="@{/admin/bizuser/teams}"><i class="icon mdi mdi-account-switch-outline"></i><span>[[${bundle.L('团队')}]]</span></a>
+                <a th:href="@{/admin/bizuser/teams}"><i class="icon mdi mdi-briefcase-account"></i><span>[[${bundle.L('团队')}]]</span></a>
               </li>
               <li class="divider">[[${bundle.L('审计')}]]</li>
               <li th:class="${active == 'login-logs'} ? 'active'">
                 <a th:href="@{/admin/audit/login-logs}"><i class="icon mdi mdi-login"></i><span>[[${bundle.L('登录日志')}]]</span></a>
               </li>
               <li th:class="${active == 'revision-history'} ? 'active'">
-                <a th:href="@{/admin/audit/revision-history}"><i class="icon mdi mdi-archive-edit-outline"></i><span>[[${bundle.L('变更历史')}]]</span></a>
+                <a th:href="@{/admin/audit/revision-history}"><i class="icon mdi mdi-clock-edit-outline"></i><span>[[${bundle.L('变更历史')}]]</span></a>
               </li>
               <li th:class="${active == 'recycle-bin'} ? 'active'">
                 <a th:href="@{/admin/audit/recycle-bin}"><i class="icon mdi mdi-recycle-variant"></i><span>[[${bundle.L('回收站')}]]</span></a>
