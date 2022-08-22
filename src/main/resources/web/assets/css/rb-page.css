@@ -193,8 +193,17 @@ button[disabled] {
   color: #999;
 }
 
-.badge.text-id {
+.badge {
   font-weight: normal;
+  font-style: normal;
+}
+
+.badge.badge-light,
+.badge.badge-secondary {
+  line-height: 1.277rem;
+}
+
+.badge.text-id {
   color: #777;
   font-size: 12px !important;
   text-transform: uppercase;
@@ -203,7 +212,6 @@ button[disabled] {
 
 .badge-sm {
   border-radius: 99px;
-  font-weight: normal;
   font-size: 12px;
   padding: 1px 6px 0;
   line-height: 17px;

@@ -191,6 +191,6 @@ function ShowEnable(enable, cfgid) {
       </div>
     )
   } else {
-    return enable ? <span className="badge badge-grey font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+    return enable ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
   }
 }

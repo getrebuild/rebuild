@@ -60,7 +60,7 @@ class TriggerList extends ConfigList {
               <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
-                <span className="badge badge-light font-weight-light">{item[9]}</span>
+                <span className="badge badge-light">{item[9]}</span>
               </td>
               <td>{ShowEnable(item[4])}</td>
               <td>
