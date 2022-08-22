@@ -73,15 +73,13 @@ public class MetaFieldController extends BaseController {
             map.put("fieldName", easyMeta.getName());
             map.put("fieldLabel", easyMeta.getLabel());
             map.put("comments", easyMeta.getComments());
-            map.put("displayType", Language.L(easyMeta.getDisplayType()));
-            map.put("displayTypeName", easyMeta.getDisplayType().name());
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
             map.put("creatable", field.isCreatable());
-            map.put("displayType", Language.L(easyMeta.getDisplayType()));
 
             DisplayType dt = easyMeta.getDisplayType();
             map.put("displayType", Language.L(dt));
+            map.put("displayTypeName", easyMeta.getDisplayType().name());
 
             if (getBoolParameter(req, "refname")) {
                 if (dt == DisplayType.CLASSIFICATION) {

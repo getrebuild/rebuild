@@ -9,8 +9,8 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
+import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
@@ -121,7 +121,7 @@ public class AdminCLI2 {
         try {
             ConfigurationItem item = ConfigurationItem.valueOf(name);
             // Get
-            if (commands.length <= 2) {
+            if (commands.length == 2) {
                 return RebuildConfiguration.get(item);
             }
 

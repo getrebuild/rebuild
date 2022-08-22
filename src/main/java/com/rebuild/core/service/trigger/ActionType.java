@@ -34,9 +34,9 @@ public enum ActionType {
 
     ;
 
-    private String displayName;
+    private final String displayName;
     // extends TriggerAction
-    private String actionClass;
+    private final String actionClass;
 
     ActionType(String displayName, String actionClass) {
         this.displayName = displayName;
@@ -67,7 +67,7 @@ public enum ActionType {
      * @return
      * @throws ReflectiveOperationException
      */
-    protected TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
+    TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
         Class<?> clazz = ClassUtils.getClass(getActionClass());
         Constructor<?> c = ReflectionUtils.accessibleConstructor(clazz, ActionContext.class);
         return (TriggerAction) c.newInstance(context);

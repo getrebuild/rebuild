@@ -55,7 +55,7 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
             jedis = jedisPool.getResource();
 
             if (seconds > 0) {
-                jedis.setex(key, (long) seconds, value);
+                jedis.setex(key, seconds, value);
             } else {
                 jedis.set(key, value);
             }
@@ -99,7 +99,7 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
 
             byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
             if (seconds > 0) {
-                jedis.setex(bkey, (long) seconds, SerializationUtils.serialize(value));
+                jedis.setex(bkey, seconds, SerializationUtils.serialize(value));
             } else {
                 jedis.set(bkey, SerializationUtils.serialize(value));
             }

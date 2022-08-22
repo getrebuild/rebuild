@@ -38,7 +38,7 @@ public class FunnelChart extends ChartData {
                         new Object[]{nums[i].getLabel(), wrapAxisValue(nums[i], dataRaw[i])});
                 dataJson.add(d);
             }
-        } else if (nums.length >= 1 && dims.length >= 1) {
+        } else if (nums.length == 1 && dims.length >= 1) {
             Dimension dim1 = dims[0];
             Object[][] dataRaw = createQuery(buildSql(dim1, nums[0])).array();
             for (Object[] o : dataRaw) {

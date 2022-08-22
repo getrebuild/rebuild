@@ -17,6 +17,7 @@ import com.rebuild.core.service.DataSpecificationException;
  * @see com.rebuild.rbv.trigger.DataValidate
  */
 public class DataValidateException extends DataSpecificationException {
+    private static final long serialVersionUID = 4178910284594338317L;
 
     public DataValidateException(String msg) {
         super(msg);

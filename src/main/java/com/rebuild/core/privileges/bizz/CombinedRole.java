@@ -153,9 +153,7 @@ public class CombinedRole extends Role {
             defMap.put(key, mergeMaskValue(aMask, bMask));
         }
 
-        for (Map.Entry<String, Integer> e : bDefMap.entrySet()) {
-            defMap.put(e.getKey(), e.getValue());
-        }
+        defMap.putAll(bDefMap);
 
         List<String> defs = new ArrayList<>();
         for (Map.Entry<String, Integer> e : defMap.entrySet()) {

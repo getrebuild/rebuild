@@ -44,7 +44,7 @@ public class UpgradeScriptReader {
 
         int oneVer = -1;
         List<String> sqlBatch = new ArrayList<>();
-        StringBuffer sqlOne = new StringBuffer();
+        StringBuilder sqlLine = new StringBuilder();
 
         for (String sl : sqlScripts) {
             if (StringUtils.isBlank(sl)) {
@@ -64,16 +64,16 @@ public class UpgradeScriptReader {
             } else if (sl.startsWith(TAG_COMMENT)) {
                 // IGNORE COMMENTS
             } else {
-                sqlOne.append(sl).append("\n");
+                sqlLine.append(sl).append("\n");
                 if (sl.endsWith(";")) {  // SQL end by `;`
-                    sqlBatch.add(sqlOne.toString());
-                    sqlOne = new StringBuffer();
+                    sqlBatch.add(sqlLine.toString());
+                    sqlLine = new StringBuilder();
                 }
             }
         }
 
-        if (sqlOne.length() > 0) {
-            sqlBatch.add(sqlOne.toString());
+        if (sqlLine.length() > 0) {
+            sqlBatch.add(sqlLine.toString());
         }
         if (oneVer > -1) {
             sqls.put(oneVer, sqlBatch.toArray(new String[0]));
