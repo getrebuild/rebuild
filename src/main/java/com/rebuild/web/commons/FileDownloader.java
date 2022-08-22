@@ -122,6 +122,8 @@ public class FileDownloader extends BaseController {
 
     @GetMapping(value = {"download/**", "access/**"})
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final boolean temp = getBoolParameter(request, "temp");
+
         String filePath = request.getRequestURI();
 
         // 共享查看
@@ -134,11 +136,9 @@ public class FileDownloader extends BaseController {
 
             filePath = filePath.split("/filex/access/")[1];
         } else {
-            RbAssert.isAllow(checkUser(request, false), "Unauthorized access");
+            RbAssert.isAllow(checkUser(request, temp), "Unauthorized access");
             filePath = filePath.split("/filex/download/")[1];
         }
-
-        final boolean temp = getBoolParameter(request, "temp");
 
         String attname = getParameter(request, "attname");
         if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
