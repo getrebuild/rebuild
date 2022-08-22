@@ -136,7 +136,7 @@ public class FieldAggregationController extends BaseController {
      * @param entities
      * @param sourceEntity 添加自己
      */
-    protected static void sortEntities(List<String[]> entities, Entity sourceEntity) {
+    public static void sortEntities(List<String[]> entities, Entity sourceEntity) {
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
 

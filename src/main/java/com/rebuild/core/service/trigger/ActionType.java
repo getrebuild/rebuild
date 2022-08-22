@@ -28,6 +28,7 @@ public enum ActionType {
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),
+    AUTOREVOKE("自动撤销", "com.rebuild.rbv.trigger.AutoRevoke"),
     AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
     SENDNOTIFICATION("发送通知", SendNotification.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
