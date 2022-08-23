@@ -66,7 +66,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
         if (SysbaseDiagnosis._DENIEDMSG != null) {
-            throw new DefinedException(CODE_STARTING, SysbaseDiagnosis._DENIEDMSG);
+            throw new DefinedException(CODE_DENIEDMSG, SysbaseDiagnosis._DENIEDMSG);
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
@@ -116,9 +116,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // 用户验证
         if (requestUser != null) {
 
-            boolean adminVerified = AppUtils.isAdminVerified(request);
-            // 管理中心
-            if (requestUri.contains("/admin/") && !adminVerified) {
+            // 管理中心二次验证
+            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
                 if (isHtmlRequest(request)) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
@@ -291,7 +290,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (!License.isRbvAttached()) return;
 
         if ("localhost".equals(ipAddr) || "127.0.0.1".equals(ipAddr)) {
-            log.warn("Allow localhost/127.0.0.1 use : {}", requestUri);
+            log.debug("Allow localhost/127.0.0.1 use : {}", requestUri);
             return;
         }
 
