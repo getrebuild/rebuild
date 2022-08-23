@@ -39,7 +39,7 @@ import java.util.*;
 public class ApprovalProcessor extends SetUser {
 
     // 最大撤销次数
-    private static final int MAX_REVOKED = 3;
+    private static final int MAX_REVOKED = 100;
 
     final private ID record;
 
