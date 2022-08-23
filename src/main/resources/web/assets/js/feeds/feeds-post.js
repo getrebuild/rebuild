@@ -367,8 +367,8 @@ class FeedsEditor extends React.Component {
       this._handleInput__Timer = null
     }
 
-    this.__lastInputKey = e.key
-    if (e.key === '@' || e.keyCode === 229) {
+    if (e.key === '@' || (e.keyCode === 229 && e.shiftKey)) {
+      this.__lastInputKey = '@'
       this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
     }
   }
