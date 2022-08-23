@@ -58,12 +58,8 @@ class ContentAutoAssign extends ActionContentSpec {
   }
 
   componentDidMount() {
-    $('.J_when')
-      .find('.custom-control-input')
-      .each(function () {
-        const v = ~~$(this).val()
-        if (v === 2 || v === 16) $(this).attr('disabled', true)
-      })
+    // eslint-disable-next-line no-undef
+    disableWhen(2, 16)
 
     const content = this.props.content || {}
 

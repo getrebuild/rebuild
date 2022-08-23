@@ -143,10 +143,10 @@ class TriggerEdit extends ConfigFormDlg {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择触发器')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._actionType = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$actionType = c)}>
                   {(this.state.actions || []).map((item) => {
                     return (
-                      <option key={'o-' + item[0]} value={item[0]}>
+                      <option key={item[0]} value={item[0]}>
                         {item[1]}
                       </option>
                     )
@@ -157,10 +157,10 @@ class TriggerEdit extends ConfigFormDlg {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择源实体')}</label>
               <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => (this._sourceEntity = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$sourceEntity = c)}>
                   {(this.state.sourceEntities || []).map((item) => {
                     return (
-                      <option key={'e-' + item[0]} value={item[0]}>
+                      <option key={item[0]} value={item[0]}>
                         {item[1]}
                       </option>
                     )
@@ -197,7 +197,7 @@ class TriggerEdit extends ConfigFormDlg {
     // #1
     $.get('/admin/robot/trigger/available-actions', (res) => {
       this.setState({ actions: res.data }, () => {
-        const s2ot = $(this._actionType)
+        const s2ot = $(this._$actionType)
           .select2({
             placeholder: $L('选择触发类型'),
             allowClear: false,
@@ -210,12 +210,12 @@ class TriggerEdit extends ConfigFormDlg {
             },
           })
           .on('change', () => {
-            this.__getEntitiesByAction(s2ot.val())
+            this._getEntitiesByAction(s2ot.val())
           })
         this.__select2.push(s2ot)
 
         // #2
-        const s2se = $(this._sourceEntity).select2({
+        const s2se = $(this._$sourceEntity).select2({
           placeholder: $L('选择源实体'),
           allowClear: false,
         })
@@ -226,7 +226,7 @@ class TriggerEdit extends ConfigFormDlg {
     })
   }
 
-  __getEntitiesByAction(type) {
+  _getEntitiesByAction(type) {
     $.get(`/admin/robot/trigger/available-entities?action=${type}`, (res) => {
       this.setState({ sourceEntities: res.data })
     })
