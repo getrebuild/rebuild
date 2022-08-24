@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->

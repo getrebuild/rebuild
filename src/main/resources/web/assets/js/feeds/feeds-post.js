@@ -207,7 +207,7 @@ class FeedsEditor extends React.Component {
             maxLength="2000"
             onFocus={() => this.setState({ focus: true })}
             onBlur={() => this.setState({ focus: false })}
-            onKeyDown={(e) => this._handleInputAt(e)}
+            onKeyUp={(e) => this._handleInputAt(e)}
             defaultValue={this.props.initValue}
           />
           <div className="action-btns">
@@ -362,13 +362,15 @@ class FeedsEditor extends React.Component {
   }
 
   _handleInputAt(e) {
+    if (e.key === 'Shift' || e.key === 'Process') return true
+
     if (this._handleInput__Timer) {
       clearTimeout(this._handleInput__Timer)
       this._handleInput__Timer = null
     }
 
-    this.__lastInputKey = e.key
-    if (e.key === '@' || e.keyCode === 229) {
+    if (e.key === '@') {
+      this.__lastInputKey = '@'
       this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
     }
   }
