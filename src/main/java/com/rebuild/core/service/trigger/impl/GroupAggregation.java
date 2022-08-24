@@ -250,7 +250,7 @@ public class GroupAggregation extends FieldAggregation {
         PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
         try {
-            Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+            getUseService().create(newTargetRecord);
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
         }

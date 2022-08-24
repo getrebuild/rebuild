@@ -30,7 +30,6 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -98,13 +97,8 @@ public class FieldWriteback extends FieldAggregation {
             return "target-empty";
         }
 
-        final ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
-                ? Application.getEntityService(targetEntity.getEntityCode())
-                : Application.getService(targetEntity.getEntityCode());
-
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
-        boolean tschainAdded = false;
         List<ID> affected = new ArrayList<>();
         for (ID targetRecordId : targetRecordIds) {
             if (operatingContext.getAction() == BizzPermission.DELETE
@@ -115,30 +109,30 @@ public class FieldWriteback extends FieldAggregation {
 
             // 跳过权限
             PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+
             // 强制更新 (v2.9)
             if (forceUpdate) {
                 GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
             }
 
-            // 会关联触发下一触发器
-            if (!tschainAdded) {
-                tschainAdded = true;
-                tschain.add(chainName);
-                TRIGGER_CHAIN.set(tschain);
-            }
+            // 重复检查模式
+            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
 
             Record targetRecord = targetRecordData.clone();
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
             targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
-            GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
+            List<String> tschainCurrentLoop = new ArrayList<>(tschain);
+            tschainCurrentLoop.add(chainName);
+            TRIGGER_CHAIN.set(tschainCurrentLoop);
+            System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                useService.createOrUpdate(targetRecord);
+                getUseService().createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
-                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
                 GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             }
         }

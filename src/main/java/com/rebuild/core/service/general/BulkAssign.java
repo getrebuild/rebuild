@@ -45,6 +45,7 @@ public class BulkAssign extends BulkOperator {
                     this.addSucceeded();
                     if (firstAssigned == null) firstAssigned = id;
                 }
+
             } else {
                 log.warn("No have privileges to ASSIGN : {} < {}", id, context.getOpUser());
             }

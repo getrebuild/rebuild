@@ -38,9 +38,8 @@ public class BulkUnshare extends BulkOperator {
         // 这里的取消实际是删除了共享表记录
         for (ID id : records) {
             int a = ges.unshare(realTarget, id);
-            if (a > 0) {
-                this.addSucceeded();
-            }
+            if (a > 0) this.addSucceeded();
+
             this.addCompleted();
         }
 

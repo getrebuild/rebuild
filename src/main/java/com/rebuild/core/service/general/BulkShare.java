@@ -48,10 +48,9 @@ public class BulkShare extends BulkOperator {
                 int a = ges.share(id, context.getToUser(), context.getCascades(), shareRights);
                 if (a > 0) {
                     this.addSucceeded();
-                    if (firstShared == null) {
-                        firstShared = id;
-                    }
+                    if (firstShared == null) firstShared = id;
                 }
+
             } else {
                 log.warn("No have privileges to SHARE : {} < {}", id, context.getOpUser());
             }
