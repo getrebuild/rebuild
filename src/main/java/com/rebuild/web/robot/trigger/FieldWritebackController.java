@@ -58,7 +58,8 @@ public class FieldWritebackController extends BaseController {
             Entity refEntity = refFrom.getReferenceEntity();
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
-            temp.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
+            temp.add(new String[] {
+                    refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
         }
 
         FieldAggregationController.sortEntities(temp, null);

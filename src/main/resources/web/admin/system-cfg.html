@@ -95,8 +95,8 @@
                         <td data-id="HomeURL" th:data-value="${HomeURL}" th:data-form-text="${bundle.L('所有外部链接将以此作为前缀')}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('默认语言')}]]</td>
-                        <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
+                        <td>[[${bundle.L('默认语言')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'DefaultLanguage' : ''}" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('页脚')}]]</td>
@@ -130,8 +130,8 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('显示页面水印')}]]</td>
-                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td width="40%">[[${bundle.L('显示页面水印')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'MarkWatermark' : ''}" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('允许分享文件')}]]</td>
@@ -245,12 +245,12 @@
                         <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('文档预览服务地址')}]]</td>
-                        <td data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
+                        <td>[[${bundle.L('文档预览服务地址')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'PortalOfficePreviewUrl' : ''}" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
-                        <td>[[${bundle.L('百度地图 AK')}]]</td>
-                        <td data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
+                        <td>[[${bundle.L('百度地图 AK')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'PortalBaiduMapAk' : ''}" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>

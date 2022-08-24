@@ -193,8 +193,8 @@ class ApprovalProcessor extends React.Component {
 
   revoke = () => {
     const that = this
-    RbAlert.create($L('将要撤销已通过审批，每条记录仅有 3 次撤销机会。确认吗？'), {
-      type: 'warning',
+    RbAlert.create($L('将要撤销已通过审批。确认吗？'), {
+      type: 'danger',
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {

@@ -286,3 +286,19 @@ class DlgSpecFields extends RbModalHandler {
     $.get(`/commons/metadata/fields?entity=${wpc.sourceEntity}`, (res) => this.setState({ fields: res.data }))
   }
 }
+
+// eslint-disable-next-line no-unused-vars
+function disableWhen() {
+  const args = arguments
+  $('.J_when')
+    .find('.custom-control-input')
+    .each(function () {
+      const when = ~~$(this).val()
+      for (let i = 0; i < args.length; i++) {
+        if (args[i] === when) {
+          $(this).attr('disabled', true)
+          break
+        }
+      }
+    })
+}

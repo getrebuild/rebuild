@@ -46,12 +46,8 @@ class ContentAutoApproval extends ActionContentSpec {
   }
 
   componentDidMount() {
-    $('.J_when')
-      .find('.custom-control-input')
-      .each(function () {
-        const v = ~~$(this).val()
-        if (!(v === 1 || v === 4 || v === 512)) $(this).attr('disabled', true)
-      })
+    // eslint-disable-next-line no-undef
+    disableWhen(2, 16, 32, 64, 128, 256)
 
     const content = this.props.content || {}
     $.get(`/admin/robot/trigger/auto-approval-alist?entity=${this.props.sourceEntity}`, (res) => {
