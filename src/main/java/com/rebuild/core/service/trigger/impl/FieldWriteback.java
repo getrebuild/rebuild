@@ -126,7 +126,7 @@ public class FieldWriteback extends FieldAggregation {
             tschainCurrentLoop.add(chainName);
             TRIGGER_CHAIN.set(tschainCurrentLoop);
             System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
-            
+
             try {
                 getUseService().createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());

@@ -10,6 +10,7 @@ package com.rebuild.core.service.general;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -39,7 +40,13 @@ public class BulkDelete extends BulkOperator {
                 } catch (DataSpecificationException ex) {
                     lastError = ex.getLocalizedMessage();
                     log.warn("Cannot delete `{}` because : {}", id, lastError);
+
+                } finally {
+                    // 可能有级联触发器
+                    Object ts = FieldAggregation.cleanTriggerChain();
+                    if (ts != null) log.info("Clean current-loop : {}", ts);
                 }
+
             } else {
                 log.warn("No have privileges to DELETE : {} < {}", id, context.getOpUser());
             }

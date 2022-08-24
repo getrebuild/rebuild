@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +64,7 @@ public class DataImporter extends HeavyTask<Integer> {
             }
 
             Cell fc = row == null || row.length == 0 ? null : row[0];
-            if (fc == null || fc.getRowNo() == 0) {
-                continue;
-            }
+            if (fc == null || fc.getRowNo() == 0) continue;
 
             try {
                 Record record = checkoutRecord(row, defaultOwning);
@@ -83,6 +82,11 @@ public class DataImporter extends HeavyTask<Integer> {
             } catch (Exception ex) {
                 traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", ex.getLocalizedMessage() });
                 log.error("ROW#{} > {}", fc.getRowNo(), ex.getLocalizedMessage());
+            } finally {
+
+                // 可能有级联触发器
+                Object ts = FieldAggregation.cleanTriggerChain();
+                if (ts != null) log.info("Clean current-loop : {}", ts);
             }
 
             this.addCompleted();

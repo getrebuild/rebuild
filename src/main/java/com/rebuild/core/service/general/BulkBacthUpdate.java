@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +49,7 @@ public class BulkBacthUpdate extends BulkOperator {
 
         JSONArray updateContents = ((JSONObject) context.getExtraParams().get("customData"))
                 .getJSONArray("updateContents");
+
         // 转化成标准 FORM 格式
         JSONObject formJson = new JSONObject();
         for (Object o : updateContents) {
@@ -62,6 +64,7 @@ public class BulkBacthUpdate extends BulkOperator {
                 formJson.put(field, value);
             }
         }
+
         JSONObject metadata = new JSONObject();
         metadata.put("entity", context.getMainEntity().getName());
         formJson.put(JsonRecordCreator.META_FIELD, metadata);
@@ -80,6 +83,11 @@ public class BulkBacthUpdate extends BulkOperator {
                     this.addSucceeded();
                 } catch (DataSpecificationException ex) {
                     log.warn("Cannot update `{}` because : {}", id, ex.getLocalizedMessage());
+
+                } finally {
+                    // 可能有级联触发器
+                    Object ts = FieldAggregation.cleanTriggerChain();
+                    if (ts != null) log.info("Clean current-loop : {}", ts);
                 }
 
             } else {
