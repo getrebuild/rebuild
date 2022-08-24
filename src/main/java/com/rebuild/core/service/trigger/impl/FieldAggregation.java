@@ -189,25 +189,22 @@ public class FieldAggregation extends TriggerAction {
 
         // 跳过权限
         PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
+
         // 强制更新 (v2.9)
         if (forceUpdate) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(targetRecordId);
         }
 
-        // 会关联触发下一触发器（如有）
         tschain.add(chainName);
         TRIGGER_CHAIN.set(tschain);
 
-        ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
-                ? Application.getEntityService(targetEntity.getEntityCode())
-                : Application.getService(targetEntity.getEntityCode());
-
         targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+
         try {
-            useService.update(targetRecord);
+            getUseService().update(targetRecord);
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
-            GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
         }
 
         if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
@@ -248,6 +245,15 @@ public class FieldAggregation extends TriggerAction {
         }
 
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
+    }
+
+    /**
+     * @return
+     */
+    protected ServiceSpec getUseService() {
+        return MetadataHelper.isBusinessEntity(targetEntity)
+                ? Application.getEntityService(targetEntity.getEntityCode())
+                : Application.getService(targetEntity.getEntityCode());
     }
 
     /**
