@@ -248,8 +248,6 @@ public class FieldAggregation extends TriggerAction {
     }
 
     /**
-     * 清理触发链，在批处理时需要调用
-     *
      * @return
      */
     protected ServiceSpec getUseService() {
@@ -259,6 +257,8 @@ public class FieldAggregation extends TriggerAction {
     }
 
     /**
+     * 清理触发链，在批处理时需要调用
+     *
      * @return
      */
     public static Object cleanTriggerChain() {
