@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class KVStorage {
 
-    private static final Object SETNULL = new Object();
+    public static final Object SETNULL = new Object();
 
     /**
      * 存储
