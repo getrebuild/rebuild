@@ -18,6 +18,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -156,10 +157,10 @@ public class LoginAction extends BaseController {
         TaskExecutors.queue(() -> {
             Application.getCommonsService().create(record);
 
-            String uid = Application.getUserStore().getUser(user).getEmail();
-            if (uid != null) uid = user + ":" + uid;
-            else uid = user.toLiteral();
-
+            User u = Application.getUserStore().getUser(user);
+            String uid = StringUtils.defaultString(u.getEmail(), u.getName());
+            if (uid == null) uid = user.toLiteral();
+            
             String uaUrl = String.format("api/authority/user/echo?user=%s&ip=%s&ua=%s",
                     CodecUtils.base64UrlEncode(uid), ipAddr, CodecUtils.urlEncode(ua));
             License.siteApiNoCache(uaUrl);
