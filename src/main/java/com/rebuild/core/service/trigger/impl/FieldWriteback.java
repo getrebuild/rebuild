@@ -128,7 +128,7 @@ public class FieldWriteback extends FieldAggregation {
             System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                getUseService().createOrUpdate(targetRecord);
+                Application.getBestService(targetEntity).createOrUpdate(targetRecord);
                 affected.add(targetRecord.getPrimary());
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();

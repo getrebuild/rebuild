@@ -23,9 +23,9 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -55,11 +55,17 @@ public class FieldAggregation extends TriggerAction {
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
 
-    // 最大触发链深度
-    final protected int maxTriggerDepth;
+    /**
+     * 最大触发链深度
+     */
+    public static final int MAX_TRIGGER_DEPTH = 32;
+
     // 此触发器可能产生连锁反应
     // 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
     protected static final ThreadLocal<List<String>> TRIGGER_CHAIN = new ThreadLocal<>();
+
+    // 忽略更新数据库中相等记录
+    final private boolean ignoredSame;
 
     // 源实体
     protected Entity sourceEntity;
@@ -72,12 +78,12 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     public FieldAggregation(ActionContext context) {
-        this(context, 32);
+        this(context, false);
     }
 
-    protected FieldAggregation(ActionContext context, int maxTriggerDepth) {
+    protected FieldAggregation(ActionContext context, boolean ignoredSame) {
         super(context);
-        this.maxTriggerDepth = maxTriggerDepth;
+        this.ignoredSame = ignoredSame;
     }
 
     @Override
@@ -119,7 +125,7 @@ public class FieldAggregation extends TriggerAction {
             }
         }
 
-        if (tschain.size() >= maxTriggerDepth) {
+        if (tschain.size() >= MAX_TRIGGER_DEPTH) {
             throw new TriggerException("Exceed the maximum trigger depth : " + StringUtils.join(tschain, " > "));
         }
 
@@ -185,6 +191,12 @@ public class FieldAggregation extends TriggerAction {
             return "target-empty";
         }
 
+        // 相等则不更新
+        if (isCurrentSame(targetRecord)) {
+            log.debug("Record are same : {}", targetRecordId);
+            return "target-ignored";
+        }
+
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         // 跳过权限
@@ -201,7 +213,7 @@ public class FieldAggregation extends TriggerAction {
         targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
         try {
-            getUseService().update(targetRecord);
+            Application.getBestService(targetEntity).update(targetRecord);
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
@@ -248,12 +260,17 @@ public class FieldAggregation extends TriggerAction {
     }
 
     /**
+     * 是否与数据库中的记录一样（就无需更新了）
+     *
+     * @param record
      * @return
      */
-    protected ServiceSpec getUseService() {
-        return MetadataHelper.isBusinessEntity(targetEntity)
-                ? Application.getEntityService(targetEntity.getEntityCode())
-                : Application.getService(targetEntity.getEntityCode());
+    protected boolean isCurrentSame(Record record) {
+        if (!ignoredSame) return false;
+
+        Record c = Application.getQueryFactory().recordNoFilter(
+                record.getPrimary(), record.getAvailableFields().toArray(new String[0]));
+        return new RecordDifference(record).isSame(c, false);
     }
 
     /**

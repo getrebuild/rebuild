@@ -127,7 +127,7 @@ public class GroupAggregationRefresh {
             ActionContext actionContext = new ActionContext(null,
                     parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());
 
-            GroupAggregation ga = new GroupAggregation(actionContext);
+            GroupAggregation ga = new GroupAggregation(actionContext, true);
             ga.sourceEntity = parent.sourceEntity;
             ga.targetEntity = parent.targetEntity;
             ga.targetRecordId = targetRecordId;
