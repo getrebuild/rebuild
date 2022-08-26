@@ -49,6 +49,6 @@ class EasyMetaTest extends TestSupport {
         Assertions.assertFalse(EasyPhone.isPhone("1171234567"));
         Assertions.assertFalse(EasyPhone.isPhone("11712345678"));
         Assertions.assertFalse(EasyPhone.isPhone("12712345678"));
-        Assertions.assertFalse(EasyPhone.isPhone("14712345678"));
+        Assertions.assertTrue(EasyPhone.isPhone("14712345678"));
     }
 }

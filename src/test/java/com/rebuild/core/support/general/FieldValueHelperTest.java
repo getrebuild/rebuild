@@ -22,6 +22,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalTime;
+
 /**
  * @author devezhao-mac zhaofang123@gmail.com
  * @since 2019/03/16
@@ -37,6 +39,8 @@ public class FieldValueHelperTest extends TestSupport {
                 value = ID.newId(field.getReferenceEntity().getEntityCode());
             } else if (field.getType() == FieldType.DATE || field.getType() == FieldType.TIMESTAMP) {
                 value = CalendarUtils.now();
+            } else if (field.getType() == FieldType.TIME) {
+                value = LocalTime.now();
             } else if (field.getType() == FieldType.LONG
                     || field.getType() == FieldType.DECIMAL) {
                 value = null;
