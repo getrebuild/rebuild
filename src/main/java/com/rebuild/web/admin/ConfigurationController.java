@@ -143,19 +143,21 @@ public class ConfigurationController extends BaseController {
         String dStorageApiKey = defaultIfBlank(data, ConfigurationItem.StorageApiKey);
         String dStorageApiSecret = defaultIfBlank(data, ConfigurationItem.StorageApiSecret);
 
-        if (!dStorageUrl.endsWith("/")) {
-            dStorageUrl = dStorageUrl + "/";
-            data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
-        }
-
-        if (dStorageUrl.startsWith("http://") || dStorageUrl.startsWith("https://")) {
-            // OK
-        } else {
-            if (dStorageUrl.startsWith("//")) {
-                dStorageUrl = "https:" + dStorageUrl;
-            } else {
-                dStorageUrl = "http://" + dStorageUrl;
+        if (dStorageUrl != null) {
+            if (!dStorageUrl.endsWith("/")) {
+                dStorageUrl = dStorageUrl + "/";
                 data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
+            }
+
+            if (dStorageUrl.startsWith("http://") || dStorageUrl.startsWith("https://")) {
+                // OK
+            } else {
+                if (dStorageUrl.startsWith("//")) {
+                    dStorageUrl = "https:" + dStorageUrl;
+                } else {
+                    dStorageUrl = "http://" + dStorageUrl;
+                    data.put(ConfigurationItem.StorageURL.name(), dStorageUrl);  // fix
+                }
             }
         }
 
