@@ -97,6 +97,16 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             int del = Application.getSqlExecutor().execute(delSql, 60 * 3);
             log.warn("RevisionHistory cleaned : {}", del);
         }
+
+        // CommonLog
+
+        Entity entity = MetadataHelper.getEntity(EntityHelper.CommonsLog);
+        String delSql = String.format(
+                "delete from `%s` where `%s` < '%s 00:00:00'",
+                entity.getPhysicalName(),
+                entity.getField("logTime").getPhysicalName(),
+                CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-6)));
+        Application.getSqlExecutor().execute(delSql, 60 * 3);
     }
 
     /**
