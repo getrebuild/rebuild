@@ -32,6 +32,12 @@ import com.rebuild.utils.JSONUtils;
 
 import java.util.List;
 
+/**
+ * 转换记录预览模式
+ *
+ * @author RB
+ * @since 2022/7/19
+ */
 public class TransformerPreview {
 
     final private ID configId;

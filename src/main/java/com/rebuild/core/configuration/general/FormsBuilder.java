@@ -265,6 +265,9 @@ public class FormsBuilder extends FormsManager {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
 
+        // 新建
+        final boolean isNew = recordData == null || recordData.getPrimary() == null || EntityHelper.isUnsavedId(recordData.getPrimary());
+
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
             JSONObject el = (JSONObject) iter.next();
@@ -285,20 +288,20 @@ public class FormsBuilder extends FormsManager {
             Object requiredOnUpdate = el.remove("requiredOnUpdate");
             if (useAdvControl) {
                 // 显示
-                if (displayOnCreate != null && !(Boolean) displayOnCreate && recordData == null) {
+                if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew) {
                     iter.remove();
                     continue;
                 }
-                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && recordData != null) {
+                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && !isNew) {
                     iter.remove();
                     continue;
                 }
 
                 // 必填
-                if (requiredOnCreate != null && (Boolean) requiredOnCreate && recordData == null) {
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew) {
                     el.put("nullable", false);
                 }
-                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && recordData != null) {
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew) {
                     el.put("nullable", false);
                 }
             }
@@ -312,7 +315,7 @@ public class FormsBuilder extends FormsManager {
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
 
-            el.put("readonly", (recordData != null && !fieldMeta.isUpdatable()) || roViaAuto);
+            el.put("readonly", (!isNew && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
             final Boolean nullable = el.getBoolean("nullable");
@@ -364,10 +367,10 @@ public class FormsBuilder extends FormsManager {
                     el.put("value", value);
                 }
 
-                ID pv = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
+                ID parentValue = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
                         ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
-                if (pv != null) {
-                    el.put("_cascadingFieldParentValue", pv);
+                if (parentValue != null) {
+                    el.put("_cascadingFieldParentValue", parentValue);
                 }
             }
             // 新建记录
