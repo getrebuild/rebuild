@@ -49,6 +49,10 @@ public class GroupAggregation extends FieldAggregation {
         super(context);
     }
 
+    public GroupAggregation(ActionContext context, boolean ignoredSame) {
+        super(context, ignoredSame);
+    }
+
     @Override
     public ActionType getType() {
         return ActionType.GROUPAGGREGATION;
@@ -250,7 +254,7 @@ public class GroupAggregation extends FieldAggregation {
         PrivilegesGuardContextHolder.setSkipGuard(EntityHelper.UNSAVED_ID);
 
         try {
-            getUseService().create(newTargetRecord);
+            Application.getBestService(targetEntity).create(newTargetRecord);
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
         }

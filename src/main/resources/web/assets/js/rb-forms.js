@@ -334,6 +334,7 @@ class RbForm extends React.Component {
               val = val.id
             }
           }
+
           this.setFieldValue(child.props.field, val)
         }
       })
@@ -548,8 +549,9 @@ class RbFormElement extends React.Component {
       // 必填字段
       if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
+
+      this.onEditModeChanged()
     }
-    if (!props.onView) this.onEditModeChanged()
   }
 
   componentWillUnmount() {

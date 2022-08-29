@@ -28,6 +28,7 @@ import com.rebuild.web.EntityParam;
 import com.rebuild.web.general.MetaFormatter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -130,8 +131,8 @@ public class FieldWritebackController extends BaseController {
         }
 
         // 审批流程启用
-        boolean hadApproval = targetEntity != null
-                && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
+        boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(
+                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
                 new String[]{"source", "target", "hadApproval"},

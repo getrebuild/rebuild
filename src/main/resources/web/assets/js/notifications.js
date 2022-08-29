@@ -7,13 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 let focusItem
 $(document).ready(() => {
-  let mList = <MessageList lazy={true} />
+  let mList = <MessageList lazy />
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
   renderRbcomp(mList, 'message-list', function () {
     mList = this
   })
 
-  const $btns = $('.notification-type a').click(function () {
+  const $btns = $('.notification-type a').on('click', function () {
     $btns.removeClass('active')
     $(this).addClass('active')
     mList.fetchList(1, $(this).data('type'))
@@ -21,7 +21,7 @@ $(document).ready(() => {
 
   const ntype = (location.hash || '#unread').split('=')
   focusItem = ntype[1]
-  let activeNav = $('.notification-type a[href="' + ntype[0] + '"]')
+  let activeNav = $(`.notification-type a[href="${ntype[0]}"]`)
   if (ntype.length === 0) activeNav = $('.notification-type a[href="#unread"]')
   activeNav.trigger('click')
 })
@@ -78,7 +78,7 @@ class MessageList extends React.Component {
     if (append) clazz += ' append'
 
     return (
-      <li id={item[4]} className={`${clazz} ${item[4] === focusItem ? 'focus' : ''}`} key={item[4]}>
+      <li id={item[4]} className={`${clazz} ${item[4] === focusItem ? 'focus' : ''}`} key={item[4]} onClick={() => this.makeRead(item[4])}>
         <span className="a">
           <div className="image">
             <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" />
@@ -94,11 +94,7 @@ class MessageList extends React.Component {
               {$L('查看')}
             </a>
           )}
-          {item[3] && (
-            <a className="read-mark" href="javascript:;" onClick={() => this.makeRead(item[4])}>
-              {$L('标记已读')}
-            </a>
-          )}
+          {item[3] && <a className="read-mark text-muted">{$L('标记已读')}</a>}
         </span>
       </li>
     )
@@ -108,9 +104,9 @@ class MessageList extends React.Component {
     if (this.props.lazy !== true) this.fetchList()
 
     const that = this
-    $('.read-all').click(() => {
+    $('.read-all').on('click', () => {
       RbAlert.create($L('确认已读全部消息？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.hide()
           that.makeRead('ALL')
         },
@@ -127,7 +123,9 @@ class MessageList extends React.Component {
       () => {
         $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}&pageSize=${this.state.pageSize}`, (res) => {
           this.setState({ list: res.data || [] }, () => {
-            if (focusItem && $('.notification.focus').length > 0) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
+            if (focusItem && $('.notification.focus').length > 0) {
+              setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
+            }
             focusItem = null
           })
         })
@@ -143,6 +141,7 @@ class MessageList extends React.Component {
 
   makeRead(id) {
     if (!id) return
+
     $.post(`/notification/make-read?id=${id}`, () => {
       let list = (this.state.list || []).map((item) => {
         if (item[4] === id || id === 'ALL') item[3] = false

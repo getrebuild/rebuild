@@ -59,7 +59,7 @@ public class FieldAggregationRefresh {
         ActionContext actionContext = new ActionContext(null,
                 parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());
 
-        FieldAggregation fa = new FieldAggregation(actionContext);
+        FieldAggregation fa = new FieldAggregation(actionContext, true);
         fa.sourceEntity = parent.sourceEntity;
         fa.targetEntity = parent.targetEntity;
         fa.targetRecordId = beforeRefreshedId;
