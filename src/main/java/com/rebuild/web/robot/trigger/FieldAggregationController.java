@@ -21,6 +21,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -105,8 +106,8 @@ public class FieldAggregationController extends BaseController {
         }
 
         // 审批流程启用
-        boolean hadApproval = targetEntity != null
-                && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
+        boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(
+                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
 
         return JSONUtils.toJSONObject(
                 new String[] { "source", "target", "hadApproval" },

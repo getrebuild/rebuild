@@ -37,7 +37,7 @@ public class RecordDifference {
     /**
      * @param record
      */
-    protected RecordDifference(Record record) {
+    public RecordDifference(Record record) {
         this.record = record;
     }
 
@@ -114,10 +114,6 @@ public class RecordDifference {
      * @see #diffMerge(Record)
      */
     public boolean isSame(Record diff, boolean diffCommons) {
-        if (record == null || diff == null) {
-            throw new RebuildException("Both records must not be null");
-        }
-
         JSONArray result = (JSONArray) diffMerge(diff, diffCommons);
         return result.isEmpty();
     }
