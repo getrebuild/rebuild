@@ -42,10 +42,10 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </select>
                 </div>
               </div>
-              {this.state.hadApproval && (
+              {this.state.hasWarning && (
                 <div className="form-text text-danger">
                   <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
-                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”')}
+                  {this.state.hasWarning}
                 </div>
               )}
             </div>
@@ -182,6 +182,7 @@ class ContentFieldWriteback extends ActionContentSpec {
 
         if (content && content.targetEntity) {
           $s2te.val(content.targetEntity)
+          if (!$s2te.val()) this.setState({ hasWarning: `${$L('目标实体已经不可用')} [${content.targetEntity.toUpperCase()}]` })
           if (rb.env !== 'dev') $s2te.attr('disabled', true)
         }
 
@@ -203,8 +204,9 @@ class ContentFieldWriteback extends ActionContentSpec {
     this.setState({ targetEntity: te, items: [] })
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
-      this.setState({ hadApproval: res.data.hadApproval })
       this.__sourceFieldsCache = res.data.source
+
+      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {

@@ -9,6 +9,7 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
@@ -19,6 +20,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.privileges.RecordOwningCache;
@@ -364,5 +366,16 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static CommonsService getCommonsService() {
         return getBean(CommonsService.class);
+    }
+
+    /**
+     * @param entity
+     * @return
+     * @see #getEntityService(int)
+     * @see #getService(int)
+     */
+    public static ServiceSpec getBestService(Entity entity) {
+        return MetadataHelper.isBusinessEntity(entity)
+                ? getEntityService(entity.getEntityCode()) : getService(entity.getEntityCode());
     }
 }

@@ -28,6 +28,12 @@ class ContentGroupAggregation extends ActionContentSpec {
                   </select>
                 </div>
               </div>
+              {this.state.hasWarning && (
+                <div className="form-text text-danger">
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
+                  {this.state.hasWarning}
+                </div>
+              )}
             </div>
           </div>
 
@@ -219,6 +225,7 @@ class ContentGroupAggregation extends ActionContentSpec {
 
         if (content && content.targetEntity) {
           $s2te.val(content.targetEntity)
+          if (!$s2te.val()) this.setState({ hasWarning: `${$L('目标实体已经不可用')} [${content.targetEntity.toUpperCase()}]` })
           if (rb.env !== 'dev') $s2te.attr('disabled', true)
         }
 

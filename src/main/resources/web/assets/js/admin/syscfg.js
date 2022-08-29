@@ -72,6 +72,12 @@ const post = function (data) {
       const $c = $field.prev().clone()
       $c.find('p').remove()
 
+      // `submail.html`
+      if ($('.email-set')[0]) {
+        if ($('.email-set').hasClass('smtp')) $c.find('.smtp-hide').remove()
+        else $c.find('.smtp-show').remove()
+      }
+
       RbHighbar.create($L('%s 不能为空', $c.text()))
       return false
     }

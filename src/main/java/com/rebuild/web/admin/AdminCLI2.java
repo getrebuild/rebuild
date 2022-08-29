@@ -33,6 +33,8 @@ public class AdminCLI2 {
     private static final String C_BACKUP = "backup";
     private static final String C_AES = "aes";
 
+    private static final String SUCCESS = "OK";
+
     final private String[] commands;
 
     /**
@@ -62,10 +64,11 @@ public class AdminCLI2 {
             case C_HELP:
             case "?" : {
                 result = " Usage : " +
-                        " \ncache [clean]" +
+                        " \ncache clean" +
                         " \nsyscfg NAME [VALUE]" +
+                        " \nsyscfg clean-qiniu|clean-sms|clean-email" +
                         " \nbackup [database|datafile]" +
-                        " \naes [decrypt] [VALUE]";
+                        " \naes [decrypt] VALUE";
                 break;
             }
             case C_CACHE: {
@@ -93,12 +96,14 @@ public class AdminCLI2 {
     }
 
     /**
+     * 缓存
+     *
      * @return
      */
     protected String execCache() {
         if (commands.length < 2) return "Bad arguments";
 
-        String result = "OK";
+        String result = SUCCESS;
 
         String name = commands[1];
         if ("clean".equals(name)) {
@@ -111,6 +116,8 @@ public class AdminCLI2 {
     }
 
     /**
+     * 系统配置项
+     *
      * @return
      * @see ConfigurationItem
      */
@@ -119,12 +126,28 @@ public class AdminCLI2 {
 
         String name = commands[1];
         try {
+            if ("clean-qiniu".equals(name)) {
+                removeItems(ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret,
+                        ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
+                return SUCCESS;
+            } else if ("clean-sms".equals(name)) {
+                removeItems(ConfigurationItem.SmsUser, ConfigurationItem.SmsPassword,
+                        ConfigurationItem.SmsSign);
+                return SUCCESS;
+            } else if ("clean-email".equals(name)) {
+                removeItems(ConfigurationItem.MailUser, ConfigurationItem.MailPassword,
+                        ConfigurationItem.MailAddr, ConfigurationItem.MailName,
+                        ConfigurationItem.MailCc, ConfigurationItem.MailSmtpServer);
+                return SUCCESS;
+            }
+
             ConfigurationItem item = ConfigurationItem.valueOf(name);
             // Get
             if (commands.length == 2) {
                 return RebuildConfiguration.get(item);
             }
 
+            // Set
             String value = commands[2];
             RebuildConfiguration.set(item, value);
             return "OK";
@@ -134,7 +157,15 @@ public class AdminCLI2 {
         }
     }
 
+    private void removeItems(ConfigurationItem ...items) {
+        for (ConfigurationItem i : items) {
+            RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
+        }
+    }
+
     /**
+     * 备份
+     *
      * @return
      */
     protected String execBackup() {
@@ -159,6 +190,8 @@ public class AdminCLI2 {
     }
 
     /**
+     * 加密/解密
+     *
      * @return
      */
     protected String execAes() {
