@@ -58,7 +58,7 @@ public class FieldAggregation extends TriggerAction {
     /**
      * 最大触发链深度
      */
-    public static final int MAX_TRIGGER_DEPTH = 32;
+    public static final int MAX_TRIGGER_DEPTH = 128;
 
     // 此触发器可能产生连锁反应
     // 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
