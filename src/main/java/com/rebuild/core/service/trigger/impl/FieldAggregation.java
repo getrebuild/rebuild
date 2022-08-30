@@ -98,6 +98,7 @@ public class FieldAggregation extends TriggerAction {
         if (fieldAggregationRefresh != null) {
             log.info("Clear after refresh : {}", fieldAggregationRefresh);
             fieldAggregationRefresh.refresh();
+            fieldAggregationRefresh = null;
         }
     }
 

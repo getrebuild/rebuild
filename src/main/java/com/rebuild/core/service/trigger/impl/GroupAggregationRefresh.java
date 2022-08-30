@@ -47,6 +47,7 @@ public class GroupAggregationRefresh {
     }
 
     /**
+     * TODO 存在性能问题（可能刷新过多）
      */
     public void refresh() {
         List<String> targetFields = new ArrayList<>();

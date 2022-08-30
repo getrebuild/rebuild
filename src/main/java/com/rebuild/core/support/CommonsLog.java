@@ -16,7 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * 通用日志保存
+ * 通用日志记录
  *
  * @author RB
  * @since 2022/4/27
@@ -29,18 +29,33 @@ public class CommonsLog {
     public static final String TYPE_TRIGGER = "TRIGGER";
     public static final String TYPE_EXPORT = "EXPORT";
 
-    public static void createLog(String type, ID user, ID source) {
-        createLog(type, user, source, null, STATUS_OK);
-    }
-
+    /**
+     * @param type
+     * @param user
+     * @param source
+     * @param content
+     */
     public static void createLog(String type, ID user, ID source, String content) {
         createLog(type, user, source, content, STATUS_OK);
     }
 
+    /**
+     * @param type
+     * @param user
+     * @param source
+     * @param error
+     */
     public static void createLog(String type, ID user, ID source, Throwable error) {
         createLog(type, user, source, error.getLocalizedMessage(), STATUS_ERROR);
     }
 
+    /**
+     * @param type
+     * @param user
+     * @param source
+     * @param content
+     * @param status
+     */
     public static void createLog(String type, ID user, ID source, String content, int status) {
         Record log = EntityHelper.forNew(EntityHelper.CommonsLog, user);
         log.setString("type", type);
