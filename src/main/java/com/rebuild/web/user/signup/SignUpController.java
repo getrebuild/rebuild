@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
@@ -23,10 +24,13 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import com.rebuild.web.BaseController;
+import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.utils.CaptchaUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -153,6 +157,34 @@ public class SignUpController extends BaseController {
     public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Font font = new Font(Font.SERIF, Font.BOLD & Font.ITALIC, 22 + RandomUtils.nextInt(8));
         int codeLen = 4 + RandomUtils.nextInt(3);
-        CaptchaUtil.out(160, 41, codeLen, font, request, response);
+        SpecCaptcha captcha = new SpecCaptcha(160, 41, codeLen, font);
+        CaptchaUtil.out(captcha, request, response);
+
+        // 兼容跨域
+        String mobKey = request.getParameter("k");
+        if (StringUtils.isNotBlank(mobKey)) {
+            Application.getCommonsCache().put("MobKey" + mobKey, captcha.text(), CacheTemplate.TS_HOUR / 60);
+        }
+    }
+
+    /**
+     * Captcha 验证
+     *
+     * @param vcode
+     * @param request
+     * @return
+     * @see #captcha(HttpServletRequest, HttpServletResponse)
+     */
+    public static boolean captchaVerify(String vcode, HttpServletRequest request) {
+        String code = vcode.contains("/") ? vcode.split("/")[1] : vcode;
+        boolean v = CaptchaUtil.ver(code, request);
+
+        // 兼容跨域
+        if (!v && vcode.contains("/") && AppUtils.isRbMobile(request)) {
+            String mobKey = vcode.split("/")[0];
+            String code2 = Application.getCommonsCache().get("MobKey" + mobKey);
+            return code.equalsIgnoreCase(code2);
+        }
+        return v;
     }
 }
