@@ -309,10 +309,12 @@ public class MetadataHelper {
         Entity main = detail.getMainEntity();
         Assert.isTrue(main != null, "None detail-entity");
 
+        String mainForeign = main.getName() + "Id";
+        if (detail.containsField(mainForeign)) return detail.getField(mainForeign);
+
         for (Field field : detail.getFields()) {
-            if (field.getType() != FieldType.REFERENCE) {
-                continue;
-            }
+            if (field.getType() != FieldType.REFERENCE) continue;
+
             // 不可建的那个才是，因为明细字段也可能引用主实体
             if (main.equals(field.getReferenceEntity()) && !field.isCreatable()) {
                 return field;
