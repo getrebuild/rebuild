@@ -17,6 +17,6 @@ import org.junit.jupiter.api.Test;
 public class ApplicationTest extends TestSupport {
 
     @Test
-    public void contextLoads() {
+    void contextLoads() {
     }
 }

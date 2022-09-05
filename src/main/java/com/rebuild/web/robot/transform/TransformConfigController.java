@@ -102,6 +102,7 @@ public class TransformConfigController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
+            if (!sourceTyp && easyField.getDisplayType() == DisplayType.SERIES) continue;
 
             if (sourceTyp) {
                 fields.add(easyField.toJSON());
@@ -113,15 +114,17 @@ public class TransformConfigController extends BaseController {
 
         if (sourceTyp) {
             fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
+
+            // 二级字段
+            for (Field refField : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
+                if (MetadataHelper.isCommonsField(refField.getName())) continue;
+
+                JSONArray res = MetaFormatter.buildFields(refField);
+                if (res != null) fields.addAll(res);
+            }
+
         } else if (entity.containsField(EntityHelper.OwningUser)) {
             fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
-        }
-
-        // 二级字段（父级）
-        if (sourceTyp && entity.getMainEntity() != null) {
-            Field dtf = MetadataHelper.getDetailToMainField(entity);
-            JSONArray res = MetaFormatter.buildFields(dtf);
-            if (res != null) fields.addAll(res);
         }
 
         entityData.put("fields", fields);
