@@ -144,11 +144,11 @@ public class TaskExecutors extends DistributedJobLock {
                 long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
                 if (leftTime > 60 * 120) {
                     TASKS.remove(e.getKey());
-                    log.info("HeavyTask self-destroying : " + e.getKey());
+                    log.info("HeavyTask clean up : " + e.getKey());
                 }
                 completed++;
             }
-            log.info("{} task(s) in the queue. {} is completed", TASKS.size(), completed);
+            log.info("{} task(s) in the queue. {} are completed (will clean up later)", TASKS.size(), completed);
         }
         
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();

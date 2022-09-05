@@ -47,6 +47,7 @@ public class GroupAggregationRefresh {
     }
 
     /**
+     * TODO 存在性能问题（可能刷新过多）
      */
     public void refresh() {
         List<String> targetFields = new ArrayList<>();
@@ -77,13 +78,12 @@ public class GroupAggregationRefresh {
         ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();
 
+        // 避免重复的无意义更新
+        // NOTE 220905 不能忽略触发源本身
         Set<ID> refreshedIds = new HashSet<>();
-        refreshedIds.add(parent.targetRecordId);
 
         for (Object[] o : targetArray) {
-            ID targetRecordId = (ID) o[o.length - 1];
-            if (refreshedIds.contains(targetRecordId)) continue;
-            else refreshedIds.add(targetRecordId);
+            final ID targetRecordId = (ID) o[o.length - 1];
 
             List<String> qFieldsFollow = new ArrayList<>();
             List<String> qFieldsFollow2 = new ArrayList<>();
@@ -97,32 +97,34 @@ public class GroupAggregationRefresh {
                 }
             }
 
-            ID useReferenceId = null;
-            // 1.直接获取
+            ID fakeUpdateReferenceId = null;
+            // 1.尝试获取触发源
             for (int i = 0; i < o.length - 1; i++) {
                 Object mayId = o[i];
                 if (ID.isId(mayId) && ((ID) mayId).getEntityCode() > 100) {
-                    useReferenceId = (ID) mayId;
+                    fakeUpdateReferenceId = (ID) mayId;
                     break;
                 }
             }
-            // 2.强制查找
-            if (useReferenceId == null) {
+            // 2.强制获取
+            if (fakeUpdateReferenceId == null) {
                 sql = String.format("select %s from %s where %s",
                         parent.sourceEntity.getPrimaryField().getName(),
                         parent.sourceEntity.getName(),
                         StringUtils.join(qFieldsFollow2, " or "));
                 Object[] found = Application.getQueryFactory().unique(sql);
-                useReferenceId = found == null ? null : (ID) found[0];
+                fakeUpdateReferenceId = found == null ? null : (ID) found[0];
+            } else {
+
+                // 1.1.排重
+                if (refreshedIds.contains(targetRecordId)) continue;
+                else refreshedIds.add(fakeUpdateReferenceId);
             }
 
-            if (useReferenceId == null) {
+            if (fakeUpdateReferenceId == null) {
                 log.warn("No any source-id found, ignored : {}", Arrays.toString(o));
                 continue;
             }
-
-            if (refreshedIds.contains(useReferenceId)) continue;
-            else refreshedIds.add(useReferenceId);
 
             ActionContext actionContext = new ActionContext(null,
                     parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());
@@ -133,7 +135,7 @@ public class GroupAggregationRefresh {
             ga.targetRecordId = targetRecordId;
             ga.followSourceWhere = StringUtils.join(qFieldsFollow, " and ");
 
-            Record fakeSourceRecord = EntityHelper.forUpdate(useReferenceId, triggerUser, false);
+            Record fakeSourceRecord = EntityHelper.forUpdate(fakeUpdateReferenceId, triggerUser, false);
             OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
             try {
