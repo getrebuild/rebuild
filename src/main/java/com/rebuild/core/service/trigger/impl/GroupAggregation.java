@@ -65,6 +65,7 @@ public class GroupAggregation extends FieldAggregation {
         if (groupAggregationRefresh != null) {
             log.info("Clear after refresh : {}", groupAggregationRefresh);
             groupAggregationRefresh.refresh();
+            groupAggregationRefresh = null;
         }
     }
 

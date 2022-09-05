@@ -31,7 +31,6 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.user.UserAvatar;
-import com.wf.captcha.utils.CaptchaUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -162,7 +161,7 @@ public class LoginController extends LoginAction {
             if (StringUtils.isBlank(vcode)) {
                 ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
                 return RespBody.error("VCODE");
-            } else if (!CaptchaUtil.ver(vcode, request)) {
+            } else if (!SignUpController.captchaVerify(vcode, request)) {
                 return RespBody.errorl("验证码错误");
             }
         }

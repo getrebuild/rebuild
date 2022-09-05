@@ -141,8 +141,8 @@ public class Entity2Schema extends Field2Schema {
             // 明细实体无所属用户或部门，使用主实体的
             if (isDetail) {
                 String mainLabel = EasyMetaFactory.valueOf(mainEntity).getLabel();
-                String mainPrimary = mainEntity + "Id";
-                createBuiltinField(tempEntity, mainPrimary, mainLabel, DisplayType.REFERENCE, Language.L("引用主记录"), mainEntity, CascadeModel.Delete);
+                String mainForeign = mainEntity + "Id";
+                createBuiltinField(tempEntity, mainForeign, mainLabel, DisplayType.REFERENCE, Language.L("引用主记录"), mainEntity, CascadeModel.Delete);
             } else {
                 // 助记码/搜索码
                 createUnsafeField(

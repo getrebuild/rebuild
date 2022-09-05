@@ -114,7 +114,8 @@ public enum ConfigurationItem {
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB
     MobileUrl,                      // 移动端地址
-    RbStoreUrl                      // 在线仓库地址
+    RbStoreUrl,                     // 在线仓库地址
+    TriggerMaxDepth,                // 触发器最大执行深度
 
     ;
 
