@@ -16,7 +16,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -144,7 +144,7 @@ public class FieldAggregationController extends BaseController {
         // 可更新自己（通过主键字段）
         if (sourceEntity != null) {
             entities.add(new String[] {
-                    sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF });
+                    sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldWriteback.SOURCE_SELF });
         }
     }
 
