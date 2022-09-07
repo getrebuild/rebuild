@@ -228,6 +228,23 @@ public class FieldAggregation extends TriggerAction {
             this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext);
         }
 
+        // 回填 (v3.1)
+        // 仅分组聚合有此配置
+
+        String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
+        if (fillbackField != null && sourceEntity.containsField(fillbackField)) {
+            String sql = String.format("select %s from %s where %s",
+                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), dataFilterSql);
+            Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
+            for (Object[] fb : fillbacks) {
+                Record fbRecord = EntityHelper.forUpdate((ID) fb[0], UserService.SYSTEM_USER, false);
+                fbRecord.setID(fillbackField, targetRecordId);
+
+                // FIXME 回填仅更新，无业务规则
+                Application.getCommonsService().update(fbRecord, false);
+            }
+        }
+
         return "affected:" + targetRecord.getPrimary();
     }
 
