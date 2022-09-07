@@ -10,7 +10,9 @@ package com.rebuild.web.admin.metadata;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.service.general.SeriesReindexTask;
+import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -37,5 +39,14 @@ public class SeriesController extends BaseController {
 
         int reindex = seriesReindexTask.exec();
         return JSONUtils.toJSONObject("reindex", reindex);
+    }
+
+    @RequestMapping("series-reset")
+    public RespBody seriesReset(@EntityParam Entity entity, HttpServletRequest request) {
+        String field = getParameterNotNull(request, "field");
+        Field metaField = entity.getField(field);
+
+        SeriesGeneratorFactory.zero(metaField);
+        return RespBody.ok();
     }
 }

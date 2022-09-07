@@ -64,7 +64,7 @@ public class SeriesGeneratorFactory {
      *
      * @param field
      */
-    protected static void zero(Field field) {
+    public static void zero(Field field) {
         new IncreasingVar(field).clean();
     }
 }
