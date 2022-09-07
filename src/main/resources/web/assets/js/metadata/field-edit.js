@@ -287,6 +287,19 @@ const _handleSeries = function () {
         },
       })
     })
+  $(`<a class="dropdown-item">${$L('自增编号归零')}</a>`)
+    .appendTo('.J_action .dropdown-menu')
+    .on('click', () => {
+      RbAlert.create($L('此操作将立即把自增编号归零，归零后可能导致编号重复，请谨慎执行。是否继续？'), {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success($L('自增编号归零成功'))
+          })
+        },
+      })
+    })
 }
 
 const _handleDate = function (dt) {

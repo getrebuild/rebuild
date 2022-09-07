@@ -53,11 +53,6 @@ public class FieldAggregation extends TriggerAction {
     private FieldAggregationRefresh fieldAggregationRefresh;
 
     /**
-     * 更新自己
-     */
-    public static final String SOURCE_SELF = "$PRIMARY$";
-
-    /**
      * 最大触发链深度
      * @see ConfigurationItem#TriggerMaxDepth
      */
@@ -69,7 +64,7 @@ public class FieldAggregation extends TriggerAction {
     protected static final ThreadLocal<List<String>> TRIGGER_CHAIN = new ThreadLocal<>();
 
     // 忽略更新数据库中相等记录
-    final private boolean ignoredSame;
+    final private boolean ignoreSame;
 
     // 源实体
     protected Entity sourceEntity;
@@ -82,12 +77,12 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     public FieldAggregation(ActionContext context) {
-        this(context, false);
+        this(context, Boolean.FALSE);
     }
 
-    protected FieldAggregation(ActionContext context, boolean ignoredSame) {
+    protected FieldAggregation(ActionContext context, boolean ignoreSame) {
         super(context);
-        this.ignoredSame = ignoredSame;
+        this.ignoreSame = ignoreSame;
     }
 
     @Override
@@ -198,7 +193,7 @@ public class FieldAggregation extends TriggerAction {
 
         // 相等则不更新
         if (isCurrentSame(targetRecord)) {
-            log.debug("Record are same : {}", targetRecordId);
+            log.debug("Ignore execution because the records are same : {}", targetRecordId);
             return "target-ignored";
         }
 
@@ -228,6 +223,23 @@ public class FieldAggregation extends TriggerAction {
             this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext);
         }
 
+        // 回填 (v3.1)
+        // 仅分组聚合有此配置
+
+        String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
+        if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
+            String sql = String.format("select %s from %s where %s",
+                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), dataFilterSql);
+            Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
+            for (Object[] fb : fillbacks) {
+                Record fbRecord = EntityHelper.forUpdate((ID) fb[0], UserService.SYSTEM_USER, false);
+                fbRecord.setID(fillbackField, targetRecordId);
+
+                // FIXME 回填仅更新，无业务规则
+                Application.getCommonsService().update(fbRecord, false);
+            }
+        }
+
         return "affected:" + targetRecord.getPrimary();
     }
 
@@ -240,25 +252,17 @@ public class FieldAggregation extends TriggerAction {
         sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
-        String followSourceField;
+        String followSourceField = targetFieldEntity[0];
+        if (!sourceEntity.containsField(followSourceField)) {
+            throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
+        }
 
-        // 自己
-        if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
-            followSourceField = sourceEntity.getPrimaryField().getName();
-            targetRecordId = actionContext.getSourceRecord();
-        } else {
-            followSourceField = targetFieldEntity[0];
-            if (!sourceEntity.containsField(followSourceField)) {
-                throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
-            }
-
-            // 找到主记录
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(
-                    actionContext.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
-            // o[1] 为空说明记录不存在
-            if (o != null && o[0] != null && o[1] != null) {
-                targetRecordId = (ID) o[0];
-            }
+        // 找到主记录
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(
+                actionContext.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
+        // o[1] 为空说明记录不存在
+        if (o != null && o[0] != null && o[1] != null) {
+            targetRecordId = (ID) o[0];
         }
 
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
@@ -271,7 +275,7 @@ public class FieldAggregation extends TriggerAction {
      * @return
      */
     protected boolean isCurrentSame(Record record) {
-        if (!ignoredSame) return false;
+        if (!ignoreSame) return false;
 
         Record c = Application.getQueryFactory().recordNoFilter(
                 record.getPrimary(), record.getAvailableFields().toArray(new String[0]));

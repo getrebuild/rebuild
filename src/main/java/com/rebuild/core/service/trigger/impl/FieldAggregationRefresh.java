@@ -45,8 +45,6 @@ public class FieldAggregationRefresh {
 
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) parentAc.getActionContent()).getString("targetEntity").split("\\.");
-        // 自己无需刷新
-        if (FieldAggregation.SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) return;
 
         ID beforeRefreshedId = operatingContext.getBeforeRecord().getID(targetFieldEntity[0]);
         ID afterRefreshedId = operatingContext.getAfterRecord().getID(targetFieldEntity[0]);

@@ -57,6 +57,11 @@ import java.util.*;
 public class FieldWriteback extends FieldAggregation {
 
     /**
+     * 更新自己
+     */
+    public static final String SOURCE_SELF = "$PRIMARY$";
+
+    /**
      * 设：线索1、客户N（即 1 <:> N）
      * 当线索作为目标，客户作为源时，更新客户时只会更新 1 个线索（one2one）
      * 当客户作为目标，线索作为源时，更新线索时会更新 N 个客户
@@ -70,7 +75,7 @@ public class FieldWriteback extends FieldAggregation {
     private Record targetRecordData;
 
     public FieldWriteback(ActionContext context) {
-        super(context);
+        super(context, Boolean.TRUE);
     }
 
     @Override
@@ -122,6 +127,11 @@ public class FieldWriteback extends FieldAggregation {
             targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
             targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
+            if (isCurrentSame(targetRecord)) {
+                log.debug("Ignore execution because the records are same : {}", targetRecordId);
+                continue;
+            }
+
             List<String> tschainCurrentLoop = new ArrayList<>(tschain);
             tschainCurrentLoop.add(chainName);
             TRIGGER_CHAIN.set(tschainCurrentLoop);
@@ -149,6 +159,7 @@ public class FieldWriteback extends FieldAggregation {
         sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
+        // 1对1模式，此触发器还支持1对N
         boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(ONE2ONE_MODE);
 
         targetRecordIds = new HashSet<>();

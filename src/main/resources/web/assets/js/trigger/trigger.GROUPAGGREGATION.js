@@ -205,6 +205,24 @@ class ContentGroupAggregation extends ActionContentSpec {
               </div>
             </div>
           </div>
+
+          <div className="form-group row">
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合后回填')}</label>
+            <div className="col-md-12 col-lg-9">
+              <div className="col-6 pl-0 pr-0">
+                <select className="form-control form-control-sm" style={{ maxWidth: 300 }} ref={(c) => (this._$fillbackField = c)}>
+                  {(this.state.fillbackFields || []).map((item) => {
+                    return (
+                      <option key={item[0]} value={item[0]}>
+                        {item[1]}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+              <div className="form-text">{$L('可将聚合后的记录 ID 回填至源记录中')}</div>
+            </div>
+          </div>
         </form>
       </div>
     )
@@ -247,9 +265,14 @@ class ContentGroupAggregation extends ActionContentSpec {
     const te = $(this._$targetEntity).val()
     if (!te) return
     // 清空现有规则
-    this.setState({ items: [], groupFields: [] })
+    this.setState({ items: [], groupFields: [], fillbackFields: [] })
 
     $.get(`/admin/robot/trigger/group-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+      const fb = this.__sourceGroupFieldsCache.filter((x) => x[2] === `REFERENCE:${te}`)
+      this.setState({ fillbackFields: fb }, () => {
+        $(this._$fillbackField).val(null).trigger('change')
+      })
+
       if (this.state.targetFields) {
         this.setState({ ...res.data }, () => {
           $(this._$targetGroupField).trigger('change')
@@ -306,11 +329,21 @@ class ContentGroupAggregation extends ActionContentSpec {
           this.__select2.push($s2cm)
           this.__select2.push($s2tf)
 
+          // 回填
+          const $fbf = $(this._$fillbackField).select2({ placeholder: $L('(可选)'), allowClear: true })
+          this.__select2.push($fbf)
+
           if (this.props.content) {
             this.setState({
               groupFields: this.props.content.groupFields || [],
               items: this.props.content.items || [],
             })
+
+            setTimeout(() => {
+              if (this.props.content.fillbackField) {
+                $(this._$fillbackField).val(this.props.content.fillbackField).trigger('change')
+              }
+            }, 200)
           }
         })
       } // End `if`
@@ -406,6 +439,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       autoCreate: $(this._$autoCreate).prop('checked'),
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       groupFields: this.state.groupFields || [],
+      fillbackField: $(this._$fillbackField).val() || null,
     }
 
     if (!content.targetEntity) {

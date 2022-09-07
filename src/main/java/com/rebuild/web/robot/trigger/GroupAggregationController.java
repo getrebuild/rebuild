@@ -37,7 +37,7 @@ import static com.rebuild.web.robot.trigger.FieldAggregationController.isAllowSo
 public class GroupAggregationController extends BaseController {
 
     @RequestMapping("group-aggregation-entities")
-    public JSON getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public JSON getSourceEntities(@EntityParam(name = "source") Entity sourceEntity) {
         // 目标实体
         List<String[]> entities = new ArrayList<>();
         // 任意

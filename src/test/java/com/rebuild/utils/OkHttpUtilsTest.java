@@ -13,7 +13,7 @@ class OkHttpUtilsTest {
 
     @Test
     void get() throws Exception {
-        System.out.println(OkHttpUtils.get("https://webhook.site/56f4a259-ba64-4f0b-9313-11a64775356a"));
-        System.out.println(OkHttpUtils.post("https://webhook.site/56f4a259-ba64-4f0b-9313-11a64775356a", "Hello! I'm RB!"));
+        System.out.println(OkHttpUtils.get("http://webhook.site/844bc39e-3c57-4378-bf0a-66925abc2a1c"));
+        System.out.println(OkHttpUtils.post("http://webhook.site/844bc39e-3c57-4378-bf0a-66925abc2a1c", "Hello! I'm RB!"));
     }
 }
