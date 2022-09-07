@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
@@ -183,12 +184,11 @@ public class RecordTransfomer extends SetUser {
     protected boolean fillback(ID sourceRecordId, ID newId) {
         final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         String fillbackField = transConfig.getString("fillbackField");
-        if (StringUtils.isBlank(fillbackField)
-                || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
+        if (fillbackField == null || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
 
-        Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
+        Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
         // 此配置未开放

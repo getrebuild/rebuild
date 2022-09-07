@@ -232,7 +232,7 @@ public class FieldAggregation extends TriggerAction {
         // 仅分组聚合有此配置
 
         String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
-        if (fillbackField != null && sourceEntity.containsField(fillbackField)) {
+        if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             String sql = String.format("select %s from %s where %s",
                     sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), dataFilterSql);
             Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
