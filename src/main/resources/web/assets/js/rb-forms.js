@@ -1348,29 +1348,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderViewElement() {
-    return super.renderViewElement(__findOptionText(this.state.options, this.state.value))
-
-    // Use badge
-    // const value = this.state.value
-    // if ((this.state.options || []).length === 0 || !value) return super.renderViewElement(null)
-
-    // // eslint-disable-next-line eqeqeq
-    // const o = this.state.options.find((x) => x.id == value)
-    // if (!o || !o.text) {
-    //   return super.renderViewElement(`[${value.toUpperCase()}]`)
-    // }
-
-    // if (o.color) {
-    //   return (
-    //     <div className="form-control-plaintext">
-    //       <span className="badge badge-color" style={{ backgroundColor: o.color }}>
-    //         {o.text}
-    //       </span>
-    //     </div>
-    //   )
-    // } else {
-    //   return super.renderViewElement(o.text)
-    // }
+    return super.renderViewElement(__findOptionText(this.state.options, this.state.value, true))
   }
 
   onEditModeChanged(destroy) {
@@ -1813,13 +1791,7 @@ class RbFormMultiSelect extends RbFormElement {
     if (!this.state.value) return super.renderViewElement()
 
     const maskValue = this._getMaskValue()
-    return (
-      <div className="form-control-plaintext multi-values">
-        {__findMultiTexts(this.props.options, maskValue).map((item) => {
-          return <span key={item}>{item}</span>
-        })}
-      </div>
-    )
+    return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
   changeValue = () => {
@@ -2244,20 +2216,32 @@ var detectElement = function (item) {
 }
 
 // 获取选项型字段显示值
-const __findOptionText = function (options, value) {
+const __findOptionText = function (options, value, useColor) {
   if ((options || []).length === 0 || !value) return null
-  const o = options.find((x) => {
-    // eslint-disable-next-line eqeqeq
-    return x.id == value
-  })
-  return o ? o.text || `[${value.toUpperCase()}]` : `[${value.toUpperCase()}]`
+  // eslint-disable-next-line eqeqeq
+  const o = options.find((x) => x.id == value)
+
+  let text = (o || {}).text || `[${value.toUpperCase()}]`
+  if (useColor && o && o.color) {
+    const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+    text = (
+      <span className="badge" style={style2}>
+        {text}
+      </span>
+    )
+  }
+  return text
 }
 
 // 多选文本
-const __findMultiTexts = function (options, maskValue) {
+const __findMultiTexts = function (options, maskValue, useColor) {
   const texts = []
-  options.map((item) => {
-    if ((maskValue & item.mask) !== 0) texts.push(item.text)
+  options.map((o) => {
+    if ((maskValue & o.mask) !== 0) {
+      const style2 = o.color && useColor ? { borderColor: o.color, backgroundColor: o.color, color: '#fff' } : null
+      const text = <span style={style2}>{o.text}</span>
+      texts.push(text)
+    }
   })
   return texts
 }

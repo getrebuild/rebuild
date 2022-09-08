@@ -43,4 +43,13 @@ public interface StateSpec {
      * @return
      */
     boolean isDefault();
+
+    /**
+     * 颜色 [可选]
+     *
+     * @return
+     */
+    default String getColor() {
+        return null;
+    }
 }

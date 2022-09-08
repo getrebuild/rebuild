@@ -674,18 +674,16 @@ body {
   background-color: transparent !important;
 }
 
-.type-PICKLIST .form-control-plaintext {
-  padding: 7px 0;
-}
-
-.type-PICKLIST .form-control-plaintext .badge-color {
-  font-size: 1rem;
+.type-PICKLIST .form-control-plaintext .badge,
+.type-STATE .form-control-plaintext .badge {
+  font-size: 13px;
   line-height: 17px;
   border: 0 none;
   font-weight: normal;
   color: #fff;
-  border-radius: 12px;
+  border-radius: 99px;
   padding: 1px 6px;
+  margin-top: -1px;
 }
 
 /* approved-steps */
