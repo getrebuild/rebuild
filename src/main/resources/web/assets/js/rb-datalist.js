@@ -599,11 +599,11 @@ CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} title={$L('共 %d 项', vLen)}>
-      <div className="column-n2n" style={s}>
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-multi" style={s}>
         {v.map((item) => {
           return (
-            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+            <a key={item.id} title={item.text} className="badge hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
               {item.text}
             </a>
           )
@@ -695,7 +695,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
             const style2 = { borderColor: item.color, backgroundColor: item.color, color: '#fff' }
             // const style2 = { borderColor: item.color, color: item.color }
             return (
-              <span key={item} className="badge" title={item} style={style2}>
+              <span key={item} className="badge" title={item.text} style={style2}>
                 {item.text}
               </span>
             )

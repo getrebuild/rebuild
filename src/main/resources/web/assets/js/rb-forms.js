@@ -1614,7 +1614,7 @@ class RbFormN2NReference extends RbFormReference {
       <div className="form-control-plaintext multi-values">
         {value.map((item) => {
           return (
-            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+            <a key={item.id} className="hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
               {item.text}
             </a>
           )
