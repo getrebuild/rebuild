@@ -58,7 +58,7 @@
                         <td>[[${bundle.L('可信域名效验文件')}]]</td>
                         <td>
                           <a class="J_authFile hide-empty mr-1 link" target="_blank">[[${WxworkAuthFile}]]</a>
-                          <button type="button" class="btn btn-light btn-sm J_authFile"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
+                          <button class="btn btn-light btn-sm J_authFile" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
                           <input type="file" class="hide J_authFile" data-local="true" accept=".txt" />
                         </td>
                       </tr>
@@ -71,7 +71,7 @@
                         <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
                         <td data-id="WxworkSyncUsers" th:data-value="${WxworkSyncUsers}">
                           <span class="mr-1">[[${WxworkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
-                          <button type="button" class="btn btn-light btn-sm J_syncUsers up-1"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+                          <button class="btn btn-light btn-sm J_syncUsers up-1" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
                         </td>
                       </tr>
                       <tr>

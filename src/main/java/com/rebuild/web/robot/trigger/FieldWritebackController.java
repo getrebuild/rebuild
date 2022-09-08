@@ -35,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -50,30 +52,37 @@ public class FieldWritebackController extends BaseController {
     @RequestMapping("field-writeback-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> temp = new ArrayList<>();
+        Set<String> unique = new HashSet<>();
 
-        // 1. 我引用了谁 v2.7.1
+        // 1.我引用了谁 v2.7.1
 
-        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+        for (Field refFrom : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE)) {
             if (MetadataHelper.isCommonsField(refFrom)) continue;
 
             Entity refEntity = refFrom.getReferenceEntity();
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
             temp.add(new String[] {
-                    refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE});
+                    refEntity.getName(), entityLabel, refFrom.getName(), FieldWriteback.ONE2ONE_MODE });
+            unique.add(refEntity.getName() + "." + refFrom.getName());
         }
 
         FieldAggregationController.sortEntities(temp, null);
         List<String[]> entities = new ArrayList<>(temp);
         temp.clear();
 
-        // 2. 谁引用了我
+        // 2.谁引用了我
 
-        for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity)) {
-            String entityLabel = String.format("%s (%s) (N)",
-                    EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
-            temp.add(new String[] {
-                    refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
+        for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity, true)) {
+            String key = refTo.getOwnEntity().getName() + "." + refTo.getName();
+            if (unique.contains(key)) {
+                log.warn("None unique-key in {}", sourceEntity);
+            } else {
+                String entityLabel = String.format("%s (%s) (N)",
+                        EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
+                temp.add(new String[] {
+                        refTo.getOwnEntity().getName(), entityLabel, refTo.getName() });
+            }
         }
 
         FieldAggregationController.sortEntities(temp, null);

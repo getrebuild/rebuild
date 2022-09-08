@@ -5,6 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+:root {
+  --rb-theme-color: #4285f4;
+  --rb-btn-hover-color: #4c8bf5;
+  --rb-btn-active-color: #2572f2;
+}
+
 .bosskey-show,
 .admin-show {
   display: none;
@@ -4817,4 +4823,16 @@ pre.unstyle {
 .over-tab {
   margin-top: -63px;
   transition: margin-top 0.4s;
+}
+
+/* theme defs v3.1 */
+
+.rb-left-sidebar .sidebar-elements > li.active > a,
+.rb-left-sidebar .sidebar-elements > li.active > a > span,
+.rb-left-sidebar .sidebar-elements > li ul li.active > a {
+  color: var(--rb-theme-color);
+}
+
+.main-content > .card.card-table.card-topcolor {
+  border-top-color: var(--rb-theme-color);
 }
