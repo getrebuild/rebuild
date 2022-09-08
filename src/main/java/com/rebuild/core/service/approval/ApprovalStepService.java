@@ -144,6 +144,10 @@ public class ApprovalStepService extends InternalPersistService {
 
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
+        if (cc != null && !cc.isEmpty()) {
+            stepRecord.setIDArray("ccUsers", cc.toArray(new ID[0]));
+        }
+
         super.update(stepRecord);
         final ID stepRecordId = stepRecord.getPrimary();
 

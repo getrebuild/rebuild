@@ -398,13 +398,11 @@ public class ApprovalProcessor extends SetUser {
         this.approval = status.getApprovalId();
 
         Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch from RobotApprovalStep" +
+                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers from RobotApprovalStep" +
                         " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
                 .setParameter(1, this.record)
                 .array();
-        if (array.length == 0) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
+        if (array.length == 0) return JSONUtils.EMPTY_ARRAY;
 
         Object[] firstStep = null;
         Map<String, List<Object[]>> stepBatchMap = new LinkedHashMap<>();
@@ -489,13 +487,21 @@ public class ApprovalProcessor extends SetUser {
 
     private JSONObject formatStep(Object[] step, String signMode) {
         ID approver = (ID) step[0];
-        return JSONUtils.toJSONObject(
+        JSONObject s = JSONUtils.toJSONObject(
                 new String[]{"approver", "approverName", "state", "remark", "approvedTime", "createdOn", "signMode"},
                 new Object[]{
                         approver, UserHelper.getName(approver),
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
+
+        if (step.length > 9 && step[9] != null) {
+            List<String> names = new ArrayList<>();
+            for (ID u : (ID[]) step[9]) names.add(UserHelper.getName(u));
+            s.put("ccUsers", names);
+        }
+
+        return s;
     }
 
     /**

@@ -804,6 +804,22 @@ body {
   padding: 2px 10px;
 }
 
+.timeline.approved-steps .timeline-header > .blockquote.cc {
+  border-left: 0 none;
+  padding-left: 0;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a {
+  color: #404040;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a + a::before {
+  content: ',';
+  margin-left: 1px;
+  margin-right: 4px;
+  color: #8a8a8a;
+}
+
 .timeline.approved-steps .timeline-item.last {
   position: relative;
   min-height: 30px;
