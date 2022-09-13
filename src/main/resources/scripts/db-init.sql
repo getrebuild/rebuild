@@ -438,6 +438,7 @@ create table if not exists `robot_approval_step` (
   `IS_WAITING`         char(1) default 'F' comment '是否生效',
   `IS_BACKED`          char(1) default 'F' comment '是否退回',
   `NODE_BATCH`         varchar(100) comment '审批节点批次',
+  `CC_USERS`           varchar(420) comment '抄送人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -849,4 +850,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 46);
+  values ('021-9000000000000001', 'DBVer', 47);

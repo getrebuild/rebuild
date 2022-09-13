@@ -57,7 +57,7 @@ public class StateManager {
             return JSONUtils.EMPTY_ARRAY;
         }
 
-        final String ckey = String.format("STATECLASS3-%s.%s", stateClass, Language.getCurrentBundle().getLocale());
+        final String ckey = String.format("STATECLASS4-%s.%s", stateClass, Language.getCurrentBundle().getLocale());
         JSONArray options = (JSONArray) Application.getCommonsCache().getx(ckey);
         if (options != null) {
             return (JSONArray) JSONUtils.clone(options);
@@ -72,6 +72,7 @@ public class StateManager {
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "text", "default"},
                     new Object[]{ss.getState(), Language.L(ss), ss.isDefault()});
+            if (ss.getColor() != null) item.put("color", ss.getColor());
             options.add(item);
         }
 

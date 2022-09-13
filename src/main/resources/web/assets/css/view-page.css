@@ -656,7 +656,7 @@ body {
   margin-right: 3px;
   margin-bottom: 3px;
   display: inline-block;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   background-color: #fff;
   line-height: 17px;
 }
@@ -674,18 +674,16 @@ body {
   background-color: transparent !important;
 }
 
-.type-PICKLIST .form-control-plaintext {
-  padding: 7px 0;
-}
-
-.type-PICKLIST .form-control-plaintext .badge-color {
-  font-size: 1rem;
+.type-PICKLIST .form-control-plaintext .badge,
+.type-STATE .form-control-plaintext .badge {
+  font-size: 13px;
   line-height: 17px;
   border: 0 none;
   font-weight: normal;
   color: #fff;
-  border-radius: 12px;
+  border-radius: 99px;
   padding: 1px 6px;
+  margin-top: -1px;
 }
 
 /* approved-steps */
@@ -802,6 +800,22 @@ body {
 .timeline.approved-steps .timeline-header > .blockquote {
   margin-top: 5px;
   padding: 2px 10px;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc {
+  border-left: 0 none;
+  padding-left: 0;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a {
+  color: #404040;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a + a::before {
+  content: ',';
+  margin-left: 1px;
+  margin-right: 4px;
+  color: #8a8a8a;
 }
 
 .timeline.approved-steps .timeline-item.last {

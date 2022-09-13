@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 :root {
   --rb-theme-color: #4285f4;
-  --rb-btn-hover-color: #4c8bf5;
+  --rb-btn-hover-color: #0d5bdd;
   --rb-btn-active-color: #2572f2;
 }
 
@@ -530,6 +530,16 @@ a.btn {
 
 .badge + .badge {
   margin-left: 3px;
+}
+
+a.hover-color {
+  color: #4285f4;
+  border-color: #4285f4 !important;
+}
+
+a.hover-color:hover {
+  color: #0d5bdd;
+  border-color: #0d5bdd !important;
 }
 
 .table tbody tr.muted td:first-child {
@@ -1536,8 +1546,7 @@ i.dividing.ui-draggable-dragging {
   color: #0d5bdd !important;
 }
 
-.column-files > a + a::before,
-.column-n2n > a + a::before {
+.column-files > a + a::before {
   content: ',';
   margin-left: 1px;
   margin-right: 4px;
@@ -1590,12 +1599,8 @@ a.column-url:hover {
 
 .column-multi .badge {
   border-radius: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   background-color: #fff;
-}
-
-.column-multi .badge + .badge {
-  margin-left: 3px;
 }
 
 .column-fixed {

@@ -345,7 +345,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="icon mdi mdi-progress-check" /> {$L('审批流程')}
+                      <i className="icon mdi mdi-progress-check fs-14" /> {$L('审批流程')}
                     </a>
                   </div>
                 )
@@ -683,6 +683,19 @@ class ApprovalStepViewer extends React.Component {
               {item.remark && (
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>
+                </blockquote>
+              )}
+              {item.ccUsers && item.state >= 10 && (
+                <blockquote className="blockquote timeline-blockquote mb-0 cc">
+                  <p className="text-wrap">
+                    <span className="mr-1">
+                      <i className="zmdi zmdi-mail-send mr-1" />
+                      {$L('已抄送')}
+                    </span>
+                    {item.ccUsers.map((item) => {
+                      return <a key={item}>{item}</a>
+                    })}
+                  </p>
                 </blockquote>
               )}
             </div>
