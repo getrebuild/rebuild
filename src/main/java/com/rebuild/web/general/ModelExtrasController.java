@@ -166,8 +166,8 @@ public class ModelExtrasController extends BaseController {
             else if (revType == 64) o[0] = Language.L("取消共享");
             else if (revType == 991) o[0] = Language.L("审核通过");
             else if (revType == 992) o[0] = Language.L("审核撤销");
-            else o[0] = Language.L("未知") + revType;
-            
+            else o[0] = Language.L("其他") + String.format(" (%d)", revType);
+
             o[1] = I18nUtils.formatDate((Date) o[1]);
             o[2] = new Object[] { o[2], UserHelper.getName((ID) o[2]) };
         }
