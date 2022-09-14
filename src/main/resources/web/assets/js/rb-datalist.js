@@ -188,7 +188,7 @@ class RbList extends React.Component {
     })
 
     // 首次由 AdvFilter 加载
-    if (wpc.advFilter !== true) this.fetchList(this.__buildQuick())
+    if (wpc.advFilter !== true) this.fetchList(this._buildQuick())
 
     $(document).on('keydown', (e) => this._keyEvent(e))
   }
@@ -394,7 +394,7 @@ class RbList extends React.Component {
   setAdvFilter(id) {
     this.advFilterId = id
     this.pageNo = 1
-    this.fetchList(this.__buildQuick())
+    this.fetchList(this._buildQuick())
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
@@ -422,9 +422,9 @@ class RbList extends React.Component {
   }
 
   // @el - search element
-  searchQuick = (el) => this.search(this.__buildQuick(el))
+  searchQuick = (el) => this.search(this._buildQuick(el))
 
-  __buildQuick(el) {
+  _buildQuick(el) {
     el = $(el || '.input-search>input')
     const q = el.val()
     if (!q && !this.lastFilter) return null
@@ -476,22 +476,24 @@ function _isFullUrl(urlKey) {
 
 // 列表（单元格）渲染
 const CellRenders = {
-  __renders: {},
-
-  addRender(type, func) {
-    this.__renders[type] = func
-  },
-
+  // 打开记录
   clickView(v, e) {
     RbViewModal.create({ id: v.id, entity: v.entity })
     e && $stopEvent(e)
     return false
   },
 
+  // 打开预览
   clickPreview(v, idx, e) {
     RbPreview.create(v, idx)
     e && $stopEvent(e)
     return false
+  },
+
+  __renders: {},
+
+  addRender(type, func) {
+    this.__renders[type] = func
   },
 
   render(value, type, width, key) {
