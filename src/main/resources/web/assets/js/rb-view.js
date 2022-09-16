@@ -201,9 +201,14 @@ class RelatedList extends React.Component {
         <p>{$L('暂无数据')}</p>
       </div>
     )
+
+    // default:CARD
+    this.state.viewMode = $storage.get('RelatedListViewMode')
   }
 
   render() {
+    const optionName = $random('vm-')
+
     return (
       <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
         {!this.state.dataList && <RbSpinner />}
@@ -223,33 +228,31 @@ class RelatedList extends React.Component {
                 {this.__listExtraLink}
               </div>
               <div className="col text-right">
-                <div className="btn-group">
+                <div className="btn-group w-auto">
                   <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
                     {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
                   </button>
                   {this.renderSorts()}
                 </div>
+
+                {this.props.showViewMode && (
+                  <div className="btn-group btn-group-toggle w-auto ml-3 switch-view-mode">
+                    <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? '' : 'active'}`} title={$L('卡片视图')}>
+                      <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                      <i className="icon mdi mdi-view-agenda-outline" />
+                    </label>
+                    <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
+                      <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                      <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
 
-        {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
-        {this.state.dataList && this.state.dataList.length > 0 && (
-          <div className={this.__listClass || ''}>
-            {(this.state.dataList || []).map((item) => {
-              return this.renderItem(item)
-            })}
-          </div>
-        )}
-
-        {this.state.showMore && (
-          <div className="text-center mt-2 pb-2">
-            <button type="button" className="btn btn-link" onClick={() => this.fetchData(1)}>
-              {$L('显示更多')}
-            </button>
-          </div>
-        )}
+        {this.renderData()}
       </div>
     )
   }
@@ -267,6 +270,29 @@ class RelatedList extends React.Component {
           {$L('最早创建')}
         </a>
       </div>
+    )
+  }
+
+  renderData() {
+    return (
+      <RF>
+        {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
+        {this.state.dataList && this.state.dataList.length > 0 && (
+          <div className={this.__listClass || ''}>
+            {(this.state.dataList || []).map((item) => {
+              return this.renderItem(item)
+            })}
+          </div>
+        )}
+
+        {this.state.showMore && (
+          <div className="text-center mt-2 pb-2">
+            <button type="button" className="btn btn-link" onClick={() => this.fetchData(1)}>
+              {$L('显示更多')}
+            </button>
+          </div>
+        )}
+      </RF>
     )
   }
 
@@ -305,6 +331,14 @@ class RelatedList extends React.Component {
     this.__pageNo = 1
     this.fetchData()
   }
+
+  _switchViewMode(e, call) {
+    const mode = e.currentTarget.value
+    this.setState({ viewMode: mode }, () => {
+      $storage.set('RelatedListViewMode', mode)
+      typeof call === 'function' && call(mode)
+    })
+  }
 }
 
 const APPROVAL_STATE_CLAZZs = {
@@ -320,12 +354,12 @@ class EntityRelatedList extends RelatedList {
     this.state.viewComponents = {}
 
     this.__entity = props.entity.split('.')[0]
-    const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
-    this.__listExtraLink = (
-      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
-        <i className="icon zmdi zmdi-open-in-new" />
-      </a>
-    )
+    // const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
+    // this.__listExtraLink = (
+    //   <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+    //     <i className="icon zmdi zmdi-open-in-new" />
+    //   </a>
+    // )
   }
 
   renderItem(item) {
@@ -428,6 +462,12 @@ class EntityRelatedList extends RelatedList {
       })
     }
   }
+
+  _switchViewMode(e) {
+    super._switchViewMode(e, (mode) => {
+      console.log(mode)
+    })
+  }
 }
 
 class MixRelatedList extends React.Component {
@@ -445,7 +485,7 @@ class MixRelatedList extends React.Component {
       // eslint-disable-next-line react/jsx-no-undef
       return <LightAttachmentList {...this.props} fetchNow />
     } else {
-      return <EntityRelatedList {...this.props} />
+      return <EntityRelatedList {...this.props} showViewMode />
     }
   }
 }

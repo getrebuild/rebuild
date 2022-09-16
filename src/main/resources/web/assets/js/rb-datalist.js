@@ -697,7 +697,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
             const style2 = { borderColor: item.color, backgroundColor: item.color, color: '#fff' }
             // const style2 = { borderColor: item.color, color: item.color }
             return (
-              <span key={item} className="badge" title={item.text} style={style2}>
+              <span key={item.text} className="badge" title={item.text} style={style2}>
                 {item.text}
               </span>
             )

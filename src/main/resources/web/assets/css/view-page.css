@@ -886,3 +886,20 @@ body {
 .report-has-preview li a.preview:hover > .mdi {
   color: #fff !important;
 }
+
+.switch-view-mode .btn {
+  border-radius: 4px;
+  border: 0 none;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.switch-view-mode .btn .icon {
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.switch-view-mode .btn.active .icon {
+  color: var(--rb-btn-active-color) !important;
+}
