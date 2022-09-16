@@ -59,7 +59,9 @@ public class BarCodeGeneratorController extends BaseController {
         if (request.getRequestURI().endsWith("render-qr")) {
             writeTo(BarCodeSupport.createQRCode(content, w), response);
         } else {
-            writeTo(BarCodeSupport.createBarCode(content, w), response);
+            // 条形码文字
+            boolean showText = getBoolParameter(request, "b", true);
+            writeTo(BarCodeSupport.createBarCode(content, w, showText), response);
         }
     }
 
