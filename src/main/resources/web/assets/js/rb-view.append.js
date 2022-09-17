@@ -37,13 +37,13 @@ class LightFeedsList extends RelatedList {
   renderSorts() {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-        <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="newer" onClick={(e) => this.search(e)}>
           {$L('最近发布')}
         </a>
-        <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="older" onClick={(e) => this.search(e)}>
           {$L('最早发布')}
         </a>
-        <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="modified" onClick={(e) => this.search(e)}>
           {$L('最近修改')}
         </a>
       </div>
@@ -113,13 +113,13 @@ class LightTaskList extends RelatedList {
   renderSorts() {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-        <a className="dropdown-item" data-sort="seq" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="seq" onClick={(e) => this.search(e)}>
           {$L('手动拖动')}
         </a>
-        <a className="dropdown-item" data-sort="deadline" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="deadline" onClick={(e) => this.search(e)}>
           {$L('最近截至')}
         </a>
-        <a className="dropdown-item" data-sort="modifiedOn" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="modifiedOn" onClick={(e) => this.search(e)}>
           {$L('最近修改')}
         </a>
       </div>
@@ -363,10 +363,10 @@ class LightAttachmentList extends RelatedList {
   renderSorts() {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-        <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="newer" onClick={(e) => this.search(e)}>
           {$L('最近上传')}
         </a>
-        <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="older" onClick={(e) => this.search(e)}>
           {$L('最早上传')}
         </a>
       </div>

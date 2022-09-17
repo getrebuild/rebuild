@@ -2239,7 +2239,11 @@ const __findMultiTexts = function (options, maskValue, useColor) {
   options.map((o) => {
     if ((maskValue & o.mask) !== 0) {
       const style2 = o.color && useColor ? { borderColor: o.color, backgroundColor: o.color, color: '#fff' } : null
-      const text = <span key={`mask-${o.mask}`} style={style2}>{o.text}</span>
+      const text = (
+        <span key={`mask-${o.mask}`} style={style2}>
+          {o.text}
+        </span>
+      )
       texts.push(text)
     }
   })

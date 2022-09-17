@@ -66,18 +66,12 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script type="text/babel">
       CellRenders.clickView = function (v, e) {
-        const openUrl = `${rb.baseUrl}/app/${v.entity}/list/#!/View/${v.entity}/${v.id}`
-        window.open(openUrl, '_blank')
-        // if (window.parent) {
-        //   try {
-        //     window.parent.RbViewModal.create({ id: v.id, entity: v.entity })
-        //   } catch (err) {
-        //     window.open(openUrl, '_blank')
-        //   }
-        // } else {
-        //   window.open(openUrl, '_blank')
-        // }
-
+        if (parent && parent.RbViewModal) {
+          parent.RbViewModal.create({ id: v.id, entity: v.entity })
+        } else {
+          const openUrl = `${rb.baseUrl}/app/${v.entity}/list/#!/View/${v.entity}/${v.id}`
+          window.open(openUrl, '_blank')
+        }
         e && $stopEvent(e)
         return false
       }
@@ -91,11 +85,6 @@
           const ss = RbListPage._RbList.getSelectedIds()
           if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
         })
-        // $('.J_new2').click(function () {
-        //   const entity = window.__PageConfig.entity
-        //   const props = { title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2], disposeOnHide: true }
-        //   if (parent && parent.RbFormModal) parent.RbFormModal.create(props, true)
-        // })
       })
     </script>
   </body>

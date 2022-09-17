@@ -210,6 +210,16 @@ body {
   padding-bottom: 13px;
 }
 
+.related-list .card-table {
+  border: 1px solid #ebebeb;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+}
+
+.related-list .card-table .data-list .table th {
+  border-top: 0 none;
+}
+
 .view-operating {
   padding-top: 3px;
 }

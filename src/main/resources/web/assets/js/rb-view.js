@@ -208,49 +208,48 @@ class RelatedList extends React.Component {
 
   render() {
     const optionName = $random('vm-')
+    const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
 
     return (
       <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
         {!this.state.dataList && <RbSpinner />}
 
-        {this.state.showToolbar && (
-          <div className="related-toolbar">
-            <div className="row">
-              <div className="col">
-                <div className="input-group input-search float-left">
-                  <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
-                  <span className="input-group-btn">
-                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                      <i className="icon zmdi zmdi-search" />
-                    </button>
-                  </span>
-                </div>
-                {this.__listExtraLink}
-              </div>
-              <div className="col text-right">
-                <div className="btn-group w-auto">
-                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
+        <div className="related-toolbar">
+          <div className="row">
+            <div className="col">
+              <div className="input-group input-search float-left">
+                <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
+                <span className="input-group-btn">
+                  <button className="btn btn-secondary" type="button" onClick={() => this.search()}>
+                    <i className="icon zmdi zmdi-search" />
                   </button>
-                  {this.renderSorts()}
-                </div>
-
-                {this.props.showViewMode && (
-                  <div className="btn-group btn-group-toggle w-auto ml-3 switch-view-mode">
-                    <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? '' : 'active'}`} title={$L('卡片视图')}>
-                      <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this._switchViewMode(e)} />
-                      <i className="icon mdi mdi-view-agenda-outline" />
-                    </label>
-                    <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
-                      <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this._switchViewMode(e)} />
-                      <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
-                    </label>
-                  </div>
-                )}
+                </span>
               </div>
+              {this.__listExtraLink}
+            </div>
+            <div className="col text-right">
+              <div className="btn-group w-auto">
+                <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListView}>
+                  {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
+                </button>
+                {this.renderSorts()}
+              </div>
+
+              {this.props.showViewMode && (
+                <div className="btn-group btn-group-toggle w-auto ml-3 switch-view-mode">
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? '' : 'active'}`} title={$L('卡片视图')}>
+                    <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                    <i className="icon mdi mdi-view-agenda-outline" />
+                  </label>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
+                    <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                    <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
+                  </label>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {this.renderData()}
       </div>
@@ -260,13 +259,13 @@ class RelatedList extends React.Component {
   renderSorts() {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-        <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this.search(e)}>
           {$L('最近修改')}
         </a>
-        <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this.search(e)}>
           {$L('最近创建')}
         </a>
-        <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
+        <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this.search(e)}>
           {$L('最早创建')}
         </a>
       </div>
@@ -314,12 +313,10 @@ class RelatedList extends React.Component {
       const data = (res.data || {}).data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.setState({ dataList: list, showMore: data.length >= pageSize })
-
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
     })
   }
 
-  _search(e) {
+  search(e) {
     let sort = null
     if (e && e.currentTarget) {
       sort = $(e.currentTarget).data('sort')
@@ -329,6 +326,7 @@ class RelatedList extends React.Component {
     this.__searchSort = sort || this.__searchSort
     this.__searchKey = $(this._$quickSearch).val() || ''
     this.__pageNo = 1
+
     this.fetchData()
   }
 
@@ -354,6 +352,7 @@ class EntityRelatedList extends RelatedList {
     this.state.viewComponents = {}
 
     this.__entity = props.entity.split('.')[0]
+
     // const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     // this.__listExtraLink = (
     //   <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
@@ -391,6 +390,23 @@ class EntityRelatedList extends RelatedList {
     )
   }
 
+  renderData() {
+    if (this.state.viewMode === 'LIST') {
+      return <EntityRelatedList2 $$$parent={this} ref={(c) => (this._EntityRelatedList2 = c)} />
+    } else {
+      return super.renderData()
+    }
+  }
+
+  search() {
+    if (this._EntityRelatedList2) {
+      this.__searchKey = $(this._$quickSearch).val() || ''
+      this._EntityRelatedList2.search(this.__searchKey)
+    } else {
+      super.search()
+    }
+  }
+
   fetchData(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
@@ -415,10 +431,6 @@ class EntityRelatedList extends RelatedList {
           })
         }
       })
-
-      // FIXME 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
     })
   }
 
@@ -467,6 +479,48 @@ class EntityRelatedList extends RelatedList {
     super._switchViewMode(e, (mode) => {
       console.log(mode)
     })
+  }
+}
+
+// 列表模式
+class EntityRelatedList2 extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const p = this.props.$$$parent
+    const related = `related:${p.props.entity}:${p.props.mainid}`
+
+    return (
+      <div className="card-table">
+        <div className="dataTables_wrapper container-fluid">
+          <div className="rb-loading rb-loading-active data-list" ref={(c) => (this._$wrapper2 = c)}>
+            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} />}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/entity/related-list-config?entity=${this.props.$$$parent.__entity}`, (res) => {
+      if (res.error_code === 0) {
+        this.setState({ listConfig: { ...res.data } })
+      }
+    })
+  }
+
+  search(q) {
+    if (!this._RbList) return
+
+    const s = {
+      entity: this.props.$$$parent.__entity,
+      type: 'QUICK',
+      values: { 1: q },
+    }
+    this._RbList.search(s)
   }
 }
 
