@@ -85,8 +85,6 @@ class LightFeedsList extends RelatedList {
           title: '',
         })
       })
-
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
     })
   }
 }
@@ -187,8 +185,6 @@ class LightTaskList extends RelatedList {
       const data = res.data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.setState({ dataList: list, showMore: data.length >= pageSize })
-
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
     })
   }
 
@@ -423,8 +419,6 @@ class LightAttachmentList extends RelatedList {
       const data = res.data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.setState({ dataList: list, showMore: data.length >= pageSize })
-
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
       const files = list.map((item) => item.filePath)
       $(this._$downloadForm).find('input').val(files.join(','))

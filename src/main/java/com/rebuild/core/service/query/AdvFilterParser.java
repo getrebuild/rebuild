@@ -358,11 +358,7 @@ public class AdvFilterParser extends SetUser {
                 .append(ParseHelper.convetOperation(op));
         // 无需值
         if (ParseHelper.NL.equalsIgnoreCase(op) || ParseHelper.NT.equalsIgnoreCase(op)) {
-            if (VF_ACU.equals(field)) {
-                return "(1=1)";
-            } else {
-                return sb.toString();
-            }
+            return sb.toString();
         }
 
         sb.append(' ');

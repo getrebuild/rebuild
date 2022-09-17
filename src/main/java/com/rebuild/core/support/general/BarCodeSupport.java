@@ -115,6 +115,7 @@ public class BarCodeSupport {
 
         if (showText) {
             try {
+                // height = 80+16
                 return drawTextOnImage(content, bi, bi.getHeight() / 5);
             } catch (Exception ex) {
                 log.warn("Cannot draw text on barcode : {}", content, ex);
