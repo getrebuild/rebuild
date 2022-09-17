@@ -1769,7 +1769,7 @@ class RbFormMultiSelect extends RbFormElement {
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {(this.props.options || []).map((item) => {
           return (
-            <label key={`item-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
+            <label key={`mask-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
                 name={`checkbox-${this.props.field}`}
@@ -2239,7 +2239,11 @@ const __findMultiTexts = function (options, maskValue, useColor) {
   options.map((o) => {
     if ((maskValue & o.mask) !== 0) {
       const style2 = o.color && useColor ? { borderColor: o.color, backgroundColor: o.color, color: '#fff' } : null
-      const text = <span style={style2}>{o.text}</span>
+      const text = (
+        <span key={`mask-${o.mask}`} style={style2}>
+          {o.text}
+        </span>
+      )
       texts.push(text)
     }
   })

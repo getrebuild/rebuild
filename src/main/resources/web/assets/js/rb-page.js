@@ -957,3 +957,8 @@ var $select2MatcherAll = function (params, data) {
 
   return null
 }
+
+// 绝对 URL
+var $isFullUrl = function (url) {
+  return url && (url.startsWith('http://') || url.startsWith('https://'))
+}

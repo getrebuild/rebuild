@@ -219,12 +219,9 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        if (targetRecordIds.isEmpty()) {
-            log.warn("No target record(s) found : {}", actionContext.getConfigId());
-            return;
+        if (!targetRecordIds.isEmpty()) {
+            targetRecordData = buildTargetRecordData();
         }
-
-        targetRecordData = buildTargetRecordData();
     }
 
     private Record buildTargetRecordData() {

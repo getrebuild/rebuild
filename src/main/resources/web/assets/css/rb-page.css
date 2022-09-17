@@ -294,6 +294,7 @@ a.link.inline {
   min-width: 98px;
 }
 
+.btn-group.w-auto > .btn,
 .btn.w-auto {
   min-width: 36px !important;
 }
@@ -2505,6 +2506,14 @@ form.simple {
 
 .fs-20 {
   font-size: 20px !important;
+}
+
+.fs-21 {
+  font-size: 21px !important;
+}
+
+.fs-22 {
+  font-size: 22px !important;
 }
 
 .danger-hover:hover {

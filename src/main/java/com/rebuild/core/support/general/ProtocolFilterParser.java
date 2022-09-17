@@ -10,12 +10,14 @@ package com.rebuild.core.support.general;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.DataListCategory;
+import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -26,13 +28,13 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * 解析已知的个性化过滤条件
@@ -44,12 +46,22 @@ import java.util.List;
 public class ProtocolFilterParser {
 
     final private String protocolExpr;
+    final private ID user;
 
     /**
-     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value
+     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value related:field:id
+     * @param user
+     */
+    public ProtocolFilterParser(String protocolExpr, ID user) {
+        this.protocolExpr = protocolExpr;
+        this.user = user;
+    }
+
+    /**
+     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value related:field:id
      */
     public ProtocolFilterParser(String protocolExpr) {
-        this.protocolExpr = protocolExpr;
+        this(protocolExpr, null);
     }
 
     /**
@@ -67,6 +79,9 @@ public class ProtocolFilterParser {
             case "category": {
                 return parseCategory(ps[1], ps[2]);
             }
+            case "related": {
+                return parseRelated(ps[1], ID.valueOf(ps[2]));
+            }
             default: {
                 log.warn("Unknown protocol expr : {}", protocolExpr);
                 return null;
@@ -79,7 +94,7 @@ public class ProtocolFilterParser {
      * @param refField
      * @return
      */
-    public String parseVia(String viaId, String refField) {
+    protected String parseVia(String viaId, String refField) {
         final ID anyId = ID.isId(viaId) ? ID.valueOf(viaId) : null;
         if (anyId == null) return null;
 
@@ -160,7 +175,7 @@ public class ProtocolFilterParser {
      * @return
      * @see AdvFilterParser#parseItem(JSONObject, JSONObject)
      */
-    public String parseCategory(String entity, String value) {
+    protected String parseCategory(String entity, String value) {
         Entity rootEntity = MetadataHelper.getEntity(entity);
         Field classField = DataListCategory.getFieldOfCategory(rootEntity);
         if (classField == null) return "(9=9)";
@@ -176,6 +191,56 @@ public class ProtocolFilterParser {
         } else {
             return String.format("%s = '%s'", classField.getName(), StringEscapeUtils.escapeSql(value));
         }
+    }
+
+    /**
+     * @param relatedExpr
+     * @param mainid
+     * @return
+     * @see com.rebuild.web.general.RelatedListController#buildBaseSql(ID, String, String, boolean, ID)
+     */
+    public String parseRelated(String relatedExpr, ID mainid) {
+        // format: Entity.Field
+        String[] ef = relatedExpr.split("\\.");
+        Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
+
+        Set<String> relatedFields = new HashSet<>();
+
+        if (ef.length > 1) {
+            relatedFields.add(ef[1]);
+        } else {
+            // v1.9 之前会把所有相关的查出来
+            Entity mainEntity = MetadataHelper.getEntity(mainid.getEntityCode());
+            for (Field field : relatedEntity.getFields()) {
+                if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
+                        && ArrayUtils.contains(field.getReferenceEntities(), mainEntity)) {
+                    relatedFields.add(field.getName());
+                }
+            }
+        }
+
+        if (relatedFields.isEmpty()) {
+            log.warn("No fields of related found : {}", relatedExpr);
+            return null;
+        }
+
+        String where = MessageFormat.format(
+                "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')", mainid);
+
+        // 附件过滤条件
+
+        Map<String, JSONObject> vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
+                MetadataHelper.getEntity(mainid.getEntityCode()).getName(), this.user);
+
+        JSONObject hasFilter = vtabFilters.get(relatedExpr);
+        if (ParseHelper.validAdvFilter(hasFilter)) {
+            String filterSql = new AdvFilterParser(hasFilter).toSqlWhere();
+            if (filterSql != null) {
+                where += " and " + filterSql;
+            }
+        }
+
+        return where;
     }
 
     // --

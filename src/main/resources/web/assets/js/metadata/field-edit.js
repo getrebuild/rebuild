@@ -95,6 +95,9 @@ $(document).ready(function () {
       extConfigNew[k] = $val(this)
     })
 
+    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) return RbHighbar.create($L('请输入编码规则'))
+    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) return RbHighbar.create($L('请输入编号规则'))
+
     // fix
     delete extConfigNew['undefined']
     delete extConfigNew['advDesensitized']

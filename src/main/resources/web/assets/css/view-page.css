@@ -210,6 +210,16 @@ body {
   padding-bottom: 13px;
 }
 
+.related-list .card-table {
+  border: 1px solid #ebebeb;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+}
+
+.related-list .card-table .data-list .table th {
+  border-top: 0 none;
+}
+
 .view-operating {
   padding-top: 3px;
 }
@@ -428,10 +438,6 @@ body {
 
 .type-IMAGE .edit-oper {
   margin-top: -2px;
-}
-
-.type-BOOL .edit-oper {
-  margin-top: -8px;
 }
 
 .type-MULTISELECT .edit-oper {
@@ -885,4 +891,21 @@ body {
 
 .report-has-preview li a.preview:hover > .mdi {
   color: #fff !important;
+}
+
+.switch-view-mode .btn {
+  border-radius: 4px;
+  border: 0 none;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.switch-view-mode .btn .icon {
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.switch-view-mode .btn.active .icon {
+  color: var(--rb-btn-active-color) !important;
 }

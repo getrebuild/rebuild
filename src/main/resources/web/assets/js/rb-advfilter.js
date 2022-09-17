@@ -10,6 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 const NT_SPLIT = '----'
 const NAME_FLAG = '&'
+const VF_ACU = '$APPROVALCURRENTUSER$'
 
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
@@ -151,7 +152,9 @@ class AdvFilter extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity}`, (res) => {
       const validFs = []
-      const fields = res.data.map((item) => {
+      const fields = []
+
+      res.data.forEach((item) => {
         validFs.push(item.name)
 
         // 引用字段在引用实体修改了名称字段后可能存在问题
@@ -166,10 +169,20 @@ class AdvFilter extends React.Component {
             item.type = item.ref[1]
           }
         }
-        return item
+
+        // No BARCODE field
+        if (item.type !== 'BARCODE') {
+          fields.push(item)
+
+          if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
+            const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
+            validFs.push(item2.name)
+            REFENTITY_CACHE[`${this.props.entity}.${item2.name}`] = item2.ref
+            fields.push(item2)
+          }
+        }
       })
-      // No BARCODE field
-      this._fields = fields.filter((x) => x.type !== 'BARCODE')
+      this._fields = fields
 
       // init
       if (this.__items) {
@@ -428,8 +441,9 @@ class FilterItem extends React.Component {
       op = ['LK', 'NLK']
     }
 
-    op.push('NL', 'NT')
     if (this.isApprovalState()) op = ['IN', 'NIN']
+    else if (this.state.field === VF_ACU) op = ['IN', 'SFU', 'SFB', 'SFT']
+    else op.push('NL', 'NT')
 
     this.__op = op
     return op

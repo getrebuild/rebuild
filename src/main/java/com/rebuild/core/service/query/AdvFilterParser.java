@@ -64,6 +64,9 @@ public class AdvFilterParser extends SetUser {
     // 快速查询
     private static final String MODE_QUICK = "QUICK";
 
+    // 虚拟字段:当前审批人
+    private static final String VF_ACU = "$APPROVALCURRENTUSER$";
+
     private JSONObject filterExp;
     private Entity rootEntity;
 
@@ -200,7 +203,8 @@ public class AdvFilterParser extends SetUser {
             field = field.substring(1);
         }
 
-        Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
+        Field fieldMeta = VF_ACU.equals(field) ? rootEntity.getField(EntityHelper.ApprovalLastUser)
+                : MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, rootEntity.getName());
             return null;
@@ -413,9 +417,7 @@ public class AdvFilterParser extends SetUser {
 
         // 快速搜索的占位符 `{1}`
         if (value.matches("\\{\\d+}")) {
-            if (values == null || values.isEmpty()) {
-                return null;
-            }
+            if (values == null || values.isEmpty()) return null;
 
             String valHold = value.replaceAll("[{}]", "");
             value = parseValue(values.get(valHold), op, fieldMeta, false);
@@ -424,9 +426,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         // No value for search
-        if (value == null) {
-            return null;
-        }
+        if (value == null) return null;
 
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
@@ -455,7 +455,13 @@ public class AdvFilterParser extends SetUser {
                     .append(" )");
         }
 
-        return sb.toString();
+        if (VF_ACU.equals(field)) {
+            return String.format(
+                    "exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s)",
+                    rootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
+        } else {
+            return sb.toString();
+        }
     }
 
     /**

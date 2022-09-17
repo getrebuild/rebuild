@@ -11,25 +11,24 @@ import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.ViewAddonsManager;
+import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
-import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -57,7 +55,7 @@ public class RelatedListController extends BaseController {
 
         String related = getParameterNotNull(request, "related");
         String q = getParameter(request, "q");
-        String sql = buildBaseSql(mainid, related, q, false, user, null);
+        String sql = buildBaseSql(mainid, related, q, false, user);
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
@@ -101,63 +99,24 @@ public class RelatedListController extends BaseController {
         final ID user = getRequestUser(request);
         String[] relateds = getParameterNotNull(request, "relateds").split(",");
 
-        // 附件过滤条件
-        Map<String, JSONObject> vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
-                MetadataHelper.getEntity(mainid.getEntityCode()).getName(), user);
-
         Map<String, Integer> countMap = new HashMap<>();
         for (String related : relateds) {
-            String sql = buildBaseSql(mainid, related, null, true, user, vtabFilters);
-            if (sql != null) {
-                // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
+            String sql = buildBaseSql(mainid, related, null, true, user);
 
-                Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
-                Object[] count = QueryHelper.createQuery(sql, relatedEntity).unique();
-                countMap.put(related, ObjectUtils.toInt(count[0]));
-            }
+            // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
+            Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
+            Object[] count = QueryHelper.createQuery(sql, relatedEntity).unique();
+            countMap.put(related, ObjectUtils.toInt(count[0]));
         }
         return  countMap;
     }
 
-    private String buildBaseSql(ID mainid, String relatedExpr, String q, boolean count, ID user,
-                                Map<String, JSONObject> vtabFilters) {
-        // formatted: Entity.Field
-        String[] ef = relatedExpr.split("\\.");
-        Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
+    private String buildBaseSql(ID mainid, String relatedExpr, String q, boolean count, ID user) {
+        // format: Entity.Field
+        Entity relatedEntity = MetadataHelper.getEntity(relatedExpr.split("\\.")[0]);
 
-        Set<String> relatedFields = new HashSet<>();
-
-        if (ef.length > 1) {
-            relatedFields.add(ef[1]);
-        } else {
-            // v1.9 之前会把所有相关的查出来
-            Entity mainEntity = MetadataHelper.getEntity(mainid.getEntityCode());
-            for (Field field : relatedEntity.getFields()) {
-                if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
-                        && ArrayUtils.contains(field.getReferenceEntities(), mainEntity)) {
-                    relatedFields.add(field.getName());
-                }
-            }
-        }
-
-        if (relatedFields.isEmpty()) return null;
-
-        String where = MessageFormat.format(
-                "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')", mainid);
-
-        if (vtabFilters == null) {
-            vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
-                    MetadataHelper.getEntity(mainid.getEntityCode()).getName(), user);
-        }
-
-        // 附件过滤条件
-        JSONObject hasFilter = vtabFilters.get(relatedExpr);
-        if (ParseHelper.validAdvFilter(hasFilter)) {
-            String filterSql = new AdvFilterParser(hasFilter).toSqlWhere();
-            if (filterSql != null) {
-                where += " and " + filterSql;
-            }
-        }
+        String where = new ProtocolFilterParser("related:", user)
+                .parseRelated(relatedExpr, mainid);
 
         // @see FeedsListController#fetchFeeds
         if (relatedEntity.getEntityCode() == EntityHelper.Feeds) {
@@ -201,5 +160,12 @@ public class RelatedListController extends BaseController {
 
         sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(where);
         return sql.toString();
+    }
+
+    @GetMapping("related-list-config")
+    public RespBody getDataListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
+        final ID user = getRequestUser(req);
+        JSON config = DataListManager.instance.getFieldsLayout(listEntity.getName(), user);
+        return RespBody.ok(config);
     }
 }
