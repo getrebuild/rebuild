@@ -238,11 +238,11 @@ class RelatedList extends React.Component {
               {this.props.showViewMode && (
                 <div className="btn-group btn-group-toggle w-auto ml-3 switch-view-mode">
                   <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? '' : 'active'}`} title={$L('卡片视图')}>
-                    <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                    <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
                   <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
-                    <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this._switchViewMode(e)} />
+                    <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
                 </div>
@@ -330,12 +330,9 @@ class RelatedList extends React.Component {
     this.fetchData()
   }
 
-  _switchViewMode(e, call) {
+  switchViewMode(e) {
     const mode = e.currentTarget.value
-    this.setState({ viewMode: mode }, () => {
-      $storage.set('RelatedListViewMode', mode)
-      typeof call === 'function' && call(mode)
-    })
+    this.setState({ viewMode: mode })
   }
 }
 
@@ -398,12 +395,12 @@ class EntityRelatedList extends RelatedList {
     }
   }
 
-  search() {
+  search(e) {
     if (this._EntityRelatedList2) {
       this.__searchKey = $(this._$quickSearch).val() || ''
       this._EntityRelatedList2.search(this.__searchKey)
     } else {
-      super.search()
+      super.search(e)
     }
   }
 
@@ -473,12 +470,6 @@ class EntityRelatedList extends RelatedList {
         this.setState({ viewComponents: viewComponents })
       })
     }
-  }
-
-  _switchViewMode(e) {
-    super._switchViewMode(e, (mode) => {
-      console.log(mode)
-    })
   }
 }
 

@@ -805,7 +805,7 @@ class RbList extends React.Component {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
-                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e, true)} onDoubleClick={() => CellRenders.clickView({ id: primaryKey.id, entity: this._entity })}>
+                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e, true)} onDoubleClick={(e) => this._openView(e.currentTarget)}>
                         {this.props.uncheckbox !== true && (
                           <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                             <div>
@@ -1087,8 +1087,16 @@ class RbList extends React.Component {
     } else if (e.keyCode === 38) {
       this._tryActive($tr.prev())
     } else {
-      CellRenders.clickView({ id: $tr.data('id'), entity: this._entity })
+      this._openView($tr)
     }
+  }
+
+  _openView($tr) {
+    const id = $($tr).data('id')
+    if (!wpc.forceSubView) {
+      location.hash = `!/View/${this._entity}/${id}`
+    }
+    CellRenders.clickView({ id: id, entity: this._entity })
   }
 
   // 外部接口
