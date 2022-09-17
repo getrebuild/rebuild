@@ -440,10 +440,6 @@ body {
   margin-top: -2px;
 }
 
-.type-BOOL .edit-oper {
-  margin-top: -8px;
-}
-
 .type-MULTISELECT .edit-oper {
   margin-top: -1px;
 }

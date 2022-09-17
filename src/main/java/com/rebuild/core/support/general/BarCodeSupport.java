@@ -200,7 +200,7 @@ public class BarCodeSupport {
         g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
         g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
 
-        Font font = new Font(Font.SANS_SERIF, Font.BOLD, space);
+        Font font = new Font(Font.SANS_SERIF, Font.PLAIN, space);
         g2d.drawImage(image, 0, 0, null);
 
         final int w = bi.getWidth();
