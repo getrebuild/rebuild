@@ -4829,6 +4829,10 @@ pre.unstyle {
   cursor: pointer;
 }
 
+.map-suggestion.dropdown-menu .dropdown-item.active {
+  background-color: #eee;
+}
+
 /* mdi7 */
 
 .modal-header > .icon.mdi,
