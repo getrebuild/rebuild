@@ -21,8 +21,6 @@
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <skipTests>true</skipTests>
-        <!-- https://github.com/spring-projects/spring-boot/issues/24602 -->
-        <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
     </properties>
 
     <build>
@@ -305,7 +303,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.11</version>
+            <version>1.2.12</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
