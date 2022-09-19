@@ -4566,6 +4566,7 @@ pre.unstyle {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
+  width: auto;
 }
 
 .protable .table .col-index {
@@ -4580,6 +4581,8 @@ pre.unstyle {
   min-width: 88px;
   padding-right: 0;
   text-align: right;
+  width: 48px;
+  min-width: 48px;
 }
 
 .protable .table .col-action .btn {
@@ -4628,7 +4631,7 @@ pre.unstyle {
 .protable .col-action.column-fixed {
   left: unset;
   right: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .protable .col-action.column-fixed::before {

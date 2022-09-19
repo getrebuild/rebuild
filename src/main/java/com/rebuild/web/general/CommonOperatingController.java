@@ -65,7 +65,7 @@ public class CommonOperatingController extends BaseController {
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
         // 为空则返回全部
         String fields = getParameter(request, "fields", "");
-        
+
         Record record = Application.getQueryFactory().recordNoFilter(recordId, fields.split(","));
         return RespBody.ok(record);
     }

@@ -9,7 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // ~~ 高级表格
 
-const COL_WIDTH = 170
+const COL_WIDTH = 178 // 48
+const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -32,9 +33,9 @@ class ProTable extends React.Component {
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
     const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COL_WIDTH * formFields.length + (38 + 88) > fw
+    const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
 
-    const colStyles = { minWidth: COL_WIDTH }
+    const colStyle = { minWidth: COL_WIDTH }
 
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -44,8 +45,12 @@ class ProTable extends React.Component {
               <th className="col-index" />
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
+
+                let colStyle2 = { ...colStyle }
+                if (fixed && COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyles} className={item.nullable ? '' : 'required'}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
@@ -64,8 +69,8 @@ class ProTable extends React.Component {
                   {FORM}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
-                    <button className="btn btn-light hide" title={$L('编辑')} onClick={() => this.editLine(key)}>
-                      <i className="icon zmdi zmdi-edit fs-14" />
+                    <button className="btn btn-light hide" title={$L('复制')} onClick={() => this.copyLine(key)}>
+                      <i className="icon zmdi zmdi-copy fs-14" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
@@ -98,7 +103,9 @@ class ProTable extends React.Component {
 
       this._initModel = res.data // 新建用
       this.setState({ formFields: res.data.elements }, () => {
-        $(this._$scroller).perfectScrollbar()
+        $(this._$scroller).perfectScrollbar({
+          suppressScrollY: true,
+        })
         // $(this._$scroller).find('thead .tipping').tooltip({})
       })
 
@@ -153,7 +160,7 @@ class ProTable extends React.Component {
     this.setState({ inlineForms: forms })
   }
 
-  editLine(id) {
+  copyLine(id) {
     console.log('TODO :', id)
   }
 
