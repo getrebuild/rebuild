@@ -6,32 +6,48 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global SimpleMDE, RepeatedViewer, ProTable */
 
+/**
+ * Callback API:
+ * - RbForm: onFieldValueChange( callback({name:xx,value:xx}) )
+ * - RbFormElement: onValueChange(this)
+ * - RbFormReference/RbFormN2NReference: getCascadingFieldValue(this)
+ */
+
 const TYPE_DIVIDER = '$DIVIDER$'
+const MODAL_MAXWIDTH = 1064
 
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, inLoad: true }
+    this.state = { ...props, inLoad: true, _maximize: false }
     if (!props.id) this.state.id = null
   }
 
   render() {
-    const mw = { maxWidth: this.props.width || 1064 }
+    let style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
+    if (this.state._maximize) {
+      style2.maxWidth = $(window).width() - 60
+      if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
+    }
+
     return (
       <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-          <div className="modal-dialog" style={mw}>
-            <div className="modal-content" style={mw}>
+          <div className="modal-dialog" style={style2}>
+            <div className="modal-content" style={style2}>
               <div className="modal-header modal-header-colored">
                 {this.state.icon && <span className={`icon zmdi zmdi-${this.state.icon}`} />}
                 <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                 {rb.isAdminUser && (
                   <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
-                    <span className="zmdi zmdi-settings" />
+                    <span className="zmdi zmdi-settings up-1" />
                   </a>
                 )}
-                <button className="close md-close" type="button" onClick={() => this.hide()}>
+                <button className="close md-close" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this.setState({ _maximize: !this.state._maximize })}>
+                  <span className="mdi mdi-window-restore" />
+                </button>
+                <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
                 </button>
               </div>
@@ -373,12 +389,13 @@ class RbForm extends React.Component {
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
 
-  // 字段值变化回调
+  // 添加字段值变化回调
   onFieldValueChange(call) {
     const c = this._onFieldValueChange_calls || []
     c.push(call)
     this._onFieldValueChange_calls = c
   }
+  // 执行
   _onFieldValueChangeCall(field, value) {
     if (this._onFieldValueChange_calls) {
       this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
@@ -597,14 +614,20 @@ class RbFormElement extends React.Component {
    */
   handleChange(e, checkValue) {
     const val = e.target.value
-    this.setState({ value: val }, () => checkValue === true && this.checkValue())
+    this.setState({ value: val }, () => {
+      checkValue === true && this.checkValue()
+      typeof this.props.onValueChange === 'function' && typeof this.props.onValueChange(this)
+    })
   }
 
   /**
    * 清空值
    */
   handleClear() {
-    this.setState({ value: '' }, () => this.checkValue())
+    this.setState({ value: '' }, () => {
+      this.checkValue()
+      typeof this.props.onValueChange === 'function' && typeof this.props.onValueChange(this)
+    })
   }
 
   /**
@@ -1386,7 +1409,6 @@ class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
     this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
-    this._hasCascadingField = !!(props._cascadingFieldParent || props._cascadingFieldChild)
   }
 
   renderElement() {
@@ -1476,13 +1498,17 @@ class RbFormReference extends RbFormElement {
   componentWillUnmount() {
     super.componentWillUnmount()
 
-    if (this._ReferenceSearcher && !this._hasCascadingField) {
+    if (this._ReferenceSearcher) {
       this._ReferenceSearcher.destroy()
       this._ReferenceSearcher = null
     }
   }
 
   _getCascadingFieldValue() {
+    if (typeof this.props.getCascadingFieldValue === 'function') {
+      return this.props.getCascadingFieldValue(this)
+    }
+
     let cascadingField
     if (this.props._cascadingFieldParent) {
       cascadingField = this.props._cascadingFieldParent.split('$$$$')[0]
@@ -1552,12 +1578,20 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    if (this._ReferenceSearcher && !this._hasCascadingField) {
+    const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+    if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
+
+    if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
       this._ReferenceSearcher.show()
     } else {
-      const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+      if (this._ReferenceSearcher) {
+        this._ReferenceSearcher.destroy()
+        this._ReferenceSearcher = null
+      }
+      this._ReferenceSearcher_Url = url
+
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} disposeOnHide={this._hasCascadingField} />, function () {
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} />, function () {
         that._ReferenceSearcher = this
       })
     }
@@ -1579,7 +1613,6 @@ class RbFormReference extends RbFormElement {
 class RbFormN2NReference extends RbFormReference {
   constructor(props) {
     super(props)
-    this._hasCascadingField = null
     this._multiple = true
   }
 
