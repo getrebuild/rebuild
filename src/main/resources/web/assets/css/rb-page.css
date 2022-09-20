@@ -2362,9 +2362,13 @@ th.column-fixed {
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-  width: 180px;
+  width: 160px;
   height: 34px !important;
   margin-top: 2px;
+}
+
+.adv-filter .dialog-footer .form-control-sm.text:focus {
+  background-color: #ddd;
 }
 
 .adv-filter .dialog-footer .custom-control {
@@ -4678,7 +4682,8 @@ pre.unstyle {
 .quick-filter-pane .ph-item {
   background-color: #e6e6e6;
   min-height: 59px;
-  border-radius: 0;
+  border-radius: 2px;
+  margin: 0 -7px;
 }
 
 .quick-filter-pane .ph-item-mt {
@@ -4691,6 +4696,8 @@ pre.unstyle {
 }
 
 .quick-filter-pane .col {
+  padding-left: 8px;
+  padding-right: 8px;
   display: none;
 }
 
@@ -4751,7 +4758,9 @@ pre.unstyle {
 
 .quick-filter-pane .operating-btn .dropdown-menu {
   padding: 15px 0;
+  min-width: 200px;
   text-align: center;
+  align-items: center;
 }
 
 /* col-sm-8 */

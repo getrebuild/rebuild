@@ -70,31 +70,22 @@ class AdvFilterPane extends React.Component {
                 <i className="icon zmdi zmdi-chevron-down" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
-                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0 mr-2">
                   <input className="custom-control-input" type="radio" name="useEquation" value="OR" defaultChecked />
-                  <span className="custom-control-label">{$L('或关系')}</span>
+                  <span className="custom-control-label">{$L('符合任一')}</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0 mr-0">
                   <input className="custom-control-input" type="radio" name="useEquation" value="AND" ref={(c) => (this._$useEquationAnd = c)} />
-                  <span className="custom-control-label">{$L('且关系')}</span>
+                  <span className="custom-control-label">{$L('符合全部')}</span>
                 </label>
               </div>
             </div>
             <a className="ml-3 down-1" onClick={() => this.clearFilter(true)}>
-              <i className="icon zmdi zmdi-replay down-1" /> {$L('重置')}
+              <i className="icon zmdi zmdi-replay down-1" />
             </a>
-            {(this.props.fields || []).length > 3 && (
+            {(this.props.fields || []).length > 4 && (
               <a className="ml-2 down-1" onClick={() => this.toggleExtended()}>
-                {this.state.extended && (
-                  <RF>
-                    <i className="icon zmdi zmdi-unfold-less down-1" /> {$L('收缩')}
-                  </RF>
-                )}
-                {!this.state.extended && (
-                  <RF>
-                    <i className="icon zmdi zmdi-unfold-more down-1" /> {$L('展开')}
-                  </RF>
-                )}
+                <i className={`icon down-1 zmdi ${this.state.extended ? 'zmdi-unfold-less text-bold' : 'zmdi-unfold-more'}`} title={$L('展开/收起')} />
               </a>
             )}
             {rb.isAdminUser && (
