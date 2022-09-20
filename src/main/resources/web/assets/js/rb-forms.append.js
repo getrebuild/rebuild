@@ -435,9 +435,18 @@ class BaiduMapModal extends RbModal {
                             placeholder={$L('查找位置')}
                             defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
                             onKeyDown={(e) => {
-                              if (e.which === 38 || e.which === 40) this._updown(e.which)
-                              else if (e.which === 13) this._search()
-                              else this._suggest()
+                              if (e.which === 38 || e.which === 40) {
+                                $stopEvent(e, true)
+                                this._suggestUpDown(e.which)
+                              } else if (e.which === 13) {
+                                let $active = $(this._$suggestion).find('.active')
+                                if ($active[0] && $active.text()) {
+                                  this._suggestSelect({ address: $active.text(), location: $active.data('location') })
+                                }
+                                setTimeout(() => this._search(), 10)
+                              } else {
+                                this._suggest()
+                              }
                             }}
                             onFocus={() => this._suggest()}
                           />
@@ -447,19 +456,10 @@ class BaiduMapModal extends RbModal {
                             </button>
                           </div>
                         </div>
-                        <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`}>
+                        <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
                           {ss.map((item) => {
                             return (
-                              <a
-                                key={$random()}
-                                className="dropdown-item"
-                                title={item.address}
-                                onClick={(e) => {
-                                  $stopEvent(e, true)
-                                  $(this._$searchValue).val(item.address)
-                                  this._BaiduMap.center(item.location)
-                                  this.setState({ suggestion: [] })
-                                }}>
+                              <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
                                 {item.address}
                               </a>
                             )
@@ -555,8 +555,26 @@ class BaiduMapModal extends RbModal {
     }, 600)
   }
 
-  _updown(key) {
-    // TODO
+  _suggestSelect(item, e) {
+    $stopEvent(e, true)
+    $(this._$searchValue).val(item.address)
+    this._BaiduMap.center(item.location)
+    this.setState({ suggestion: [] })
+  }
+
+  _suggestUpDown(key) {
+    let $active = $(this._$suggestion).find('.active').removeClass('active')
+    let $next
+
+    if (key === 40) {
+      if ($active[0]) $next = $active.next()
+      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:first')
+    } else if (key === 38) {
+      if ($active[0]) $next = $active.prev()
+      if (!$next || !$next[0]) $next = $(this._$suggestion).find('a:last')
+    }
+
+    if ($next[0]) $next.addClass('active')
   }
 
   _onConfirm() {
