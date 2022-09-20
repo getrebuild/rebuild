@@ -153,7 +153,7 @@ class DlgMode1Option extends RbFormHandler {
               </div>
             </div>
           </div>
-          <div className="form-group row bosskey-show">
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部查询面板')}</label>
             <div className="col-sm-7">
               <div className="switch-button switch-button-xs">

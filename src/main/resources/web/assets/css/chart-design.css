@@ -251,7 +251,7 @@ a.ui-draggable.ui-draggable-dragging {
 
 .data-info .input .form-control:hover,
 .data-info .input .form-control:focus {
-  background-color: #eee;
+  background-color: #ddd;
   padding: 0 6px;
 }
 

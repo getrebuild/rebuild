@@ -919,7 +919,7 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
 
 function UserPopup({ info }) {
   return (
-    <div className="user-popup shadow">
+    <div className="user-popup">
       <div className="avatar">
         <img src={`${rb.baseUrl}/account/user-avatar/${info.id}`} alt="Avatar" />
       </div>
@@ -961,7 +961,7 @@ UserPopup.create = function (el) {
     mouseover: function (e) {
       _clear()
       const pos = { top: Math.max(e.clientY - 90, 0), left: Math.max(e.clientX - 140, 0), display: 'block' }
-      pos.top = $(this).position().top - 10
+      pos.top = $(this).position().top - $(window).scrollTop() - 10
 
       UserPopup.__timer = setTimeout(function () {
         $.get(`/account/user-info?id=${uid}`, (res) => {

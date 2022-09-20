@@ -2362,9 +2362,13 @@ th.column-fixed {
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-  width: 180px;
+  width: 160px;
   height: 34px !important;
   margin-top: 2px;
+}
+
+.adv-filter .dialog-footer .form-control-sm.text:focus {
+  background-color: #ddd;
 }
 
 .adv-filter .dialog-footer .custom-control {
@@ -4287,16 +4291,19 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   right: 0;
   display: none;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 }
 
-.user-popup::before {
-  content: '▼';
+.user-popup::after {
+  border-top: 8px solid #fff;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  content: '';
+  display: inline-block;
   position: absolute;
-  bottom: -10px;
-  left: 130px;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1;
+  bottom: -8px;
+  left: 50%;
+  margin-left: -4px;
 }
 
 .user-popup .avatar {
@@ -4669,13 +4676,14 @@ pre.unstyle {
   margin: -12px -25px 12px -23px;
   background-color: #f5f5f5;
   border-bottom: 1px solid #dee2e6;
-  padding: 0 18px 12px;
+  padding: 0 25px 12px;
 }
 
 .quick-filter-pane .ph-item {
   background-color: #e6e6e6;
   min-height: 59px;
-  border-radius: 0;
+  border-radius: 2px;
+  margin: 0 -7px;
 }
 
 .quick-filter-pane .ph-item-mt {
@@ -4688,6 +4696,8 @@ pre.unstyle {
 }
 
 .quick-filter-pane .col {
+  padding-left: 8px;
+  padding-right: 8px;
   display: none;
 }
 
@@ -4748,7 +4758,9 @@ pre.unstyle {
 
 .quick-filter-pane .operating-btn .dropdown-menu {
   padding: 15px 0;
+  min-width: 200px;
   text-align: center;
+  align-items: center;
 }
 
 /* col-sm-8 */
@@ -4827,6 +4839,10 @@ pre.unstyle {
 .map-suggestion.dropdown-menu .dropdown-item {
   padding: 8px 10px;
   cursor: pointer;
+}
+
+.map-suggestion.dropdown-menu .dropdown-item.active {
+  background-color: #eee;
 }
 
 /* mdi7 */

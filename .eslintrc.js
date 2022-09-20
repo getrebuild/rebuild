@@ -120,5 +120,6 @@ module.exports = {
     RF: true,
     $select2MatcherAll: true,
     $isFullUrl: true,
+    $clone: true,
   },
 }

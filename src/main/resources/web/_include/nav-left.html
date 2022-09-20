@@ -9,7 +9,7 @@
               <li th:class="${active == 'dashboard-home'} ? 'active'">
                 <a th:href="@{/dashboard/home}"><i class="icon zmdi zmdi-home"></i><span>[[${bundle.L('首页')}]]</span></a>
               </li>
-              <th:block th:utext="${T(com.rebuild.core.configuration.NavBuilder).renderNav(#request, active)}"></th:block>
+              <th:block th:utext="${nav3012}" th:with="nav3012=${T(com.rebuild.core.configuration.NavBuilder).renderNav(#request, active)}"></th:block>
             </ul>
           </div>
         </div>
