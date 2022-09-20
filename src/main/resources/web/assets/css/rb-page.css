@@ -4287,16 +4287,19 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   right: 0;
   display: none;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 }
 
-.user-popup::before {
-  content: '▼';
+.user-popup::after {
+  border-top: 8px solid #fff;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  content: '';
+  display: inline-block;
   position: absolute;
-  bottom: -10px;
-  left: 130px;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1;
+  bottom: -8px;
+  left: 50%;
+  margin-left: -4px;
 }
 
 .user-popup .avatar {
