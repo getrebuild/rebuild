@@ -16,7 +16,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -30,10 +29,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 二维码字段支持
@@ -73,20 +70,12 @@ public class BarCodeSupport {
         EasyField easyField = EasyMetaFactory.valueOf(field);
         String barcodeType = easyField.getExtraAttr("barcodeType");
 
-        String codeKey = String.format("%s31:%d.png",
-                TYPE_BARCODE.equalsIgnoreCase(barcodeType) ? TYPE_BARCODE : TYPE_QRCODE, Objects.hashCode(content));
-        BufferedImage bi = (BufferedImage) Application.getCommonsCache().getx(codeKey);
-        if (bi != null) return bi;
-
         if (TYPE_BARCODE.equalsIgnoreCase(barcodeType)) {
-            bi = createBarCode(content, 0, Boolean.TRUE);
+            return createBarCode(content, 0, Boolean.TRUE);
         } else {
             // 默认为二维码
-            bi = createQRCode(content, 0);
+            return createQRCode(content, 0);
         }
-
-        Application.getCommonsCache().putx(codeKey, (Serializable) bi);
-        return bi;
     }
 
     /**
@@ -167,7 +156,7 @@ public class BarCodeSupport {
     public static File saveCode(String content, BarcodeFormat format, int height) {
         BitMatrix bitMatrix = createCode(content, format, height);
 
-        String fileName = String.format("BARCODE-%d.png", System.nanoTime());
+        String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
         File dest = RebuildConfiguration.getFileOfTemp(fileName);
 
         try {

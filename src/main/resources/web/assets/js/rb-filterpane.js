@@ -105,7 +105,7 @@ class AdvFilterPane extends React.Component {
             <a className="ml-3 down-3" onClick={() => this.clearFilter(true)} title={$L('重置')}>
               <i className="icon mdi mdi-replay" />
             </a>
-            {(this.props.fields || []).length > 4 && (
+            {(this.props.fields || []).length > 2 && (
               <a className="ml-1 down-3" onClick={() => this.toggleExtended()}>
                 {this.state.extended ? <i className="icon mdi mdi-arrow-collapse-vertical" title={$L('收起')} /> : <i className="icon mdi mdi-arrow-expand-vertical" title={$L('展开')} />}
               </a>
