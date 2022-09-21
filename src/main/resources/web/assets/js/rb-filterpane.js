@@ -35,8 +35,30 @@ class AdvFilterPane extends React.Component {
       return item
     })
 
+    let showxLast
+    function show() {
+      const ww = $(window).width()
+      let showx = 4
+      if (ww <= 992) showx = 1
+      else if (ww <= 1200) showx = 2
+      else if (ww <= 1400) showx = 3
+
+      if (showxLast === showx) return
+      showxLast = showx
+
+      console.log(showx)
+
+      $('.quick-filter-pane>.row>.col').each((idx, item) => {
+        if (idx < showx) $(item).addClass('show')
+        else $(item).removeClass('show')
+      })
+    }
+
     this.setState({ items }, () => {
       setTimeout(() => this.clearFilter(), 200)
+
+      show()
+      $(window).on('resize', show)
     })
   }
 
@@ -47,7 +69,7 @@ class AdvFilterPane extends React.Component {
       <form className="row" onSubmit={(e) => this.searchNow(e)}>
         {this.state.items.map((item, i) => {
           return (
-            <div className="col col-6 col-lg-4 col-xl-3" key={i}>
+            <div className="col" key={i}>
               <div>
                 <label>{item.label}</label>
                 <div className="adv-filter">
@@ -60,7 +82,7 @@ class AdvFilterPane extends React.Component {
           )
         })}
 
-        <div className="col col-6 col-lg-4 col-xl-3 operating-btn">
+        <div className="col operating-btn">
           <div>
             <div className="btn-group">
               <button className="btn btn-secondary" type="submit">
@@ -80,17 +102,17 @@ class AdvFilterPane extends React.Component {
                 </label>
               </div>
             </div>
-            <a className="ml-3 down-1" onClick={() => this.clearFilter(true)}>
-              <i className="icon zmdi zmdi-replay down-1" />
+            <a className="ml-3 down-3" onClick={() => this.clearFilter(true)} title={$L('重置')}>
+              <i className="icon mdi mdi-replay" />
             </a>
             {(this.props.fields || []).length > 4 && (
-              <a className="ml-2 down-1" onClick={() => this.toggleExtended()}>
-                <i className={`icon down-1 zmdi ${this.state.extended ? 'zmdi-unfold-less text-bold' : 'zmdi-unfold-more'}`} title={$L('展开/收起')} />
+              <a className="ml-1 down-3" onClick={() => this.toggleExtended()}>
+                {this.state.extended ? <i className="icon mdi mdi-arrow-collapse-vertical" title={$L('收起')} /> : <i className="icon mdi mdi-arrow-expand-vertical" title={$L('展开')} />}
               </a>
             )}
             {rb.isAdminUser && (
               <a
-                className="ml-2 down-2 admin-show"
+                className="ml-1 down-3 admin-show"
                 title={$L('配置查询面板字段')}
                 onClick={() => {
                   RbModal.create(
@@ -101,7 +123,7 @@ class AdvFilterPane extends React.Component {
                     </RF>
                   )
                 }}>
-                <i className="icon zmdi zmdi-settings" />
+                <i className="icon mdi mdi-cog" />
               </a>
             )}
           </div>
@@ -152,9 +174,9 @@ class FilterItemExt extends FilterItem {
     super.componentDidMount()
 
     const $s2op = this.__select2[1]
-
     setTimeout(() => {
-      if (this.state.type === 'DATE' || this.state.type === 'DATETIME' || this.state.type === 'TIME') {
+      const type = this.state.type
+      if (type === 'DATE' || type === 'DATETIME' || type === 'TIME' || type === 'NUMBER' || type === 'DECIMAL') {
         $s2op.val('EQ').trigger('change')
       }
     }, 200)
