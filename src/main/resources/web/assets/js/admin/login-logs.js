@@ -5,10 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$(document).ready(function () {
-  renderRbcomp(<DataList />, 'react-list')
+$(document).ready(() => {
+  renderRbcomp(<DataList />, 'react-list', function () {
+    RbListPage._RbList = this._List
+  })
 
-  $('.J_view-online').on('click', () => renderRbcomp(<OnlineUserViewer />))
+  $('.J_view-online').on('click', () => renderRbcomp(<OnlineUserViewer width="681" />))
 })
 
 // 列表配置
@@ -18,7 +20,7 @@ const ListConfig = {
     { field: 'user', label: $L('登录用户'), type: 'REFERENCE' },
     { field: 'loginTime', label: $L('登录时间'), type: 'DATETIME' },
     { field: 'ipAddr', label: $L('IP 地址') },
-    { field: 'userAgent', label: $L('客户端') },
+    { field: 'userAgent', label: $L('客户端'), width: 250 },
   ],
   sort: 'loginTime:desc',
 }
@@ -26,13 +28,6 @@ const ListConfig = {
 class DataList extends React.Component {
   render() {
     return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
-  }
-
-  componentDidMount() {
-    const $btn = $('.input-search .btn'),
-      $input = $('.input-search input')
-    $btn.click(() => this._List.searchQuick())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
   }
 }
 
@@ -65,48 +60,50 @@ RbList.renderAfter = function () {
 }
 
 // ~ 在线用户
-class OnlineUserViewer extends RbModalHandler {
-  render() {
+class OnlineUserViewer extends RbAlert {
+  renderContent() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('查看在线用户')} disposeOnHide={true}>
-        <table className="table table-striped table-hover table-sm dialog-table">
-          <thead>
-            <tr>
-              <th style={{ minWidth: 150 }}>{$L('用户')}</th>
-              <th style={{ minWidth: 150 }}>{$L('最近活跃')}</th>
-              <th width="90" />
-            </tr>
-          </thead>
-          <tbody>
-            {(this.state.users || []).map((item) => {
-              return (
-                <tr key={`user-${item.user}`}>
-                  <td className="user-avatar cell-detail user-info">
-                    <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
-                    <span className="pt-1">{item.fullName}</span>
-                  </td>
-                  <td className="cell-detail">
-                    <code className="text-break text-primary">{item.activeUrl || 'n/a'}</code>
-                    <span className="cell-detail-description">
-                      <DateShow date={item.activeTime} />
-                      <span className="ml-1">{item.activeIp}</span>
-                    </span>
-                  </td>
-                  <td className="actions text-right">
-                    <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.user)}>
-                      {$L('强退')}
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </RbModal>
+      <table className="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th width="30%">{$L('用户')}</th>
+            <th>{$L('最近活跃')}</th>
+            <th width="90" />
+          </tr>
+        </thead>
+        <tbody>
+          {(this.state.users || []).map((item) => {
+            return (
+              <tr key={item.sid}>
+                <td className="user-avatar cell-detail user-info">
+                  <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} alt="Avatar" />
+                  <span className="pt-1">{item.fullName}</span>
+                </td>
+                <td className="cell-detail">
+                  <code className="text-break text-primary">{item.activeUrl || 'n/a'}</code>
+                  <span className="cell-detail-description">
+                    <DateShow date={item.activeTime} />
+                    <span className="ml-1">{item.activeIp}</span>
+                  </span>
+                </td>
+                <td className="actions text-right">
+                  <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.sid)}>
+                    {$L('强退')}
+                  </button>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     )
   }
 
-  componentDidMount = () => this._load()
+  componentDidMount() {
+    super.componentDidMount()
+    this._load()
+  }
+
   _load() {
     $.get('/admin/audit/online-users', (res) => {
       if (res.error_code === 0) this.setState({ users: res.data })
