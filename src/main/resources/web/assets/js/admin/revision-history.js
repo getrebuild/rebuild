@@ -20,7 +20,9 @@ $(document).ready(() => {
       $(`<option value="${name}">${_ENTITIES[name]}</option>`).appendTo('#belongEntity')
     }
 
-    renderRbcomp(<DataList />, 'react-list')
+    renderRbcomp(<DataList />, 'react-list', function () {
+      RbListPage._RbList = this._List
+    })
   })
 })
 
@@ -47,7 +49,7 @@ const RevTypes = {
   32: $L('共享'),
   64: $L('取消共享'),
   991: $L('审批通过'),
-  992: $L('审批撤销')
+  992: $L('审批撤销'),
 }
 
 class DataList extends React.Component {
@@ -65,17 +67,18 @@ class DataList extends React.Component {
       })
       .val('$ALL$')
       .trigger('change')
+
     $s2.on('change', () => this.queryList())
 
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
-    $btn.click(() => this.queryList())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $btn.off('click').on('click', () => this.queryList())
+    $input.off('keydown').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
 
     this._$belongEntity = $s2
     this._$recordName = $input
 
-    $('.J_details').click(() => this.showDetails())
+    $('.J_details').on('click', () => this.showDetails())
   }
 
   queryList() {
@@ -141,7 +144,7 @@ class DlgDetails extends RbAlert {
       <table className="table table-fixed">
         <thead>
           <tr>
-            <th width="22%">{$L('字段')}</th>
+            <th width="25%">{$L('字段')}</th>
             <th>{$L('变更前')}</th>
             <th>{$L('变更后')}</th>
           </tr>

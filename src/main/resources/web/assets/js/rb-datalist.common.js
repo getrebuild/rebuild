@@ -699,6 +699,7 @@ const RbListCommon = {
     }
 
     const entity = wpc.entity
+    if (!entity) return
 
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
@@ -907,7 +908,7 @@ class RbList extends React.Component {
     if (wpc.advFilter !== true) this.fetchList(this._buildQuick())
 
     // 按键操作
-    if (wpc.type === 'RecordList') $(document).on('keydown', (e) => this._keyEvent(e))
+    if (wpc.type === 'RecordList' || wpc.type === 'DetailList') $(document).on('keydown', (e) => this._keyEvent(e))
   }
 
   fetchList(filter) {
@@ -1092,6 +1093,7 @@ class RbList extends React.Component {
   }
 
   _openView($tr) {
+    if (!wpc.type) return
     const id = $($tr).data('id')
     if (!wpc.forceSubView) {
       location.hash = `!/View/${this._entity}/${id}`

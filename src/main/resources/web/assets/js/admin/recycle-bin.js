@@ -17,7 +17,9 @@ $(document).ready(() => {
       _ENTITIES[this.name] = this.label
     })
 
-    renderRbcomp(<DataList />, 'react-list')
+    renderRbcomp(<DataList />, 'react-list', function () {
+      RbListPage._RbList = this._List
+    })
   })
 })
 
@@ -52,13 +54,13 @@ class DataList extends React.Component {
 
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
-    $btn.click(() => this.queryList())
-    $input.keydown((e) => (e.which === 13 ? $btn.trigger('click') : true))
+    $btn.off('click').on('click', () => this.queryList())
+    $input.off('keydown').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
 
     this._$belongEntity = $s2
     this._$recordName = $input
 
-    $('.J_restore').click(() => this.restore())
+    $('.J_restore').on('click', () => this.restore())
   }
 
   queryList() {

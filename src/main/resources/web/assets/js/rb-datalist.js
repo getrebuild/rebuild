@@ -93,7 +93,7 @@ const RbListPage = {
     }
 
     // Filter Pane
-    if ($('.quick-filter-pane').length > 0) {
+    if ($('.quick-filter-pane')[0]) {
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $('.quick-filter-pane')[0])
     }

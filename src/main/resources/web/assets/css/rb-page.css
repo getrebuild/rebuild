@@ -2905,25 +2905,24 @@ form {
   padding: 10px 10px 10px 0;
 }
 
-.approval-pane .alert .close.btn {
+.approval-pane .alert > .close {
+  top: 0;
+  opacity: 1;
+  padding: 0;
+}
+
+.approval-pane .alert > .close .btn {
   padding: 8px 0;
   font-size: 12px;
-  opacity: 1;
-  font-weight: normal;
   line-height: 1.1;
-  background-color: #fff;
   min-height: 0;
   min-width: 78px;
   margin-top: 8px;
-  box-shadow: 0 0 0 #fff;
+  border: 0 none;
 }
 
-.approval-pane .alert .close.btn + .btn {
-  margin-right: 88px;
-}
-
-.approval-pane .alert .close.btn + .btn + .btn {
-  margin-right: 176px;
+.approval-pane .alert > .close > .btn + .btn {
+  margin-left: 10px;
 }
 
 .form.approval-form {
@@ -4698,18 +4697,35 @@ pre.unstyle {
 .quick-filter-pane .col {
   padding-left: 8px;
   padding-right: 8px;
+  max-width: 20%;
+  flex: 0 0 20%;
   display: none;
 }
 
+.quick-filter-pane .col.show,
 .quick-filter-pane.extended .col {
   display: block;
 }
 
-.quick-filter-pane .col:nth-child(1),
-.quick-filter-pane .col:nth-child(2),
-.quick-filter-pane .col:nth-child(3),
-.quick-filter-pane .col:last-child {
-  display: block;
+@media (max-width: 1400px) {
+  .quick-filter-pane .col {
+    max-width: 25%;
+    flex: 0 0 25%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .quick-filter-pane .col {
+    max-width: 33.3333%;
+    flex: 0 0 33.3333%;
+  }
+}
+
+@media (max-width: 992px) {
+  .quick-filter-pane .col {
+    max-width: 50%;
+    flex: 0 0 50%;
+  }
 }
 
 .quick-filter-pane .col > div > label {
@@ -4723,13 +4739,15 @@ pre.unstyle {
   display: none;
 }
 
-.quick-filter-pane .operating-btn {
+.quick-filter-pane .col.operating-btn {
   min-height: 50px;
+  display: block;
 }
 
 .quick-filter-pane .operating-btn > div {
   position: absolute;
   bottom: 0;
+  white-space: nowrap;
 }
 
 .quick-filter-pane .operating-btn a {
@@ -4740,8 +4758,13 @@ pre.unstyle {
   line-height: 1;
 }
 
+.quick-filter-pane .operating-btn .btn {
+  min-height: 37px;
+}
+
 .quick-filter-pane .operating-btn a .icon {
   font-size: 1.231rem;
+  display: inline-block;
 }
 
 .quick-filter-pane .operating-btn a:hover {
@@ -4749,11 +4772,11 @@ pre.unstyle {
 }
 
 .quick-filter-pane .operating-btn a.admin-show {
-  display: none;
+  visibility: hidden;
 }
 
 .quick-filter-pane .operating-btn:hover a.admin-show {
-  display: inline-block;
+  visibility: visible;
 }
 
 .quick-filter-pane .operating-btn .dropdown-menu {
@@ -4761,6 +4784,14 @@ pre.unstyle {
   min-width: 200px;
   text-align: center;
   align-items: center;
+}
+
+.quick-filter-pane .form-control {
+  max-width: 227px;
+}
+
+.quick-filter-pane .form-control:focus {
+  border-color: #bababa;
 }
 
 /* col-sm-8 */

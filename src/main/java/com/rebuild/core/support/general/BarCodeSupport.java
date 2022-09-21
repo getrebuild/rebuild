@@ -39,7 +39,6 @@ import java.util.Map;
  * @since 2020/6/5
  */
 @Slf4j
-@SuppressWarnings({"unused", "UnnecessaryLocalVariable"})
 public class BarCodeSupport {
 
     // 二维码（默认）
@@ -147,7 +146,7 @@ public class BarCodeSupport {
     }
 
     /**
-     * 保存
+     * 保存文件
      *
      * @param content
      * @param format
@@ -159,6 +158,7 @@ public class BarCodeSupport {
 
         String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
         File dest = RebuildConfiguration.getFileOfTemp(fileName);
+
         try {
             MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
             return dest;

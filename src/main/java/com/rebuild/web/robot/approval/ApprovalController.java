@@ -93,7 +93,7 @@ public class ApprovalController extends BaseController {
                 }
             }
 
-            // 审批中提交人可撤回
+            // 审批中提交人可撤回、催审
             if (stateVal == ApprovalState.PROCESSING.getState()
                     && user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                 data.put("canCancel", true);
@@ -218,6 +218,12 @@ public class ApprovalController extends BaseController {
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getMessage());
         }
+    }
+
+    @RequestMapping("urge")
+    public RespBody doUrge(@IdParam(name = "record") ID recordId) {
+        boolean s = new ApprovalProcessor(recordId).urge();
+        return s ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
     }
 
     @RequestMapping("revoke")

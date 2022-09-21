@@ -181,32 +181,38 @@ public class ParseHelper {
      * 字段是否可用于快速查询
      *
      * @param field
+     * @param fieldPath
      * @return
      */
-    public static String useQuickField(Field field) {
+    protected static String useQuickField(Field field, String fieldPath) {
         DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
         // 引用字段要保证其兼容 LIKE 条件的语法要求
         if (dt == DisplayType.REFERENCE) {
             Field nameField = field.getReferenceEntity().getNameField();
             if (nameField.getType() == FieldType.REFERENCE) {
-                log.warn("Quick field cannot be circular reference : " + nameField);
+                log.warn("Quick field cannot be circular-reference : " + nameField);
                 return null;
             }
 
-            String can = useQuickField(nameField);
-            return can == null ? null : (QueryCompiler.NAME_FIELD_PREFIX + field.getName());
+            String can = useQuickField(nameField, fieldPath);
+            if (can == null) return null;
+            else if (can.startsWith("&")) return can;
+            else return QueryCompiler.NAME_FIELD_PREFIX + can;
 
         } else if (dt == DisplayType.PICKLIST
                 || dt == DisplayType.CLASSIFICATION) {
-            return QueryCompiler.NAME_FIELD_PREFIX + field.getName();
+            String can = StringUtils.defaultIfEmpty(fieldPath, field.getName());
+            if (can.startsWith("&")) return can;
+            else return QueryCompiler.NAME_FIELD_PREFIX + can;
 
         } else if (dt == DisplayType.TEXT
                 || dt == DisplayType.EMAIL
                 || dt == DisplayType.URL
                 || dt == DisplayType.PHONE
-                || dt == DisplayType.SERIES) {
-            return field.getName();
+                || dt == DisplayType.SERIES
+                || dt == DisplayType.LOCATION) {
+            return StringUtils.defaultIfEmpty(fieldPath, field.getName());
 
         } else {
             return null;
@@ -233,7 +239,7 @@ public class ParseHelper {
             for (String field : quickFields.split(",")) {
                 Field validField = MetadataHelper.getLastJoinField(entity, field);
                 if (validField != null) {
-                    String can = useQuickField(validField);
+                    String can = useQuickField(validField, field);
                     if (can != null) {
                         usesFields.add(can);
                     }
@@ -247,7 +253,7 @@ public class ParseHelper {
         if (usesFields.isEmpty()) {
             // 名称字段
             Field nameField = entity.getNameField();
-            String can = useQuickField(nameField);
+            String can = useQuickField(nameField, null);
             if (can != null) {
                 usesFields.add(can);
             } else {
