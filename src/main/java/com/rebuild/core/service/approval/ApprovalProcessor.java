@@ -17,9 +17,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -147,7 +149,7 @@ public class ApprovalProcessor extends SetUser {
                 .unique();
         if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
             throw new ApprovalException(Language.L(stepApprover == null
-                    ? Language.L("当前流程已经被他人审批") : Language.L("你已经审批过当前流程")));
+                    ? Language.L("当前流程已经被其他人审批") : Language.L("你已经审批过当前流程")));
         }
 
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
@@ -209,6 +211,34 @@ public class ApprovalProcessor extends SetUser {
 
         Application.getBean(ApprovalStepService.class).txCancel(
                 this.record, status.getApprovalId(), getCurrentNodeId(status), false);
+    }
+
+    /**
+     * 3.1.催审
+     *
+     * @return
+     */
+    public boolean urge() {
+        if (this.approval == null) {
+            Object[] o = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalId);
+            this.approval = (ID) o[0];
+        }
+
+        int sent = 0;
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(this.record.getEntityCode()));
+
+        JSONArray step = getCurrentStep(null);
+        for (Object o : step) {
+            JSONObject s = (JSONObject) o;
+            if (s.getIntValue("state") != 1) continue;
+
+            ID approver = ID.valueOf(s.getString("approver"));
+            String urgeMsg = Language.L("有一条 %s 记录正在等待你审批，请尽快审批", entityLabel);
+            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, this.record));
+            sent++;
+        }
+
+        return sent > 0;
     }
 
     /**

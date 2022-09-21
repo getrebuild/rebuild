@@ -2905,25 +2905,24 @@ form {
   padding: 10px 10px 10px 0;
 }
 
-.approval-pane .alert .close.btn {
+.approval-pane .alert > .close {
+  top: 0;
+  opacity: 1;
+  padding: 0;
+}
+
+.approval-pane .alert > .close .btn {
   padding: 8px 0;
   font-size: 12px;
-  opacity: 1;
-  font-weight: normal;
   line-height: 1.1;
-  background-color: #fff;
   min-height: 0;
   min-width: 78px;
   margin-top: 8px;
-  box-shadow: 0 0 0 #fff;
+  border: 0 none;
 }
 
-.approval-pane .alert .close.btn + .btn {
-  margin-right: 88px;
-}
-
-.approval-pane .alert .close.btn + .btn + .btn {
-  margin-right: 176px;
+.approval-pane .alert > .close > .btn + .btn {
+  margin-left: 10px;
 }
 
 .form.approval-form {
