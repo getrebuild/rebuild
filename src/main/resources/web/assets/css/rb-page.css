@@ -4786,6 +4786,14 @@ pre.unstyle {
   align-items: center;
 }
 
+.quick-filter-pane .form-control {
+  max-width: 227px;
+}
+
+.quick-filter-pane .form-control:focus {
+  border-color: #bababa;
+}
+
 /* col-sm-8 */
 .quick-filter-pane .col > div .filter-items .col-sm-5.val {
   -webkit-box-flex: 0;

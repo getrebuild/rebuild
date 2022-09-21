@@ -659,7 +659,9 @@ class FilterItem extends React.Component {
   renderPickListAfter() {
     const that = this
     const $s2val = $(this._filterVal)
-      .select2({})
+      .select2({
+        width: this.props.select2Width,
+      })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val().join('|') })
       })
@@ -693,6 +695,7 @@ class FilterItem extends React.Component {
     const that = this
     const $s2val = $(this._filterVal)
       .select2({
+        width: this.props.select2Width,
         minimumInputLength: 1,
         ajax: {
           url: '/commons/search/search',
@@ -791,6 +794,7 @@ class FilterItem extends React.Component {
     const that = this
     const $s2val = $(this._filterVal)
       .select2({
+        width: this.props.select2Width,
         allowClear: this.props.allowClear === true,
         placeholder: this.props.allowClear === true ? $L('全部') : null,
       })
