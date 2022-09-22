@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -27,7 +28,6 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
@@ -99,8 +99,9 @@ public class ReportsController extends BaseController {
             writeSuccess(response, data);
 
         } else if (getBoolParameter(request, "preview")) {
-            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&%s=%s",
-                    CodecUtils.urlEncode(file.getName()), CsrfToken.URL_CSRFTOKEN, CsrfToken.generate()));
+            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&_onceToken=%s",
+                    CodecUtils.urlEncode(file.getName()), AuthTokenManager.generateOnceToken(null)));
+
             String previewUrl = StringUtils.defaultIfBlank(
                     RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
                     "https://view.officeapps.live.com/op/embed.aspx?src=");

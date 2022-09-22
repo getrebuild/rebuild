@@ -188,7 +188,7 @@ class RbPreview extends React.Component {
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
-      if (_isFullUrl(currentUrl)) {
+      if ($isFullUrl(currentUrl)) {
         setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
@@ -197,13 +197,12 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this._isText(fileName)) {
-      const textUrl = _isFullUrl(currentUrl) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
-        url: textUrl,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}`,
         type: 'GET',
         dataType: 'text',
-        success: function (res) {
-          that.setState({ previewText: res })
+        success: function (raw) {
+          that.setState({ previewText: raw })
         },
         error: function (res) {
           if (res.status > 0) RbHighbar.error(`${$L('无法读取文件')} (${res.status})`)
@@ -213,8 +212,8 @@ class RbPreview extends React.Component {
     }
 
     $(document)
-      .unbind('keyup')
-      .keyup(function (e) {
+      .off('keyup')
+      .on('keyup', function (e) {
         // ESC
         if (e.keyCode === 27) that.hide()
       })
@@ -237,7 +236,7 @@ class RbPreview extends React.Component {
 
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
-    url = _isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
+    url = $isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
 
     if (params) {
       url += url.contains('?') ? '&' : '?'
@@ -386,8 +385,4 @@ class FileShare extends RbModalHandler {
       })
     })
   }
-}
-
-function _isFullUrl(urlKey) {
-  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
 }

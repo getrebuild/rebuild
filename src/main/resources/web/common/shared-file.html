@@ -27,11 +27,13 @@
     </div>
     <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
-    <script type="text/babel">
+    <script>
       window.__PageConfig = {
         publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
       }
-      $(document).ready(function () {
+    </script>
+    <script type="text/babel">
+      $(document).ready(() => {
         renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose />)
       })
     </script>

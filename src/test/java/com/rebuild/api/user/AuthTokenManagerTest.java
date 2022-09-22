@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.api.user;
 
 import com.rebuild.TestSupport;
-import com.rebuild.api.user.AuthTokenManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,16 +18,29 @@ import org.junit.jupiter.api.Test;
 public class AuthTokenManagerTest extends TestSupport {
 
     @Test
-    public void tokenLifecycle() {
-        String newToken = AuthTokenManager.generateToken(SIMPLE_USER, 60);
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
+    void accessToken() {
+        // generate
+        String accessToken = AuthTokenManager.generateToken(SIMPLE_USER, 3, null);
 
-        // renew
-        AuthTokenManager.refreshToken(newToken, 60);
+        // verify
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken, false));
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken, false));
+
+        // refresh
+        AuthTokenManager.refreshAccessToken(accessToken, 3);
 
         // destroy
-        AuthTokenManager.verifyToken(newToken, true);
-        Assertions.assertNull(AuthTokenManager.verifyToken(newToken, false));
+        AuthTokenManager.verifyToken(accessToken, true);
+        Assertions.assertNull(AuthTokenManager.verifyToken(accessToken, false));
+    }
+
+    @Test
+    void onceToken() {
+        // generate
+        String onceToken = AuthTokenManager.generateOnceToken(null);
+
+        // verify
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(onceToken, false));
+        Assertions.assertNull(AuthTokenManager.verifyToken(onceToken, false));
     }
 }

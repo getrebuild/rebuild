@@ -9,6 +9,7 @@ package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.commons.excel.CSVReader;
 import cn.devezhao.commons.excel.Cell;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.ExcelUtils;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class DataFileParser {
      * @param sourceFile
      */
     public DataFileParser(File sourceFile) {
-        this(sourceFile, "utf-8");
+        this(sourceFile, AppUtils.UTF8);
     }
 
     /**

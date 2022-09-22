@@ -55,14 +55,14 @@ public class CommonPageView extends BaseController {
             String fileKey = RebuildConfiguration.get(ConfigurationItem.WxworkAuthFile);
             File file = RebuildConfiguration.getFileOfData(fileKey);
             if (file.exists() && file.isFile()) {
-                content = FileUtils.readFileToString(file);
+                content = FileUtils.readFileToString(file, AppUtils.UTF8);
             }
         }
         // OTHERS
         else {
             File file = RebuildConfiguration.getFileOfData(name);
             if (file.exists() && file.isFile()) {
-                content = FileUtils.readFileToString(file);
+                content = FileUtils.readFileToString(file, AppUtils.UTF8);
             } else {
                 content = CommonsUtils.getStringOfRes("web/" + name);
             }

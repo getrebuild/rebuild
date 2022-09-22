@@ -28,6 +28,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -300,7 +301,7 @@ public class Installer implements InstallState {
     protected String[] getDbInitScript() throws IOException {
         List<String> LS;
         try (InputStream is = CommonsUtils.getStreamOfRes("scripts/db-init.sql")) {
-            LS = IOUtils.readLines(is, "utf-8");
+            LS = IOUtils.readLines(is, AppUtils.UTF8);
         }
 
         List<String> SQLS = new ArrayList<>();

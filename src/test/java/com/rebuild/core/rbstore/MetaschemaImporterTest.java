@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
@@ -31,7 +32,7 @@ public class MetaschemaImporterTest extends TestSupport {
     @Test
     void testImport() throws Exception {
         File file = ResourceUtils.getFile("classpath:metaschema-test.json");
-        String text = FileUtils.readFileToString(file, "utf-8");
+        String text = FileUtils.readFileToString(file, AppUtils.UTF8);
         JSONObject data = JSON.parseObject(text);
         String entityName = data.getString("entity");
 
@@ -47,7 +48,7 @@ public class MetaschemaImporterTest extends TestSupport {
     @Test
     void verfiy() throws IOException {
         File file = ResourceUtils.getFile("classpath:metaschema-test.json");
-        String text = FileUtils.readFileToString(file, "utf-8");
+        String text = FileUtils.readFileToString(file, AppUtils.UTF8);
         JSONObject data = JSON.parseObject(text);
 
         System.out.println(new MetaschemaImporter(data).verfiy());

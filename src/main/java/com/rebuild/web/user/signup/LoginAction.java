@@ -102,9 +102,8 @@ public class LoginAction extends BaseController {
         Integer ed = loginSuccessed(request, response, user, false);
         if (ed != null) resMap.put("passwdExpiredDays", ed);
 
-        String authToken = AuthTokenManager.generateToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
+        String authToken = AuthTokenManager.generateAccessToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
         resMap.put("authToken", authToken);
-
 
         // FIXME 暂不启用 lauthToken 前端有问题
 //        // 2FA

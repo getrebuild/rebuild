@@ -20,6 +20,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -131,7 +132,7 @@ public class BarCodeSupport {
      */
     protected static BitMatrix createCode(String content, BarcodeFormat format, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.CHARACTER_SET, AppUtils.UTF8);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.MARGIN, 0);
 

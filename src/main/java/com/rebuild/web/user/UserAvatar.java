@@ -97,9 +97,10 @@ public class UserAvatar extends BaseController {
             return;
         }
 
-        avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
         if (avatarUrl != null) {
             int w = getIntParameter(request, "w", 100);
+
+            avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
             avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
 
             if (QiniuCloud.instance().available()) {
@@ -107,10 +108,9 @@ public class UserAvatar extends BaseController {
             } else {
                 avatarUrl = AppUtils.getContextPath("/filex/img/" + avatarUrl);
                 String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
-                if (authToken != null) {
-                    avatarUrl += String.format("&%s=%s", AppUtils.URL_AUTHTOKEN, authToken);
-                }
+                if (authToken != null) avatarUrl += String.format("&_authToken=%s", authToken);
             }
+
             response.sendRedirect(avatarUrl);
 
         } else {

@@ -33,6 +33,14 @@ public class AppUtils {
     public static final String HF_AUTHTOKEN = "X-AuthToken";
     public static final String URL_AUTHTOKEN = "_authToken";
 
+    // Csrf 认证
+    public static final String HF_CSRFTOKEN = "X-CsrfToken";
+    public static final String URL_CSRFTOKEN = "_csrfToken";
+
+    // Once 认证
+    public static final String HF_ONCETOKEN = "X-OnceToken";
+    public static final String URL_ONCETOKEN = "_onceToken";
+
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
     public static final String CK_LOCALE = "rb.locale";
@@ -40,6 +48,8 @@ public class AppUtils {
     // RbMob
     public static final String HF_CLIENT = "X-Client";
     public static final String HF_LOCALE = "X-ClientLocale";
+
+    public static final String UTF8 = "utf-8";
 
     /**
      * 获取相对地址
@@ -97,9 +107,9 @@ public class AppUtils {
      */
     public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
-        ID user = AuthTokenManager.verifyToken(authToken, false);
+        ID user = authToken == null ? null : AuthTokenManager.verifyToken(authToken, false);
         if (user != null && refreshToken) {
-            AuthTokenManager.refreshToken(authToken, AuthTokenManager.H5TOKEN_EXPIRES);
+            AuthTokenManager.refreshAccessToken(authToken, AuthTokenManager.H5TOKEN_EXPIRES);
         }
         return user;
     }
