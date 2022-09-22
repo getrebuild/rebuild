@@ -71,6 +71,14 @@
                                 <i class="zmdi zmdi-help zicon down-1" th:title="${bundle.L('审批通过后管理员可以撤销重审')}" data-toggle="tooltip"></i>
                               </span>
                             </label>
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="1024" />
+                              <span class="custom-control-label"> [[${bundle.L('审批提交时')}]] <sup class="rbv"></sup></span>
+                            </label>
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="2048" />
+                              <span class="custom-control-label"> [[${bundle.L('审批驳回时')}]] <sup class="rbv"></sup></span>
+                            </label>
                           </div>
                           <div class="mt-1">
                             <div>
@@ -80,32 +88,22 @@
                               </label>
                             </div>
                             <div class="on-timers mt-1 hide">
-                              <div class="input-group input-group-sm">
-                                <select class="form-control form-control-sm J_whenTimer1">
+                              <div>
+                                <select class="J_whenTimer1">
                                   <option value="D">[[${bundle.L('每天')}]]</option>
                                   <option value="M">[[${bundle.L('每月')}]]</option>
                                   <option value="H">[[${bundle.L('每小时')}]]</option>
                                 </select>
-                                <div class="input-group-prepend input-group-append">
-                                  <span class="input-group-text">[[${bundle.L('执行')}]]</span>
-                                </div>
-                                <input type="text" class="form-control form-control-sm text-center J_whenTimer2" placeholder="1" />
-                                <div class="input-group-append">
-                                  <span class="input-group-text">[[${bundle.L('次')}]]</span>
-                                </div>
+                                <span>[[${bundle.L('执行')}]]</span>
+                                <input type="text" class="J_whenTimer2" placeholder="1" />
+                                <span>[[${bundle.L('次')}]]</span>
+
+                                <span class="ml-2">[[${bundle.L('执行时段')}]]</span>
+                                <select class="J_startHour1"></select>
+                                <span>~</span>
+                                <select class="J_startHour2"></select>
                               </div>
-                              <div class="input-group input-group-sm ml-2 J_startHour">
-                                <div class="input-group-prepend input-group-append">
-                                  <span class="input-group-text">[[${bundle.L('执行时段')}]]</span>
-                                </div>
-                                <select class="form-control form-control-sm J_startHour1"></select>
-                                <div class="input-group-append">
-                                  <span class="input-group-text">~</span>
-                                </div>
-                                <select class="form-control form-control-sm J_startHour2"></select>
-                              </div>
-                              <div class="clearfix"></div>
-                              <p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
+                              <p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行 2 次，其执行时间为 00:00 和 12:00')}]]</p>
                             </div>
                           </div>
                         </div>

@@ -22,10 +22,11 @@ $(document).ready(() => {
   $('.J_startHour2').val('23')
 
   if (wpc.when > 0) {
-    $([1, 2, 4, 16, 32, 64, 128, 256, 512]).each(function () {
+    $([1, 2, 4, 16, 32, 64, 128, 256, 512, 1024, 2048]).each(function () {
       let mask = this
       if ((wpc.when & mask) !== 0) {
-        $('.J_when input[value=' + mask + ']').prop('checked', true)
+        $(`.J_when input[value=${mask}]`).prop('checked', true)
+
         if (mask === 512) {
           $('.on-timers').removeClass('hide')
           const wt = (wpc.whenTimer || 'D:1').split(':')
@@ -46,7 +47,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal={true} canNoFilters={true} />, null, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal canNoFilters />, null, function () {
         advFilter = this
       })
     }
@@ -77,8 +78,8 @@ $(document).ready(() => {
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
     })
-    if (rb.commercial < 10 && (when & 512) !== 0) {
-      RbHighbar.error(WrapHtml($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    if (rb.commercial < 10 && ((when & 512) !== 0 || (when & 1024) !== 0 || (when & 2048) !== 0)) {
+      RbHighbar.error(WrapHtml($L('免费版不支持审批提交时/审批驳回时/定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 

@@ -372,14 +372,27 @@ textarea.formula-code {
 }
 
 .on-timers {
-  padding: 15px 25px;
+  padding: 15px 26px;
+  padding-bottom: 20px;
   border-radius: 2px;
   border: 1px solid #eee;
+  font-size: 1rem;
 }
 
-.on-timers .input-group {
-  width: 300px;
-  float: left;
+.on-timers input,
+.on-timers select {
+  width: 60px;
+  padding: 3px;
+  border: 0 none;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  appearance: none;
+  outline: none;
+}
+
+.on-timers input:focus,
+.on-timers select:focus {
+  border-color: #4285f4;
 }
 
 .code-panel {
