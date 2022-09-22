@@ -198,11 +198,11 @@ class RbPreview extends React.Component {
       }
     } else if (this._isText(fileName)) {
       $.ajax({
-        url: `/filex/read?url=${$encode(currentUrl)}`,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}`,
         type: 'GET',
         dataType: 'text',
-        success: function (res) {
-          that.setState({ previewText: res })
+        success: function (raw) {
+          that.setState({ previewText: raw })
         },
         error: function (res) {
           if (res.status > 0) RbHighbar.error(`${$L('无法读取文件')} (${res.status})`)

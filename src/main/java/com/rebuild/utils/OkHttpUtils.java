@@ -106,7 +106,7 @@ public class OkHttpUtils {
         long ms = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
             byte[] b = Objects.requireNonNull(response.body()).bytes();
-            return new String(b, StringUtils.defaultIfBlank(charset, "utf-8"));
+            return new String(b, StringUtils.defaultIfBlank(charset, AppUtils.UTF8));
         } finally {
             ms = System.currentTimeMillis() - ms;
             if (ms > 3000) log.warn("Http GET `{}` time {}ms", url, ms);

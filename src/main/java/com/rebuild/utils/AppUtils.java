@@ -49,6 +49,8 @@ public class AppUtils {
     public static final String HF_CLIENT = "X-Client";
     public static final String HF_LOCALE = "X-ClientLocale";
 
+    public static final String UTF8 = "utf-8";
+
     /**
      * 获取相对地址
      *

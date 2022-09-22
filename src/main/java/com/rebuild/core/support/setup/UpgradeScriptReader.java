@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.setup;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,7 @@ public class UpgradeScriptReader {
     public Map<Integer, String[]> read() throws IOException {
         List<String> sqlScripts;
         try (InputStream is = CommonsUtils.getStreamOfRes("scripts/db-upgrade.sql")) {
-            sqlScripts = IOUtils.readLines(is, "utf-8");
+            sqlScripts = IOUtils.readLines(is, AppUtils.UTF8);
         }
 
         Map<Integer, String[]> sqls = new HashMap<>();

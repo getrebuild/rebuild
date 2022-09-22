@@ -113,7 +113,7 @@ public class CommonsUtils {
      */
     public static String getStringOfRes(String file) {
         try (InputStream is = getStreamOfRes(file)) {
-            return IOUtils.toString(is, "utf-8");
+            return IOUtils.toString(is, AppUtils.UTF8);
         } catch (IOException ex) {
             log.error("Cannot load file of res : " + file);
             return null;

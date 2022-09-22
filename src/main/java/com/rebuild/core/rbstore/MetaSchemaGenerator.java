@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +66,7 @@ public class MetaSchemaGenerator {
      */
     public void generate(File dest) throws IOException {
         JSON schema = generate();
-        FileUtils.writeStringToFile(dest, JSON.toJSONString(schema, true), "utf-8");
+        FileUtils.writeStringToFile(dest, JSON.toJSONString(schema, true), AppUtils.UTF8);
     }
 
     /**

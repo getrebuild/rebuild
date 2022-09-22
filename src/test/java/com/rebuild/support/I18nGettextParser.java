@@ -17,6 +17,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -124,7 +125,7 @@ public class I18nGettextParser extends TestSupport {
     }
 
     static List<String> parseWithPattern(File file, Pattern pattern) throws IOException {
-        String content = FileUtils.readFileToString(file, "utf-8");
+        String content = FileUtils.readFileToString(file, AppUtils.UTF8);
         Matcher matcher = pattern.matcher(content);
 
         List<String> list = new ArrayList<>();
