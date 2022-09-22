@@ -197,7 +197,7 @@ public class SMSender {
         if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
-        email.setCharset("UTF-8");
+        email.setCharset("utf-8");
         return email.send();
     }
 

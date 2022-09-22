@@ -18,6 +18,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Map;
@@ -73,11 +74,11 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String get(String url) throws IOException {
-        return get(url, null);
+        return get(url, null, null);
     }
 
     /**
-     * GET with Headers
+     * GET with headers
      *
      * @param url
      * @param headers
@@ -85,13 +86,27 @@ public class OkHttpUtils {
      * @throws IOException
      */
     public static String get(String url, Map<String, String> headers) throws IOException {
+        return get(url, headers, null);
+    }
+
+    /**
+     * GET with headers and charset
+     *
+     * @param url
+     * @param headers
+     * @param charset
+     * @return
+     * @throws IOException
+     */
+    public static String get(String url, Map<String, String> headers, String charset) throws IOException {
         OkHttpClient client = getHttpClient();
         Request.Builder builder = new Request.Builder().url(url);
         Request request = useHeaders(builder, headers).build();
 
         long ms = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
-            return Objects.requireNonNull(response.body()).string();
+            byte[] b = Objects.requireNonNull(response.body()).bytes();
+            return new String(b, StringUtils.defaultIfBlank(charset, "utf-8"));
         } finally {
             ms = System.currentTimeMillis() - ms;
             if (ms > 3000) log.warn("Http GET `{}` time {}ms", url, ms);
@@ -148,7 +163,8 @@ public class OkHttpUtils {
 
         long ms = System.currentTimeMillis();
         try (Response response = client.newCall(request).execute()) {
-            return Objects.requireNonNull(response.body()).string();
+            byte[] b = Objects.requireNonNull(response.body()).bytes();
+            return new String(b, StandardCharsets.UTF_8);
         } finally {
             ms = System.currentTimeMillis() - ms;
             if (ms > 3000) log.warn("Http POST `{}` time {}ms", url, ms);

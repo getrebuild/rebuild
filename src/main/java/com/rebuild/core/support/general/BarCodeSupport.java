@@ -131,7 +131,7 @@ public class BarCodeSupport {
      */
     protected static BitMatrix createCode(String content, BarcodeFormat format, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.MARGIN, 0);
 

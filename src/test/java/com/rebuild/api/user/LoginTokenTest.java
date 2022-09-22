@@ -23,7 +23,7 @@ import java.util.Map;
 public class LoginTokenTest extends TestSupport {
 
     @Test
-    public void execute() {
+    void execute() {
         Map<String, String> reqParams = new HashMap<>();
         reqParams.put("user", "rebuild");
         reqParams.put("password", "rebuild");
@@ -31,11 +31,15 @@ public class LoginTokenTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new LoginToken().execute(apiContext);
         System.out.println(ret);
-        Assertions.assertNotNull(ret.get("error_code"));
+        Assertions.assertEquals(ret.getIntValue("error_code"), 0);
+
+        String loginToken = ret.getJSONObject("data").getString("login_token");
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(loginToken, false));
+        Assertions.assertNull(AuthTokenManager.verifyToken(loginToken, false));
     }
 
     @Test
-    public void testRateLimiter() throws Exception {
+    void testRateLimiter() throws Exception {
         Map<String, String> reqParams = new HashMap<>();
         reqParams.put("user", "rebuild");
         reqParams.put("password", "wrongpassword");
