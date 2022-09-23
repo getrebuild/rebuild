@@ -151,8 +151,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
             }
 
-            // 超管可访问
-            skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
+            // 非增强安全超管可访问
+            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) skipCheckSafeUse = false;
+            else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
         } else if (!isIgnoreAuth(requestUri)) {
             // 独立验证逻辑

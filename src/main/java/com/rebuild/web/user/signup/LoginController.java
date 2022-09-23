@@ -56,6 +56,8 @@ import java.util.Map;
 @RequestMapping("/user/")
 public class LoginController extends LoginAction {
 
+    public static final String PREFIX_2FA = "2FA";
+
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
@@ -193,11 +195,12 @@ public class LoginController extends LoginAction {
 
         // 2FA
         int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-        if (faMode > 0 && !UserHelper.isSuperAdmin(loginUser.getId())) {
+        if (faMode > 0
+                && (!UserHelper.isSuperAdmin(loginUser.getId()) || RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced))) {
             resMap.put("login2FaMode", faMode);
 
             String userToken = CodecUtils.randomCode(40);
-            Application.getCommonsCache().putx("2FA" + userToken, loginUser.getId(), CommonsCache.TS_HOUR / 4); // 15m
+            Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), 15 * 60); // 15m
             resMap.put("login2FaUserToken", userToken);
 
             if (isMobile) {

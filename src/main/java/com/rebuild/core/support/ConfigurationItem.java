@@ -116,6 +116,7 @@ public enum ConfigurationItem {
     MobileUrl,                      // 移动端地址
     RbStoreUrl,                     // 在线仓库地址
     TriggerMaxDepth,                // 触发器最大执行深度
+    SecurityEnhanced(false), // 安全增强
 
     ;
 
