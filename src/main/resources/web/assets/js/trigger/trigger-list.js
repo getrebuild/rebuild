@@ -11,6 +11,13 @@ $(document).ready(function () {
   renderRbcomp(<TriggerList />, 'dataList')
 })
 
+const RBV_TRIGGERS = {
+  'HOOKURL': $L('回调 URL'),
+  'AUTOTRANSFORM': $L('自动记录转换'),
+  'DATAVALIDATE': $L('数据校验'),
+  'AUTOREVOKE': $L('自动撤销'),
+}
+
 const WHENS = {
   1: $L('新建'),
   4: $L('更新'),
@@ -20,23 +27,23 @@ const WHENS = {
   64: $L('取消共享'),
   128: $L('审批通过'),
   256: $L('审批撤销'),
+  1024: $L('审批提交时'),
+  2048: $L('审批驳回/撤回时'),
   512: `(${$L('定期执行')})`,
 }
 
-const RBV_TRIGGERS = {
-  'HOOKURL': $L('回调 URL'),
-  'AUTOTRANSFORM': $L('自动记录转换'),
-  'DATAVALIDATE': $L('数据校验'),
-  'AUTOREVOKE': $L('自动撤销'),
-}
-
 const formatWhen = function (maskVal) {
-  const as = []
+  const ss = []
+  let timed
   for (let k in WHENS) {
-    // eslint-disable-next-line eqeqeq
-    if ((maskVal & k) !== 0) as.push(WHENS[k])
+    if ((maskVal & k) !== 0) {
+      if (k === 512) timed = true
+      else ss.push(WHENS[k])
+    }
   }
-  return as.join('/')
+
+  if (timed) ss.join(WHENS[512])
+  return ss.join('/')
 }
 
 class TriggerList extends ConfigList {
@@ -59,11 +66,11 @@ class TriggerList extends ConfigList {
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
-              <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
+              <td className="text-wrap">{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
                 <span className="badge badge-light">{item[9]}</span>
               </td>
-              <td>{ShowEnable(item[4])}</td>
+              <td>{ShowEnable(item[4], item[0])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>

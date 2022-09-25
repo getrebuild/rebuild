@@ -193,7 +193,7 @@ public class FieldAggregation extends TriggerAction {
 
         // 相等则不更新
         if (isCurrentSame(targetRecord)) {
-            log.debug("Ignore execution because the records are same : {}", targetRecordId);
+            log.info("Ignore execution because the records are same : {}", targetRecordId);
             return "target-ignored";
         }
 
@@ -283,7 +283,7 @@ public class FieldAggregation extends TriggerAction {
     }
 
     /**
-     * 清理触发链，在批处理时需要调用
+     * 清理触发链（在批处理时需要调用）
      *
      * @return
      */
@@ -291,5 +291,18 @@ public class FieldAggregation extends TriggerAction {
         Object o = TRIGGER_CHAIN.get();
         TRIGGER_CHAIN.remove();
         return o;
+    }
+
+    /**
+     * 触发链最后一个触发器
+     *
+     * @return
+     */
+    public static ID getLastTrigger() {
+        List<String> chain = TRIGGER_CHAIN.get();
+        if (chain == null) return null;
+
+        String t = chain.get(chain.size() - 1);
+        return ID.valueOf(t.split(":")[0]);
     }
 }

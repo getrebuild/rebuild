@@ -49,6 +49,8 @@ public class LoginAction extends BaseController {
     protected static final String SK_NEED_VCODE = "needLoginVCode";
     protected static final String SK_START_TOUR = "needStartTour";
 
+    protected static final String PREFIX_2FA = "2FA";
+
     /**
      * 登录成功
      *

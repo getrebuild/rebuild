@@ -47,7 +47,7 @@ class ContentAutoApproval extends ActionContentSpec {
 
   componentDidMount() {
     // eslint-disable-next-line no-undef
-    disableWhen(2, 16, 32, 64, 128, 256)
+    disableWhen(2, 16, 32, 64, 128, 256, 1024, 2048)
 
     const content = this.props.content || {}
     $.get(`/admin/robot/trigger/auto-approval-alist?entity=${this.props.sourceEntity}`, (res) => {

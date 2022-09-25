@@ -93,7 +93,7 @@ public class ApprovalController extends BaseController {
                 }
             }
 
-            // 审批中提交人可撤回、催审
+            // 审批中提交人可撤回/催审
             if (stateVal == ApprovalState.PROCESSING.getState()
                     && user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
                 data.put("canCancel", true);

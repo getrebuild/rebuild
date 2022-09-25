@@ -187,7 +187,7 @@ button[disabled] {
 .text-break {
   word-break: break-all;
   word-wrap: break-word;
-  white-space: normal;
+  white-space: normal !important;
 }
 
 .text-overflow {
