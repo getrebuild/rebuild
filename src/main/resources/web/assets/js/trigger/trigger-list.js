@@ -28,7 +28,7 @@ const WHENS = {
   128: $L('审批通过'),
   256: $L('审批撤销'),
   1024: $L('审批提交时'),
-  2048: $L('审批驳回时'),
+  2048: $L('审批驳回/撤回时'),
   512: `(${$L('定期执行')})`,
 }
 
@@ -66,11 +66,11 @@ class TriggerList extends ConfigList {
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
-              <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
+              <td className="text-wrap">{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
                 <span className="badge badge-light">{item[9]}</span>
               </td>
-              <td>{ShowEnable(item[4])}</td>
+              <td>{ShowEnable(item[4], item[0])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>

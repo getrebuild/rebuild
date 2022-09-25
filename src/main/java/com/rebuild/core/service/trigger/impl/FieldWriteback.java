@@ -119,7 +119,7 @@ public class FieldWriteback extends FieldAggregation {
 
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
-                log.debug("Ignore execution because the records are same : {}", targetRecordId);
+                log.info("Ignore execution because the records are same : {}", targetRecordId);
                 continue;
             }
 

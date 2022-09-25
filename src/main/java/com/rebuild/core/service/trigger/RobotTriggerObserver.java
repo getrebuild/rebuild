@@ -14,6 +14,7 @@ import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
@@ -181,7 +182,13 @@ public class RobotTriggerObserver extends OperatingObserver {
                         String errMsg = ex.getLocalizedMessage();
                         if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
 
-                        throw new TriggerException(Language.L("触发器执行失败 : %s", errMsg));
+                        errMsg = Language.L("触发器执行失败 : %s", errMsg);
+                        ID lastTrigger = FieldAggregation.getLastTrigger();
+                        if (lastTrigger != null) {
+                            errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(lastTrigger) + ")";
+                        }
+
+                        throw new TriggerException(errMsg);
                     }
 
                 } finally {
