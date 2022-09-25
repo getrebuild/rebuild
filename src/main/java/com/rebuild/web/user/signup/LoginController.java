@@ -56,8 +56,6 @@ import java.util.Map;
 @RequestMapping("/user/")
 public class LoginController extends LoginAction {
 
-    public static final String PREFIX_2FA = "2FA";
-
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
