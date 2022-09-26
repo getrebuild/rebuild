@@ -58,11 +58,6 @@ import java.util.*;
 public class FieldWriteback extends FieldAggregation {
 
     /**
-     * 更新自己
-     */
-    public static final String SOURCE_SELF = "$PRIMARY$";
-
-    /**
      * 设：线索1、客户N（即 1 <:> N）
      * 当线索作为目标，客户作为源时，更新客户时只会更新 1 个线索（one2one）
      * 当客户作为目标，线索作为源时，更新线索时会更新 N 个客户
