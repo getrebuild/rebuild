@@ -79,7 +79,7 @@ class ApprovalEdit extends ConfigFormDlg {
               <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
                 {(this.state.entities || []).map((item) => {
                   return (
-                    <option key={'e-' + item.name} value={item.name}>
+                    <option key={`e-${item.name}`} value={item.name}>
                       {item.label}
                     </option>
                   )
@@ -114,6 +114,12 @@ class ApprovalEdit extends ConfigFormDlg {
   componentDidMount() {
     super.componentDidMount()
     if (this.props.id) $(this._tooltip).tooltip()
+
+    let e = $('.aside-tree li.active>a').attr('href')
+    e = e ? e.split('=')[1] : null
+    if (e) {
+      setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
+    }
   }
 
   confirm = () => {
@@ -138,7 +144,7 @@ class ApprovalEdit extends ConfigFormDlg {
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) dlgActionAfter(this)
-        else location.href = 'approval/' + res.data.id
+        else location.href = `approval/${res.data.id}`
       } else {
         RbHighbar.error(res.error_msg)
       }

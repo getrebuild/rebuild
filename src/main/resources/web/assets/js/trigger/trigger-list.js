@@ -229,6 +229,13 @@ class TriggerEdit extends ConfigFormDlg {
         this.__select2.push(s2se)
 
         s2ot.trigger('change')
+
+        // #3
+        let e = $('.aside-tree li.active>a').attr('href')
+        e = e ? e.split('=')[1] : null
+        if (e) {
+          setTimeout(() => $(this._$sourceEntity).val(e).trigger('change'), 300)
+        }
       })
     })
   }

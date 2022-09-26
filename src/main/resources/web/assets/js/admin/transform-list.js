@@ -138,6 +138,12 @@ class TransformEditor extends ConfigFormDlg {
           allowClear: false,
         })
       })
+
+      let e = $('.aside-tree li.active>a').attr('href')
+      e = e ? e.split('=')[1] : null
+      if (e) {
+        $(this._source).val(e).trigger('change')
+      }
     })
   }
 
