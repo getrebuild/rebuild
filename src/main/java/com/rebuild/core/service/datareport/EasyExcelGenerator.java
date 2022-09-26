@@ -128,7 +128,7 @@ public class EasyExcelGenerator extends SetUser {
     protected List<Map<String, Object>> buildData() {
         Entity entity = MetadataHelper.getEntity(this.recordId.getEntityCode());
 
-        TemplateExtractor templateExtractor = new TemplateExtractor(this.template, true);
+        TemplateExtractor templateExtractor = new TemplateExtractor(this.template);
         Map<String, String> varsMap = templateExtractor.transformVars(entity);
 
         Map<String, String> varsMapOfMain = new HashMap<>();
