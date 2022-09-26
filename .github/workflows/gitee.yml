@@ -1,0 +1,19 @@
+name: Gitee repos mirror
+
+on: [push]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hub Mirror Action.
+        uses: Yikun/hub-mirror-action@v1.1
+        with:
+          src: github/getrebuild
+          dst: gitee/getrebuild
+          dst_key: ${{ secrets.GITEE_PRIVATEKEY }}
+          dst_token: ${{ secrets.GITEE_TOKEN }}
+          account_type: user
+          white_list: 'rebuild,rebuild-datas'
+          force_update: false
+          debug: true
