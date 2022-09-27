@@ -13,6 +13,9 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.ExcelUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,9 +54,10 @@ public class DataFileParser {
     }
 
     /**
-     * 此方法性能较低，与 {@link #parse()} 差不多
+     * 此方法性能较低
      *
      * @return
+     * @see #parse()
      */
     public int getRowsCount() {
         return parse().size();
@@ -84,7 +88,12 @@ public class DataFileParser {
      */
     private List<Cell[]> parseCsv(int maxRows) {
         final List<Cell[]> rows = new ArrayList<>();
-        try (CSVReader csvReader = new CSVReader(this.sourceFile, this.encoding)) {
+
+        // GBK/UTF-8
+        String enc = getFileCharsetName(this.sourceFile);
+        if (!"GBK".equals(enc)) enc = this.encoding;
+
+        try (CSVReader csvReader = new CSVReader(this.sourceFile, enc)) {
             while (csvReader.hasNext()) {
                 rows.add(csvReader.next());
                 if (rows.size() >= maxRows) {
@@ -93,5 +102,27 @@ public class DataFileParser {
             }
         }
         return rows;
+    }
+
+    private static String getFileCharsetName(File file) {
+        String name = "GBK";  // GB2312/ANSI
+        try (InputStream is = Files.newInputStream(file.toPath())) {
+            byte[] head = new byte[3];
+            int r = is.read(head);
+            if (r == -1) return name;
+
+            if (head[0] == -1 && head[1] == -2) {  // 0xFFFE
+                name = "UTF-16";
+            } else if (head[0] == -2 && head[1] == -1) {  // 0xFEFF
+                name = "Unicode";  // UCS2-Big-Endian/UCS2-Little-Endian
+            } else if (head[0] == -27 && head[1] == -101 && head[2] == -98) {
+                name = "UTF-8";  // UTF-8
+            } else if (head[0] == -17 && head[1] == -69 && head[2] == -65) {
+                name = "UTF-8"; // UTF-8-BOM
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return name;
     }
 }

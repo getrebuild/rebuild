@@ -53,7 +53,7 @@ public class UserImporter extends HeavyTask<Integer> {
 
     @Override
     protected Integer exec() {
-        final List<Cell[]> data = ExcelUtils.readExcel(useFile, -1, false);
+        final List<Cell[]> data = ExcelUtils.readExcel(useFile, ExcelUtils.MAX_UNLIMIT, false);
         this.setTotal(data.size());
 
         for (Cell[] row : data) {

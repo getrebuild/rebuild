@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -113,7 +114,7 @@ public class CommonsUtils {
      */
     public static String getStringOfRes(String file) {
         try (InputStream is = getStreamOfRes(file)) {
-            return IOUtils.toString(is, AppUtils.UTF8);
+            return IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             log.error("Cannot load file of res : " + file);
             return null;
