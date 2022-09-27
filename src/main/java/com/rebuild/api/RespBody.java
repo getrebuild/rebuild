@@ -37,13 +37,11 @@ public class RespBody implements JSONable {
 
     @Override
     public JSON toJSON() {
-        JSONObject result = JSONUtils.toJSONObject(
+        JSONObject res = JSONUtils.toJSONObject(
                 new String[]{"error_code", "error_msg"},
                 new Object[]{getErrorCode(), getErrorMsg()});
-        if (getData() != null) {
-            result.put("data", getData());
-        }
-        return result;
+        if (getData() != null) res.put("data", getData());
+        return res;
     }
 
     @Override

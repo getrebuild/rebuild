@@ -155,16 +155,17 @@ public class RobotTriggerObserver extends OperatingObserver {
                 log.info(w);
 
                 try {
-                    Object ret = action.execute(context);
-                    System.out.println("[dev] " + w + " > " + (ret == null ? "N" : ret));
+                    Object res = action.execute(context);
+                    System.out.println("[dev] " + w + " > " + (res == null ? "N" : res));
 
-                    String logContent = ret == null ? null : ret.toString();
-                    if (originTriggerSource) {
-                        if (logContent != null) logContent += "; ";
-                        logContent += "chain:" + getTriggerSource();
+                    if (res instanceof TriggerResult) {
+                        if (originTriggerSource) {
+                            ((TriggerResult) res).setChain(getTriggerSource());
+                        }
+
+                        CommonsLog.createLog(TYPE_TRIGGER,
+                                context.getOperator(), action.getActionContext().getConfigId(), res.toString());
                     }
-                    CommonsLog.createLog(TYPE_TRIGGER,
-                            context.getOperator(), action.getActionContext().getConfigId(), logContent);
 
                 } catch (Throwable ex) {
 

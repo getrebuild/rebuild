@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -21,9 +22,10 @@ import org.apache.commons.lang3.ObjectUtils;
  * @author RB
  * @since 2022/4/27
  */
+@Slf4j
 public class CommonsLog {
 
-    public static final int STATUS_OK = 1;  // def
+    public static final int STATUS_OK = 1;  // default
     public static final int STATUS_ERROR = 2;
 
     public static final String TYPE_TRIGGER = "TRIGGER";
@@ -57,14 +59,20 @@ public class CommonsLog {
      * @param status
      */
     public static void createLog(String type, ID user, ID source, String content, int status) {
-        Record log = EntityHelper.forNew(EntityHelper.CommonsLog, user);
-        log.setString("type", type);
-        log.setID("user", user);
-        log.setID("source", ObjectUtils.defaultIfNull(source, user));
-        log.setInt("status", status);
-        log.setDate("logTime", CalendarUtils.now());
-        if (content != null) log.setString("logContent", content);
+        Record clog = EntityHelper.forNew(EntityHelper.CommonsLog, user);
+        clog.setString("type", type);
+        clog.setID("user", user);
+        clog.setID("source", ObjectUtils.defaultIfNull(source, user));
+        clog.setInt("status", status);
+        clog.setDate("logTime", CalendarUtils.now());
+        if (content != null) clog.setString("logContent", content);
 
-        ThreadPool.exec(() -> Application.getCommonsService().create(log));
+        ThreadPool.exec(() -> {
+            try {
+                Application.getCommonsService().create(clog);
+            } catch (Throwable ex) {
+                log.error("Cannot create common-log: {}", clog, ex);
+            }
+        });
     }
 }

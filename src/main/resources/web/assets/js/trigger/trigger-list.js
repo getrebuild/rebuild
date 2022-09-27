@@ -16,6 +16,7 @@ const RBV_TRIGGERS = {
   'AUTOTRANSFORM': $L('自动记录转换'),
   'DATAVALIDATE': $L('数据校验'),
   'AUTOREVOKE': $L('自动撤销'),
+  'AUTODELETE': $L('自动删除'),
 }
 
 const WHENS = {
@@ -229,6 +230,13 @@ class TriggerEdit extends ConfigFormDlg {
         this.__select2.push(s2se)
 
         s2ot.trigger('change')
+
+        // #3
+        let e = $('.aside-tree li.active>a').attr('href')
+        e = e ? e.split('=')[1] : null
+        if (e) {
+          setTimeout(() => $(this._$sourceEntity).val(e).trigger('change'), 300)
+        }
       })
     })
   }

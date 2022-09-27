@@ -230,6 +230,8 @@ const step3_import_cancel = () => {
   })
 }
 
+const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
 // 渲染字段映射
 const _fieldsMapping = (columns, fields) => {
   const canNullText = ` [${$L('必填')}]`
@@ -246,7 +248,7 @@ const _fieldsMapping = (columns, fields) => {
   const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
     const $tr = $(`<tr data-col="${idx}"></tr>`).appendTo($tbody)
-    $(`<td><em>#${idx + 1}</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
+    $(`<td><em>${_LETTERS[idx] || _LETTERS[idx - 26]}1</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)
     const $td = $('<td></td>').appendTo($tr)
     const $clone = $fieldSelect.clone().appendTo($td)
     $('<td class="pl-3"></td>').appendTo($tr)

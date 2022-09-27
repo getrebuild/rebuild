@@ -507,3 +507,7 @@ input.form-control-sm,
 select.form-control-sm {
   max-width: 485px;
 }
+
+.alert-mb-0 > .alert {
+  margin-bottom: 0;
+}

@@ -18,6 +18,11 @@ import com.rebuild.core.service.general.OperatingContext;
  */
 public abstract class TriggerAction {
 
+    /**
+     * 自己
+     */
+    public static final String SOURCE_SELF = "$PRIMARY$";
+
     final protected ActionContext actionContext;
 
     protected TriggerAction(ActionContext actionContext) {

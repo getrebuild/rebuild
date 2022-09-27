@@ -31,12 +31,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ExcelUtils {
 
+    public static final int MAX_UNLIMIT = -1;
+
     /**
      * @param excel
      * @return
      */
     public static List<Cell[]> readExcel(File excel) {
-        return readExcel(excel, -1, true);
+        return readExcel(excel, MAX_UNLIMIT, true);
     }
 
     /**
