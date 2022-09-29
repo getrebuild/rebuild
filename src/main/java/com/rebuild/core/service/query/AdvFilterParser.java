@@ -341,9 +341,11 @@ public class AdvFilterParser extends SetUser {
             }
 
         } else if (dt == DisplayType.MULTISELECT) {
-            // 多选的包含/不包含要按位计算
-            if (ParseHelper.IN.equalsIgnoreCase(op) || ParseHelper.NIN.equalsIgnoreCase(op)) {
-                op = ParseHelper.IN.equalsIgnoreCase(op) ? ParseHelper.BAND : ParseHelper.NBAND;
+            if (ParseHelper.IN.equalsIgnoreCase(op) || ParseHelper.NIN.equalsIgnoreCase(op)
+                    || ParseHelper.EQ.equalsIgnoreCase(op) || ParseHelper.NEQ.equalsIgnoreCase(op)) {
+                // 多选的包含/不包含要按位计算
+                if (ParseHelper.IN.equalsIgnoreCase(op)) op = ParseHelper.BAND;
+                else if (ParseHelper.NIN.equalsIgnoreCase(op)) op = ParseHelper.NBAND;
 
                 long maskValue = 0;
                 for (String s : value.split("\\|")) {

@@ -203,6 +203,15 @@ class ContentGroupAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$forceUpdate = c)} />
+                  <span className="custom-control-label">
+                    {$L('允许强制更新')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('强制更新只读记录')} />
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -255,6 +264,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     if (content) {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       this.saveAdvFilter(content.dataFilter)
     } else {
       $(this._$autoCreate).attr('checked', true)
@@ -268,6 +278,8 @@ class ContentGroupAggregation extends ActionContentSpec {
     this.setState({ items: [], groupFields: [], fillbackFields: [] })
 
     $.get(`/admin/robot/trigger/group-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
+
       const fb = this.__sourceGroupFieldsCache.filter((x) => x[2] === `REFERENCE:${te}`)
       this.setState({ fillbackFields: fb }, () => {
         $(this._$fillbackField).val(null).trigger('change')
@@ -438,6 +450,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       dataFilter: this._advFilter__data,
       autoCreate: $(this._$autoCreate).prop('checked'),
       readonlyFields: $(this._$readonlyFields).prop('checked'),
+      forceUpdate: $(this._$forceUpdate).prop('checked'),
       groupFields: this.state.groupFields || [],
       fillbackField: $(this._$fillbackField).val() || null,
     }

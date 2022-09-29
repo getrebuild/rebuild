@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
+import cn.devezhao.persist4j.exception.jdbc.ConstraintViolationException;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +41,8 @@ public class KnownExceptionConverter {
             return Language.L("字段长度超出限制");
         } else if (cause instanceof SQLException && StringUtils.countMatches(exMsg, "\\x") >= 4) {  // mb4
             return Language.L("数据库编码不支持 4 字节编码");
+        } else if (ex instanceof ConstraintViolationException) {
+            return Language.L("字段违反唯一性约束");
         }
 
         return null;
