@@ -424,6 +424,9 @@ class FilterItem extends React.Component {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
       op = ['IN', 'NIN']
+      if (fieldType === 'MULTISELECT') {
+        op.push('EQ', 'NEQ')
+      }
     } else if (fieldType === 'REFERENCE') {
       if (this.isBizzField('User')) {
         op = ['IN', 'NIN', 'SFU', 'SFB', 'SFT']
