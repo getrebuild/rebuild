@@ -39,6 +39,9 @@ import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -109,7 +112,10 @@ public class Field2Schema extends SetUser {
         Field field = createUnsafeField(
                 entity, fieldName, fieldLabel, type, true, true, true, true, true, comments, refEntity, null, extConfig, null);
 
-        boolean schemaReady = schema2Database(entity, new Field[]{field});
+        Collection<String> uniqueKeyFields = null;
+        if (type == DisplayType.SERIES) uniqueKeyFields = Collections.singletonList(field.getName());
+
+        boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields);
         if (!schemaReady) {
             Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
@@ -174,8 +180,19 @@ public class Field2Schema extends SetUser {
      * @param entity
      * @param fields
      * @return
+     * @see #schema2Database(Entity, Field[], Collection)
      */
     public boolean schema2Database(Entity entity, Field[] fields) {
+        return schema2Database(entity, fields, null);
+    }
+
+    /**
+     * @param entity
+     * @param fields
+     * @param uniqueKeyFields
+     * @return
+     */
+    public boolean schema2Database(Entity entity, Field[] fields, Collection<String> uniqueKeyFields) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         final Table table = new Table(entity, dialect);
         final String alterSql = "alter table `" + entity.getPhysicalName() + "`";
@@ -202,6 +219,13 @@ public class Field2Schema extends SetUser {
             ddl.append("\n  add column ");
             table.generateFieldDDL(field, ddl);
             ddl.append(",");
+
+            // v3.1 自动编号唯一索引
+            if (uniqueKeyFields != null && uniqueKeyFields.contains(field.getName())) {
+                // 删除时无需处理索引，因为 MySQL 会自动删除
+                // https://dev.mysql.com/doc/refman/5.6/en/alter-table.html
+                ddl.append(MessageFormat.format("\n  add unique index UIX999_{0} ({0}),", field.getPhysicalName()));
+            }
         }
         ddl.deleteCharAt(ddl.length() - 1);
 
