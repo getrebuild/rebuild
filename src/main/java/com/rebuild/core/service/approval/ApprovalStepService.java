@@ -36,6 +36,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -172,11 +173,14 @@ public class ApprovalStepService extends InternalPersistService {
         final ID approver = UserContextHolder.getUser();
 
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+        String remark = stepRecord.getString("remark");
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
             String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
                     submitter, entityLabel, approver, Language.L(state));
+            if (StringUtils.isNotBlank(remark)) ccMsg += "\n > " + remark;
+
             for (ID c : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, recordId));
             }
@@ -198,7 +202,7 @@ public class ApprovalStepService extends InternalPersistService {
                 recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
                 super.update(recordOfMain);
 
-                createBackedNodes(currentNode, nextNode, recordId, approvalId, approver);
+                createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
             }
             // 驳回
             else {
@@ -206,6 +210,7 @@ public class ApprovalStepService extends InternalPersistService {
                 super.update(recordOfMain);
 
                 String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
+                if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
 
                 execTriggers(recordOfMain, TriggerWhen.REJECTED);
@@ -498,11 +503,14 @@ public class ApprovalStepService extends InternalPersistService {
     }
 
     /**
+     * @param currentNode
      * @param rejectNode
      * @param recordId
      * @param approvalId
+     * @param approver
+     * @param remark
      */
-    private void createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver) {
+    private void createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver, String remark) {
         // 1.最近提交的
         Object[] lastRoot = Application.createQueryNoFilter(
                 "select createdOn from RobotApprovalStep where prevNode = 'ROOT' and recordId = ? and approvalId = ? order by createdOn desc")
@@ -542,6 +550,7 @@ public class ApprovalStepService extends InternalPersistService {
             // 通知退回
             if (!(Boolean) o[1]) {
                 String rejectedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审核", o[0], entityLabel);
+                if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], rejectedMsg, recordId));
             }
 
