@@ -292,17 +292,4 @@ public class FieldAggregation extends TriggerAction {
         TRIGGER_CHAIN.remove();
         return o;
     }
-
-    /**
-     * 触发链最后一个触发器
-     *
-     * @return
-     */
-    public static ID getLastTrigger() {
-        List<String> chain = TRIGGER_CHAIN.get();
-        if (chain == null) return null;
-
-        String t = chain.get(chain.size() - 1);
-        return ID.valueOf(t.split(":")[0]);
-    }
 }

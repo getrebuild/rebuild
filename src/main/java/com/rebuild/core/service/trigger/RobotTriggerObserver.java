@@ -184,10 +184,9 @@ public class RobotTriggerObserver extends OperatingObserver {
                         if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
 
                         errMsg = Language.L("触发器执行失败 : %s", errMsg);
-                        ID lastTrigger = FieldAggregation.getLastTrigger();
-                        if (lastTrigger != null) {
-                            errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(lastTrigger) + ")";
-                        }
+
+                        ID errTrigger = action.getActionContext().getConfigId();
+                        errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(errTrigger) + ")";
 
                         throw new TriggerException(errMsg);
                     }
