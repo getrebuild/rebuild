@@ -561,7 +561,7 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 
-  // Qiniu
+  // Qiniu-Cloud
   if (window.qiniu && rb.storageUrl && !local) {
     $input.on('change', function () {
       for (var i = 0; i < this.files.length; i++) {
@@ -569,7 +569,7 @@ var $createUploader = function (input, next, complete, error) {
       }
     })
   }
-  // Local
+  // Local-Disk
   else {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({

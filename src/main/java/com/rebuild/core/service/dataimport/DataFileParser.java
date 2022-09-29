@@ -104,7 +104,8 @@ public class DataFileParser {
         return rows;
     }
 
-    private static String getFileCharsetName(File file) {
+    // 获知文件编码
+    private String getFileCharsetName(File file) {
         String name = "GBK";  // GB2312/ANSI
         try (InputStream is = Files.newInputStream(file.toPath())) {
             byte[] head = new byte[3];
