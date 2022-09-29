@@ -227,7 +227,7 @@ var _initNav = function () {
     })
     $('.sidebar-elements>li>a').tooltip('disable')
   } else {
-    const $el = $('.rb-collapsible-sidebar')
+    var $el = $('.rb-collapsible-sidebar')
     if (!$el.hasClass('rb-collapsible-sidebar-collapsed')) {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
@@ -531,41 +531,47 @@ var $createUploader = function (input, next, complete, error) {
   if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
+  var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
 
-  if (window.qiniu && rb.storageUrl && !local) {
-    $input.on('change', function () {
-      var file = this.files[0]
-      if (!file) return
-
-      var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
-      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
-        var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
-        o.subscribe({
-          next: function (res) {
-            typeof next === 'function' && next({ percent: res.total.percent, file: file })
-          },
-          error: function (err) {
-            var msg = (err.message || err.error || 'UnknowError').toUpperCase()
-            if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.create($L('请上传图片'))
-            } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('超出文件大小限制'))
-            } else {
-              RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
-            }
-            console.log('Upload error:', err)
-            typeof error === 'function' && error({ error: msg, file: file })
-            return false
-          },
-          complete: function (res) {
-            if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
-            typeof complete === 'function' && complete({ key: res.key, file: file })
-          },
-        })
+  function _qiniuUpload(file) {
+    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+      o.subscribe({
+        next: function (res) {
+          typeof next === 'function' && next({ percent: res.total.percent, file: file })
+        },
+        error: function (err) {
+          var msg = (err.message || err.error || 'UnknowError').toUpperCase()
+          if (imgOnly && msg.contains('FILE TYPE')) {
+            RbHighbar.create($L('请上传图片'))
+          } else if (msg.contains('EXCEED FSIZELIMIT')) {
+            RbHighbar.create($L('超出文件大小限制'))
+          } else {
+            RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
+          }
+          console.log('Upload error:', err)
+          typeof error === 'function' && error({ error: msg, file: file })
+          return false
+        },
+        complete: function (res) {
+          if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
+          typeof complete === 'function' && complete({ key: res.key, file: file })
+        },
       })
     })
-  } else {
-    const idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
+  }
+
+  // Qiniu
+  if (window.qiniu && rb.storageUrl && !local) {
+    $input.on('change', function () {
+      for (var i = 0; i < this.files.length; i++) {
+        _qiniuUpload(this.files[i])
+      }
+    })
+  }
+  // Local
+  else {
+    var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
@@ -611,7 +617,7 @@ var $initUploader = $createUploader
  */
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
-  const $c = container[0] ? container : $(container)
+  var $c = container[0] ? container : $(container)
   setTimeout(function () {
     ReactDOM.unmountComponentAtNode($c[0])
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
@@ -632,7 +638,7 @@ var $initReferenceSelect2 = function (el, options) {
       delay: 300,
       data: function (params) {
         search_input = params.term
-        const query = {
+        var query = {
           entity: options.entity,
           field: options.name,
           q: params.term,

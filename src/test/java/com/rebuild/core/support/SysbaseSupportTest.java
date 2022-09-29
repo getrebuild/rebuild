@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class SysbaseSupportTest {
 
         File file = new SysbaseSupport().getLogbackFile();
         System.out.println(file + " >> " + file.exists());
-        System.out.println(FileUtils.readFileToString(file));
+        System.out.println(FileUtils.readFileToString(file, AppUtils.UTF8));
     }
 
     @Test

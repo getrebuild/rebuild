@@ -231,7 +231,7 @@ class FileUploadDlg extends RbFormHandler {
               </div>
               <label className="upload-box">
                 {$L('点击选择或拖动文件至此')}
-                <input type="file" ref={(c) => (this._$upload = c)} className="hide" />
+                <input type="file" ref={(c) => (this._$upload = c)} className="hide" multiple />
               </label>
             </div>
           </div>
@@ -253,10 +253,13 @@ class FileUploadDlg extends RbFormHandler {
   componentDidMount() {
     const that = this
 
+    let fixConcurrency = 0
     function fn(file, s) {
+      if (fixConcurrency === 1) return
+      console.log(file.name)
       const files = that.state.files || {}
       files[file.name] = s
-      that.setState({ files: files })
+      that.setState({ files: files }, () => (fixConcurrency = 0))
     }
 
     $createUploader(
