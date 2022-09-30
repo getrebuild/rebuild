@@ -1519,7 +1519,7 @@ class RbFormReference extends RbFormElement {
 
     let $$$parent = this.props.$$$parent
 
-    // v2.10 使用主表单
+    // v2.10 明细中使用主表单
     if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
       $$$parent = $$$parent.props.$$$main
       cascadingField = cascadingField.split('.')[1]
