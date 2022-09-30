@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global detectElement, TYPE_DIVIDER */
 /* eslint-disable no-unused-vars */
 
-// ~~ 高级表格
+// ~~ 表格型表单
 
 const COL_WIDTH = 178 // 48
 const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']

@@ -250,26 +250,59 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
-    function _addNew(n = 1) {
+    function _addNew(n = 1, modal) {
       if (!that._ProTable) return
       for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+        setTimeout(() => {
+          if (modal) that._ProTable.addLine(modal)
+          else that._ProTable.addNew()
+        }, i * 20)
       }
     }
 
+    // 记录转换预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // 明细导入
+    let detailImports = null
+    if (window.FrontJS) {
+      detailImports = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+    }
 
     const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
           <div className="col">
-            <h5 className="mt-3 mb-0 text-bold">
+            <h5 className="mt-3 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
             </h5>
           </div>
           <div className="col text-right">
+            {detailImports && detailImports.length > 0 && (
+              <div className="btn-group mr-2">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <i className="icon mdi mdi-archive-arrow-down-outline"></i> {$L('导入明细')}
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  {detailImports.map((def, idx) => {
+                    return (
+                      <a
+                        key={`import-${idx}`}
+                        className="dropdown-item"
+                        onClick={() => {
+                          const details = def.fetch(this)
+                          details && details.forEach((d) => _addNew(d))
+                        }}>
+                        {def.label}
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="btn-group">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
@@ -416,6 +449,12 @@ class RbForm extends React.Component {
    * @next {Number}
    */
   post(next) {
+    console.log(this.__post)
+    // fix dblclick
+    if (this.__post === 1) return
+    this.__post = 1
+    setTimeout(() => (this.__post = 0), 800)
+
     setTimeout(() => this._post(next), 30)
   }
 
@@ -524,6 +563,7 @@ class RbFormElement extends React.Component {
 
   render() {
     const props = this.props
+    const state = this.state
 
     let colspan = 6 // default
     if (props.colspan === 4 || props.isFull === true) colspan = 12
@@ -539,11 +579,11 @@ class RbFormElement extends React.Component {
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
-          {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
-          {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
+          {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
+          {!props.onView && state.tip && <p className={`form-text ${state.tipForce && 'form-text-force'}`}>{state.tip}</p>}
 
-          {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
-          {editable && this.state.editMode && (
+          {editable && !state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
+          {editable && state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
