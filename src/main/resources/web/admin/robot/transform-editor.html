@@ -49,6 +49,32 @@
       .fields-mapping .row.title2::after {
         border-bottom: 1px solid #dee2e6;
       }
+      #filterFields {
+        padding: 5px 26px 15px;
+        border-radius: 2px;
+        border: 1px solid #eee;
+      }
+      #filterFields .badge {
+        border-radius: 0;
+        padding: 3px 10px;
+        position: relative;
+      }
+      #filterFields .badge::after {
+        position: absolute;
+        width: 0;
+        height: 0;
+        content: '';
+        transform: rotate(45deg);
+        border: 4px solid #fff;
+        top: -4px;
+        right: -4px;
+      }
+      #filterFields .mdi {
+        position: absolute;
+        right: -2px;
+        font-size: 1.25rem;
+        color: #aaa;
+      }
     </style>
   </head>
   <body>
@@ -100,11 +126,30 @@
                   <div class="col-md-12 col-xl-9 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="transformMode" value="2" />
-                      <span class="custom-control-label"> [[${bundle.L('预览模式')}]] </span>
+                      <span class="custom-control-label">[[${bundle.L('预览模式')}]] </span>
                     </label>
-                    <p class="form-text">[[${bundle.L('打开新建页面而非直接转换')}]]</p>
+                    <p class="form-text">[[${bundle.L('打开新建页面而非直接转换，可在新建页面补充信息后再保存')}]]</p>
                   </div>
                 </div>
+                <th:block th:if="${targetIsDetail}">
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+                    <div class="col-md-12 col-xl-9 col-lg-8">
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                        <input class="custom-control-input" type="checkbox" id="importsMode" value="2" />
+                        <span class="custom-control-label">[[${bundle.L('启用明细记录导入')}]] <sup class="rbv"></sup></span>
+                      </label>
+                      <p class="form-text">[[${bundle.L('通过此记录转换规则进行明细记录批量导入/添加')}]]</p>
+                    </div>
+                  </div>
+                  <div class="form-group row hide">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+                    <div class="col-md-12 col-xl-9 col-lg-8">
+                      <h5 class="mt-0 text-bold">[[${bundle.L('明细记录导入条件')}]]</h5>
+                      <div id="filterFields" style="max-width: 1000px">HOLD</div>
+                    </div>
+                  </div>
+                </th:block>
                 <div class="form-group row footer">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
                   <div class="col-md-12 col-xl-9 col-lg-8">

@@ -29,7 +29,6 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 

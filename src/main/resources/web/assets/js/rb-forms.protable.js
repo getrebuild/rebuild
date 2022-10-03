@@ -208,6 +208,37 @@ class ProTable extends React.Component {
 
     return datas
   }
+
+  // --
+
+  /**
+   * 导入明细
+   * @param {*} transid
+   * @param {*} form
+   * @param {*} callback
+   * @returns
+   */
+  static detailImports(transid, form, callback) {
+    const formdata = {}
+    for (let key in form.refs) {
+      if (!key.startsWith('fieldcomp-')) continue
+
+      const fieldComp = form.refs[key]
+      let v = fieldComp.getValue()
+      if (typeof v === 'object') v = v.id
+      if (v) formdata[fieldComp.props.field] = v
+    }
+
+    const mainid = form.props.id || null
+    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+      if (res.error_code === 0) {
+        if ((res.data || []).length === 0) RbHighbar.create($L('无可导入的明细记录'))
+        else typeof callback === 'function' && callback(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
 }
 
 class InlineForm extends RbForm {

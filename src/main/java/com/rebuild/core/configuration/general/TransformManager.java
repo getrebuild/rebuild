@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class TransformManager implements ConfigManager {
 
     /**
      * @param configId
-     * @param sourceEntity
+     * @param sourceEntity [可选]
      * @return
      */
     public ConfigBean getTransformConfig(ID configId, String sourceEntity) {
@@ -96,7 +97,7 @@ public class TransformManager implements ConfigManager {
 
     @SuppressWarnings("unchecked")
     public List<ConfigBean> getRawTransforms(String sourceEntity) {
-        final String cKey = "TransformManager2.2-" + sourceEntity;
+        final String cKey = "TransformManager31-" + sourceEntity;
         Object cached = Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return (List<ConfigBean>) cached;
@@ -109,12 +110,15 @@ public class TransformManager implements ConfigManager {
 
         ArrayList<ConfigBean> entries = new ArrayList<>();
         for (Object[] o : array) {
+            String name = (String) o[5];
+            if (StringUtils.isBlank(name)) name = EasyMetaFactory.getLabel((String) o[1]);
+
             ConfigBean entry = new ConfigBean()
                     .set("source", o[0])
                     .set("target", o[1])
                     .set("id", o[2])
                     .set("disabled", ObjectUtils.toBool(o[4], false))
-                    .set("name", o[5]);
+                    .set("name", name);
 
             JSON config = JSON.parseObject((String) o[3]);
             entry.set("config", config);
@@ -138,9 +142,34 @@ public class TransformManager implements ConfigManager {
         return (String) o[0];
     }
 
+    /**
+     * @param targetEntity
+     * @return
+     */
+    public List<Object[]> getDetailImports(String targetEntity) {
+        Object[][] array = Application.createQueryNoFilter(
+                        "select belongEntity,configId from TransformConfig where targetEntity = ? and isDisabled = 'F'")
+                .setParameter(1, targetEntity)
+                .array();
+        if (array.length == 0) return null;
+
+        List<Object[]> imports = new ArrayList<>();
+        for (Object[] o : array) {
+            ConfigBean c = getTransformConfig((ID) o[1], (String) o[0]);
+            JSONObject config = (JSONObject) c.getJSON("config");
+
+            if (config != null && config.getBooleanValue("importsMode")) {
+                String name = c.getString("name");
+                if (StringUtils.isBlank(name)) name = EasyMetaFactory.getLabel(c.getString("target"));
+                imports.add(new Object[]{ c.getID("id"), name });
+            }
+        }
+        return imports;
+    }
+
     @Override
     public void clean(Object cfgid) {
-        String cKey = "TransformManager2.2-" + getBelongEntity((ID) cfgid);
+        final String cKey = "TransformManager31-" + getBelongEntity((ID) cfgid);
         Application.getCommonsCache().evict(cKey);
     }
 }

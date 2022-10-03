@@ -264,9 +264,21 @@ class RbForm extends React.Component {
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
     // 明细导入
-    let detailImports = null
+    let detailImports = []
+    if (this.props.rawModel.detailImports) {
+      this.props.rawModel.detailImports.forEach((item) => {
+        detailImports.push({
+          label: item[1],
+          fetch: (form, callback) => {
+            ProTable.detailImports(item[0], form, callback)
+          },
+        })
+      })
+    }
+
     if (window.FrontJS) {
-      detailImports = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+      if (detailImports2) detailImports.push(...detailImports2)
     }
 
     const NADD = [5, 10, 20]
@@ -283,17 +295,21 @@ class RbForm extends React.Component {
             {detailImports && detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                  <i className="icon mdi mdi-archive-arrow-down-outline"></i> {$L('导入明细')}
+                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
                   {detailImports.map((def, idx) => {
                     return (
                       <a
-                        key={`import-${idx}`}
+                        key={`imports-${idx}`}
                         className="dropdown-item"
                         onClick={() => {
-                          const details = def.fetch(this)
-                          details && details.forEach((d) => _addNew(d))
+                          def.fetch(this, (details) => {
+                            details &&
+                              details.forEach((d, idx) => {
+                                setTimeout(() => _addNew(1, d), idx * 20)
+                              })
+                          })
                         }}>
                         {def.label}
                       </a>
@@ -333,13 +349,19 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const moreActions = []
+    // 添加明细
     if (this.props.rawModel.mainMeta) {
-      moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
-          {$L('保存并继续添加')}
-        </a>
-      )
-    } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
+      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+      if (!previewid) {
+        moreActions.push(
+          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
+            {$L('保存并继续添加')}
+          </a>
+        )
+      }
+    }
+    // 列表页添加
+    else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
