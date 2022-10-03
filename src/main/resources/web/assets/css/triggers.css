@@ -142,6 +142,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.25rem;
 }
 
+.group-aggregation .col-5 > .zmdi.mdi {
+  left: -7px;
+}
+
 .group-aggregation .items > div .col-5 > .zmdi {
   margin-top: 5px;
 }

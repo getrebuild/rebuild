@@ -112,8 +112,9 @@ public class GroupAggregationController extends BaseController {
     }
 
     private String[] buildIfGroupField(EasyField field) {
-        DisplayType dt = field.getDisplayType();
+        if (MetadataHelper.isApprovalField(field.getName())) return null;
 
+        DisplayType dt = field.getDisplayType();
         // 分组字段类型的支持
         boolean allow = dt == DisplayType.TEXT
                 || dt == DisplayType.DATE || dt == DisplayType.DATETIME

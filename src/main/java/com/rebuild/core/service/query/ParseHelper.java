@@ -184,7 +184,7 @@ public class ParseHelper {
      * @param fieldPath
      * @return
      */
-    protected static String useQuickField(Field field, String fieldPath) {
+    protected static String useQuickField(Field field, final String fieldPath) {
         DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
         // 引用字段要保证其兼容 LIKE 条件的语法要求
@@ -240,9 +240,7 @@ public class ParseHelper {
                 Field validField = MetadataHelper.getLastJoinField(entity, field);
                 if (validField != null) {
                     String can = useQuickField(validField, field);
-                    if (can != null) {
-                        usesFields.add(can);
-                    }
+                    if (can != null) usesFields.add(can);
 
                 } else {
                     log.warn("No field found in `quickFields` : " + field + " in " + entity.getName());
@@ -253,7 +251,7 @@ public class ParseHelper {
         if (usesFields.isEmpty()) {
             // 名称字段
             Field nameField = entity.getNameField();
-            String can = useQuickField(nameField, null);
+            String can = useQuickField(nameField, nameField.getName());
             if (can != null) {
                 usesFields.add(can);
             } else {
