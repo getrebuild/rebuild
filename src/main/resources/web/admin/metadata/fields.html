@@ -55,14 +55,14 @@
                 <div class="row rb-datatable-body">
                   <div class="col-sm-12">
                     <div class="rb-loading rb-loading-active data-list">
-                      <table class="table table-hover table-striped" id="dataList">
+                      <table class="table table-hover table-striped tablesort" id="dataList">
                         <thead>
                           <tr>
                             <th width="25%" data-filed="fieldLabel">[[${bundle.L('字段名称')}]]</th>
                             <th width="16%" data-field="fieldName">[[${bundle.L('内部标识')}]]</th>
                             <th width="16%" data-field="displayType">[[${bundle.L('类型')}]]</th>
                             <th data-field="comments">[[${bundle.L('备注')}]]</th>
-                            <th width="50"></th>
+                            <th width="50" class="no-sort"></th>
                           </tr>
                         </thead>
                         <tbody></tbody>
@@ -84,6 +84,7 @@
     </div>
 
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/jquery.tablesort.min.js}"></script>
     <script>
       window.__PageConfig = {
         entityName: '[[${entityName}]]',
@@ -94,31 +95,34 @@
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
     <script type="text/babel">
       const wpc = window.__PageConfig
-      $(document).ready(function () {
+      $(document).ready(() => {
         loadFields()
 
         $('.input-search .btn').on('click', () => __renderList())
-        $('.input-search .form-control').keydown(function (event) {
-          if (event.which === 13) $('.input-search .btn').trigger('click')
+        $('.input-search .form-control').keydown((e) => {
+          if (e.which === 13) $('.input-search .btn').trigger('click')
         })
-        $('.J_new-field').on('click', function () {
+        $('.J_new-field').on('click', () => {
           if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
           else RbHighbar.error($L('仅超级管理员可添加字段'))
         })
       })
 
-      let fields_data
+      let fields_data = []
       const loadFields = function () {
         $.get(`../list-field?entity=${wpc.entityName}&refname=true`, function (res) {
-          fields_data = res.data
+          fields_data = res.data || []
           __renderList()
+
+          $('.tablesort').tablesort()
         })
       }
 
       const __renderList = function () {
         const $tbody = $('#dataList tbody').empty()
         const q = ($val('.input-search .form-control') || '').toLowerCase()
-        $(fields_data || []).each(function (idx, item) {
+
+        $(fields_data).each(function (idx, item) {
           if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
 
           const $tr = $(`<tr data-id="${item.fieldId || ''}"></tr>`).appendTo($tbody)

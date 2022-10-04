@@ -37,6 +37,9 @@
         const entity = $urlp('entity')
         const settingsUrl = `/app/${entity}/list-fields`
 
+        // Hide if bizz
+        if (['User', 'Department', 'Role', 'Team'].includes(entity)) $('#shareTo').addClass('hide')
+
         let overwriteMode = false
         let shareToComp
         let cfgid = $urlp('id')
