@@ -434,7 +434,10 @@ class BatchUpdate extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`/app/${this.props.entity}/batch-update/fields`, (res) => this.setState({ fields: res.data }))
+    $.get(`/app/${this.props.entity}/batch-update/fields`, (res) => {
+      const fields = (res.data || []).filter((x) => !$isSysMask(x.label))
+      this.setState({ fields })
+    })
   }
 
   renderOperator() {
@@ -466,7 +469,7 @@ class BatchUpdate extends BatchOperator {
           <div className="mt-2">
             {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
-              <button className="btn btn-primary btn-sm btn-outline" onClick={this.addItem} type="button">
+              <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
                 + {$L('添加')}
               </button>
             </div>
@@ -476,7 +479,7 @@ class BatchUpdate extends BatchOperator {
     )
   }
 
-  addItem = () => {
+  addItem() {
     const item = this._editor.buildItem()
     if (!item) return
 
@@ -590,7 +593,7 @@ class BatchUpdateEditor extends React.Component {
         allowClear: false,
       })
       .on('change', () => {
-        this.setState({ selectOp: $op2s.val() })
+        this.setState({ selectOp: $op2s.val() }, () => this._renderFieldValueSet())
       })
 
     $field2s.trigger('change')
@@ -637,29 +640,30 @@ class BatchUpdateEditor extends React.Component {
 
   _renderFieldValueSet() {
     if (this.state.selectOp === 'NULL') return null // set Null
+
     const field = this.props.fields.find((x) => this.state.selectField === x.name)
     this.setState({ selectFieldObj: null }, () => this.setState({ selectFieldObj: field }))
   }
 
   buildItem() {
-    const d = {
+    const data = {
       field: this.state.selectField,
       op: this.state.selectOp,
     }
 
     const field = this.props.fields.find((x) => this.state.selectField === x.name)
-    if (d.op === 'NULL') {
+    if (data.op === 'NULL') {
       if (!field.nullable) {
         RbHighbar.create($L('%s 不能为空', field.label))
         return null
       } else {
-        return d
+        return data
       }
     }
 
-    d.value = this._FieldValue.val()
-    if (!d.value) return null
-    else return d
+    data.value = this._FieldValue.val()
+    if (!data.value) return null
+    else return data
   }
 }
 

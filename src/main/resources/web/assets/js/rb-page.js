@@ -968,3 +968,8 @@ var $select2MatcherAll = function (params, data) {
 var $isFullUrl = function (url) {
   return url && (url.startsWith('http://') || url.startsWith('https://'))
 }
+
+// Mask prefix `SYS `
+var $isSysMask = function (label) {
+  return label && (label.startsWith('SYS ') || label.contains('.SYS '))
+}

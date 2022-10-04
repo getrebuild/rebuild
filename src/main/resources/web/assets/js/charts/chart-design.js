@@ -13,6 +13,11 @@ $(document).ready(() => {
   $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
   if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
 
+  $('.fields>li>a').each(function () {
+    const $this = $(this)
+    if ($isSysMask($this.text())) $this.remove()
+  })
+
   // 字段拖动
   let dragIsNum = false
   let dargOnSort = false
