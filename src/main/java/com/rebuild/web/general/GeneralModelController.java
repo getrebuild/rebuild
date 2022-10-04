@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
@@ -40,10 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 表单/视图
@@ -143,9 +141,12 @@ public class GeneralModelController extends EntityController {
 
             // v3.1 明细导入
             if (metaEntity.getDetailEntity() != null) {
-                List<Object[]> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
-                if (imports != null && !imports.isEmpty()) {
-                    ((JSONObject) model).put("detailImports", imports);
+                List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
+                if (!imports.isEmpty()) {
+                    List<Object> detailImports = new ArrayList<>();
+                    for (ConfigBean cb : imports) detailImports.add(cb.toJSON("id", "name"));
+
+                    ((JSONObject) model).put("detailImports", detailImports);
                 }
             }
 

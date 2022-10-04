@@ -268,9 +268,9 @@ class RbForm extends React.Component {
     if (this.props.rawModel.detailImports) {
       this.props.rawModel.detailImports.forEach((item) => {
         detailImports.push({
-          label: item[1],
+          label: item.name,
           fetch: (form, callback) => {
-            ProTable.detailImports(item[0], form, callback)
+            ProTable.detailImports(item.id, form, callback)
           },
         })
       })

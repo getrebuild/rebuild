@@ -22,7 +22,10 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 记录转换
@@ -33,6 +36,9 @@ import java.util.List;
 public class TransformManager implements ConfigManager {
 
     public static final TransformManager instance = new TransformManager();
+
+    // 任何修改都会清空
+    private static final Map<Object, Object> WEAK_CACHED = new ConcurrentHashMap<>();
 
     private TransformManager() { }
 
@@ -79,12 +85,10 @@ public class TransformManager implements ConfigManager {
     /**
      * @param configId
      * @param sourceEntity [可选]
-     * @return
+     * @return Returns clone
      */
     public ConfigBean getTransformConfig(ID configId, String sourceEntity) {
-        if (sourceEntity == null) {
-            sourceEntity = getBelongEntity(configId);
-        }
+        if (sourceEntity == null) sourceEntity = getBelongEntity(configId);
 
         for (ConfigBean c : getRawTransforms(sourceEntity)) {
             if (configId.equals(c.getID("id"))) {
@@ -130,15 +134,19 @@ public class TransformManager implements ConfigManager {
         return entries;
     }
 
+    // 获取源实体/所属实体
     private String getBelongEntity(ID configId) {
+        if (WEAK_CACHED.containsKey(configId)) {
+            return (String) WEAK_CACHED.get(configId);
+        }
+
         Object[] o = Application.createQueryNoFilter(
                 "select belongEntity from TransformConfig where configId = ?")
                 .setParameter(1, configId)
                 .unique();
+        if (o == null) throw new ConfigurationException("No `TransformConfig` found : " + configId);
 
-        if (o == null) {
-            throw new ConfigurationException("No `TransformConfig` found : " + configId);
-        }
+        WEAK_CACHED.put(configId, o[0]);
         return (String) o[0];
     }
 
@@ -146,24 +154,36 @@ public class TransformManager implements ConfigManager {
      * @param targetEntity
      * @return
      */
-    public List<Object[]> getDetailImports(String targetEntity) {
+    public List<ConfigBean> getDetailImports(String targetEntity) {
+        if (WEAK_CACHED.containsKey(targetEntity)) {
+            //noinspection unchecked
+            return (List<ConfigBean>) WEAK_CACHED.get(targetEntity);
+        }
+
         Object[][] array = Application.createQueryNoFilter(
-                        "select belongEntity,configId from TransformConfig where targetEntity = ? and isDisabled = 'F'")
+                "select belongEntity,configId from TransformConfig where targetEntity = ? and isDisabled = 'F'")
                 .setParameter(1, targetEntity)
                 .array();
-        if (array.length == 0) return null;
+        if (array.length == 0) {
+            WEAK_CACHED.put(targetEntity, Collections.emptyList());
+            return Collections.emptyList();
+        }
 
-        List<Object[]> imports = new ArrayList<>();
+        List<ConfigBean> imports = new ArrayList<>();
         for (Object[] o : array) {
             ConfigBean c = getTransformConfig((ID) o[1], (String) o[0]);
             JSONObject config = (JSONObject) c.getJSON("config");
 
             if (config != null && config.getBooleanValue("importsMode")) {
-                String name = c.getString("name");
-                if (StringUtils.isBlank(name)) name = EasyMetaFactory.getLabel(c.getString("target"));
-                imports.add(new Object[]{ c.getID("id"), name });
+                // 无字段映射
+                JSONObject fieldsMapping = config.getJSONObject("fieldsMapping");
+                if (fieldsMapping != null && !fieldsMapping.isEmpty()) {
+                    imports.add(c);
+                }
             }
         }
+
+        WEAK_CACHED.put(targetEntity, imports);
         return imports;
     }
 
@@ -171,5 +191,6 @@ public class TransformManager implements ConfigManager {
     public void clean(Object cfgid) {
         final String cKey = "TransformManager31-" + getBelongEntity((ID) cfgid);
         Application.getCommonsCache().evict(cKey);
+        WEAK_CACHED.clear();
     }
 }
