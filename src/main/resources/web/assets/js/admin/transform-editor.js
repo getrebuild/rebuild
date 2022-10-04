@@ -22,14 +22,14 @@ $(document).ready(() => {
 
   const config = wpc.config || {}
 
-  let fieldsMapping
-  let fieldsMappingDetail
+  let _FieldsMapping
+  let _FieldsMapping2 // 明细
   renderRbcomp(<FieldsMapping source={wpc.sourceEntity} target={wpc.targetEntity} data={config.fieldsMapping} />, 'EMAIN', function () {
-    fieldsMapping = this
+    _FieldsMapping = this
   })
   if (wpc.sourceDetailEntity) {
     renderRbcomp(<FieldsMapping source={wpc.sourceDetailEntity} target={wpc.targetDetailEntity} data={config.fieldsMappingDetail} />, 'EDETAIL', function () {
-      fieldsMappingDetail = this
+      _FieldsMapping2 = this
     })
   }
 
@@ -52,8 +52,23 @@ $(document).ready(() => {
     .val(null)
     .trigger('change')
 
+  let _ImportsFilterMapping
+  $('#importsMode').on('click', function () {
+    if ($val(this)) {
+      $('#filterFields').parents('.form-group').removeClass('hide')
+
+      if (!_ImportsFilterMapping) {
+        renderRbcomp(<ImportsFilterMapping defaultValue={config.importsFilter} />, 'filterFields', function () {
+          _ImportsFilterMapping = this
+        })
+      }
+    } else {
+      $('#filterFields').parents('.form-group').addClass('hide')
+    }
+  })
+
   const $btn = $('.J_save').on('click', function () {
-    const fm = fieldsMapping.buildMapping()
+    const fm = _FieldsMapping.buildMapping()
     if (fm === false) return
     if (!fm) {
       RbHighbar.create($L('请至少添加 1 个字段映射'))
@@ -62,11 +77,13 @@ $(document).ready(() => {
 
     const tips = []
 
-    const fmd = fieldsMappingDetail ? fieldsMappingDetail.buildMapping() : null
+    const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
     if (fmd === false) return
-    if (fieldsMappingDetail && !fmd) {
+    if (_FieldsMapping2 && !fmd) {
       tips.push($L('明细实体未配置字段映射，因此明细记录不会转换'))
     }
+
+    let importsFilter
 
     function _save() {
       const config = {
@@ -75,6 +92,8 @@ $(document).ready(() => {
         fillbackField: $('#fillbackField').val(),
         transformMode: $('#transformMode').prop('checked') ? 2 : 1,
         useFilter: advFilter_data,
+        importsMode: $val('#importsMode'),
+        importsFilter: importsFilter || null,
       }
 
       const _data = {
@@ -104,8 +123,14 @@ $(document).ready(() => {
     for (let k in fmd || {}) {
       if (fmd[k] === null) unset++
     }
-
     if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
+
+    if ($('#importsMode').prop('checked')) {
+      importsFilter = _ImportsFilterMapping.buildFilter()
+      if (importsFilter.length === 0) {
+        tips.push($L('明细记录导入条件未配置，将导入源实体的所有记录'))
+      }
+    }
 
     if (tips.length > 0) {
       RbAlert.create(
@@ -134,6 +159,9 @@ $(document).ready(() => {
     }
     if (config.transformMode === 2) {
       $('#transformMode').attr('checked', true)
+    }
+    if (config.importsMode) {
+      $('#importsMode').trigger('click')
     }
   }, 100)
 })
@@ -310,5 +338,86 @@ function _saveFilter(res) {
     $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
   } else {
     $('#useFilter').text($L('点击设置'))
+  }
+}
+
+class ImportsFilterMapping extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this._defaultValue = {}
+    props.defaultValue &&
+      props.defaultValue.forEach((item) => {
+        this._defaultValue[item[0]] = item[1]
+      })
+  }
+
+  render() {
+    const state = this.state || {}
+    const sourceFields = state.sourceFields || []
+
+    return (
+      <div ref={(c) => (this._$filters = c)}>
+        {(state.targetFields || []).map((item) => {
+          return (
+            <div className="row mt-2" key={item[0]}>
+              <div className="col-4 pt-1">
+                <span className="badge badge-primary" data-field={item[0]}>
+                  <span>{item[1]}</span>
+                </span>
+                <i className="mdi mdi-arrow-left-right" />
+              </div>
+              <div className="col-5">
+                <select className="form-control form-control-sm" defaultValue={this._defaultValue[item[0]] || null}>
+                  <option value="">{$L('无')}</option>
+                  {sourceFields.map((item2) => {
+                    if (item[2] !== item2[2]) return null
+                    return (
+                      <option key={item2[0]} value={item2[0]}>
+                        {item2[1]}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`imports-filter-fields?id=${wpc.configId}`, (res) => {
+      this.setState({ ...res.data })
+
+      $(this._$filters)
+        .find('select')
+        .each(function () {
+          const $this = $(this)
+          $this.on('change', function () {
+            const $mdi = $this.parent().parent().find('.mdi')
+            if ($this.val()) {
+              $mdi.addClass('text-primary')
+            } else {
+              $mdi.removeClass('text-primary')
+            }
+          })
+        })
+        .trigger('change')
+    })
+  }
+
+  buildFilter() {
+    const filters = []
+    $(this._$filters)
+      .find('.row')
+      .each(function () {
+        const $row = $(this)
+        const t = $row.find('.badge').data('field')
+        const s = $row.find('select').val()
+        if (s) filters.push([t, s])
+      })
+    return filters
   }
 }

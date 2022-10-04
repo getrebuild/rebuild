@@ -78,7 +78,7 @@ public class I18nGettextParser extends TestSupport {
             contents.put(text, text);
         }
 
-        FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(contents));
+        FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(contents), AppUtils.UTF8);
         log.info("File write : {} ({})", target.getAbsolutePath(), contents.size());
     }
 

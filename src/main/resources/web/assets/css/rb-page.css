@@ -1275,6 +1275,10 @@ select.form-control:not([disabled]) {
   margin-bottom: 0;
 }
 
+.rbform .form-text.form-text-force {
+  display: block !important;
+}
+
 .rbhighbar {
   position: fixed;
   top: 0;

@@ -29,7 +29,6 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -50,10 +49,10 @@ public class RecordTransfomer extends SetUser {
     final private boolean skipGuard;
 
     /**
-     * @param trnasid
+     * @param transid
      */
-    public RecordTransfomer(ID trnasid) {
-        ConfigBean config = TransformManager.instance.getTransformConfig(trnasid, null);
+    public RecordTransfomer(ID transid) {
+        ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
         this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
         this.transConfig = (JSONObject) config.getJSON("config");
         this.skipGuard = false;

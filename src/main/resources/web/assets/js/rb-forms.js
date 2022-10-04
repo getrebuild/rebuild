@@ -250,26 +250,75 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
-    function _addNew(n = 1) {
+    function _addNew(n = 1, modal) {
       if (!that._ProTable) return
       for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+        setTimeout(() => {
+          if (modal) that._ProTable.addLine(modal)
+          else that._ProTable.addNew()
+        }, i * 20)
       }
     }
 
+    // 记录转换预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // 明细导入
+    let detailImports = []
+    if (this.props.rawModel.detailImports) {
+      this.props.rawModel.detailImports.forEach((item) => {
+        detailImports.push({
+          label: item.name,
+          fetch: (form, callback) => {
+            ProTable.detailImports(item.id, form, callback)
+          },
+        })
+      })
+    }
+
+    if (window.FrontJS) {
+      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+      if (detailImports2) detailImports.push(...detailImports2)
+    }
 
     const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
           <div className="col">
-            <h5 className="mt-3 mb-0 text-bold">
+            <h5 className="mt-3 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
             </h5>
           </div>
           <div className="col text-right">
+            {detailImports && detailImports.length > 0 && (
+              <div className="btn-group mr-2">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  {detailImports.map((def, idx) => {
+                    return (
+                      <a
+                        key={`imports-${idx}`}
+                        className="dropdown-item"
+                        onClick={() => {
+                          def.fetch(this, (details) => {
+                            details &&
+                              details.forEach((d, idx) => {
+                                setTimeout(() => _addNew(1, d), idx * 20)
+                              })
+                          })
+                        }}>
+                        {def.label}
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="btn-group">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
@@ -300,13 +349,19 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const moreActions = []
+    // 添加明细
     if (this.props.rawModel.mainMeta) {
-      moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
-          {$L('保存并继续添加')}
-        </a>
-      )
-    } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
+      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+      if (!previewid) {
+        moreActions.push(
+          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
+            {$L('保存并继续添加')}
+          </a>
+        )
+      }
+    }
+    // 列表页添加
+    else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
@@ -408,6 +463,31 @@ class RbForm extends React.Component {
     return this.refs[`fieldcomp-${field}`] || null
   }
 
+  // 获取当前表单数据
+  getFormData(isAll = true) {
+    const data = {}
+    if (isAll) {
+      // eslint-disable-next-line react/no-string-refs
+      const _refs = this.refs
+      for (let key in _refs) {
+        if (!key.startsWith('fieldcomp-')) continue
+
+        const fieldComp = _refs[key]
+        let v = fieldComp.getValue()
+        if (typeof v === 'object') v = v.id
+        if (v) data[fieldComp.props.field] = v
+      }
+    }
+    // 仅修改的
+    else {
+      for (let k in this.__FormData) {
+        const err = this.__FormData[k].error
+        if (!err) data[k] = this.__FormData[k].value
+      }
+    }
+    return data
+  }
+
   // 保存并添加明细
   static NEXT_ADDDETAIL = 102
   // 保存并打开
@@ -416,6 +496,12 @@ class RbForm extends React.Component {
    * @next {Number}
    */
   post(next) {
+    console.log(this.__post)
+    // fix dblclick
+    if (this.__post === 1) return
+    this.__post = 1
+    setTimeout(() => (this.__post = 0), 800)
+
     setTimeout(() => this._post(next), 30)
   }
 
@@ -524,6 +610,7 @@ class RbFormElement extends React.Component {
 
   render() {
     const props = this.props
+    const state = this.state
 
     let colspan = 6 // default
     if (props.colspan === 4 || props.isFull === true) colspan = 12
@@ -539,11 +626,11 @@ class RbFormElement extends React.Component {
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
-          {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
-          {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
+          {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
+          {!props.onView && state.tip && <p className={`form-text ${state.tipForce && 'form-text-force'}`}>{state.tip}</p>}
 
-          {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
-          {editable && this.state.editMode && (
+          {editable && !state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
+          {editable && state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
@@ -1519,7 +1606,7 @@ class RbFormReference extends RbFormElement {
 
     let $$$parent = this.props.$$$parent
 
-    // v2.10 使用主表单
+    // v2.10 明细中使用主表单
     if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
       $$$parent = $$$parent.props.$$$main
       cascadingField = cascadingField.split('.')[1]

@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global detectElement, TYPE_DIVIDER */
 /* eslint-disable no-unused-vars */
 
-// ~~ 高级表格
+// ~~ 表格型表单
 
 const COL_WIDTH = 178 // 48
 const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
@@ -207,6 +207,29 @@ class ProTable extends React.Component {
     }
 
     return datas
+  }
+
+  // --
+
+  /**
+   * 导入明细
+   * @param {*} transid
+   * @param {*} form
+   * @param {*} callback
+   * @returns
+   */
+  static detailImports(transid, form, callback) {
+    const formdata = form.getFormData()
+    const mainid = form.props.id || null
+
+    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+      if (res.error_code === 0) {
+        if ((res.data || []).length === 0) RbHighbar.create($L('无可导入的明细记录'))
+        else typeof callback === 'function' && callback(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 }
 

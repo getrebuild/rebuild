@@ -100,7 +100,7 @@ public class FormsBuilder extends FormsManager {
             Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
         }
 
-        // 如果明细实体
+        // 明细实体有主实体
         final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
@@ -367,6 +367,7 @@ public class FormsBuilder extends FormsManager {
                     el.put("value", value);
                 }
 
+                // 父级级联
                 ID parentValue = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
                         ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
                 if (parentValue != null) {
@@ -428,6 +429,15 @@ public class FormsBuilder extends FormsManager {
                             || dt == DisplayType.TEXT
                             || dt == DisplayType.NTEXT) {
                         el.put("value", Language.L("自动值"));
+                    }
+                }
+
+                // v3.1 父级级联
+                if (entity.getMainEntity() != null && dt == DisplayType.REFERENCE) {
+                    ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
+                    ID parentValue = getCascadingFieldParentValue(easyField, mainid);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
                     }
                 }
 
@@ -637,10 +647,17 @@ public class FormsBuilder extends FormsManager {
 
         String[] pfs = pf.split(MetadataHelper.SPLITER_RE);
         String fieldParent = pfs[0];
-        // 明细>主实体
+        // 明细级联主实体
         if (pfs[0].contains(".")) {
             Field dtf = MetadataHelper.getDetailToMainField(field.getRawMeta().getOwnEntity());
             fieldParent = dtf.getName() + "." + pfs[0].split("\\.")[1];
+
+            // 明细新建时 record 传入的是主记录
+            int fieldCode = field.getRawMeta().getOwnEntity().getEntityCode();
+            int recordCode = record.getEntityCode();
+            if (fieldCode != recordCode) {
+                fieldParent = pfs[0].split("\\.")[1];
+            }
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);

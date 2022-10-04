@@ -24,6 +24,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -162,7 +163,7 @@ public class TestSupport {
 
         if (!MetadataHelper.containsEntity(Account)) {
             String metaschema = FileUtils.readFileToString(
-                    ResourceUtils.getFile("classpath:schema-Account999.json"));
+                    ResourceUtils.getFile("classpath:schema-Account999.json"), AppUtils.UTF8);
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
             TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
             changed = true;
@@ -170,7 +171,7 @@ public class TestSupport {
 
         if (!MetadataHelper.containsEntity(SalesOrder)) {
             String metaschema = FileUtils.readFileToString(
-                    ResourceUtils.getFile("classpath:schema-SalesOrder999.json"));
+                    ResourceUtils.getFile("classpath:schema-SalesOrder999.json"), AppUtils.UTF8);
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
             TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
             changed = true;

@@ -16,7 +16,7 @@ $(document).ready(() => {
   // 字段拖动
   let dragIsNum = false
   let dargOnSort = false
-  $('.fields a')
+  $('.fields>li>a')
     .draggable({
       helper: 'clone',
       appendTo: 'body',
@@ -73,10 +73,10 @@ $(document).ready(() => {
     }
   })
 
-  const $cts = $('.chart-type > a').on('click', function () {
+  const $types = $('.chart-type > a').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
-    $cts.removeClass('select')
+    $types.removeClass('select')
     $this.addClass('select')
     render_option()
   })
@@ -112,11 +112,16 @@ $(document).ready(() => {
     .find('.zmdi')
     .addClass('zmdi-arrow-left')
 
+  // Load
   if (wpc.chartConfig && wpc.chartConfig.axis) {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
     $(wpc.chartConfig.axis.numerical).each((idx, item) => add_axis('.J_axis-num', item))
     $(`.chart-type>a[data-type="${wpc.chartConfig.type}"]`).trigger('click')
+
     dataFilter = wpc.chartConfig.filter
+    if (dataFilter && (dataFilter.items || []).length > 0) {
+      $('a.J_filter > span:eq(1)').text(`(${dataFilter.items.length})`)
+    }
 
     const option = wpc.chartConfig.option || {}
     for (let k in option) {
@@ -144,7 +149,7 @@ $(document).ready(() => {
   window.onbeforeunload = function () {
     const cfg = build_config()
     if ((!cfg && !wpc.chartId) || $same(cfg, wpc.chartConfig)) return undefined
-    return '关闭提示'
+    return 'CLOSE CONFIRM'
   }
 })
 
@@ -318,11 +323,11 @@ const render_option = () => {
 // 生成预览
 let render_preview_chart = null
 const render_preview = () => {
-  const $fs = $('a.J_filter > span')
+  const $fs = $('a.J_filter > span:eq(1)')
   if (dataFilter && (dataFilter.items || []).length > 0) {
-    $fs.text(`${$L('附加过滤条件')} (${dataFilter.items.length})`)
+    $fs.text(`(${dataFilter.items.length})`)
   } else {
-    $fs.text($L('附加过滤条件'))
+    $fs.text('')
   }
 
   $setTimeout(

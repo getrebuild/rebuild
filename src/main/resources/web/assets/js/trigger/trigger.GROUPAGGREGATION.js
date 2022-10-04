@@ -47,10 +47,10 @@ class ContentGroupAggregation extends ActionContentSpec {
                       <span className="mt-1 d-inline-block" key={item.targetField}>
                         <span className="badge badge-primary badge-close m-0 mr-1">
                           <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
-                          <i className="zmdi zmdi-swap ml-2 mr-2" />
+                          <i className="mdi mdi-arrow-left-right ml-2 mr-2" />
                           <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
-                          <a className="close" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
-                            <i className="zmdi zmdi-close" />
+                          <a className="close down-1" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
+                            <i className="mdi mdi-close" />
                           </a>
                         </span>
                       </span>
@@ -74,7 +74,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                   <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-5">
-                  <i className="zmdi zmdi-swap" />
+                  <i className="zmdi mdi mdi-arrow-left-right" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$sourceGroupField = c)}>
                     {(this.state.sourceGroupFields || []).map((item) => {
                       return (

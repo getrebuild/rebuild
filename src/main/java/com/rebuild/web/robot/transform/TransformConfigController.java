@@ -10,8 +10,10 @@ package com.rebuild.web.robot.transform;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
@@ -23,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 记录转换配置
@@ -89,7 +94,60 @@ public class TransformConfigController extends BaseController {
 
         mv.getModelMap().put("name", config.getString("name"));
 
+        // v3.1 明细导入
+        if (targetEntity.getMainEntity() != null) {
+            mv.getModelMap().put("targetIsDetail", true);
+        }
+
         return mv;
+    }
+
+    @GetMapping("transform/imports-filter-fields")
+    public RespBody getImportsFilterFields(@IdParam ID configId) {
+        ConfigBean cb = TransformManager.instance.getTransformConfig(configId, null);
+
+        Entity sourceEntity = MetadataHelper.getEntity(cb.getString("source"));
+        Entity targetEntity = MetadataHelper.getEntity(cb.getString("target"));
+        Entity sourceEntityMain = sourceEntity.getMainEntity();
+        Entity targetEntityMain = targetEntity.getMainEntity();
+
+        // 1. 源
+        List<String[]> allowedSourceFields = new ArrayList<>();
+        for (Field field : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            String type = "REFERENCE:" + field.getReferenceEntity().getName();
+            allowedSourceFields.add(new String[]{ field.getName(), EasyMetaFactory.getLabel(field), type });
+        }
+        if (sourceEntityMain != null) {
+            Field dtmfField = MetadataHelper.getDetailToMainField(sourceEntity);
+            String namePrefix = dtmfField.getName() + ".";
+            String labelPrefix = EasyMetaFactory.getLabel(dtmfField) + ".";
+
+            for (Field field : MetadataSorter.sortFields(sourceEntityMain, DisplayType.REFERENCE)) {
+                String type = "REFERENCE:" + field.getReferenceEntity().getName();
+                allowedSourceFields.add(new String[]{
+                        namePrefix + field.getName(), labelPrefix + EasyMetaFactory.getLabel(field), type });
+            }
+        }
+
+        // 2.目标
+        List<String[]> allowedTargetFields = new ArrayList<>();
+
+        Field dtmfField = MetadataHelper.getDetailToMainField(targetEntity);
+        String namePrefix = dtmfField.getName() + ".";
+        String labelPrefix = EasyMetaFactory.getLabel(dtmfField) + ".";
+
+        for (Field field : MetadataSorter.sortFields(targetEntityMain, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isCommonsField(field)) continue;
+
+            String type = "REFERENCE:" + field.getReferenceEntity().getName();
+            allowedTargetFields.add(new String[]{ namePrefix + field.getName(),
+                    labelPrefix + EasyMetaFactory.getLabel(field), type });
+        }
+
+        JSON res = JSONUtils.toJSONObject(
+                new String[] { "sourceFields", "targetFields" },
+                new Object[] { allowedSourceFields, allowedTargetFields });
+        return RespBody.ok(res);
     }
 
     private JSONObject buildEntity(Entity entity, boolean sourceTyp) {

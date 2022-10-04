@@ -199,10 +199,14 @@ class ChartTable extends BaseChart {
         $(this).addClass('active')
       })
 
-      $tb.find('tbody td>a').each(function () {
-        const $a = $(this)
-        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}` })
-      })
+      if (window.render_preview_chart) {
+        $tb.find('tbody td>a').removeAttr('href')
+      } else {
+        $tb.find('tbody td>a').each(function () {
+          const $a = $(this)
+          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}` })
+        })
+      }
 
       this._$tb = $tb
     })

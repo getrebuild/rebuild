@@ -80,13 +80,13 @@ public class ModelExtrasController extends BaseController {
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
 
-            String detail = ex.getLocalizedMessage();
+            String error = ex.getLocalizedMessage();
             if (ex instanceof RepeatedRecordsException) {
-                detail = Language.L("存在重复记录");
+                error = Language.L("存在重复记录");
             }
 
             return RespBody.errorl("记录转换失败 (%s)",
-                    StringUtils.defaultString(detail, ex.getClass().getSimpleName()));
+                    StringUtils.defaultString(error, ex.getClass().getSimpleName()));
         }
     }
 

@@ -17,16 +17,15 @@
               <h5>[[${bundle.L('数据来源')}]]</h5>
               <ul class="list-unstyled esource">
                 <li>
-                  <a>
+                  <span>
                     <i class="zmdi icon" th:classappend="|zmdi-${entityIcon}|"></i>
                     [[${entityLabel}]]
-                    <span class="J_filter" th:title="${bundle.L('附加过滤条件')}"><i class="zmdi zmdi-filter-list"></i></span>
-                  </a>
+                  </span>
                 </li>
               </ul>
             </div>
             <div class="data-info J_fields">
-              <h5>[[${bundle.L('字段')}]]</h5>
+              <h5>[[${bundle.L('可用字段')}]]</h5>
               <ul class="list-unstyled fields">
                 <th:block th:each="field : ${availableFields}">
                   <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}">[[${field[1]}]]</a></li>
@@ -73,6 +72,7 @@
                     <a class="J_filter" href="javascript:;">
                       <i class="zmdi zmdi-filter-list down-2" style="font-size: 1.43rem; width: 22px; padding-left: 2px; color: #888"></i>
                       <span>[[${bundle.L('附加过滤条件')}]]</span>
+                      <span></span>
                     </a>
                   </label>
                   <label class="custom-control custom-control-sm custom-checkbox mb-2 admin-show">
