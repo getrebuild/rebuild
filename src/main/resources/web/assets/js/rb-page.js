@@ -971,5 +971,5 @@ var $isFullUrl = function (url) {
 
 // Mask prefix `SYS `
 var $isSysMask = function (label) {
-  return label && (label.startsWith('SYS ') || label.contains('.SYS '))
+  return label && (label.startsWith('SYS ') || label.contains('.SYS ')) && location.href.indexOf('/admin/') === -1
 }

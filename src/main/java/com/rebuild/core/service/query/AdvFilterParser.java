@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -25,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -67,50 +69,63 @@ public class AdvFilterParser extends SetUser {
     // 虚拟字段:当前审批人
     private static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
-    private JSONObject filterExp;
-    private Entity rootEntity;
+    final private JSONObject filterExpr;
+    final private Entity rootEntity;
+    // v3.1 条件值使用记录作为变量
+    final private ID varRecord;
 
-    private Set<String> includeFields = null;
+    transient private Set<String> includeFields = null;
 
     /**
-     * @param filterExp
+     * @param filterExpr
      */
-    public AdvFilterParser(JSONObject filterExp) {
-        this(MetadataHelper.getEntity(filterExp.getString("entity")), filterExp);
+    public AdvFilterParser(JSONObject filterExpr) {
+        this(filterExpr, MetadataHelper.getEntity(filterExpr.getString("entity")));
     }
 
     /**
+     * @param filterExpr
      * @param rootEntity
-     * @param filterExp
      */
-    public AdvFilterParser(Entity rootEntity, JSONObject filterExp) {
+    public AdvFilterParser(JSONObject filterExpr, Entity rootEntity) {
+        this.filterExpr = filterExpr;
         this.rootEntity = rootEntity;
-        this.filterExp = filterExp;
+        this.varRecord = null;
+    }
+
+    /**
+     * @param filterExpr
+     * @param varRecord
+     */
+    public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
+        this.filterExpr = filterExpr;
+        this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
+        this.varRecord = varRecord;
     }
 
     /**
      * @return
      */
     public String toSqlWhere() {
-        if (filterExp == null || filterExp.isEmpty()) {
+        if (filterExpr == null || filterExpr.isEmpty()) {
             return null;
         }
 
         this.includeFields = new HashSet<>();
 
         // 自动确定查询项
-        if (MODE_QUICK.equalsIgnoreCase(filterExp.getString("type"))) {
-            JSONArray quickItems = buildQuickFilterItems(filterExp.getString("quickFields"));
-            this.filterExp.put("items", quickItems);
+        if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
+            JSONArray quickItems = buildQuickFilterItems(filterExpr.getString("quickFields"));
+            this.filterExpr.put("items", quickItems);
         }
 
-        JSONArray items = filterExp.getJSONArray("items");
+        JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
 
-        JSONObject values = filterExp.getJSONObject("values");
+        JSONObject values = filterExpr.getJSONObject("values");
         values = values == null ? JSONUtils.EMPTY_OBJECT : values;
 
-        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
+        String equation = StringUtils.defaultIfBlank(filterExpr.getString("equation"), "OR");
 
         Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
         int incrIndex = 1;
@@ -230,6 +245,7 @@ public class AdvFilterParser extends SetUser {
 
         String op = item.getString("op");
         String value = item.getString("value");
+        if (varRecord != null) value = getValueByVarRecord(value);
         String valueEnd = null;
 
         // FIXME N2N 特殊处理，仅支持 LK NLK EQ NEQ
@@ -637,5 +653,32 @@ public class AdvFilterParser extends SetUser {
             }
         }
         return null;
+    }
+
+    private String getValueByVarRecord(String value) {
+        // {{xxx}}
+        String patt = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
+        if (varRecord == null || StringUtils.isBlank(value) || !value.matches(patt)) {
+            return value;
+        }
+
+        String fieldName = value.substring(2, value.length() - 2);
+        Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
+        if (field == null) {
+            log.warn("Invalid field : {} in {}", fieldName, rootEntity.getName());
+            return value;
+        }
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
+        if (o == null || o[0] == null) return StringUtils.EMPTY;
+
+        Object v = o[0];
+
+        if (v instanceof Date) {
+            v = CalendarUtils.getUTCDateFormat().format(v);
+        } else {
+            v = String.valueOf(v);
+        }
+        return (String) v;
     }
 }

@@ -38,7 +38,7 @@ public class QueryHelper {
     public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter) {
         if (!ParseHelper.validAdvFilter(advFilter)) return true;
 
-        String filterSql = new AdvFilterParser(advFilter).toSqlWhere();
+        String filterSql = new AdvFilterParser(advFilter, recordId).toSqlWhere();
         if (filterSql != null) {
             Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
             String sql = MessageFormat.format(
