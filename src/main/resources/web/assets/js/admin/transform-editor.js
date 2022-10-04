@@ -75,6 +75,12 @@ $(document).ready(() => {
       return
     }
 
+    const importsMode = $('#importsMode').prop('checked')
+    if (importsMode && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     const tips = []
 
     const fmd = _FieldsMapping2 ? _FieldsMapping2.buildMapping() : null
@@ -125,7 +131,7 @@ $(document).ready(() => {
     }
     if (unset > 0) tips.push($L('部分必填字段未映射，可能导致转换失败'))
 
-    if ($('#importsMode').prop('checked')) {
+    if (importsMode) {
       importsFilter = _ImportsFilterMapping.buildFilter()
       if (importsFilter.length === 0) {
         tips.push($L('明细记录导入条件未配置，将导入源实体的所有记录'))
