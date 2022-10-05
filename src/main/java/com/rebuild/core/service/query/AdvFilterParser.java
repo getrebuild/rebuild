@@ -244,8 +244,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         String op = item.getString("op");
-        String value = item.getString("value");
-        if (varRecord != null) value = getValueByVarRecord(value);
+        String value = useValueOfVarRecord(item.getString("value"));
         String valueEnd = null;
 
         // FIXME N2N 特殊处理，仅支持 LK NLK EQ NEQ
@@ -449,10 +448,9 @@ public class AdvFilterParser extends SetUser {
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
         if (isBetween && valueEnd == null) {
-            valueEnd = parseValue(item.getString("value2"), op, fieldMeta, true);
-            if (valueEnd == null) {
-                valueEnd = value;
-            }
+            valueEnd = useValueOfVarRecord(item.getString("value2"));
+            valueEnd = parseValue(valueEnd, op, fieldMeta, true);
+            if (valueEnd == null) valueEnd = value;
         }
 
         // IN
@@ -500,10 +498,8 @@ public class AdvFilterParser extends SetUser {
             return optimizeIn(inVals);
 
         } else {
-            value = val.toString();
-            if (StringUtils.isBlank(value)) {
-                return null;
-            }
+            value = val == null ? null : val.toString();
+            if (StringUtils.isBlank(value)) return null;
 
             // TIMESTAMP 仅指定了日期值，则补充时间值
             if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
@@ -552,10 +548,8 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     private String optimizeIn(Set<String> inVals) {
-        if (inVals == null || inVals.isEmpty()) {
-            return null;
-        }
-        return "( " + StringUtils.join(inVals, ",") + " )";
+        if (inVals == null || inVals.isEmpty()) return null;
+        else return "( " + StringUtils.join(inVals, ",") + " )";
     }
 
     /**
@@ -655,12 +649,11 @@ public class AdvFilterParser extends SetUser {
         return null;
     }
 
-    private String getValueByVarRecord(String value) {
+    private String useValueOfVarRecord(String value) {
+        if (varRecord == null || StringUtils.isBlank(value)) return value;
         // {{xxx}}
         String patt = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
-        if (varRecord == null || StringUtils.isBlank(value) || !value.matches(patt)) {
-            return value;
-        }
+        if (!value.matches(patt)) return value;
 
         String fieldName = value.substring(2, value.length() - 2);
         Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);

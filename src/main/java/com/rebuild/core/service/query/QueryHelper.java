@@ -29,16 +29,29 @@ import java.util.List;
 public class QueryHelper {
 
     /**
+     * @param recordId
+     * @param advFilter
+     * @return
+     * @see #isMatchAdvFilter(ID, JSONObject, boolean)
+     */
+    public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter) {
+        return isMatchAdvFilter(recordId, advFilter, Boolean.FALSE);
+    }
+
+    /**
      * 指定记录是否符合过滤条件
      *
      * @param recordId
      * @param advFilter
+     * @param useVarRecord
      * @return
      */
-    public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter) {
+    public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter, boolean useVarRecord) {
         if (!ParseHelper.validAdvFilter(advFilter)) return true;
 
-        String filterSql = new AdvFilterParser(advFilter, recordId).toSqlWhere();
+        String filterSql = useVarRecord ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
+                : new AdvFilterParser(advFilter).toSqlWhere();
+
         if (filterSql != null) {
             Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
             String sql = MessageFormat.format(

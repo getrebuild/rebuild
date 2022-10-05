@@ -66,7 +66,7 @@ public class RobotTriggerManager implements ConfigManager {
         for (ConfigBean cb : getConfig(entity)) {
             if (allowedWhen(cb, when)) {
                 if (record == null
-                        || QueryHelper.isMatchAdvFilter(record, (JSONObject) cb.getJSON("whenFilter"))) {
+                        || QueryHelper.isMatchAdvFilter(record, (JSONObject) cb.getJSON("whenFilter"), Boolean.TRUE)) {
 
                     ActionContext ctx = new ActionContext(record, entity, cb.getJSON("actionContent"), cb.getID("id"));
                     TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
