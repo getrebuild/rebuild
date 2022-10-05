@@ -649,16 +649,17 @@ public class AdvFilterParser extends SetUser {
         return null;
     }
 
+    // {{xxx}}
+    private static final String VAR_PATT = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
+
     private String useValueOfVarRecord(String value) {
         if (varRecord == null || StringUtils.isBlank(value)) return value;
-        // {{xxx}}
-        String patt = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
-        if (!value.matches(patt)) return value;
+        if (!value.matches(VAR_PATT)) return value;
 
         String fieldName = value.substring(2, value.length() - 2);
         Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
         if (field == null) {
-            log.warn("Invalid field : {} in {}", fieldName, rootEntity.getName());
+            log.warn("Invalid field : {} in {}", value, rootEntity.getName());
             return value;
         }
 
