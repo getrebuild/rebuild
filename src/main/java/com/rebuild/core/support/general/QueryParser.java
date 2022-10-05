@@ -201,7 +201,7 @@ public class QueryParser {
         // appends QuickQuery
         JSONObject quickFilter = queryExpr.getJSONObject("filter");
         if (quickFilter != null) {
-            String where = new AdvFilterParser(entity, quickFilter).toSqlWhere();
+            String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
 
@@ -252,8 +252,8 @@ public class QueryParser {
     private String parseAdvFilter(ID filterId) {
         ConfigBean advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
         if (advFilter != null) {
-            JSONObject filterExp = (JSONObject) advFilter.getJSON("filter");
-            return new AdvFilterParser(entity, filterExp).toSqlWhere();
+            JSONObject filterExpr = (JSONObject) advFilter.getJSON("filter");
+            return new AdvFilterParser(filterExpr, entity).toSqlWhere();
         }
         return null;
     }

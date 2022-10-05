@@ -171,7 +171,7 @@ class AdvFilter extends React.Component {
         }
 
         // No BARCODE field
-        if (item.type !== 'BARCODE') {
+        if (!(item.type === 'BARCODE' || $isSysMask(item.label))) {
           fields.push(item)
 
           if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {

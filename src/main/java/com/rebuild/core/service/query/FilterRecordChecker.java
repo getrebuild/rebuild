@@ -21,10 +21,10 @@ import com.rebuild.core.metadata.MetadataHelper;
  */
 public class FilterRecordChecker {
 
-    private JSONObject filterExp;
+    private JSONObject filterExpr;
 
-    public FilterRecordChecker(JSONObject filterExp) {
-        this.filterExp = filterExp;
+    public FilterRecordChecker(JSONObject filterExpr) {
+        this.filterExpr = filterExpr;
     }
 
     /**
@@ -32,14 +32,14 @@ public class FilterRecordChecker {
      * @return
      */
     public boolean check(ID recordId) {
-        if (filterExp == null || filterExp.isEmpty()
-                || filterExp.getJSONArray("items") == null || filterExp.getJSONArray("items").isEmpty()) {
+        if (filterExpr == null || filterExpr.isEmpty()
+                || filterExpr.getJSONArray("items") == null || filterExpr.getJSONArray("items").isEmpty()) {
             return true;
         }
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        String sqlWhere = new AdvFilterParser(entity, filterExp)
+        String sqlWhere = new AdvFilterParser(filterExpr, entity)
                 .toSqlWhere();
         sqlWhere += String.format(" and (%s = '%s')", entity.getPrimaryField().getName(), recordId);
 

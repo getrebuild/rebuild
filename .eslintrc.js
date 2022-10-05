@@ -121,5 +121,6 @@ module.exports = {
     $select2MatcherAll: true,
     $isFullUrl: true,
     $clone: true,
+    $isSysMask: true,
   },
 }

@@ -1448,7 +1448,7 @@ class RbFormPickList extends RbFormElement {
         <option value="" />
         {this.state.options.map((item) => {
           return (
-            <option key={`${keyName}${item.id}`} value={item.id}>
+            <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
             </option>
           )
@@ -1897,7 +1897,7 @@ class RbFormMultiSelect extends RbFormElement {
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
                 onChange={this.changeValue}
-                disabled={this.props.readonly}
+                disabled={this.props.readonly || $isSysMask(item.text)}
               />
               <span className="custom-control-label">{item.text}</span>
             </label>
