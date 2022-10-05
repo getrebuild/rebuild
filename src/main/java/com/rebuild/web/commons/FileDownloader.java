@@ -178,24 +178,30 @@ public class FileDownloader extends BaseController {
         ServletUtils.write(response, content);
     }
 
-    private boolean checkUser(HttpServletRequest request) {
+    /**
+     * 独立认证检测
+     *
+     * @param request
+     * @return
+     */
+    protected static boolean checkUser(HttpServletRequest request) {
         // 1.session
         ID user = AppUtils.getRequestUser(request);
 
         // 2.accessToken
         if (user == null) {
             String accessToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
-            user = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken, false);
+            user = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken, Boolean.FALSE);
         }
         // 3.csrfToken
         if (user == null) {
             String csrfToken = request.getParameter(AppUtils.URL_CSRFTOKEN);
-            user = csrfToken == null ? null : AuthTokenManager.verifyToken(csrfToken, false);
+            user = csrfToken == null ? null : AuthTokenManager.verifyToken(csrfToken, Boolean.FALSE);
         }
         // 4.onceToken
         if (user == null) {
             String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
-            user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken, false);
+            user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken, Boolean.FALSE);
         }
 
         return user != null;

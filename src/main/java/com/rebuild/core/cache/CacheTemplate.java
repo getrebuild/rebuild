@@ -16,19 +16,17 @@ import java.io.Serializable;
 public interface CacheTemplate<V extends Serializable> {
 
     /**
+     * 1 分钟缓存
+     */
+    int TS_MINTE = 60;
+    /**
      * 1小时缓存
      */
-    int TS_HOUR = 60 * 60;
-
+    int TS_HOUR = 60 * TS_MINTE;
     /**
      * 1天缓存
      */
     int TS_DAY = 24 * TS_HOUR;
-
-    /**
-     * 7天缓存
-     */
-    int TS_WEEK = 7 * TS_DAY;
 
     String get(String key);
 
