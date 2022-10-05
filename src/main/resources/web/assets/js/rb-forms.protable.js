@@ -112,13 +112,13 @@ class ProTable extends React.Component {
       // 编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          res.data && res.data.forEach((item) => this.addLine(item))
+          this.setLines(res.data)
         })
       }
       // 转换
       else if (this.props.previewid) {
         $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
-          res.data && res.data.forEach((item) => this.addLine(item))
+          this.setLines(res.data)
         })
       }
     })
@@ -170,6 +170,12 @@ class ProTable extends React.Component {
         const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
         fieldComp && fieldComp.setValue(null)
       })
+  }
+
+  setLines(models = []) {
+    models.forEach((item, idx) => {
+      setTimeout(() => this.addLine(item), idx * 10)
+    })
   }
 
   buildFormData() {
