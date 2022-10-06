@@ -148,6 +148,12 @@ class ProTable extends React.Component {
     })
   }
 
+  setLines(models = []) {
+    models.forEach((item, idx) => {
+      setTimeout(() => this.addLine(item), idx * 20)
+    })
+  }
+
   removeLine(key) {
     const forms = this.state.inlineForms.filter((c) => {
       if (c.key === key && c.props.id) {
@@ -172,17 +178,11 @@ class ProTable extends React.Component {
       })
   }
 
-  setLines(models = []) {
-    models.forEach((item, idx) => {
-      setTimeout(() => this.addLine(item), idx * 10)
-    })
-  }
-
   buildFormData() {
     const datas = []
     let error = null
 
-    ;(this._inlineFormsRefs || []).forEach((item) => {
+    this._inlineFormsRefs && this._inlineFormsRefs.forEach((item) => {
       if (!item.current) return
       const d = item.current.buildFormData()
 

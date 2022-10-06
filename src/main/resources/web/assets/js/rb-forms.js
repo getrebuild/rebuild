@@ -252,9 +252,7 @@ class RbForm extends React.Component {
     const that = this
     function _addNew(n = 1) {
       if (!that._ProTable) return
-      for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 10)
-      }
+      for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
     }
 
     // 记录转换预览模式

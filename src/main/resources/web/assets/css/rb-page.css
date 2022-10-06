@@ -708,6 +708,10 @@ div.dataTables_filter .filter-badge:hover .close {
   color: #fff;
 }
 
+.modal.rbmodal .modal-dialog {
+  transition: max-width 0.2s;
+}
+
 @media (max-width: 767px) {
   .rbalert.modal {
     margin-left: 20px;
