@@ -283,17 +283,25 @@ class RbAlert extends React.Component {
       })
   }
 
-  hide() {
+  hide(forceHide) {
+    if (forceHide) {
+      $mp.end()
+      $(this._dlg).off('hide.bs.modal')
+    }
     $(this._dlg).modal('hide')
   }
 
-  disabled(d) {
+  disabled(d, preventHide) {
     d = d === true
-    // 带有 tabIndex 导致 select2 组件搜索框无法搜索???
-    // , tabIndex: d ? 99999 : -1
+    // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
     this.setState({ disable: d }, () => {
-      // disabled 时不能简单关闭
-      // $(this._dlg).modal({ backdrop: d ? 'static' : true, keyboard: !d })
+      if (d && preventHide) {
+        $mp.start()
+        $(this._dlg).find('.close').attr('disabled', true)
+        $(this._dlg).on('hide.bs.modal', function () {
+          return false
+        })
+      }
     })
   }
 
@@ -365,14 +373,14 @@ class RbHighbar extends React.Component {
    * @param {*} message
    */
   static success(message) {
-    RbHighbar.create(message || $L('操作成功'), { type: 'success', timeout: 2000 })
+    RbHighbar.create(message || $L('操作成功'), { type: 'success' })
   }
 
   /**
    * @param {*} message
    */
   static error(message) {
-    RbHighbar.create(message || $L('系统繁忙，请稍后重试'), { type: 'danger', timeout: 4000 })
+    RbHighbar.create(message || $L('系统繁忙，请稍后重试'), { type: 'danger', timeout: 5000 })
   }
 }
 

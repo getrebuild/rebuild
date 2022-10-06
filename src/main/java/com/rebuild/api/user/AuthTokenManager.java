@@ -48,6 +48,8 @@ public class AuthTokenManager {
      */
     public static final int H5TOKEN_EXPIRES = CommonsCache.TS_HOUR * 12;
 
+    private static final String TOKEN_PREFIX = "TOKEN:";
+
     /**
      * 生成 Token
      *
@@ -64,7 +66,7 @@ public class AuthTokenManager {
                 System.nanoTime());
         String token = EncryptUtils.toMD5Hex(desc);
 
-        Application.getCommonsCache().putx("TOKEN:" + token, desc, expires);
+        Application.getCommonsCache().putx(TOKEN_PREFIX + token, desc, expires);
         return token;
     }
 
@@ -84,7 +86,7 @@ public class AuthTokenManager {
      * @see #TYPE_CSRF_TOKEN
      */
     public static String generateCsrfToken() {
-        return generateToken(null, 60 * 30, TYPE_CSRF_TOKEN);
+        return generateToken(null, CommonsCache.TS_MINTE * 30, TYPE_CSRF_TOKEN);
     }
 
     /**
@@ -93,7 +95,7 @@ public class AuthTokenManager {
      * @see #TYPE_ONCE_TOKEN
      */
     public static String generateOnceToken(ID user) {
-        return generateToken(user, 60, TYPE_ONCE_TOKEN);
+        return generateToken(user, CommonsCache.TS_MINTE, TYPE_ONCE_TOKEN);
     }
 
     /**
@@ -105,7 +107,7 @@ public class AuthTokenManager {
      */
     public static ID verifyToken(String token, boolean verifyAfterDestroy) {
         Assert.notNull(token, "[token] cannot be null");
-        String desc = Application.getCommonsCache().get("TOKEN:" + token);
+        String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
         if (desc == null) return null;
 
         String[] descs = desc.split(",");
@@ -115,7 +117,7 @@ public class AuthTokenManager {
 
         if (verifyAfterDestroy) {
             log.debug("Destroy token ({}) : {}", descs[0], token);
-            Application.getCommonsCache().evict("TOKEN:" + token);
+            Application.getCommonsCache().evict(TOKEN_PREFIX + token);
         }
 
         return ID.valueOf(descs[1]);
@@ -142,13 +144,13 @@ public class AuthTokenManager {
      */
     public static ID refreshAccessToken(String token, int expires) {
         Assert.notNull(token, "[token] cannot be null");
-        String desc = Application.getCommonsCache().get("TOKEN:" + token);
+        String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
         if (desc == null) return null;
 
         String[] descs = desc.split(",");
         Assert.isTrue(TYPE_ACCESS_TOKEN.equals(descs[0]), "Cannot refresh none access token");
 
-        Application.getCommonsCache().put("TOKEN:" + token, desc, expires);
+        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, expires);
         return ID.valueOf(descs[1]);
     }
 }

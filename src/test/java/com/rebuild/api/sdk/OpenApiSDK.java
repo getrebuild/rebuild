@@ -9,11 +9,14 @@ package com.rebuild.api.sdk;
 
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -59,19 +62,25 @@ public class OpenApiSDK {
 
         this.okHttpClient = new OkHttpClient().newBuilder()
                 .retryOnConnectionFailure(false)
-                .callTimeout(15, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .callTimeout(60, TimeUnit.SECONDS)
                 .build();
     }
 
     /**
-     * @param params
+     * 签名（MD5）
+     *
+     * @param reqParams
      * @return
+     * @see #sign(Map, String)
      */
-    public String sign(Map<String, Object> params) {
-        return sign(params, "MD5");
+    public String sign(Map<String, Object> reqParams) {
+        return sign(reqParams, "MD5");
     }
 
     /**
+     * 签名
+     *
      * @param reqParams
      * @param signType
      * @return
@@ -93,7 +102,7 @@ public class OpenApiSDK {
                     .append('&');
         }
 
-        final String signUrl = sign.toString() + "sign=";
+        final String signUrl = sign + "sign=";
 
         // 拼接
         sign.append(this.appId)
@@ -146,6 +155,8 @@ public class OpenApiSDK {
     }
 
     /**
+     * GET 请求
+     *
      * @param apiName
      * @param reqParams
      * @return
@@ -161,6 +172,8 @@ public class OpenApiSDK {
     }
 
     /**
+     * POST 请求
+     *
      * @param apiName
      * @param reqParams
      * @param post
@@ -176,6 +189,11 @@ public class OpenApiSDK {
         }
     }
 
+    /**
+     * @param apiName
+     * @param reqParams
+     * @return
+     */
     private String buildApiUrl(String apiName, Map<String, Object> reqParams) {
         StringBuilder apiUrl = new StringBuilder(baseUrl);
         if (!baseUrl.endsWith("/")) apiUrl.append('/');
@@ -185,5 +203,86 @@ public class OpenApiSDK {
 
         apiUrl.append('?').append(sign(reqParams));
         return apiUrl.toString();
+    }
+
+    /**
+     * 文件下载
+     *
+     * @param filePath
+     * @param dest
+     * @throws IOException
+     */
+    public boolean fileDownload(String filePath, File dest) throws IOException {
+        JSONObject res = (JSONObject) get("file/download", Collections.singletonMap("file", filePath));
+        JSONObject data = Objects.requireNonNull(res.getJSONObject("data"), "Bad result : " + res);
+
+        String downloadUrl = data.getString("download_url");
+
+        Request request = new Request.Builder().url(downloadUrl).build();
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            try (InputStream is = Objects.requireNonNull(response.body()).byteStream()) {
+                try (BufferedInputStream bis = new BufferedInputStream(is)) {
+                    try (OutputStream os = Files.newOutputStream(dest.toPath())) {
+                        byte[] chunk = new byte[1024];
+                        int count;
+                        while ((count = bis.read(chunk)) != -1) {
+                            os.write(chunk, 0, count);
+                        }
+                        os.flush();
+                    }
+                }
+            }
+        }
+        return dest.exists();
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public String fileUpload(File file) throws IOException {
+        JSONObject res = (JSONObject) get("file/upload", Collections.singletonMap("file", file.getName()));
+        JSONObject data = Objects.requireNonNull(res.getJSONObject("data"), "Bad result : " + res);
+
+        String uploadKey = data.getString("upload_key");
+        String uploadToken = data.getString("upload_token");
+        if (uploadToken != null) {
+            if (qiniuUpload(file, uploadKey, uploadToken)) {
+                return uploadKey;
+            }
+        }
+
+        String uploadUrl = data.getString("upload_url");
+
+        MediaType mediaType = MediaType.parse("multipart/form-data");
+        MultipartBody multipartBody = new MultipartBody.Builder()
+                .addFormDataPart("file1", file.getName(), RequestBody.create(file, mediaType))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(uploadUrl)
+                .post(multipartBody)
+                .build();
+
+        String filePath = null;
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                String resp = Objects.requireNonNull(response.body()).string();
+                res = JSON.parseObject(resp);
+                filePath = res.getString("data");
+            } else {
+                LOG.error("Upload file error : " + file);
+            }
+        }
+        return filePath;
+    }
+
+    // TODO 请参考七牛 SDK 实现 https://developer.qiniu.com/sdk#official-sdk
+    private boolean qiniuUpload(File file, String uploadKey, String uploadToken) {
+        throw new UnsupportedOperationException("Please use Qiniu SDK : https://developer.qiniu.com/sdk#official-sdk");
     }
 }

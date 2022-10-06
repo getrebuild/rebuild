@@ -250,14 +250,9 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
-    function _addNew(n = 1, modal) {
+    function _addNew(n = 1) {
       if (!that._ProTable) return
-      for (let i = 0; i < n; i++) {
-        setTimeout(() => {
-          if (modal) that._ProTable.addLine(modal)
-          else that._ProTable.addNew()
-        }, i * 20)
-      }
+      for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
     }
 
     // 记录转换预览模式
@@ -304,12 +299,7 @@ class RbForm extends React.Component {
                         key={`imports-${idx}`}
                         className="dropdown-item"
                         onClick={() => {
-                          def.fetch(this, (details) => {
-                            details &&
-                              details.forEach((d, idx) => {
-                                setTimeout(() => _addNew(1, d), idx * 20)
-                              })
-                          })
+                          def.fetch(this, (details) => that._ProTable && that._ProTable.setLines(details))
                         }}>
                         {def.label}
                       </a>
