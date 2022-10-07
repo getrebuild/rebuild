@@ -1194,10 +1194,12 @@ class RbList extends React.Component {
    * 获取最后查询条件
    */
   getLastQueryEntry() {
-    return JSON.parse(JSON.stringify(this.__lastQueryEntry)) // Use clone
+    return $clone(this.__lastQueryEntry)
   }
 
-  // 渲染完成后回调
+  /**
+   * 渲染完成后回调
+   */
   static renderAfter() {}
 }
 

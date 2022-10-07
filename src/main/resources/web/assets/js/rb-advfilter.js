@@ -19,7 +19,7 @@ class AdvFilter extends React.Component {
 
     const extras = { useEquation: 'OR' }
     if (props.filter) {
-      const clone = JSON.parse(JSON.stringify(props.filter)) // bugfix
+      const clone = $clone(props.filter) // bugfix
       if (clone.equation) {
         extras.equation = clone.equation
         if (clone.equation === 'OR') extras.useEquation = 'OR'

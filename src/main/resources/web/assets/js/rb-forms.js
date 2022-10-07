@@ -486,7 +486,6 @@ class RbForm extends React.Component {
    * @next {Number}
    */
   post(next) {
-    console.log(this.__post)
     // fix dblclick
     if (this.__post === 1) return
     this.__post = 1
@@ -528,6 +527,15 @@ class RbForm extends React.Component {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
+
+        if (location.hash === '#!/New') {
+          // location.hash = '!/'
+          try {
+            localStorage.setItem('referenceSearch__reload', $random())
+          } catch (err) {
+            // Nothings
+          }
+        }
 
         setTimeout(() => {
           $$$parent.hide(true)

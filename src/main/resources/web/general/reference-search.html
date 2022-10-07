@@ -80,10 +80,18 @@
         parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
       }
 
-      $(document).ready(function () {
+      $(document).ready(() => {
         $('.J_select').on('click', () => {
           const ss = RbListPage._RbList.getSelectedIds()
           if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
+        })
+
+        // 新建后自动刷新
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'referenceSearch__reload') {
+            localStorage.removeItem('referenceSearch__reload')
+            RbListPage.reload()
+          }
         })
       })
     </script>
