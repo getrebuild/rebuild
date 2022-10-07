@@ -44,34 +44,26 @@ public class TemplateExtractor {
     // 序号
     protected static final String PH__NUMBER = PLACEHOLDER + "NUMBER";
     
-    // ${xxx}
-    private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
-    // {xxx}
+    // v2:{xxx} v1:${xxx}
     private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
     private File template;
-    // Use easyexcel
-    private boolean isV2;
-
-    private boolean useDetails;
+    private boolean isList;
 
     /**
      * @param template
-     * @param isV2
      */
-    public TemplateExtractor(File template, boolean isV2) {
-        this(template, isV2, true);
+    public TemplateExtractor(File template) {
+        this(template, Boolean.FALSE);
     }
 
     /**
      * @param template
-     * @param isV2
-     * @param useDetails
+     * @param isList 列表模板
      */
-    public TemplateExtractor(File template, boolean isV2, boolean useDetails) {
+    public TemplateExtractor(File template, boolean isList) {
         this.template = template;
-        this.isV2 = isV2;
-        this.useDetails = useDetails;
+        this.isList = isList;
     }
 
     /**
@@ -83,7 +75,7 @@ public class TemplateExtractor {
     public Map<String, String> transformVars(Entity entity) {
         final Set<String> vars = extractVars();
 
-        Entity detailEntity = this.useDetails ? entity.getDetailEntity() : null;
+        Entity detailEntity = this.isList ? null : entity.getDetailEntity();
         Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
                 ? MetadataHelper.getEntity(EntityHelper.RobotApprovalStep) : null;
 
@@ -93,7 +85,7 @@ public class TemplateExtractor {
             if (varName.startsWith(NROW_PREFIX)) {
                 String listField = varName.substring(1);
 
-                // 审批
+                // 审批流程
                 if (varName.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
@@ -101,16 +93,20 @@ public class TemplateExtractor {
                     } else {
                         map.put(varName, null);
                     }
-                } else if (detailEntity != null) {
+                }
+                // 主+明细实体
+                else if (detailEntity != null) {
                     if (MetadataHelper.getLastJoinField(detailEntity, listField) != null) {
                         map.put(varName, listField);
                     } else {
                         map.put(varName, transformRealField(detailEntity, listField));
                     }
-                } else if (MetadataHelper.getLastJoinField(entity, listField) != null) {
+                }
+                // 普通字段
+                else if (MetadataHelper.getLastJoinField(entity, listField) != null) {
                     map.put(varName, listField);
                 } else {
-                    map.put(varName, transformRealField(entity, varName));
+                    map.put(varName, transformRealField(entity, listField));
                 }
 
             } else if (MetadataHelper.getLastJoinField(entity, varName) != null) {
@@ -138,7 +134,7 @@ public class TemplateExtractor {
                 }
 
                 String cellText = cell.asString();
-                Matcher matcher = (this.isV2 ? PATT_V2 : PATT_V1).matcher(cellText);
+                Matcher matcher = PATT_V2.matcher(cellText);
                 while (matcher.find()) {
                     String varName = matcher.group(1);
                     vars.add(varName);
