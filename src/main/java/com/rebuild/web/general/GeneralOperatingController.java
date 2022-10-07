@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.exception.jdbc.GenericJdbcException;
+import cn.devezhao.persist4j.exception.JdbcException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
@@ -125,7 +125,7 @@ public class GeneralOperatingController extends BaseController {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
 
-        } catch (GenericJdbcException ex) {
+        } catch (JdbcException ex) {
             String known = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (known != null) return RespBody.error(known);
 
