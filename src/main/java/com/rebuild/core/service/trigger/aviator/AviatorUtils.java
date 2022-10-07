@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger.aviator;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
-import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import lombok.extern.slf4j.Slf4j;
@@ -75,9 +74,9 @@ public class AviatorUtils {
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
         try {
             return AVIATOR.execute(expression, env);
-        } catch (ArithmeticException | ExpressionRuntimeException ex) {
-            if (quietly) log.error("Bad expression : `{}` < {}", expression, env, ex);
-            else throw ex;
+        } catch (Exception ex) {
+            log.error("Bad aviator expression : \n{}\n<< {}", expression, env, ex);
+            if (!quietly) throw ex;
         }
         return null;
     }
