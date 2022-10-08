@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.ChartManager;
+import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -223,7 +224,7 @@ public class DataListManager extends BaseLayoutManager {
     public Set<String> getListFilterPaneFields(ID user, String entity) {
         ConfigBean cb = getListFilterPane(user, entity);
 
-        Entity entity2 = MetadataHelper.getEntity(entity);
+        Entity entityMeta = MetadataHelper.getEntity(entity);
         Set<String> paneFields = new LinkedHashSet<>();
 
         if (cb != null && cb.getJSON("config") != null) {
@@ -231,13 +232,15 @@ public class DataListManager extends BaseLayoutManager {
             for (Object o : configJson.getJSONArray("items")) {
                 JSONObject item = (JSONObject) o;
                 String field = item.getString("field");
-                if (entity2.containsField(field)) paneFields.add(field);
+                if (entityMeta.containsField(field) || AdvFilterParser.VF_ACU.equals(field)) {
+                    paneFields.add(field);
+                }
             }
         }
 
         // 使用快速查询字段
         if (paneFields.isEmpty()) {
-            Set<String> quickFields = ParseHelper.buildQuickFields(entity2, null);
+            Set<String> quickFields = ParseHelper.buildQuickFields(entityMeta, null);
             quickFields.remove(EntityHelper.QuickCode);
 
             for (String s : quickFields) {

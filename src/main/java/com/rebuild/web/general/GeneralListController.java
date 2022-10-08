@@ -22,11 +22,14 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
+import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -99,7 +102,14 @@ public class GeneralListController extends EntityController {
             if (BooleanUtils.toBoolean(advListFilterpane)) {
                 JSONArray paneFields = new JSONArray();
                 for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
-                    paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
+                    if (AdvFilterParser.VF_ACU.equals(field)) {
+                        JSONObject vf = (JSONObject) EasyMetaFactory.valueOf(listEntity.getField(EntityHelper.ApprovalLastUser)).toJSON();
+                        vf.put("name", AdvFilterParser.VF_ACU);
+                        vf.put("label", Language.L("当前审批人"));
+                        paneFields.add(vf);
+                    } else {
+                        paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
+                    }
                 }
                 mv.getModel().put("paneFields", paneFields);
             }

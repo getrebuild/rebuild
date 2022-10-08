@@ -63,11 +63,11 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 @Slf4j
 public class AdvFilterParser extends SetUser {
 
+    // 虚拟字段:当前审批人
+    public static final String VF_ACU = "$APPROVALCURRENTUSER$";
+
     // 快速查询
     private static final String MODE_QUICK = "QUICK";
-
-    // 虚拟字段:当前审批人
-    private static final String VF_ACU = "$APPROVALCURRENTUSER$";
 
     final private JSONObject filterExpr;
     final private Entity rootEntity;
@@ -473,7 +473,7 @@ public class AdvFilterParser extends SetUser {
 
         if (VF_ACU.equals(field)) {
             return String.format(
-                    "exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s)",
+                    "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s) and approvalState = 2)",
                     rootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
         } else {
             return sb.toString();

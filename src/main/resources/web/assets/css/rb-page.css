@@ -1022,6 +1022,15 @@ select.form-control:not([disabled]) {
   overflow: hidden;
 }
 
+.col-sm-3.type-MULTISELECT .custom-checkbox {
+  margin-right: 0;
+  min-width: 100%;
+}
+
+.col-sm-4.type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
 .type-LOCATION .form-control.bg-white {
   cursor: text;
 }

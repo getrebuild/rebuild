@@ -5,10 +5,15 @@
     <title>[[${bundle.L('统计字段')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
+      .axis-target {
+        min-height: 31.56px;
+      }
       .axis-target > span {
         display: inline-block;
-        margin-right: 4px;
-        margin-bottom: 4px;
+      }
+      .axis-target .item {
+        margin-right: 7px;
+        margin-bottom: 6px;
       }
       .axis-target .item::before {
         border-color: #fff;

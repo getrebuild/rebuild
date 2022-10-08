@@ -5,12 +5,23 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+const VF_ACU = window.VF_ACU || '$APPROVALCURRENTUSER$'
+
 $(document).ready(function () {
   const entity = $urlp('entity')
   const settingsUrl = `/admin/entity/${entity}/list-filterpane`
 
   $.get(settingsUrl, (res) => {
-    const fields = res.data.fields || []
+    let fields = []
+    res.data.fields &&
+      res.data.fields.forEach((item) => {
+        fields.push(item)
+        if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
+          const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
+          fields.push(item2)
+        }
+      })
+
     fields.forEach((item) => render_unset(item))
 
     if ((res.data.items || []).length > 0) {
