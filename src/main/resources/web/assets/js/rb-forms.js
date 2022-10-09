@@ -250,9 +250,29 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
+
     function _addNew(n = 1) {
-      if (!that._ProTable) return
       for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
+    }
+
+    function _setLines(details) {
+      if (that._ProTable.isEmpty()) {
+        that._ProTable.setLines(details)
+      } else {
+        RbAlert.create($L('是否保留已有明细记录？'), {
+          confirmText: $L('保留'),
+          cancelText: $L('不保留'),
+          onConfirm: function () {
+            this.hide()
+            that._ProTable.setLines(details)
+          },
+          onCancel: function () {
+            this.hide()
+            that._ProTable.clear()
+            setTimeout(() => that._ProTable.setLines(details), 200)
+          },
+        })
+      }
     }
 
     // 记录转换预览模式
@@ -263,9 +283,10 @@ class RbForm extends React.Component {
     if (this.props.rawModel.detailImports) {
       this.props.rawModel.detailImports.forEach((item) => {
         detailImports.push({
-          label: item.name,
+          icon: item.icon,
+          label: item.transName || item.entityLabel,
           fetch: (form, callback) => {
-            ProTable.detailImports(item.id, form, callback)
+            ProTable.detailImports(item.transid, form, callback)
           },
         })
       })
@@ -299,8 +320,9 @@ class RbForm extends React.Component {
                         key={`imports-${idx}`}
                         className="dropdown-item"
                         onClick={() => {
-                          def.fetch(this, (details) => that._ProTable && that._ProTable.setLines(details))
+                          def.fetch(this, (details) => _setLines(details))
                         }}>
+                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
                         {def.label}
                       </a>
                     )
@@ -463,7 +485,7 @@ class RbForm extends React.Component {
 
       const fieldComp = _refs[key]
       let v = fieldComp.getValue()
-      if (typeof v === 'object') v = v.id
+      if (v && typeof v === 'object') v = v.id
       if (v) data[fieldComp.props.field] = v
     }
     return data
@@ -1561,7 +1583,7 @@ class RbFormReference extends RbFormElement {
           // v2.10 FIXME 父级改变后清除明细
           if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
             const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            that.props.$$$parent._ProTable.clear(field)
+            that.props.$$$parent._ProTable.setFieldNull(field)
           }
         }
         that.handleChange({ target: { value: v } }, true)
