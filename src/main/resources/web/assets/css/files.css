@@ -209,3 +209,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aside-2tree li.active > a > .icon {
   color: #fff;
 }
+
+.file-list-striped .file-list-item:nth-of-type(odd) > div.type .file-icon::before {
+  border-top-color: #f5f5f5;
+  border-right-color: #f5f5f5;
+}
+
+.file-list-striped .file-list-item.active > div.type .file-icon::before {
+  border-top-color: #dee2e6;
+  border-right-color: #dee2e6;
+}
