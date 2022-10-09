@@ -4922,13 +4922,14 @@ pre.unstyle {
 
 .support-plat {
   position: absolute;
-  margin-left: 6px;
+  margin-left: 8px;
   background-color: var(--rb-color);
   color: #fff;
   display: inline-block;
   border-radius: 50%;
   width: 18px;
   height: 18px;
+  line-height: 18px;
   cursor: help;
   text-align: center;
   font-size: 13px;

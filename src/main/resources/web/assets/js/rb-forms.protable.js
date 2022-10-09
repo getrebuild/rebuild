@@ -230,7 +230,7 @@ class ProTable extends React.Component {
 
     $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
       if (res.error_code === 0) {
-        if ((res.data || []).length === 0) RbHighbar.create($L('无可导入的明细记录'))
+        if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
         else typeof callback === 'function' && callback(res.data)
       } else {
         RbHighbar.error(res.error_msg)
