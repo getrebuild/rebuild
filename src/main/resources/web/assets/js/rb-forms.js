@@ -454,26 +454,17 @@ class RbForm extends React.Component {
   }
 
   // 获取当前表单数据
-  getFormData(isAll = true) {
+  getFormData() {
     const data = {}
-    if (isAll) {
-      // eslint-disable-next-line react/no-string-refs
-      const _refs = this.refs
-      for (let key in _refs) {
-        if (!key.startsWith('fieldcomp-')) continue
+    // eslint-disable-next-line react/no-string-refs
+    const _refs = this.refs
+    for (let key in _refs) {
+      if (!key.startsWith('fieldcomp-')) continue
 
-        const fieldComp = _refs[key]
-        let v = fieldComp.getValue()
-        if (typeof v === 'object') v = v.id
-        if (v) data[fieldComp.props.field] = v
-      }
-    }
-    // 仅修改的
-    else {
-      for (let k in this.__FormData) {
-        const err = this.__FormData[k].error
-        if (!err) data[k] = this.__FormData[k].value
-      }
+      const fieldComp = _refs[key]
+      let v = fieldComp.getValue()
+      if (typeof v === 'object') v = v.id
+      if (v) data[fieldComp.props.field] = v
     }
     return data
   }
