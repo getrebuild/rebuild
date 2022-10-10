@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -216,12 +217,17 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 3.1.催审
      *
-     * @return
+     * @return -1=频率超限
      */
-    public boolean urge() {
+    public int urge() {
         if (this.approval == null) {
-            Object[] o = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalId);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(this.record, EntityHelper.ApprovalId);
             this.approval = (ID) o[0];
+        }
+
+        final String sentKey = String.format("URGE:%s-%s", this.approval, this.record);
+        if (Application.getCommonsCache().getx(sentKey) != null) {
+            return -1;
         }
 
         int sent = 0;
@@ -238,7 +244,8 @@ public class ApprovalProcessor extends SetUser {
             sent++;
         }
 
-        return sent > 0;
+        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 5);
+        return sent;
     }
 
     /**

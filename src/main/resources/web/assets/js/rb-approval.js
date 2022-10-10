@@ -221,7 +221,7 @@ class ApprovalProcessor extends React.Component {
         this.disabled(true)
         $.post(`/app/entity/approval/urge?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) {
-            RbHighbar.error(res.error_msg)
+            RbHighbar.create(res.error_msg)
             this.disabled()
           } else {
             RbHighbar.success($L('通知已发送'))
