@@ -9,8 +9,8 @@ package com.rebuild.api;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -90,7 +90,7 @@ public class ApiContext {
      * @return
      */
     public JSON getPostData() {
-        return postData == null ? JSONUtils.EMPTY_OBJECT : postData;
+        return postData == null ? new JSONObject() : postData;
     }
 
     /**

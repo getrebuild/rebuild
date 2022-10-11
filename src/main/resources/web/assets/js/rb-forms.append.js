@@ -20,7 +20,7 @@ class ClassificationSelector extends React.Component {
 
   render() {
     return (
-      <div className="modal selector" ref={(c) => (this._dlg = c)} tabIndex="-1">
+      <div className="modal selector" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">

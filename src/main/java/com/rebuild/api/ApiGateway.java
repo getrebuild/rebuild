@@ -120,6 +120,7 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
             errorMsg = ex.getLocalizedMessage();
+            log.error("Server Internal Error ({})", requestId, ex);
         } finally {
             UserContextHolder.clear();
         }

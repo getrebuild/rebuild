@@ -16,6 +16,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ public class TemplateExtractorTest extends TestSupport {
     @Test
     void testExtractVars() throws FileNotFoundException {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
-        Set<String> vars = new TemplateExtractor(template, true).extractVars();
+        Set<String> vars = new TemplateExtractor(template).extractVars();
         System.out.println(vars);
         Assertions.assertTrue(vars.size() >= 7);
     }
@@ -44,11 +45,11 @@ public class TemplateExtractorTest extends TestSupport {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
 
         Entity test = MetadataHelper.getEntity(TestAllFields);
-        System.out.println(new TemplateExtractor(template, true).transformVars(test));
+        System.out.println(new TemplateExtractor(template).transformVars(test));
 
         if (MetadataHelper.containsEntity(SalesOrder)) {
             Entity SalesOrder999 = MetadataHelper.getEntity(SalesOrder);
-            System.out.println(new TemplateExtractor(template, true).transformVars(SalesOrder999));
+            System.out.println(new TemplateExtractor(template).transformVars(SalesOrder999));
         }
     }
 
@@ -56,16 +57,31 @@ public class TemplateExtractorTest extends TestSupport {
     void testGetRealField() {
         Entity test = MetadataHelper.getEntity(TestAllFields);
 
-        String field = new TemplateExtractor(null, false)
+        String field = new TemplateExtractor(null)
                 .transformRealField(test, "所属用户");
         System.out.println(field);
 
-        String field2 = new TemplateExtractor(null, false)
+        String field2 = new TemplateExtractor(null)
                 .transformRealField(test, "所属用户.姓名");
         System.out.println(field2);
 
-        String field3 = new TemplateExtractor(null, false)
+        String field3 = new TemplateExtractor(null)
                 .transformRealField(test, "所属用户.不存在的字段");
         System.out.println(field3);
+    }
+
+    @Test
+    void testList() throws FileNotFoundException {
+        File template = ResourceUtils.getFile("classpath:template-for-list.xlsx");
+
+        Entity SalesOrder999 = MetadataHelper.getEntity(SalesOrder);
+        Map<String, String> vars = new TemplateExtractor(template, true).transformVars(SalesOrder999);
+        System.out.println(vars);
+
+        int hit = 0;
+        for (String field : vars.values()) {
+            if (field != null) hit++;
+        }
+        Assertions.assertEquals(4, hit);
     }
 }

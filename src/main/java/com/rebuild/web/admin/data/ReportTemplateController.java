@@ -72,9 +72,10 @@ public class ReportTemplateController extends BaseController {
     @RequestMapping("/report-templates/check-template")
     public RespBody checkTemplate(@EntityParam Entity entity, HttpServletRequest request) {
         String file = getParameterNotNull(request, "file");
-        File template = RebuildConfiguration.getFileOfData(file);
+        boolean isList = getBoolParameter(request, "list");  // 列表模板
 
-        Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entity);
+        File template = RebuildConfiguration.getFileOfData(file);
+        Map<String, String> vars = new TemplateExtractor(template, isList).transformVars(entity);
         if (vars.isEmpty()) {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }

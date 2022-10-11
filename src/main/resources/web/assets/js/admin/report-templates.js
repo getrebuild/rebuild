@@ -113,12 +113,6 @@ class ReporEdit extends ConfigFormDlg {
                 </div>
                 <div className="clearfix" />
                 <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
-
-                {(this.state.invalidVars || []).length > 0 && (
-                  <div className="invalid-vars mt-2">
-                    <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
-                  </div>
-                )}
               </div>
             </div>
             <div className="form-group row">
@@ -131,6 +125,12 @@ class ReporEdit extends ConfigFormDlg {
                     <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在列表导出数据时使用')} />
                   </span>
                 </label>
+
+                {(this.state.invalidVars || []).length > 0 && (
+                  <div className="invalid-vars mt-3">
+                    <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
+                  </div>
+                )}
               </div>
             </div>
           </React.Fragment>
@@ -174,22 +174,26 @@ class ReporEdit extends ConfigFormDlg {
       )
     }
 
-    $(this._$listType).find('[data-toggle="tooltip"]').tooltip()
-
     let e = $('.aside-tree li.active>a').attr('href')
     e = e ? e.split('=')[1] : null
     if (e) {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }
+    
+    $(this._$listType)
+      .on('change', () => this.checkTemplate())
+      .find('[data-toggle="tooltip"]')
+      .tooltip()
   }
 
   // 检查模板
   checkTemplate() {
-    const file = this.__lastFile
     const entity = this.__select2.val()
+    const list = $(this._$listType).find('input').prop('checked')
+    const file = this.__lastFile
     if (!file || !entity) return
 
-    $.get(`/admin/data/report-templates/check-template?file=${file}&entity=${entity}`, (res) => {
+    $.get(`/admin/data/report-templates/check-template?file=${file}&entity=${entity}&list=${list}`, (res) => {
       $mp.end()
       if (res.error_code === 0) {
         const fileName = $fileCutName(file)
@@ -217,12 +221,13 @@ class ReporEdit extends ConfigFormDlg {
 
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
+      this._save(post)
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
       post.templateType = $(this._$listType).find('input').prop('checked') ? 2 : 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
-      if (!post.templateFile) return RbHighbar.create($L('请上传文件'))
+      if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
     }
 
     post.metadata = {
