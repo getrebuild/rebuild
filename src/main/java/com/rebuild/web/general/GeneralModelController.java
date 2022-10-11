@@ -23,6 +23,7 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.transform.TransformerPreview;
 import com.rebuild.core.support.ConfigurationItem;
@@ -144,7 +145,12 @@ public class GeneralModelController extends EntityController {
                 List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
                 if (!imports.isEmpty()) {
                     List<Object> detailImports = new ArrayList<>();
-                    for (ConfigBean cb : imports) detailImports.add(cb.toJSON("id", "name"));
+                    for (ConfigBean cb : imports) {
+                        JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
+                        trans.put("transid", cb.getID("id"));
+//                        trans.put("transName", cb.getID("name"));
+                        detailImports.add(trans);
+                    }
 
                     ((JSONObject) model).put("detailImports", detailImports);
                 }

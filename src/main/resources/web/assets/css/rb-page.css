@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 :root {
+  --rb-color: #4285f4;
   --rb-theme-color: #4285f4;
   --rb-btn-hover-color: #0d5bdd;
   --rb-btn-active-color: #2572f2;
@@ -1019,6 +1020,15 @@ select.form-control:not([disabled]) {
   min-width: 23%;
   max-width: 100%;
   overflow: hidden;
+}
+
+.col-sm-3.type-MULTISELECT .custom-checkbox {
+  margin-right: 0;
+  min-width: 100%;
+}
+
+.col-sm-4.type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
 }
 
 .type-LOCATION .form-control.bg-white {
@@ -4414,6 +4424,7 @@ pre.unstyle {
 
 .bg-market {
   background-image: linear-gradient(135deg, #2973d7 0%, #26acb9 100%);
+  background-image: linear-gradient(45deg, rgb(0, 84, 70), rgb(57, 0, 63), rgb(89, 0, 0)), linear-gradient(45deg, rgb(0, 122, 101), rgb(127, 14, 127), rgb(255, 137, 131));
 }
 
 #gritter-notice-wrapper {
@@ -4907,4 +4918,19 @@ pre.unstyle {
 
 .main-content > .card.card-table.card-topcolor {
   border-top-color: var(--rb-theme-color);
+}
+
+.support-plat {
+  position: absolute;
+  margin-left: 8px;
+  background-color: var(--rb-color);
+  color: #fff;
+  display: inline-block;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  cursor: help;
+  text-align: center;
+  font-size: 13px;
 }

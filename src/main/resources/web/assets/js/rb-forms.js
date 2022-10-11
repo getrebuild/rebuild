@@ -45,7 +45,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button className="close md-close" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this.setState({ _maximize: !this.state._maximize })}>
-                  <span className="mdi mdi-window-restore" />
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
                 <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
@@ -250,9 +250,29 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
+
     function _addNew(n = 1) {
-      if (!that._ProTable) return
       for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
+    }
+
+    function _setLines(details) {
+      if (that._ProTable.isEmpty()) {
+        that._ProTable.setLines(details)
+      } else {
+        RbAlert.create($L('是否保留已有明细记录？'), {
+          confirmText: $L('保留'),
+          cancelText: $L('不保留'),
+          onConfirm: function () {
+            this.hide()
+            that._ProTable.setLines(details)
+          },
+          onCancel: function () {
+            this.hide()
+            that._ProTable.clear()
+            setTimeout(() => that._ProTable.setLines(details), 200)
+          },
+        })
+      }
     }
 
     // 记录转换预览模式
@@ -263,9 +283,10 @@ class RbForm extends React.Component {
     if (this.props.rawModel.detailImports) {
       this.props.rawModel.detailImports.forEach((item) => {
         detailImports.push({
-          label: item.name,
+          icon: item.icon,
+          label: item.transName || item.entityLabel,
           fetch: (form, callback) => {
-            ProTable.detailImports(item.id, form, callback)
+            ProTable.detailImports(item.transid, form, callback)
           },
         })
       })
@@ -299,8 +320,9 @@ class RbForm extends React.Component {
                         key={`imports-${idx}`}
                         className="dropdown-item"
                         onClick={() => {
-                          def.fetch(this, (details) => that._ProTable && that._ProTable.setLines(details))
+                          def.fetch(this, (details) => _setLines(details))
                         }}>
+                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
                         {def.label}
                       </a>
                     )
@@ -454,26 +476,17 @@ class RbForm extends React.Component {
   }
 
   // 获取当前表单数据
-  getFormData(isAll = true) {
+  getFormData() {
     const data = {}
-    if (isAll) {
-      // eslint-disable-next-line react/no-string-refs
-      const _refs = this.refs
-      for (let key in _refs) {
-        if (!key.startsWith('fieldcomp-')) continue
+    // eslint-disable-next-line react/no-string-refs
+    const _refs = this.refs
+    for (let key in _refs) {
+      if (!key.startsWith('fieldcomp-')) continue
 
-        const fieldComp = _refs[key]
-        let v = fieldComp.getValue()
-        if (typeof v === 'object') v = v.id
-        if (v) data[fieldComp.props.field] = v
-      }
-    }
-    // 仅修改的
-    else {
-      for (let k in this.__FormData) {
-        const err = this.__FormData[k].error
-        if (!err) data[k] = this.__FormData[k].value
-      }
+      const fieldComp = _refs[key]
+      let v = fieldComp.getValue()
+      if (v && typeof v === 'object') v = v.id
+      if (v) data[fieldComp.props.field] = v
     }
     return data
   }
@@ -486,7 +499,6 @@ class RbForm extends React.Component {
    * @next {Number}
    */
   post(next) {
-    console.log(this.__post)
     // fix dblclick
     if (this.__post === 1) return
     this.__post = 1
@@ -528,6 +540,15 @@ class RbForm extends React.Component {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
+
+        if (location.hash === '#!/New') {
+          // location.hash = '!/'
+          try {
+            localStorage.setItem('referenceSearch__reload', $random())
+          } catch (err) {
+            // Nothings
+          }
+        }
 
         setTimeout(() => {
           $$$parent.hide(true)
@@ -1562,7 +1583,7 @@ class RbFormReference extends RbFormElement {
           // v2.10 FIXME 父级改变后清除明细
           if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
             const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            that.props.$$$parent._ProTable.clear(field)
+            that.props.$$$parent._ProTable.setFieldNull(field)
           }
         }
         that.handleChange({ target: { value: v } }, true)

@@ -148,12 +148,6 @@ class ProTable extends React.Component {
     })
   }
 
-  setLines(models = []) {
-    models.forEach((item, idx) => {
-      setTimeout(() => this.addLine(item), idx * 20)
-    })
-  }
-
   removeLine(key) {
     const forms = this.state.inlineForms.filter((c) => {
       if (c.key === key && c.props.id) {
@@ -170,7 +164,29 @@ class ProTable extends React.Component {
     console.log('TODO :', id)
   }
 
-  clear(field) {
+  setLines(models = []) {
+    models.forEach((item, idx) => {
+      setTimeout(() => this.addLine(item), idx * 20)
+    })
+  }
+
+  isEmpty() {
+    return !this.state.inlineForms || this.state.inlineForms.length === 0
+  }
+
+  clear() {
+    this.state.inlineForms &&
+      this.state.inlineForms.forEach((c) => {
+        if (c.props.id) {
+          const d = this._deletes || []
+          d.push(c.props.id)
+          this._deletes = d
+        }
+      })
+    this.setState({ inlineForms: [] })
+  }
+
+  setFieldNull(field) {
     this.state.inlineForms &&
       this.state.inlineForms.forEach((c) => {
         const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
@@ -182,16 +198,17 @@ class ProTable extends React.Component {
     const datas = []
     let error = null
 
-    this._inlineFormsRefs && this._inlineFormsRefs.forEach((item) => {
-      if (!item.current) return
-      const d = item.current.buildFormData()
+    this._inlineFormsRefs &&
+      this._inlineFormsRefs.forEach((item) => {
+        if (!item.current) return
+        const d = item.current.buildFormData()
 
-      if (!d || typeof d === 'string') {
-        if (!error) error = d
-      } else if (Object.keys(d).length > 0) {
-        datas.push(d)
-      }
-    })
+        if (!d || typeof d === 'string') {
+          if (!error) error = d
+        } else if (Object.keys(d).length > 0) {
+          datas.push(d)
+        }
+      })
 
     if (error) {
       RbHighbar.create(error)
@@ -230,7 +247,7 @@ class ProTable extends React.Component {
 
     $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
       if (res.error_code === 0) {
-        if ((res.data || []).length === 0) RbHighbar.create($L('无可导入的明细记录'))
+        if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
         else typeof callback === 'function' && callback(res.data)
       } else {
         RbHighbar.error(res.error_msg)

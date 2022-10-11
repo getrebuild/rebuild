@@ -222,8 +222,13 @@ public class ApprovalController extends BaseController {
 
     @RequestMapping("urge")
     public RespBody doUrge(@IdParam(name = "record") ID recordId) {
-        boolean s = new ApprovalProcessor(recordId).urge();
-        return s ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
+        int s = new ApprovalProcessor(recordId).urge();
+
+        if (s == -1) {
+            return RespBody.errorl("5 分钟内仅可催审一次");
+        } else {
+            return s > 0 ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
+        }
     }
 
     @RequestMapping("revoke")

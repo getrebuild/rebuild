@@ -19,7 +19,7 @@ class AdvFilter extends React.Component {
 
     const extras = { useEquation: 'OR' }
     if (props.filter) {
-      const clone = JSON.parse(JSON.stringify(props.filter)) // bugfix
+      const clone = $clone(props.filter) // bugfix
       if (clone.equation) {
         extras.equation = clone.equation
         if (clone.equation === 'OR') extras.useEquation = 'OR'
@@ -160,9 +160,10 @@ class AdvFilter extends React.Component {
         // 引用字段在引用实体修改了名称字段后可能存在问题
         // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
 
-        if (item.type === 'REFERENCE' || item.type === 'N2NREFERENCE') {
-          REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
+        // noinspection DuplicatedCode
+        if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
           if (item.type === 'N2NREFERENCE') IS_N2NREF.push(item.name)
+          REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -363,9 +364,9 @@ const OP_TYPE = {
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
-const PICKLIST_CACHE = {}
-const REFENTITY_CACHE = {}
 const IS_N2NREF = []
+const REFENTITY_CACHE = {}
+const PICKLIST_CACHE = {}
 
 // 过滤项
 class FilterItem extends React.Component {

@@ -1194,10 +1194,12 @@ class RbList extends React.Component {
    * 获取最后查询条件
    */
   getLastQueryEntry() {
-    return JSON.parse(JSON.stringify(this.__lastQueryEntry)) // Use clone
+    return $clone(this.__lastQueryEntry)
   }
 
-  // 渲染完成后回调
+  /**
+   * 渲染完成后回调
+   */
   static renderAfter() {}
 }
 
@@ -1297,6 +1299,7 @@ class RbListPagination extends React.Component {
                 <React.Fragment>
                   {$L('配置统计字段')}
                   <sup className="rbv" title={$L('增值功能')} />
+                  <i className="support-plat mdi mdi-monitor" title={$L('支持 PC')} style={{ marginTop: 5, marginLeft: 5 }} />
                 </React.Fragment>
               )
             }>

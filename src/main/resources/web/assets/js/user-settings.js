@@ -77,7 +77,7 @@ $(document).ready(function () {
         $(`<td class="text-muted">${idx + 1}.</td>`).appendTo($tr)
         $(`<td>${this[0].split('UTC')[0]}</td>`).appendTo($tr)
         $(`<td>${this[1]}</td>`).appendTo($tr)
-        $(`<td>${this[2].replace(/\[Mobile]/i, `<i class="with-mobile zmdi zmdi-smartphone-iphone" title="${$L('手机版')}"></i>`)}</td>`).appendTo($tr)
+        $(`<td>${this[2].replace(/\[Mobile]/i, `<i class="mdi mdi-cellphone support-plat" title="${$L('手机')}"></i>`)}</td>`).appendTo($tr)
       })
 
       $('#logs tbody>tr').each(function () {
@@ -205,8 +205,9 @@ class DlgChangeEmail extends RbFormHandler {
 
     this.setState({ vcodeDisabled: true })
     $.post(`/settings/user/send-email-vcode?email=${$encode(s.newEmail)}`, (res) => {
-      if (res.error_code === 0) this.vcodeResend()
-      else {
+      if (res.error_code === 0) {
+        this.vcodeResend()
+      } else {
         this.setState({ vcodeDisabled: false })
         RbHighbar.create(res.error_msg)
       }

@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.exception.jdbc.GenericJdbcException;
+import cn.devezhao.persist4j.exception.JdbcException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
@@ -125,12 +125,16 @@ public class GeneralOperatingController extends BaseController {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
 
-        } catch (GenericJdbcException ex) {
+        } catch (JdbcException ex) {
             String known = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (known != null) return RespBody.error(known);
 
             log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
+
+        } catch (UnexpectedRollbackException rolledback) {
+            log.error("ROLLEDBACK", rolledback);
+            return RespBody.error("ROLLEDBACK OCCURED");
 
         } finally {
             // 确保清除
@@ -232,7 +236,7 @@ public class GeneralOperatingController extends BaseController {
                 affected = ies.bulk(context);
             }
 
-        } catch (AccessDeniedException known) {
+        } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
@@ -279,7 +283,7 @@ public class GeneralOperatingController extends BaseController {
                 }
             }
 
-        } catch (AccessDeniedException known) {
+        } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
@@ -309,7 +313,7 @@ public class GeneralOperatingController extends BaseController {
                 affected = ies.bulk(context);
             }
 
-        } catch (AccessDeniedException known) {
+        } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
@@ -370,7 +374,7 @@ public class GeneralOperatingController extends BaseController {
                 affected += ies.bulk(context);
             }
 
-        } catch (AccessDeniedException known) {
+        } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
@@ -398,12 +402,7 @@ public class GeneralOperatingController extends BaseController {
         return array;
     }
 
-    /**
-     * 操作 ID 列表
-     *
-     * @param request
-     * @return
-     */
+    // 操作 ID 列表
     private ID[] parseIdList(HttpServletRequest request) {
         String ids = getParameterNotNull(request, "id");
 
@@ -425,12 +424,7 @@ public class GeneralOperatingController extends BaseController {
         return idList.toArray(new ID[0]);
     }
 
-    /**
-     * 用户列表
-     *
-     * @param request
-     * @return
-     */
+    // 用户列表
     private ID[] parseUserList(HttpServletRequest request) {
         String to = getParameterNotNull(request, "to");
 
@@ -438,12 +432,7 @@ public class GeneralOperatingController extends BaseController {
         return users.toArray(new ID[0]);
     }
 
-    /**
-     * 级联操作实体
-     *
-     * @param request
-     * @return
-     */
+    // 级联操作实体
     private String[] parseCascades(HttpServletRequest request) {
         String cascades = getParameter(request, "cascades");
         if (StringUtils.isBlank(cascades)) {
@@ -461,12 +450,7 @@ public class GeneralOperatingController extends BaseController {
         return casList.toArray(new String[0]);
     }
 
-    /**
-     * 转成二维数组（首行为字段名，首列为ID）
-     *
-     * @param records
-     * @return
-     */
+    // 转成二维数组（首行为字段名，首列为ID）
     private JSON buildRepeatedData(List<Record> records) {
         final Entity entity = records.get(0).getEntity();
 

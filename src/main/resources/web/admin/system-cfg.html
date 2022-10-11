@@ -51,6 +51,9 @@
         border-radius: 2px;
         margin-right: 3px;
       }
+      .support-plat {
+        margin-top: -1px;
+      }
     </style>
   </head>
   <body>
@@ -110,11 +113,17 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('登录页每日一图')}]]</td>
+                        <td>
+                          [[${bundle.L('登录页每日一图')}]]
+                          <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                        </td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('自定义登录页图')}]]</td>
+                        <td>
+                          [[${bundle.L('自定义登录页图')}]]
+                          <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                        </td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
                             <i class="bgimg-img"></i>
@@ -246,7 +255,9 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('文档预览服务地址')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'PortalOfficePreviewUrl' : ''}" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
+                        <td th:data-id="${commercial > 1 ? 'PortalOfficePreviewUrl' : ''}" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">
+                          [[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]
+                        </td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('百度地图 AK')}]] <sup class="rbv"></sup></td>
@@ -264,7 +275,7 @@
             <div class="col-lg-3 col-12">
               <div class="alert alert-danger bg-market rbv-hide">
                 <div class="icon"><i class="zmdi zmdi-thumb-up animated tada infinite"></i></div>
-                <div class="message" style="line-height: 1.3">
+                <div class="message" style="line-height: 2">
                   <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多增值功能与专业技术支持</a>
                 </div>
               </div>

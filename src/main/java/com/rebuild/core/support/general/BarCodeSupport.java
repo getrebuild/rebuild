@@ -100,7 +100,7 @@ public class BarCodeSupport {
      * @return
      */
     public static BufferedImage createBarCode(String content, int h, boolean showText) {
-        h = h <= 0 ? 80 : h;
+        h = h <= 0 ? 64 : h;
         BitMatrix bitMatrix;
         try {
             bitMatrix = createCode(content, BarcodeFormat.CODE_128, h);
@@ -115,8 +115,8 @@ public class BarCodeSupport {
 
         if (showText) {
             try {
-                // height = 80+16
-                return drawTextOnImage(content, bi, bi.getHeight() / 5);
+                // height = 64+16
+                return drawTextOnImage(content, bi, bi.getHeight() / 4);
             } catch (Exception ex) {
                 log.warn("Cannot draw text on barcode : {}", content, ex);
             }
@@ -201,9 +201,9 @@ public class BarCodeSupport {
         g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
         g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
 
-        Font font = new Font(Font.SANS_SERIF, Font.PLAIN, space);
         g2d.drawImage(image, 0, 0, null);
 
+        final Font font = new Font(Font.SERIF, Font.PLAIN, space);
         final int w = bi.getWidth();
         final int h = space;
 
