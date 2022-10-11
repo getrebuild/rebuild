@@ -205,8 +205,9 @@ class DlgChangeEmail extends RbFormHandler {
 
     this.setState({ vcodeDisabled: true })
     $.post(`/settings/user/send-email-vcode?email=${$encode(s.newEmail)}`, (res) => {
-      if (res.error_code === 0) this.vcodeResend()
-      else {
+      if (res.error_code === 0) {
+        this.vcodeResend()
+      } else {
         this.setState({ vcodeDisabled: false })
         RbHighbar.create(res.error_msg)
       }
