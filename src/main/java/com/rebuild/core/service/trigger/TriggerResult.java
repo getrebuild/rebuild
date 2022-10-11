@@ -12,7 +12,6 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
-import java.nio.file.Watchable;
 import java.util.Collection;
 
 /**
@@ -68,6 +67,14 @@ public class TriggerResult implements JSONAware {
      * @param message
      * @return
      */
+    public static TriggerResult success(String message) {
+        return new TriggerResult(1, message, null);
+    }
+
+    /**
+     * @param message
+     * @return
+     */
     public static TriggerResult wran(String message) {
         return new TriggerResult(2, message, null);
     }
@@ -84,6 +91,27 @@ public class TriggerResult implements JSONAware {
      * @return
      */
     public static TriggerResult noMatching() {
-        return wran("No matching records");
+        return wran("No matching");
+    }
+
+    /**
+     * @return
+     */
+    public static TriggerResult triggerOnce() {
+        return wran("Trigger once");
+    }
+
+    /**
+     * @return
+     */
+    public static TriggerResult targetEmpty() {
+        return wran("Target are empty");
+    }
+
+    /**
+     * @return
+     */
+    public static TriggerResult targetSame() {
+        return wran("Target are same");
     }
 }

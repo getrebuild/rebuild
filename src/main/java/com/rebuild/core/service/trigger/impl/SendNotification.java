@@ -23,6 +23,7 @@ import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
@@ -67,7 +68,7 @@ public class SendNotification extends TriggerAction {
                 log.error(null, ex);
             }
         });
-        return "async";
+        return TriggerResult.success("async");
     }
 
     private void executeAsync(OperatingContext operatingContext) {

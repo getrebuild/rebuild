@@ -80,7 +80,7 @@ public class ActionFactory {
         @Override
         public Object execute(OperatingContext operatingContext) throws TriggerException {
             log.warn("@rbv not attached");
-            return "@rbv";
+            return TriggerResult.wran("@rbv");
         }
     }
 }

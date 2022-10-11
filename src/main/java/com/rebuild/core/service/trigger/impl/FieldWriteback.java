@@ -35,6 +35,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
@@ -84,18 +85,18 @@ public class FieldWriteback extends FieldAggregation {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return "trigger-once";
+        if (tschain == null) return TriggerResult.triggerOnce();
 
         this.prepare(operatingContext);
 
         if (targetRecordIds.isEmpty()) {
             log.debug("No target record(s) found");
-            return "target-0";
+            return TriggerResult.noMatching();
         }
 
         if (targetRecordData.isEmpty()) {
-            log.info("No data of target record(s) : {}", targetRecordIds);
-            return "target-empty";
+            log.info("No data of target record : {}", targetRecordIds);
+            return TriggerResult.targetEmpty();
         }
 
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
@@ -114,7 +115,7 @@ public class FieldWriteback extends FieldAggregation {
 
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
-                log.info("Ignore execution because the records are same : {}", targetRecordId);
+                log.info("Ignore execution because the record are same : {}", targetRecordId);
                 continue;
             }
 
@@ -144,7 +145,7 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        return "affected:" + affected;
+        return TriggerResult.success(affected);
     }
 
     @Override

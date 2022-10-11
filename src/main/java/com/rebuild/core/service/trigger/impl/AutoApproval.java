@@ -14,15 +14,13 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.service.general.OperatingContext;
-import com.rebuild.core.service.trigger.ActionContext;
-import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,7 +74,8 @@ public class AutoApproval extends TriggerAction {
         } else {
             Application.getBean(ApprovalStepService.class).txAutoApproved(recordId, approver, approvalId);
         }
-        return "approval:" + recordId;
+
+        return TriggerResult.success(Collections.singletonList(recordId));
     }
 
     @Override
