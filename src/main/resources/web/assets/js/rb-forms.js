@@ -45,7 +45,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button className="close md-close" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this.setState({ _maximize: !this.state._maximize })}>
-                  <span className="mdi mdi-window-restore" />
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
                 <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />

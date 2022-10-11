@@ -9,6 +9,7 @@ package com.rebuild.web.commons;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -42,9 +43,9 @@ public class UrlSafe extends BaseController {
         if (isTrusted(url)) {
             response.sendRedirect(url);
             return null;
+        } else {
+            return createModelAndView("/common/url-safe", Collections.singletonMap("outerUrl", url));
         }
-
-        return createModelAndView("/common/url-safe", Collections.singletonMap("outerUrl", url));
     }
 
     // --
@@ -58,12 +59,12 @@ public class UrlSafe extends BaseController {
      * @return
      */
     public static boolean isTrusted(String url) {
-        url = url.split("\\?")[0];
-        if (url.contains(RebuildConfiguration.getHomeUrl())) {
-            return true;
-        }
+        if (RebuildConfiguration.getBool(ConfigurationItem.TrustedAllUrl)) return true;
 
-        // 首次
+        url = url.split("\\?")[0];
+        if (url.contains(RebuildConfiguration.getHomeUrl())) return true;
+
+        // 首次加载
         if (TRUSTED_URLS == null) {
             String s = CommonsUtils.getStringOfRes("trusted-urls.json");
             TRUSTED_URLS = JSON.parseArray(StringUtils.defaultIfBlank(s, JSONUtils.EMPTY_ARRAY_STR));
