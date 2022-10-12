@@ -62,14 +62,14 @@
                     <div class="dataTables_filter">
                       <div class="adv-search float-left">
                         <div class="btn-group btn-space">
-                          <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                          <button class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
                             <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
                           </button>
                           <div class="dropdown-menu rb-scroller">
                             <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
                           </div>
                           <div class="input-group-append">
-                            <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
+                            <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary J_filterbtn" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
                           </div>
                         </div>
                       </div>
@@ -80,6 +80,7 @@
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
                       </div>
+                      <span id="dropdown-menu-advfilter"></span>
                     </div>
                   </div>
                   <div class="col-12 col-md-6">

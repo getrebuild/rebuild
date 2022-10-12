@@ -657,7 +657,7 @@ div.dataTables_filter .filter-badge:hover .close {
   right: 8px;
 }
 
-.adv-search .J_advfilter .icon {
+.adv-search .J_filterbtn .icon {
   margin-top: -3px;
   font-size: 1.45rem !important;
 }
@@ -2264,7 +2264,7 @@ th.column-fixed {
 .adv-filter-wrap {
   background-color: #fff;
   padding: 20px;
-  max-width: 560px;
+  /* max-width: 560px; */
 }
 
 .adv-filter-wrap.in-modal {
@@ -2375,7 +2375,8 @@ th.column-fixed {
   padding-right: 8px;
 }
 
-.adv-filter .btn + .btn {
+.adv-filter .btn + .btn,
+.adv-filter .btn-group + .btn {
   margin-left: 10px;
 }
 
@@ -2411,6 +2412,24 @@ th.column-fixed {
   margin-top: 10px;
   margin-right: 10px;
   font-size: 1.2rem;
+}
+
+.dropdown-menu-advfilter {
+  position: absolute;
+  left: 10px;
+  top: 36px;
+  z-index: 1000;
+  width: 680px;
+}
+
+.dropdown-menu-advfilter .adv-filter-wrap {
+  box-shadow: 0 3px 0.3077rem rgb(0 0 0 / 10%);
+  padding: 30px;
+}
+
+div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
+  width: 100%;
+  display: block;
 }
 
 .dataTables_wrapper .paging_sizes {

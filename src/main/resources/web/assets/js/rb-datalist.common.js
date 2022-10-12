@@ -4,14 +4,148 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet */
+/* global FieldValueSet, Share2Settings */
 // 列表公共操作
 
 const _RbList = function () {
   return RbListPage._RbList || {}
 }
 
-// ~~ 高级查询操作类
+// ~~ 高级查询
+
+class ListAdvFilter extends AdvFilter {
+  render() {
+    const filterComp = super.render()
+    return this.props.inModal ? filterComp : <div className="dropdown-menu-advfilter">{filterComp}</div>
+  }
+
+  renderAction() {
+    return (
+      <div className="item dialog-footer">
+        {this.props.inModal ? (
+          <RF>
+            <div className="float-left">
+              <div className="float-left input">
+                <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} />
+              </div>
+              {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} shareTo={this.props.shareTo} noSwitch />}
+            </div>
+            <div className="float-right">
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={() => {
+                  const name = this.state.filterName
+                  const shareTo = this._shareTo ? this._shareTo.getData().shareTo : null
+                  this.post(name, shareTo)
+                }}>
+                {$L('保存')}
+              </button>
+              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
+                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+              </button>
+            </div>
+          </RF>
+        ) : (
+          <div className="float-right">
+            <div className="btn-group">
+              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
+                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+              </button>
+              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
+                <i className="icon zmdi zmdi-chevron-down" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item" onClick={() => this.handleSave()}>
+                  {$L('保存')}
+                </a>
+              </div>
+            </div>
+            <button className="btn btn-secondary" type="button" onClick={() => this.searchNow(true)}>
+              <i className="icon mdi mdi-restore" /> {$L('清除')}
+            </button>
+          </div>
+        )}
+
+        <div className="clearfix" />
+      </div>
+    )
+  }
+
+  searchNow(clear) {
+    if (clear) {
+      RbListPage._RbList.search({ items: [] }, true)
+    } else {
+      const adv = this.toFilterJson(true)
+      if (adv) RbListPage._RbList.search(adv, true)
+    }
+  }
+
+  post(name, shareTo) {
+    const filter = this.toFilterJson(this.props.canNoFilters)
+    if (!filter) return
+
+    let url = `/app/${this.props.entity}/advfilter/post?id=${this.props.id || ''}`
+    if (name) url += `&name=${$encode(name)}`
+    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
+
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) {
+        this.props.inModal && this._dlg.hide()
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(res.data.id)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  handleSave() {
+    const filter = this.toFilterJson(this.props.canNoFilters)
+    if (!filter) return
+
+    renderRbcomp(
+      <ListAdvFilterSave
+        configName={this.props.filterName}
+        shareTo={this.props.shareTo}
+        onConfirm={(d) => {
+          this.post(d.configName, d.shareTo)
+        }}
+      />
+    )
+  }
+}
+
+class ListAdvFilterSave extends Share2Settings {
+  renderContent() {
+    return (
+      <div className="form">
+        {rb.isAdminUser && (
+          <div className="form-group">
+            <label className="text-bold">{$L('共享给')}</label>
+            <UserSelector ref={(c) => (this._UserSelector = c)} selected={this.state.selected} />
+            <p className="form-text">{$L('可以共享给不同的角色或职能部门，便于统一管理')}</p>
+          </div>
+        )}
+        <div className="form-group">
+          <input type="text" className="form-control form-control-sm" placeholder={$L('我的查询')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
+        </div>
+
+        <div className="form-group mb-1">
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  getData() {
+    const s = super.getData()
+    // eslint-disable-next-line no-undef
+    if (s.shareTo === SHARE_ALL && !rb.isAdminUser) s.shareTo = null
+    return s
+  }
+}
 
 const AdvFilters = {
   /**
@@ -22,13 +156,35 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').on('click', () => {
-      // this.showAdvFilter(null, this.current)  // 2.9.4 取消 useCopyId，可能引起误解
-      this.showAdvFilter()
+    this.__el.find('.J_filterbtn').on('click', () => {
       this.current = null
+      this.showAdvFilter()
     })
-    const $all = $('.adv-search .dropdown-item:eq(0)')
-    $all.on('click', () => this._effectFilter($all, 'aside'))
+
+    this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    $(document.body).on('click', (e) => {
+      console.log(e.target, e.currentTarget)
+      if (!e.target) return
+      var $target = $(e.target)
+      if (
+        $target.hasClass('J_filterbtn') ||
+        $target.parent().hasClass('J_filterbtn') ||
+        $target.hasClass('dropdown-menu-advfilter') ||
+        $target.parents('.dropdown-menu-advfilter')[0] ||
+        $target.hasClass('modal') ||
+        $target.parents('.modal')[0] ||
+        $target.parents('.select2-container')[0]
+      ) {
+        return
+      }
+
+      if (this.__customAdv) {
+        this.__$customAdvWrap.addClass('hide')
+      }
+    })
+
+    const $alldata = $('.adv-search .dropdown-item:eq(0)')
+    $alldata.on('click', () => this._effectFilter($alldata, 'aside'))
 
     this.loadFilters()
 
@@ -105,23 +261,24 @@ const AdvFilters = {
         })
         $ghost.appendTo($('#asideFilters').empty())
 
-        if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
-          const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
-          renderRbcomp(
-            <RbAlertBox
-              type="info"
-              message={
-                <RF>
-                  <a className="mr-1" href="#" onClick={(e) => AdvFilters._showAddCommonQuery(e)}>
-                    {$L('添加')}
-                  </a>
-                  {$L('常用查询方便以后使用')}
-                </RF>
-              }
-            />,
-            $hub
-          )
-        }
+        // v3.1 取消
+        // if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
+        //   const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
+        //   renderRbcomp(
+        //     <RbAlertBox
+        //       type="info"
+        //       message={
+        //         <RF>
+        //           <a className="mr-1" href="#" onClick={(e) => AdvFilters.showAddCommonQuery(e)}>
+        //             {$L('添加')}
+        //           </a>
+        //           {$L('常用查询方便以后使用')}
+        //         </RF>
+        //       }
+        //     />,
+        //     $hub
+        //   )
+        // }
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -133,11 +290,11 @@ const AdvFilters = {
     this.current = item.data('id')
     $('.adv-search .J_name').text(item.find('>a').text())
     if (rel === 'aside') {
-      const current_id = this.current
+      const current = this.current
       $('#asideFilters .dropdown-item')
         .removeClass('active')
         .each(function () {
-          if ($(this).data('id') === current_id) {
+          if ($(this).data('id') === current) {
             $(this).addClass('active')
             return false
           }
@@ -148,7 +305,55 @@ const AdvFilters = {
     _RbList().setAdvFilter(this.current)
   },
 
-  _showAddCommonQuery(e) {
+  showAdvFilter(id, useCopyId) {
+    const that = this
+
+    const props = {
+      entity: this.__entity,
+      id: id || null,
+      onConfirm: function (id) {
+        $storage.set(_RbList().__defaultFilterKey, id)
+        that.loadFilters()
+        that.__savedCached[id] = null
+      },
+    }
+
+    if (!id) {
+      if (this.__customAdv) {
+        this.__$customAdvWrap.toggleClass('hide')
+      } else {
+        // `useCopyId` 2.9.4 取消 useCopyId，可能引起误解
+        if (useCopyId) {
+          this._getFilter(useCopyId, (res) => {
+            renderRbcomp(<ListAdvFilter {...props} filter={res.filter} />, this.__$customAdvWrap, function () {
+              that.__customAdv = this
+            })
+          })
+        } else {
+          renderRbcomp(<ListAdvFilter {...props} />, this.__$customAdvWrap, function () {
+            that.__customAdv = this
+          })
+        }
+      }
+    } else {
+      this.current = id
+      if (this.__savedCached[id]) {
+        const res = this.__savedCached[id]
+        renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
+      } else {
+        this._getFilter(id, (res) => {
+          this.__savedCached[id] = res
+          renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
+        })
+      }
+    }
+  },
+
+  _getFilter(id, call) {
+    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
+  },
+
+  showAddCommonQuery(e) {
     $stopEvent(e, true)
     if (this._AddCommonQuery) {
       this._AddCommonQuery.show()
@@ -158,67 +363,6 @@ const AdvFilters = {
         that._AddCommonQuery = this
       })
     }
-  },
-
-  showAdvFilter(id, useCopyId) {
-    const props = {
-      entity: this.__entity,
-      inModal: true,
-      fromList: true,
-      confirm: this.saveFilter,
-    }
-
-    if (!id) {
-      if (this.__customAdv) {
-        this.__customAdv.show()
-      } else {
-        const that = this
-        if (useCopyId) {
-          this._getFilter(useCopyId, (res) => {
-            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () {
-              that.__customAdv = this
-            })
-          })
-        } else {
-          renderRbcomp(<AdvFilter {...props} />, null, function () {
-            that.__customAdv = this
-          })
-        }
-      }
-    } else {
-      this.current = id
-      if (this.__savedCached[id]) {
-        const res = this.__savedCached[id]
-        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
-      } else {
-        this._getFilter(id, (res) => {
-          this.__savedCached[id] = res
-          renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
-        })
-      }
-    }
-  },
-
-  saveFilter(filter, name, shareTo) {
-    if (!filter) return
-    const that = AdvFilters
-    let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
-    if (name) url += `&name=${$encode(name)}`
-    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
-
-    $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) {
-        $storage.set(_RbList().__defaultFilterKey, res.data.id)
-        that.loadFilters()
-        if (that.current) that.__savedCached[that.current] = null
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  },
-
-  _getFilter(id, call) {
-    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
 }
 
@@ -554,7 +698,7 @@ class BatchUpdate extends BatchOperator {
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
           setTimeout(() => {
             this.hide()
-            window.RbListPage && window.RbListPage.reload()
+            RbListPage.reload()
           }, 500)
         } else {
           mp && mp.set(cp)
@@ -1147,8 +1291,8 @@ class RbList extends React.Component {
 
     // 高级查询
     if (fromAdv === true) {
-      $('.J_advfilter .indicator-primary').remove()
-      if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')
+      $('.J_filterbtn .indicator-primary').remove()
+      if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_filterbtn')
     }
   }
 

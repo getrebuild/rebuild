@@ -26,7 +26,7 @@ class AdvFilter extends React.Component {
         else if (clone.equation === 'AND') extras.useEquation = 'AND'
         else extras.useEquation = '9999'
       }
-      this.__items = clone.items
+      this.__initItems = clone.items
     }
 
     this.state = { items: [], ...props, ...extras }
@@ -35,27 +35,7 @@ class AdvFilter extends React.Component {
   }
 
   render() {
-    const cAction = this.props.fromList ? (
-      <div className="float-right">
-        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('保存')}
-        </button>
-        <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-          <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
-        </button>
-      </div>
-    ) : (
-      <div className="item">
-        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('确定')}
-        </button>
-        <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
-          {$L('取消')}
-        </button>
-      </div>
-    )
-
-    const advFilter = (
+    const filterComp = (
       <div className={`adv-filter-wrap ${this.props.inModal ? 'in-modal' : 'shadow rounded'}`}>
         {this.state.hasErrorTip && (
           <div className="alert alert-warning alert-sm">
@@ -67,7 +47,11 @@ class AdvFilter extends React.Component {
         )}
 
         <div className="adv-filter">
-          <div className="filter-items" onKeyPress={(e) => this.searchByKey(e)}>
+          <div
+            className="filter-items"
+            onKeyPress={(e) => {
+              if (e.which === 13 && typeof this.searchNow === 'function') this.searchNow()
+            }}>
             {this.state.items}
 
             <div className="item plus">
@@ -115,37 +99,30 @@ class AdvFilter extends React.Component {
             )}
           </div>
 
-          {this.props.fromList ? (
-            <div className="item dialog-footer">
-              <div className="float-left">
-                <div className="float-left input">
-                  <input
-                    className="form-control form-control-sm text"
-                    maxLength="20"
-                    value={this.state.filterName || ''}
-                    data-id="filterName"
-                    onChange={this.handleChange}
-                    placeholder={$L('输入名称保存到常用查询')}
-                  />
-                </div>
-                {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />}
-              </div>
-              {cAction}
-              <div className="clearfix" />
-            </div>
-          ) : (
-            <div className="btn-footer">{cAction}</div>
-          )}
+          <div className="btn-footer">{this.renderAction()}</div>
         </div>
       </div>
     )
 
     return this.props.inModal ? (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('高级查询')} disposeOnHide={!!this.props.filterName}>
-        {advFilter}
+      <RbModal title={this.props.title || $L('高级查询')} ref={(c) => (this._dlg = c)}>
+        {filterComp}
       </RbModal>
     ) : (
-      advFilter
+      filterComp
+    )
+  }
+
+  renderAction() {
+    return (
+      <div className="item">
+        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
+          {$L('确定')}
+        </button>
+        <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
+          {$L('取消')}
+        </button>
+      </div>
     )
   }
 
@@ -186,8 +163,8 @@ class AdvFilter extends React.Component {
       this._fields = fields
 
       // init
-      if (this.__items) {
-        this.__items.forEach((item) => {
+      if (this.__initItems) {
+        this.__initItems.forEach((item) => {
           if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
 
           if (validFs.includes(item.field)) {
@@ -291,25 +268,14 @@ class AdvFilter extends React.Component {
     return adv
   }
 
-  searchByKey(e) {
-    if (this.props.fromList !== true || e.which !== 13) return // Not [Enter]
-    this.searchNow()
-  }
-
-  searchNow() {
-    const adv = this.toFilterJson(true)
-    if (!!adv && window.RbListPage) RbListPage._RbList.search(adv, true)
-  }
-
   confirm() {
     const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
 
     const _onConfirm = this.props.confirm || this.props.onConfirm
-    typeof _onConfirm === 'function' && _onConfirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
+    typeof _onConfirm === 'function' && _onConfirm(adv)
 
     this.props.inModal && this._dlg.hide()
-    this.setState({ filterName: null })
   }
 
   show(state) {
