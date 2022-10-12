@@ -526,12 +526,12 @@ var $fileExtName = function (fileName) {
  */
 var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
-  var imgOnly = $input.attr('accept') === 'image/*'
-  var local = $input.data('local')
+  var imageType = $input.attr('accept') === 'image/*' // 仅图片
+  var upLocal = $input.data('local') // 上传本地
   if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
-  var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
+  var putExtra = imageType ? { mimeType: ['image/*'] } : null
 
   function _qiniuUpload(file) {
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
@@ -542,14 +542,14 @@ var $createUploader = function (input, next, complete, error) {
         },
         error: function (err) {
           var msg = (err.message || err.error || 'UnknowError').toUpperCase()
-          if (imgOnly && msg.contains('FILE TYPE')) {
+          if (imageType && msg.contains('FILE TYPE')) {
             RbHighbar.create($L('请上传图片'))
           } else if (msg.contains('EXCEED FSIZELIMIT')) {
             RbHighbar.create($L('超出文件大小限制'))
           } else {
             RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
           }
-          console.log('Upload error:', err)
+          console.log('Upload error :', err)
           typeof error === 'function' && error({ error: msg, file: file })
           return false
         },
@@ -562,10 +562,17 @@ var $createUploader = function (input, next, complete, error) {
   }
 
   // Qiniu-Cloud
-  if (window.qiniu && rb.storageUrl && !local) {
+  if (window.qiniu2 && rb.storageUrl && !upLocal) {
+    var acceptType = $input.attr('accept')
     $input.on('change', function () {
       for (var i = 0; i < this.files.length; i++) {
-        _qiniuUpload(this.files[i])
+        // @see jquery.html5uploader.js
+        // eslint-disable-next-line no-undef
+        if (html5Uploader_checkAccept(this.files[i], acceptType)) {
+          _qiniuUpload(this.files[i])
+        } else {
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('文件类型错误'))
+        }
       }
     })
   }
@@ -574,10 +581,10 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create(imgOnly ? $L('请上传图片') : $L('文件格式错误'))
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('文件类型错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create($L('超出文件大小限制'))
@@ -591,7 +598,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
+          if (upLocal !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
           complete({ key: e.data, file: file })
         } else {
           RbHighbar.error($L('上传失败，请稍后重试'))
@@ -602,7 +609,7 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientError: function (e, file) {
         RbHighbar.error($L('上传失败，请稍后重试'))
-        console.log('Upload error:', e)
+        console.log('Upload error :', e)
         typeof error === 'function' && error({ error: e, file: file })
 
         $input.val(null) // reset
