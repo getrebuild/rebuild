@@ -46,22 +46,12 @@ import java.util.*;
 public class ProtocolFilterParser {
 
     final private String protocolExpr;
-    final private ID user;
-
-    /**
-     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value related:field:id
-     * @param user
-     */
-    public ProtocolFilterParser(String protocolExpr, ID user) {
-        this.protocolExpr = protocolExpr;
-        this.user = user;
-    }
 
     /**
      * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value related:field:id
      */
     public ProtocolFilterParser(String protocolExpr) {
-        this(protocolExpr, null);
+        this.protocolExpr = protocolExpr;
     }
 
     /**
@@ -230,7 +220,7 @@ public class ProtocolFilterParser {
         // 附件过滤条件
 
         Map<String, JSONObject> vtabFilters = ViewAddonsManager.instance.getViewTabFilters(
-                MetadataHelper.getEntity(mainid.getEntityCode()).getName(), this.user);
+                MetadataHelper.getEntity(mainid.getEntityCode()).getName());
 
         JSONObject hasFilter = vtabFilters.get(relatedExpr);
         if (ParseHelper.validAdvFilter(hasFilter)) {

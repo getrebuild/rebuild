@@ -347,7 +347,7 @@ class LightAttachmentList extends RelatedList {
       </div>
     )
     this.__listExtraLink = (
-      <form method="post" action={`${rb.baseUrl}/files/batch-download`} target="_blank" ref={(c) => (this._$downloadForm = c)}>
+      <form method="post" action={`${rb.baseUrl}/files/batch-download`} ref={(c) => (this._$downloadForm = c)} target="_blank">
         <input type="hidden" name="files" />
         <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')}>
           <i className="icon zmdi zmdi-download" />

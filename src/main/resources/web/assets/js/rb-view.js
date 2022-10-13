@@ -242,7 +242,19 @@ class RelatedList extends React.Component {
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
                   <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
-                    <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
+                    <input
+                      type="radio"
+                      name={optionName}
+                      value="LIST"
+                      checked={this.state.viewMode === 'LIST'}
+                      onChange={(e) => rb.commercial > 0 && this.switchViewMode(e)}
+                      onClick={(e) => {
+                        if (rb.commercial < 1) {
+                          $stopEvent(e, true)
+                          RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+                        }
+                      }}
+                    />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
                 </div>
@@ -350,12 +362,12 @@ class EntityRelatedList extends RelatedList {
 
     this.__entity = props.entity.split('.')[0]
 
-    // const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
-    // this.__listExtraLink = (
-    //   <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
-    //     <i className="icon zmdi zmdi-open-in-new" />
-    //   </a>
-    // )
+    const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
+    this.__listExtraLink = (
+      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+        <i className="icon zmdi zmdi-open-in-new" />
+      </a>
+    )
   }
 
   renderItem(item) {

@@ -115,7 +115,7 @@ public class RelatedListController extends BaseController {
         // format: Entity.Field
         Entity relatedEntity = MetadataHelper.getEntity(relatedExpr.split("\\.")[0]);
 
-        String where = new ProtocolFilterParser("related:", user)
+        String where = new ProtocolFilterParser("related:")
                 .parseRelated(relatedExpr, mainid);
 
         // @see FeedsListController#fetchFeeds

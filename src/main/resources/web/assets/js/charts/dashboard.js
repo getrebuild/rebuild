@@ -343,7 +343,7 @@ class DlgDashSettings extends RbFormHandler {
             </div>
           </div>
           {rb.isAdminUser && (
-            <div className="form-group row">
+            <div className="form-group row pt-0">
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">

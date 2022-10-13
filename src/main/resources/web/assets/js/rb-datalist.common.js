@@ -4,148 +4,14 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet, Share2Settings */
+/* global FieldValueSet */
 // 列表公共操作
 
 const _RbList = function () {
   return RbListPage._RbList || {}
 }
 
-// ~~ 高级查询
-
-class ListAdvFilter extends AdvFilter {
-  render() {
-    const filterComp = super.render()
-    return this.props.inModal ? filterComp : <div className="dropdown-menu-advfilter">{filterComp}</div>
-  }
-
-  renderAction() {
-    return (
-      <div className="item dialog-footer">
-        {this.props.inModal ? (
-          <RF>
-            <div className="float-left">
-              <div className="float-left input">
-                <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} />
-              </div>
-              {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} shareTo={this.props.shareTo} noSwitch />}
-            </div>
-            <div className="float-right">
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => {
-                  const name = this.state.filterName
-                  const shareTo = this._shareTo ? this._shareTo.getData().shareTo : null
-                  this.post(name, shareTo)
-                }}>
-                {$L('保存')}
-              </button>
-              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
-              </button>
-            </div>
-          </RF>
-        ) : (
-          <div className="float-right">
-            <div className="btn-group">
-              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
-              </button>
-              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
-                <i className="icon zmdi zmdi-chevron-down" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.handleSave()}>
-                  {$L('保存')}
-                </a>
-              </div>
-            </div>
-            <button className="btn btn-secondary" type="button" onClick={() => this.searchNow(true)}>
-              <i className="icon mdi mdi-restore" /> {$L('清除')}
-            </button>
-          </div>
-        )}
-
-        <div className="clearfix" />
-      </div>
-    )
-  }
-
-  searchNow(clear) {
-    if (clear) {
-      RbListPage._RbList.search({ items: [] }, true)
-    } else {
-      const adv = this.toFilterJson(true)
-      if (adv) RbListPage._RbList.search(adv, true)
-    }
-  }
-
-  post(name, shareTo) {
-    const filter = this.toFilterJson(this.props.canNoFilters)
-    if (!filter) return
-
-    let url = `/app/${this.props.entity}/advfilter/post?id=${this.props.id || ''}`
-    if (name) url += `&name=${$encode(name)}`
-    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
-
-    $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) {
-        this.props.inModal && this._dlg.hide()
-        typeof this.props.onConfirm === 'function' && this.props.onConfirm(res.data.id)
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  }
-
-  handleSave() {
-    const filter = this.toFilterJson(this.props.canNoFilters)
-    if (!filter) return
-
-    renderRbcomp(
-      <ListAdvFilterSave
-        configName={this.props.filterName}
-        shareTo={this.props.shareTo}
-        onConfirm={(d) => {
-          this.post(d.configName, d.shareTo)
-        }}
-      />
-    )
-  }
-}
-
-class ListAdvFilterSave extends Share2Settings {
-  renderContent() {
-    return (
-      <div className="form">
-        {rb.isAdminUser && (
-          <div className="form-group">
-            <label className="text-bold">{$L('共享给')}</label>
-            <UserSelector ref={(c) => (this._UserSelector = c)} selected={this.state.selected} />
-            <p className="form-text">{$L('可以共享给不同的角色或职能部门，便于统一管理')}</p>
-          </div>
-        )}
-        <div className="form-group">
-          <input type="text" className="form-control form-control-sm" placeholder={$L('我的查询')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
-        </div>
-
-        <div className="form-group mb-1">
-          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
-            {$L('确定')}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  getData() {
-    const s = super.getData()
-    // eslint-disable-next-line no-undef
-    if (s.shareTo === SHARE_ALL && !rb.isAdminUser) s.shareTo = null
-    return s
-  }
-}
+// ~~ 高级查询操作
 
 const AdvFilters = {
   /**
@@ -163,7 +29,6 @@ const AdvFilters = {
 
     this.__$customAdvWrap = $('#dropdown-menu-advfilter')
     $(document.body).on('click', (e) => {
-      console.log(e.target, e.currentTarget)
       if (!e.target) return
       var $target = $(e.target)
       if (
