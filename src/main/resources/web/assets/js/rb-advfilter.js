@@ -884,7 +884,7 @@ class ListAdvFilter extends AdvFilter {
                 <i className="icon zmdi zmdi-chevron-down" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.handleSave()}>
+                <a className="dropdown-item" onClick={() => this.handleNew()}>
                   {$L('保存')}
                 </a>
               </div>
@@ -926,7 +926,7 @@ class ListAdvFilter extends AdvFilter {
     })
   }
 
-  handleSave() {
+  handleNew() {
     const filter = this.toFilterJson(this.props.canNoFilters)
     if (!filter) return
 
@@ -936,8 +936,6 @@ class ListAdvFilter extends AdvFilter {
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
         <ListAdvFilterSave
-          name={this.props.filterName}
-          shareTo={this.props.shareTo}
           onConfirm={(d) => {
             this.post(d.name, d.shareTo)
           }}
@@ -964,7 +962,7 @@ class ListAdvFilterSave extends RbFormHandler {
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
-                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch />
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch />
                 </div>
               </div>
             </div>
@@ -991,6 +989,7 @@ class ListAdvFilterSave extends RbFormHandler {
     }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
 
+    this.setState({ name: '' })
     this.hide()
   }
 }

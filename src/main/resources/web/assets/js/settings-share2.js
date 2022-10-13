@@ -105,9 +105,11 @@ class Share2 extends _ChangeHandler {
   }
 
   getData() {
-    let st = this.state.shareTo
-    if (this.state.shared && st === SHARE_SELF) st = SHARE_ALL
-    else if (!this.state.shared && st !== SHARE_SELF) st = SHARE_SELF
+    let st = SHARE_SELF
+    if (this.state.shared) {
+      if (this.state.shareTo) st = this.state.shareTo
+      else st = SHARE_ALL
+    }
     return { configName: this.state.configName, shareTo: st }
   }
 }
