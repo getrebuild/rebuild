@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
  * @author devezhao
  * @since 2020/12/7
  */
-public class SysbaseDiagnosis {
+public class SysbaseHeartbeat {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
@@ -32,20 +32,21 @@ public class SysbaseDiagnosis {
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
 
-    volatile public static String _DENIEDMSG = null;
+    volatile public static String DENIEDMSG = null;
 
-    public void diagnose() {
+    /**
+     * Check server
+     */
+    public void heartbeat() {
         ServerStatus.getLastStatus(true);
 
         LinkedHashMap<String, String> dangers = getDangersList();
 
-        if (License.getCommercialType() != 11) {
-            JSONObject checkBuild = License.siteApi("api/authority/check-build");
-            if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
-                dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
-            } else {
-                dangers.remove(HasUpdate);
-            }
+        JSONObject checkBuild = License.siteApi("api/authority/check-build");
+        if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
+            dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
+        } else {
+            dangers.remove(HasUpdate);
         }
 
         JSONObject echoValidity = License.siteApiNoCache("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
@@ -58,12 +59,12 @@ public class SysbaseDiagnosis {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
-            _DENIEDMSG = echoValidity.getString("deniedMsg");
+            DENIEDMSG = echoValidity.getString("deniedMsg");
 
         } else {
             dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
-            _DENIEDMSG = null;
+            DENIEDMSG = null;
         }
 
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
@@ -76,6 +77,10 @@ public class SysbaseDiagnosis {
         return dangers == null ? new LinkedHashMap<>() : (LinkedHashMap<String, String>) dangers.clone();
     }
 
+    /**
+     * @param name
+     * @param message
+     */
     public static void setItem(String name, String message) {
         LinkedHashMap<String, String> dangers = getDangersList();
         if (message == null) dangers.remove(name);
@@ -84,6 +89,9 @@ public class SysbaseDiagnosis {
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY * 2);
     }
 
+    /**
+     * @return
+     */
     public static Collection<String> getAdminDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
 
@@ -121,6 +129,9 @@ public class SysbaseDiagnosis {
         return dangers.values();
     }
 
+    /**
+     * @return
+     */
     public static String getUsersDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
         return dangers.get(UsersMsg);

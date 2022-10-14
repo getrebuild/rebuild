@@ -129,7 +129,6 @@ public final class License {
 
         try {
             String apiUrl = StringUtils.defaultIfEmpty(domain, "https://getrebuild.com/") + api;
-            apiUrl = "http://localhost:3000/" + api;
             String result = OkHttpUtils.get(apiUrl, hs);
 
             if (JSONUtils.wellFormat(result)) {
