@@ -4258,9 +4258,10 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 4px 0;
+  padding: 8px;
   text-align: center;
   background-color: #eee;
+  background-color: rgba(255, 255, 255, 0.15);
   font-size: 1rem;
   color: #222;
 }

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet */
+/* global FieldValueSet, ListAdvFilter */
 // 列表公共操作
 
 const _RbList = function () {
@@ -218,81 +218,81 @@ const AdvFilters = {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
 
-  showAddCommonQuery(e) {
-    $stopEvent(e, true)
-    if (this._AddCommonQuery) {
-      this._AddCommonQuery.show()
-    } else {
-      const that = this
-      renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
-        that._AddCommonQuery = this
-      })
-    }
-  },
+  // showAddCommonQuery(e) {
+  //   $stopEvent(e, true)
+  //   if (this._AddCommonQuery) {
+  //     this._AddCommonQuery.show()
+  //   } else {
+  //     const that = this
+  //     renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
+  //       that._AddCommonQuery = this
+  //     })
+  //   }
+  // },
 }
 
 // ~~ 添加常用查询
 
-class AddCommonQuery extends RbFormHandler {
-  render() {
-    const defs = [
-      [$L('今天新增的'), 'DAY_NEW'],
-      [$L('本周新增的'), 'WEEK_NEW'],
-      [$L('本月新增的'), 'MONTH_NEW'],
-      [],
-      [$L('属于我的'), 'MY_OWN'],
-      [$L('我创建的'), 'MY_CREATE'],
-      [$L('我修改的'), 'MY_MODIFY'],
-    ]
+// class AddCommonQuery extends RbFormHandler {
+//   render() {
+//     const defs = [
+//       [$L('今天新增的'), 'DAY_NEW'],
+//       [$L('本周新增的'), 'WEEK_NEW'],
+//       [$L('本月新增的'), 'MONTH_NEW'],
+//       [],
+//       [$L('属于我的'), 'MY_OWN'],
+//       [$L('我创建的'), 'MY_CREATE'],
+//       [$L('我修改的'), 'MY_MODIFY'],
+//     ]
 
-    return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
-        <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
+//     return (
+//       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
+//         <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
 
-        <div ref={(c) => (this._$chks = c)}>
-          {defs.map((item, idx) => {
-            if (item.length === 0) return <br key={idx} />
-            return (
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
-                <input className="custom-control-input" type="checkbox" value={item[1]} />
-                <span className="custom-control-label"> {item[0]}</span>
-              </label>
-            )
-          })}
-        </div>
-        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
-            {$L('确定')}
-          </button>
-          <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
-            {$L('取消')}
-          </button>
-        </div>
-      </RbModal>
-    )
-  }
+//         <div ref={(c) => (this._$chks = c)}>
+//           {defs.map((item, idx) => {
+//             if (item.length === 0) return <br key={idx} />
+//             return (
+//               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
+//                 <input className="custom-control-input" type="checkbox" value={item[1]} />
+//                 <span className="custom-control-label"> {item[0]}</span>
+//               </label>
+//             )
+//           })}
+//         </div>
+//         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+//           <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
+//             {$L('确定')}
+//           </button>
+//           <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
+//             {$L('取消')}
+//           </button>
+//         </div>
+//       </RbModal>
+//     )
+//   }
 
-  saveAdd() {
-    const adds = []
-    $(this._$chks)
-      .find('input')
-      .each(function () {
-        const $this = $(this)
-        if ($this.prop('checked')) adds.push($this.val())
-      })
+//   saveAdd() {
+//     const adds = []
+//     $(this._$chks)
+//       .find('input')
+//       .each(function () {
+//         const $this = $(this)
+//         if ($this.prop('checked')) adds.push($this.val())
+//       })
 
-    if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
+//     if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
 
-    this.disabled(true)
-    $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
-      this.disabled()
-      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+//     this.disabled(true)
+//     $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
+//       this.disabled()
+//       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-      AdvFilters.loadFilters()
-      this.hide()
-    })
-  }
-}
+//       AdvFilters.loadFilters()
+//       this.hide()
+//     })
+//   }
+// }
 
 // ~~ 列表记录批量操作
 
