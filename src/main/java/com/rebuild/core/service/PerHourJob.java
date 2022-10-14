@@ -9,6 +9,8 @@ package com.rebuild.core.service;
 
 import cn.devezhao.commons.CodecUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -21,6 +23,7 @@ import com.rebuild.utils.FileFilterByLastModified;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -103,14 +106,18 @@ public class PerHourJob extends DistributedJobLock {
 
     // --
 
-    @Scheduled(fixedRate = 300000, initialDelay = 60000)
+    @Scheduled(fixedRate = 300000, initialDelay = 300000)
     protected void executeJobPer5min() {
+        if (Application.devMode()) return;
+        JSONObject res = License.siteApi("api/ucenter/bind-query");
+        if (StringUtils.isBlank(res.getString("bindAccount"))) return;
+
         Map<String, Object> map = new HashMap<>();
         map.put("ok", ServerStatus.isStatusOK());
         map.put("memjvm", OshiUtils.getJvmMemoryUsed());
         map.put("mem", OshiUtils.getOsMemoryUsed());
         map.put("load", OshiUtils.getSystemLoad());
-        
+
         String data = JSON.toJSONString(map);
         String apiUrl = "api/ucenter/data-echo?data=" + CodecUtils.urlEncode(data);
         License.siteApiNoCache(apiUrl);
