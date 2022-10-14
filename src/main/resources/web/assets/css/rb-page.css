@@ -1600,7 +1600,7 @@ p.link a:hover,
 li.link a:hover,
 a.link:hover,
 a.column-url:hover {
-  text-decoration: underline;
+  text-decoration: underline !important;
 }
 
 .column-empty {
