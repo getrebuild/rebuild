@@ -45,6 +45,12 @@ import java.util.*;
 @Slf4j
 public class ProtocolFilterParser {
 
+    // 协议
+    public static final String P_VIA = "via";
+    public static final String P_REF = "ref";
+    public static final String P_CATEGORY = "category";
+    public static final String P_RELATED = "related";
+
     final private String protocolExpr;
 
     /**
@@ -59,17 +65,19 @@ public class ProtocolFilterParser {
      */
     public String toSqlWhere() {
         String[] ps = protocolExpr.split(":");
+        Assert.isTrue(ps.length >= 2, "Bad arguments of protocol expr : " + protocolExpr);
+
         switch (ps[0]) {
-            case "via": {
+            case P_VIA: {
                 return parseVia(ps[1], ps.length > 2 ? ps[2] : null);
             }
-            case "ref": {
+            case P_REF: {
                 return parseRef(ps[1], ps.length > 2 ? ps[2] : null);
             }
-            case "category": {
+            case P_CATEGORY: {
                 return parseCategory(ps[1], ps[2]);
             }
-            case "related": {
+            case P_RELATED: {
                 return parseRelated(ps[1], ID.valueOf(ps[2]));
             }
             default: {
@@ -83,6 +91,7 @@ public class ProtocolFilterParser {
      * @param viaId
      * @param refField
      * @return
+     * @see #P_VIA
      */
     protected String parseVia(String viaId, String refField) {
         final ID anyId = ID.isId(viaId) ? ID.valueOf(viaId) : null;
@@ -120,6 +129,7 @@ public class ProtocolFilterParser {
      * @param content
      * @param cascadingValue
      * @return
+     * @see #P_REF
      */
     public String parseRef(String content, String cascadingValue) {
         String[] fieldAndEntity = content.split("\\.");
@@ -163,6 +173,7 @@ public class ProtocolFilterParser {
      * @param entity
      * @param value
      * @return
+     * @see #P_CATEGORY
      * @see AdvFilterParser#parseItem(JSONObject, JSONObject)
      */
     protected String parseCategory(String entity, String value) {
@@ -187,6 +198,7 @@ public class ProtocolFilterParser {
      * @param relatedExpr
      * @param mainid
      * @return
+     * @see #P_RELATED
      * @see com.rebuild.web.general.RelatedListController#buildBaseSql(ID, String, String, boolean, ID)
      */
     public String parseRelated(String relatedExpr, ID mainid) {

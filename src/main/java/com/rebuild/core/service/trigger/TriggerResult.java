@@ -88,6 +88,8 @@ public class TriggerResult implements JSONAware {
     }
 
     /**
+     * 无匹配记录
+     *
      * @return
      */
     public static TriggerResult noMatching() {
@@ -95,6 +97,8 @@ public class TriggerResult implements JSONAware {
     }
 
     /**
+     * 仅可触发一次
+     *
      * @return
      */
     public static TriggerResult triggerOnce() {
@@ -102,6 +106,8 @@ public class TriggerResult implements JSONAware {
     }
 
     /**
+     * 目标记录为空
+     *
      * @return
      */
     public static TriggerResult targetEmpty() {
@@ -109,6 +115,8 @@ public class TriggerResult implements JSONAware {
     }
 
     /**
+     * 目标记录相等
+     *
      * @return
      */
     public static TriggerResult targetSame() {
