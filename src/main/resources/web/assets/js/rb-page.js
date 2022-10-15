@@ -554,7 +554,9 @@ var $createUploader = function (input, next, complete, error) {
           return false
         },
         complete: function (res) {
-          if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
+          if (file.size > 0) {
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
+          }
           typeof complete === 'function' && complete({ key: res.key, file: file })
         },
       })
@@ -562,7 +564,7 @@ var $createUploader = function (input, next, complete, error) {
   }
 
   // Qiniu-Cloud
-  if (window.qiniu2 && rb.storageUrl && !upLocal) {
+  if (window.qiniu && rb.storageUrl && !upLocal) {
     var acceptType = $input.attr('accept')
     $input.on('change', function () {
       for (var i = 0; i < this.files.length; i++) {
@@ -571,7 +573,7 @@ var $createUploader = function (input, next, complete, error) {
         if (html5Uploader_checkAccept(this.files[i], acceptType)) {
           _qiniuUpload(this.files[i])
         } else {
-          RbHighbar.create(imageType ? $L('请上传图片') : $L('文件类型错误'))
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
         }
       }
     })
@@ -584,7 +586,7 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create(imageType ? $L('请上传图片') : $L('文件类型错误'))
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create($L('超出文件大小限制'))
@@ -598,7 +600,9 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (upLocal !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
+          if (file.size > 0 && upLocal !== 'temp') {
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
+          }
           complete({ key: e.data, file: file })
         } else {
           RbHighbar.error($L('上传失败，请稍后重试'))

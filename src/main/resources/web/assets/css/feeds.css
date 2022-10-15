@@ -244,11 +244,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .rich-content > .img-field .img-thumbnail {
-  width: 101.2px;
-  height: 101.2px;
+  width: 123px;
+  height: 123px;
+  border-radius: 4px;
 }
 
-.rich-content > .img-field > span:nth-child(6n) {
+.rich-content > .img-field > span:nth-child(5n) {
   margin-right: 0;
 }
 
