@@ -15,18 +15,19 @@ REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模
 
 > **福利：加入 REBUILD QQ 交流群 819865721(满) 1013051587 GET 使用技能**
 
-## V3.0 新特性
+## V3.1 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] 自动审批新增“提交模式”
-2. [新增] 记录转换新增“预览模式”、同时支持为转换字段设置固定值
-3. [新增] 审批流程支持驳回到指定步骤
-4. [新增] 时间类型字段
-5. [新增] 父级级联（明细实体）字段可选择主实体字段
-6. [优化] 免费版用户可自定义 LOGO、系统名称
-7. [优化] 视图相关项支持设置过滤条件（如仅显示审批通过的记录）
-8. ...
+1. [新增] 明细记录支持批量添加/导入
+1. [新增] 审批流程支持“催审”、审批详情支持显示抄送人
+1. [新增] “自动删除”、“自动撤销”触发器
+1. [新增] 触发器支持“审批提交时”、“审批撤销时”动作
+1. [优化] 在条形码下方显示文字
+1. [优化] 表单窗口支持最大化
+1. [优化] 快速高级查询样式优化
+1. [优化] 15+ 细节/BUG/安全性更新
+1. ...
 
 更多新特性请参见 [更新日志](https://getrebuild.com/docs/dev/changelog)
 
@@ -34,7 +35,7 @@ REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模
 
 [https://nightly.getrebuild.com/](https://nightly.getrebuild.com/)
 
-> 默认的管理员用户名密码均为 `admin`，普通用户名密码均为 `rebuild`
+> 默认超级管理员用户名密码为 `admin` `admin`
 
 ## 使用
 
@@ -48,7 +49,7 @@ _生产环境强烈推荐使用此方式 !!!_
 
 下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动， 打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-更多详情请参见 [帮助文档](https://getrebuild.com/docs/)
+更多详情请参见 [安装文档](https://getrebuild.com/docs/admin/install)
 
 #### 2. 通过源码编译
 
@@ -69,18 +70,18 @@ java -jar target/rebuild.jar
 
 ## 开发
 
-REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
+REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上没有区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
 如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
 #### 开发环境
 
-REBUILD 对于开发环境的要求很简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
+REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
 
 - JDK 1.8+（兼容 OpenJDK）
 - MySQL 5.6+
-- Redis 3.2+（非必须，可使用内建的 Ehcache 缓存）
-- Tomcat 8.0+（非必须，从 V2.0 开始默认使用 SpringBooot 内置 Tomcat）
+- Redis 3.2+（非必须，默认使用内建的 Ehcache 缓存）
+- Tomcat 8.0+（非必须，默认使用 SpringBooot 内置 Tomcat）
 - Apache Maven 3.3+
 - IDEA 或 Eclipse (for JEE)
 
