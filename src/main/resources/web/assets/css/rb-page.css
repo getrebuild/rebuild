@@ -1697,23 +1697,23 @@ th.column-fixed {
   margin-bottom: 0;
 }
 
-.batch-contents > div {
+.form.batch-form .batch-contents > div {
   position: relative;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-.batch-contents > div .badge {
+.form.batch-form .batch-contents > div .badge {
   font-size: 1rem;
   font-weight: normal;
   padding: 3px 10px;
   cursor: default;
 }
 
-.batch-contents > div .badge.badge-warning {
+.form.batch-form .batch-contents > div .badge.badge-warning {
   border: 1px solid #fbbc05;
 }
 
-.batch-contents > div a.del {
+.form.batch-form .batch-contents > div a.del {
   position: absolute;
   font-size: 1.2rem;
   padding: 1px 5px;
@@ -1724,8 +1724,14 @@ th.column-fixed {
   display: none;
 }
 
-.batch-contents > div:hover a.del {
+.form.batch-form .batch-contents > div:hover a.del {
   display: block;
+}
+
+.form.batch-form .batch-editor .text-muted {
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 1px;
 }
 
 .rb-datatable-footer .dataTables_info {

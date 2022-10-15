@@ -183,11 +183,11 @@ class Share2Settings extends Share2Switch {
         )}
 
         <div className="form-group mb-1">
-          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
             {$L('确定')}
           </button>
           {this.props.id && (
-            <button className="btn btn-danger btn-outline btn-space" type="button" onClick={() => this.handleDelete()}>
+            <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.handleDelete()}>
               <i className="zmdi zmdi-delete icon" /> {$L('删除')}
             </button>
           )}

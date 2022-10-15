@@ -348,8 +348,8 @@ class BatchOperator extends RbFormHandler {
           <a className="btn btn-link btn-space" onClick={this.hide}>
             {$L('取消')}
           </a>
-          <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
-            {$L('确定')}
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {this._confirmText || $L('确定')}
           </button>
         </div>
       </RbModal>
@@ -366,7 +366,7 @@ class BatchOperator extends RbFormHandler {
 
   renderOperator() {}
 
-  confirm = () => {}
+  handleConfirm() {}
 }
 
 // ~ 数据导出
@@ -376,25 +376,7 @@ class DataExport extends BatchOperator {
   constructor(props) {
     super(props)
     this._title = $L('数据导出')
-  }
-
-  confirm = () => {
-    const useReport = $(this._$report).val()
-    if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return false
-    }
-
-    this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
-      } else {
-        this.disabled(false)
-        RbHighbar.error(res.error_msg)
-      }
-    })
+    this._confirmText = $L('导出')
   }
 
   renderOperator() {
@@ -428,6 +410,25 @@ class DataExport extends BatchOperator {
     )
   }
 
+  handleConfirm() {
+    const useReport = $(this._$report).val()
+    if (useReport !== '0' && rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+
+    this.disabled(true)
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+      } else {
+        this.disabled(false)
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
   componentDidMount() {
     $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => this.setState({ reports: res.data }))
   }
@@ -440,6 +441,7 @@ class BatchUpdate extends BatchOperator {
   constructor(props) {
     super(props)
     this._title = $L('批量修改')
+    this._confirmText = $L('修改')
   }
 
   componentDidMount() {
@@ -475,7 +477,7 @@ class BatchUpdate extends BatchOperator {
               )
             })}
           </div>
-          <div className="mt-2">
+          <div className="batch-editor">
             {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
@@ -511,7 +513,7 @@ class BatchUpdate extends BatchOperator {
     this.setState({ updateContents: contents })
   }
 
-  confirm = () => {
+  handleConfirm() {
     if (!this.state.updateContents || this.state.updateContents.length === 0) {
       RbHighbar.create($L('请添加修改内容'))
       return
@@ -526,7 +528,7 @@ class BatchUpdate extends BatchOperator {
 
     const that = this
     RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
-      confirm: function () {
+      onConfirm: function () {
         this.hide()
         that.disabled(true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
@@ -562,12 +564,12 @@ class BatchUpdate extends BatchOperator {
           $(this._btns).find('.btn-primary').text($L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
           setTimeout(() => {
-            this.hide()
             RbListPage.reload()
+            setTimeout(() => this.hide(), 1000)
           }, 500)
         } else {
           mp && mp.set(cp)
-          setTimeout(() => this._checkState(taskid, mp), 1000)
+          setTimeout(() => this._checkState(taskid, mp), 1500)
         }
       }
     })
@@ -631,12 +633,14 @@ class BatchUpdateEditor extends React.Component {
               )
             })}
           </select>
+          <span className="text-muted">{$L('修改字段')}</span>
         </div>
         <div className="col-2 pl-0 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
             <option value="SET">{BUE_OPTYPES['SET']}</option>
             <option value="NULL">{BUE_OPTYPES['NULL']}</option>
           </select>
+          <span className="text-muted">{$L('修改方式')}</span>
         </div>
         <div className="col-6">
           <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
@@ -671,8 +675,12 @@ class BatchUpdateEditor extends React.Component {
     }
 
     data.value = this._FieldValue.val()
-    if (!data.value) return null
-    else return data
+    if (!data.value) {
+      RbHighbar.create($L('请填写新值'))
+      return null
+    } else {
+      return data
+    }
   }
 }
 
