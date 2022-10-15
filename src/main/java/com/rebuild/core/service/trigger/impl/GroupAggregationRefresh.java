@@ -140,8 +140,9 @@ public class GroupAggregationRefresh {
 
             try {
                 ga.execute(oCtx);
-            } catch (Exception ex) {
-                log.error("Error on trigger ({}) refresh record : {}", parentAc.getConfigId(), o[0], ex);
+//            } catch (Throwable ex) {
+//                // v3.1 出现异常可能导致事物回滚执行，因此此处 catch 并无意义
+//                log.error("Error on trigger ({}) refresh record : {}", parentAc.getConfigId(), targetRecordId, ex);
             } finally {
                 ga.clean();
             }
