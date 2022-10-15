@@ -298,18 +298,17 @@
                 </div>
               </div>
 
-              <div class="card card-primary mt-3 J_cloudAccount">
+              <div class="card mt-3 J_cloudAccount hide">
                 <div class="card-header card-header-divider">REBUILD 云账号</div>
                 <div class="card-body">
-                  <div>
-                    <p>[[${bundle.L('绑定 REBUILD 云账号，一个账号管理多个 REBUILD 实例，更可享免费系统监控与告警。')}]]</p>
+                  <div class="J_not-bind">
+                    <p>[[${bundle.L('绑定 REBUILD 云账号，获取更多专享服务与资源，还有免费系统安全与健康检测。')}]]</p>
                     <button class="btn btn-primary btn-sm pl-3 pr-3" type="button">[[${bundle.L('点击绑定')}]]</button>
                   </div>
-                  <div class="hide">
-                    <p class="mb-1 mt-1 text-bold fs-14">
-                      <i class="mdi mdi-shield-account-outline icon"></i>
-                      [[${bundle.L('当前已绑定云账号')}]]
-                      <a href="https://getrebuild.com/ucenter/account" target="_blank" class="text-uppercase ml-1"></a>
+                  <div class="J_has-bind">
+                    <p class="mb-1 mt-1 text-bold">
+                      <i class="mdi mdi-shield-check icon"></i>
+                      [[${bundle.L('当前已绑定云账号')}]] <a href="https://getrebuild.com/ucenter/account" target="_blank" class="text-uppercase"></a>
                     </p>
                   </div>
                 </div>

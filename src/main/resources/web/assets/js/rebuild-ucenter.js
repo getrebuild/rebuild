@@ -26,13 +26,13 @@ class UCenterBind extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('云账号')}</label>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" data-id="cloudAccount" onChange={this.handleChange} defaultValue="" />
+              <input type="text" className="form-control form-control-sm" data-id="cloudAccount" onChange={this.handleChange} placeholder={$L('账号或邮箱')} />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('云账号密码')}</label>
             <div className="col-sm-7">
-              <input type="password" className="form-control form-control-sm" data-id="cloudPasswd" onChange={this.handleChange} defaultValue="" />
+              <input type="password" className="form-control form-control-sm" data-id="cloudPasswd" onChange={this.handleChange} placeholder={$L('登录密码')} />
             </div>
           </div>
           <div className="form-group row footer">
@@ -52,15 +52,15 @@ class UCenterBind extends RbFormHandler {
 
   bind() {
     const s = this.state
-    if (!s.cloudAccount) return RbHighbar.create($L('请输入账号'))
-    if (!s.cloudPasswd) return RbHighbar.create($L('请输入密码'))
+    if (!s.cloudAccount) return RbHighbar.create($L('请输入云账号'))
+    if (!s.cloudPasswd) return RbHighbar.create($L('请输入云账号密码'))
 
     const $btns = $(this._btns).find('.btn').button('loading')
     $.post('/settings/ucenter/bind', JSON.stringify(s), (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('绑定成功'))
-        setTimeout(() => location.reload(), 1500)
+        setTimeout(() => location.reload(), 1000)
       } else {
         $btns.button('reset')
         RbHighbar.create(res.error_msg)

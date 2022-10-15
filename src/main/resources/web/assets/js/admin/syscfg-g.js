@@ -13,20 +13,20 @@ $(document).ready(() => {
   $dl.text(wpc._LANGS[$dl.text()] || '中文')
 
   // 禁用
-  // ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
-  //   const $d = $(`td[data-id=${item}]`)
-  //   if (~~$d.attr('data-value') <= 0) $d.text($L('已禁用')).addClass('text-danger')
-  // })
+  ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
+    const $d = $(`td[data-id=${item}]`)
+    if (~~$d.attr('data-value') <= 0) $d.text($L('不启用'))
+  })
 
+  // UC
   UCenter.query((bindAccount) => {
+    $('.J_cloudAccount').removeClass('hide')
     if (bindAccount) {
-      $('.J_cloudAccount .card-body>div').addClass('hide')
-      const $bind = $('.J_cloudAccount .card-body>div:eq(1)').removeClass('hide')
-      $bind.find('a').text(bindAccount)
+      $('.J_not-bind').addClass('hide')
+      $('.J_has-bind a').text(bindAccount)
     } else {
-      $('.J_cloudAccount .btn').on('click', () => {
-        UCenter.bind()
-      })
+      $('.J_has-bind').addClass('hide')
+      $('.J_not-bind .btn').on('click', () => UCenter.bind())
     }
   })
 })
