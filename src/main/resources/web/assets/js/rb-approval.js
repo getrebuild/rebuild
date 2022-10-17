@@ -61,14 +61,18 @@ class ApprovalProcessor extends React.Component {
               {$L('审批')}
             </button>
           )}
-          {this.state.canCancel && (
+          {(this.state.canCancel || this.state.canUrge) && (
             <RF>
-              <button className="btn btn-secondary" onClick={this.urge}>
-                {$L('催审')}
-              </button>
-              <button className="btn btn-secondary" onClick={this.cancel}>
-                {$L('撤回')}
-              </button>
+              {this.state.canUrge && (
+                <button className="btn btn-secondary" onClick={this.urge}>
+                  {$L('催审')}
+                </button>
+              )}
+              {this.state.canCancel && (
+                <button className="btn btn-secondary" onClick={this.cancel}>
+                  {$L('撤回')}
+                </button>
+              )}
             </RF>
           )}
           <button className="btn btn-secondary" onClick={this.viewSteps}>

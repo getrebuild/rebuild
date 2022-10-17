@@ -303,13 +303,15 @@ public class ApprovalStepService extends InternalPersistService {
         final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
+        final boolean isAdmin = UserHelper.isAdmin(opUser);
+
         if (isRevoke) {
-            if (!UserHelper.isAdmin(opUser)) {
+            if (!isAdmin) {
                 throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
             }
         } else {
             ID s = ApprovalHelper.getSubmitter(recordId, approvalId);
-            if (!opUser.equals(s)) {
+            if (!(isAdmin || opUser.equals(s))) {
                 throw new OperationDeniedException(Language.L("仅提交人可撤回审批"));
             }
         }
