@@ -83,13 +83,16 @@ $(document).ready(function () {
 
   const _handleSave = function (elements) {
     const data = {
-      belongEntity: wpc.entityName,
-      applyType: 'FORM',
       config: JSON.stringify(elements),
       metadata: {
         entity: 'LayoutConfig',
         id: wpc.formConfig.id || null,
       },
+    }
+    // New
+    if (!wpc.formConfig.id) {
+      data.belongEntity = wpc.entityName
+      data.applyType = 'FORM'
     }
 
     $('.J_save').button('loading')

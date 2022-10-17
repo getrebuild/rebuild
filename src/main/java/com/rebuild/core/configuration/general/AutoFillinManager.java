@@ -38,17 +38,16 @@ public class AutoFillinManager implements ConfigManager {
 
     public static final AutoFillinManager instance = new AutoFillinManager();
 
-    private AutoFillinManager() {
-    }
+    private AutoFillinManager() {}
 
     /**
      * 获取回填值
      *
      * @param field
-     * @param source
+     * @param sourceId
      * @return
      */
-    public JSONArray getFillinValue(Field field, ID source) {
+    public JSONArray getFillinValue(Field field, ID sourceId) {
         final EasyField easyField = EasyMetaFactory.valueOf(field);
 
         // 内置字段无配置 @see field-edit.html
@@ -59,43 +58,55 @@ public class AutoFillinManager implements ConfigManager {
 
         // 父级级联
         // 利用表单回填做父级级联字段回填
+        // format: [MAIN.]TARGET$$$$SOURCE 其中 [MAIN.] 为明细回填主实体
         String cascadingField = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
         if (StringUtils.isNotBlank(cascadingField)) {
-            String[] fs = cascadingField.split(MetadataHelper.SPLITER_RE);
-            // 不含明细
-            if (!fs[0].contains(".")) {
-                ConfigBean fake = new ConfigBean()
-                        .set("source", fs[1])
-                        .set("target", fs[0])
-                        .set("whenCreate", true)
-                        .set("whenUpdate", true)
-                        .set("fillinForce", true);
+            String[] ts = cascadingField.split(MetadataHelper.SPLITER_RE);
+            ConfigBean fake = new ConfigBean()
+                    .set("target", ts[0])
+                    .set("source", ts[1])
+                    .set("whenCreate", true)
+                    .set("whenUpdate", true)
+                    .set("fillinForce", true);
 
-                // 移除冲突的表单回填配置
-                for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
-                    ConfigBean cb = iter.next();
-                    if (cb.getString("source").equals(fake.getString("source"))
-                            && cb.getString("target").equals(fake.getString("target"))) {
-                        iter.remove();
-                        break;
-                    }
+            // 移除冲突的表单回填配置
+            for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
+                ConfigBean cb = iter.next();
+                if (StringUtils.equals(cb.getString("source"), fake.getString("source"))
+                        && StringUtils.equals(cb.getString("target"), fake.getString("target"))) {
+                    iter.remove();
+                    break;
                 }
-
-                config.add(fake);
             }
+
+            config.add(fake);
         }
 
         if (config.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        Entity sourceEntity = MetadataHelper.getEntity(source.getEntityCode());
+        Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
         Entity targetEntity = field.getOwnEntity();
+
         Set<String> sourceFields = new HashSet<>();
+
         for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
             ConfigBean e = iter.next();
             String sourceField = e.getString("source");
+            if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)) {
+                iter.remove();
+                continue;
+            }
+
             String targetField = e.getString("target");
-            if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
-                    || !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
+            // 明细 > 主记录
+            if (targetField.contains(".")) {
+                String[] fs = targetField.split("\\.");
+                Entity mainEntity = targetEntity.getMainEntity();
+                if (!MetadataHelper.checkAndWarnField(mainEntity, fs[1])) {
+                    iter.remove();
+                    continue;
+                }
+            } else if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)) {
                 iter.remove();
                 continue;
             }
@@ -106,7 +117,7 @@ public class AutoFillinManager implements ConfigManager {
         if (sourceFields.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
         sourceFields.add(sourceEntity.getPrimaryField().getName());
-        Record sourceRecord = Application.getQueryFactory().recordNoFilter(source, sourceFields.toArray(new String[0]));
+        Record sourceRecord = Application.getQueryFactory().recordNoFilter(sourceId, sourceFields.toArray(new String[0]));
 
         if (sourceRecord == null) return JSONUtils.EMPTY_ARRAY;
 
@@ -114,8 +125,15 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
-            Field targetFieldMeta = targetEntity.getField(targetField);
 
+            Field targetFieldMeta;
+            if (targetField.contains(".")) {
+                String[] fs = targetField.split("\\.");
+                targetFieldMeta = targetEntity.getMainEntity().getField(fs[1]);
+            } else {
+                targetFieldMeta = targetEntity.getField(targetField);
+            }
+            
             Object value = null;
             if (sourceRecord.hasValue(sourceField, false)) {
                 value = sourceRecord.getObjectValue(sourceField);
@@ -197,10 +215,11 @@ public class AutoFillinManager implements ConfigManager {
             ConfigBean entry = new ConfigBean()
                     .set("source", o[0])
                     .set("target", o[1]);
-            JSONObject ext = JSON.parseObject((String) o[2]);
-            entry.set("whenCreate", ext.getBoolean("whenCreate"))
-                    .set("whenUpdate", ext.getBoolean("whenUpdate"))
-                    .set("fillinForce", ext.getBoolean("fillinForce"));
+
+            JSONObject extra = JSON.parseObject((String) o[2]);
+            entry.set("whenCreate", extra.getBooleanValue("whenCreate"))
+                    .set("whenUpdate", extra.getBooleanValue("whenUpdate"))
+                    .set("fillinForce", extra.getBooleanValue("fillinForce"));
             entries.add(entry);
         }
 
