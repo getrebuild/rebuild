@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.configuration;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -63,9 +62,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
         if (filterId == null) {
             record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
             record.setString("belongEntity", entity);
-            if (StringUtils.isBlank(filterName)) {
-                filterName =  Language.L("查询") + "-" + CalendarUtils.format("MMddHHmm", CalendarUtils.now());
-            }
+            if (StringUtils.isBlank(filterName)) filterName =  Language.L("我的查询");
         } else {
             record = EntityHelper.forUpdate(filterId, user);
         }

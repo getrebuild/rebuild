@@ -27,7 +27,7 @@ public class AuthTokenManagerTest extends TestSupport {
         Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken, false));
 
         // refresh
-        AuthTokenManager.refreshAccessToken(accessToken, 3);
+        AuthTokenManager.refreshAccessToken(accessToken);
 
         // destroy
         AuthTokenManager.verifyToken(accessToken, true);

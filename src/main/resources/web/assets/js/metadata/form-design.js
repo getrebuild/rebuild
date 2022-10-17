@@ -83,13 +83,16 @@ $(document).ready(function () {
 
   const _handleSave = function (elements) {
     const data = {
-      belongEntity: wpc.entityName,
-      applyType: 'FORM',
       config: JSON.stringify(elements),
       metadata: {
         entity: 'LayoutConfig',
         id: wpc.formConfig.id || null,
       },
+    }
+    // New
+    if (!wpc.formConfig.id) {
+      data.belongEntity = wpc.entityName
+      data.applyType = 'FORM'
     }
 
     $('.J_save').button('loading')
@@ -331,8 +334,8 @@ class DlgEditField extends RbAlert {
             maxLength="100"
           />
         </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={this._onConfirm}>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
           </button>
         </div>
@@ -366,8 +369,8 @@ class DlgEditDivider extends DlgEditField {
           <label>{$L('分栏名称')}</label>
           <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
         </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={this._onConfirm}>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
           </button>
         </div>

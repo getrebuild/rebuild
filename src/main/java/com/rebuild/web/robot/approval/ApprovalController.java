@@ -26,6 +26,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -206,6 +207,9 @@ public class ApprovalController extends BaseController {
             return RespBody.error(ex.getLocalizedMessage(), DefinedException.CODE_APPROVE_WARN);
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getLocalizedMessage());
+        } catch (UnexpectedRollbackException rolledback) {
+            log.error("ROLLEDBACK", rolledback);
+            return RespBody.error("ROLLEDBACK OCCURED");
         }
     }
 

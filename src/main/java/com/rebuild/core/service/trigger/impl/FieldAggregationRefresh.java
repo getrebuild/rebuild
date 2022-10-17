@@ -68,8 +68,9 @@ public class FieldAggregationRefresh {
 
         try {
             fa.execute(oCtx);
-        } catch (Exception ex) {
-            log.error("Error on trigger ({}) refresh", parentAc.getConfigId(), ex);
+//        } catch (Throwable ex) {
+//            // v3.1 出现异常可能导致事物回滚执行，因此此处 catch 并无意义
+//            log.error("Error on trigger ({}) refresh", parentAc.getConfigId(), ex);
         } finally {
             fa.clean();
         }

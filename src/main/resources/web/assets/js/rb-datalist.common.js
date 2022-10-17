@@ -4,14 +4,14 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet */
+/* global FieldValueSet, ListAdvFilter */
 // 列表公共操作
 
 const _RbList = function () {
   return RbListPage._RbList || {}
 }
 
-// ~~ 高级查询操作类
+// ~~ 高级查询操作
 
 const AdvFilters = {
   /**
@@ -22,13 +22,34 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').on('click', () => {
-      // this.showAdvFilter(null, this.current)  // 2.9.4 取消 useCopyId，可能引起误解
-      this.showAdvFilter()
+    this.__el.find('.J_filterbtn').on('click', () => {
       this.current = null
+      this.showAdvFilter()
     })
-    const $all = $('.adv-search .dropdown-item:eq(0)')
-    $all.on('click', () => this._effectFilter($all, 'aside'))
+
+    this.__$customAdvWrap = $('#dropdown-menu-advfilter')
+    $(document.body).on('click', (e) => {
+      if (!e.target) return
+      var $target = $(e.target)
+      if (
+        $target.hasClass('J_filterbtn') ||
+        $target.parent().hasClass('J_filterbtn') ||
+        $target.hasClass('dropdown-menu-advfilter') ||
+        $target.parents('.dropdown-menu-advfilter')[0] ||
+        $target.hasClass('modal') ||
+        $target.parents('.modal')[0] ||
+        $target.parents('.select2-container')[0]
+      ) {
+        return
+      }
+
+      if (this.__customAdv) {
+        this.__$customAdvWrap.addClass('hide')
+      }
+    })
+
+    const $alldata = $('.adv-search .dropdown-item:eq(0)')
+    $alldata.on('click', () => this._effectFilter($alldata, 'aside'))
 
     this.loadFilters()
 
@@ -105,23 +126,24 @@ const AdvFilters = {
         })
         $ghost.appendTo($('#asideFilters').empty())
 
-        if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
-          const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
-          renderRbcomp(
-            <RbAlertBox
-              type="info"
-              message={
-                <RF>
-                  <a className="mr-1" href="#" onClick={(e) => AdvFilters._showAddCommonQuery(e)}>
-                    {$L('添加')}
-                  </a>
-                  {$L('常用查询方便以后使用')}
-                </RF>
-              }
-            />,
-            $hub
-          )
-        }
+        // v3.1 取消
+        // if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
+        //   const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
+        //   renderRbcomp(
+        //     <RbAlertBox
+        //       type="info"
+        //       message={
+        //         <RF>
+        //           <a className="mr-1" href="#" onClick={(e) => AdvFilters.showAddCommonQuery(e)}>
+        //             {$L('添加')}
+        //           </a>
+        //           {$L('常用查询方便以后使用')}
+        //         </RF>
+        //       }
+        //     />,
+        //     $hub
+        //   )
+        // }
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -133,11 +155,11 @@ const AdvFilters = {
     this.current = item.data('id')
     $('.adv-search .J_name').text(item.find('>a').text())
     if (rel === 'aside') {
-      const current_id = this.current
+      const current = this.current
       $('#asideFilters .dropdown-item')
         .removeClass('active')
         .each(function () {
-          if ($(this).data('id') === current_id) {
+          if ($(this).data('id') === current) {
             $(this).addClass('active')
             return false
           }
@@ -148,39 +170,32 @@ const AdvFilters = {
     _RbList().setAdvFilter(this.current)
   },
 
-  _showAddCommonQuery(e) {
-    $stopEvent(e, true)
-    if (this._AddCommonQuery) {
-      this._AddCommonQuery.show()
-    } else {
-      const that = this
-      renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
-        that._AddCommonQuery = this
-      })
-    }
-  },
-
   showAdvFilter(id, useCopyId) {
+    const that = this
+
     const props = {
       entity: this.__entity,
-      inModal: true,
-      fromList: true,
-      confirm: this.saveFilter,
+      id: id || null,
+      onConfirm: function (id) {
+        $storage.set(_RbList().__defaultFilterKey, id)
+        that.loadFilters()
+        that.__savedCached[id] = null
+      },
     }
 
     if (!id) {
       if (this.__customAdv) {
-        this.__customAdv.show()
+        this.__$customAdvWrap.toggleClass('hide')
       } else {
-        const that = this
+        // `useCopyId` 2.9.4 取消 useCopyId，可能引起误解
         if (useCopyId) {
           this._getFilter(useCopyId, (res) => {
-            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () {
+            renderRbcomp(<ListAdvFilter {...props} filter={res.filter} />, this.__$customAdvWrap, function () {
               that.__customAdv = this
             })
           })
         } else {
-          renderRbcomp(<AdvFilter {...props} />, null, function () {
+          renderRbcomp(<ListAdvFilter {...props} />, this.__$customAdvWrap, function () {
             that.__customAdv = this
           })
         }
@@ -189,101 +204,95 @@ const AdvFilters = {
       this.current = id
       if (this.__savedCached[id]) {
         const res = this.__savedCached[id]
-        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+        renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
       } else {
         this._getFilter(id, (res) => {
           this.__savedCached[id] = res
-          renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+          renderRbcomp(<ListAdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} inModal />)
         })
       }
     }
   },
 
-  saveFilter(filter, name, shareTo) {
-    if (!filter) return
-    const that = AdvFilters
-    let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
-    if (name) url += `&name=${$encode(name)}`
-    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
-
-    $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) {
-        $storage.set(_RbList().__defaultFilterKey, res.data.id)
-        that.loadFilters()
-        if (that.current) that.__savedCached[that.current] = null
-      } else {
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  },
-
   _getFilter(id, call) {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
+
+  // showAddCommonQuery(e) {
+  //   $stopEvent(e, true)
+  //   if (this._AddCommonQuery) {
+  //     this._AddCommonQuery.show()
+  //   } else {
+  //     const that = this
+  //     renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
+  //       that._AddCommonQuery = this
+  //     })
+  //   }
+  // },
 }
 
 // ~~ 添加常用查询
 
-class AddCommonQuery extends RbFormHandler {
-  render() {
-    const defs = [
-      [$L('今天新增的'), 'DAY_NEW'],
-      [$L('本周新增的'), 'WEEK_NEW'],
-      [$L('本月新增的'), 'MONTH_NEW'],
-      [],
-      [$L('属于我的'), 'MY_OWN'],
-      [$L('我创建的'), 'MY_CREATE'],
-      [$L('我修改的'), 'MY_MODIFY'],
-    ]
+// class AddCommonQuery extends RbFormHandler {
+//   render() {
+//     const defs = [
+//       [$L('今天新增的'), 'DAY_NEW'],
+//       [$L('本周新增的'), 'WEEK_NEW'],
+//       [$L('本月新增的'), 'MONTH_NEW'],
+//       [],
+//       [$L('属于我的'), 'MY_OWN'],
+//       [$L('我创建的'), 'MY_CREATE'],
+//       [$L('我修改的'), 'MY_MODIFY'],
+//     ]
 
-    return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
-        <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
+//     return (
+//       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
+//         <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
 
-        <div ref={(c) => (this._$chks = c)}>
-          {defs.map((item, idx) => {
-            if (item.length === 0) return <br key={idx} />
-            return (
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
-                <input className="custom-control-input" type="checkbox" value={item[1]} />
-                <span className="custom-control-label"> {item[0]}</span>
-              </label>
-            )
-          })}
-        </div>
-        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
-            {$L('确定')}
-          </button>
-          <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
-            {$L('取消')}
-          </button>
-        </div>
-      </RbModal>
-    )
-  }
+//         <div ref={(c) => (this._$chks = c)}>
+//           {defs.map((item, idx) => {
+//             if (item.length === 0) return <br key={idx} />
+//             return (
+//               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
+//                 <input className="custom-control-input" type="checkbox" value={item[1]} />
+//                 <span className="custom-control-label"> {item[0]}</span>
+//               </label>
+//             )
+//           })}
+//         </div>
+//         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+//           <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
+//             {$L('确定')}
+//           </button>
+//           <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
+//             {$L('取消')}
+//           </button>
+//         </div>
+//       </RbModal>
+//     )
+//   }
 
-  saveAdd() {
-    const adds = []
-    $(this._$chks)
-      .find('input')
-      .each(function () {
-        const $this = $(this)
-        if ($this.prop('checked')) adds.push($this.val())
-      })
+//   saveAdd() {
+//     const adds = []
+//     $(this._$chks)
+//       .find('input')
+//       .each(function () {
+//         const $this = $(this)
+//         if ($this.prop('checked')) adds.push($this.val())
+//       })
 
-    if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
+//     if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
 
-    this.disabled(true)
-    $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
-      this.disabled()
-      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+//     this.disabled(true)
+//     $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
+//       this.disabled()
+//       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-      AdvFilters.loadFilters()
-      this.hide()
-    })
-  }
-}
+//       AdvFilters.loadFilters()
+//       this.hide()
+//     })
+//   }
+// }
 
 // ~~ 列表记录批量操作
 
@@ -339,8 +348,8 @@ class BatchOperator extends RbFormHandler {
           <a className="btn btn-link btn-space" onClick={this.hide}>
             {$L('取消')}
           </a>
-          <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
-            {$L('确定')}
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {this._confirmText || $L('确定')}
           </button>
         </div>
       </RbModal>
@@ -357,7 +366,7 @@ class BatchOperator extends RbFormHandler {
 
   renderOperator() {}
 
-  confirm = () => {}
+  handleConfirm() {}
 }
 
 // ~ 数据导出
@@ -367,25 +376,7 @@ class DataExport extends BatchOperator {
   constructor(props) {
     super(props)
     this._title = $L('数据导出')
-  }
-
-  confirm = () => {
-    const useReport = $(this._$report).val()
-    if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return false
-    }
-
-    this.disabled(true)
-    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
-      } else {
-        this.disabled(false)
-        RbHighbar.error(res.error_msg)
-      }
-    })
+    this._confirmText = $L('导出')
   }
 
   renderOperator() {
@@ -419,6 +410,25 @@ class DataExport extends BatchOperator {
     )
   }
 
+  handleConfirm() {
+    const useReport = $(this._$report).val()
+    if (useReport !== '0' && rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+
+    this.disabled(true)
+    $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+      } else {
+        this.disabled(false)
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
   componentDidMount() {
     $.get(`/app/${this.props.entity}/report/available?type=2`, (res) => this.setState({ reports: res.data }))
   }
@@ -431,6 +441,7 @@ class BatchUpdate extends BatchOperator {
   constructor(props) {
     super(props)
     this._title = $L('批量修改')
+    this._confirmText = $L('修改')
   }
 
   componentDidMount() {
@@ -466,7 +477,7 @@ class BatchUpdate extends BatchOperator {
               )
             })}
           </div>
-          <div className="mt-2">
+          <div className="batch-editor">
             {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()} type="button">
@@ -502,7 +513,7 @@ class BatchUpdate extends BatchOperator {
     this.setState({ updateContents: contents })
   }
 
-  confirm = () => {
+  handleConfirm() {
     if (!this.state.updateContents || this.state.updateContents.length === 0) {
       RbHighbar.create($L('请添加修改内容'))
       return
@@ -517,7 +528,7 @@ class BatchUpdate extends BatchOperator {
 
     const that = this
     RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
-      confirm: function () {
+      onConfirm: function () {
         this.hide()
         that.disabled(true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
@@ -553,12 +564,12 @@ class BatchUpdate extends BatchOperator {
           $(this._btns).find('.btn-primary').text($L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
           setTimeout(() => {
-            this.hide()
-            window.RbListPage && window.RbListPage.reload()
+            RbListPage.reload()
+            setTimeout(() => this.hide(), 1000)
           }, 500)
         } else {
           mp && mp.set(cp)
-          setTimeout(() => this._checkState(taskid, mp), 1000)
+          setTimeout(() => this._checkState(taskid, mp), 1500)
         }
       }
     })
@@ -622,12 +633,14 @@ class BatchUpdateEditor extends React.Component {
               )
             })}
           </select>
+          <span className="text-muted">{$L('修改字段')}</span>
         </div>
         <div className="col-2 pl-0 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._$op = c)}>
             <option value="SET">{BUE_OPTYPES['SET']}</option>
             <option value="NULL">{BUE_OPTYPES['NULL']}</option>
           </select>
+          <span className="text-muted">{$L('修改方式')}</span>
         </div>
         <div className="col-6">
           <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
@@ -662,8 +675,12 @@ class BatchUpdateEditor extends React.Component {
     }
 
     data.value = this._FieldValue.val()
-    if (!data.value) return null
-    else return data
+    if (!data.value) {
+      RbHighbar.create($L('请填写新值'))
+      return null
+    } else {
+      return data
+    }
   }
 }
 
@@ -1147,8 +1164,8 @@ class RbList extends React.Component {
 
     // 高级查询
     if (fromAdv === true) {
-      $('.J_advfilter .indicator-primary').remove()
-      if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')
+      $('.J_filterbtn .indicator-primary').remove()
+      if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_filterbtn')
     }
   }
 

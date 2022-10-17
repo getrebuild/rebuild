@@ -657,7 +657,7 @@ div.dataTables_filter .filter-badge:hover .close {
   right: 8px;
 }
 
-.adv-search .J_advfilter .icon {
+.adv-search .J_filterbtn .icon {
   margin-top: -3px;
   font-size: 1.45rem !important;
 }
@@ -1600,7 +1600,7 @@ p.link a:hover,
 li.link a:hover,
 a.link:hover,
 a.column-url:hover {
-  text-decoration: underline;
+  text-decoration: underline !important;
 }
 
 .column-empty {
@@ -1697,35 +1697,41 @@ th.column-fixed {
   margin-bottom: 0;
 }
 
-.batch-contents > div {
+.form.batch-form .batch-contents > div {
   position: relative;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-.batch-contents > div .badge {
+.form.batch-form .batch-contents > div .badge {
   font-size: 1rem;
   font-weight: normal;
   padding: 3px 10px;
   cursor: default;
 }
 
-.batch-contents > div .badge.badge-warning {
+.form.batch-form .batch-contents > div .badge.badge-warning {
   border: 1px solid #fbbc05;
 }
 
-.batch-contents > div a.del {
+.form.batch-form .batch-contents > div a.del {
   position: absolute;
   font-size: 1.2rem;
   padding: 1px 5px;
   left: -6px;
-  top: 3px;
+  top: 2px;
   color: #999;
   font-weight: bold;
   display: none;
 }
 
-.batch-contents > div:hover a.del {
+.form.batch-form .batch-contents > div:hover a.del {
   display: block;
+}
+
+.form.batch-form .batch-editor .text-muted {
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 1px;
 }
 
 .rb-datatable-footer .dataTables_info {
@@ -2264,7 +2270,7 @@ th.column-fixed {
 .adv-filter-wrap {
   background-color: #fff;
   padding: 20px;
-  max-width: 560px;
+  /* max-width: 560px; */
 }
 
 .adv-filter-wrap.in-modal {
@@ -2375,7 +2381,8 @@ th.column-fixed {
   padding-right: 8px;
 }
 
-.adv-filter .btn + .btn {
+.adv-filter .btn + .btn,
+.adv-filter .btn-group + .btn {
   margin-left: 10px;
 }
 
@@ -2411,6 +2418,24 @@ th.column-fixed {
   margin-top: 10px;
   margin-right: 10px;
   font-size: 1.2rem;
+}
+
+.dropdown-menu-advfilter {
+  position: absolute;
+  left: 10px;
+  top: 36px;
+  z-index: 1000;
+  width: 680px;
+}
+
+.dropdown-menu-advfilter .adv-filter-wrap {
+  box-shadow: 0 3px 0.3077rem rgb(0 0 0 / 10%);
+  padding: 30px;
+}
+
+div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
+  width: 100%;
+  display: block;
 }
 
 .dataTables_wrapper .paging_sizes {
@@ -4239,9 +4264,10 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 4px 0;
+  padding: 8px;
   text-align: center;
   background-color: #eee;
+  background-color: rgba(255, 255, 255, 0.15);
   font-size: 1rem;
   color: #222;
 }

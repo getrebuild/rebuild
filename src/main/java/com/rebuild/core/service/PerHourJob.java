@@ -7,21 +7,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service;
 
+import cn.devezhao.commons.CodecUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.ServerStatus;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SysbaseDiagnosis;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.distributed.DistributedJobLock;
-import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.DatabaseBackup;
+import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.utils.FileFilterByLastModified;
+import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 每小时执行一次的 Job
@@ -45,7 +55,7 @@ public class PerHourJob extends DistributedJobLock {
             doCleanTempFiles();
         }
 
-        new SysbaseDiagnosis().diagnose();
+        new SysbaseHeartbeat().heartbeat();
 
         // DO OTHERS HERE ...
 
@@ -67,18 +77,18 @@ public class PerHourJob extends DistributedJobLock {
 
         try {
             new DatabaseBackup().backup(backups);
-            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DatabaseBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DatabaseBackup] failed!", e);
-            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DatabaseBackupFail, e.getLocalizedMessage());
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
         }
 
         try {
             new DatafileBackup().backup(backups);
-            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DataFileBackupFail, null);
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DataFileBackup] failed!", e);
-            SysbaseDiagnosis.setItem(SysbaseDiagnosis.DataFileBackupFail, e.getLocalizedMessage());
+            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DataFileBackupFail, e.getLocalizedMessage());
         }
 
         int keepDays = RebuildConfiguration.getInt(ConfigurationItem.DBBackupsKeepingDays);
@@ -92,5 +102,24 @@ public class PerHourJob extends DistributedJobLock {
      */
     protected void doCleanTempFiles() {
         FileFilterByLastModified.deletes(RebuildConfiguration.getFileOfTemp(null), 7);
+    }
+
+    // --
+
+    @Scheduled(fixedRate = 300000, initialDelay = 300000)
+    protected void executeJobPer5min() {
+        if (Application.devMode()) return;
+        JSONObject res = License.siteApi("api/ucenter/bind-query");
+        if (StringUtils.isBlank(res.getString("bindAccount"))) return;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("ok", ServerStatus.isStatusOK());
+        map.put("memjvm", OshiUtils.getJvmMemoryUsed());
+        map.put("mem", OshiUtils.getOsMemoryUsed());
+        map.put("load", OshiUtils.getSystemLoad());
+
+        String data = JSON.toJSONString(map);
+        String apiUrl = "api/ucenter/data-echo?data=" + CodecUtils.urlEncode(data);
+        License.siteApiNoCache(apiUrl);
     }
 }

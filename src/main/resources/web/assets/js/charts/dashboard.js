@@ -343,7 +343,7 @@ class DlgDashSettings extends RbFormHandler {
             </div>
           </div>
           {rb.isAdminUser && (
-            <div className="form-group row">
+            <div className="form-group row pt-0">
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <div className="shareTo--wrap">
@@ -354,10 +354,10 @@ class DlgDashSettings extends RbFormHandler {
           )}
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
-              <button className="btn btn-primary btn-space" type="button" onClick={() => this.save()}>
+              <button className="btn btn-primary" type="button" onClick={() => this.save()}>
                 {$L('确定')}
               </button>
-              <button className="btn btn-danger btn-outline btn-space" type="button" onClick={() => this.delete()}>
+              <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.delete()}>
                 <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
             </div>

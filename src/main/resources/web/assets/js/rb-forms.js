@@ -429,6 +429,8 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
+
+    this._inAutoFillin = true
     data.forEach((item) => {
       const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
@@ -436,6 +438,7 @@ class RbForm extends React.Component {
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
+    this._inAutoFillin = false
   }
 
   // 设置字段值
@@ -1581,11 +1584,15 @@ class RbFormReference extends RbFormElement {
           that.triggerAutoFillin(v)
 
           // v2.10 FIXME 父级改变后清除明细
-          if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
+          // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
+          const $$$form = that.props.$$$parent
+          if ($$$form._ProTable && !$$$form._inAutoFillin && (that.props._cascadingFieldChild || '').includes('.')) {
             const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            that.props.$$$parent._ProTable.setFieldNull(field)
+            $$$form._ProTable.setFieldNull(field)
+            console.log('Clean details ...', field)
           }
         }
+
         that.handleChange({ target: { value: v } }, true)
       })
 
@@ -1648,10 +1655,29 @@ class RbFormReference extends RbFormElement {
   triggerAutoFillin(value) {
     if (this.props.onView) return
 
-    const $$$parent = this.props.$$$parent
-    const url = `/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`
+    const $$$form = this.props.$$$parent
+    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
     $.get(url, (res) => {
-      res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
+      if (res.error_code === 0 && res.data.length > 0) {
+        const fillin2main = []
+        const fillin2this = []
+        res.data.forEach((item) => {
+          if (item.target.includes('.')) {
+            fillin2main.push({ ...item, target: item.target.split('.')[1] })
+          } else {
+            fillin2this.push(item)
+          }
+        })
+
+        if (fillin2this.length > 0) {
+          $$$form.setAutoFillin(fillin2this)
+        }
+        // 明细 > 主记录
+        if (fillin2main.length > 0 && $$$form._InlineForm) {
+          const $$$formMain = $$$form.props.$$$main
+          $$$formMain && $$$formMain.setAutoFillin(fillin2main)
+        }
+      }
     })
   }
 
@@ -2383,6 +2409,7 @@ const __findMultiTexts = function (options, maskValue, useColor) {
 
 // 最近使用
 const __addRecentlyUse = function (id) {
-  if (!id) return
-  $.post(`/commons/search/recently-add?id=${id}`)
+  if (id && typeof id === 'string') {
+    $.post(`/commons/search/recently-add?id=${id}`)
+  }
 }

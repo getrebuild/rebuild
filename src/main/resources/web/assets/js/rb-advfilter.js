@@ -26,7 +26,7 @@ class AdvFilter extends React.Component {
         else if (clone.equation === 'AND') extras.useEquation = 'AND'
         else extras.useEquation = '9999'
       }
-      this.__items = clone.items
+      this.__initItems = clone.items
     }
 
     this.state = { items: [], ...props, ...extras }
@@ -35,27 +35,7 @@ class AdvFilter extends React.Component {
   }
 
   render() {
-    const cAction = this.props.fromList ? (
-      <div className="float-right">
-        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('保存')}
-        </button>
-        <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-          <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
-        </button>
-      </div>
-    ) : (
-      <div className="item">
-        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('确定')}
-        </button>
-        <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
-          {$L('取消')}
-        </button>
-      </div>
-    )
-
-    const advFilter = (
+    const filterComp = (
       <div className={`adv-filter-wrap ${this.props.inModal ? 'in-modal' : 'shadow rounded'}`}>
         {this.state.hasErrorTip && (
           <div className="alert alert-warning alert-sm">
@@ -67,7 +47,11 @@ class AdvFilter extends React.Component {
         )}
 
         <div className="adv-filter">
-          <div className="filter-items" onKeyPress={(e) => this.searchByKey(e)}>
+          <div
+            className="filter-items"
+            onKeyPress={(e) => {
+              if (e.which === 13 && typeof this.searchNow === 'function') this.searchNow()
+            }}>
             {this.state.items}
 
             <div className="item plus">
@@ -115,37 +99,30 @@ class AdvFilter extends React.Component {
             )}
           </div>
 
-          {this.props.fromList ? (
-            <div className="item dialog-footer">
-              <div className="float-left">
-                <div className="float-left input">
-                  <input
-                    className="form-control form-control-sm text"
-                    maxLength="20"
-                    value={this.state.filterName || ''}
-                    data-id="filterName"
-                    onChange={this.handleChange}
-                    placeholder={$L('输入名称保存到常用查询')}
-                  />
-                </div>
-                {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />}
-              </div>
-              {cAction}
-              <div className="clearfix" />
-            </div>
-          ) : (
-            <div className="btn-footer">{cAction}</div>
-          )}
+          <div className="btn-footer">{this.renderAction()}</div>
         </div>
       </div>
     )
 
     return this.props.inModal ? (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('高级查询')} disposeOnHide={!!this.props.filterName}>
-        {advFilter}
+      <RbModal title={this.props.title || $L('高级查询')} ref={(c) => (this._dlg = c)}>
+        {filterComp}
       </RbModal>
     ) : (
-      advFilter
+      filterComp
+    )
+  }
+
+  renderAction() {
+    return (
+      <div className="item">
+        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
+          {$L('确定')}
+        </button>
+        <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
+          {$L('取消')}
+        </button>
+      </div>
     )
   }
 
@@ -186,8 +163,8 @@ class AdvFilter extends React.Component {
       this._fields = fields
 
       // init
-      if (this.__items) {
-        this.__items.forEach((item) => {
+      if (this.__initItems) {
+        this.__initItems.forEach((item) => {
           if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
 
           if (validFs.includes(item.field)) {
@@ -291,25 +268,14 @@ class AdvFilter extends React.Component {
     return adv
   }
 
-  searchByKey(e) {
-    if (this.props.fromList !== true || e.which !== 13) return // Not [Enter]
-    this.searchNow()
-  }
-
-  searchNow() {
-    const adv = this.toFilterJson(true)
-    if (!!adv && window.RbListPage) RbListPage._RbList.search(adv, true)
-  }
-
   confirm() {
     const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
 
     const _onConfirm = this.props.confirm || this.props.onConfirm
-    typeof _onConfirm === 'function' && _onConfirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
+    typeof _onConfirm === 'function' && _onConfirm(adv)
 
     this.props.inModal && this._dlg.hide()
-    this.setState({ filterName: null })
   }
 
   show(state) {
@@ -870,5 +836,160 @@ class FilterItem extends React.Component {
         $(this._filterVal).val(null).trigger('change')
       }
     })
+  }
+}
+
+// ~~ 高级查询:列表专用
+
+class ListAdvFilter extends AdvFilter {
+  render() {
+    const filterComp = super.render()
+    return this.props.inModal ? filterComp : <div className="dropdown-menu-advfilter">{filterComp}</div>
+  }
+
+  renderAction() {
+    return (
+      <div className="item dialog-footer">
+        {this.props.inModal ? (
+          <RF>
+            <div className="float-left">
+              <div className="float-left input">
+                <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} />
+              </div>
+              {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} shareTo={this.props.shareTo} noSwitch />}
+            </div>
+            <div className="float-right">
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={() => {
+                  const name = this.state.filterName
+                  const shareTo = this._shareTo ? this._shareTo.getData().shareTo : null
+                  this.post(name, shareTo)
+                }}>
+                {$L('保存')}
+              </button>
+              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
+                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+              </button>
+            </div>
+          </RF>
+        ) : (
+          <div className="float-right">
+            <div className="btn-group">
+              <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
+                <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
+              </button>
+              <button className="btn btn-primary btn-outline dropdown-toggle w-auto" type="button" data-toggle="dropdown" style={{ marginLeft: -1 }}>
+                <i className="icon zmdi zmdi-chevron-down" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item" onClick={() => this.handleNew()}>
+                  {$L('保存')}
+                </a>
+              </div>
+            </div>
+            <button className="btn btn-secondary" type="button" onClick={() => this.searchNow(true)}>
+              <i className="icon mdi mdi-restore" /> {$L('重置')}
+            </button>
+          </div>
+        )}
+        <div className="clearfix" />
+      </div>
+    )
+  }
+
+  searchNow(clear) {
+    if (clear) {
+      RbListPage._RbList.search({ items: [] }, true)
+    } else {
+      const adv = this.toFilterJson(true)
+      if (adv) RbListPage._RbList.search(adv, true)
+    }
+  }
+
+  post(name, shareTo) {
+    const filter = this.toFilterJson(this.props.canNoFilters)
+    if (!filter) return
+
+    let url = `/app/${this.props.entity}/advfilter/post?id=${this.props.id || ''}`
+    if (name) url += `&name=${$encode(name)}`
+    if (shareTo) url += `&shareTo=${$encode(shareTo)}`
+
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) {
+        this.props.inModal && this._dlg.hide()
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(res.data.id)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  handleNew() {
+    const filter = this.toFilterJson(this.props.canNoFilters)
+    if (!filter) return
+
+    if (this._ListAdvFilterSave) {
+      this._ListAdvFilterSave.show()
+    } else {
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ListAdvFilterSave
+          onConfirm={(d) => {
+            this.post(d.name, d.shareTo)
+          }}
+          ref={(c) => (this._ListAdvFilterSave = c)}
+        />
+      )
+    }
+  }
+}
+
+class ListAdvFilterSave extends RbFormHandler {
+  render() {
+    return (
+      <RbModal title={$L('保存高级查询')} ref={(c) => (this._dlg = c)}>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+            <div className="col-sm-7">
+              <input className="form-control form-control-sm" value={this.state.name || ''} placeholder={$L('我的查询')} data-id="name" onChange={this.handleChange} maxLength="20" />
+            </div>
+          </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <div className="shareTo--wrap">
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+                {$L('确定')}
+              </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  handleConfirm() {
+    const data = {
+      name: this.state.name || '',
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
+    }
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+
+    this.setState({ name: '' })
+    this.hide()
   }
 }

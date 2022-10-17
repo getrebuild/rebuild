@@ -24,7 +24,7 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.web.EntityController;
+import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,7 +40,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/settings")
-public class UserSettingsController extends EntityController {
+public class UserSettingsController extends BaseController {
 
     @GetMapping("/user")
     public ModelAndView pageUser(HttpServletRequest request) {

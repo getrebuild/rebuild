@@ -105,9 +105,11 @@ class Share2 extends _ChangeHandler {
   }
 
   getData() {
-    let st = this.state.shareTo
-    if (this.state.shared && st === SHARE_SELF) st = SHARE_ALL
-    else if (!this.state.shared && st !== SHARE_SELF) st = SHARE_SELF
+    let st = SHARE_SELF
+    if (this.state.shared) {
+      if (this.state.shareTo) st = this.state.shareTo
+      else st = SHARE_ALL
+    }
     return { configName: this.state.configName, shareTo: st }
   }
 }
@@ -171,7 +173,7 @@ class Share2Settings extends Share2Switch {
       <div className="form">
         <div className="form-group">
           <label className="text-bold">{$L('共享给')}</label>
-          <UserSelector ref={(c) => (this._selector = c)} selected={this.state.selected} />
+          <UserSelector ref={(c) => (this._UserSelector = c)} selected={this.state.selected} />
           <p className="form-text">{$L('可以共享给不同的角色或职能部门，便于统一管理')}</p>
         </div>
         {this.props.noName !== true && (
@@ -179,12 +181,13 @@ class Share2Settings extends Share2Switch {
             <input type="text" className="form-control form-control-sm" placeholder={$L('未命名')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
           </div>
         )}
+
         <div className="form-group mb-1">
-          <button className="btn btn-primary btn-space" type="button" onClick={this.checkData}>
+          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
             {$L('确定')}
           </button>
           {this.props.id && (
-            <button className="btn btn-danger btn-outline btn-space" type="button" onClick={this.delete}>
+            <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.handleDelete()}>
               <i className="zmdi zmdi-delete icon" /> {$L('删除')}
             </button>
           )}
@@ -199,25 +202,26 @@ class Share2Settings extends Share2Switch {
     const p = this.props
     if (p.shareTo && p.shareTo.length >= 20) {
       $.post('/commons/search/user-selector', JSON.stringify(p.shareTo.split(',')), (res) => {
-        if (res.error_code === 0 && res.data.length > 0) this._selector.setState({ selected: res.data })
+        if (res.error_code === 0 && res.data.length > 0) this._UserSelector.setState({ selected: res.data })
       })
     }
   }
 
   getData() {
-    const s = this._selector.getSelected()
+    const s = this._UserSelector ? this._UserSelector.getSelected() : []
     return {
       configName: this.state.configName,
       shareTo: s.length > 0 ? s.join(',') : SHARE_ALL,
     }
   }
 
-  checkData = () => {
+  handleConfirm() {
     this.hide()
-    typeof this.props.call === 'function' && this.props.call(this.getData())
+    const _onConfirm = this.props.call || this.props.onConfirm
+    typeof _onConfirm === 'function' && _onConfirm(this.getData())
   }
 
-  delete = () => {
+  handleDelete() {
     const id = this.props.id
     RbAlert.create($L('确认删除此配置？'), {
       confirm: function () {

@@ -67,10 +67,10 @@ class DlgAssign extends RbModalHandler {
           )}
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link btn-space" onClick={() => this.hide()}>
+              <a className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
               </a>
             </div>
@@ -207,10 +207,10 @@ class DlgUnshare extends RbModalHandler {
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('确定')}
               </button>
-              <a className="btn btn-link btn-space" onClick={() => this.hide()}>
+              <a className="btn btn-link" onClick={() => this.hide()}>
                 {$L('取消')}
               </a>
             </div>
@@ -288,7 +288,7 @@ class DlgShareManager extends RbModalHandler {
                       <span>{item[0][1]}</span>
                     </td>
                     <td className="text-right">
-                      {(item[4] & 4) !== 0 && <span className="badge badge-light">{$L('编辑')}</span>}
+                      {(item[4] & 4) !== 0 && <span className="badge badge-light text-danger">{$L('编辑')}</span>}
                       {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('读取')}</span>}
                     </td>
                     <td className="text-right text-muted" title={item[2]}>

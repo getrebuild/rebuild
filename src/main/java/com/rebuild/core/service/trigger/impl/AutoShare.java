@@ -20,6 +20,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -49,8 +50,8 @@ public class AutoShare extends AutoAssign {
         JSONArray shareTo = content.getJSONArray("shareTo");
         Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId, true);
         if (toUsers.isEmpty()) {
-            log.warn("No andy users found : {}", shareTo);
-            return null;
+            log.warn("No any users found : {}", shareTo);
+            return TriggerResult.noMatching();
         }
 
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");
@@ -76,6 +77,7 @@ public class AutoShare extends AutoAssign {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         }
-        return "share:" + toUsers;
+
+        return TriggerResult.success(toUsers);
     }
 }

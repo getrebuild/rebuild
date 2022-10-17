@@ -21,7 +21,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SysbaseDiagnosis;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -68,8 +68,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (Application.isWaitLoad()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
-        if (SysbaseDiagnosis._DENIEDMSG != null) {
-            throw new DefinedException(CODE_DENIEDMSG, SysbaseDiagnosis._DENIEDMSG);
+        if (SysbaseHeartbeat.DENIEDMSG != null) {
+            throw new DefinedException(CODE_DENIEDMSG, SysbaseHeartbeat.DENIEDMSG);
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);

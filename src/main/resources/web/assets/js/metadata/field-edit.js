@@ -54,6 +54,12 @@ $(document).ready(function () {
   } else {
     $('#textScanCode').parent().remove()
   }
+  // 文件
+  if (dt === 'FILE') {
+    $('.common-suff .badge').on('click', function () {
+      $('#fileSuffix').val($(this).data('suff'))
+    })
+  }
 
   const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
@@ -94,6 +100,13 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
     })
+
+    // 文件
+    if (dt === 'FILE' && extConfigNew['fileSuffix']) {
+      let fix = extConfigNew['fileSuffix']
+      fix = fix.replaceAll('，', ',').replaceAll(' ', ',').replaceAll(',,', ',')
+      extConfigNew['fileSuffix'] = fix
+    }
 
     if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) return RbHighbar.create($L('请输入编码规则'))
     if (dt === 'SERIES' && !extConfigNew['seriesFormat']) return RbHighbar.create($L('请输入编号规则'))

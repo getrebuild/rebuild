@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,11 +74,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * 获取显示项过滤条件
      *
      * @param entity
-     * @param user
      * @return
      */
-    public Map<String, JSONObject> getViewTabFilters(String entity, ID user) {
-        final ConfigBean config = getLayout(user, entity, TYPE_TAB);
+    public Map<String, JSONObject> getViewTabFilters(String entity) {
+        final ConfigBean config = getLayout(UserService.SYSTEM_USER, entity, TYPE_TAB);
         if (config == null) return Collections.emptyMap();
 
         // compatible: v2.2

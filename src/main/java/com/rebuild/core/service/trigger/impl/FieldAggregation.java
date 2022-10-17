@@ -28,16 +28,14 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.core.service.trigger.ActionContext;
-import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -137,13 +135,13 @@ public class FieldAggregation extends TriggerAction {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return "trigger-once";
+        if (tschain == null) return TriggerResult.triggerOnce();
 
         this.prepare(operatingContext);
 
         if (targetRecordId == null) {
             log.info("No target record(s) found");
-            return "target-0";
+            return TriggerResult.noMatching();
         }
 
         // 聚合数据过滤
@@ -188,13 +186,13 @@ public class FieldAggregation extends TriggerAction {
         // 有需要才执行
         if (targetRecord.isEmpty()) {
             log.info("No data of target record : {}", targetRecordId);
-            return "target-empty";
+            return TriggerResult.targetEmpty();
         }
 
         // 相等则不更新
         if (isCurrentSame(targetRecord)) {
-            log.info("Ignore execution because the records are same : {}", targetRecordId);
-            return "target-ignored";
+            log.info("Ignore execution because the record are same : {}", targetRecordId);
+            return TriggerResult.targetSame();
         }
 
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
@@ -240,7 +238,7 @@ public class FieldAggregation extends TriggerAction {
             }
         }
 
-        return "affected:" + targetRecord.getPrimary();
+        return TriggerResult.success(Collections.singletonList(targetRecord.getPrimary()));
     }
 
     @Override

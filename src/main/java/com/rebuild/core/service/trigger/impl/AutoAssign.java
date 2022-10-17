@@ -16,10 +16,7 @@ import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
-import com.rebuild.core.service.trigger.ActionContext;
-import com.rebuild.core.service.trigger.ActionType;
-import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.*;
 import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -56,8 +53,8 @@ public class AutoAssign extends TriggerAction {
         JSONArray assignTo = content.getJSONArray("assignTo");
         Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId, true);
         if (toUsers.isEmpty()) {
-            log.warn("No andy users found : {}", assignTo);
-            return null;
+            log.warn("No any users found : {}", assignTo);
+            return TriggerResult.noMatching();
         }
 
         ID toUser = null;
@@ -114,6 +111,7 @@ public class AutoAssign extends TriggerAction {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             GeneralEntityServiceContextHolder.isFromTrigger(true);
         }
-        return "assign:" + toUser;
+
+        return TriggerResult.success(toUsers);
     }
 }

@@ -191,17 +191,17 @@ public class FileDownloader extends BaseController {
         // 2.accessToken
         if (user == null) {
             String accessToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
-            user = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken, Boolean.FALSE);
+            user = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken);
         }
         // 3.csrfToken
         if (user == null) {
             String csrfToken = request.getParameter(AppUtils.URL_CSRFTOKEN);
-            user = csrfToken == null ? null : AuthTokenManager.verifyToken(csrfToken, Boolean.FALSE);
+            user = csrfToken == null ? null : AuthTokenManager.verifyToken(csrfToken);
         }
         // 4.onceToken
         if (user == null) {
             String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
-            user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken, Boolean.FALSE);
+            user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken);
         }
 
         return user != null;

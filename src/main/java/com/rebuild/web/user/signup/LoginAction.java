@@ -77,7 +77,7 @@ public class LoginAction extends BaseController {
 
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
-                        "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
@@ -104,7 +104,7 @@ public class LoginAction extends BaseController {
         Integer ed = loginSuccessed(request, response, user, false);
         if (ed != null) resMap.put("passwdExpiredDays", ed);
 
-        String authToken = AuthTokenManager.generateAccessToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
+        String authToken = AuthTokenManager.generateAccessToken(user);
         resMap.put("authToken", authToken);
 
         // FIXME 暂不启用 lauthToken 前端有问题
