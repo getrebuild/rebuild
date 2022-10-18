@@ -131,7 +131,7 @@ public class SMSender {
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP failed to send : " + to + " > " + subject, ex);
+                log.error("SMTP failed to send : {} > {}", to, subject, ex);
                 return null;
             }
         }
@@ -157,7 +157,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail failed to send : " + to + " > " + subject, ex);
+            log.error("Submail failed to send : {} > {}", to, subject, ex);
             return null;
         }
 
@@ -168,7 +168,7 @@ public class SMSender {
             return sendId;
 
         } else {
-            log.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
+            log.error("Mail failed to send : {} > {}\nError : {}", to, subject, rJson);
             createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
             return null;
         }
