@@ -118,7 +118,7 @@ class FeedsScope extends React.Component {
             {$L('私密')}
           </a>
           <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title={$L('团队成员可见')} ref={(c) => (this._$items['GROUP'] = c)}>
-            <i className="icon up-1 zmdi zmdi-accounts" />
+            <i className="icon up-1 mdi mdi-briefcase-account" />
             {$L('团队')}
           </a>
         </div>

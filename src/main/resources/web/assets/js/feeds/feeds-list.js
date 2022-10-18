@@ -142,7 +142,7 @@ class FeedsList extends React.Component {
                   item.scope
                 ) : (
                   <span>
-                    {item.scope[1]} <i title={$L('团队成员可见')} className="zmdi zmdi-accounts fs-14 down-1" />
+                    {item.scope[1]} <i title={$L('团队成员可见')} className="zmdi mdi mdi-briefcase-account fs-14" />
                   </span>
                 )}
               </p>
