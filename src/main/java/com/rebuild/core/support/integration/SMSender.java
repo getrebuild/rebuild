@@ -60,7 +60,7 @@ public class SMSender {
             try {
                 sendMail(to, subject, content);
             } catch (Exception ex) {
-                log.error("Mail failed to send : " + to + " < " + subject, ex);
+                log.error("Mail failed to send : {} < {}", to, subject, ex);
             }
         });
     }
@@ -97,11 +97,18 @@ public class SMSender {
 
             Objects.requireNonNull(mailbody.selectFirst(".rb-title")).text(subject);
             Objects.requireNonNull(mailbody.selectFirst(".rb-content")).html(content);
+
+            // 处理变量
             String htmlContent = mailbody.html();
-            // 处理公共变量
             htmlContent = htmlContent.replace("%TO%", to);
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
-            htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
+            htmlContent = htmlContent.replace("%APPURL%", RebuildConfiguration.getHomeUrl());
+            htmlContent = htmlContent.replace("%APPLOGO%", RebuildConfiguration.getHomeUrl("commons/theme/use-logo"));
+            if (License.isCommercial()) {
+                htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
+            } else {
+                htmlContent = htmlContent.replace("%APPNAME%", "REBUILD");
+            }
 
             String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
             if (StringUtils.isNotBlank(pageFooter)) {
@@ -124,7 +131,7 @@ public class SMSender {
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP failed to send : " + to + " > " + subject, ex);
+                log.error("SMTP failed to send : {} > {}", to, subject, ex);
                 return null;
             }
         }
@@ -150,7 +157,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail failed to send : " + to + " > " + subject, ex);
+            log.error("Submail failed to send : {} > {}", to, subject, ex);
             return null;
         }
 
@@ -161,7 +168,7 @@ public class SMSender {
             return sendId;
 
         } else {
-            log.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
+            log.error("Mail failed to send : {} > {}\nError : {}", to, subject, rJson);
             createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
             return null;
         }
@@ -203,21 +210,13 @@ public class SMSender {
      * @return
      */
     protected static Element getMailTemplate() {
-        if (MT_CACHE != null && !Application.devMode()) return MT_CACHE.clone();
+        if (MT_CACHE != null) return MT_CACHE.clone();
 
         String content = CommonsUtils.getStringOfRes("i18n/email.zh_CN.html");
         Assert.notNull(content, "Cannot load template of email");
-
-        // 生硬替换
-        if (Application.isReady() && License.getCommercialType() > 10) {
-            content = content.replace("REBUILD", RebuildConfiguration.get(ConfigurationItem.AppName));
-            content = content.replace("https://getrebuild.com/img/logo.png", RebuildConfiguration.getHomeUrl("commons/theme/use-logo"));
-            content = content.replace("https://getrebuild.com/", RebuildConfiguration.getHomeUrl());
-        }
-
         Document html = Jsoup.parse(content);
-        MT_CACHE = html.body();
 
+        MT_CACHE = html.body();
         return MT_CACHE.clone();
     }
 
@@ -230,7 +229,7 @@ public class SMSender {
             try {
                 sendSMS(to, content);
             } catch (Exception ex) {
-                log.error("SMS failed to send : " + to, ex);
+                log.error("SMS failed to send : {}", to, ex);
             }
         });
     }
@@ -275,7 +274,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Subsms failed to send : " + to + " > " + content, ex);
+            log.error("Subsms failed to send : {} > {}", to, content, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
@@ -287,12 +286,13 @@ public class SMSender {
             return sendId;
 
         } else {
-            log.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
+            log.error("SMS failed to send : {} > {}\nError : {}", to, content, rJson);
             createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
             return null;
         }
     }
 
+    // @see com.rebuild.core.support.CommonsLog
     private static void createLog(String to, String content, int type, String sentid, String error) {
         if (!Application.isReady()) return;
 
@@ -307,6 +307,7 @@ public class SMSender {
             slog.setString("sendResult",
                     CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
         }
+
         Application.getCommonsService().create(slog);
     }
 
