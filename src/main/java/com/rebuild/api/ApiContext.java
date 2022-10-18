@@ -69,10 +69,8 @@ public class ApiContext {
      * @return
      */
     public ID getBindUser() {
-        if (bindUser == null) {
-            return UserService.SYSTEM_USER;
-        }
-        return bindUser;
+        if (bindUser == null) return UserService.SYSTEM_USER;
+        else return bindUser;
     }
 
     /**
@@ -119,8 +117,9 @@ public class ApiContext {
      * @return
      */
     public ID getParameterAsId(String name) {
-        String value = getParameterMap().get(name);
-        return ID.isId(value) ? ID.valueOf(value) : null;
+        String value = getParameterNotBlank(name);
+        if (ID.isId(value)) return ID.valueOf(value);
+        throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] is invalid");
     }
 
     /**
@@ -130,10 +129,8 @@ public class ApiContext {
      */
     public int getParameterAsInt(String name, int defaultValue) {
         String value = getParameterMap().get(name);
-        if (NumberUtils.isNumber(value)) {
-            return NumberUtils.toInt(value);
-        }
-        return defaultValue;
+        if (NumberUtils.isNumber(value)) return NumberUtils.toInt(value);
+        else return defaultValue;
     }
 
     /**
@@ -143,10 +140,8 @@ public class ApiContext {
      */
     public long getParameterAsLong(String name, long defaultValue) {
         String value = getParameterMap().get(name);
-        if (NumberUtils.isNumber(value)) {
-            return NumberUtils.toLong(value);
-        }
-        return defaultValue;
+        if (NumberUtils.isNumber(value)) return NumberUtils.toLong(value);
+        else return defaultValue;
     }
 
     /**
@@ -156,9 +151,7 @@ public class ApiContext {
      */
     public boolean getParameterAsBool(String name, boolean defaultValue) {
         String value = getParameterMap().get(name);
-        if (StringUtils.isBlank(value)) {
-            return defaultValue;
-        }
-        return BooleanUtils.toBoolean(value);
+        if (StringUtils.isBlank(value)) return defaultValue;
+        else return BooleanUtils.toBoolean(value);
     }
 }
