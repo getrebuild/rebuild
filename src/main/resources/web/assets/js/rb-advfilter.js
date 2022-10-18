@@ -596,7 +596,9 @@ class FilterItem extends React.Component {
     if (!v) {
       $el.addClass('is-invalid')
     } else {
-      if (this.isNumberValue()) {
+      if (/^\{\{[a-z0-9._]{4,}\}\}$/i.test(v)) {
+        // Pass: field-var {{xxxx}}
+      } else if (this.isNumberValue()) {
         if ($regex.isDecimal(v) === false) $el.addClass('is-invalid')
       } else if (this.state.type === 'DATE' || this.state.type === 'DATETIME') {
         if ($regex.isDate(v) === false) $el.addClass('is-invalid')
@@ -841,6 +843,7 @@ class FilterItem extends React.Component {
 
 // ~~ 高级查询:列表专用
 
+// eslint-disable-next-line no-unused-vars
 class ListAdvFilter extends AdvFilter {
   render() {
     const filterComp = super.render()
