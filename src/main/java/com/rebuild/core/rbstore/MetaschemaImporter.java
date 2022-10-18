@@ -36,10 +36,7 @@ import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.rebuild.core.rbstore.MetaSchemaGenerator.KEEP_ID;
 
@@ -206,13 +203,21 @@ public class MetaschemaImporter extends HeavyTask<String> {
         JSONArray fields = schema.getJSONArray("fields");
         try {
             List<Field> fieldsList = new ArrayList<>();
+            Set<String> uniqueKeyFields = new HashSet<>();
             for (Object field : fields) {
                 Field unsafe = performField((JSONObject) field, newEntity);
-                if (unsafe != null) fieldsList.add(unsafe);
+                if (unsafe != null) {
+                    fieldsList.add(unsafe);
+
+                    if (DisplayType.SERIES.name().equals(((JSONObject) field).getString("displayType"))) {
+                        uniqueKeyFields.add(unsafe.getName());
+                    }
+                }
             }
 
             // 同步字段到数据库
-            new Field2Schema(UserService.ADMIN_USER).schema2Database(newEntity, fieldsList.toArray(new Field[0]));
+            new Field2Schema(UserService.ADMIN_USER).schema2Database(
+                    newEntity, fieldsList.toArray(new Field[0]), uniqueKeyFields);
 
         } catch (Exception ex) {
             entity2Schema.dropEntity(newEntity, true);

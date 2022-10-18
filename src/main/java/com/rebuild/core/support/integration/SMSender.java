@@ -22,10 +22,7 @@ import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.MarkdownUtils;
-import com.rebuild.utils.OkHttpUtils;
+import com.rebuild.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -197,7 +194,7 @@ public class SMSender {
         if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
-        email.setCharset("UTF-8");
+        email.setCharset(AppUtils.UTF8);
         return email.send();
     }
 

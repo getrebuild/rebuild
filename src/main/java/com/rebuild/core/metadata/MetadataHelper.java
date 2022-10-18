@@ -152,12 +152,15 @@ public class MetadataHelper {
      *
      * @param source
      * @param reference
+     * @param includeN2N 包括多引用
      * @return
      */
-    public static Field[] getReferenceToFields(Entity source, Entity reference) {
+    public static Field[] getReferenceToFields(Entity source, Entity reference, boolean includeN2N) {
         List<Field> fields = new ArrayList<>();
         for (Field field : reference.getFields()) {
-            if (field.getType() == FieldType.REFERENCE && field.getReferenceEntity().equals(source)) {
+            boolean isRef = field.getType() == FieldType.REFERENCE
+                    || (includeN2N && field.getType() == FieldType.REFERENCE_LIST);
+            if (isRef && field.getReferenceEntity().equals(source)) {
                 fields.add(field);
             }
         }
@@ -165,16 +168,27 @@ public class MetadataHelper {
     }
 
     /**
-     * 哪些字段引用了 <tt>sourceEntity</tt>
+     * @param source
+     * @param reference
+     * @return
+     * @see #getReferenceToFields(Entity, Entity, boolean)
+     */
+    public static Field[] getReferenceToFields(Entity source, Entity reference) {
+        return getReferenceToFields(source, reference, Boolean.FALSE);
+    }
+
+    /**
+     * 哪些字段引用了 <tt>source</tt>
      *
      * @param source
+     * @param includeN2N
      * @return
-     * @see #getReferenceToFields(Entity, Entity)
+     * @see #getReferenceToFields(Entity, Entity, boolean)
      */
-    public static Field[] getReferenceToFields(Entity source) {
+    public static Field[] getReferenceToFields(Entity source, boolean includeN2N) {
         List<Field> fields = new ArrayList<>();
         for (Entity entity : getEntities()) {
-            CollectionUtils.addAll(fields, getReferenceToFields(source, entity));
+            CollectionUtils.addAll(fields, getReferenceToFields(source, entity, includeN2N));
         }
         return fields.toArray(new Field[0]);
     }

@@ -173,6 +173,8 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
                 || ConfigurationItem.MobileUrl.name().equalsIgnoreCase(name)
                 || ConfigurationItem.RbStoreUrl.name().equalsIgnoreCase(name)
                 || ConfigurationItem.TriggerMaxDepth.name().equalsIgnoreCase(name)
+                || ConfigurationItem.SecurityEnhanced.name().equalsIgnoreCase(name)
+                || ConfigurationItem.TrustedAllUrl.name().equalsIgnoreCase(name)
                 || ConfigurationItem.SN.name().equalsIgnoreCase(name)) {
             value = StringUtils.defaultIfBlank(System.getProperty(name), System.getProperty(V2_PREFIX + name));
 

@@ -164,7 +164,7 @@ public class UseThemeController extends BaseController {
         String dimgHash = Application.getCommonsCache().get(name);
         if (dimgHash == null) {
             dimgHash = CommonsUtils.randomHex(true);
-            Application.getCommonsCache().put(name, dimgHash, CommonsCache.TS_WEEK);
+            Application.getCommonsCache().put(name, dimgHash, CommonsCache.TS_DAY * 7);
         }
         return dimgHash;
     }

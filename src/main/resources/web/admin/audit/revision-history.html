@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/auditing#%E5%8F%98%E6%9B%B4%E5%8E%86%E5%8F%B2" />
     <title>[[${bundle.L('变更历史')}]]</title>
-    <style type="text/css">
+    <style>
       .table.table-fixed td {
         vertical-align: text-top;
       }
@@ -37,15 +37,15 @@
                       </div>
                       <div class="input-group input-search">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" />
-                        <span class="input-group-btn"
-                          ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
-                        ></span>
+                        <span class="input-group-btn">
+                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                        </span>
                       </div>
                     </div>
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_details"><i class="icon mdi mdi-text-box-search-outline"></i> [[${bundle.L('详情')}]]</button>
+                      <button class="btn btn-space btn-secondary J_details" type="button"><i class="icon mdi mdi-text-box-search-outline"></i> [[${bundle.L('详情')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -59,6 +59,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/revision-history.js}" type="text/babel"></script>
   </body>

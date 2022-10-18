@@ -35,8 +35,10 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -70,7 +72,7 @@ public class FieldWriteback extends FieldAggregation {
     private Record targetRecordData;
 
     public FieldWriteback(ActionContext context) {
-        super(context);
+        super(context, Boolean.TRUE);
     }
 
     @Override
@@ -83,18 +85,18 @@ public class FieldWriteback extends FieldAggregation {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
-        if (tschain == null) return "trigger-once";
+        if (tschain == null) return TriggerResult.triggerOnce();
 
         this.prepare(operatingContext);
 
         if (targetRecordIds.isEmpty()) {
             log.debug("No target record(s) found");
-            return "target-0";
+            return TriggerResult.noMatching();
         }
 
         if (targetRecordData.isEmpty()) {
-            log.info("No data of target record(s) : {}", targetRecordIds);
-            return "target-empty";
+            log.info("No data of target record : {}", targetRecordIds);
+            return TriggerResult.targetEmpty();
         }
 
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
@@ -104,6 +106,16 @@ public class FieldWriteback extends FieldAggregation {
             if (operatingContext.getAction() == BizzPermission.DELETE
                     && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
                 // 删除时无需更新自己
+                continue;
+            }
+
+            Record targetRecord = targetRecordData.clone();
+            targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
+            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+
+            // 相等则不更新
+            if (isCurrentSame(targetRecord)) {
+                log.info("Ignore execution because the record are same : {}", targetRecordId);
                 continue;
             }
 
@@ -117,10 +129,6 @@ public class FieldWriteback extends FieldAggregation {
 
             // 重复检查模式
             GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
-
-            Record targetRecord = targetRecordData.clone();
-            targetRecord.setID(targetEntity.getPrimaryField().getName(), targetRecordId);
-            targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
             List<String> tschainCurrentLoop = new ArrayList<>(tschain);
             tschainCurrentLoop.add(chainName);
@@ -137,7 +145,7 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        return "affected:" + affected;
+        return TriggerResult.success(affected);
     }
 
     @Override
@@ -149,6 +157,7 @@ public class FieldWriteback extends FieldAggregation {
         sourceEntity = actionContext.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
+        // 1对1模式，此触发器还支持1对N
         boolean isOne2One = ((JSONObject) actionContext.getActionContent()).getBooleanValue(ONE2ONE_MODE);
 
         targetRecordIds = new HashSet<>();
@@ -163,37 +172,52 @@ public class FieldWriteback extends FieldAggregation {
             Record afterRecord = operatingContext.getAfterRecord();
             if (afterRecord == null) return;
 
-            ID referenceId;
             if (afterRecord.hasValue(targetFieldEntity[0])) {
-                referenceId = afterRecord.getID(targetFieldEntity[0]);
-                if (NullValue.is(referenceId)) referenceId = null;
+                Object o = afterRecord.getObjectValue(targetFieldEntity[0]);
+                if (!NullValue.isNull(o)) {
+                    // N2N
+                    if (o instanceof ID[]) {
+                        Collections.addAll(targetRecordIds, (ID[]) o);
+                    } else {
+                        targetRecordIds.add((ID) o);
+                    }
+                }
             } else {
-                Object[] o = Application.getQueryFactory().uniqueNoFilter(afterRecord.getPrimary(), targetFieldEntity[0]);
-                referenceId = (ID) o[0];
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(afterRecord.getPrimary(),
+                        targetFieldEntity[0], afterRecord.getEntity().getPrimaryField().getName());
+                if (o != null && o[0] != null) {
+                    // N2N
+                    if (o[0] instanceof ID[]) {
+                        Collections.addAll(targetRecordIds, (ID[]) o[0]);
+                    } else {
+                        targetRecordIds.add((ID) o[0]);
+                    }
+                }
             }
-
-            if (referenceId != null) targetRecordIds.add(referenceId);
-
         }
         // 1>N
         else {
-            String sql = String.format("select %s from %s where %s = ?",
-                    targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
-            Object[][] array = Application.createQueryNoFilter(sql)
-                    .setParameter(1, operatingContext.getAnyRecord().getPrimary())
-                    .array();
+            // N2N v3.1
+            Field targetField = targetEntity.getField(targetFieldEntity[0]);
+            if (targetField.getType() == FieldType.REFERENCE_LIST) {
+                Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getAnyRecord().getPrimary());
+                targetRecordIds.addAll(set);
+            } else {
+                String sql = String.format("select %s from %s where %s = ?",
+                        targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
+                Object[][] array = Application.createQueryNoFilter(sql)
+                        .setParameter(1, operatingContext.getAnyRecord().getPrimary())
+                        .array();
 
-            for (Object[] o : array) {
-                targetRecordIds.add((ID) o[0]);
-            }
-
-            if (targetRecordIds.isEmpty()) {
-                log.warn("No target record(s) found : {}", actionContext.getConfigId());
-                return;
+                for (Object[] o : array) {
+                    targetRecordIds.add((ID) o[0]);
+                }
             }
         }
 
-        targetRecordData = buildTargetRecordData();
+        if (!targetRecordIds.isEmpty()) {
+            targetRecordData = buildTargetRecordData();
+        }
     }
 
     private Record buildTargetRecordData() {

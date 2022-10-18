@@ -60,14 +60,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dd-list .dd-item .dd-action {
   padding-right: 2px;
+  right: 1px;
 }
 
 .dd-list .dd-item .dd-action a {
   font-size: 1.23rem;
   margin-top: 1px;
   display: inline-block;
-  padding: 7px 1px;
-  margin-right: 6px;
+  padding: 7px 3px;
+  margin-right: 4px;
   opacity: 0.7;
 }
 

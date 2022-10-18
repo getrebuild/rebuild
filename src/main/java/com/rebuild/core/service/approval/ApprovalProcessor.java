@@ -14,12 +14,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -39,7 +42,7 @@ import java.util.*;
 public class ApprovalProcessor extends SetUser {
 
     // 最大撤销次数
-    private static final int MAX_REVOKED = 3;
+    private static final int MAX_REVOKED = 100;
 
     final private ID record;
 
@@ -147,7 +150,7 @@ public class ApprovalProcessor extends SetUser {
                 .unique();
         if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
             throw new ApprovalException(Language.L(stepApprover == null
-                    ? Language.L("当前流程已经被他人审批") : Language.L("你已经审批过当前流程")));
+                    ? Language.L("当前流程已经被其他人审批") : Language.L("你已经审批过当前流程")));
         }
 
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
@@ -209,6 +212,40 @@ public class ApprovalProcessor extends SetUser {
 
         Application.getBean(ApprovalStepService.class).txCancel(
                 this.record, status.getApprovalId(), getCurrentNodeId(status), false);
+    }
+
+    /**
+     * 3.1.催审
+     *
+     * @return -1=频率超限
+     */
+    public int urge() {
+        if (this.approval == null) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(this.record, EntityHelper.ApprovalId);
+            this.approval = (ID) o[0];
+        }
+
+        final String sentKey = String.format("URGE:%s-%s", this.approval, this.record);
+        if (Application.getCommonsCache().getx(sentKey) != null) {
+            return -1;
+        }
+
+        int sent = 0;
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(this.record.getEntityCode()));
+
+        JSONArray step = getCurrentStep(null);
+        for (Object o : step) {
+            JSONObject s = (JSONObject) o;
+            if (s.getIntValue("state") != 1) continue;
+
+            ID approver = ID.valueOf(s.getString("approver"));
+            String urgeMsg = Language.L("有一条 %s 记录正在等待你审批，请尽快审批", entityLabel);
+            Application.getNotifications().send(MessageBuilder.createApproval(approver, urgeMsg, this.record));
+            sent++;
+        }
+
+        Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 5);
+        return sent;
     }
 
     /**
@@ -398,13 +435,11 @@ public class ApprovalProcessor extends SetUser {
         this.approval = status.getApprovalId();
 
         Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch from RobotApprovalStep" +
+                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers from RobotApprovalStep" +
                         " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
                 .setParameter(1, this.record)
                 .array();
-        if (array.length == 0) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
+        if (array.length == 0) return JSONUtils.EMPTY_ARRAY;
 
         Object[] firstStep = null;
         Map<String, List<Object[]>> stepBatchMap = new LinkedHashMap<>();
@@ -489,13 +524,21 @@ public class ApprovalProcessor extends SetUser {
 
     private JSONObject formatStep(Object[] step, String signMode) {
         ID approver = (ID) step[0];
-        return JSONUtils.toJSONObject(
+        JSONObject s = JSONUtils.toJSONObject(
                 new String[]{"approver", "approverName", "state", "remark", "approvedTime", "createdOn", "signMode"},
                 new Object[]{
                         approver, UserHelper.getName(approver),
                         step[1], step[2],
                         step[3] == null ? null : CalendarUtils.getUTCDateTimeFormat().format(step[3]),
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
+
+        if (step.length > 9 && step[9] != null) {
+            List<String> names = new ArrayList<>();
+            for (ID u : (ID[]) step[9]) names.add(UserHelper.getName(u));
+            s.put("ccUsers", names);
+        }
+
+        return s;
     }
 
     /**

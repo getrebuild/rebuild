@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -25,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -61,53 +63,69 @@ import static cn.devezhao.commons.CalendarUtils.addMonth;
 @Slf4j
 public class AdvFilterParser extends SetUser {
 
+    // 虚拟字段:当前审批人
+    public static final String VF_ACU = "$APPROVALCURRENTUSER$";
+
     // 快速查询
     private static final String MODE_QUICK = "QUICK";
 
-    private JSONObject filterExp;
-    private Entity rootEntity;
+    final private JSONObject filterExpr;
+    final private Entity rootEntity;
+    // v3.1 条件值使用记录作为变量
+    final private ID varRecord;
 
-    private Set<String> includeFields = null;
+    transient private Set<String> includeFields = null;
 
     /**
-     * @param filterExp
+     * @param filterExpr
      */
-    public AdvFilterParser(JSONObject filterExp) {
-        this(MetadataHelper.getEntity(filterExp.getString("entity")), filterExp);
+    public AdvFilterParser(JSONObject filterExpr) {
+        this(filterExpr, MetadataHelper.getEntity(filterExpr.getString("entity")));
     }
 
     /**
+     * @param filterExpr
      * @param rootEntity
-     * @param filterExp
      */
-    public AdvFilterParser(Entity rootEntity, JSONObject filterExp) {
+    public AdvFilterParser(JSONObject filterExpr, Entity rootEntity) {
+        this.filterExpr = filterExpr;
         this.rootEntity = rootEntity;
-        this.filterExp = filterExp;
+        this.varRecord = null;
+    }
+
+    /**
+     * @param filterExpr
+     * @param varRecord
+     */
+    public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
+        this.filterExpr = filterExpr;
+        this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
+        this.varRecord = varRecord;
     }
 
     /**
      * @return
      */
     public String toSqlWhere() {
-        if (filterExp == null || filterExp.isEmpty()) {
+        if (filterExpr == null || filterExpr.isEmpty()) {
             return null;
         }
 
         this.includeFields = new HashSet<>();
 
         // 自动确定查询项
-        if (MODE_QUICK.equalsIgnoreCase(filterExp.getString("type"))) {
-            JSONArray quickItems = buildQuickFilterItems(filterExp.getString("quickFields"));
-            this.filterExp.put("items", quickItems);
+        if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
+            JSONArray quickItems = buildQuickFilterItems(filterExpr.getString("quickFields"));
+            this.filterExpr.put("items", quickItems);
         }
 
-        JSONArray items = filterExp.getJSONArray("items");
+        JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
 
-        JSONObject values = filterExp.getJSONObject("values");
+        JSONObject values = filterExpr.getJSONObject("values");
         values = values == null ? JSONUtils.EMPTY_OBJECT : values;
 
-        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
+        String equation = StringUtils.defaultIfBlank(filterExpr.getString("equation"), "OR");
 
         Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
         int incrIndex = 1;
@@ -200,7 +218,8 @@ public class AdvFilterParser extends SetUser {
             field = field.substring(1);
         }
 
-        Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
+        Field fieldMeta = VF_ACU.equals(field) ? rootEntity.getField(EntityHelper.ApprovalLastUser)
+                : MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, rootEntity.getName());
             return null;
@@ -225,7 +244,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         String op = item.getString("op");
-        String value = item.getString("value");
+        String value = useValueOfVarRecord(item.getString("value"));
         String valueEnd = null;
 
         // FIXME N2N 特殊处理，仅支持 LK NLK EQ NEQ
@@ -337,9 +356,11 @@ public class AdvFilterParser extends SetUser {
             }
 
         } else if (dt == DisplayType.MULTISELECT) {
-            // 多选的包含/不包含要按位计算
-            if (ParseHelper.IN.equalsIgnoreCase(op) || ParseHelper.NIN.equalsIgnoreCase(op)) {
-                op = ParseHelper.IN.equalsIgnoreCase(op) ? ParseHelper.BAND : ParseHelper.NBAND;
+            if (ParseHelper.IN.equalsIgnoreCase(op) || ParseHelper.NIN.equalsIgnoreCase(op)
+                    || ParseHelper.EQ.equalsIgnoreCase(op) || ParseHelper.NEQ.equalsIgnoreCase(op)) {
+                // 多选的包含/不包含要按位计算
+                if (ParseHelper.IN.equalsIgnoreCase(op)) op = ParseHelper.BAND;
+                else if (ParseHelper.NIN.equalsIgnoreCase(op)) op = ParseHelper.NBAND;
 
                 long maskValue = 0;
                 for (String s : value.split("\\|")) {
@@ -413,9 +434,7 @@ public class AdvFilterParser extends SetUser {
 
         // 快速搜索的占位符 `{1}`
         if (value.matches("\\{\\d+}")) {
-            if (values == null || values.isEmpty()) {
-                return null;
-            }
+            if (values == null || values.isEmpty()) return null;
 
             String valHold = value.replaceAll("[{}]", "");
             value = parseValue(values.get(valHold), op, fieldMeta, false);
@@ -424,17 +443,14 @@ public class AdvFilterParser extends SetUser {
         }
 
         // No value for search
-        if (value == null) {
-            return null;
-        }
+        if (value == null) return null;
 
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
         if (isBetween && valueEnd == null) {
-            valueEnd = parseValue(item.getString("value2"), op, fieldMeta, true);
-            if (valueEnd == null) {
-                valueEnd = value;
-            }
+            valueEnd = useValueOfVarRecord(item.getString("value2"));
+            valueEnd = parseValue(valueEnd, op, fieldMeta, true);
+            if (valueEnd == null) valueEnd = value;
         }
 
         // IN
@@ -455,7 +471,13 @@ public class AdvFilterParser extends SetUser {
                     .append(" )");
         }
 
-        return sb.toString();
+        if (VF_ACU.equals(field)) {
+            return String.format(
+                    "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s) and approvalState = 2)",
+                    rootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
+        } else {
+            return sb.toString();
+        }
     }
 
     /**
@@ -476,10 +498,8 @@ public class AdvFilterParser extends SetUser {
             return optimizeIn(inVals);
 
         } else {
-            value = val.toString();
-            if (StringUtils.isBlank(value)) {
-                return null;
-            }
+            value = val == null ? null : val.toString();
+            if (StringUtils.isBlank(value)) return null;
 
             // TIMESTAMP 仅指定了日期值，则补充时间值
             if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
@@ -528,10 +548,8 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     private String optimizeIn(Set<String> inVals) {
-        if (inVals == null || inVals.isEmpty()) {
-            return null;
-        }
-        return "( " + StringUtils.join(inVals, ",") + " )";
+        if (inVals == null || inVals.isEmpty()) return null;
+        else return "( " + StringUtils.join(inVals, ",") + " )";
     }
 
     /**
@@ -629,5 +647,32 @@ public class AdvFilterParser extends SetUser {
             }
         }
         return null;
+    }
+
+    // {{xxx}}
+    private static final String VAR_PATT = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
+
+    private String useValueOfVarRecord(String value) {
+        if (varRecord == null || StringUtils.isBlank(value)) return value;
+        if (!value.matches(VAR_PATT)) return value;
+
+        String fieldName = value.substring(2, value.length() - 2);
+        Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
+        if (field == null) {
+            log.warn("Invalid field : {} in {}", value, rootEntity.getName());
+            return value;
+        }
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
+        if (o == null || o[0] == null) return StringUtils.EMPTY;
+
+        Object v = o[0];
+
+        if (v instanceof Date) {
+            v = CalendarUtils.getUTCDateFormat().format(v);
+        } else {
+            v = String.valueOf(v);
+        }
+        return (String) v;
     }
 }

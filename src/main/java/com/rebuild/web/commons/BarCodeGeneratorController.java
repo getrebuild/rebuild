@@ -53,14 +53,18 @@ public class BarCodeGeneratorController extends BaseController {
         String content = getParameterNotNull(request, "t");
         int w = getIntParameter(request, "w", 0);
 
+        BufferedImage bi;
+        if (request.getRequestURI().endsWith("render-qr")) {
+            bi = BarCodeSupport.createQRCode(content, w);
+        } else {
+            // 条形码文字
+            boolean showText = getBoolParameter(request, "b", true);
+            bi = BarCodeSupport.createBarCode(content, w, showText);
+        }
+
         // 4小时缓存
         ServletUtils.addCacheHead(response, 240);
-
-        if (request.getRequestURI().endsWith("render-qr")) {
-            writeTo(BarCodeSupport.createQRCode(content, w), response);
-        } else {
-            writeTo(BarCodeSupport.createBarCode(content, w), response);
-        }
+        writeTo(bi, response);
     }
 
     private void writeTo(BufferedImage image, HttpServletResponse response) throws IOException {

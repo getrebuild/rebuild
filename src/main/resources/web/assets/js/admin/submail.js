@@ -105,8 +105,8 @@ class TestSend extends RbAlert {
           <label>{$L('输入接收%s', this._typeName)}</label>
           <input type="text" className="form-control form-control-sm" placeholder={$L(this._typeName)} ref={(c) => (this._input = c)} />
         </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()} ref={(c) => (this._btn = c)}>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={() => this.confirm()} ref={(c) => (this._btn = c)}>
             {$L('发送')}
           </button>
         </div>

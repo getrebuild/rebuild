@@ -85,6 +85,7 @@ $(document).ready(function () {
         item.type === 'URL' ||
         item.type === 'PHONE' ||
         item.type === 'SERIES' ||
+        item.type === 'LOCATION' ||
         item.type === 'PICKLIST' ||
         item.type === 'CLASSIFICATION' ||
         item.type === 'DATE' ||
@@ -117,6 +118,7 @@ $(document).ready(function () {
         item.type === 'URL' ||
         item.type === 'PHONE' ||
         item.type === 'SERIES' ||
+        item.type === 'LOCATION' ||
         item.type === 'PICKLIST' ||
         item.type === 'CLASSIFICATION' ||
         // item.type === 'DATE' ||

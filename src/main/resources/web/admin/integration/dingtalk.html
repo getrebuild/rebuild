@@ -67,7 +67,7 @@
                         <td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
                         <td data-id="DingtalkSyncUsers" th:data-value="${DingtalkSyncUsers}">
                           <span class="mr-1">[[${DingtalkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
-                          <button type="button" class="btn btn-light btn-sm J_syncUsers up-1"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+                          <button class="btn btn-light btn-sm J_syncUsers up-1" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
                         </td>
                       </tr>
                       <tr>
@@ -79,8 +79,8 @@
                     </tbody>
                   </table>
                   <div class="edit-footer">
-                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
-                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+                    <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
                   </div>
                 </div>
               </div>

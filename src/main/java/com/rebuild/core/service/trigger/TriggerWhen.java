@@ -60,6 +60,15 @@ public enum TriggerWhen {
      */
     TIMER(512),
 
+    /**
+     * 审批提交
+     */
+    SUBMIT(1024),
+    /**
+     * 审批驳回/撤回
+     */
+    REJECTED(2048),
+
     ;
 
     private final int maskValue;

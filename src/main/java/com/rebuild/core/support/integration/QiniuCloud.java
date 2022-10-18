@@ -141,7 +141,7 @@ public class QiniuCloud {
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 60 * 15);
+        return makeUrl(filePath, 60 * 3);
     }
 
     /**

@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  $('.J_add').click(() => renderRbcomp(<DlgEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<DlgEdit />))
   renderRbcomp(<AppList />, 'appList')
 })
 
@@ -49,6 +49,8 @@ class AppList extends React.Component {
     )
   }
 
+  componentDidMount = () => this._componentDidMount()
+
   _componentDidMount() {
     $.get('/admin/apis-manager/app-list', (res) => {
       const _data = res.data || []
@@ -59,7 +61,6 @@ class AppList extends React.Component {
       })
     })
   }
-  componentDidMount = () => this._componentDidMount()
 
   showSecret(s) {
     event.preventDefault()

@@ -33,22 +33,27 @@
     <script th:src="@{/assets/js/sortable.js}"></script>
     <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
     <script type="text/babel">
-      $(document).ready(function () {
+      $(document).ready(() => {
         const entity = $urlp('entity')
         const settingsUrl = `/app/${entity}/list-fields`
+
+        // Hide if bizz
+        if (['User', 'Department', 'Role', 'Team'].includes(entity)) $('#shareTo').addClass('hide')
 
         let overwriteMode = false
         let shareToComp
         let cfgid = $urlp('id')
-        $.get(`${settingsUrl}?id=${cfgid || ''}`, function (res) {
+
+        $.get(`${settingsUrl}?id=${cfgid || ''}`, (res) => {
           const _data = res.data || {}
+          cfgid = _data.configId || ''
+
           $(_data.fieldList).each(function () {
-            render_unset([this.field, this.label])
+            if (!$isSysMask(this.label)) render_unset([this.field, this.label])
           })
           $(_data.configList).each(function () {
             $('.unset-list li[data-key="' + this.field + '"]').trigger('click')
           })
-          cfgid = _data.configId || ''
 
           // 覆盖自有配置
           if (res.data) {
@@ -77,7 +82,7 @@
           })
         })
 
-        $('.J_save').click(function () {
+        $('.J_save').on('click', function () {
           const config = []
           $('.J_config>li').each(function () {
             config.push({ field: $(this).data('key') })

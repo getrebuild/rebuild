@@ -8,17 +8,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
-import com.googlecode.aviator.exception.ExpressionRuntimeException;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
 import java.util.Map;
@@ -157,16 +156,17 @@ public class RobotTriggerObserver extends OperatingObserver {
                 log.info(w);
 
                 try {
-                    Object ret = action.execute(context);
-                    System.out.println("[dev] " + w + " > " + (ret == null ? "N" : ret));
+                    Object res = action.execute(context);
+                    System.out.println("[dev] " + w + " > " + (res == null ? "N" : res));
 
-                    String logContent = ret == null ? null : ret.toString();
-                    if (originTriggerSource) {
-                        if (logContent != null) logContent += "; ";
-                        logContent += "chain:" + getTriggerSource();
+                    if (res instanceof TriggerResult) {
+                        if (originTriggerSource) {
+                            ((TriggerResult) res).setChain(getTriggerSource());
+                        }
+
+                        CommonsLog.createLog(TYPE_TRIGGER,
+                                context.getOperator(), action.getActionContext().getConfigId(), res.toString());
                     }
-                    CommonsLog.createLog(TYPE_TRIGGER,
-                            context.getOperator(), action.getActionContext().getConfigId(), logContent);
 
                 } catch (Throwable ex) {
 
@@ -178,17 +178,19 @@ public class RobotTriggerObserver extends OperatingObserver {
                             context.getOperator(), action.getActionContext().getConfigId(), ex);
 
                     // FIXME 触发器执行失败是否抛出
-                    if (ex instanceof MissingMetaExcetion
-                            || ex instanceof ExpressionRuntimeException
-                            || ex instanceof RepeatedRecordsException) {
-                        String errMsg = ex.getLocalizedMessage();
-                        if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
-
-                        throw new TriggerException(Language.L("触发器执行失败 : %s", errMsg));
-                    } else if (ex instanceof TriggerException) {
+                    if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {
-                        throw new RebuildException(ex);
+                        String errMsg = ex.getLocalizedMessage();
+                        if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
+                        if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
+
+                        errMsg = Language.L("触发器执行失败 : %s", errMsg);
+
+                        ID errTrigger = action.getActionContext().getConfigId();
+                        errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(errTrigger) + ")";
+
+                        throw new TriggerException(errMsg);
                     }
 
                 } finally {

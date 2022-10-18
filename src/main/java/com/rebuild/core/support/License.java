@@ -48,7 +48,7 @@ public final class License {
         if (!Application.isReady()) return TEMP_SN;
 
         JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER);
-        SN = newsn == null ? null : newsn.getString("sn");
+        SN = newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.set(ConfigurationItem.SN, SN);
         }
@@ -68,7 +68,7 @@ public final class License {
 
     public static JSONObject queryAuthority() {
         JSONObject auth = siteApi("api/authority/query");
-        if (auth == null || auth.getString("error") != null) {
+        if (auth.getString("error") != null) {
             auth = JSONUtils.toJSONObject(
                     new String[] { "sn", "authType", "authObject", "authExpires" },
                     new String[] { SN(), "开源社区版", "GitHub", "无" });
@@ -110,6 +110,13 @@ public final class License {
         return siteApi(api, 0, null);
     }
 
+    private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();
+    /**
+     * @param api
+     * @param t
+     * @param domain
+     * @return
+     */
     private static JSONObject siteApi(String api, int t, String domain) {
         if (t > 0) {
             JSONObject c = MCACHED.get(api, t);
@@ -139,15 +146,13 @@ public final class License {
             }
 
         } catch (Exception ex) {
-            log.error("Call site api `{}` error : {}", api, ex.toString());
+            log.error("Call site api `{}` error : {}", api.split("\\?")[0], ex.toString());
         }
 
         if (domain == null) {
             return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
         } else {
-            return null;
+            return JSONUtils.toJSONObject("error", "Call site api failed");
         }
     }
-
-    private static final ExpiresMap<String, JSONObject> MCACHED = new ExpiresMap<>();
 }

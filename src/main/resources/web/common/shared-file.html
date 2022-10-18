@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta http-equiv="refresh" content="1800" />
     <title>[[${bundle.L('分享文件')}]]</title>
-    <style type="text/css">
+    <style>
       .preview-modal .preview-header .float-right a:first-child {
         display: none;
       }
@@ -27,11 +27,13 @@
     </div>
     <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
-    <script type="text/babel">
+    <script>
       window.__PageConfig = {
         publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
       }
-      $(document).ready(function () {
+    </script>
+    <script type="text/babel">
+      $(document).ready(() => {
         renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose />)
       })
     </script>

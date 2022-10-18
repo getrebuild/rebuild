@@ -119,5 +119,8 @@ module.exports = {
     SignPad: true,
     RF: true,
     $select2MatcherAll: true,
+    $isFullUrl: true,
+    $clone: true,
+    $isSysMask: true,
   },
 }

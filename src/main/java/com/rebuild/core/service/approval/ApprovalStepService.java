@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -25,9 +27,16 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.service.trigger.RobotTriggerManual;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -35,7 +44,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 审批流程。此类所有方法不应直接调用，而是通过 ApprovalProcessor
+ * 审批流程。此类所有方法不应直接调用，而是通过 ApprovalProcessor 封装类
  * <p>
  * isWaiting - 因为会签的关系还不能进入下一步审批，因此需要等待。待会签完毕，此值将更新为 true
  * isCanceled - 是否作废。例如或签中，一人同意其他即作废
@@ -106,6 +115,8 @@ public class ApprovalStepService extends InternalPersistService {
         // see #getSubmitter
         String ckey = "ApprovalSubmitter" + recordId + approvalId;
         Application.getCommonsCache().evict(ckey);
+
+        execTriggers(recordOfMain, TriggerWhen.SUBMIT);
     }
 
     /**
@@ -144,6 +155,10 @@ public class ApprovalStepService extends InternalPersistService {
 
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
+        if (cc != null && !cc.isEmpty()) {
+            stepRecord.setIDArray("ccUsers", cc.toArray(new ID[0]));
+        }
+
         super.update(stepRecord);
         final ID stepRecordId = stepRecord.getPrimary();
 
@@ -158,11 +173,14 @@ public class ApprovalStepService extends InternalPersistService {
         final ID approver = UserContextHolder.getUser();
 
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+        String remark = stepRecord.getString("remark");
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
             String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
                     submitter, entityLabel, approver, Language.L(state));
+            if (StringUtils.isNotBlank(remark)) ccMsg += "\n > " + remark;
+
             for (ID c : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, recordId));
             }
@@ -184,7 +202,7 @@ public class ApprovalStepService extends InternalPersistService {
                 recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
                 super.update(recordOfMain);
 
-                createBackedNodes(currentNode, nextNode, recordId, approvalId, approver);
+                createBackedNodes(currentNode, nextNode, recordId, approvalId, approver, remark);
             }
             // 驳回
             else {
@@ -192,7 +210,10 @@ public class ApprovalStepService extends InternalPersistService {
                 super.update(recordOfMain);
 
                 String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
+                if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
+
+                execTriggers(recordOfMain, TriggerWhen.REJECTED);
             }
             return;
         }
@@ -282,13 +303,15 @@ public class ApprovalStepService extends InternalPersistService {
         final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
+        final boolean isAdmin = UserHelper.isAdmin(opUser);
+
         if (isRevoke) {
-            if (!UserHelper.isAdmin(opUser)) {
+            if (!isAdmin) {
                 throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
             }
         } else {
             ID s = ApprovalHelper.getSubmitter(recordId, approvalId);
-            if (!opUser.equals(s)) {
+            if (!(isAdmin || opUser.equals(s))) {
                 throw new OperationDeniedException(Language.L("仅提交人可撤回审批"));
             }
         }
@@ -309,6 +332,8 @@ public class ApprovalStepService extends InternalPersistService {
             Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
             super.update(recordOfMain);
+
+            execTriggers(recordOfMain, TriggerWhen.REJECTED);
         }
     }
 
@@ -480,11 +505,14 @@ public class ApprovalStepService extends InternalPersistService {
     }
 
     /**
+     * @param currentNode
      * @param rejectNode
      * @param recordId
      * @param approvalId
+     * @param approver
+     * @param remark
      */
-    private void createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver) {
+    private void createBackedNodes(String currentNode, String rejectNode, ID recordId, ID approvalId, ID approver, String remark) {
         // 1.最近提交的
         Object[] lastRoot = Application.createQueryNoFilter(
                 "select createdOn from RobotApprovalStep where prevNode = 'ROOT' and recordId = ? and approvalId = ? order by createdOn desc")
@@ -524,6 +552,7 @@ public class ApprovalStepService extends InternalPersistService {
             // 通知退回
             if (!(Boolean) o[1]) {
                 String rejectedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审核", o[0], entityLabel);
+                if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
                 Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], rejectedMsg, recordId));
             }
 
@@ -554,5 +583,43 @@ public class ApprovalStepService extends InternalPersistService {
                 .setParameter(1, recordId)
                 .unique();
         return String.format("%s-%d", node, (Long) o[0]);
+    }
+
+    /**
+     * @param approvalRecord
+     * @param when
+     * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
+     */
+    private void execTriggers(Record approvalRecord, TriggerWhen when) {
+        RobotTriggerManual triggerManual = new RobotTriggerManual();
+        ID approvalUser = UserService.SYSTEM_USER;
+
+        // 传导给明细（若有）
+
+        Entity detailEntity = approvalRecord.getEntity().getDetailEntity();
+        TriggerAction[] hasTriggers = detailEntity == null
+                ? null : RobotTriggerManager.instance.getActions(detailEntity, when);
+        if (hasTriggers != null && hasTriggers.length > 0) {
+            for (ID did : QueryHelper.detailIdsNoFilter(approvalRecord.getPrimary())) {
+                Record dAfter = EntityHelper.forUpdate(did, UserService.SYSTEM_USER, false);
+                if (when == TriggerWhen.SUBMIT) {
+                    triggerManual.onSubmit(
+                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                } else if (when == TriggerWhen.REJECTED) {
+                    triggerManual.onRejectedOrCancel(
+                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                }
+            }
+        }
+
+        // 本记录
+
+        if (when == TriggerWhen.SUBMIT) {
+            triggerManual.onSubmit(
+                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, approvalRecord));
+        } else if (when == TriggerWhen.REJECTED) {
+            triggerManual.onRejectedOrCancel(
+                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, approvalRecord));
+        }
     }
 }

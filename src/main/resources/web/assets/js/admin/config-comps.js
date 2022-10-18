@@ -179,10 +179,17 @@ function ShowEnable(enable, cfgid) {
       <div className="switch-button switch-button-xs switch-button-success">
         <input
           type="checkbox"
-          defaultChecked={enable}
+          defaultChecked={!enable}
           id={htmlid}
           onClick={(e) => {
-            console.log(cfgid, e.target.checked)
+            const _data = {
+              isDisabled: !e.target.checked,
+              metadata: { id: cfgid },
+            }
+
+            $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+              if (res.error_code !== 0) RbHighbar.error(res.error_msg)
+            })
           }}
         />
         <span>

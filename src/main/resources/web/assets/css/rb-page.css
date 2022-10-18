@@ -5,6 +5,13 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+:root {
+  --rb-color: #4285f4;
+  --rb-theme-color: #4285f4;
+  --rb-btn-hover-color: #0d5bdd;
+  --rb-btn-active-color: #2572f2;
+}
+
 .bosskey-show,
 .admin-show {
   display: none;
@@ -181,7 +188,7 @@ button[disabled] {
 .text-break {
   word-break: break-all;
   word-wrap: break-word;
-  white-space: normal;
+  white-space: normal !important;
 }
 
 .text-overflow {
@@ -288,6 +295,7 @@ a.link.inline {
   min-width: 98px;
 }
 
+.btn-group.w-auto > .btn,
 .btn.w-auto {
   min-width: 36px !important;
 }
@@ -526,6 +534,16 @@ a.btn {
   margin-left: 3px;
 }
 
+a.hover-color {
+  color: #4285f4;
+  border-color: #4285f4 !important;
+}
+
+a.hover-color:hover {
+  color: #0d5bdd;
+  border-color: #0d5bdd !important;
+}
+
 .table tbody tr.muted td:first-child {
   border-left: 3px solid #bbb;
   padding-left: 17px;
@@ -639,7 +657,7 @@ div.dataTables_filter .filter-badge:hover .close {
   right: 8px;
 }
 
-.adv-search .J_advfilter .icon {
+.adv-search .J_filterbtn .icon {
   margin-top: -3px;
   font-size: 1.45rem !important;
 }
@@ -689,6 +707,10 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .modal.rbmodal .modal-header > .icon {
   color: #fff;
+}
+
+.modal.rbmodal .modal-dialog {
+  transition: max-width 0.2s;
 }
 
 @media (max-width: 767px) {
@@ -1000,6 +1022,15 @@ select.form-control:not([disabled]) {
   overflow: hidden;
 }
 
+.col-sm-3.type-MULTISELECT .custom-checkbox {
+  margin-right: 0;
+  min-width: 100%;
+}
+
+.col-sm-4.type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
 .type-LOCATION .form-control.bg-white {
   cursor: text;
 }
@@ -1256,6 +1287,10 @@ select.form-control:not([disabled]) {
 
 .rbform .type-FILE .form-text {
   margin-bottom: 0;
+}
+
+.rbform .form-text.form-text-force {
+  display: block !important;
 }
 
 .rbhighbar {
@@ -1530,8 +1565,7 @@ i.dividing.ui-draggable-dragging {
   color: #0d5bdd !important;
 }
 
-.column-files > a + a::before,
-.column-n2n > a + a::before {
+.column-files > a + a::before {
   content: ',';
   margin-left: 1px;
   margin-right: 4px;
@@ -1566,7 +1600,7 @@ p.link a:hover,
 li.link a:hover,
 a.link:hover,
 a.column-url:hover {
-  text-decoration: underline;
+  text-decoration: underline !important;
 }
 
 .column-empty {
@@ -1584,12 +1618,8 @@ a.column-url:hover {
 
 .column-multi .badge {
   border-radius: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   background-color: #fff;
-}
-
-.column-multi .badge + .badge {
-  margin-left: 3px;
 }
 
 .column-fixed {
@@ -1667,35 +1697,41 @@ th.column-fixed {
   margin-bottom: 0;
 }
 
-.batch-contents > div {
+.form.batch-form .batch-contents > div {
   position: relative;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-.batch-contents > div .badge {
+.form.batch-form .batch-contents > div .badge {
   font-size: 1rem;
   font-weight: normal;
   padding: 3px 10px;
   cursor: default;
 }
 
-.batch-contents > div .badge.badge-warning {
+.form.batch-form .batch-contents > div .badge.badge-warning {
   border: 1px solid #fbbc05;
 }
 
-.batch-contents > div a.del {
+.form.batch-form .batch-contents > div a.del {
   position: absolute;
   font-size: 1.2rem;
   padding: 1px 5px;
   left: -6px;
-  top: 3px;
+  top: 2px;
   color: #999;
   font-weight: bold;
   display: none;
 }
 
-.batch-contents > div:hover a.del {
+.form.batch-form .batch-contents > div:hover a.del {
   display: block;
+}
+
+.form.batch-form .batch-editor .text-muted {
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 1px;
 }
 
 .rb-datatable-footer .dataTables_info {
@@ -2234,7 +2270,7 @@ th.column-fixed {
 .adv-filter-wrap {
   background-color: #fff;
   padding: 20px;
-  max-width: 560px;
+  /* max-width: 560px; */
 }
 
 .adv-filter-wrap.in-modal {
@@ -2345,14 +2381,19 @@ th.column-fixed {
   padding-right: 8px;
 }
 
-.adv-filter .btn + .btn {
+.adv-filter .btn + .btn,
+.adv-filter .btn-group + .btn {
   margin-left: 10px;
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-  width: 180px;
+  width: 160px;
   height: 34px !important;
   margin-top: 2px;
+}
+
+.adv-filter .dialog-footer .form-control-sm.text:focus {
+  background-color: #ddd;
 }
 
 .adv-filter .dialog-footer .custom-control {
@@ -2377,6 +2418,24 @@ th.column-fixed {
   margin-top: 10px;
   margin-right: 10px;
   font-size: 1.2rem;
+}
+
+.dropdown-menu-advfilter {
+  position: absolute;
+  left: 10px;
+  top: 36px;
+  z-index: 1000;
+  width: 680px;
+}
+
+.dropdown-menu-advfilter .adv-filter-wrap {
+  box-shadow: 0 3px 0.3077rem rgb(0 0 0 / 10%);
+  padding: 30px;
+}
+
+div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
+  width: 100%;
+  display: block;
 }
 
 .dataTables_wrapper .paging_sizes {
@@ -2494,6 +2553,14 @@ form.simple {
 
 .fs-20 {
   font-size: 20px !important;
+}
+
+.fs-21 {
+  font-size: 21px !important;
+}
+
+.fs-22 {
+  font-size: 22px !important;
 }
 
 .danger-hover:hover {
@@ -2881,25 +2948,24 @@ form {
   padding: 10px 10px 10px 0;
 }
 
-.approval-pane .alert .close.btn {
+.approval-pane .alert > .close {
+  top: 0;
+  opacity: 1;
+  padding: 0;
+}
+
+.approval-pane .alert > .close .btn {
   padding: 8px 0;
   font-size: 12px;
-  opacity: 1;
-  font-weight: normal;
   line-height: 1.1;
-  background-color: #fff;
   min-height: 0;
   min-width: 78px;
   margin-top: 8px;
-  box-shadow: 0 0 0 #fff;
+  border: 0 none;
 }
 
-.approval-pane .alert .close.btn + .btn {
-  margin-right: 88px;
-}
-
-.approval-pane .alert .close.btn + .btn + .btn {
-  margin-right: 176px;
+.approval-pane .alert > .close > .btn + .btn {
+  margin-left: 10px;
 }
 
 .form.approval-form {
@@ -4198,9 +4264,10 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 4px 0;
+  padding: 8px;
   text-align: center;
   background-color: #eee;
+  background-color: rgba(255, 255, 255, 0.15);
   font-size: 1rem;
   color: #222;
 }
@@ -4267,16 +4334,19 @@ html.external-auth .auth-body.must-center .login {
   left: 0;
   right: 0;
   display: none;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 }
 
-.user-popup::before {
-  content: '▼';
+.user-popup::after {
+  border-top: 8px solid #fff;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  content: '';
+  display: inline-block;
   position: absolute;
-  bottom: -10px;
-  left: 130px;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1;
+  bottom: -8px;
+  left: 50%;
+  margin-left: -4px;
 }
 
 .user-popup .avatar {
@@ -4380,6 +4450,7 @@ pre.unstyle {
 
 .bg-market {
   background-image: linear-gradient(135deg, #2973d7 0%, #26acb9 100%);
+  background-image: linear-gradient(45deg, rgb(0, 84, 70), rgb(57, 0, 63), rgb(89, 0, 0)), linear-gradient(45deg, rgb(0, 122, 101), rgb(127, 14, 127), rgb(255, 137, 131));
 }
 
 #gritter-notice-wrapper {
@@ -4546,6 +4617,7 @@ pre.unstyle {
   background-color: #eceff1;
   font-weight: normal;
   border-bottom-width: 1px;
+  width: auto;
 }
 
 .protable .table .col-index {
@@ -4560,6 +4632,8 @@ pre.unstyle {
   min-width: 88px;
   padding-right: 0;
   text-align: right;
+  width: 48px;
+  min-width: 48px;
 }
 
 .protable .table .col-action .btn {
@@ -4608,7 +4682,7 @@ pre.unstyle {
 .protable .col-action.column-fixed {
   left: unset;
   right: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .protable .col-action.column-fixed::before {
@@ -4646,13 +4720,14 @@ pre.unstyle {
   margin: -12px -25px 12px -23px;
   background-color: #f5f5f5;
   border-bottom: 1px solid #dee2e6;
-  padding: 0 18px 12px;
+  padding: 0 25px 12px;
 }
 
 .quick-filter-pane .ph-item {
   background-color: #e6e6e6;
   min-height: 59px;
-  border-radius: 0;
+  border-radius: 2px;
+  margin: 0 -7px;
 }
 
 .quick-filter-pane .ph-item-mt {
@@ -4665,18 +4740,37 @@ pre.unstyle {
 }
 
 .quick-filter-pane .col {
+  padding-left: 8px;
+  padding-right: 8px;
+  max-width: 20%;
+  flex: 0 0 20%;
   display: none;
 }
 
+.quick-filter-pane .col.show,
 .quick-filter-pane.extended .col {
   display: block;
 }
 
-.quick-filter-pane .col:nth-child(1),
-.quick-filter-pane .col:nth-child(2),
-.quick-filter-pane .col:nth-child(3),
-.quick-filter-pane .col:last-child {
-  display: block;
+@media (max-width: 1400px) {
+  .quick-filter-pane .col {
+    max-width: 25%;
+    flex: 0 0 25%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .quick-filter-pane .col {
+    max-width: 33.3333%;
+    flex: 0 0 33.3333%;
+  }
+}
+
+@media (max-width: 992px) {
+  .quick-filter-pane .col {
+    max-width: 50%;
+    flex: 0 0 50%;
+  }
 }
 
 .quick-filter-pane .col > div > label {
@@ -4690,13 +4784,15 @@ pre.unstyle {
   display: none;
 }
 
-.quick-filter-pane .operating-btn {
+.quick-filter-pane .col.operating-btn {
   min-height: 50px;
+  display: block;
 }
 
 .quick-filter-pane .operating-btn > div {
   position: absolute;
   bottom: 0;
+  white-space: nowrap;
 }
 
 .quick-filter-pane .operating-btn a {
@@ -4707,8 +4803,13 @@ pre.unstyle {
   line-height: 1;
 }
 
+.quick-filter-pane .operating-btn .btn {
+  min-height: 37px;
+}
+
 .quick-filter-pane .operating-btn a .icon {
   font-size: 1.231rem;
+  display: inline-block;
 }
 
 .quick-filter-pane .operating-btn a:hover {
@@ -4716,16 +4817,26 @@ pre.unstyle {
 }
 
 .quick-filter-pane .operating-btn a.admin-show {
-  display: none;
+  visibility: hidden;
 }
 
 .quick-filter-pane .operating-btn:hover a.admin-show {
-  display: inline-block;
+  visibility: visible;
 }
 
 .quick-filter-pane .operating-btn .dropdown-menu {
   padding: 15px 0;
+  min-width: 200px;
   text-align: center;
+  align-items: center;
+}
+
+.quick-filter-pane .form-control {
+  max-width: 227px;
+}
+
+.quick-filter-pane .form-control:focus {
+  border-color: #bababa;
 }
 
 /* col-sm-8 */
@@ -4806,6 +4917,10 @@ pre.unstyle {
   cursor: pointer;
 }
 
+.map-suggestion.dropdown-menu .dropdown-item.active {
+  background-color: #eee;
+}
+
 /* mdi7 */
 
 .modal-header > .icon.mdi,
@@ -4817,4 +4932,31 @@ pre.unstyle {
 .over-tab {
   margin-top: -63px;
   transition: margin-top 0.4s;
+}
+
+/* theme defs v3.1 */
+
+.rb-left-sidebar .sidebar-elements > li.active > a,
+.rb-left-sidebar .sidebar-elements > li.active > a > span,
+.rb-left-sidebar .sidebar-elements > li ul li.active > a {
+  color: var(--rb-theme-color);
+}
+
+.main-content > .card.card-table.card-topcolor {
+  border-top-color: var(--rb-theme-color);
+}
+
+.support-plat {
+  position: absolute;
+  margin-left: 8px;
+  background-color: var(--rb-color);
+  color: #fff;
+  display: inline-block;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  cursor: help;
+  text-align: center;
+  font-size: 13px;
 }

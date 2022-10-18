@@ -21,10 +21,25 @@
         height: 100%;
         border: 1px solid #fff;
       }
-      .row.ph .block .block-item {
+      .row.ph .block .block-item,
+      .row.ph .block .block-item2 {
         background-color: #dee2e6;
         height: 6px;
         margin: 2px 5px;
+        font-size: 0;
+      }
+      .row.ph .block .block-item2 {
+        width: 21%;
+        height: 40px;
+        margin: 5px 0 0 1%;
+        display: inline-block;
+        text-align: center;
+      }
+      .row.ph .block .block-item2 i.mdi {
+        color: #eee;
+        font-size: 25px;
+        display: inline-block;
+        transform: translateY(-2px);
       }
       .form-group .switch-button-xs {
         margin-top: 7px;
@@ -62,7 +77,9 @@
         </div>
         <div class="main-content container-fluid pt-1">
           <div th:if="${useListMode}" class="card">
-            <div class="card-header">[[${bundle.L('列表模式')}]] <sup class="rbv"></sup></div>
+            <div class="card-header">
+              [[${bundle.L('列表模式')}]] <sup class="rbv"></sup> <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}" style="margin-top: 2px"></i>
+            </div>
             <div class="card-body mode-select">
               <div class="row">
                 <div class="col">
@@ -107,7 +124,30 @@
                     </div>
                   </div>
                 </div>
-                <div class="col"></div>
+                <div class="col">
+                  <div class="bosskey-show">
+                    <div class="row ph">
+                      <div class="col-3 p-0">
+                        <div class="block"></div>
+                      </div>
+                      <div class="col-9 p-0">
+                        <div class="block">
+                          <div class="block-item2" style="margin-left: 3%"><i class="mdi mdi-image"></i></div>
+                          <div class="block-item2"><i class="mdi mdi-image"></i></div>
+                          <div class="block-item2"><i class="mdi mdi-image"></i></div>
+                          <div class="block-item2"><i class="mdi mdi-image"></i></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <h5 class="font-weight-bold">[[${bundle.L('卡片模式')}]]</h5>
+                      <div class="btn-group">
+                        <button class="btn btn-secondary J_mode-select" type="button" data-mode="3">[[${bundle.L('使用')}]]</button>
+                        <button class="btn btn-secondary J_mode1-option3 w-auto" type="button"><i class="icon zmdi zmdi-settings"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="col"></div>
               </div>
             </div>

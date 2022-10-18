@@ -12,11 +12,23 @@ $(document).ready(() => {
   const $dl = $('#_DefaultLanguage')
   $dl.text(wpc._LANGS[$dl.text()] || '中文')
 
-  // // 禁用
-  // ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
-  //   const $d = $(`td[data-id=${item}]`)
-  //   if (~~$d.attr('data-value') <= 0) $d.text($L('已禁用')).addClass('text-danger')
-  // })
+  // 禁用
+  ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
+    const $d = $(`td[data-id=${item}]`)
+    if (~~$d.attr('data-value') <= 0) $d.text($L('不启用'))
+  })
+
+  // UC
+  UCenter.query((bindAccount) => {
+    $('.J_cloudAccount').removeClass('hide')
+    if (bindAccount) {
+      $('.J_not-bind').addClass('hide')
+      $('.J_has-bind a').text(bindAccount)
+    } else {
+      $('.J_has-bind').addClass('hide')
+      $('.J_not-bind .btn').on('click', () => UCenter.bind())
+    }
+  })
 })
 
 useEditComp = function (name) {

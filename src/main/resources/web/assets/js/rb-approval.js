@@ -29,9 +29,12 @@ class ApprovalProcessor extends React.Component {
   renderStateDraft() {
     return (
       <div className="alert alert-warning shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('提交')}
-        </button>
+        <span className="close">
+          <button className="btn btn-secondary" onClick={this.submit}>
+            {$L('提交')}
+          </button>
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-info-outline" />
         </div>
@@ -46,25 +49,37 @@ class ApprovalProcessor extends React.Component {
     let aMsg = $L('当前记录正在审批中')
     if (this.state.imApprover) {
       if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
-      else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待他人审批')
+      else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待其他人审批')
       else if (this.state.imApproveSatate === 11) aMsg = $L('你已驳回审批')
     }
 
     return (
       <div className="alert alert-warning shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('详情')}
-        </button>
-        {this.state.canCancel && (
-          <button className="close btn btn-secondary" onClick={this.cancel}>
-            {$L('撤回')}
+        <span className="close">
+          {this.state.imApprover && this.state.imApproveSatate === 1 && (
+            <button className="btn btn-secondary" onClick={this.approve}>
+              {$L('审批')}
+            </button>
+          )}
+          {(this.state.canCancel || this.state.canUrge) && (
+            <RF>
+              {this.state.canUrge && (
+                <button className="btn btn-secondary" onClick={this.urge}>
+                  {$L('催审')}
+                </button>
+              )}
+              {this.state.canCancel && (
+                <button className="btn btn-secondary" onClick={this.cancel}>
+                  {$L('撤回')}
+                </button>
+              )}
+            </RF>
+          )}
+          <button className="btn btn-secondary" onClick={this.viewSteps}>
+            {$L('详情')}
           </button>
-        )}
-        {this.state.imApprover && this.state.imApproveSatate === 1 && (
-          <button className="close btn btn-secondary" onClick={this.approve}>
-            {$L('审批')}
-          </button>
-        )}
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-hourglass-alt" />
         </div>
@@ -78,14 +93,17 @@ class ApprovalProcessor extends React.Component {
 
     return (
       <div className="alert alert-success shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('详情')}
-        </button>
-        {rb.isAdminUser && (
-          <button className="close btn btn-secondary" onClick={this.revoke}>
-            {$L('撤销')}
+        <span className="close">
+          {rb.isAdminUser && (
+            <button className="btn btn-secondary" onClick={this.revoke}>
+              {$L('撤销')}
+            </button>
+          )}
+          <button className="btn btn-secondary" onClick={this.viewSteps}>
+            {$L('详情')}
           </button>
-        )}
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-check" />
         </div>
@@ -97,12 +115,15 @@ class ApprovalProcessor extends React.Component {
   renderStateRejected() {
     return (
       <div className="alert alert-danger shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('详情')}
-        </button>
-        <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('再次提交')}
-        </button>
+        <span className="close">
+          <button className="btn btn-secondary" onClick={this.submit}>
+            {$L('再次提交')}
+          </button>
+          <button className="btn btn-secondary" onClick={this.viewSteps}>
+            {$L('详情')}
+          </button>
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-close-circle-o" />
         </div>
@@ -114,12 +135,15 @@ class ApprovalProcessor extends React.Component {
   renderStateCanceled() {
     return (
       <div className="alert alert-warning shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('详情')}
-        </button>
-        <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('再次提交')}
-        </button>
+        <span className="close">
+          <button className="btn btn-secondary" onClick={this.submit}>
+            {$L('再次提交')}
+          </button>
+          <button className="btn btn-secondary" onClick={this.viewSteps}>
+            {$L('详情')}
+          </button>
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-rotate-left" />
         </div>
@@ -131,12 +155,15 @@ class ApprovalProcessor extends React.Component {
   renderStateRevoked() {
     return (
       <div className="alert alert-warning shadow-sm">
-        <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('详情')}
-        </button>
-        <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('再次提交')}
-        </button>
+        <span className="close">
+          <button className="btn btn-secondary" onClick={this.submit}>
+            {$L('再次提交')}
+          </button>
+          <button className="btn btn-secondary" onClick={this.viewSteps}>
+            {$L('详情')}
+          </button>
+        </span>
+
         <div className="icon">
           <span className="zmdi zmdi-rotate-left" />
         </div>
@@ -179,7 +206,7 @@ class ApprovalProcessor extends React.Component {
 
   cancel = () => {
     const that = this
-    RbAlert.create($L('确认撤回当前审批？'), {
+    RbAlert.create($L('将要撤回已提交审批。是否继续？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
@@ -191,10 +218,28 @@ class ApprovalProcessor extends React.Component {
     })
   }
 
+  urge = () => {
+    const that = this
+    RbAlert.create($L('将向当前审批人发送催审通知。是否继续？'), {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/approval/urge?record=${that.props.id}`, (res) => {
+          if (res.error_code > 0) {
+            RbHighbar.create(res.error_msg)
+            this.disabled()
+          } else {
+            RbHighbar.success($L('通知已发送'))
+            this.hide()
+          }
+        })
+      },
+    })
+  }
+
   revoke = () => {
     const that = this
-    RbAlert.create($L('将要撤销已通过审批，每条记录仅有 3 次撤销机会。确认吗？'), {
-      type: 'warning',
+    RbAlert.create($L('将要撤销已通过审批。是否继续？'), {
+      type: 'danger',
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
@@ -345,7 +390,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="icon mdi mdi-progress-check" /> {$L('审批流程')}
+                      <i className="icon mdi mdi-progress-check fs-14" /> {$L('审批流程')}
                     </a>
                   </div>
                 )
@@ -683,6 +728,19 @@ class ApprovalStepViewer extends React.Component {
               {item.remark && (
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>
+                </blockquote>
+              )}
+              {item.ccUsers && item.state >= 10 && (
+                <blockquote className="blockquote timeline-blockquote mb-0 cc">
+                  <p className="text-wrap">
+                    <span className="mr-1">
+                      <i className="zmdi zmdi-mail-send mr-1" />
+                      {$L('已抄送')}
+                    </span>
+                    {item.ccUsers.map((item) => {
+                      return <a key={item}>{item}</a>
+                    })}
+                  </p>
                 </blockquote>
               )}
             </div>

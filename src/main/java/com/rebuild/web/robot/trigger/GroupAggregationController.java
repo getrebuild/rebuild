@@ -16,9 +16,11 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +39,7 @@ import static com.rebuild.web.robot.trigger.FieldAggregationController.isAllowSo
 public class GroupAggregationController extends BaseController {
 
     @RequestMapping("group-aggregation-entities")
-    public JSON getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public JSON getSourceEntities(@EntityParam(name = "source") Entity sourceEntity) {
         // 目标实体
         List<String[]> entities = new ArrayList<>();
         // 任意
@@ -100,14 +102,19 @@ public class GroupAggregationController extends BaseController {
             }
         }
 
+        // 审批流程启用
+        boolean hadApproval = RobotApprovalManager.instance.hadApproval(
+                ObjectUtils.defaultIfNull(targetEntity.getMainEntity(), targetEntity), null) != null;
+
         return JSONUtils.toJSONObject(
-                new String[] { "targetGroupFields", "targetFields" },
-                new Object[] { targetGroupFields, targetFields });
+                new String[] { "targetGroupFields", "targetFields", "hadApproval" },
+                new Object[] { targetGroupFields, targetFields, hadApproval });
     }
 
     private String[] buildIfGroupField(EasyField field) {
-        DisplayType dt = field.getDisplayType();
+        if (MetadataHelper.isApprovalField(field.getName())) return null;
 
+        DisplayType dt = field.getDisplayType();
         // 分组字段类型的支持
         boolean allow = dt == DisplayType.TEXT
                 || dt == DisplayType.DATE || dt == DisplayType.DATETIME

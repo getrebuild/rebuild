@@ -127,7 +127,7 @@ class ShowStyles2 extends ShowStyles {
     const fsl = this.state.filter && this.state.filter.items ? this.state.filter.items.length : 0
     return (
       this.props.filterShow && (
-        <div className="form-group row">
+        <div className="form-group row pt-1">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
           <div className="col-sm-7">
             <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.showFilter()}>

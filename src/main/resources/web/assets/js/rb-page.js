@@ -227,7 +227,7 @@ var _initNav = function () {
     })
     $('.sidebar-elements>li>a').tooltip('disable')
   } else {
-    const $el = $('.rb-collapsible-sidebar')
+    var $el = $('.rb-collapsible-sidebar')
     if (!$el.hasClass('rb-collapsible-sidebar-collapsed')) {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
@@ -526,52 +526,67 @@ var $fileExtName = function (fileName) {
  */
 var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
-  var imgOnly = $input.attr('accept') === 'image/*'
-  var local = $input.data('local')
+  var imageType = $input.attr('accept') === 'image/*' // 仅图片
+  var upLocal = $input.data('local') // 上传本地
   if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
+  var putExtra = imageType ? { mimeType: ['image/*'] } : null
 
-  if (window.qiniu && rb.storageUrl && !local) {
-    $input.on('change', function () {
-      var file = this.files[0]
-      if (!file) return
-
-      var putExtra = imgOnly ? { mimeType: ['image/*'] } : null
-      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
-        var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
-        o.subscribe({
-          next: function (res) {
-            typeof next === 'function' && next({ percent: res.total.percent, file: file })
-          },
-          error: function (err) {
-            var msg = (err.message || err.error || 'UnknowError').toUpperCase()
-            if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.create($L('请上传图片'))
-            } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('超出文件大小限制'))
-            } else {
-              RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
-            }
-            console.log('Upload error:', err)
-            typeof error === 'function' && error({ error: msg, file: file })
-            return false
-          },
-          complete: function (res) {
-            if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
-            typeof complete === 'function' && complete({ key: res.key, file: file })
-          },
-        })
+  function _qiniuUpload(file) {
+    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+      o.subscribe({
+        next: function (res) {
+          typeof next === 'function' && next({ percent: res.total.percent, file: file })
+        },
+        error: function (err) {
+          var msg = (err.message || err.error || 'UnknowError').toUpperCase()
+          if (imageType && msg.contains('FILE TYPE')) {
+            RbHighbar.create($L('请上传图片'))
+          } else if (msg.contains('EXCEED FSIZELIMIT')) {
+            RbHighbar.create($L('超出文件大小限制'))
+          } else {
+            RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
+          }
+          console.log('Upload error :', err)
+          typeof error === 'function' && error({ error: msg, file: file })
+          return false
+        },
+        complete: function (res) {
+          if (file.size > 0) {
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
+          }
+          typeof complete === 'function' && complete({ key: res.key, file: file })
+        },
       })
     })
-  } else {
-    const idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
+  }
+
+  // Qiniu-Cloud
+  if (window.qiniu && rb.storageUrl && !upLocal) {
+    var acceptType = $input.attr('accept')
+    $input.on('change', function () {
+      for (var i = 0; i < this.files.length; i++) {
+        // @see jquery.html5uploader.js
+        // eslint-disable-next-line no-undef
+        if (html5Uploader_checkAccept(this.files[i], acceptType)) {
+          _qiniuUpload(this.files[i])
+        } else {
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
+        }
+      }
+    })
+  }
+  // Local-Disk
+  else {
+    var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create(imgOnly ? $L('请上传图片') : $L('文件格式错误'))
+          RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create($L('超出文件大小限制'))
@@ -585,7 +600,9 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
+          if (file.size > 0 && upLocal !== 'temp') {
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
+          }
           complete({ key: e.data, file: file })
         } else {
           RbHighbar.error($L('上传失败，请稍后重试'))
@@ -596,7 +613,7 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientError: function (e, file) {
         RbHighbar.error($L('上传失败，请稍后重试'))
-        console.log('Upload error:', e)
+        console.log('Upload error :', e)
         typeof error === 'function' && error({ error: e, file: file })
 
         $input.val(null) // reset
@@ -611,7 +628,7 @@ var $initUploader = $createUploader
  */
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
-  const $c = container[0] ? container : $(container)
+  var $c = container[0] ? container : $(container)
   setTimeout(function () {
     ReactDOM.unmountComponentAtNode($c[0])
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
@@ -632,7 +649,7 @@ var $initReferenceSelect2 = function (el, options) {
       delay: 300,
       data: function (params) {
         search_input = params.term
-        const query = {
+        var query = {
           entity: options.entity,
           field: options.name,
           q: params.term,
@@ -956,4 +973,14 @@ var $select2MatcherAll = function (params, data) {
   }
 
   return null
+}
+
+// 绝对 URL
+var $isFullUrl = function (url) {
+  return url && (url.startsWith('http://') || url.startsWith('https://'))
+}
+
+// Mask prefix `SYS `
+var $isSysMask = function (label) {
+  return label && (label.startsWith('SYS ') || label.contains('.SYS ')) && location.href.indexOf('/admin/') === -1
 }

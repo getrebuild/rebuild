@@ -45,8 +45,6 @@ public class FieldAggregationRefresh {
 
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) parentAc.getActionContent()).getString("targetEntity").split("\\.");
-        // 自己无需刷新
-        if (FieldAggregation.SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) return;
 
         ID beforeRefreshedId = operatingContext.getBeforeRecord().getID(targetFieldEntity[0]);
         ID afterRefreshedId = operatingContext.getAfterRecord().getID(targetFieldEntity[0]);
@@ -70,8 +68,9 @@ public class FieldAggregationRefresh {
 
         try {
             fa.execute(oCtx);
-        } catch (Exception ex) {
-            log.error("Error on trigger ({}) refresh", parentAc.getConfigId(), ex);
+//        } catch (Throwable ex) {
+//            // v3.1 出现异常可能导致事物回滚执行，因此此处 catch 并无意义
+//            log.error("Error on trigger ({}) refresh", parentAc.getConfigId(), ex);
         } finally {
             fa.clean();
         }

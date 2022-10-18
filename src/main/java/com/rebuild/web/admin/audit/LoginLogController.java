@@ -64,8 +64,8 @@ public class LoginLogController extends EntityController {
             }
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp" },
-                    new Object[] { user, UserHelper.getName(user), active[0], active[1], active[2] });
+                    new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid" },
+                    new Object[] { user, UserHelper.getName(user), active[0], active[1], active[2], s.getId() });
             users.add(item);
         }
         return users;
@@ -73,14 +73,16 @@ public class LoginLogController extends EntityController {
 
     @RequestMapping("/admin/audit/kill-session")
     public RespBody killSession(HttpServletRequest request) {
-        final ID user = getIdParameterNotNull(request, "user");
+        String sessionId = getParameterNotNull(request, "user");
 
-        HttpSession s = Application.getSessionStore().getSession(user);
-        if (s != null) {
-            log.warn("Admin kill session : {} > {} ", s.getId(), user);
-            try {
-                s.invalidate();
-            } catch (Exception ignored) {
+        for (HttpSession s : Application.getSessionStore().getAllSession()) {
+            if (s.getId().equals(sessionId)) {
+                log.warn("Admin kill session : {} ({})", sessionId, s.getAttribute(WebUtils.CURRENT_USER));
+                try {
+                    s.invalidate();
+                } catch (Exception ignored) {
+                }
+                break;
             }
         }
         return RespBody.ok();

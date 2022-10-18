@@ -35,8 +35,25 @@ public class RobotTriggerManual extends RobotTriggerObserver {
         execAction(context, TriggerWhen.REVOKED);
     }
 
-    // -- PUBLIC
+    /**
+     * 审批提交
+     *
+     * @param context
+     */
+    public void onSubmit(OperatingContext context) {
+        execAction(context, TriggerWhen.SUBMIT);
+    }
 
+    /**
+     * 审批驳回/撤回
+     *
+     * @param context
+     */
+    public void onRejectedOrCancel(OperatingContext context) {
+        execAction(context, TriggerWhen.REJECTED);
+    }
+
+    // PUBLIC
     @Override
     public void onUpdate(OperatingContext context) {
         super.onUpdate(context);

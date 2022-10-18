@@ -100,10 +100,10 @@ function compileHtml(m) {
       })
     )
     .pipe(
-      replace(/<style type="text\/css">([\s\S]*)<\/style>/gim, (m, p) => {
+      replace(/<style>([\s\S]*)<\/style>/gim, (m, p) => {
         if (p.trim().length === 0) return '<!-- No style -->'
         const cssmin = new cleanCSS2({}).minify(p).styles
-        return '<style type="text/css">\n' + cssmin + '\n</style>'
+        return '<style>\n' + cssmin + '\n</style>'
       })
     )
     .pipe(

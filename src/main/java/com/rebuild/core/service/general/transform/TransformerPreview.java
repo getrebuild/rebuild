@@ -59,7 +59,7 @@ public class TransformerPreview {
     }
 
     /**
-     * @param isDetails
+     * @param isDetails [是否明细转换]
      * @return
      */
     public JSON buildForm(boolean isDetails) {

@@ -31,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
@@ -179,6 +180,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
             log.warn(errorLog, Application.devMode() ? ex : null);
         } else if (ex instanceof ClientAbortException) {
             log.warn("ClientAbortException : " + errorMsg, Application.devMode() ? ex : null);
+        } else if (ex instanceof HttpRequestMethodNotSupportedException) {
+            log.warn("HttpRequestMethodNotSupportedException : " + getRequestUrls(request), Application.devMode() ? ex : null);
         } else {
             log.error(errorLog, ex);
 

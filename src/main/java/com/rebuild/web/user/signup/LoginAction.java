@@ -49,6 +49,8 @@ public class LoginAction extends BaseController {
     protected static final String SK_NEED_VCODE = "needLoginVCode";
     protected static final String SK_START_TOUR = "needStartTour";
 
+    protected static final String PREFIX_2FA = "2FA";
+
     /**
      * 登录成功
      *
@@ -75,7 +77,7 @@ public class LoginAction extends BaseController {
 
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
-                        "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
+                "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
@@ -102,9 +104,8 @@ public class LoginAction extends BaseController {
         Integer ed = loginSuccessed(request, response, user, false);
         if (ed != null) resMap.put("passwdExpiredDays", ed);
 
-        String authToken = AuthTokenManager.generateToken(user, AuthTokenManager.H5TOKEN_EXPIRES);
+        String authToken = AuthTokenManager.generateAccessToken(user);
         resMap.put("authToken", authToken);
-
 
         // FIXME 暂不启用 lauthToken 前端有问题
 //        // 2FA

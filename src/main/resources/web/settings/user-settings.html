@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/cropper.min.css}" />
     <title>[[${bundle.L('个人设置')}]]</title>
-    <style type="text/css">
+    <style>
       .avatar-wrap {
         height: 256px;
         padding-top: 55px;
@@ -65,19 +65,6 @@
         font-weight: normal;
         color: #777;
       }
-      .zmdi.with-mobile {
-        position: absolute;
-        margin-left: 6px;
-        background-color: rgba(252, 154, 0, 0.6);
-        color: #fff;
-        display: inline-block;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        cursor: help;
-        padding-top: 3px;
-        padding-left: 5.5px;
-      }
     </style>
   </head>
   <body>
@@ -137,13 +124,7 @@
                           <div class="form-group row">
                             <label class="col-4 col-form-label">[[${bundle.L('姓名')}]]</label>
                             <div class="col-8">
-                              <input
-                                class="form-control form-control-sm"
-                                type="text"
-                                id="fullName"
-                                th:value="${user.getFullName()}"
-                                th:data-o="${user.getFullName()}"
-                              />
+                              <input class="form-control form-control-sm" type="text" id="fullName" th:value="${user.getFullName()}" th:data-o="${user.getFullName()}" />
                             </div>
                           </div>
                           <div class="form-group row">

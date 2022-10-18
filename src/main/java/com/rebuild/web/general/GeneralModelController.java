@@ -16,12 +16,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.FormsBuilder;
+import com.rebuild.core.configuration.general.FormsBuilderContextHolder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.transform.TransformerPreview;
 import com.rebuild.core.support.ConfigurationItem;
@@ -40,9 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 表单/视图
@@ -139,6 +139,23 @@ public class GeneralModelController extends EntityController {
             if (id == null && initialVal != null) {
                 FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
             }
+
+            // v3.1 明细导入
+            if (metaEntity.getDetailEntity() != null) {
+                List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
+                if (!imports.isEmpty()) {
+                    List<Object> detailImports = new ArrayList<>();
+                    for (ConfigBean cb : imports) {
+                        JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
+                        trans.put("transid", cb.getID("id"));
+//                        trans.put("transName", cb.getID("name"));
+                        detailImports.add(trans);
+                    }
+
+                    ((JSONObject) model).put("detailImports", detailImports);
+                }
+            }
+
             return model;
 
         } finally {

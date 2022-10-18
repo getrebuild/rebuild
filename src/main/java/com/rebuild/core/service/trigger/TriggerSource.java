@@ -27,6 +27,7 @@ public class TriggerSource {
     private static final AtomicLong TSNO = new AtomicLong(0);
 
     private String id;
+    // [OperatingContext, TriggerWhen]
     private final List<Object[]> sources = new ArrayList<>();
 
     private boolean skipOnce = false;
@@ -62,8 +63,7 @@ public class TriggerSource {
 
     public String getLastSourceKey() {
         Object[] last = sources.get(sources.size() - 1);
-        return ((OperatingContext) last[0]).getAnyRecord().getPrimary()
-                + ":" + ((TriggerWhen) last[1]).name().charAt(0);
+        return ((OperatingContext) last[0]).getAnyRecord().getPrimary() + ":" + ((TriggerWhen) last[1]).name().charAt(0);
     }
 
     public void setSkipOnce() {

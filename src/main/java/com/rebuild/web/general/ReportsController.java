@@ -9,12 +9,15 @@ package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,7 +28,6 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
@@ -36,6 +38,7 @@ import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +81,14 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File file = new EasyExcelGenerator(reportId, recordId).generate();
+        File file = null;
+        try {
+            file = new EasyExcelGenerator(reportId, recordId).generate();
+        } catch (ExcelRuntimeException ex) {
+            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    Language.L("无法输出报表，请检查报表模板是否有误") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        }
+
         RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
         String fileName = getReportName(entity, reportId, file);
@@ -89,8 +99,9 @@ public class ReportsController extends BaseController {
             writeSuccess(response, data);
 
         } else if (getBoolParameter(request, "preview")) {
-            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&%s=%s",
-                    CodecUtils.urlEncode(file.getName()), CsrfToken.URL_CSRFTOKEN, CsrfToken.generate()));
+            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&_onceToken=%s",
+                    CodecUtils.urlEncode(file.getName()), AuthTokenManager.generateOnceToken(null)));
+
             String previewUrl = StringUtils.defaultIfBlank(
                     RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
                     "https://view.officeapps.live.com/op/embed.aspx?src=");

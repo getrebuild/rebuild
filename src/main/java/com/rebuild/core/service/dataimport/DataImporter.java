@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.exception.JdbcException;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
@@ -22,6 +23,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -80,8 +82,14 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
 
             } catch (Exception ex) {
-                traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", ex.getLocalizedMessage() });
-                log.error("ROW#{} > {}", fc.getRowNo(), ex.getLocalizedMessage());
+                log.error("ROW#{} > {}", fc.getRowNo(), ex);
+
+                String error = ex.getLocalizedMessage();
+                if (ex instanceof JdbcException) {
+                    String know = KnownExceptionConverter.convert2ErrorMsg(ex);
+                    if (know != null) error = know;
+                }
+                traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", error });
             } finally {
 
                 // 可能有级联触发器

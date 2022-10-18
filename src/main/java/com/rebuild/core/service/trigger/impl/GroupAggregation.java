@@ -46,11 +46,11 @@ public class GroupAggregation extends FieldAggregation {
     private GroupAggregationRefresh groupAggregationRefresh;
 
     public GroupAggregation(ActionContext context) {
-        super(context);
+        this(context, Boolean.FALSE);
     }
 
-    public GroupAggregation(ActionContext context, boolean ignoredSame) {
-        super(context, ignoredSame);
+    public GroupAggregation(ActionContext context, boolean ignoreSame) {
+        super(context, ignoreSame);
     }
 
     @Override

@@ -13,13 +13,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.ImageView2;
+import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,7 @@ public class FileDownloader extends BaseController {
 
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RbAssert.isAllow(checkUser(request, true), "Unauthorized access");
+        RbAssert.isAllow(checkUser(request), "Unauthorized access");
 
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
@@ -109,6 +108,7 @@ public class FileDownloader extends BaseController {
             // 特殊字符文件名
             String[] path = filePath.split("/");
             path[path.length - 1] = CodecUtils.urlEncode(path[path.length - 1]);
+            path[path.length - 1] = path[path.length - 1].replace("+", "%20");
             filePath = StringUtils.join(path, "/");
 
             if (imageView2 != null) {
@@ -122,8 +122,6 @@ public class FileDownloader extends BaseController {
 
     @GetMapping(value = {"download/**", "access/**"})
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final boolean temp = getBoolParameter(request, "temp");
-
         String filePath = request.getRequestURI();
 
         // 共享查看
@@ -136,44 +134,78 @@ public class FileDownloader extends BaseController {
 
             filePath = filePath.split("/filex/access/")[1];
         } else {
-            RbAssert.isAllow(checkUser(request, temp), "Unauthorized access");
+            RbAssert.isAllow(checkUser(request), "Unauthorized access");
             filePath = filePath.split("/filex/download/")[1];
         }
 
         String attname = getParameter(request, "attname");
         if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
 
+        boolean temp = getBoolParameter(request, "temp");
         ServletUtils.setNoCacheHeaders(response);
 
-        // Local storage || temp
-        if (!QiniuCloud.instance().available() || temp) {
-            setDownloadHeaders(request, response, attname,
-                    request.getRequestURI().contains("/filex/access/") && filePath.toLowerCase().endsWith(".pdf"));
-            writeLocalFile(filePath, temp, response);
-        } else {
+        if (QiniuCloud.instance().available() && !temp) {
             String privateUrl = QiniuCloud.instance().makeUrl(filePath);
             privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
+        } else {
+
+            // Local storage or temp
+            setDownloadHeaders(request, response, attname,
+                    request.getRequestURI().contains("/filex/access/") && filePath.toLowerCase().endsWith(".pdf"));
+            writeLocalFile(filePath, temp, response);
         }
     }
 
-    private boolean checkUser(HttpServletRequest request, boolean allowCsrf) {
+    @GetMapping(value = "read-raw")
+    public void readRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+        String filePath = getParameterNotNull(request, "url");
+        String charset = getParameter(request, "charset", AppUtils.UTF8);
+
+        String content;
+        if (QiniuCloud.instance().available()) {
+            String privateUrl = QiniuCloud.instance().makeUrl(filePath);
+            content = OkHttpUtils.get(privateUrl, null, charset);
+        } else {
+
+            // Local storage
+            filePath = checkFilePath(filePath);
+            File file = RebuildConfiguration.getFileOfData(filePath);
+            content = FileUtils.readFileToString(file, charset);
+        }
+
+        ServletUtils.write(response, content);
+    }
+
+    /**
+     * 独立认证检测
+     *
+     * @param request
+     * @return
+     */
+    protected static boolean checkUser(HttpServletRequest request) {
+        // 1.session
         ID user = AppUtils.getRequestUser(request);
-        // authToken
+
+        // 2.accessToken
         if (user == null) {
-            String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
-            user = AuthTokenManager.verifyToken(authToken, false);
+            String accessToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
+            user = accessToken == null ? null : AuthTokenManager.verifyToken(accessToken);
         }
-        // csrfToken
-        if (user == null && allowCsrf) {
-            if (CsrfToken.verify(request, false)) {
-                user = UserService.SYSTEM_USER;
-            }
+        // 3.csrfToken
+        if (user == null) {
+            String csrfToken = request.getParameter(AppUtils.URL_CSRFTOKEN);
+            user = csrfToken == null ? null : AuthTokenManager.verifyToken(csrfToken);
         }
+        // 4.onceToken
+        if (user == null) {
+            String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
+            user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken);
+        }
+
         return user != null;
     }
-
-    // --
 
     private static String checkFilePath(String filepath) {
         filepath = CodecUtils.urlDecode(filepath);

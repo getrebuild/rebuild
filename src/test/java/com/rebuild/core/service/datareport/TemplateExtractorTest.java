@@ -34,6 +34,13 @@ public class TemplateExtractorTest extends TestSupport {
     }
 
     @Test
+    void testExtractVars2() throws FileNotFoundException {
+        File template = ResourceUtils.getFile("classpath:report-template-v3.xlsx");
+        Set<String> vars = new TemplateExtractor(template, true).extractVars();
+        System.out.println(vars);
+    }
+
+    @Test
     void testTransformVars() throws FileNotFoundException {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
 

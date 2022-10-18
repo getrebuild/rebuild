@@ -210,6 +210,16 @@ body {
   padding-bottom: 13px;
 }
 
+.related-list .card-table {
+  border: 1px solid #ebebeb;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+}
+
+.related-list .card-table .data-list .table th {
+  border-top: 0 none;
+}
+
 .view-operating {
   padding-top: 3px;
 }
@@ -428,10 +438,6 @@ body {
 
 .type-IMAGE .edit-oper {
   margin-top: -2px;
-}
-
-.type-BOOL .edit-oper {
-  margin-top: -8px;
 }
 
 .type-MULTISELECT .edit-oper {
@@ -656,7 +662,7 @@ body {
   margin-right: 3px;
   margin-bottom: 3px;
   display: inline-block;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   background-color: #fff;
   line-height: 17px;
 }
@@ -674,18 +680,16 @@ body {
   background-color: transparent !important;
 }
 
-.type-PICKLIST .form-control-plaintext {
-  padding: 7px 0;
-}
-
-.type-PICKLIST .form-control-plaintext .badge-color {
-  font-size: 1rem;
+.type-PICKLIST .form-control-plaintext .badge,
+.type-STATE .form-control-plaintext .badge {
+  font-size: 13px;
   line-height: 17px;
   border: 0 none;
   font-weight: normal;
   color: #fff;
-  border-radius: 12px;
+  border-radius: 99px;
   padding: 1px 6px;
+  margin-top: -1px;
 }
 
 /* approved-steps */
@@ -804,6 +808,22 @@ body {
   padding: 2px 10px;
 }
 
+.timeline.approved-steps .timeline-header > .blockquote.cc {
+  border-left: 0 none;
+  padding-left: 0;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a {
+  color: #404040;
+}
+
+.timeline.approved-steps .timeline-header > .blockquote.cc a + a::before {
+  content: ',';
+  margin-left: 1px;
+  margin-right: 4px;
+  color: #8a8a8a;
+}
+
 .timeline.approved-steps .timeline-item.last {
   position: relative;
   min-height: 30px;
@@ -871,4 +891,21 @@ body {
 
 .report-has-preview li a.preview:hover > .mdi {
   color: #fff !important;
+}
+
+.switch-view-mode .btn {
+  border-radius: 4px;
+  border: 0 none;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.switch-view-mode .btn .icon {
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.switch-view-mode .btn.active .icon {
+  color: var(--rb-btn-active-color) !important;
 }

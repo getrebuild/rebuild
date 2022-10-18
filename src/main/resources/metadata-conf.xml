@@ -262,7 +262,7 @@
         <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
     </entity>
 
-    <entity name="RobotTriggerConfig" type-code="027" description="触发器" queryable="false">
+    <entity name="RobotTriggerConfig" type-code="027" description="触发器" queryable="false" name-field="name">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="when" type="int" default-value="0" description="动作 (累加值)"/>
@@ -297,6 +297,7 @@
         <field name="isWaiting" type="bool" default-value="F" description="是否生效"/>
         <field name="isBacked" type="bool" default-value="F" description="是否退回"/>
         <field name="nodeBatch" type="string" max-length="100" updatable="false" description="审批节点批次"/>
+        <field name="ccUsers" type="reference-list" ref-entity="User" updatable="false" description="抄送人"/>
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 

@@ -59,14 +59,12 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (log.isDebugEnabled()) log.info("Destroyed session : {}", event.getSession().getId());
 
         HttpSession s = event.getSession();
-        if (ONLINE_SESSIONS.contains(s)) {
-            ONLINE_SESSIONS.remove(s);
-        } else {
-            for (Map.Entry<ID, HttpSession> e : ONLINE_USERS.entrySet()) {
-                if (s.equals(e.getValue())) {
-                    ONLINE_USERS.remove(e.getKey());
-                    break;
-                }
+        ONLINE_SESSIONS.remove(s);
+
+        for (Map.Entry<ID, HttpSession> e : ONLINE_USERS.entrySet()) {
+            if (s.equals(e.getValue())) {
+                ONLINE_USERS.remove(e.getKey());
+                break;
             }
         }
     }
@@ -113,7 +111,7 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (!RebuildConfiguration.getBool(ConfigurationItem.MultipleSessions)) {
             HttpSession previous = getSession((ID) loginUser);
             if (previous != null) {
-                log.warn("Kill previous session : {} < {}", loginUser, previous.getId());
+                log.warn("Kill previous session : {} ({})", previous.getId(), loginUser);
 
                 try {
                     previous.invalidate();
@@ -122,7 +120,6 @@ public class OnlineSessionStore implements HttpSessionListener {
             }
         }
 
-        ONLINE_SESSIONS.remove(s);
         ONLINE_USERS.put((ID) loginUser, s);
     }
 }

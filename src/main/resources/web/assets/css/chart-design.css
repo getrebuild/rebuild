@@ -192,7 +192,13 @@ a.ui-draggable.ui-draggable-dragging {
 
 .data-info ul li a:hover,
 a.ui-draggable.ui-draggable-dragging {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
+  cursor: move;
+}
+
+a.ui-draggable.ui-draggable-dragging {
+  display: block;
+  min-width: 179px !important;
 }
 
 .data-info .esource a {
@@ -251,7 +257,7 @@ a.ui-draggable.ui-draggable-dragging {
 
 .data-info .input .form-control:hover,
 .data-info .input .form-control:focus {
-  background-color: #eee;
+  background-color: #ddd;
   padding: 0 6px;
 }
 

@@ -16,7 +16,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -135,16 +135,16 @@ public class FieldAggregationController extends BaseController {
      * 排序
      *
      * @param entities
-     * @param sourceEntity 添加自己
+     * @param selfEntity 添加自己
      */
-    protected static void sortEntities(List<String[]> entities, Entity sourceEntity) {
+    public static void sortEntities(List<String[]> entities, Entity selfEntity) {
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
 
         // 可更新自己（通过主键字段）
-        if (sourceEntity != null) {
+        if (selfEntity != null) {
             entities.add(new String[] {
-                    sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF });
+                    selfEntity.getName(), EasyMetaFactory.getLabel(selfEntity), TriggerAction.SOURCE_SELF });
         }
     }
 

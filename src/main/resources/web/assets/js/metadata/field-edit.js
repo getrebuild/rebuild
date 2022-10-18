@@ -12,7 +12,7 @@ const __gExtConfig = {}
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
-const SHOW_ADVPATTERN = ['TEXT', 'PHONE', 'EMAIL']
+const SHOW_ADVPATTERN = ['TEXT']
 const SHOW_SCANCODE = ['TEXT']
 
 const CURRENT_BIZZ = '{CURRENT}'
@@ -54,6 +54,12 @@ $(document).ready(function () {
   } else {
     $('#textScanCode').parent().remove()
   }
+  // 文件
+  if (dt === 'FILE') {
+    $('.common-suff .badge').on('click', function () {
+      $('#fileSuffix').val($(this).data('suff'))
+    })
+  }
 
   const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
@@ -94,6 +100,16 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
     })
+
+    // 文件
+    if (dt === 'FILE' && extConfigNew['fileSuffix']) {
+      let fix = extConfigNew['fileSuffix']
+      fix = fix.replaceAll('，', ',').replaceAll(' ', ',').replaceAll(',,', ',')
+      extConfigNew['fileSuffix'] = fix
+    }
+
+    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) return RbHighbar.create($L('请输入编码规则'))
+    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) return RbHighbar.create($L('请输入编号规则'))
 
     // fix
     delete extConfigNew['undefined']
@@ -283,6 +299,19 @@ const _handleSeries = function () {
           $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
             this.hide()
             RbHighbar.success($L('补充编号成功'))
+          })
+        },
+      })
+    })
+  $(`<a class="dropdown-item">${$L('自增数字归零')}</a>`)
+    .appendTo('.J_action .dropdown-menu')
+    .on('click', () => {
+      RbAlert.create($L('此操作将立即执行自增数字归零，归零后可能导致编号重复，请谨慎执行。是否继续？'), {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success($L('自增数字归零成功'))
           })
         },
       })

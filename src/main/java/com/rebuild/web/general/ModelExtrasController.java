@@ -80,13 +80,13 @@ public class ModelExtrasController extends BaseController {
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
 
-            String detail = ex.getLocalizedMessage();
+            String error = ex.getLocalizedMessage();
             if (ex instanceof RepeatedRecordsException) {
-                detail = Language.L("存在重复记录");
+                error = Language.L("存在重复记录");
             }
 
             return RespBody.errorl("记录转换失败 (%s)",
-                    StringUtils.defaultString(detail, ex.getClass().getSimpleName()));
+                    StringUtils.defaultString(error, ex.getClass().getSimpleName()));
         }
     }
 
@@ -164,7 +164,9 @@ public class ModelExtrasController extends BaseController {
             else if (revType == 16) o[0] = Language.L("分派");
             else if (revType == 32) o[0] = Language.L("共享");
             else if (revType == 64) o[0] = Language.L("取消共享");
-            else o[0] = Language.L("未知");
+            else if (revType == 991) o[0] = Language.L("审批通过");
+            else if (revType == 992) o[0] = Language.L("审批撤销");
+            else o[0] = Language.L("其他") + String.format(" (%d)", revType);
 
             o[1] = I18nUtils.formatDate((Date) o[1]);
             o[2] = new Object[] { o[2], UserHelper.getName((ID) o[2]) };

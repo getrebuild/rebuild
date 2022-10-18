@@ -496,3 +496,11 @@ var $timechunk = function (array, fn, count) {
     }, 20)
   }
 }
+
+/**
+ * 使用数据副本
+ */
+var $clone = function (o) {
+  if (!o) return o
+  return JSON.parse(JSON.stringify(o))
+}

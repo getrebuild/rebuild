@@ -174,6 +174,12 @@ class ReporEdit extends ConfigFormDlg {
       )
     }
 
+    let e = $('.aside-tree li.active>a').attr('href')
+    e = e ? e.split('=')[1] : null
+    if (e) {
+      setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
+    }
+    
     $(this._$listType)
       .on('change', () => this.checkTemplate())
       .find('[data-toggle="tooltip"]')

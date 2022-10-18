@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -18,6 +19,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.*;
 import org.junit.jupiter.api.Test;
 
@@ -41,12 +43,14 @@ public class FieldAggregationTest extends TestSupport {
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
         // 测试执行
-        Entity test = MetadataHelper.getEntity(SalesOrderItem);
-        RobotTriggerManager.instance.clean(test);
+        Entity testEntity = MetadataHelper.getEntity(SalesOrderItem);
+        RobotTriggerManager.instance.clean(testEntity);
 
-        TriggerAction[] as = RobotTriggerManager.instance.getActions(ID.newId(test.getEntityCode()), TriggerWhen.CREATE);
+        Record testRecord = EntityHelper.forNew(testEntity.getEntityCode(), UserService.SYSTEM_USER);
+
+        TriggerAction[] as = RobotTriggerManager.instance.getActions(ID.newId(testEntity.getEntityCode()), TriggerWhen.CREATE);
         for (TriggerAction action : as) {
-            action.execute(null);
+            action.execute(OperatingContext.create(UserService.SYSTEM_USER, BizzPermission.CREATE, null, testRecord));
         }
 
         // 清理

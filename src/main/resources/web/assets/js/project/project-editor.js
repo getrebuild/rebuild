@@ -96,9 +96,12 @@ class PlanList extends React.Component {
       <React.Fragment>
         {(this.state.plans || []).map((item) => {
           return (
-            <div className="card" key={`plan-${item[0]}`} data-id={item[0]} data-seq={item[4]}>
+            <div className="card" key={item[0]} data-id={item[0]} data-seq={item[4]}>
               <div className="card-body">
-                <h5 className="text-truncate text-bold">{item[1]}</h5>
+                <h5 className="text-truncate text-bold">
+                  <i className="mdi mdi-drag-vertical down-1" />
+                  <span className="ml-3">{item[1]}</span>
+                </h5>
               </div>
               <div className="card-footer card-footer-contrast">
                 <a onClick={() => this._handleEdit(item)}>

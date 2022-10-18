@@ -7,16 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
-import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +28,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+
+import static com.rebuild.web.commons.FileDownloader.checkUser;
 
 /**
  * 文件上传
@@ -43,6 +44,8 @@ public class FileUploader extends BaseController {
 
     @PostMapping("upload")
     public void upload(HttpServletRequest request, HttpServletResponse response) {
+        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+
         CommonsMultipartResolver resolver = new CommonsMultipartResolver(request.getServletContext());
 
         MultipartFile file = null;
@@ -64,7 +67,7 @@ public class FileUploader extends BaseController {
 
             File dest;
             // 上传临时文件
-            if (BooleanUtils.toBoolean(request.getParameter("temp"))) {
+            if (getBoolParameter(request, "temp")) {
                 uploadName = uploadName.split("/")[2];
                 dest = RebuildConfiguration.getFileOfTemp(uploadName);
             } else {
@@ -96,7 +99,7 @@ public class FileUploader extends BaseController {
     @RequestMapping("store-filesize")
     @ResponseBody
     public RespBody storeFilesize(HttpServletRequest request) {
-        int fileSize = ObjectUtils.toInt(request.getParameter("fs"));
+        int fileSize = getIntParameter(request, "fs");
         if (fileSize < 1) {
             return RespBody.error();
         }

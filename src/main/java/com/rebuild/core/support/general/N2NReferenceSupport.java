@@ -83,19 +83,18 @@ public class N2NReferenceSupport {
     }
 
     /**
-     * 获取指定字段的全部引用项（不含排除）
+     * 获取谁引用了我 <tt>referenceId</tt>
      *
      * @param field
-     * @param excluded 排除指定记录
+     * @param referenceId
      * @return
      */
-    public static Set<ID> itemsUsed(Field field, ID excluded) {
-        String sql = "select referenceId from NreferenceItem where belongEntity = ? and belongField = ?";
-        if (excluded != null) sql += String.format(" and recordId <> '%s'", excluded);
-
-        Object[][] array = Application.createQueryNoFilter(sql)
+    public static Set<ID> findReferences(Field field, ID referenceId) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select recordId from NreferenceItem where belongEntity = ? and belongField = ? and referenceId = ?")
                 .setParameter(1, field.getOwnEntity().getName())
                 .setParameter(2, field.getName())
+                .setParameter(3, referenceId)
                 .array();
 
         Set<ID> set = new HashSet<>();

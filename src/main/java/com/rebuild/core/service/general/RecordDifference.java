@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -95,7 +96,7 @@ public class RecordDifference {
         for (Map.Entry<String, Object[]> e : merged.entrySet()) {
             Object[] vals = e.getValue();
             if (vals[0] == null && vals[1] == null) continue;
-            if (Objects.equals(vals[0], vals[1])) continue;
+            if (isEquals(vals[0], vals[1])) continue;
 
             JSON item = JSONUtils.toJSONObject(
                     new String[]{"field", "before", "after"},
@@ -131,7 +132,24 @@ public class RecordDifference {
                 || EntityHelper.CreatedOn.equalsIgnoreCase(fieldName)
                 || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
                 || EntityHelper.QuickCode.equalsIgnoreCase((fieldName))
-                || (MetadataHelper.isApprovalField(fieldName) && !EntityHelper.ApprovalState.equalsIgnoreCase(fieldName))
-                || field.getType() == FieldType.PRIMARY;
+                || field.getType() == FieldType.PRIMARY
+                || MetadataHelper.isApprovalField(fieldName);
+    }
+
+    /**
+     * 相等
+     *
+     * @param v1
+     * @param v2
+     * @return
+     */
+    private boolean isEquals(Object v1, Object v2) {
+        boolean e = Objects.equals(v1, v2);
+        if (!e) {
+            if (v1 instanceof Number && v2 instanceof Number) {
+                e = ObjectUtils.toDouble(v1) == ObjectUtils.toDouble(v2);
+            }
+        }
+        return e;
     }
 }

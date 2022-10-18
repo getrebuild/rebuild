@@ -22,6 +22,7 @@ import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerSource;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 记录变更历史
@@ -59,7 +60,10 @@ public class RevisionHistoryObserver extends OperatingObserver {
     @Override
     public void onUpdate(OperatingContext context) {
         Record revision = newRevision(context, true);
-        Application.getCommonsService().create(revision);
+        // v3.1 无变更不记录
+        if (StringUtils.length(revision.getString("revisionContent")) > 2 /* [] */) {
+            Application.getCommonsService().create(revision);
+        }
     }
 
     @Override

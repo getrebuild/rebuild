@@ -195,7 +195,7 @@ public class EasyExcelGenerator extends SetUser {
 
         // 明细
         if (!fieldsOfDetail.isEmpty()) {
-            String sql = String.format(baseSql + " order by modifiedOn desc",
+            String sql = String.format(baseSql + " order by autoId asc",
                     StringUtils.join(fieldsOfDetail, ","),
                     entity.getDetailEntity().getPrimaryField().getName(),
                     entity.getDetailEntity().getName(),

@@ -31,6 +31,7 @@ public class QueryDecorator extends AjqlQuery {
     public Result result() {
         if (be == null) be = MetadataHelper.isBusinessEntity(getRootEntity());
 
+        // 仅业务实体用
         if (be) {
             if (result == null) result = new ResultDecorator(this);
             return result;

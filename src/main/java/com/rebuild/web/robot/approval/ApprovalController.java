@@ -26,6 +26,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -93,10 +94,15 @@ public class ApprovalController extends BaseController {
                 }
             }
 
-            // 审批中提交人可撤回
-            if (stateVal == ApprovalState.PROCESSING.getState()
-                    && user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
-                data.put("canCancel", true);
+            // 审批中提交人可撤回/催审
+            if (stateVal == ApprovalState.PROCESSING.getState()) {
+                if (user.equals(ApprovalHelper.getSubmitter(recordId, useApproval))) {
+                    data.put("canUrge", true);
+                    data.put("canCancel", true);
+                } else if (UserHelper.isAdmin(user)) {
+                    // v3.1 管理员也可撤回
+                    data.put("canCancel", true);
+                }
             }
         }
 
@@ -206,6 +212,9 @@ public class ApprovalController extends BaseController {
             return RespBody.error(ex.getLocalizedMessage(), DefinedException.CODE_APPROVE_WARN);
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getLocalizedMessage());
+        } catch (UnexpectedRollbackException rolledback) {
+            log.error("ROLLEDBACK", rolledback);
+            return RespBody.error("ROLLEDBACK OCCURED");
         }
     }
 
@@ -217,6 +226,17 @@ public class ApprovalController extends BaseController {
 
         } catch (ApprovalException ex) {
             return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("urge")
+    public RespBody doUrge(@IdParam(name = "record") ID recordId) {
+        int s = new ApprovalProcessor(recordId).urge();
+
+        if (s == -1) {
+            return RespBody.errorl("5 分钟内仅可催审一次");
+        } else {
+            return s > 0 ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
         }
     }
 

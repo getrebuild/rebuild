@@ -6,32 +6,48 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global SimpleMDE, RepeatedViewer, ProTable */
 
+/**
+ * Callback API:
+ * - RbForm: onFieldValueChange( callback({name:xx,value:xx}) )
+ * - RbFormElement: onValueChange(this)
+ * - RbFormReference/RbFormN2NReference: getCascadingFieldValue(this)
+ */
+
 const TYPE_DIVIDER = '$DIVIDER$'
+const MODAL_MAXWIDTH = 1064
 
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, inLoad: true }
+    this.state = { ...props, inLoad: true, _maximize: false }
     if (!props.id) this.state.id = null
   }
 
   render() {
-    const mw = { maxWidth: this.props.width || 1064 }
+    let style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
+    if (this.state._maximize) {
+      style2.maxWidth = $(window).width() - 60
+      if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
+    }
+
     return (
       <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-          <div className="modal-dialog" style={mw}>
-            <div className="modal-content" style={mw}>
+          <div className="modal-dialog" style={style2}>
+            <div className="modal-content" style={style2}>
               <div className="modal-header modal-header-colored">
                 {this.state.icon && <span className={`icon zmdi zmdi-${this.state.icon}`} />}
                 <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                 {rb.isAdminUser && (
                   <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
-                    <span className="zmdi zmdi-settings" />
+                    <span className="zmdi zmdi-settings up-1" />
                   </a>
                 )}
-                <button className="close md-close" type="button" onClick={() => this.hide()}>
+                <button className="close md-close" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this.setState({ _maximize: !this.state._maximize })}>
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                </button>
+                <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
                   <span className="zmdi zmdi-close" />
                 </button>
               </div>
@@ -234,26 +250,87 @@ class RbForm extends React.Component {
     if (!detailMeta || !window.ProTable) return null
 
     const that = this
+
     function _addNew(n = 1) {
-      if (!that._ProTable) return
-      for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+      for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
+    }
+
+    function _setLines(details) {
+      if (that._ProTable.isEmpty()) {
+        that._ProTable.setLines(details)
+      } else {
+        RbAlert.create($L('是否保留已有明细记录？'), {
+          confirmText: $L('保留'),
+          cancelText: $L('不保留'),
+          onConfirm: function () {
+            this.hide()
+            that._ProTable.setLines(details)
+          },
+          onCancel: function () {
+            this.hide()
+            that._ProTable.clear()
+            setTimeout(() => that._ProTable.setLines(details), 200)
+          },
+        })
       }
     }
 
+    // 记录转换预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // 明细导入
+    let detailImports = []
+    if (this.props.rawModel.detailImports) {
+      this.props.rawModel.detailImports.forEach((item) => {
+        detailImports.push({
+          icon: item.icon,
+          label: item.transName || item.entityLabel,
+          fetch: (form, callback) => {
+            ProTable.detailImports(item.transid, form, callback)
+          },
+        })
+      })
+    }
+
+    if (window.FrontJS) {
+      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+      if (detailImports2) detailImports.push(...detailImports2)
+    }
 
     const NADD = [5, 10, 20]
     return (
       <div className="detail-form-table">
         <div className="row">
           <div className="col">
-            <h5 className="mt-3 mb-0 text-bold">
+            <h5 className="mt-3 mb-0 text-bold fs-14">
               <i className={`icon zmdi zmdi-${detailMeta.icon} fs-15 mr-2`} />
               {detailMeta.entityLabel}
             </h5>
           </div>
           <div className="col text-right">
+            {detailImports && detailImports.length > 0 && (
+              <div className="btn-group mr-2">
+                <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  {detailImports.map((def, idx) => {
+                    return (
+                      <a
+                        key={`imports-${idx}`}
+                        className="dropdown-item"
+                        onClick={() => {
+                          def.fetch(this, (details) => _setLines(details))
+                        }}>
+                        {def.icon && <i className={`icon zmdi zmdi-${def.icon}`} />}
+                        {def.label}
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="btn-group">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
@@ -284,13 +361,19 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const moreActions = []
+    // 添加明细
     if (this.props.rawModel.mainMeta) {
-      moreActions.push(
-        <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
-          {$L('保存并继续添加')}
-        </a>
-      )
-    } else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
+      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+      if (!previewid) {
+        moreActions.push(
+          <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
+            {$L('保存并继续添加')}
+          </a>
+        )
+      }
+    }
+    // 列表页添加
+    else if (window.RbViewModal && window.__PageConfig.type === 'RecordList') {
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
@@ -346,6 +429,8 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
+
+    this._inAutoFillin = true
     data.forEach((item) => {
       const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
@@ -353,6 +438,7 @@ class RbForm extends React.Component {
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
+    this._inAutoFillin = false
   }
 
   // 设置字段值
@@ -373,12 +459,13 @@ class RbForm extends React.Component {
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
 
-  // 字段值变化回调
+  // 添加字段值变化回调
   onFieldValueChange(call) {
     const c = this._onFieldValueChange_calls || []
     c.push(call)
     this._onFieldValueChange_calls = c
   }
+  // 执行
   _onFieldValueChangeCall(field, value) {
     if (this._onFieldValueChange_calls) {
       this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
@@ -391,6 +478,22 @@ class RbForm extends React.Component {
     return this.refs[`fieldcomp-${field}`] || null
   }
 
+  // 获取当前表单数据
+  getFormData() {
+    const data = {}
+    // eslint-disable-next-line react/no-string-refs
+    const _refs = this.refs
+    for (let key in _refs) {
+      if (!key.startsWith('fieldcomp-')) continue
+
+      const fieldComp = _refs[key]
+      let v = fieldComp.getValue()
+      if (v && typeof v === 'object') v = v.id
+      if (v) data[fieldComp.props.field] = v
+    }
+    return data
+  }
+
   // 保存并添加明细
   static NEXT_ADDDETAIL = 102
   // 保存并打开
@@ -399,6 +502,11 @@ class RbForm extends React.Component {
    * @next {Number}
    */
   post(next) {
+    // fix dblclick
+    if (this.__post === 1) return
+    this.__post = 1
+    setTimeout(() => (this.__post = 0), 800)
+
     setTimeout(() => this._post(next), 30)
   }
 
@@ -435,6 +543,15 @@ class RbForm extends React.Component {
       $btn.button('reset')
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
+
+        if (location.hash === '#!/New') {
+          // location.hash = '!/'
+          try {
+            localStorage.setItem('referenceSearch__reload', $random())
+          } catch (err) {
+            // Nothings
+          }
+        }
 
         setTimeout(() => {
           $$$parent.hide(true)
@@ -507,6 +624,7 @@ class RbFormElement extends React.Component {
 
   render() {
     const props = this.props
+    const state = this.state
 
     let colspan = 6 // default
     if (props.colspan === 4 || props.isFull === true) colspan = 12
@@ -522,11 +640,11 @@ class RbFormElement extends React.Component {
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
-          {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
-          {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
+          {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
+          {!props.onView && state.tip && <p className={`form-text ${state.tipForce && 'form-text-force'}`}>{state.tip}</p>}
 
-          {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
-          {editable && this.state.editMode && (
+          {editable && !state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
+          {editable && state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
@@ -597,14 +715,20 @@ class RbFormElement extends React.Component {
    */
   handleChange(e, checkValue) {
     const val = e.target.value
-    this.setState({ value: val }, () => checkValue === true && this.checkValue())
+    this.setState({ value: val }, () => {
+      checkValue === true && this.checkValue()
+      typeof this.props.onValueChange === 'function' && typeof this.props.onValueChange(this)
+    })
   }
 
   /**
    * 清空值
    */
   handleClear() {
-    this.setState({ value: '' }, () => this.checkValue())
+    this.setState({ value: '' }, () => {
+      this.checkValue()
+      typeof this.props.onValueChange === 'function' && typeof this.props.onValueChange(this)
+    })
   }
 
   /**
@@ -1338,7 +1462,7 @@ class RbFormPickList extends RbFormElement {
         <option value="" />
         {this.state.options.map((item) => {
           return (
-            <option key={`${keyName}${item.id}`} value={item.id}>
+            <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
             </option>
           )
@@ -1348,29 +1472,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderViewElement() {
-    return super.renderViewElement(__findOptionText(this.state.options, this.state.value))
-
-    // Use badge
-    // const value = this.state.value
-    // if ((this.state.options || []).length === 0 || !value) return super.renderViewElement(null)
-
-    // // eslint-disable-next-line eqeqeq
-    // const o = this.state.options.find((x) => x.id == value)
-    // if (!o || !o.text) {
-    //   return super.renderViewElement(`[${value.toUpperCase()}]`)
-    // }
-
-    // if (o.color) {
-    //   return (
-    //     <div className="form-control-plaintext">
-    //       <span className="badge badge-color" style={{ backgroundColor: o.color }}>
-    //         {o.text}
-    //       </span>
-    //     </div>
-    //   )
-    // } else {
-    //   return super.renderViewElement(o.text)
-    // }
+    return super.renderViewElement(__findOptionText(this.state.options, this.state.value, true))
   }
 
   onEditModeChanged(destroy) {
@@ -1408,7 +1510,6 @@ class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
     this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
-    this._hasCascadingField = !!(props._cascadingFieldParent || props._cascadingFieldChild)
   }
 
   renderElement() {
@@ -1483,11 +1584,15 @@ class RbFormReference extends RbFormElement {
           that.triggerAutoFillin(v)
 
           // v2.10 FIXME 父级改变后清除明细
-          if (that.props.$$$parent._ProTable && (that.props._cascadingFieldChild || '').includes('.')) {
+          // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
+          const $$$form = that.props.$$$parent
+          if ($$$form._ProTable && !$$$form._inAutoFillin && (that.props._cascadingFieldChild || '').includes('.')) {
             const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            that.props.$$$parent._ProTable.clear(field)
+            $$$form._ProTable.setFieldNull(field)
+            console.log('Clean details ...', field)
           }
         }
+
         that.handleChange({ target: { value: v } }, true)
       })
 
@@ -1498,13 +1603,17 @@ class RbFormReference extends RbFormElement {
   componentWillUnmount() {
     super.componentWillUnmount()
 
-    if (this._ReferenceSearcher && !this._hasCascadingField) {
+    if (this._ReferenceSearcher) {
       this._ReferenceSearcher.destroy()
       this._ReferenceSearcher = null
     }
   }
 
   _getCascadingFieldValue() {
+    if (typeof this.props.getCascadingFieldValue === 'function') {
+      return this.props.getCascadingFieldValue(this)
+    }
+
     let cascadingField
     if (this.props._cascadingFieldParent) {
       cascadingField = this.props._cascadingFieldParent.split('$$$$')[0]
@@ -1515,7 +1624,7 @@ class RbFormReference extends RbFormElement {
 
     let $$$parent = this.props.$$$parent
 
-    // v2.10 使用主表单
+    // v2.10 明细中使用主表单
     if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
       $$$parent = $$$parent.props.$$$main
       cascadingField = cascadingField.split('.')[1]
@@ -1546,10 +1655,29 @@ class RbFormReference extends RbFormElement {
   triggerAutoFillin(value) {
     if (this.props.onView) return
 
-    const $$$parent = this.props.$$$parent
-    const url = `/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`
+    const $$$form = this.props.$$$parent
+    const url = `/app/entity/extras/fillin-value?entity=${$$$form.props.entity}&field=${this.props.field}&source=${value}`
     $.get(url, (res) => {
-      res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
+      if (res.error_code === 0 && res.data.length > 0) {
+        const fillin2main = []
+        const fillin2this = []
+        res.data.forEach((item) => {
+          if (item.target.includes('.')) {
+            fillin2main.push({ ...item, target: item.target.split('.')[1] })
+          } else {
+            fillin2this.push(item)
+          }
+        })
+
+        if (fillin2this.length > 0) {
+          $$$form.setAutoFillin(fillin2this)
+        }
+        // 明细 > 主记录
+        if (fillin2main.length > 0 && $$$form._InlineForm) {
+          const $$$formMain = $$$form.props.$$$main
+          $$$formMain && $$$formMain.setAutoFillin(fillin2main)
+        }
+      }
     })
   }
 
@@ -1574,12 +1702,20 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    if (this._ReferenceSearcher && !this._hasCascadingField) {
+    const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+    if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
+
+    if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
       this._ReferenceSearcher.show()
     } else {
-      const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+      if (this._ReferenceSearcher) {
+        this._ReferenceSearcher.destroy()
+        this._ReferenceSearcher = null
+      }
+      this._ReferenceSearcher_Url = url
+
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} disposeOnHide={this._hasCascadingField} />, function () {
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} />, function () {
         that._ReferenceSearcher = this
       })
     }
@@ -1601,7 +1737,6 @@ class RbFormReference extends RbFormElement {
 class RbFormN2NReference extends RbFormReference {
   constructor(props) {
     super(props)
-    this._hasCascadingField = null
     this._multiple = true
   }
 
@@ -1614,7 +1749,7 @@ class RbFormN2NReference extends RbFormReference {
       <div className="form-control-plaintext multi-values">
         {value.map((item) => {
           return (
-            <a key={item.id} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+            <a key={item.id} className="hover-color" href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
               {item.text}
             </a>
           )
@@ -1791,7 +1926,7 @@ class RbFormMultiSelect extends RbFormElement {
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
         {(this.props.options || []).map((item) => {
           return (
-            <label key={`item-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
+            <label key={`mask-${item.mask}`} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
                 name={`checkbox-${this.props.field}`}
@@ -1799,7 +1934,7 @@ class RbFormMultiSelect extends RbFormElement {
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
                 onChange={this.changeValue}
-                disabled={this.props.readonly}
+                disabled={this.props.readonly || $isSysMask(item.text)}
               />
               <span className="custom-control-label">{item.text}</span>
             </label>
@@ -1813,13 +1948,7 @@ class RbFormMultiSelect extends RbFormElement {
     if (!this.state.value) return super.renderViewElement()
 
     const maskValue = this._getMaskValue()
-    return (
-      <div className="form-control-plaintext multi-values">
-        {__findMultiTexts(this.props.options, maskValue).map((item) => {
-          return <span key={item}>{item}</span>
-        })}
-      </div>
-    )
+    return <div className="form-control-plaintext multi-values">{__findMultiTexts(this.props.options, maskValue, true)}</div>
   }
 
   changeValue = () => {
@@ -2244,26 +2373,43 @@ var detectElement = function (item) {
 }
 
 // 获取选项型字段显示值
-const __findOptionText = function (options, value) {
+const __findOptionText = function (options, value, useColor) {
   if ((options || []).length === 0 || !value) return null
-  const o = options.find((x) => {
-    // eslint-disable-next-line eqeqeq
-    return x.id == value
-  })
-  return o ? o.text || `[${value.toUpperCase()}]` : `[${value.toUpperCase()}]`
+  // eslint-disable-next-line eqeqeq
+  const o = options.find((x) => x.id == value)
+
+  let text = (o || {}).text || `[${value.toUpperCase()}]`
+  if (useColor && o && o.color) {
+    const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+    text = (
+      <span className="badge" style={style2}>
+        {text}
+      </span>
+    )
+  }
+  return text
 }
 
 // 多选文本
-const __findMultiTexts = function (options, maskValue) {
+const __findMultiTexts = function (options, maskValue, useColor) {
   const texts = []
-  options.map((item) => {
-    if ((maskValue & item.mask) !== 0) texts.push(item.text)
+  options.map((o) => {
+    if ((maskValue & o.mask) !== 0) {
+      const style2 = o.color && useColor ? { borderColor: o.color, backgroundColor: o.color, color: '#fff' } : null
+      const text = (
+        <span key={`mask-${o.mask}`} style={style2}>
+          {o.text}
+        </span>
+      )
+      texts.push(text)
+    }
   })
   return texts
 }
 
 // 最近使用
 const __addRecentlyUse = function (id) {
-  if (!id) return
-  $.post(`/commons/search/recently-add?id=${id}`)
+  if (id && typeof id === 'string') {
+    $.post(`/commons/search/recently-add?id=${id}`)
+  }
 }

@@ -12,7 +12,7 @@ $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
 
   let _dlgImports
-  $('.J_imports').click(() => {
+  $('.J_imports').on('click', () => {
     if (_dlgImports) {
       _dlgImports.show()
     } else {
@@ -86,7 +86,7 @@ class LevelBox extends React.Component {
   }
 
   render() {
-    const forId = 'turnOn-' + this.props.level
+    const forId = `turnOn-${this.props.level}`
     return (
       <div className={`col-md-3 ${this.state.turnOn ? '' : 'off'}`}>
         <div className="float-left">
@@ -124,8 +124,8 @@ class LevelBox extends React.Component {
             {(this.state.items || []).map((item) => {
               const active = this.state.activeId === item[0]
               return (
-                <li className={`dd-item ${active ? ' active' : ''}`} key={item[0]} onClick={() => this.clickItem(item[0])}>
-                  <div className={`dd-handle ${item[3] ? ' text-disabled' : ''}`} title={item[3] ? $L('已禁用') : null}>
+                <li className={`dd-item ${active && 'active'}`} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                  <div className={`dd-handle ${item[3] && 'text-disabled'}`} title={item[3] ? $L('已禁用') : null}>
                     {item[1]}
                     {item[3] && <small />}
                   </div>
@@ -133,7 +133,7 @@ class LevelBox extends React.Component {
                     <a>
                       <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)} />
                     </a>
-                    <a>
+                    <a className="danger-hover">
                       <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)} />
                     </a>
                   </div>
@@ -203,6 +203,7 @@ class LevelBox extends React.Component {
     let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${$encode(name)}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}&level=${this.props.level}`
+
     let isUnhide = null
     if (this.state.itemHide && this.state.itemUnhide) {
       url += '&hide=false'
@@ -269,8 +270,7 @@ class LevelBox extends React.Component {
       alertExt.cancelText = $L('禁用')
       alertExt.cancel = function () {
         this.disabled()
-        const url = `/admin/metadata/classification/save-data-item?item_id=${item[0]}&hide=true`
-        $.post(url, (res) => {
+        $.post(`/admin/metadata/classification/save-data-item?item_id=${item[0]}&hide=true`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)

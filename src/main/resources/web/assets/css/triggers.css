@@ -142,6 +142,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.25rem;
 }
 
+.group-aggregation .col-5 > .zmdi.mdi {
+  left: -7px;
+}
+
 .group-aggregation .items > div .col-5 > .zmdi {
   margin-top: 5px;
 }
@@ -372,14 +376,27 @@ textarea.formula-code {
 }
 
 .on-timers {
-  padding: 15px 25px;
+  padding: 15px 26px;
+  padding-bottom: 20px;
   border-radius: 2px;
   border: 1px solid #eee;
+  font-size: 1rem;
 }
 
-.on-timers .input-group {
-  width: 300px;
-  float: left;
+.on-timers input,
+.on-timers select {
+  width: 60px;
+  padding: 3px;
+  border: 0 none;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  appearance: none;
+  outline: none;
+}
+
+.on-timers input:focus,
+.on-timers select:focus {
+  border-color: #4285f4;
 }
 
 .code-panel {
@@ -493,4 +510,8 @@ textarea.formula-code {
 input.form-control-sm,
 select.form-control-sm {
   max-width: 485px;
+}
+
+.alert-mb-0 > .alert {
+  margin-bottom: 0;
 }

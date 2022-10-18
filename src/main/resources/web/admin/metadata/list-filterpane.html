@@ -5,13 +5,13 @@
     <title>[[${bundle.L('查询字段')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
+      .axis-target {
+        min-height: 31.56px;
+      }
       .axis-target > span {
         display: inline-block;
       }
       .axis-target .item {
-        border-radius: 2px;
-        padding-left: 8px;
-        padding-right: 8px;
         margin-right: 7px;
         margin-bottom: 6px;
       }
@@ -53,8 +53,8 @@
       </div>
 
       <div class="dialog-footer">
+        <button class="btn btn-link" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

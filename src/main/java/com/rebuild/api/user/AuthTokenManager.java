@@ -7,14 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api.user;
 
-import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.springframework.util.Assert;
 
 /**
- * 授权（登录） Token 统一管理
+ * Token 统一管理
  *
  * @author devezhao
  * @since 2020/3/11
@@ -22,31 +25,89 @@ import org.apache.commons.lang.StringUtils;
 @Slf4j
 public class AuthTokenManager {
 
-    // Token 存储前缀
-    private static final String TOKEN_PREFIX = "RBLT.";
+    /**
+     * 可刷新、有效期自定义
+     */
+    public static final String TYPE_ACCESS_TOKEN = "RBAT";
 
     /**
-     * Token 默认有效期（2 小时）
+     * 不可刷新、有效期自定义
      */
-    public static final int TOKEN_EXPIRES = 60 * 60 * 2;
-    /**
-     * H5 Token 默认有效期（12 小时）
-     */
-    public static final int H5TOKEN_EXPIRES = 60 * 60 * 12;
+    public static final String TYPE_CSRF_TOKEN = "RBCT";
 
     /**
-     * 生成并存储 Token
+     * 不可刷新、有效期 1m、一次性使用
+     */
+    public static final String TYPE_ONCE_TOKEN = "RBOT";
+
+    private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 12;
+
+    private static final String TOKEN_PREFIX = "TOKEN:";
+
+    /**
+     * 生成 Token
      *
      * @param user
-     * @param expires seconds
+     * @param expires
+     * @param type
      * @return
      */
-    public static String generateToken(ID user, int expires) {
-        String token = String.format("%s,%d,%s,v1",
-                user, System.currentTimeMillis(), CodecUtils.randomCode(10));
-        token = CodecUtils.base64UrlEncode(token);  // 64bit
-        Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
+    protected static String generateToken(ID user, int expires, String type) {
+        // Type,User,Time,Version
+        String desc = String.format("%s,%s,%d,v2",
+                ObjectUtils.defaultIfNull(type, TYPE_ACCESS_TOKEN),
+                ObjectUtils.defaultIfNull(user, UserService.SYSTEM_USER),
+                System.nanoTime());
+        String token = EncryptUtils.toSHA1Hex(desc);
+
+        Application.getCommonsCache().putx(TOKEN_PREFIX + token, desc, expires);
         return token;
+    }
+
+    /**
+     * @param user
+     * @return
+     * @see #TYPE_ACCESS_TOKEN
+     */
+    public static String generateAccessToken(ID user) {
+        Assert.notNull(user, "[user] cannot be null");
+        return generateToken(user, ACCESSTOKEN_EXPIRES, TYPE_ACCESS_TOKEN);
+    }
+
+    /**
+     * @return
+     * @see #TYPE_CSRF_TOKEN
+     */
+    public static String generateCsrfToken() {
+        return generateCsrfToken(CommonsCache.TS_MINTE * 30);
+    }
+
+    /**
+     * @param expires
+     * @return
+     * @see #TYPE_CSRF_TOKEN
+     */
+    public static String generateCsrfToken(int expires) {
+        return generateToken(null, expires, TYPE_CSRF_TOKEN);
+    }
+
+    /**
+     * @param user
+     * @return
+     * @see #TYPE_ONCE_TOKEN
+     */
+    public static String generateOnceToken(ID user) {
+        return generateToken(user, CommonsCache.TS_MINTE, TYPE_ONCE_TOKEN);
+    }
+
+    /**
+     * 验证 Token
+     *
+     * @param token
+     * @return
+     */
+    public static ID verifyToken(String token) {
+        return verifyToken(token, Boolean.FALSE);
     }
 
     /**
@@ -57,29 +118,38 @@ public class AuthTokenManager {
      * @return
      */
     public static ID verifyToken(String token, boolean verifyAfterDestroy) {
-        if (StringUtils.isBlank(token)) return null;
+        Assert.notNull(token, "[token] cannot be null");
+        String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
+        if (desc == null) return null;
 
-        token = TOKEN_PREFIX + token;
-        ID user = (ID) Application.getCommonsCache().getx(token);
-        if (user != null && verifyAfterDestroy) {
-            log.warn("Destroy token : {}", token);
-            Application.getCommonsCache().evict(token);
+        String[] descs = desc.split(",");
+        if (TYPE_ONCE_TOKEN.equals(descs[0])) {
+            verifyAfterDestroy = true;
         }
-        return user;
+
+        if (verifyAfterDestroy) {
+            log.debug("Destroy token ({}) : {}", descs[0], token);
+            Application.getCommonsCache().evict(TOKEN_PREFIX + token);
+        }
+
+        return ID.valueOf(descs[1]);
     }
 
     /**
-     * 刷新 Token 延长有效期
+     * 刷新 AccessToken 延长有效期
      *
      * @param token
-     * @param expires
      * @return
      */
-    public static ID refreshToken(String token, int expires) {
-        ID user = verifyToken(token, false);
-        if (user == null)  return null;
+    public static ID refreshAccessToken(String token) {
+        Assert.notNull(token, "[token] cannot be null");
+        String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
+        if (desc == null) return null;
 
-        Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
-        return user;
+        String[] descs = desc.split(",");
+        Assert.isTrue(TYPE_ACCESS_TOKEN.equals(descs[0]), "Cannot refresh none access token");
+
+        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, ACCESSTOKEN_EXPIRES);
+        return ID.valueOf(descs[1]);
     }
 }

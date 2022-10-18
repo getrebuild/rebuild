@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%BC%95%E7%94%A8%E5%AD%97%E6%AE%B5" />
     <title>[[${bundle.L('表单回填')}]]</title>
-    <style type="text/css">
+    <style>
       .dataTables_wrapper .rb-datatable-header {
         position: static;
       }
@@ -73,7 +73,7 @@
                   </div>
                   <div class="col-sm-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-primary J_add-rule"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+                      <button class="btn btn-primary J_add-rule" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
                     </div>
                   </div>
                 </div>

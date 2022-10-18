@@ -17,7 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.SysbaseDiagnosis;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -86,7 +86,7 @@ public class AdminVerfiyController extends BaseController {
 
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
-        return RespBody.ok(SysbaseDiagnosis.getAdminDanger());
+        return RespBody.ok(SysbaseHeartbeat.getAdminDanger());
     }
 
     // -- CLI

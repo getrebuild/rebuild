@@ -23,12 +23,12 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -49,10 +49,10 @@ public class RecordTransfomer extends SetUser {
     final private boolean skipGuard;
 
     /**
-     * @param trnasid
+     * @param transid
      */
-    public RecordTransfomer(ID trnasid) {
-        ConfigBean config = TransformManager.instance.getTransformConfig(trnasid, null);
+    public RecordTransfomer(ID transid) {
+        ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
         this.targetEntity = MetadataHelper.getEntity(config.getString("target"));
         this.transConfig = (JSONObject) config.getJSON("config");
         this.skipGuard = false;
@@ -183,12 +183,11 @@ public class RecordTransfomer extends SetUser {
     protected boolean fillback(ID sourceRecordId, ID newId) {
         final Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         String fillbackField = transConfig.getString("fillbackField");
-        if (StringUtils.isBlank(fillbackField)
-                || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
+        if (fillbackField == null || !MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             return false;
         }
 
-        Record updateSource = EntityHelper.forUpdate(sourceRecordId, getUser(), false);
+        Record updateSource = EntityHelper.forUpdate(sourceRecordId, UserService.SYSTEM_USER, false);
         updateSource.setID(fillbackField, newId);
 
         // 此配置未开放

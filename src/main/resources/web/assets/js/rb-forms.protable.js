@@ -7,9 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global detectElement, TYPE_DIVIDER */
 /* eslint-disable no-unused-vars */
 
-// ~~ 高级表格
+// ~~ 表格型表单
 
-const COL_WIDTH = 170
+const COL_WIDTH = 178 // 48
+const COL_WIDTH_PLUS = ['REFERENCE', 'N2NREFERENCE', 'CLASSIFICATION']
 
 class ProTable extends React.Component {
   constructor(props) {
@@ -32,9 +33,9 @@ class ProTable extends React.Component {
     // fixed 模式大概 5 个字段
     const ww = $(window).width()
     const fw = ww > 1064 ? 994 : ww - 70
-    const fixed = COL_WIDTH * formFields.length + (38 + 88) > fw
+    const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
 
-    const colStyles = { minWidth: COL_WIDTH }
+    const colStyle = { minWidth: COL_WIDTH }
 
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
@@ -44,8 +45,12 @@ class ProTable extends React.Component {
               <th className="col-index" />
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
+
+                let colStyle2 = { ...colStyle }
+                if (fixed && COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyles} className={item.nullable ? '' : 'required'}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
@@ -64,8 +69,8 @@ class ProTable extends React.Component {
                   {FORM}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
-                    <button className="btn btn-light hide" title={$L('编辑')} onClick={() => this.editLine(key)}>
-                      <i className="icon zmdi zmdi-edit fs-14" />
+                    <button className="btn btn-light hide" title={$L('复制')} onClick={() => this.copyLine(key)}>
+                      <i className="icon zmdi zmdi-copy fs-14" />
                     </button>
                     <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
@@ -98,20 +103,22 @@ class ProTable extends React.Component {
 
       this._initModel = res.data // 新建用
       this.setState({ formFields: res.data.elements }, () => {
-        $(this._$scroller).perfectScrollbar()
+        $(this._$scroller).perfectScrollbar({
+          suppressScrollY: true,
+        })
         // $(this._$scroller).find('thead .tipping').tooltip({})
       })
 
       // 编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          res.data && res.data.forEach((item) => this.addLine(item))
+          this.setLines(res.data)
         })
       }
       // 转换
       else if (this.props.previewid) {
         $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
-          res.data && res.data.forEach((item) => this.addLine(item))
+          this.setLines(res.data)
         })
       }
     })
@@ -153,11 +160,33 @@ class ProTable extends React.Component {
     this.setState({ inlineForms: forms })
   }
 
-  editLine(id) {
+  copyLine(id) {
     console.log('TODO :', id)
   }
 
-  clear(field) {
+  setLines(models = []) {
+    models.forEach((item, idx) => {
+      setTimeout(() => this.addLine(item), idx * 20)
+    })
+  }
+
+  isEmpty() {
+    return !this.state.inlineForms || this.state.inlineForms.length === 0
+  }
+
+  clear() {
+    this.state.inlineForms &&
+      this.state.inlineForms.forEach((c) => {
+        if (c.props.id) {
+          const d = this._deletes || []
+          d.push(c.props.id)
+          this._deletes = d
+        }
+      })
+    this.setState({ inlineForms: [] })
+  }
+
+  setFieldNull(field) {
     this.state.inlineForms &&
       this.state.inlineForms.forEach((c) => {
         const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
@@ -169,16 +198,17 @@ class ProTable extends React.Component {
     const datas = []
     let error = null
 
-    ;(this._inlineFormsRefs || []).forEach((item) => {
-      if (!item.current) return
-      const d = item.current.buildFormData()
+    this._inlineFormsRefs &&
+      this._inlineFormsRefs.forEach((item) => {
+        if (!item.current) return
+        const d = item.current.buildFormData()
 
-      if (!d || typeof d === 'string') {
-        if (!error) error = d
-      } else if (Object.keys(d).length > 0) {
-        datas.push(d)
-      }
-    })
+        if (!d || typeof d === 'string') {
+          if (!error) error = d
+        } else if (Object.keys(d).length > 0) {
+          datas.push(d)
+        }
+      })
 
     if (error) {
       RbHighbar.create(error)
@@ -200,6 +230,29 @@ class ProTable extends React.Component {
     }
 
     return datas
+  }
+
+  // --
+
+  /**
+   * 导入明细
+   * @param {*} transid
+   * @param {*} form
+   * @param {*} callback
+   * @returns
+   */
+  static detailImports(transid, form, callback) {
+    const formdata = form.getFormData()
+    const mainid = form.props.id || null
+
+    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+      if (res.error_code === 0) {
+        if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+        else typeof callback === 'function' && callback(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 }
 

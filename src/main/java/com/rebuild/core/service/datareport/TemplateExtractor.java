@@ -137,7 +137,7 @@ public class TemplateExtractor {
                 Matcher matcher = PATT_V2.matcher(cellText);
                 while (matcher.find()) {
                     String varName = matcher.group(1);
-                    vars.add(varName);
+                    if (StringUtils.isNotBlank(varName)) vars.add(varName);
                 }
             }
         }

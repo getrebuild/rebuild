@@ -385,7 +385,7 @@ public class UserHelper {
             }
         }
         // Use default
-        return new Font("SimHei", Font.BOLD, (int) (float) 81.0);
+        return new Font(Font.SERIF, Font.BOLD, (int) (float) 81.0);
     }
 
     /**

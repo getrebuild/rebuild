@@ -29,7 +29,7 @@ class RbPreview extends React.Component {
     const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
 
     let previewContent = null
-    if (this._isImg(fileName)) previewContent = this.renderImgs()
+    if (this._isImage(fileName)) previewContent = this.renderImage()
     else if (this._isDoc(fileName)) previewContent = this.renderDoc()
     else if (this._isText(fileName)) previewContent = this.renderText()
     else if (this._isAudio(fileName)) previewContent = this.renderAudio()
@@ -38,9 +38,10 @@ class RbPreview extends React.Component {
     // Has error
     if (this.state.errorMsg || !previewContent) {
       previewContent = (
-        <div className="unsupports shadow-lg rounded bg-light" onClick={this._stopEvent}>
+        <div className="unsupports shadow-lg rounded bg-light">
           <h4 className="mt-0">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
           <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
+            <i className="zmdi zmdi-download icon mr-1" />
             {$L('下载文件')}
           </a>
         </div>
@@ -79,13 +80,13 @@ class RbPreview extends React.Component {
     )
   }
 
-  renderImgs() {
+  renderImage() {
     return (
       <React.Fragment>
         <div className="img-zoom fp-content">
           {!this.state.imgRendered && (
             <div className="must-center">
-              <RbSpinner fully={true} />
+              <RbSpinner fully />
             </div>
           )}
           <img
@@ -101,14 +102,14 @@ class RbPreview extends React.Component {
           />
         </div>
         {this.props.urls.length > 1 && (
-          <div className="oper-box" onClick={this._stopEvent}>
-            <a className="arrow float-left" onClick={this._previmg}>
+          <div className="oper-box">
+            <a className="arrow float-left" onClick={this._prevImage}>
               <i className="zmdi zmdi-chevron-left" />
             </a>
             <span>
               {this.state.currentIndex + 1} / {this.props.urls.length}
             </span>
-            <a className="arrow float-right" onClick={this._nextimg}>
+            <a className="arrow float-right" onClick={this._nextImage}>
               <i className="zmdi zmdi-chevron-right" />
             </a>
           </div>
@@ -120,7 +121,7 @@ class RbPreview extends React.Component {
   renderDoc() {
     return (
       <div className="container fp-content">
-        <div className="iframe" onClick={this._stopEvent}>
+        <div className="iframe">
           {!this.state.docRendered && (
             <div className="must-center">
               <RbSpinner fully={true} />
@@ -135,7 +136,7 @@ class RbPreview extends React.Component {
   renderText() {
     return (
       <div className="container fp-content">
-        <div className="iframe text" onClick={this._stopEvent}>
+        <div className="iframe text">
           {this.state.previewText || this.state.previewText === '' ? (
             <pre>{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
           ) : (
@@ -151,7 +152,7 @@ class RbPreview extends React.Component {
   renderAudio() {
     return (
       <div className="container fp-content">
-        <div className="audio must-center" onClick={this._stopEvent}>
+        <div className="audio must-center">
           <audio src={this._buildAbsoluteUrl()} controls>
             {$L('你的浏览器不支持此功能')}
           </audio>
@@ -163,7 +164,7 @@ class RbPreview extends React.Component {
   renderVideo() {
     return (
       <div className="container fp-content">
-        <div className="video must-center" onClick={this._stopEvent}>
+        <div className="video must-center">
           <video src={this._buildAbsoluteUrl()} height="500" controls>
             {$L('你的浏览器不支持此功能')}
           </video>
@@ -188,7 +189,7 @@ class RbPreview extends React.Component {
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
-      if (_isFullUrl(currentUrl)) {
+      if ($isFullUrl(currentUrl)) {
         setPreviewUrl(currentUrl)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
@@ -197,13 +198,12 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this._isText(fileName)) {
-      const textUrl = _isFullUrl(currentUrl) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
-        url: textUrl,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}`,
         type: 'GET',
         dataType: 'text',
-        success: function (res) {
-          that.setState({ previewText: res })
+        success: function (raw) {
+          that.setState({ previewText: raw })
         },
         error: function (res) {
           if (res.status > 0) RbHighbar.error(`${$L('无法读取文件')} (${res.status})`)
@@ -213,8 +213,8 @@ class RbPreview extends React.Component {
     }
 
     $(document)
-      .unbind('keyup')
-      .keyup(function (e) {
+      .off('keyup')
+      .on('keyup', function (e) {
         // ESC
         if (e.keyCode === 27) that.hide()
       })
@@ -237,7 +237,7 @@ class RbPreview extends React.Component {
 
   _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
-    url = _isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
+    url = $isFullUrl(url) ? url : `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
 
     if (params) {
       url += url.contains('?') ? '&' : '?'
@@ -246,27 +246,27 @@ class RbPreview extends React.Component {
     return url
   }
 
-  _isImg(url) {
-    return this._isType(url, TYPE_IMGS)
+  _isImage(url) {
+    return this._isSpecType(url, TYPE_IMGS)
   }
 
   _isDoc(url) {
-    return this._isType(url, TYPE_DOCS)
+    return this._isSpecType(url, TYPE_DOCS)
   }
 
   _isAudio(url) {
-    return this._isType(url, TYPE_AUDIOS)
+    return this._isSpecType(url, TYPE_AUDIOS)
   }
 
   _isVideo(url) {
-    return this._isType(url, TYPE_VIDEOS)
+    return this._isSpecType(url, TYPE_VIDEOS)
   }
 
   _isText(url) {
-    return this._isType(url, TYPE_TEXTS)
+    return this._isSpecType(url, TYPE_TEXTS)
   }
 
-  _isType(url, types) {
+  _isSpecType(url, types) {
     url = url.toLowerCase()
     for (let i = 0; i < types.length; i++) {
       if (url.endsWith(types[i])) return true
@@ -274,19 +274,16 @@ class RbPreview extends React.Component {
     return false
   }
 
-  _previmg = (e) => {
-    this._stopEvent(e)
+  _prevImage = () => {
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
     this.setState({ currentIndex: ci - 1, imgRendered: false })
   }
-  _nextimg = (e) => {
-    this._stopEvent(e)
+  _nextImage = () => {
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
   }
-  _stopEvent = (e) => e && e.stopPropagation()
 
   hide = () => {
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
@@ -386,8 +383,4 @@ class FileShare extends RbModalHandler {
       })
     })
   }
-}
-
-function _isFullUrl(urlKey) {
-  return urlKey.startsWith('http://') || urlKey.startsWith('https://')
 }

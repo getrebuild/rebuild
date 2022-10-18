@@ -18,7 +18,10 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
-import com.rebuild.core.support.*;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -65,8 +68,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (Application.isWaitLoad()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
         }
-        if (SysbaseDiagnosis._DENIEDMSG != null) {
-            throw new DefinedException(CODE_STARTING, SysbaseDiagnosis._DENIEDMSG);
+        if (SysbaseHeartbeat.DENIEDMSG != null) {
+            throw new DefinedException(CODE_DENIEDMSG, SysbaseHeartbeat.DENIEDMSG);
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
@@ -116,9 +119,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // 用户验证
         if (requestUser != null) {
 
-            boolean adminVerified = AppUtils.isAdminVerified(request);
-            // 管理中心
-            if (requestUri.contains("/admin/") && !adminVerified) {
+            // 管理中心二次验证
+            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
                 if (isHtmlRequest(request)) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
@@ -149,14 +151,13 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
             }
 
-            // 超管可访问
-            skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
+            // 非增强安全超管可访问
+            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) skipCheckSafeUse = false;
+            else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
         } else if (!isIgnoreAuth(requestUri)) {
-            // 外部表单特殊处理（媒体字段上传/预览）
-            if (requestUri.contains("/filex/") && CsrfToken.verify(request, false)) {
-                return true;
-            }
+            // 独立验证逻辑
+            if (requestUri.contains("/filex/")) return true;
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
@@ -291,7 +292,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (!License.isRbvAttached()) return;
 
         if ("localhost".equals(ipAddr) || "127.0.0.1".equals(ipAddr)) {
-            log.warn("Allow localhost/127.0.0.1 use : {}", requestUri);
+            log.debug("Allow localhost/127.0.0.1 use : {}", requestUri);
             return;
         }
 

@@ -20,10 +20,6 @@ $(document).ready(function () {
         .appendTo('.announcement-wrapper')
         .on('click', () => (location.href = $('.h5-mobile>a').attr('href')))
     }, 500)
-  } else if ($.cookie('install-reg-30d') && rb.commercial < 1) {
-    // $(
-    //   '<div class="alert alert-danger bg-market text-center p-3"><a href="site-register" target="_blank" class="text-white font-weight-bold link">限时! 完成信息注册可免费获得增值功能包</a></div>'
-    // ).prependTo('.splash-container')
   }
 
   $.get('/user/live-wallpaper', (res) => {
