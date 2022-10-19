@@ -423,7 +423,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.17.6</version>
+            <version>3.17.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -454,7 +454,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.6</version>
+            <version>5.8.8</version>
         </dependency>
 
         <!-- CVEs fix -->
