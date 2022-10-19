@@ -149,14 +149,14 @@ public class LoginAction extends BaseController {
 
         String ipAddr = StringUtils.defaultString(ServletUtils.getRemoteAddr(request), "127.0.0.1");
 
-        final Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
-        record.setID("user", user);
-        record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", uaClear);
-        record.setDate("loginTime", CalendarUtils.now());
+        final Record llog = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+        llog.setID("user", user);
+        llog.setString("ipAddr", ipAddr);
+        llog.setString("userAgent", uaClear);
+        llog.setDate("loginTime", CalendarUtils.now());
 
         TaskExecutors.queue(() -> {
-            Application.getCommonsService().create(record);
+            Application.getCommonsService().create(llog);
 
             User u = Application.getUserStore().getUser(user);
             String uid = StringUtils.defaultString(u.getEmail(), u.getName());
