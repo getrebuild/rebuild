@@ -73,16 +73,27 @@ $(document).ready(() => {
   })
 
   // 高级查询
-  const confirmFilter = function (s) {
-    __PlanBoxes.setState({ filter: s })
-  }
+
   $('.J_filter').on('click', () => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal canNoFilters confirm={confirmFilter} />, null, function () {
-        __AdvFilter = this
-      })
+      renderRbcomp(
+        <AdvFilter
+          title={$L('高级查询')}
+          entity="ProjectTask"
+          inModal
+          canNoFilters
+          confirmText={$L('查询')}
+          onConfirm={(s) => {
+            __PlanBoxes.setState({ filter: s })
+          }}
+        />,
+        null,
+        function () {
+          __AdvFilter = this
+        }
+      )
     }
   })
 })

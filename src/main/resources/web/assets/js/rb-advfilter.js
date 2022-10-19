@@ -38,11 +38,11 @@ class AdvFilter extends React.Component {
     const filterComp = (
       <div className={`adv-filter-wrap ${this.props.inModal ? 'in-modal' : 'shadow rounded'}`}>
         {this.state.hasErrorTip && (
-          <div className="alert alert-warning alert-sm">
+          <div className="alert alert-warning alert-icon alert-icon-border alert-sm">
             <div className="icon">
               <i className="zmdi zmdi-alert-triangle" />
             </div>
-            <div className="message pl-0">{this.state.hasErrorTip}</div>
+            <div className="message">{this.state.hasErrorTip}</div>
           </div>
         )}
 
@@ -117,7 +117,7 @@ class AdvFilter extends React.Component {
     return (
       <div className="item">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('确定')}
+          {this.props.confirmText || $L('确定')}
         </button>
         <button className="btn btn-secondary" type="button" onClick={() => this.hide()}>
           {$L('取消')}
@@ -170,7 +170,9 @@ class AdvFilter extends React.Component {
           if (validFs.includes(item.field)) {
             this.addItem(item)
           } else {
-            this.setState({ hasErrorTip: $L('存在无效字段，可能已被管理员删除，建议你调整后重新保存') })
+            if (this.props.id) {
+              this.setState({ hasErrorTip: $L('存在无效字段，可能已被管理员删除，建议你调整后重新保存') })
+            }
             if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
           }
         })
@@ -902,12 +904,16 @@ class ListAdvFilter extends AdvFilter {
     )
   }
 
-  searchNow(clear) {
-    if (clear) {
+  searchNow(reset) {
+    if (reset) {
       RbListPage._RbList.search({ items: [] }, true)
     } else {
       const adv = this.toFilterJson(true)
-      if (adv) RbListPage._RbList.search(adv, true)
+      if (adv) {
+        const storageKey = `CustomAdv-${this.props.entity}`
+        localStorage.setItem(storageKey, JSON.stringify(adv))
+        RbListPage._RbList.search(adv, true)
+      }
     }
   }
 
