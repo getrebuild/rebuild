@@ -67,7 +67,7 @@ public class LoginController extends LoginAction {
         // Token 登录
         final String useToken = getParameter(request, "token");
         if (StringUtils.isNotBlank(useToken)) {
-            ID tokenUser = AuthTokenManager.verifyToken(useToken, true);
+            ID tokenUser = AuthTokenManager.verifyToken(useToken, true, false);
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
 
