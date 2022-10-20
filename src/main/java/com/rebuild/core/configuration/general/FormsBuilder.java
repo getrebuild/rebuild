@@ -368,10 +368,11 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // 父级级联
-                ID parentValue = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
-                        ? getCascadingFieldParentValue(easyField, recordData.getPrimary(), false) : null;
-                if (parentValue != null) {
-                    el.put("_cascadingFieldParentValue", parentValue);
+                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
+                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
+                    }
                 }
             }
             // 新建记录
@@ -433,7 +434,7 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // v3.1 父级级联
-                if (entity.getMainEntity() != null && dt == DisplayType.REFERENCE) {
+                if (entity.getMainEntity() != null && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                     ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
                     ID parentValue = EntityHelper.isUnsavedId(mainid) ? null
                             : getCascadingFieldParentValue(easyField, mainid, true);

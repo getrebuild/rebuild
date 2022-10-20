@@ -294,9 +294,11 @@ public class ReferenceSearchController extends EntityController {
 
         if (ProtocolFilterParser.getFieldDataFilter(field) != null
                 || ProtocolFilterParser.hasFieldCascadingField(field)) {
-            String protocolExpr = String.format("ref:%s:%s",
-                    getParameterNotNull(request, "field"),
-                    StringUtils.defaultString(getParameter(request, "cascadingValue"), ""));
+            String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
+            if (cascadingValue.length() > 20) cascadingValue = cascadingValue.split(",")[0];
+
+            String protocolExpr = String.format("%s:%s:%s", ProtocolFilterParser.P_REF,
+                    getParameterNotNull(request, "field"), cascadingValue);
             mv.getModel().put("referenceFilter", protocolExpr);
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
