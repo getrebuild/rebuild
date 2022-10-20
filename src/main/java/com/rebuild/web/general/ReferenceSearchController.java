@@ -73,8 +73,10 @@ public class ReferenceSearchController extends EntityController {
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
+        String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
+        if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
         String protocolFilter = new ProtocolFilterParser(null)
-                .parseRef(field + "." + entity.getName(), request.getParameter("cascadingValue"));
+                .parseRef(field + "." + entity.getName(), cascadingValue);
 
         String q = getParameter(request, "q");
 
@@ -294,11 +296,9 @@ public class ReferenceSearchController extends EntityController {
 
         if (ProtocolFilterParser.getFieldDataFilter(field) != null
                 || ProtocolFilterParser.hasFieldCascadingField(field)) {
-            String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
-            if (cascadingValue.length() > 20) cascadingValue = cascadingValue.split(",")[0];
-
             String protocolExpr = String.format("%s:%s:%s", ProtocolFilterParser.P_REF,
-                    getParameterNotNull(request, "field"), cascadingValue);
+                    getParameterNotNull(request, "field"),
+                    getParameter(request, "cascadingValue", StringUtils.EMPTY));
             mv.getModel().put("referenceFilter", protocolExpr);
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
