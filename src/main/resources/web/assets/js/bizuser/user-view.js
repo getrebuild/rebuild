@@ -125,9 +125,9 @@ $(document).ready(function () {
 
       if (res.data.roleAppends && res.data.roleAppends.length > 0) {
         $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
-          const $p = $('.J_roles').removeClass('hide').find('p')
+          const $p = $('.J_roleAppends').empty()
           for (let k in res.data) {
-            $(`<a class="text-bold">${res.data[k]}</a>`).appendTo($p)
+            $(`<span class="badge badge-light up-2">${res.data[k]}</span>`).appendTo($p)
           }
         })
       }
