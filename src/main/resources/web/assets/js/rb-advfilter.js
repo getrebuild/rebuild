@@ -598,8 +598,8 @@ class FilterItem extends React.Component {
     if (!v) {
       $el.addClass('is-invalid')
     } else {
-      if (/^\{\{[a-z0-9._]{4,}\}\}$/i.test(v)) {
-        // Pass: field-var {{xxxx}}
+      if (/^\{@[a-z0-9._]{4,}}$/i.test(v)) {
+        // pass: Field var {@FIELD}
       } else if (this.isNumberValue()) {
         if ($regex.isDecimal(v) === false) $el.addClass('is-invalid')
       } else if (this.state.type === 'DATE' || this.state.type === 'DATETIME') {

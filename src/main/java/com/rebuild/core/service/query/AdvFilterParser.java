@@ -26,7 +26,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -649,14 +648,14 @@ public class AdvFilterParser extends SetUser {
         return null;
     }
 
-    // {{xxx}}
-    private static final String VAR_PATT = "\\{" + ContentWithFieldVars.PATT_VAR.pattern() + "}";
+    // {@FIELD}
+    private static final String VAR_PATT = "\\{@([\\w.]+)}";
 
     private String useValueOfVarRecord(String value) {
         if (varRecord == null || StringUtils.isBlank(value)) return value;
         if (!value.matches(VAR_PATT)) return value;
 
-        String fieldName = value.substring(2, value.length() - 2);
+        String fieldName = value.substring(2, value.length() - 1);
         Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
         if (field == null) {
             log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
