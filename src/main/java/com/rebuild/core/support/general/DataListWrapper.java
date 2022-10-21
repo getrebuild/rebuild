@@ -23,6 +23,8 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -80,6 +82,9 @@ public class DataListWrapper {
 
         if (user != null) {
             this.useDesensitized = !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
+            if (!this.useDesensitized) {
+                this.useDesensitized = UserHelper.isAdmin(user) && RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
+            }
         }
     }
 
