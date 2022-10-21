@@ -830,7 +830,10 @@ insert into `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE
   ('013-9000000000000001', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('013-9000000000000002', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"password"},{"field":"$DIVIDER$"},{"field":"deptId"},{"field":"roleId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('013-9000000000000003', 'Role', '[{"field":"name"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000004', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+  ('013-9000000000000004', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-9000000000000005', 'User', '[{"field":"fullName"},{"field":"jobTitle"},{"field":"deptId"},{"field":"workphone"},{"field":"email"},{"field":"loginName"},{"field":"roleId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-9000000000000006', 'Department', '[{"field":"name"},{"field":"principalId"},{"field":"parentDept"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('013-9000000000000007', 'Team', '[{"field":"name"},{"field":"principalId"},{"field":"isDisabled"},{"field":"createdOn"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
 -- Classifications (No data)
 insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)

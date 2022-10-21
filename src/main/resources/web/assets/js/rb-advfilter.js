@@ -677,7 +677,6 @@ class FilterItem extends React.Component {
           data: function (params) {
             return {
               entity: entity,
-              quickFields: entity === 'User' ? 'loginName,fullName,email,quickCode' : 'name,quickCode',
               q: params.term,
             }
           },
