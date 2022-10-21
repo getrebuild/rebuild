@@ -1648,6 +1648,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
+    if (v && $.isArray(v)) v = v[0] // N2N
     return v ? v.id || v : null
   }
 
@@ -1810,6 +1811,11 @@ class RbFormN2NReference extends RbFormReference {
       that.setValue(val, true)
     })
     __addRecentlyUse(ids)
+
+    // v3.1 回填父级
+    if (selected[0] && this.props._cascadingFieldParent) {
+      this.triggerAutoFillin(selected[0])
+    }
   }
 
   onEditModeChanged(destroy) {

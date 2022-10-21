@@ -4258,6 +4258,14 @@ html.external-auth .auth-body.must-center .login {
   display: none;
 }
 
+@media (max-width: 576px) {
+  html.external-auth .auth-body .card {
+    padding-left: 10px;
+    padding-right: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  }
+}
+
 .page-footer {
   position: fixed;
   bottom: 0;
@@ -4881,6 +4889,7 @@ pre.unstyle {
 .rb-left-sidebar .sidebar-elements > li ul {
   background-color: #f5f5f5;
   background-color: #eee;
+  padding: 6px 0;
 }
 
 .rb-left-sidebar .sidebar-elements > li > a:hover,

@@ -158,7 +158,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
 //    abstract T checkoutValue(Object rawValue);
 
     /**
-     * 信息脱敏
+     * 启用信息脱敏
      *
      * @return
      * @see com.rebuild.core.support.general.FieldValueHelper#desensitized(EasyField, Object)

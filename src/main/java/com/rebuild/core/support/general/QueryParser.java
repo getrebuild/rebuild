@@ -184,14 +184,14 @@ public class QueryParser {
             wheres.add(defaultFilter);
         }
 
-        // appends ProtocolFilter
+        // append: ProtocolFilter
         String protocolFilter = queryExpr.getString("protocolFilter");
         if (StringUtils.isNotBlank(protocolFilter)) {
             String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
 
-        // appends AdvFilter
+        // append: AdvFilter
         String advFilter = queryExpr.getString("advFilter");
         if (ID.isId(advFilter)) {
             String where = parseAdvFilter(ID.valueOf(advFilter));

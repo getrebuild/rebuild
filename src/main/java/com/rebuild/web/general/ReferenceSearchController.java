@@ -73,8 +73,10 @@ public class ReferenceSearchController extends EntityController {
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
+        String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
+        if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
         String protocolFilter = new ProtocolFilterParser(null)
-                .parseRef(field + "." + entity.getName(), request.getParameter("cascadingValue"));
+                .parseRef(field + "." + entity.getName(), cascadingValue);
 
         String q = getParameter(request, "q");
 
@@ -111,7 +113,7 @@ public class ReferenceSearchController extends EntityController {
 
     // 搜索指定实体的指定字段
     @GetMapping("search")
-    public JSON search(@EntityParam Entity searchEntity, HttpServletRequest request) {
+    public JSON commonSearch(@EntityParam Entity searchEntity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         // 强制搜索 H5
@@ -136,6 +138,7 @@ public class ReferenceSearchController extends EntityController {
                 searchEntity, getParameter(request, "quickFields"), q, null, pageSize);
     }
 
+    // 构建查询
     private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere, int maxResults) {
         String searchWhere = "(1=1)";
 
@@ -196,6 +199,7 @@ public class ReferenceSearchController extends EntityController {
         return (JSON) JSON.toJSON(result);
     }
 
+    // 查询结果
     private List<Object> resultSearch(String sqlWhere, Entity entity, int maxResults) {
         Field nameField = entity.getNameField();
 
@@ -265,6 +269,7 @@ public class ReferenceSearchController extends EntityController {
     }
 
     /**
+     * 引用字段搜索页面
      * @see com.rebuild.web.general.GeneralListController#pageList(String, HttpServletRequest, HttpServletResponse)
      */
     @GetMapping("reference-search")
@@ -294,9 +299,9 @@ public class ReferenceSearchController extends EntityController {
 
         if (ProtocolFilterParser.getFieldDataFilter(field) != null
                 || ProtocolFilterParser.hasFieldCascadingField(field)) {
-            String protocolExpr = String.format("ref:%s:%s",
+            String protocolExpr = String.format("%s:%s:%s", ProtocolFilterParser.P_REF,
                     getParameterNotNull(request, "field"),
-                    StringUtils.defaultString(getParameter(request, "cascadingValue"), ""));
+                    getParameter(request, "cascadingValue", StringUtils.EMPTY));
             mv.getModel().put("referenceFilter", protocolExpr);
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);

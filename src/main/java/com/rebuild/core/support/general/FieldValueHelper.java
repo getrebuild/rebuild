@@ -29,7 +29,9 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -275,8 +277,14 @@ public class FieldValueHelper {
             return false;
         }
 
-        return field.isDesensitized()
-                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
+        if (field.isDesensitized()) {
+            if (UserHelper.isAdmin(user) && RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) {
+                return true;
+            } else {
+                return !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
+            }
+        }
+        return false;
     }
 
     /**

@@ -34,8 +34,8 @@ public class LoginTokenTest extends TestSupport {
         Assertions.assertEquals(ret.getIntValue("error_code"), 0);
 
         String loginToken = ret.getJSONObject("data").getString("login_token");
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(loginToken, false));
-        Assertions.assertNull(AuthTokenManager.verifyToken(loginToken, false));
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(loginToken));
+        Assertions.assertNull(AuthTokenManager.verifyToken(loginToken));
     }
 
     @Test

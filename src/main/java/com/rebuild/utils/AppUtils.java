@@ -107,11 +107,8 @@ public class AppUtils {
      */
     public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
-        ID user = authToken == null ? null : AuthTokenManager.verifyToken(authToken);
-        if (user != null && refreshToken) {
-            AuthTokenManager.refreshAccessToken(authToken);
-        }
-        return user;
+        return authToken == null
+                ? null : AuthTokenManager.verifyToken(authToken, Boolean.FALSE, refreshToken);
     }
 
     /**

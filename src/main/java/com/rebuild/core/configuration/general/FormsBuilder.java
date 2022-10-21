@@ -368,10 +368,11 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // 父级级联
-                ID parentValue = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
-                        ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
-                if (parentValue != null) {
-                    el.put("_cascadingFieldParentValue", parentValue);
+                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
+                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
+                    }
                 }
             }
             // 新建记录
@@ -433,9 +434,10 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // v3.1 父级级联
-                if (entity.getMainEntity() != null && dt == DisplayType.REFERENCE) {
+                if (entity.getMainEntity() != null && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                     ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                    ID parentValue = getCascadingFieldParentValue(easyField, mainid);
+                    ID parentValue = EntityHelper.isUnsavedId(mainid) ? null
+                            : getCascadingFieldParentValue(easyField, mainid, true);
                     if (parentValue != null) {
                         el.put("_cascadingFieldParentValue", parentValue);
                     }
@@ -639,25 +641,29 @@ public class FormsBuilder extends FormsManager {
      *
      * @param field
      * @param record
+     * @param recordIsMain
      * @return
      */
-    private ID getCascadingFieldParentValue(EasyField field, ID record) {
+    private ID getCascadingFieldParentValue(EasyField field, ID record, boolean recordIsMain) {
         String pf = field.getExtraAttr("_cascadingFieldParent");
         if (pf == null) return null;
 
         String[] pfs = pf.split(MetadataHelper.SPLITER_RE);
         String fieldParent = pfs[0];
-        // 明细级联主实体
-        if (pfs[0].contains(".")) {
+
+        // 明细字段使用主实体字段
+        // format: MAINENTITY.FIELD
+        boolean useMainField = pfs[0].contains(".");
+
+        if (recordIsMain) {
+            if (useMainField) {
+                fieldParent = pfs[0].split("\\.")[1];
+            } else {
+                return null;
+            }
+        } else if (useMainField) {
             Field dtf = MetadataHelper.getDetailToMainField(field.getRawMeta().getOwnEntity());
             fieldParent = dtf.getName() + "." + pfs[0].split("\\.")[1];
-
-            // 明细新建时 record 传入的是主记录
-            int fieldCode = field.getRawMeta().getOwnEntity().getEntityCode();
-            int recordCode = record.getEntityCode();
-            if (fieldCode != recordCode) {
-                fieldParent = pfs[0].split("\\.")[1];
-            }
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);

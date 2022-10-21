@@ -8,11 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -67,12 +67,6 @@ public class CommonsLog {
         clog.setDate("logTime", CalendarUtils.now());
         if (content != null) clog.setString("logContent", content);
 
-        ThreadPool.exec(() -> {
-            try {
-                Application.getCommonsService().create(clog);
-            } catch (Throwable ex) {
-                log.error("Cannot create common-log: {}", clog, ex);
-            }
-        });
+        TaskExecutors.queue(() -> Application.getCommonsService().create(clog, false));
     }
 }

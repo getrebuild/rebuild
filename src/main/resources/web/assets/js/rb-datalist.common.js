@@ -195,7 +195,11 @@ const AdvFilters = {
             })
           })
         } else {
-          renderRbcomp(<ListAdvFilter {...props} />, this.__$customAdvWrap, function () {
+          const storageKey = `CustomAdv-${props.entity}`
+          let storageFilter = localStorage.getItem(storageKey)
+          if (storageFilter) storageFilter = JSON.parse(storageFilter)
+
+          renderRbcomp(<ListAdvFilter {...props} filter={storageFilter} />, this.__$customAdvWrap, function () {
             that.__customAdv = this
           })
         }

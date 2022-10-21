@@ -30,8 +30,8 @@ public class LoginToken extends BaseApi {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        String user = context.getParameterNotBlank("user");
-        String password = context.getParameterNotBlank("password");
+        final String user = context.getParameterNotBlank("user");
+        final String password = context.getParameterNotBlank("password");
 
         if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("user:" + user)) {
             return formatFailure(Language.L("请求过于频繁，请稍后重试"), ApiInvokeException.ERR_FREQUENCY);

@@ -264,9 +264,15 @@ public class ParseHelper {
             }
         }
 
-        // QuickCode
+        // if: QuickCode
         if (entity.containsField(EntityHelper.QuickCode)) {
             usesFields.add(EntityHelper.QuickCode);
+        }
+
+        // if: User
+        if (entity.getEntityCode() == EntityHelper.User) {
+            usesFields.add("loginName");
+            usesFields.add("email");
         }
 
         if (usesFields.isEmpty()) {
