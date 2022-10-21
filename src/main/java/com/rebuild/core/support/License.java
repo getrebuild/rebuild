@@ -120,7 +120,7 @@ public final class License {
     private static JSONObject siteApi(String api, int t, String domain) {
         if (t > 0) {
             JSONObject c = MCACHED.get(api, t);
-            if (c != null) return c;
+            if (c != null) return c.clone();
         }
 
         Map<String, String> hs = new HashMap<>();
@@ -140,7 +140,8 @@ public final class License {
                 } else {
                     MCACHED.put(api, o);
                 }
-                return o;
+                return o.clone();
+
             } else {
                 log.error("Bad result format : {}", result);
             }
