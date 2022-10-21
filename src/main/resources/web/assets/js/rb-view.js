@@ -203,7 +203,10 @@ class RelatedList extends React.Component {
     )
 
     // default:CARD
-    this.state.viewMode = $storage.get('RelatedListViewMode')
+    if (props.showViewMode) {
+      this.__viewModeKey = `RelatedListViewMode-${props.entity.split('.')[0]}`
+      this.state.viewMode = $storage.get(this.__viewModeKey) || 'CARD'
+    }
   }
 
   render() {
@@ -276,6 +279,7 @@ class RelatedList extends React.Component {
     return (
       <RF>
         {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
+
         {this.state.dataList && this.state.dataList.length > 0 && (
           <div className={this.__listClass || ''}>
             {(this.state.dataList || []).map((item) => {
@@ -330,9 +334,12 @@ class RelatedList extends React.Component {
     this.fetchData()
   }
 
-  switchViewMode(e) {
+  switchViewMode(e, call) {
     const mode = e.currentTarget.value
-    this.setState({ viewMode: mode })
+    this.setState({ viewMode: mode }, () => {
+      $storage.set(this.__viewModeKey, mode)
+      typeof call === 'function' && call(mode)
+    })
   }
 }
 
@@ -387,8 +394,18 @@ class EntityRelatedList extends RelatedList {
     )
   }
 
+  // 显示模式支持: 卡片/列表
+
+  switchViewMode(e) {
+    super.switchViewMode(e, (mode) => {
+      // 加载卡片数据
+      mode === 'CARD' && this.__fetchData !== true && this.fetchData()
+    })
+  }
+
   renderData() {
     if (this.state.viewMode === 'LIST') {
+      if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
       return <EntityRelatedList2 $$$parent={this} ref={(c) => (this._EntityRelatedList2 = c)} />
     } else {
       return super.renderData()
@@ -405,10 +422,13 @@ class EntityRelatedList extends RelatedList {
   }
 
   fetchData(append) {
+    if (this.state.viewMode === 'LIST') return
+    else this.__fetchData = true
+
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
 
-    const pageSize = 20
+    const pageSize = 5
     const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
       this.__searchKey
     )}`
