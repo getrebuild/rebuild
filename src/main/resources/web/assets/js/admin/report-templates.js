@@ -221,7 +221,6 @@ class ReporEdit extends ConfigFormDlg {
 
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
-      this._save(post)
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
