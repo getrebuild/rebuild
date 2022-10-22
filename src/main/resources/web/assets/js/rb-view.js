@@ -303,7 +303,9 @@ class RelatedList extends React.Component {
     return <div>{JSON.stringify(item)}</div>
   }
 
-  componentDidMount = () => this.fetchData()
+  componentDidMount() {
+    this.fetchData()
+  }
 
   fetchData(append) {
     this.__pageNo = this.__pageNo || 1

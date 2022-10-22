@@ -219,10 +219,6 @@ class LightTaskList extends RelatedList {
 // 任务创建
 // eslint-disable-next-line no-unused-vars
 class LightTaskDlg extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} disposeOnHide={true}>
@@ -349,7 +345,7 @@ class LightAttachmentList extends RelatedList {
     this.__listExtraLink = (
       <form method="post" action={`${rb.baseUrl}/files/batch-download`} ref={(c) => (this._$downloadForm = c)} target="_blank">
         <input type="hidden" name="files" />
-        <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')}>
+        <button type="submit" className="btn btn-light w-auto" title={$L('下载全部')} disabled>
           <i className="icon zmdi zmdi-download" />
         </button>
       </form>
@@ -412,16 +408,33 @@ class LightAttachmentList extends RelatedList {
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    const mainid = this.props.mainid
-    $.get(`/files/list-file?entry=${mainid.substr(0, 3)}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}&pageNo=${this.__pageNo}&pageSize=${pageSize}&related=${mainid}`, (res) => {
-      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+    const relatedId = this.props.mainid
+    $.get(
+      `/files/list-file?entry=${relatedId.substr(0, 3)}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}&pageNo=${this.__pageNo}&pageSize=${pageSize}&related=${relatedId}`,
+      (res) => {
+        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-      const data = res.data || []
-      const list = append ? (this.state.dataList || []).concat(data) : data
-      this.setState({ dataList: list, showMore: data.length >= pageSize })
+        const data = res.data || []
+        const list = append ? (this.state.dataList || []).concat(data) : data
+        this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-      const files = list.map((item) => item.filePath)
-      $(this._$downloadForm).find('input').val(files.join(','))
+        const files = list.map((item) => item.filePath)
+        if (files.length > 0) {
+          $(this._$downloadForm).find('input').val(files.join(','))
+          $(this._$downloadForm).find('button').attr('disabled', false)
+        }
+      }
+    )
+  }
+
+  componentDidMount() {
+    // v3.1 有权限才加载
+    $.get(`/files/check-readable?id=${this.props.mainid}`, (res) => {
+      if (res.data === true) {
+        this.fetchData()
+      } else {
+        this.setState({ dataList: [] }, () => {})
+      }
     })
   }
 }
