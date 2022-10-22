@@ -159,6 +159,7 @@ public class MetaFieldController extends BaseController {
 
         String entityName = reqJson.getString("entity");
         String label = reqJson.getString("label");
+        String name = reqJson.getString("name");
         String type = reqJson.getString("type");
         String comments = reqJson.getString("comments");
         String refEntity = reqJson.getString("refEntity");
@@ -182,7 +183,7 @@ public class MetaFieldController extends BaseController {
         }
 
         try {
-            String fieldName = new Field2Schema().createField(entity, label, dt, comments, refEntity, extConfig);
+            String fieldName = new Field2Schema().createField(entity, label, name, dt, comments, refEntity, extConfig);
             return RespBody.ok(fieldName);
 
         } catch (Exception ex) {

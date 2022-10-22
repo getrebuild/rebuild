@@ -84,6 +84,20 @@ public class Field2Schema extends SetUser {
      * @return
      */
     public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
+        return createField(entity, fieldLabel, null, type, comments, refEntity, extConfig);
+    }
+
+    /**
+     * @param entity
+     * @param fieldLabel
+     * @param fieldName
+     * @param type
+     * @param comments
+     * @param refEntity
+     * @param extConfig
+     * @return
+     */
+    public String createField(Entity entity, String fieldLabel, String fieldName, DisplayType type, String comments, String refEntity, JSON extConfig) {
         if (!License.isCommercial()) {
             if (entity.getFields().length >= 50) {
                 throw new NeedRbvException("字段数量超出免费版限制");
@@ -91,7 +105,7 @@ public class Field2Schema extends SetUser {
 
             if (type == DisplayType.LOCATION || type == DisplayType.SIGN) {
                 Object[] limit = Application.createQueryNoFilter(
-                                "select count(fieldId) from MetaField where displayType = ?")
+                        "select count(fieldId) from MetaField where displayType = ?")
                         .setParameter(1, type.name())
                         .unique();
                 if (ObjectUtils.toInt(limit[0]) >= 1) {
@@ -100,7 +114,8 @@ public class Field2Schema extends SetUser {
             }
         }
 
-        String fieldName = toPinyinName(fieldLabel);
+        if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
+
         for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
                 fieldName += RandomUtils.nextInt(0, 9);
