@@ -33,6 +33,7 @@ import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
@@ -384,16 +385,13 @@ public class Field2Schema extends SetUser {
      */
     protected String toPinyinName(final String text) {
         String identifier = text;
-        if (text.length() < 4) {
-            identifier = "rb" + text + RandomUtils.nextInt(1000, 9999);
-        }
 
         // 全英文直接返回
-        if (identifier.matches("[a-zA-Z0-9]+")) {
+        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9]+")) {
             if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || BlockList.isBlock(identifier)) {
                 identifier = "rb" + identifier;
             }
-            return identifier;
+            return CommonsUtils.maxstr(identifier, 40);
         }
 
         identifier = HanLP.convertToPinyinString(identifier, "", false);
@@ -402,14 +400,13 @@ public class Field2Schema extends SetUser {
             identifier = "rb" + RandomUtils.nextInt(1000, 9999);
         }
 
-        char start = identifier.charAt(0);
-        if (!CharSet.ASCII_ALPHA.contains(start)) {
+        if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0))) {
             identifier = "rb" + identifier;
         }
 
         identifier = identifier.toLowerCase();
-        if (identifier.length() > 42) {
-            identifier = identifier.substring(0, 42);
+        if (identifier.length() > 40) {
+            identifier = identifier.substring(0, 40);
         } else if (identifier.length() < 4) {
             identifier += RandomUtils.nextInt(1000, 9999);
         }

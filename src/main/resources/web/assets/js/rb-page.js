@@ -313,17 +313,19 @@ var _initNav = function () {
     $('.rbv').attr('title', $L('增值功能'))
   }, 400)
 
-  // Active URL Nav
+  // Active Outer-URL Nav
   var urls = location.href.split('/')
   var navUrl = '/' + urls.slice(3).join('/')
   var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
   if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
     $('.sidebar-elements li.active:not(.parent)').removeClass('active')
     $navHit.parent().addClass('active')
-    // parent
+    // Nav parent
     var $parent = $navHit.parents('li.parent:not(.active)')
     if ($parent.length > 0) {
-      $parent.addClass('active').first().trigger('click')
+      $parent.addClass('active')
+      // Not default open
+      if (!$parent.hasClass('open')) $parent.first().trigger('click')
     }
   }
 }
