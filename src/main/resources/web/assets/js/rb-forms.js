@@ -237,6 +237,7 @@ class RbForm extends React.Component {
             const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
+          {this.renderCustomizedFormArea()}
         </div>
 
         {this.renderDetailForm()}
@@ -292,10 +293,13 @@ class RbForm extends React.Component {
       })
     }
 
-    if (window.FrontJS) {
-      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
-      if (detailImports2) detailImports.push(...detailImports2)
-    }
+    // if (window.FrontJS) {
+    //   const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
+    //   if (detailImports2) detailImports.push(...detailImports2)
+    // }
+
+    let _ProTable
+    if (window._CustomizedForms) _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
 
     const NADD = [5, 10, 20]
     return (
@@ -352,11 +356,15 @@ class RbForm extends React.Component {
           </div>
         </div>
 
-        <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-        </div>
+        <div className="mt-2">{_ProTable ? _ProTable : <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />}</div>
       </div>
     )
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    return _FormArea || null
   }
 
   renderFormAction() {
@@ -511,21 +519,30 @@ class RbForm extends React.Component {
   }
 
   _post(next) {
-    const data = {}
+    let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
       if (err) return RbHighbar.create(err)
       else data[k] = this.__FormData[k].value
     }
-    data.metadata = {
-      entity: this.state.entity,
-      id: this.state.id,
+
+    if (this._FormArea) {
+      const data2 = this._FormArea.buildFormData(data)
+      if (data2 === false) return
+      if (typeof data2 === 'object') {
+        data = { ...data, ...data2 }
+      }
     }
 
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
       data['$DETAILS$'] = details
+    }
+
+    data.metadata = {
+      entity: this.state.entity,
+      id: this.state.id,
     }
 
     if (RbForm.postBefore(data) === false) {
