@@ -55,7 +55,7 @@ $(document).ready(function () {
         RbHighbar.success($L('仪表盘已删除'))
         location.hash = ''
       } else {
-        const high = $('#chart-' + location.hash.substr(1)).addClass('high')
+        const high = $(`#chart-${location.hash.substr(1)}`).addClass('high')
         if (high.length > 0) {
           high.on('mouseleave', () => {
             high.removeClass('high').off('mouseleave')
@@ -309,7 +309,9 @@ class DlgAddChart extends RbFormHandler {
     const $entity = $(this.refs['entity'])
     $.get('/commons/metadata/entities?detail=true', (res) => {
       $(res.data).each(function () {
-        $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($entity)
+        if (!$isSysMask(this.label)) {
+          $(`<option value="${this.name}">${this.label}</option>`).appendTo($entity)
+        }
       })
       this.__select2 = $entity.select2({
         allowClear: false,

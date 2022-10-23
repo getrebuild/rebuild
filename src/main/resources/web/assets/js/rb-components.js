@@ -742,6 +742,7 @@ class AnyRecordSelector extends React.Component {
         <div className="col-4 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
             {(this.state.entities || []).map((item) => {
+              if ($isSysMask(item.label)) return null
               return (
                 <option key={item.name} value={item.name}>
                   {item.label}
