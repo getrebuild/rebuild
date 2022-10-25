@@ -44,6 +44,7 @@ class DlgAssign extends RbModalHandler {
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
                   {(this.state.cascadesEntity || []).map((item) => {
+                    if ($isSysMask(item[1])) return null
                     return (
                       <option key={item[0]} value={item[0]}>
                         {item[1]}

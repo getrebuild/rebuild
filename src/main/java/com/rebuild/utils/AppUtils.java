@@ -105,7 +105,7 @@ public class AppUtils {
      * @param refreshToken 是否需要刷新 Token 有效期
      * @return null or UserID
      */
-    public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
+    protected static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
         return authToken == null
                 ? null : AuthTokenManager.verifyToken(authToken, Boolean.FALSE, refreshToken);

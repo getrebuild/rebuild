@@ -20,6 +20,7 @@ class RbModal extends React.Component {
     if (this.props.zIndex) styles.zIndex = this.props.zIndex
 
     const iframe = !this.props.children // No child
+    const style2 = { maxWidth: this.props.width || 680 }
 
     return (
       <div
@@ -29,8 +30,8 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
-          <div className="modal-content">
+        <div className="modal-dialog" style={style2}>
+          <div className="modal-content" style={style2}>
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
@@ -741,6 +742,7 @@ class AnyRecordSelector extends React.Component {
         <div className="col-4 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
             {(this.state.entities || []).map((item) => {
+              if ($isSysMask(item.label)) return null
               return (
                 <option key={item.name} value={item.name}>
                   {item.label}

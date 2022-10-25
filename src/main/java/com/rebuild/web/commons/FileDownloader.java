@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.core.io.FileUtil;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -69,8 +70,11 @@ public class FileDownloader extends BaseController {
         String imageView2 = request.getQueryString();
         if (imageView2 != null && imageView2.contains("imageView2/")) {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
-            // svg does support
-            if (filePath.toLowerCase().endsWith(".svg")) imageView2 = null;
+
+            // svg/webp does not support
+            if (filePath.toLowerCase().endsWith(".svg") || filePath.toLowerCase().endsWith(".webp")) {
+                imageView2 = null;
+            }
         } else {
             imageView2 = null;
         }

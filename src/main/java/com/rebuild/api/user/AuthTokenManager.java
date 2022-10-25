@@ -40,7 +40,8 @@ public class AuthTokenManager {
      */
     public static final String TYPE_ONCE_TOKEN = "RBOT";
 
-    private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 12;
+    // 3d
+    private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 24 * 3;
 
     private static final String TOKEN_PREFIX = "TOKEN:";
 

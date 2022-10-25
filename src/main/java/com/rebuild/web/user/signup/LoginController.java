@@ -187,7 +187,7 @@ public class LoginController extends LoginAction {
         ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         final User loginUser = Application.getUserStore().getUser(user);
-        final boolean isMobile = AppUtils.isRbMobile(request);
+        final boolean isRbMobile = AppUtils.isRbMobile(request);
 
         Map<String, Object> resMap = new HashMap<>();
 
@@ -201,14 +201,14 @@ public class LoginController extends LoginAction {
             Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), 15 * 60); // 15m
             resMap.put("login2FaUserToken", userToken);
 
-            if (isMobile) {
+            if (isRbMobile) {
                 request.getSession().invalidate();
             }
 
             return RespBody.ok(resMap);
         }
 
-        if (isMobile) {
+        if (isRbMobile) {
             resMap = loginSuccessedH5(request, response, loginUser.getId());
         } else {
             Integer ed = loginSuccessed(

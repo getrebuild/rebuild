@@ -285,7 +285,7 @@ class PlanBox extends React.Component {
                     </div>
                   </div>
                   <div className="text-right">
-                    <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>
+                    <button className="btn btn-link w-auto mr-2" type="button" onClick={() => this.setState({ newMode: false })}>
                       {$L('取消')}
                     </button>
                     <button className="btn btn-primary" type="button" ref={(c) => (this._btn = c)} onClick={() => this._handleCreateTask()}>

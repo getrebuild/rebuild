@@ -233,8 +233,9 @@ class DeleteConfirm extends RbAlert {
                     <div className={this.state.enableCascade ? '' : 'hide'}>
                       <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
                         {(this.state.cascadesEntity || []).map((item) => {
+                          if ($isSysMask(item[1])) return null
                           return (
-                            <option key={`opt-${item[0]}`} value={item[0]}>
+                            <option key={item[0]} value={item[0]}>
                               {item[1]}
                             </option>
                           )

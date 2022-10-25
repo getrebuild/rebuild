@@ -237,6 +237,7 @@ class RbForm extends React.Component {
             const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
+          {this.renderCustomizedFormArea()}
         </div>
 
         {this.renderDetailForm()}
@@ -249,10 +250,19 @@ class RbForm extends React.Component {
     const detailMeta = this.props.rawModel.detailMeta
     if (!detailMeta || !window.ProTable) return null
 
+    let _ProTable
+    if (window._CustomizedForms) {
+      _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
+      // 不显示
+      if (_ProTable === false) return null
+    }
+
     const that = this
 
     function _addNew(n = 1) {
-      for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
+      for (let i = 0; i < n; i++) {
+        setTimeout(() => that._ProTable.addNew(), i * 20)
+      }
     }
 
     function _setLines(details) {
@@ -275,10 +285,7 @@ class RbForm extends React.Component {
       }
     }
 
-    // 记录转换预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
-    // 明细导入
+    // 记录转换:明细导入
     let detailImports = []
     if (this.props.rawModel.detailImports) {
       this.props.rawModel.detailImports.forEach((item) => {
@@ -286,16 +293,24 @@ class RbForm extends React.Component {
           icon: item.icon,
           label: item.transName || item.entityLabel,
           fetch: (form, callback) => {
-            ProTable.detailImports(item.transid, form, callback)
+            const formdata = form.getFormData()
+            const mainid = form.props.id || null
+
+            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+              if (res.error_code === 0) {
+                if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+                else typeof callback === 'function' && callback(res.data)
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+            })
           },
         })
       })
     }
 
-    if (window.FrontJS) {
-      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
-      if (detailImports2) detailImports.push(...detailImports2)
-    }
+    // 记录转换:预览模式
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
     const NADD = [5, 10, 20]
     return (
@@ -352,11 +367,15 @@ class RbForm extends React.Component {
           </div>
         </div>
 
-        <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-        </div>
+        <div className="mt-2">{_ProTable ? _ProTable : <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />}</div>
       </div>
     )
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    return _FormArea || null
   }
 
   renderFormAction() {
@@ -511,21 +530,30 @@ class RbForm extends React.Component {
   }
 
   _post(next) {
-    const data = {}
+    let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
       if (err) return RbHighbar.create(err)
       else data[k] = this.__FormData[k].value
     }
-    data.metadata = {
-      entity: this.state.entity,
-      id: this.state.id,
+
+    if (this._FormArea) {
+      const data2 = this._FormArea.buildFormData(data)
+      if (data2 === false) return
+      if (typeof data2 === 'object') {
+        data = { ...data, ...data2 }
+      }
     }
 
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
       data['$DETAILS$'] = details
+    }
+
+    data.metadata = {
+      entity: this.state.entity,
+      id: this.state.id,
     }
 
     if (RbForm.postBefore(data) === false) {

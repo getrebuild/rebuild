@@ -215,7 +215,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         if (refUrl == null) return reqUrl;
         else if (reqUrl.endsWith("/error")) return refUrl;
-        else return reqUrl + " with " + refUrl;
+        else return reqUrl + " via " + refUrl;
     }
 
     /**

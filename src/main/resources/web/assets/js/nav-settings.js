@@ -9,21 +9,23 @@ const UNICON_NAME = 'texture'
 const TYPE_PARENT = '$PARENT$'
 
 let _Share2
-let _entityInfos = {}
+let _entities = {}
 
-$(document).ready(function () {
+$(document).ready(() => {
   $('.J_add-menu').on('click', () => render_item({}, true))
 
   // 系统内置
   $('#sys-built > option').each(function () {
     const $this = $(this)
-    _entityInfos[$this.attr('value')] = { icon: $this.attr('data-icon'), label: $this.text() }
+    _entities[$this.attr('value')] = { icon: $this.attr('data-icon'), label: $this.text() }
   })
 
-  $.get('/commons/metadata/entities?detail=true', function (res) {
+  $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
-      $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
-      _entityInfos[this.name] = this
+      if (!$isSysMask(this.label)) {
+        $(`<option value="${this.name}">${this.label}</option>`).appendTo('.J_menuEntity optgroup:eq(0)')
+      }
+      _entities[this.name] = this
     })
 
     const $ref = $('.J_menuEntity')
@@ -34,7 +36,7 @@ $(document).ready(function () {
       })
       .on('change', () => {
         if (item_current_isNew === true) {
-          const d = _entityInfos[$ref.val()]
+          const d = _entities[$ref.val()]
           if (d) {
             $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${d.icon}`)
             $('.J_menuName').val(d.label)
@@ -91,32 +93,32 @@ $(document).ready(function () {
 
   let overwriteMode = false
   let cfgid = $urlp('id')
-  const _save = function (navs) {
+  const _save = function (cfg) {
     const $btn = $('.J_save').button('loading')
     const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
-    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), (res) => {
+    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(cfg), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
   }
 
   $('.J_save').on('click', () => {
-    const navs = []
+    const navItems = []
     $('.J_config>.dd-item').each(function () {
-      const $item = build_item($(this), navs)
-      if ($item) navs.push($item)
+      const $item = build_item($(this), navItems)
+      if ($item) navItems.push($item)
     })
-    if (navs.length === 0) return RbHighbar.create($L('请至少设置 1 个菜单项'))
+    if (navItems.length === 0) return RbHighbar.create($L('请至少设置 1 个菜单项'))
 
     if (overwriteMode) {
       RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
         confirm: function () {
           this.hide()
-          _save(navs)
+          _save(navItems)
         },
       })
     } else {
-      _save(navs)
+      _save(navItems)
     }
   })
 
@@ -236,9 +238,9 @@ const render_item = function (data, isNew, append2) {
     if (!$(append2).hasClass('J_config')) $action.find('a.J_addsub').remove()
   }
 
-  const $content3 = $item.find('.dd3-content').eq(0)
-  $content3.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
-  $content3.find('span').text(data.text)
+  const $content = $item.find('.dd3-content').eq(0)
+  $content.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
+  $content.find('span').text(data.text)
   $item.attr({
     'attr-id': data.id,
     'attr-type': data.type || 'ENTITY',
@@ -248,7 +250,7 @@ const render_item = function (data, isNew, append2) {
   })
 
   // Event
-  $content3.off('click').on('click', () => {
+  $content.off('click').on('click', () => {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
 
@@ -258,11 +260,13 @@ const render_item = function (data, isNew, append2) {
     $('.J_menuName').val(data.text)
     $('.J_menuIcon i').attr('class', `zmdi zmdi-${data.icon}`)
     $('.J_menuUrl, .J_menuEntity').val('')
+
     if (data.type === 'URL') {
+      $('.J_menuType:eq(1)')[0].click()
       $('.J_menuType').eq(1).on('click')
       $('.J_menuUrl').val(data.value)
     } else {
-      $('.J_menuType').eq(0).on('click')
+      $('.J_menuType:eq(0)')[0].click()
       data.value = $item.attr('attr-value') // force renew
       const $me = $('.J_menuEntity').val(data.value).trigger('change')
 
@@ -284,7 +288,7 @@ const render_item = function (data, isNew, append2) {
   })
 
   if (isNew === true) {
-    $content3.trigger('click')
+    $content.trigger('click')
     $('.J_menuName').focus()
   }
 
