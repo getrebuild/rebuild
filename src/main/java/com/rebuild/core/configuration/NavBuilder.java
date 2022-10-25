@@ -197,7 +197,7 @@ public class NavBuilder extends NavManager {
                 navsOfProjects.add(item);
             }
         }
-        
+
         // 归档的
         if (!navsOfProjectsArchived.isEmpty()) {
             navsOfProjects.add(JSONUtils.toJSONObject(

@@ -107,16 +107,7 @@ public class LoginAction extends BaseController {
         String authToken = AuthTokenManager.generateAccessToken(user);
         resMap.put("authToken", authToken);
 
-        // FIXME 暂不启用 lauthToken 前端有问题
-//        // 2FA
-//        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-//        if (faMode <= 0) {
-//            String lauthToken = user + "," + System.currentTimeMillis() + ",h5";
-//            resMap.put("lauthToken", AES.encrypt(lauthToken));
-//        }
-
         request.getSession().invalidate();
-
         return resMap;
     }
 
