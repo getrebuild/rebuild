@@ -34,6 +34,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -180,25 +182,28 @@ public class NavBuilder extends NavManager {
      */
     private JSONArray buildAvailableProjects(ID user) {
         ConfigBean[] projects = ProjectManager.instance.getAvailable(user);
+        // 排序 a-z
+        Arrays.sort(projects, Comparator.comparing(o -> o.getString("projectName")));
 
         JSONArray navsOfProjects = new JSONArray();
-        JSONArray navsOfProjects2 = new JSONArray();
+        JSONArray navsOfProjectsArchived = new JSONArray();
         for (ConfigBean e : projects) {
             JSONObject item = JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,
                     new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") });
             if (e.getInteger("status") == ProjectManager.STATUS_ARCHIVED) {
-                navsOfProjects2.add(item);
+                navsOfProjectsArchived.add(item);
             } else {
                 navsOfProjects.add(item);
             }
         }
-
-        if (!navsOfProjects2.isEmpty()) {
+        
+        // 归档的
+        if (!navsOfProjectsArchived.isEmpty()) {
             navsOfProjects.add(JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,
                     new String[] { null, Language.L("已归档"), NAV_DIVIDER, "ARCHIVED" }));
-            navsOfProjects.addAll(navsOfProjects2);
+            navsOfProjects.addAll(navsOfProjectsArchived);
         }
 
         // 管理员显示新建项目入口
