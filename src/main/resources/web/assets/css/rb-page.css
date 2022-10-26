@@ -3537,7 +3537,7 @@ form {
 }
 
 #asideFilters .dropdown-item,
-#asideClass .dropdown-item {
+#asideCategory .dropdown-item {
   padding: 8px 10px;
   border-radius: 2px;
   font-size: 1rem;
@@ -3546,17 +3546,17 @@ form {
 }
 
 #asideFilters .dropdown-item:hover,
-#asideClass .dropdown-item:hover {
+#asideCategory .dropdown-item:hover {
   background-color: #eee;
 }
 
 #asideFilters .dropdown-item:active,
-#asideClass .dropdown-item:active {
+#asideCategory .dropdown-item:active {
   color: #404040;
 }
 
 #asideFilters .dropdown-item.active,
-#asideClass .dropdown-item.active {
+#asideCategory .dropdown-item.active {
   background-color: #4285f4;
   color: #fff;
 }
