@@ -17,6 +17,8 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
+
 /**
  * 分类数据
  *
@@ -40,8 +42,8 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getName(ID itemId) {
-        String[] ns = getName2(itemId);
-        return ns == null ? null : ns[0];
+        Item item = getItem(itemId);
+        return item == null ? null : item.Name;
     }
 
     /**
@@ -51,31 +53,32 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getFullName(ID itemId) {
-        String[] ns = getName2(itemId);
-        return ns == null ? null : ns[1];
+        Item item = getItem(itemId);
+        return item == null ? null : item.FullName;
     }
 
     /**
      * @param itemId
-     * @return [名称, 全名称]
+     * @return
      */
-    private String[] getName2(ID itemId) {
-        final String ckey = "ClassificationNAME-" + itemId;
-        String[] cached = (String[]) Application.getCommonsCache().getx(ckey);
-        if (cached != null) {
-            return cached[0].equals(DELETED_ITEM) ? null : cached;
+    private Item getItem(ID itemId) {
+        final String ckey = "ClassificationITEM31-" + itemId;
+        Item ditem = (Item) Application.getCommonsCache().getx(ckey);
+        if (ditem != null) {
+            return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
         }
 
         Object[] o = Application.createQueryNoFilter(
-                "select name,fullName from ClassificationData where itemId = ?")
+                "select name,fullName,code from ClassificationData where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
-        if (o != null) cached = new String[]{(String) o[0], (String) o[1]};
-        // 可能已删除
-        if (cached == null) cached = new String[]{DELETED_ITEM, DELETED_ITEM};
+        if (o != null) ditem = new Item((String) o[0], (String) o[1], (String) o[2]);
 
-        Application.getCommonsCache().putx(ckey, cached);
-        return cached[0].equals(DELETED_ITEM) ? null : cached;
+        // 可能已删除
+        if (ditem == null) ditem = new Item(DELETED_ITEM, null, null);
+
+        Application.getCommonsCache().putx(ckey, ditem);
+        return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
     }
 
     /**
@@ -160,9 +163,24 @@ public class ClassificationManager implements ConfigManager {
     public void clean(Object cid) {
         ID id2 = (ID) cid;
         if (id2.getEntityCode() == EntityHelper.ClassificationData) {
-            Application.getCommonsCache().evict("ClassificationNAME-" + cid);
+            Application.getCommonsCache().evict("ClassificationITEM31-" + cid);
         } else if (id2.getEntityCode() == EntityHelper.Classification) {
             Application.getCommonsCache().evict("ClassificationLEVEL-" + cid);
         }
+    }
+
+    // Bean
+    public static class Item implements Serializable {
+        private static final long serialVersionUID = -1903227875771376652L;
+
+        Item(String name, String fullName, String code) {
+            this.Name = name;
+            this.FullName = fullName;
+            this.Code = code;
+        }
+
+        final public String Name;
+        final public String FullName;
+        final public String Code;
     }
 }

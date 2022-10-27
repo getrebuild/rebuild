@@ -66,15 +66,16 @@ public class DataListCategory {
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = MessageFormat.format(
-                        "select referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}'' group by referenceId",
+                        "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
                         entity.getName(), categoryField.getName());
             } else {
                 sql = MessageFormat.format(
-                        "select {0} from {1} where {0} is not null group by {0}", categoryField.getName(), entity.getName());
+                        "select distinct {0} from {1} where {0} is not null", categoryField.getName(), entity.getName());
             }
-            
+
             Query query = user == null
-                        ? Application.createQueryNoFilter(sql) : Application.getQueryFactory().createQuery(sql, user);
+                    ? Application.createQueryNoFilter(sql)
+                    : Application.getQueryFactory().createQuery(sql, user);
             Object[][] array = query.array();
 
             for (Object[] o : array) {
@@ -83,6 +84,7 @@ public class DataListCategory {
                 list.add(new Object[] { label, id });
             }
 
+            // TODO 分类数据 code 排序
             list.sort(Comparator.comparing(o -> o[0].toString()));
         }
 
