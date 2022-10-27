@@ -817,7 +817,7 @@ class FilterItem extends React.Component {
 
     // 引用字段查询名称字段
     const isRefField = REFENTITY_CACHE[`${this._searchEntity}.${s.field}`]
-    if (isRefField) {
+    if (isRefField && !BIZZ_ENTITIES.includes(isRefField[0])) {
       if (!(s.op === 'NL' || s.op === 'NT')) {
         item.field = NAME_FLAG + item.field
       }
