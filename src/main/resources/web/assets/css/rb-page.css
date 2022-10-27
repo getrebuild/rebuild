@@ -4930,7 +4930,7 @@ pre.unstyle {
   background-color: #eee;
 }
 
-/* mdi7 */
+/* v3: mdi7 */
 
 .modal-header > .icon.mdi,
 .header-icon.mdi {
@@ -4938,12 +4938,16 @@ pre.unstyle {
   line-height: 1;
 }
 
-.over-tab {
-  margin-top: -63px;
-  transition: margin-top 0.4s;
+.mdi {
+  display: inline-block;
+  line-height: 1;
 }
 
-/* theme defs v3.1 */
+.zmdi.mdi::before {
+  line-height: unset;
+}
+
+/* v3.1: theme defs */
 
 .rb-left-sidebar .sidebar-elements > li.active > a,
 .rb-left-sidebar .sidebar-elements > li.active > a > span,

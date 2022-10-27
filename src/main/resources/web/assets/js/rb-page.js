@@ -134,6 +134,7 @@ $(function () {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
+        typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
       }
     }
   })

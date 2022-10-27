@@ -317,7 +317,10 @@ public class NavBuilder extends NavManager {
             navUrl = AppUtils.getContextPath("/app/" + navUrl + "/list");
         }
 
-        String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+        String iconClazz = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+        if (iconClazz.startsWith("mdi-")) iconClazz = "mdi " + iconClazz;
+        else iconClazz = "zmdi zmdi-" + iconClazz;
+
         String navText = item.getString("text");
 
         JSONArray subNavs = null;
@@ -336,12 +339,12 @@ public class NavBuilder extends NavManager {
             if (BooleanUtils.toBoolean(item.getString("open"))) parentClass += " open";
 
             navItemHtml = String.format(
-                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                    "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
                     navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
                     navEntity == null ? StringUtils.EMPTY : navEntity,
                     subNavs == null ? navUrl : "###",
                     isOutUrl ? "_blank" : "_self",
-                    navIcon,
+                    iconClazz,
                     navText);
         }
         StringBuilder navHtml = new StringBuilder(navItemHtml);

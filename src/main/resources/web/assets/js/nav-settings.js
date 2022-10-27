@@ -38,7 +38,7 @@ $(document).ready(() => {
         if (item_current_isNew === true) {
           const d = _entities[$ref.val()]
           if (d) {
-            $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${d.icon}`)
+            $('.J_menuIcon>i').attr('class', use_icon(d.icon))
             $('.J_menuName').val(d.label)
           }
         }
@@ -50,7 +50,7 @@ $(document).ready(() => {
 
   $('.J_menuIcon').on('click', () => {
     parent.clickIcon = function (s) {
-      $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${s}`)
+      $('.J_menuIcon>i').attr('class', use_icon(s))
       parent.RbModal.hide()
     }
     parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
@@ -74,7 +74,8 @@ $(document).ready(() => {
       }
     }
 
-    const icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
+    let icon = $('.J_menuIcon>i').attr('class').replace('zmdi zmdi-', '')
+    icon = icon.replace('mdi zmdi ', '') // V2
     render_item({
       id: item_currentid,
       text: name,
@@ -209,7 +210,7 @@ const render_item = function (data, isNew, append2) {
 
   let $item = $('.J_config').find(`li[attr-id='${data.id}']`)
   if ($item.length === 0) {
-    $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
+    $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="icon"></i><span></span></div></li>').appendTo(append2)
     const $action = $(
       `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a></div>`
     ).appendTo($item)
@@ -239,7 +240,7 @@ const render_item = function (data, isNew, append2) {
   }
 
   const $content = $item.find('.dd3-content').eq(0)
-  $content.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
+  $content.find('>i').attr('class', use_icon(data.icon))
   $content.find('span').text(data.text)
   $item.attr({
     'attr-id': data.id,
@@ -249,7 +250,7 @@ const render_item = function (data, isNew, append2) {
     'attr-open': data.open || '',
   })
 
-  // Event
+  // event
   $content.off('click').on('click', () => {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
@@ -258,12 +259,11 @@ const render_item = function (data, isNew, append2) {
     $('.J_edit-menu').removeClass('hide')
 
     $('.J_menuName').val(data.text)
-    $('.J_menuIcon i').attr('class', `zmdi zmdi-${data.icon}`)
+    $('.J_menuIcon>i').attr('class', use_icon(data.icon))
     $('.J_menuUrl, .J_menuEntity').val('')
 
     if (data.type === 'URL') {
       $('.J_menuType:eq(1)')[0].click()
-      $('.J_menuType').eq(1).on('click')
       $('.J_menuUrl').val(data.value)
     } else {
       $('.J_menuType:eq(0)')[0].click()
@@ -302,4 +302,8 @@ const fix_parents = function () {
     if ($me.find('ul>li').length > 0) $me.attr({ 'attr-value': TYPE_PARENT })
     else if ($me.attr('attr-value') === TYPE_PARENT) $me.attr({ 'attr-value': '' })
   })
+}
+
+const use_icon = function (icon) {
+  return icon.startsWith('mdi-') ? `mdi zmdi ${icon}` : `zmdi zmdi-${icon}`
 }
