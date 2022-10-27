@@ -210,10 +210,10 @@ public class AdvFilterParser extends SetUser {
      *
      * @param item
      * @param values
-     * @param rootEntity
+     * @param specRootEntity
      * @return
      */
-    private String parseItem(JSONObject item, JSONObject values, Entity rootEntity) {
+    private String parseItem(JSONObject item, JSONObject values, Entity specRootEntity) {
         String field = item.getString("field");
         if (field.startsWith("&amp;")) field = field.replace("&amp;", NAME_FIELD_PREFIX);  // fix: _$unthy
 
@@ -221,10 +221,10 @@ public class AdvFilterParser extends SetUser {
         if (hasNameFlag) field = field.substring(1);
 
         Field fieldMeta = VF_ACU.equals(field)
-                ? rootEntity.getField(EntityHelper.ApprovalLastUser)
-                : MetadataHelper.getLastJoinField(rootEntity, field);
+                ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
+                : MetadataHelper.getLastJoinField(specRootEntity, field);
         if (fieldMeta == null) {
-            log.warn("Invalid field : {} in {}", field, rootEntity.getName());
+            log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
             return null;
         }
 
@@ -235,7 +235,7 @@ public class AdvFilterParser extends SetUser {
             field = NAME_FIELD_PREFIX + field;
         } else if (hasNameFlag) {
             if (!(dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
-                log.warn("Non reference-field : {} in {}", field, rootEntity.getName());
+                log.warn("Non reference-field : {} in {}", field, specRootEntity.getName());
                 return null;
             }
 
@@ -274,7 +274,7 @@ public class AdvFilterParser extends SetUser {
             if (inWhere != null) {
                 return String.format(
                         "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
-                        rootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+                        specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
             }
         }
 
@@ -489,7 +489,7 @@ public class AdvFilterParser extends SetUser {
         if (VF_ACU.equals(field)) {
             return String.format(
                     "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s) and approvalState = 2)",
-                    rootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
+                    specRootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
         } else {
             return sb.toString();
         }

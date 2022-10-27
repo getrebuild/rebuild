@@ -95,8 +95,8 @@ public class DataListCategory {
                     new Object[] { o[0], o[1], 0 } ));
         }
 
-        // TODO 分类缓存 1min
-        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_HOUR / 60);  // 1min
+        // TODO 分类缓存 2min
+        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_HOUR / 30);
 
         return res;
     }
