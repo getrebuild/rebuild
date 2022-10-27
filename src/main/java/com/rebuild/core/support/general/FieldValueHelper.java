@@ -96,8 +96,10 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
+        final DisplayType dt = field.getDisplayType();
+
         if (value != null && !field.isQueryable() &&
-                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
+                (dt == DisplayType.TEXT || dt == DisplayType.NTEXT)) {
             return DataDesensitized.SECURE_TEXT;
         }
 
@@ -113,8 +115,15 @@ public class FieldValueHelper {
         }
 
         // 非 ID 数组表示记录主键
-        if (field.getDisplayType() == DisplayType.N2NREFERENCE && value instanceof ID) {
+        if (dt == DisplayType.N2NREFERENCE && value instanceof ID) {
             value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
+        }
+
+        // 名称字段引用自己
+        if (dt == DisplayType.REFERENCE
+                && field.getRawMeta().getReferenceEntity().equals(field.getRawMeta().getOwnEntity())) {
+            log.warn("Name field use self-reference : {}", field.getRawMeta());
+            return NO_LABEL_PREFIX + NO_LABEL_PREFIX + value;
         }
 
         return field.wrapValue(value);

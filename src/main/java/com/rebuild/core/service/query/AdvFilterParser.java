@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -67,6 +68,9 @@ public class AdvFilterParser extends SetUser {
 
     // 快速查询
     private static final String MODE_QUICK = "QUICK";
+
+    // 名称字段 &
+    private static final String NAME_FIELD_PREFIX = "" + QueryCompiler.NAME_FIELD_PREFIX;
 
     final private JSONObject filterExpr;
     final private Entity rootEntity;
@@ -135,7 +139,7 @@ public class AdvFilterParser extends SetUser {
                 index = incrIndex++;
             }
 
-            String itemSql = parseItem(item, values);
+            String itemSql = parseItem(item, values, this.rootEntity);
             if (itemSql != null) {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
@@ -206,18 +210,18 @@ public class AdvFilterParser extends SetUser {
      *
      * @param item
      * @param values
+     * @param rootEntity
      * @return
      */
-    private String parseItem(JSONObject item, JSONObject values) {
+    private String parseItem(JSONObject item, JSONObject values, Entity rootEntity) {
         String field = item.getString("field");
-        if (field.startsWith("&amp;")) field = field.replace("&amp;", "&");  // fix: _$unthy
+        if (field.startsWith("&amp;")) field = field.replace("&amp;", NAME_FIELD_PREFIX);  // fix: _$unthy
 
-        boolean hasNameFlag = field.startsWith("&");
-        if (hasNameFlag) {
-            field = field.substring(1);
-        }
+        final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
+        if (hasNameFlag) field = field.substring(1);
 
-        Field fieldMeta = VF_ACU.equals(field) ? rootEntity.getField(EntityHelper.ApprovalLastUser)
+        Field fieldMeta = VF_ACU.equals(field)
+                ? rootEntity.getField(EntityHelper.ApprovalLastUser)
                 : MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, rootEntity.getName());
@@ -225,16 +229,17 @@ public class AdvFilterParser extends SetUser {
         }
 
         DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
+
         if (dt == DisplayType.CLASSIFICATION
                 || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
-            field = "&" + field;
+            field = NAME_FIELD_PREFIX + field;
         } else if (hasNameFlag) {
             if (!(dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
-                log.warn("Non reference-field '{}' in '{}'", field, rootEntity.getName());
+                log.warn("Non reference-field : {} in {}", field, rootEntity.getName());
                 return null;
             }
 
-            // 转化为名称字段
+            // 转为名称字段
             if (dt == DisplayType.REFERENCE) {
                 fieldMeta = fieldMeta.getReferenceEntity().getNameField();
                 dt = EasyMetaFactory.getDisplayType(fieldMeta);
@@ -246,20 +251,31 @@ public class AdvFilterParser extends SetUser {
         String value = useValueOfVarRecord(item.getString("value"));
         String valueEnd = null;
 
-        // FIXME N2N 特殊处理，仅支持 LK NLK EQ NEQ
         // exists ( in (...) )
-        if (hasNameFlag && dt == DisplayType.N2NREFERENCE) {
-            Entity refEntity = fieldMeta.getReferenceEntity();
-            String inWhere = String.format("select %s from %s where %s %s %s",
-                    refEntity.getPrimaryField().getName(),
-                    refEntity.getName(),
-                    refEntity.getNameField().getName(),
-                    ParseHelper.convetOperation(op),
-                    quoteValue('%' + value + '%', FieldType.STRING));
+        if (dt == DisplayType.N2NREFERENCE) {
+            String inWhere = null;
+            if (hasNameFlag) {
+                Entity refEntity = fieldMeta.getReferenceEntity();
+                Field nameField = refEntity.getNameField();
 
-            return String.format(
-                    "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
-                    rootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+                JSONObject innerItem = (JSONObject) JSONUtils.clone(item);
+                innerItem.put("field", nameField.getName());
+                String innerWhereSql = parseItem(innerItem, null, refEntity);
+
+                inWhere = String.format("select %s from %s where %s",
+                        refEntity.getPrimaryField().getName(), refEntity.getName(), innerWhereSql);
+
+            }
+            // 查询 ID，仅支持 IN
+            else if (ParseHelper.IN.equals(op) && ID.isId(value)) {
+                inWhere = quoteValue(value, FieldType.STRING);
+            }
+
+            if (inWhere != null) {
+                return String.format(
+                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
+                        rootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+            }
         }
 
         // 根据字段类型转换 `op`
