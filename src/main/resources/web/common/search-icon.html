@@ -33,7 +33,8 @@
     <script type="text/babel">
       const cb = parent && parent.clickIcon ? parent.clickIcon : console.log
       $(document).ready(() => {
-        renderZmdi()
+        if ($urlp('mdi7')) renderMdi7()
+        else renderZmdi()
         parent && parent.RbModal && parent.RbModal.resize()
 
         window.bosskeyTrigger = function () {
