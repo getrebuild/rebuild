@@ -15,6 +15,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 分类数据
@@ -22,6 +23,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28
  */
+@Slf4j
 public class ClassificationManager implements ConfigManager {
 
     public static final ClassificationManager instance = new ClassificationManager();
@@ -38,7 +40,7 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getName(ID itemId) {
-        String[] ns = getItemNames(itemId);
+        String[] ns = getName2(itemId);
         return ns == null ? null : ns[0];
     }
 
@@ -49,7 +51,7 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getFullName(ID itemId) {
-        String[] ns = getItemNames(itemId);
+        String[] ns = getName2(itemId);
         return ns == null ? null : ns[1];
     }
 
@@ -57,7 +59,7 @@ public class ClassificationManager implements ConfigManager {
      * @param itemId
      * @return [名称, 全名称]
      */
-    private String[] getItemNames(ID itemId) {
+    private String[] getName2(ID itemId) {
         final String ckey = "ClassificationNAME-" + itemId;
         String[] cached = (String[]) Application.getCommonsCache().getx(ckey);
         if (cached != null) {
@@ -85,21 +87,23 @@ public class ClassificationManager implements ConfigManager {
      */
     public ID findItemByName(String name, Field field) {
         ID dataId = getUseClassification(field, false);
-        if (dataId == null) {
-            return null;
-        }
+        if (dataId == null) return null;
+
+        int openLevel = getOpenLevel(field);
 
         // 后匹配
         String ql = String.format(
-                "select itemId from ClassificationData where dataId = '%s' and fullName like '%%%s'", dataId, name);
-        Object[][] hasMany = Application.createQueryNoFilter(ql).array();
-        if (hasMany.length == 0) {
+                "select itemId from ClassificationData where dataId = ? and level = ? and fullName like '%%%s'", name);
+        Object[][] found = Application.createQueryNoFilter(ql)
+                .setParameter(1, dataId)
+                .setParameter(2, openLevel)
+                .array();
+
+        if (found.length == 0) {
             return null;
-        } else if (hasMany.length == 1) {
-            return (ID) hasMany[0][0];
         } else {
-            // TODO 多个匹配
-            return (ID) hasMany[0][0];
+            // TODO 找到多个匹配的优选
+            return (ID) found[0][0];
         }
     }
 
@@ -111,12 +115,11 @@ public class ClassificationManager implements ConfigManager {
      */
     public int getOpenLevel(Field field) {
         ID dataId = getUseClassification(field, false);
-        if (dataId == null) {
-            return BAD_CLASSIFICATION;
-        }
+        if (dataId == null) return BAD_CLASSIFICATION;
 
-        String ckey = "ClassificationLEVEL-" + dataId;
+        final String ckey = "ClassificationLEVEL-" + dataId;
         Integer cLevel = (Integer) Application.getCommonsCache().getx(ckey);
+
         if (cLevel == null) {
             Object[] o = Application.createQueryNoFilter(
                     "select openLevel from Classification where dataId = ?")
@@ -141,20 +144,16 @@ public class ClassificationManager implements ConfigManager {
      * 获取指定字段所使用的分类
      *
      * @param field
-     * @param verfiy
+     * @param checkBad
      * @return
      */
-    public ID getUseClassification(Field field, boolean verfiy) {
+    public ID getUseClassification(Field field, boolean checkBad) {
         String classUse = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
         ID dataId = ID.isId(classUse) ? ID.valueOf(classUse) : null;
-        if (dataId == null) {
-            return null;
-        }
+        if (dataId == null) return null;
 
-        if (verfiy && getOpenLevel(field) == BAD_CLASSIFICATION) {
-            return null;
-        }
-        return dataId;
+        if (checkBad && getOpenLevel(field) == BAD_CLASSIFICATION) return null;
+        else return dataId;
     }
 
     @Override

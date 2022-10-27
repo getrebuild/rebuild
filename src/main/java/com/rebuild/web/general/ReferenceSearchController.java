@@ -164,6 +164,9 @@ public class ReferenceSearchController extends EntityController {
     }
 
     // 搜索分类字段
+    /**
+     * @see PicklistDataController#fetchClassification(HttpServletRequest)
+     */
     @GetMapping("classification")
     public JSON searchClassification(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
@@ -174,7 +177,7 @@ public class ReferenceSearchController extends EntityController {
         if (useClassification == null) {
             return JSONUtils.EMPTY_ARRAY;
         }
-
+        
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {

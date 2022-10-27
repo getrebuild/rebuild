@@ -273,7 +273,7 @@ create table if not exists `classification_data` (
   `NAME`               varchar(100) not null,
   `FULL_NAME`          varchar(191) not null comment '(包括父级名称, 用点号分割)',
   `PARENT`             char(20),
-  `CODE`               varchar(50),
+  `CODE`               varchar(50) default '0',
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
   `QUICK_CODE`         varchar(50),
@@ -282,8 +282,8 @@ create table if not exists `classification_data` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`ITEM_ID`),
-  index IX0_classification_data (`DATA_ID`, `PARENT`),
-  index IX1_classification_data (`DATA_ID`, `FULL_NAME`, `QUICK_CODE`)
+  index IX0_classification_data (`DATA_ID`, `PARENT`, `CODE`),
+  index IX1_classification_data (`DATA_ID`, `FULL_NAME`, `QUICK_CODE`, `CODE`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShareAccess] DDL ************

@@ -184,12 +184,12 @@
         <field name="name" type="string" max-length="100" nullable="false"/>
         <field name="fullName" type="string" max-length="191" nullable="false" description="(包括父级名称, 用点号分割)"/>
         <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete"/>
-        <field name="code" type="string" max-length="50"/>
+        <field name="code" type="string" max-length="50" default-value="0"/>
         <field name="level" type="small-int" default-value="0" updatable="false"/>
         <field name="isHide" type="bool" default-value="F"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
-        <index field-list="dataId,parent"/>
-        <index field-list="dataId,fullName,quickCode"/>
+        <index field-list="dataId,parent,code"/>
+        <index field-list="dataId,fullName,quickCode,code"/>
     </entity>
 
     <entity name="ShareAccess" type-code="020" description="记录共享" queryable="false">

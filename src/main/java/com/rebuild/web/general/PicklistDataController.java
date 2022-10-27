@@ -39,7 +39,7 @@ public class PicklistDataController extends BaseController {
 
     // for PickList/MultiSelect/State
     @GetMapping({"picklist", "field-options"})
-    public JSON fetchPicklist(HttpServletRequest request) {
+    public JSON fetchOptions(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
 
@@ -61,8 +61,8 @@ public class PicklistDataController extends BaseController {
     // for Classification
     @RequestMapping("classification")
     public RespBody fetchClassification(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        String field = getParameterNotNull(request, "field");
+        final String entity = getParameterNotNull(request, "entity");
+        final String field = getParameterNotNull(request, "field");
 
         Field fieldMeta = getRealField(entity, field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
@@ -72,13 +72,10 @@ public class PicklistDataController extends BaseController {
 
         ID parent = getIdParameter(request, "parent");
         String sql = "select itemId,name from ClassificationData where dataId = ? and isHide = 'F' and ";
-        if (parent != null) {
-            sql += "parent = '" + parent + "'";
-        } else {
-            sql += "parent is null";
-        }
-        sql += " order by code, name";
-        Object[][] data = Application.createQueryNoFilter(sql)
+        if (parent != null) sql += "parent = '" + parent + "'";
+        else sql += "parent is null";
+
+        Object[][] data = Application.createQueryNoFilter(sql + " order by code,name")
                 .setParameter(1, useClassification)
                 .setLimit(500)  // 最多显示
                 .array();
