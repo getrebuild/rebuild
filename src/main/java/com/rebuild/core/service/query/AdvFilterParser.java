@@ -139,7 +139,7 @@ public class AdvFilterParser extends SetUser {
                 index = incrIndex++;
             }
 
-            String itemSql = parseItem(item, values, this.rootEntity);
+            String itemSql = parseItem(item, values, rootEntity);
             if (itemSql != null) {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
