@@ -99,9 +99,9 @@ public class ApprovalProcessor extends SetUser {
         recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
         recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
         recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
-            recordOfMain.setNull(EntityHelper.ApprovalLastUser);
-        }
+        // Clear on submit
+        ApprovalStepService.setApprovalLastX(recordOfMain, null, null);
+
         Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 
         // 非主事物
