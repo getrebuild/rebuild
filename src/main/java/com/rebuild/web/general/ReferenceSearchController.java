@@ -66,6 +66,7 @@ public class ReferenceSearchController extends EntityController {
 
         Field referenceField = entity.getField(field);
         if (!(referenceField.getType() == FieldType.REFERENCE || referenceField.getType() == FieldType.REFERENCE_LIST)) {
+            log.warn("Unsupportted type of field : {}", referenceField);
             return JSONUtils.EMPTY_ARRAY;
         }
 
@@ -75,6 +76,7 @@ public class ReferenceSearchController extends EntityController {
         // 引用字段数据过滤
         String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
         if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
+
         String protocolFilter = new ProtocolFilterParser(null)
                 .parseRef(field + "." + entity.getName(), cascadingValue);
 
@@ -86,23 +88,13 @@ public class ReferenceSearchController extends EntityController {
 
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q) && !forceSearchs) {
-            ID[] recently = null;
+            ID[] used = RecentlyUsedHelper.gets(
+                    user, searchEntity.getName(), getParameter(request, "type"), protocolFilter);
 
-            // 启用数据过滤后最近搜索将不可用
-            if (protocolFilter != null) {
-                if (forceResults) recently = new ID[0];
-                else return JSONUtils.EMPTY_ARRAY;
-            }
-
-            if (recently == null) {
-                String type = getParameter(request, "type");
-                recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
-            }
-
-            if (recently == null || recently.length == 0) {
+            if (used.length == 0) {
                 if (!forceResults) return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
+                return RecentlyUsedSearchController.formatSelect2(used, Language.L("最近使用"));
             }
         }
 
@@ -174,19 +166,19 @@ public class ReferenceSearchController extends EntityController {
 
         Field fieldMeta = entity.getField(field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, false);
-        if (useClassification == null) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
-        
+        if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
+
         String q = getParameter(request, "q");
+
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
             String type = "d" + useClassification + ":" + ClassificationManager.instance.getOpenLevel(fieldMeta);
-            ID[] recently = RecentlyUsedHelper.gets(user, "ClassificationData", type);
-            if (recently.length == 0) {
+            ID[] used = RecentlyUsedHelper.gets(user, "ClassificationData", type);
+
+            if (used.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(recently, null);
+                return RecentlyUsedSearchController.formatSelect2(used, null);
             }
         }
 

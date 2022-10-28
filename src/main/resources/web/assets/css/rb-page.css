@@ -912,8 +912,7 @@ select.form-control:not([disabled]) {
 }
 
 @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label,
-  .form-layout > .row .form-group.col-sm-4 > .col-form-label {
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
     width: 100px;
   }
 }

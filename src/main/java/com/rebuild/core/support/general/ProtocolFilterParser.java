@@ -46,15 +46,20 @@ import java.util.*;
 public class ProtocolFilterParser {
 
     // 协议
+
+    // via:xxx:[field]
     public static final String P_VIA = "via";
+    // ref:xxx:[id]
     public static final String P_REF = "ref";
+    // category:entity:value
     public static final String P_CATEGORY = "category";
+    // related:field:id
     public static final String P_RELATED = "related";
 
     final private String protocolExpr;
 
     /**
-     * @param protocolExpr via:xxx:[field] ref:xxx:[id] category:entity:value related:field:id
+     * @param protocolExpr
      */
     public ProtocolFilterParser(String protocolExpr) {
         this.protocolExpr = protocolExpr;
@@ -142,9 +147,11 @@ public class ProtocolFilterParser {
 
         List<String> sqls = new ArrayList<>();
 
-        JSONObject advFilter = getFieldDataFilter(field);
-        if (advFilter != null) sqls.add(new AdvFilterParser(advFilter).toSqlWhere());
+        // 字段附加过滤条件
+        JSONObject fieldFilter = getFieldDataFilter(field);
+        if (fieldFilter != null) sqls.add(new AdvFilterParser(fieldFilter).toSqlWhere());
 
+        // 父级级联字段
         if (hasFieldCascadingField(field) && ID.isId(cascadingValue)) {
             String cascadingFieldParent = field.getExtraAttrs().getString("_cascadingFieldParent");
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
@@ -174,7 +181,7 @@ public class ProtocolFilterParser {
      * @param value
      * @return
      * @see #P_CATEGORY
-     * @see AdvFilterParser#parseItem(JSONObject, JSONObject)
+     * @see DataListCategory
      */
     protected String parseCategory(String entity, String value) {
         Entity rootEntity = MetadataHelper.getEntity(entity);

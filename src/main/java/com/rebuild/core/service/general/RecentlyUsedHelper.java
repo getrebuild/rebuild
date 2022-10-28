@@ -12,6 +12,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -23,6 +24,7 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25
  */
+@SuppressWarnings("unchecked")
 public class RecentlyUsedHelper {
 
     // 最大缓存数量
@@ -37,7 +39,20 @@ public class RecentlyUsedHelper {
      * @return
      */
     public static ID[] gets(ID user, String entity, String type) {
-        return gets(user, entity, type, 10);
+        return gets(user, entity, type, 10, null);
+    }
+
+    /**
+     * 获取最近使用（最多10个）
+     *
+     * @param user
+     * @param entity
+     * @param type
+     * @param checkFilter
+     * @return
+     */
+    public static ID[] gets(ID user, String entity, String type, String checkFilter) {
+        return gets(user, entity, type, 10, checkFilter);
     }
 
     /**
@@ -47,29 +62,34 @@ public class RecentlyUsedHelper {
      * @param entity
      * @param type
      * @param limit
+     * @param checkFilter
      * @return
      */
-    public static ID[] gets(ID user, String entity, String type, int limit) {
-        final String key = formatKey(user, entity, type);
-        @SuppressWarnings("unchecked")
-        LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(key);
-        if (cached == null || cached.isEmpty()) {
-            return ID.EMPTY_ID_ARRAY;
-        }
+    protected static ID[] gets(ID user, String entity, String type, int limit, String checkFilter) {
+        final String ckey = formatKey(user, entity, type);
+        LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(ckey);
+        if (cached == null || cached.isEmpty()) return ID.EMPTY_ID_ARRAY;
 
         Set<ID> missed = new HashSet<>();
         List<ID> data = new ArrayList<>();
+
         for (int i = 0; i < limit && i < cached.size(); i++) {
             final ID raw = cached.get(i);
-            if (!(raw.getEntityCode() == EntityHelper.ClassificationData
-                    || Application.getPrivilegesManager().allowRead(user, raw))) {
-                continue;
+
+            boolean allowRead = raw.getEntityCode() == EntityHelper.ClassificationData
+                    || Application.getPrivilegesManager().allowRead(user, raw);
+            if (!allowRead) continue;
+
+            // 是否符合条件
+            if (checkFilter != null) {
+                if (!QueryHelper.isMatchFilter(raw, checkFilter)) {
+                    continue;
+                }
             }
 
             try {
-                String label = FieldValueHelper.getLabel(raw);
                 ID clone = ID.valueOf(raw.toLiteral());
-                clone.setLabel(label);
+                clone.setLabel(FieldValueHelper.getLabel(raw));
                 data.add(clone);
             } catch (NoRecordFoundException ex) {
                 missed.add(raw);
@@ -78,13 +98,14 @@ public class RecentlyUsedHelper {
 
         if (!missed.isEmpty()) {
             cached.removeAll(missed);
-            Application.getCommonsCache().putx(key, cached);
+            Application.getCommonsCache().putx(ckey, cached);
         }
+
         return data.toArray(new ID[0]);
     }
 
     /**
-     * 添加搜索缓存
+     * 添加最近使用
      *
      * @param user
      * @param id
@@ -92,7 +113,6 @@ public class RecentlyUsedHelper {
      */
     public static void add(ID user, ID id, String type) {
         final String key = formatKey(user, MetadataHelper.getEntityName(id), type);
-        @SuppressWarnings("unchecked")
         LinkedList<ID> cached = (LinkedList<ID>) Application.getCommonsCache().getx(key);
         if (cached == null) {
             cached = new LinkedList<>();
@@ -121,6 +141,6 @@ public class RecentlyUsedHelper {
     }
 
     private static String formatKey(ID user, String entity, String type) {
-        return String.format("RS.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
+        return String.format("RS31.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
     }
 }
