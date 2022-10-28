@@ -58,7 +58,7 @@ public class Field2Schema extends SetUser {
     // 小数位真实长度
     private static final int DECIMAL_SCALE = 8;
 
-    final protected Set<ID> recordedMetaId = new HashSet<>();
+    final protected Set<ID> recordedMetaIds = new HashSet<>();
 
     public Field2Schema() {
         super();
@@ -133,7 +133,7 @@ public class Field2Schema extends SetUser {
 
         boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields);
         if (!schemaReady) {
-            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
@@ -352,7 +352,7 @@ public class Field2Schema extends SetUser {
         }
 
         recordOfField = Application.getCommonsService().create(recordOfField);
-        recordedMetaId.add(recordOfField.getPrimary());
+        recordedMetaIds.add(recordOfField.getPrimary());
 
         // 以下会改变一些属性，因为并不想他们保存在元数据中
 

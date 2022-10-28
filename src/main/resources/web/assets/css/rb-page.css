@@ -4926,19 +4926,22 @@ pre.unstyle {
 
 /* v3: mdi7 */
 
-.modal-header > .icon.mdi,
-.header-icon.mdi {
-  font-size: 2rem;
-  line-height: 1;
-}
-
 .mdi {
   display: inline-block;
   line-height: 1;
 }
 
+.mdi.text-bold::before {
+  font-weight: bold;
+}
+
 .zmdi.mdi::before {
   line-height: unset;
+}
+
+.modal-header > .icon.mdi,
+.header-icon.mdi {
+  font-size: 2rem;
 }
 
 /* v3.1: theme defs */

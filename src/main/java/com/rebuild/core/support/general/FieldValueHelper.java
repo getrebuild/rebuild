@@ -119,13 +119,6 @@ public class FieldValueHelper {
             value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
         }
 
-        // 名称字段引用自己
-        if (dt == DisplayType.REFERENCE
-                && field.getRawMeta().getReferenceEntity().equals(field.getRawMeta().getOwnEntity())) {
-            log.warn("Name field use self-reference : {}", field.getRawMeta());
-            return NO_LABEL_PREFIX + NO_LABEL_PREFIX + value;
-        }
-
         return field.wrapValue(value);
     }
 
