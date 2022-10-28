@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -45,13 +44,9 @@ public class DataListCategory {
         final Field categoryField = getFieldOfCategory(entity);
         if (categoryField == null) return null;
 
-        final String ckey = String.format("DLC1.%s.%s", entity.getName(), categoryField.getName());
-        JSON c = (JSON) Application.getCommonsCache().getx(ckey);
-        if (c != null) return c;
-
         DisplayType dt = EasyMetaFactory.getDisplayType(categoryField);
 
-        List<Object[]> list = new ArrayList<>();
+        List<Object[]> clist = new ArrayList<>();
 
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
             ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(categoryField, true);
@@ -59,10 +54,13 @@ public class DataListCategory {
                 Object id = e.getID("id");
                 if (dt == DisplayType.MULTISELECT) id = e.getLong("mask");
 
-                list.add(new Object[] { e.getString("text"), id });
+                clist.add(new Object[] { e.getString("text"), id });
             }
 
         } else {
+
+            // TODO 考虑支持更多分组字段类型，例如日期（但要考虑日期格式）
+
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = MessageFormat.format(
@@ -81,22 +79,19 @@ public class DataListCategory {
             for (Object[] o : array) {
                 Object id = o[0];
                 Object label = FieldValueHelper.getLabelNotry((ID) id);
-                list.add(new Object[] { label, id });
+                clist.add(new Object[] { label, id });
             }
 
             // TODO 分类数据 code 排序
-            list.sort(Comparator.comparing(o -> o[0].toString()));
+            clist.sort(Comparator.comparing(o -> o[0].toString()));
         }
 
         JSONArray res = new JSONArray();
-        for (Object[] o : list) {
+        for (Object[] o : clist) {
             res.add(JSONUtils.toJSONObject(
                     new String[] { "label", "id", "count" },
                     new Object[] { o[0], o[1], 0 } ));
         }
-
-        // TODO 分类缓存 2min
-        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_HOUR / 30);
 
         return res;
     }
