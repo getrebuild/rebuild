@@ -228,16 +228,24 @@ var _initNav = function () {
     })
     $('.sidebar-elements>li>a').tooltip('disable')
   } else {
-    var $el = $('.rb-collapsible-sidebar')
-    if (!$el.hasClass('rb-collapsible-sidebar-collapsed')) {
+    var $sidebar = $('.rb-collapsible-sidebar')
+    if (!$sidebar.hasClass('rb-collapsible-sidebar-collapsed')) {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
 
     $('.rb-toggle-left-sidebar').on('click', function () {
-      $el.toggleClass('rb-collapsible-sidebar-collapsed')
-      $.cookie('rb.sidebarCollapsed', $el.hasClass('rb-collapsible-sidebar-collapsed'), { expires: 180 })
-
+      $sidebar.toggleClass('rb-collapsible-sidebar-collapsed')
       $('.sidebar-elements>li>a').tooltip('toggleEnabled')
+
+      const collapsed = $sidebar.hasClass('rb-collapsible-sidebar-collapsed')
+      $.cookie('rb.sidebarCollapsed', collapsed, { expires: 180 })
+
+      if (collapsed) {
+        $sidebar.find('.parent.open').each(function () {
+          $(this).find('>a')[0].click()
+        })
+      }
+
       $addResizeHandler()()
     })
   }
