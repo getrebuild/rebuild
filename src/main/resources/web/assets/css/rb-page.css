@@ -780,6 +780,7 @@ body.dialog .main-content {
 
 .dialog-footer .btn {
   margin-left: 5px;
+  min-width: 98px;
 }
 
 .dialog-footer > .float-left > .custom-control {
@@ -1055,7 +1056,8 @@ select.form-control:not([disabled]) {
 
 .img-field .img-upload[disabled],
 .img-field .img-upload[disabled]:hover,
-.img-field .img-upload[disabled] .zmdi {
+.img-field .img-upload[disabled] .zmdi,
+.img-field .img-upload[disabled] .mdi {
   opacity: 1 !important;
   color: #dbdbdb !important;
   cursor: not-allowed !important;
@@ -1070,10 +1072,10 @@ select.form-control:not([disabled]) {
   cursor: pointer;
 }
 
-.img-field label.img-upload .zmdi {
-  font-size: 1.6rem;
+.img-field label.img-upload .zmdi,
+.img-field label.img-upload .mdi {
+  font-size: 1.8rem;
   color: #aaa;
-  font-weight: 300;
 }
 
 .img-field a.img-upload {
@@ -4177,6 +4179,12 @@ h3.modal-title > .rbv {
   font-weight: normal;
 }
 
+.mdedit-content a[target]:hover,
+.editor-preview a[target]:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
 .popover {
   max-width: 300px;
 }
@@ -4956,17 +4964,14 @@ pre.unstyle {
   border-top-color: var(--rb-theme-color);
 }
 
-.support-plat {
+.support-plat2 {
   position: absolute;
-  margin-left: 8px;
-  background-color: var(--rb-color);
-  color: #fff;
-  display: inline-block;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
   cursor: help;
-  text-align: center;
-  font-size: 13px;
+  font-size: 15px;
+  margin-top: -1px;
+  margin-left: 8px;
+}
+
+.modal-title > .support-plat2 {
+  margin-top: 7px;
 }

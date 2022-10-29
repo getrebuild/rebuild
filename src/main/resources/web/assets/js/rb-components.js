@@ -999,6 +999,33 @@ UserPopup.create = function (el) {
 // ~~ HTML 内容
 const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
+// ~~ MD > HTML
+class Md2Html extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { md2html: SimpleMDE.prototype.markdown(props.markdown) }
+  }
+
+  render() {
+    return <span ref={(c) => (this._$md2html = c)} dangerouslySetInnerHTML={{ __html: this.state.md2html }} />
+  }
+
+  componentDidMount() {
+    $(this._$md2html)
+      .find('a')
+      .each(function () {
+        const $this = $(this)
+        $this.attr({
+          href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
+          target: '_blank',
+        })
+        $this.on('click', (e) => {
+          $stopEvent(e, false)
+        })
+      })
+  }
+}
+
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>
 

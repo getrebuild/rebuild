@@ -31,7 +31,7 @@ class DataList extends React.Component {
   }
 }
 
-const _pageIps = []
+let _pageIps = []
 const CellRenders_renderSimple = CellRenders.renderSimple
 
 // eslint-disable-next-line react/display-name
@@ -39,7 +39,7 @@ CellRenders.renderSimple = function (v, s, k) {
   let comp = CellRenders_renderSimple(v, s, k)
   if (k.endsWith('.ipAddr')) {
     if (!_pageIps.contains(v)) _pageIps.push(v)
-    comp = React.cloneElement(comp, { className: `J_ip-${v.replace(/\./g, '-')}` })
+    comp = React.cloneElement(comp, { className: `J_ip-${v.replace(/[^0-9]/g, '')}` })
   }
   return comp
 }
@@ -50,13 +50,14 @@ RbList.renderAfter = function () {
       if (res.error_code === 0 && res.data.country !== 'N') {
         let L = res.data.country === 'R' ? $L('局域网') : [res.data.region, res.data.country].join(', ')
         L = `${ip} (${L})`
-        $(`.J_ip-${ip.replace(/\./g, '-')}`)
-          .attr('title', L)
+        $(`.J_ip-${ip.replace(/[^0-9]/g, '')}`)
           .find('div')
+          .attr('title', L)
           .text(L)
       }
     })
   })
+  _pageIps = []
 }
 
 // ~ 在线用户

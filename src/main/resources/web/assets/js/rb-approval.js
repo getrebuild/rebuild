@@ -399,11 +399,11 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
           </div>
           {approvals.length > 0 && this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>
-              {$L('提交')}
-            </button>
             <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>
               {$L('取消')}
+            </button>
+            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>
+              {$L('提交')}
             </button>
           </div>
         </div>

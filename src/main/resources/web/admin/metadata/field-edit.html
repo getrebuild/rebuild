@@ -161,6 +161,17 @@
                     <div class="form-text" th:utext="${bundle.L('如有多个类型请使用逗号分开')}"></div>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <i class="support-plat2 mdi mdi-cellphone-check" style="margin-left: -18px" th:title="${bundle.L('支持 H5')}"></i>
+                    [[${bundle.L('仅允许拍照上传')}]]
+                  </label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="imageCapture" /><span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('选项列表')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">

@@ -98,9 +98,12 @@ body {
   line-height: 1.428571;
 }
 
-.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content,
 .rbview-form .type-NTEXT.col-sm-12 .form-control-plaintext {
   max-height: 134px;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
+  max-height: 1001px;
 }
 
 .nav-tabs > li.nav-item a.nav-link {
