@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
 
 /**
  * Callback API:
@@ -1085,8 +1085,11 @@ class RbFormTextarea extends RbFormElement {
     if (this._height > 0) style.maxHeight = this._height
 
     if (this.props.useMdedit) {
-      const md2html = SimpleMDE.prototype.markdown(this.state.value)
-      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} style={style} />
+      return (
+        <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} style={style}>
+          <Md2Html markdown={this.state.value} />
+        </div>
+      )
     } else {
       return (
         <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>

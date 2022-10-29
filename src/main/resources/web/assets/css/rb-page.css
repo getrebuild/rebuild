@@ -4177,6 +4177,12 @@ h3.modal-title > .rbv {
   font-weight: normal;
 }
 
+.mdedit-content a[target]:hover,
+.editor-preview a[target]:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
 .popover {
   max-width: 300px;
 }
