@@ -780,6 +780,7 @@ body.dialog .main-content {
 
 .dialog-footer .btn {
   margin-left: 5px;
+  min-width: 98px;
 }
 
 .dialog-footer > .float-left > .custom-control {

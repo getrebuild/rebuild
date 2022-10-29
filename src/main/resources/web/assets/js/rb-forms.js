@@ -402,7 +402,7 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
         <div className="btn-group dropup btn-space">
