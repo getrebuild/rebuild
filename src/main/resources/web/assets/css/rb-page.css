@@ -4962,17 +4962,14 @@ pre.unstyle {
   border-top-color: var(--rb-theme-color);
 }
 
-.support-plat {
+.support-plat2 {
   position: absolute;
-  margin-left: 8px;
-  background-color: var(--rb-color);
-  color: #fff;
-  display: inline-block;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
   cursor: help;
-  text-align: center;
-  font-size: 13px;
+  font-size: 15px;
+  margin-top: -1px;
+  margin-left: 8px;
+}
+
+.modal-title > .support-plat2 {
+  margin-top: 7px;
 }

@@ -71,6 +71,11 @@ public class EasyFieldConfigProps {
     public static final String IMAGE_UPLOADNUMBER = FILE_UPLOADNUMBER;
 
     /**
+     * 图片获取方式（仅H5）
+     */
+    public static final String IMAGE_CAPTURE = "imageCapture";
+
+    /**
      * 自动编号规则
      */
     public static final String SERIES_FORMAT = "seriesFormat";
