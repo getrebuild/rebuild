@@ -39,12 +39,11 @@ public class QueryHelper {
     }
 
     /**
-     * 指定记录是否符合过滤条件
-     *
      * @param recordId
      * @param advFilter
      * @param useVarRecord
      * @return
+     * @see #isMatchFilter(ID, String)
      */
     public static boolean isMatchAdvFilter(ID recordId, JSONObject advFilter, boolean useVarRecord) {
         if (!ParseHelper.validAdvFilter(advFilter)) return true;
@@ -52,15 +51,26 @@ public class QueryHelper {
         String filterSql = useVarRecord ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
                 : new AdvFilterParser(advFilter).toSqlWhere();
 
-        if (filterSql != null) {
-            Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-            String sql = MessageFormat.format(
-                    "select {0} from {1} where {0} = ? and {2}",
-                    entity.getPrimaryField().getName(), entity.getName(), filterSql);
-            Object[] m = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
-            return m != null;
-        }
-        return true;
+        return isMatchFilter(recordId, filterSql);
+    }
+
+    /**
+     * 指定记录是否符合过滤条件
+     *
+     * @param recordId
+     * @param filterSql
+     * @return
+     */
+    public static boolean isMatchFilter(ID recordId, String filterSql) {
+        if (StringUtils.isBlank(filterSql)) return true;
+
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String sql = MessageFormat.format(
+                "select {0} from {1} where {0} = ? and {2}",
+                entity.getPrimaryField().getName(), entity.getName(), filterSql);
+
+        Object[] m = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+        return m != null;
     }
 
     /**

@@ -10,7 +10,6 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
-import cn.hutool.core.io.FileUtil;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -89,7 +88,7 @@ public class FileDownloader extends BaseController {
                 response.setContentType(mimeType);
             }
 
-            ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
+            final ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
 
             // 使用原图
             if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
@@ -105,7 +104,7 @@ public class FileDownloader extends BaseController {
                     return;
                 }
 
-                writeLocalFile(iv2.thumb(img), response);
+                writeLocalFile(iv2.thumbQuietly(img), response);
             }
 
         } else {

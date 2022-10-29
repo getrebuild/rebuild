@@ -118,7 +118,7 @@ public class Entity2Schema extends Field2Schema {
         }
         record.setString("nameField", nameFiled);
         record = Application.getCommonsService().create(record);
-        recordedMetaId.add(record.getPrimary());
+        recordedMetaIds.add(record.getPrimary());
 
         Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, nameFiled);
         try {
@@ -151,15 +151,17 @@ public class Entity2Schema extends Field2Schema {
                 createBuiltinField(tempEntity, EntityHelper.OwningUser, Language.L("所属用户"), DisplayType.REFERENCE, null, "User", null);
                 createBuiltinField(tempEntity, EntityHelper.OwningDept, Language.L("所属部门"), DisplayType.REFERENCE, null, "Department", null);
             }
+
         } catch (Throwable ex) {
-            log.error(null, ex);
-            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
+            log.error("Error on create fields", ex);
+            Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
+
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库 : %s", ex.getLocalizedMessage()));
         }
 
         boolean schemaReady = schema2Database(tempEntity);
         if (!schemaReady) {
-            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 

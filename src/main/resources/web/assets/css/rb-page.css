@@ -912,14 +912,8 @@ select.form-control:not([disabled]) {
 }
 
 @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3,
-  .form-layout > .row .form-group.col-sm-4 {
-    padding-right: 0;
-  }
-
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label,
-  .form-layout > .row .form-group.col-sm-4 > .col-form-label {
-    width: 110px;
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
+    width: 100px;
   }
 }
 
@@ -3537,7 +3531,7 @@ form {
 }
 
 #asideFilters .dropdown-item,
-#asideClass .dropdown-item {
+#asideCategory .dropdown-item {
   padding: 8px 10px;
   border-radius: 2px;
   font-size: 1rem;
@@ -3546,17 +3540,17 @@ form {
 }
 
 #asideFilters .dropdown-item:hover,
-#asideClass .dropdown-item:hover {
+#asideCategory .dropdown-item:hover {
   background-color: #eee;
 }
 
 #asideFilters .dropdown-item:active,
-#asideClass .dropdown-item:active {
+#asideCategory .dropdown-item:active {
   color: #404040;
 }
 
 #asideFilters .dropdown-item.active,
-#asideClass .dropdown-item.active {
+#asideCategory .dropdown-item.active {
   background-color: #4285f4;
   color: #fff;
 }
@@ -4930,20 +4924,27 @@ pre.unstyle {
   background-color: #eee;
 }
 
-/* mdi7 */
+/* v3: mdi7 */
+
+.mdi {
+  display: inline-block;
+  line-height: 1;
+}
+
+.mdi.text-bold::before {
+  font-weight: bold;
+}
+
+.zmdi.mdi::before {
+  line-height: unset;
+}
 
 .modal-header > .icon.mdi,
 .header-icon.mdi {
   font-size: 2rem;
-  line-height: 1;
 }
 
-.over-tab {
-  margin-top: -63px;
-  transition: margin-top 0.4s;
-}
-
-/* theme defs v3.1 */
+/* v3.1: theme defs */
 
 .rb-left-sidebar .sidebar-elements > li.active > a,
 .rb-left-sidebar .sidebar-elements > li.active > a > span,

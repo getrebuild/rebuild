@@ -113,12 +113,13 @@ public interface EntityService extends ServiceSpec {
     List<Record> getAndCheckRepeated(Record checkRecord, int limit);
 
     /**
-     * 审批（此处只是为了方便子类复写）
+     * 审批
      *
      * @param record
      * @param state 只接受通过或撤销
      * @param approvalUser 审批人
      * @see com.rebuild.core.service.approval.ApprovalStepService
+     * @see com.rebuild.core.service.approval.ApprovalProcessor
      */
     void approve(ID record, ApprovalState state, ID approvalUser);
 }

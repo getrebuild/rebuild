@@ -137,9 +137,7 @@ class AdvFilter extends React.Component {
         // 引用字段在引用实体修改了名称字段后可能存在问题
         // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
 
-        // noinspection DuplicatedCode
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
-          if (item.type === 'N2NREFERENCE') IS_N2NREF.push(item.name)
           REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
 
           // NOTE: Use `NameField` field-type
@@ -332,7 +330,6 @@ const OP_TYPE = {
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
-const IS_N2NREF = []
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -409,7 +406,7 @@ class FilterItem extends React.Component {
       }
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
-    } else if (fieldType === 'LOCATION' || IS_N2NREF.includes(this.state.field)) {
+    } else if (fieldType === 'LOCATION') {
       op = ['LK', 'NLK']
     }
 
@@ -820,25 +817,14 @@ class FilterItem extends React.Component {
 
     // 引用字段查询名称字段
     const isRefField = REFENTITY_CACHE[`${this._searchEntity}.${s.field}`]
-    if (isRefField && (!BIZZ_ENTITIES.includes(isRefField[0]) || s.type === 'N2NREFERENCE')) {
-      // 仅支持 LK NLK EQ NEQ
-      if (s.op === 'LK' || s.op === 'NLK' || s.op === 'EQ' || s.op === 'NEQ') {
+    if (isRefField && !BIZZ_ENTITIES.includes(isRefField[0])) {
+      if (!(s.op === 'NL' || s.op === 'NT')) {
         item.field = NAME_FLAG + item.field
-      } else {
-        console.log(`Unsupported op '${s.op}' for field '${s.field}'`)
       }
     }
 
     this.setState({ hasError: false })
     return item
-  }
-
-  clear() {
-    this.setState({ value: null, value2: null, hasError: false }, () => {
-      if (this._filterVal && this._filterVal.tagName === 'SELECT') {
-        $(this._filterVal).val(null).trigger('change')
-      }
-    })
   }
 }
 
