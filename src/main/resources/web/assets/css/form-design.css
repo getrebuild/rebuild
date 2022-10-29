@@ -327,7 +327,6 @@ form.field-attr label > span {
   position: absolute;
   font-size: 18px;
   left: 5px;
-  margin-top: -1px;
 }
 
 .form-preview .dd-handle:hover::before,

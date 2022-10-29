@@ -1056,7 +1056,8 @@ select.form-control:not([disabled]) {
 
 .img-field .img-upload[disabled],
 .img-field .img-upload[disabled]:hover,
-.img-field .img-upload[disabled] .zmdi {
+.img-field .img-upload[disabled] .zmdi,
+.img-field .img-upload[disabled] .mdi {
   opacity: 1 !important;
   color: #dbdbdb !important;
   cursor: not-allowed !important;
@@ -1071,10 +1072,10 @@ select.form-control:not([disabled]) {
   cursor: pointer;
 }
 
-.img-field label.img-upload .zmdi {
-  font-size: 1.6rem;
+.img-field label.img-upload .zmdi,
+.img-field label.img-upload .mdi {
+  font-size: 1.8rem;
   color: #aaa;
-  font-weight: 300;
 }
 
 .img-field a.img-upload {

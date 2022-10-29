@@ -1317,7 +1317,7 @@ class RbFormImage extends RbFormElement {
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
-            <span className="zmdi zmdi-image-alt" />
+            <span className="zmdi zmdi-image-alt mt-1" />
           </label>
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
@@ -2279,7 +2279,7 @@ class RbFormSign extends RbFormElement {
               }
             }}
             disabled={this.props.readonly}>
-            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-border-color" />}
+            {value ? <img src={value} alt="SIGN" /> : <span className="mdi mdi-file-sign" />}
           </label>
         </span>
       </div>
