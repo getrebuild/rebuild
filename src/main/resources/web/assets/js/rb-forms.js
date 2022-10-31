@@ -1292,10 +1292,22 @@ class RbFormImage extends RbFormElement {
 
   renderElement() {
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !this.props.readonly
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly && !this.props.imageCapture
 
-    if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+    if (value.length === 0) {
+      if (this.props.readonly) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('只读')}
+          </div>
+        )
+      } else if (this.props.imageCapture) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('仅允许拍照上传')}
+          </div>
+        )
+      }
     }
 
     return (
@@ -1356,6 +1368,9 @@ class RbFormImage extends RbFormElement {
       if (!this._fieldValue__input) {
         console.warn('No element `_fieldValue__input` defined')
         return
+      } else if (this.props.imageCapture === true) {
+        // Camera only
+        return
       }
 
       let mp
@@ -1408,7 +1423,11 @@ class RbFormFile extends RbFormImage {
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
     if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+      return (
+        <div className="form-control-plaintext text-muted">
+          <i className="mdi mdi-information-outline" /> {$L('只读')}
+        </div>
+      )
     }
 
     return (
