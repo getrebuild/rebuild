@@ -39,6 +39,7 @@ $(document).ready(() => {
     // v3.1
     if ($('#notCoEditing')[0]) {
       extConfig.notCoEditing = $val('#notCoEditing')
+      extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -154,7 +155,6 @@ $(document).ready(() => {
   })
 
   // v3.1
-  if (wpc.extConfig.notCoEditing) {
-    $('#notCoEditing').attr('checked', true)
-  }
+  if (wpc.extConfig.notCoEditing) $('#notCoEditing').attr('checked', true)
+  if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
 })

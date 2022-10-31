@@ -525,8 +525,7 @@ class RbForm extends React.Component {
     if (this.__post === 1) return
     this.__post = 1
     setTimeout(() => (this.__post = 0), 800)
-
-    setTimeout(() => this._post(next), 30)
+    setTimeout(() => this._post(next), 40)
   }
 
   _post(next) {
@@ -548,6 +547,11 @@ class RbForm extends React.Component {
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
+
+      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty === true) {
+        RbHighbar.create($L('请添加明细'))
+        return
+      }
       data['$DETAILS$'] = details
     }
 

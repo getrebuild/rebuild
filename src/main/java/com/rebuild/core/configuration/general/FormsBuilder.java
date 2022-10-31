@@ -197,9 +197,10 @@ public class FormsBuilder extends FormsManager {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
         } else if (entityMeta.getDetailEntity() != null) {
             // v3.1
-            if (!entityMeta.getDetailEntity().getExtraAttrs()
-                    .getBooleanValue(EasyEntityConfigProps.NOT_COEDITING)) {
+            if (!entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.NOT_COEDITING)) {
                 model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+                model.set("detailsNotEmpty",
+                        entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
             }
         }
 

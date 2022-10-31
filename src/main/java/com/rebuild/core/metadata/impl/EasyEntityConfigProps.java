@@ -25,6 +25,10 @@ public class EasyEntityConfigProps {
      * 关闭共同编辑
      */
     public static final String NOT_COEDITING = "notCoEditing";
+    /**
+     * 明细不允许为空
+     */
+    public static final String DETAILS_NOTEMPTY = "detailsNotEmpty";
 
     /**
      * 隐藏常用查询面板
