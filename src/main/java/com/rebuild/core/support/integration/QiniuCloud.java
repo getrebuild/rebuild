@@ -9,6 +9,7 @@ package com.rebuild.core.support.integration;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
@@ -252,29 +253,21 @@ public class QiniuCloud {
      * @see #parseFileName(String)
      */
     public static String formatFileKey(String fileName, boolean keepName) {
-        if (!keepName) {
-            String[] fileNameSplit = fileName.split("\\.");
-            fileName = CommonsUtils.randomHex(true);
-            if (fileNameSplit.length > 1 && StringUtils.isNotBlank(fileNameSplit[fileNameSplit.length - 1])) {
-                fileName += "." + fileNameSplit[fileNameSplit.length - 1];
-            }
-
-        } else {
+        if (keepName) {
             while (fileName.contains("__")) {
                 fileName = fileName.replace("__", "_");
             }
-            if (fileName.contains("+")) {
-                fileName = fileName.replace("+", "");
-            }
-            if (fileName.contains("#")) {
-                fileName = fileName.replace("#", "");
-            }
-            if (fileName.contains("?")) {
-                fileName = fileName.replace("?", "");
-            }
+            // 去除特殊符号
+            fileName = fileName.replaceAll("[&+#?%=/\\s]", "");
+
             if (fileName.length() > 41) {
                 fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
             }
+
+        } else {
+            String fileExt = FileUtil.getSuffix(fileName);
+            fileName = CommonsUtils.randomHex(true);
+            if (StringUtils.isNotBlank(fileExt)) fileName += "." + fileExt;
         }
 
         String datetime = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
