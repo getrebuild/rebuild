@@ -111,7 +111,7 @@ public class RecordTransfomer extends SetUser {
             sourceDetailEntity = sourceEntity.getDetailEntity();
             Field sourceRefField;
 
-            // v2.10 1 > 2（主+明细）
+            // v2.10 1条记录 > 2条记录（主+明细）
             if (sourceDetailEntity == null) {
                 sourceDetailEntity = sourceEntity;
                 sourceRefField = sourceDetailEntity.getPrimaryField();
@@ -120,7 +120,7 @@ public class RecordTransfomer extends SetUser {
             }
 
             String sql = String.format(
-                    "select %s from %s where %s = '%s'",
+                    "select %s from %s where %s = '%s' order by autoId asc",
                     sourceDetailEntity.getPrimaryField().getName(), sourceDetailEntity.getName(), sourceRefField.getName(), sourceRecordId);
             sourceDetails = Application.createQueryNoFilter(sql).array();
         }

@@ -54,8 +54,10 @@ public class FormsBuilder extends FormsManager {
 
     // 分割线
     public static final String DIVIDER_LINE = "$DIVIDER$";
+
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
+
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
 
@@ -266,7 +268,8 @@ public class FormsBuilder extends FormsManager {
         final Date now = CalendarUtils.now();
 
         // 新建
-        final boolean isNew = recordData == null || recordData.getPrimary() == null || EntityHelper.isUnsavedId(recordData.getPrimary());
+        final boolean isNew = recordData == null || recordData.getPrimary() == null
+                || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -551,7 +554,8 @@ public class FormsBuilder extends FormsManager {
             inFormFields.add(((JSONObject) o).getString("field"));
         }
 
-        // 保持在初始值中（TODO 更多保持字段）
+        // 保持在初始值中
+        // TODO 更多保持字段
         Set<String> initialValKeeps = new HashSet<>();
 
         Map<String, Object> initialValReady = new HashMap<>();
@@ -575,8 +579,10 @@ public class FormsBuilder extends FormsManager {
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value)
-                        : (DV_MAINID.equals(value) ? EntityHelper.UNSAVED_ID : value);
+                Object mixValue = inFormFields.contains(dtmField.getName())
+                        ? getReferenceMixValue(value)
+                        : (isNewMainId(value) ? EntityHelper.UNSAVED_ID : value);
+
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
@@ -621,7 +627,7 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON getReferenceMixValue(String idValue) {
-        if (DV_MAINID.equals(idValue)) {
+        if (isNewMainId(idValue)) {
             return FieldValueHelper.wrapMixValue(EntityHelper.UNSAVED_ID, Language.L("新的"));
         } else if (!ID.isId(idValue)) {
             return null;
@@ -668,5 +674,9 @@ public class FormsBuilder extends FormsManager {
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
         return o == null ? null : (ID) o[0];
+    }
+
+    private boolean isNewMainId(Object id) {
+        return DV_MAINID.equals(id) || EntityHelper.isUnsavedId(id);
     }
 }
