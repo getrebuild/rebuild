@@ -1470,7 +1470,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   )
 })
 
-CellRenders.addRender('REFERENCE', function (v, s, k) {
+const renderReference = function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1480,7 +1480,9 @@ CellRenders.addRender('REFERENCE', function (v, s, k) {
       </div>
     </td>
   )
-})
+}
+CellRenders.addRender('REFERENCE', renderReference)
+CellRenders.addRender('ANYREFERENCE', renderReference)
 
 CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
   v = v || []
