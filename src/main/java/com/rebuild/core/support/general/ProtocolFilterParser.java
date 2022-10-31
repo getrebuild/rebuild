@@ -149,7 +149,10 @@ public class ProtocolFilterParser {
 
         // 字段附加过滤条件
         JSONObject fieldFilter = getFieldDataFilter(field);
-        if (fieldFilter != null) sqls.add(new AdvFilterParser(fieldFilter).toSqlWhere());
+        if (ParseHelper.validAdvFilter(fieldFilter)) {
+            String s = new AdvFilterParser(fieldFilter).toSqlWhere();
+            if (StringUtils.isNotBlank(s)) sqls.add(s);
+        }
 
         // 父级级联字段
         if (hasFieldCascadingField(field) && ID.isId(cascadingValue)) {
@@ -160,15 +163,16 @@ public class ProtocolFilterParser {
                 String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
                 sqls.add(String.format("%s = '%s'", fs[1], cascadingValue));
             }
+
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
 
-                String sql = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
+                String s = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
                         fs[1], refEntity.getName(),
                         field.getReferenceEntity().getPrimaryField().getName(), fs[1],
                         refEntity.getPrimaryField().getName(), cascadingValue);
-                sqls.add(sql);
+                sqls.add(s);
             }
         }
 

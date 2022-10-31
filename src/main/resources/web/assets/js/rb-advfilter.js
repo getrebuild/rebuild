@@ -168,9 +168,7 @@ class AdvFilter extends React.Component {
           if (validFs.includes(item.field)) {
             this.addItem(item)
           } else {
-            if (this.props.id) {
-              this.setState({ hasErrorTip: $L('存在无效字段，可能已被管理员删除，建议你调整后重新保存') })
-            }
+            this.setState({ hasErrorTip: $L('存在无效字段，可能已被管理员删除，建议你调整后重新保存') })
             if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
           }
         })
