@@ -32,4 +32,5 @@ const FIELD_TYPES = {
   'SIGN': [$L('签名'), 'mdi-file-sign'],
   'BOOL': [$L('布尔'), 'mdi-toggle-switch-off-outline'],
   'STATE': [$L('状态'), 'mdi-language-java', true],
+  'ANYREFERENCE': [$L('任意引用'), 'mdi-language-java', true],
 }

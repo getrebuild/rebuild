@@ -1880,6 +1880,13 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
+// TODO 任意引用
+class RbFormAnyReference extends RbFormReference {
+  renderElement() {
+    return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
+  }
+}
+
 class RbFormClassification extends RbFormElement {
   constructor(props) {
     super(props)
@@ -2409,6 +2416,8 @@ var detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'N2NREFERENCE') {
     return <RbFormN2NReference {...item} />
+  } else if (item.type === 'ANYREFERENCE') {
+    return <RbFormAnyReference {...item} readonly />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
@@ -2418,7 +2427,7 @@ var detectElement = function (item) {
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
   } else if (item.type === 'BARCODE') {
-    return <RbFormBarcode {...item} readonly={true} />
+    return <RbFormBarcode {...item} readonly />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'LOCATION') {
