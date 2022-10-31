@@ -79,6 +79,7 @@ public class MetaEntityController extends BaseController {
 
         mv.getModel().put("nameField", metaEntity.getNameField().getName());
 
+        mv.getModel().put("currentEntity", metaEntity.getName());
         if (metaEntity.getMainEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());
             mv.getModel().put("detailEntity", metaEntity.getName());

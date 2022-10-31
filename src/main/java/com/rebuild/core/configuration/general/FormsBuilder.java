@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -195,7 +196,11 @@ public class FormsBuilder extends FormsManager {
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
         } else if (entityMeta.getDetailEntity() != null) {
-            model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+            // v3.1
+            if (!entityMeta.getDetailEntity().getExtraAttrs()
+                    .getBooleanValue(EasyEntityConfigProps.NOT_COEDITING)) {
+                model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+            }
         }
 
         if (recordData != null && recordData.hasValue(EntityHelper.ModifiedOn)) {

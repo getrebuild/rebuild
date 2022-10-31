@@ -21,6 +21,10 @@ public class EasyEntityConfigProps {
      * 实体分类
      */
     public static final String TAGS = "tags";
+    /**
+     * 关闭共同编辑
+     */
+    public static final String NOT_COEDITING = "notCoEditing";
 
     /**
      * 隐藏常用查询面板

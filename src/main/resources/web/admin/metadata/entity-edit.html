@@ -74,6 +74,15 @@
                     <p class="form-text mb-0">[[${bundle.L('用于列表、表单引用字段等处的快速查询')}]]</p>
                   </div>
                 </div>
+                <div class="form-group row bosskey-show" th:if="${currentEntity == detailEntity}">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">Not Co-Editing</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="notCoEditing" />
+                      <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
