@@ -211,6 +211,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
      */
     protected static String getRequestUrls(HttpServletRequest request) {
         String reqUrl = request.getRequestURL().toString();
+        if (StringUtils.isNotBlank(request.getQueryString())) reqUrl += "?" + request.getQueryString();
         String refUrl = ServletUtils.getReferer(request);
 
         if (refUrl == null) return reqUrl;

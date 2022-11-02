@@ -43,4 +43,12 @@ public class RbAssert {
             throw new DefinedException(message);
         }
     }
+
+    /**
+     * @param expression
+     * @see #is(boolean, String)
+     */
+    public static void checkAllow(boolean expression) {
+        is(expression, "Not Allow");
+    }
 }

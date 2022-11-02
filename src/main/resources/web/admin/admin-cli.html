@@ -69,6 +69,7 @@
             $.post('/admin/admin-cli/exec', c, (o) => {
               $c.addClass('ok')
               if (o && o.data) _print(o.data, true)
+              else if (o && o.error_msg) _print(`ERROR: ${o.error_msg}`, true)
             })
           }
         })

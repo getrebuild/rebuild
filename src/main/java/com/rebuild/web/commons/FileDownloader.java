@@ -12,7 +12,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -217,7 +216,7 @@ public class FileDownloader extends BaseController {
         if (filepath.contains("../")
                 || filepath.startsWith("_log/") || filepath.contains("/_log/")
                 || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
-            throw new RebuildException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + filepath);
         }
         return filepath;
     }
