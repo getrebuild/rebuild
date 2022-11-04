@@ -37,7 +37,8 @@ const FolderTree = {
             FolderTree._findPaths($('#navTree li.active'), paths)
             const $ol = $('.file-path ol').empty()
             $(paths).each((idx, item) => {
-              $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo($ol)
+              const $li = $('<li class="breadcrumb-item active"></li>').appendTo($ol)
+              $li.text(item[0])
             })
             location.hash = `!/Folder/${item.id}`
           }}

@@ -131,33 +131,40 @@ public class RobotTriggerObserver extends OperatingObserver {
             if (o != null) log.warn("Force clean last trigger-chain : {}", o);
 
         } else {
-            // 是否自己触发自己，避免无限执行
-            boolean isOriginRecord = primaryId.equals(triggerSource.getOriginRecord());
 
-            String lastKey = triggerSource.getLastSourceKey();
+//            // FIXME 20220811 此处的判断可能不需要，因为有 `trigger-chain`
+//
+//            // 是否自己触发自己，避免无限执行
+//            boolean isOriginRecord = primaryId.equals(triggerSource.getOriginRecord());
+//
+//            String lastKey = triggerSource.getLastSourceKey();
+//            triggerSource.addNext(context, when);
+//            String currentKey = triggerSource.getLastSourceKey();
+//
+//            if (isOriginRecord && lastKey.equals(currentKey)) {
+//                if (!triggerSource.isSkipOnce()) {
+//                    log.warn("Self trigger, ignore : {} < {}", currentKey, lastKey);
+//                    return;
+//                }
+//            }
+
+            // v3.1-b5
             triggerSource.addNext(context, when);
-            String currentKey = triggerSource.getLastSourceKey();
-
-            if (isOriginRecord && lastKey.equals(currentKey)) {
-                if (!triggerSource.isSkipOnce()) {
-                    log.warn("Self trigger, ignore : {} < {}", currentKey, lastKey);
-                    return;
-                }
-            }
-
-            // FIXME 20220811 此处的判断可能不需要，因为有 `trigger-chain`
         }
 
         final String sourceId = triggerSource.getSourceId();
         try {
             for (TriggerAction action : beExecuted) {
-                String w = String.format("Trigger.%s [ %s ] executing on record (%s) : %s",
-                        sourceId, action.getType(), when.name(), primaryId);
+                final int t = triggerSource.incrTriggerTimes();
+                final String w = String.format("Trigger.%s.%d [ %s ] executing on record (%s) : %s",
+                        sourceId, t, action, when, primaryId);
                 log.info(w);
 
                 try {
                     Object res = action.execute(context);
-                    System.out.println("[dev] " + w + " > " + (res == null ? "N" : res));
+
+                    boolean hasAffected = res instanceof TriggerResult && ((TriggerResult) res).hasAffected();
+                    System.out.println("[dev] " + w + " > " + (res == null ? "N" : res) + (hasAffected ? " < REALLY AFFECTED" : ""));
 
                     if (res instanceof TriggerResult) {
                         if (originTriggerSource) {

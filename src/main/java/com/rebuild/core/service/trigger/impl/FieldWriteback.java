@@ -102,6 +102,8 @@ public class FieldWriteback extends FieldAggregation {
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
 
         List<ID> affected = new ArrayList<>();
+        boolean targetSame = false;
+
         for (ID targetRecordId : targetRecordIds) {
             if (operatingContext.getAction() == BizzPermission.DELETE
                     && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
@@ -116,6 +118,7 @@ public class FieldWriteback extends FieldAggregation {
             // 相等则不更新
             if (isCurrentSame(targetRecord)) {
                 log.info("Ignore execution because the record are same : {}", targetRecordId);
+                targetSame = true;
                 continue;
             }
 
@@ -145,7 +148,8 @@ public class FieldWriteback extends FieldAggregation {
             }
         }
 
-        return TriggerResult.success(affected);
+        if (targetSame && affected.isEmpty()) return TriggerResult.targetSame();
+        else return TriggerResult.success(affected);
     }
 
     @Override

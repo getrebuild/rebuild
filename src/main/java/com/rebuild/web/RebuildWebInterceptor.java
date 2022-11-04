@@ -86,11 +86,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
         request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
 
-        final String requestUri = requestEntry.getRequestUri();
+        final String requestUrl = requestEntry.getRequestUrl();
 
         // 服务暂不可用
         if (!Application.isReady()) {
-            final boolean isError = requestUri.endsWith("/error") || requestUri.contains("/error/");
+            final boolean isError = requestUrl.endsWith("/error") || requestUrl.contains("/error/");
 
             // 已安装
             if (checkInstalled()) {
@@ -104,7 +104,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
             }
             // 未安装
-            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || isError)) {
+            else if (!(requestUrl.contains("/setup/") || requestUrl.contains("/commons/theme/") || isError)) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
             } else {
@@ -120,9 +120,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (requestUser != null) {
 
             // 管理中心二次验证
-            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
+            if (requestUrl.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
                 if (isHtmlRequest(request)) {
-                    sendRedirect(response, "/user/admin-verify", requestUri);
+                    sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUri());
                 } else {
                     response.sendError(HttpStatus.FORBIDDEN.value());
                 }
@@ -133,8 +133,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             // User
             request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
-            request.setAttribute(ZeroEntry.AllowCustomNav.name(),
-                    Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
 
             if (isHtmlRequest(request)) {
                 // Last active
@@ -144,25 +142,28 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
                 String sideCollapsedClazz = BooleanUtils.toBoolean(sidebarCollapsed) ? "rb-collapsible-sidebar-collapsed" : "";
                 // Aside collapsed
-                if (!(requestUri.contains("/admin/") || requestUri.contains("/setup/"))) {
+                if (!(requestUrl.contains("/admin/") || requestUrl.contains("/setup/"))) {
                     String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
                     if (BooleanUtils.toBoolean(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
+
+                request.setAttribute(ZeroEntry.AllowCustomNav.name(),
+                        Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
             }
 
             // 非增强安全超管可访问
             if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) skipCheckSafeUse = false;
             else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
-        } else if (!isIgnoreAuth(requestUri)) {
+        } else if (!isIgnoreAuth(requestUrl)) {
             // 独立验证逻辑
-            if (requestUri.contains("/filex/")) return true;
+            if (requestUrl.contains("/filex/")) return true;
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
             if (isHtmlRequest(request)) {
-                sendRedirect(response, "/user/login", requestUri);
+                sendRedirect(response, "/user/login", requestEntry.getRequestUri());
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
             }
@@ -172,7 +173,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             skipCheckSafeUse = true;
         }
 
-        if (!skipCheckSafeUse) checkSafeUse(ipAddr, requestUri);
+        if (!skipCheckSafeUse) checkSafeUse(ipAddr, requestEntry.getRequestUri());
 
         return true;
     }
@@ -314,6 +315,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static class RequestEntry {
         final long requestTime;
         final String requestUri;
+        final String requestUrl;
         final ID requestUser;
         final String locale;
 
@@ -321,6 +323,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             this.requestTime = System.currentTimeMillis();
             this.requestUri = request.getRequestURI()
                     + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
+            this.requestUrl = request.getRequestURI();
             this.requestUser = AppUtils.getRequestUser(request, true);
             this.locale = locale;
         }

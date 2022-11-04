@@ -9,8 +9,8 @@ package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.hutool.core.date.DateBetween;
 import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.date.DateUtil;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorNil;
@@ -84,12 +84,13 @@ public class DateDiffFunction extends AbstractFunction {
         } else {
 
             long res = 0;
+            DateBetween between = DateBetween.create($date1, $date2, Boolean.FALSE);
 
-            if (AviatorDate.DU_YEAR.equalsIgnoreCase($du)) res = DateUtil.betweenYear($date1, $date2, true);
-            else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) res = DateUtil.betweenMonth($date1, $date2, true);
-            else if (AviatorDate.DU_DAY.equalsIgnoreCase($du)) res = DateUtil.betweenDay($date1, $date2, true);
-            else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) res = DateUtil.between($date1, $date2, DateUnit.HOUR, false);
-            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) res = DateUtil.between($date1, $date2, DateUnit.MINUTE, false);
+            if (AviatorDate.DU_YEAR.equalsIgnoreCase($du)) res = between.betweenYear(Boolean.TRUE);
+            else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) res = between.betweenMonth(Boolean.TRUE);
+            else if (AviatorDate.DU_DAY.equalsIgnoreCase($du)) res = between.between(DateUnit.DAY);
+            else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) res = between.between(DateUnit.HOUR);
+            else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) res = between.between(DateUnit.MINUTE);
 
             return AviatorLong.valueOf(res);
         }

@@ -36,6 +36,12 @@ $(document).ready(() => {
       quickFields: $('#quickFields').val().join(','),
       tags: $('#tags').val().join(','),
     }
+    // v3.1
+    if ($('#notCoEditing')[0]) {
+      extConfig.notCoEditing = $val('#notCoEditing')
+      extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
+    }
+
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
     if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
 
@@ -147,4 +153,8 @@ $(document).ready(() => {
       $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
   })
+
+  // v3.1
+  if (wpc.extConfig.notCoEditing) $('#notCoEditing').attr('checked', true)
+  if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
 })

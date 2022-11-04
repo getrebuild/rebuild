@@ -129,8 +129,9 @@ public class QueryHelper {
      */
     public static List<ID> detailIdsNoFilter(ID mainId) {
         Entity detailEntity = MetadataHelper.getEntity(mainId.getEntityCode()).getDetailEntity();
-        String sql = String.format("select %s from %s where %s = ?",
-                detailEntity.getPrimaryField().getName(), detailEntity.getName(),
+        String sql = String.format("select %s from %s where %s = ? order by autoId asc",
+                detailEntity.getPrimaryField().getName(),
+                detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
 
         Query query = Application.createQueryNoFilter(sql).setParameter(1, mainId);

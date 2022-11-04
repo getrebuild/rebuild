@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
+import cn.devezhao.persist4j.metadata.impl.AnyEntity;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
@@ -317,6 +318,8 @@ public class Field2Schema extends SetUser {
             refEntity = "PickList";
         } else if (dt == DisplayType.CLASSIFICATION) {
             refEntity = "ClassificationData";
+        } else if (dt == DisplayType.ANYREFERENCE) {
+            refEntity = AnyEntity.FLAG;
         }
 
         if (extConfig != null) {
@@ -327,7 +330,7 @@ public class Field2Schema extends SetUser {
             // 忽略验证实体是否存在
             // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
             if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
-                if (!MetadataHelper.containsEntity(refEntity)) {
+                if (!(MetadataHelper.containsEntity(refEntity) || AnyEntity.FLAG.equals(refEntity))) {
                     throw new MetadataModificationException(Language.L("无效引用实体 : %s", refEntity));
                 }
             }

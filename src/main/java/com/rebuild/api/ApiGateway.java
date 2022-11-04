@@ -20,6 +20,8 @@ import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
@@ -165,6 +167,9 @@ public class ApiGateway extends Controller implements Initialization {
 
         // 明文签名
         if (timestamp == null && signType == null) {
+            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) {
+                throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] or [sign_type]");
+            }
             if (!apiConfig.getString("appSecret").equals(sign)) {
                 throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] : " + sign);
             }

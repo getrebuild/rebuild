@@ -110,9 +110,7 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     public String toSqlWhere() {
-        if (filterExpr == null || filterExpr.isEmpty()) {
-            return null;
-        }
+        if (filterExpr == null || filterExpr.isEmpty()) return null;
 
         this.includeFields = new HashSet<>();
 

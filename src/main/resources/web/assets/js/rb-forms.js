@@ -525,8 +525,7 @@ class RbForm extends React.Component {
     if (this.__post === 1) return
     this.__post = 1
     setTimeout(() => (this.__post = 0), 800)
-
-    setTimeout(() => this._post(next), 30)
+    setTimeout(() => this._post(next), 40)
   }
 
   _post(next) {
@@ -548,6 +547,11 @@ class RbForm extends React.Component {
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
+
+      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty === true) {
+        RbHighbar.create($L('请添加明细'))
+        return
+      }
       data['$DETAILS$'] = details
     }
 
@@ -1292,10 +1296,22 @@ class RbFormImage extends RbFormElement {
 
   renderElement() {
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !this.props.readonly
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly && !this.props.imageCapture
 
-    if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+    if (value.length === 0) {
+      if (this.props.readonly) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('只读')}
+          </div>
+        )
+      } else if (this.props.imageCapture) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('仅允许拍照上传')}
+          </div>
+        )
+      }
     }
 
     return (
@@ -1356,6 +1372,9 @@ class RbFormImage extends RbFormElement {
       if (!this._fieldValue__input) {
         console.warn('No element `_fieldValue__input` defined')
         return
+      } else if (this.props.imageCapture === true) {
+        // Camera only
+        return
       }
 
       let mp
@@ -1408,7 +1427,11 @@ class RbFormFile extends RbFormImage {
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
     if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+      return (
+        <div className="form-control-plaintext text-muted">
+          <i className="mdi mdi-information-outline" /> {$L('只读')}
+        </div>
+      )
     }
 
     return (
@@ -1854,6 +1877,13 @@ class RbFormN2NReference extends RbFormReference {
     if (!destroy && this.__select2) {
       this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
+  }
+}
+
+// TODO 任意引用
+class RbFormAnyReference extends RbFormReference {
+  renderElement() {
+    return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
   }
 }
 
@@ -2386,6 +2416,8 @@ var detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'N2NREFERENCE') {
     return <RbFormN2NReference {...item} />
+  } else if (item.type === 'ANYREFERENCE') {
+    return <RbFormAnyReference {...item} readonly />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
@@ -2395,7 +2427,7 @@ var detectElement = function (item) {
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
   } else if (item.type === 'BARCODE') {
-    return <RbFormBarcode {...item} readonly={true} />
+    return <RbFormBarcode {...item} readonly />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'LOCATION') {

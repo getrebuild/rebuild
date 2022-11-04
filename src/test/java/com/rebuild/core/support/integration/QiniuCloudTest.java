@@ -22,23 +22,7 @@ import java.io.File;
 public class QiniuCloudTest extends TestSupport {
 
     @Test
-    void testUploadAndMakeUrl() throws Exception {
-        if (!QiniuCloud.instance().available()) return;
-
-        File file = ResourceUtils.getFile("classpath:classification-demo.xlsx");
-        String uploadKey = QiniuCloud.instance().upload(file);
-        System.out.println("uploadKey ... " + uploadKey);
-
-        String downloadUrl = QiniuCloud.instance().makeUrl(uploadKey);
-        System.out.println("downloadUrl ... " + downloadUrl);
-
-        QiniuCloud.instance().delete(uploadKey);
-    }
-
-    @Test
     void testFormatKey() {
-        if (!QiniuCloud.instance().available()) return;
-
         String fileName = "imtestfile.txt";
         String fileKey = QiniuCloud.formatFileKey(fileName);
         System.out.println("File key ... " + fileKey);
@@ -46,8 +30,26 @@ public class QiniuCloudTest extends TestSupport {
         Assertions.assertEquals(fileName, fileName2);
 
         System.out.println("File2 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt"));
+        System.out.println("File2 key ... " + QiniuCloud.formatFileKey("1123++545#e+++?&&f  d / fefe%=.txt"));
         System.out.println("File3 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt", false));
         System.out.println("File4 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe", false));
+    }
+
+    @Test
+    void testUploadAndMakeUrl() throws Exception {
+        if (!QiniuCloud.instance().available()) return;
+
+        File file = ResourceUtils.getFile("classpath:classification-demo.xlsx");
+        String uploadKey = QiniuCloud.instance().upload(file);
+        System.out.println("upload key ... " + uploadKey);
+
+        String downloadUrl = QiniuCloud.instance().makeUrl(uploadKey);
+        System.out.println("download url ... " + downloadUrl);
+
+        File temp = QiniuCloud.getStorageFile(uploadKey);
+        System.out.println("downloaded file ... " + temp);
+
+        QiniuCloud.instance().delete(uploadKey);
     }
 
     @Test
@@ -63,6 +65,7 @@ public class QiniuCloudTest extends TestSupport {
     @Test
     void stats() {
         if (!QiniuCloud.instance().available()) return;
+
         System.out.println(QiniuCloud.instance().stats());
     }
 }

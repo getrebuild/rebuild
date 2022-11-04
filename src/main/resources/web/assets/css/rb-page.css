@@ -2429,6 +2429,10 @@ th.column-fixed {
   padding: 30px;
 }
 
+.dropdown-menu-advfilter .alert {
+  display: none;
+}
+
 div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
   width: 100%;
   display: block;
