@@ -16,7 +16,7 @@ class BaseChart extends React.Component {
   }
 
   render() {
-    const opers = (
+    const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
           <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
@@ -46,7 +46,7 @@ class BaseChart extends React.Component {
       <div className={`chart-box ${this.props.type}`} ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
-          {opers}
+          {opActions}
         </div>
         <div ref={(c) => (this._$body = c)} className={`chart-body rb-loading ${!this.state.chartdata && 'rb-loading-active'}`}>
           {this.state.chartdata || <RbSpinner />}
@@ -79,7 +79,7 @@ class BaseChart extends React.Component {
 
   resize() {
     if (this._echarts) {
-      $setTimeout(() => this._echarts.resize(), 400, `resize-chart-${this.state.id || ''}`)
+      $setTimeout(() => this._echarts.resize(), 400, `resize-chart-${this.state.id}`)
     }
   }
 
@@ -141,7 +141,7 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const chartdata = (
-      <div className="chart index" ref={(c) => (this._chart = c)}>
+      <div className="chart index color" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
           <p>{data.index.label || this.label}</p>
           <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
@@ -154,16 +154,20 @@ class ChartIndex extends BaseChart {
   }
 
   resize() {
-    $setTimeout(() => this._resize(), 200, 'resize-chart-index')
+    $setTimeout(() => this._resize(), 200, `resize-chart-${this.props.id}`)
   }
 
   _resize() {
-    const ch = $(this._chart).height()
-    const $text = $(this._chart).find('strong')
-    let zoom = $(this._chart).width() / $text.width() / 3
-    if (zoom < 1 || ch < 120) zoom = 1
-    if (zoom > 2 && ch < 200) zoom = 2
-    $text.css('zoom', Math.min(zoom, 3))
+    const ch = $(this._$chart).height()
+    const zoom = ch > 100 ? 1.3 : 1
+    $(this._$chart).find('strong').css('zoom', zoom)
+
+    // const $text = $(this._$chart).find('strong')
+    // zoom = $(this._$chart).width() / $text.width()
+    // console.log(this.props.id, zoom)
+    // if (zoom < 1 || ch < 120) zoom = 1
+    // if (zoom > 2 && ch < 200) zoom = 2
+    // $text.css('zoom', Math.min(zoom, 3))
   }
 }
 
@@ -218,7 +222,7 @@ class ChartTable extends BaseChart {
         if (this._$tb) this._$tb.find('.ctable').css('height', this._$tb.height() - 20)
       },
       400,
-      'resize-chart-' + this.state.id
+      `resize-chart-${this.state.id}`
     )
   }
 }
@@ -248,6 +252,7 @@ const ECHART_BASE = {
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
+  color: RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {
@@ -702,7 +707,7 @@ class ApprovalList extends BaseChart {
         if (this._$tb) this._$tb.find('.ApprovalList').css('height', this._$tb.height() - 5)
       },
       400,
-      'resize-chart-' + this.state.id
+      `resize-chart-${this.state.id}`
     )
   }
 
@@ -808,7 +813,7 @@ class FeedsSchedule extends BaseChart {
         if (this._$tb) this._$tb.find('.FeedsSchedule').css('height', this._$tb.height() - 13)
       },
       400,
-      'resize-chart-' + this.state.id
+      `resize-chart-${this.state.id}`
     )
   }
 
@@ -1113,6 +1118,7 @@ const detectChart = function (cfg, id) {
   // isManageable = 图表可编辑
   // editable = 仪表盘可编辑
   const props = { config: cfg, id: id, title: cfg.title, type: cfg.type, isManageable: cfg.isManageable, editable: cfg.editable }
+
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, EMOJIS, SimpleMDE, Md2Html */
+/* global autosize, SimpleMDE, Md2Html */
 
 const wpc = window.__PageConfig
 
@@ -697,9 +697,7 @@ class ValueTags extends ValueComp {
 }
 
 class ValueTagsEditor extends React.Component {
-  static _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335']
-
-  state = { ...this.props, editMode: false, useColor: ValueTagsEditor._COLORS[0] }
+  state = { ...this.props, editMode: false, useColor: RBCOLORS[0] }
 
   render() {
     return (
@@ -778,7 +776,7 @@ class ValueTagsEditor extends React.Component {
             />
           </div>
           <div className="colors pt-2 pb-2 text-center">
-            {ValueTagsEditor._COLORS.map((color) => {
+            {RBCOLORS.map((color) => {
               return (
                 <a key={color} style={{ backgroundColor: color }} onClick={() => this.setState({ useColor: color })}>
                   {this.state.useColor === color && <i className="zmdi zmdi-check" />}
@@ -810,7 +808,7 @@ class ValueTagsEditor extends React.Component {
     if (typeof tag === 'object') {
       state = { ...state, createTagName: tag.name, tagId: tag.id, useColor: tag.color }
     } else {
-      state = { ...state, createTagName: this.state.searchTagName || '', tagId: null, useColor: ValueTagsEditor._COLORS[0] }
+      state = { ...state, createTagName: this.state.searchTagName || '', tagId: null, useColor: RBCOLORS[0] }
     }
 
     this.setState(state)
@@ -863,7 +861,7 @@ class ValueTagsEditor extends React.Component {
         this.fetchTags()
         this.toggleEditMode(false)
         this.props.$$$parent.refreshTags()
-        this.setState({ createTagName: null, useColor: ValueTagsEditor._COLORS[0] })
+        this.setState({ createTagName: null, useColor: RBCOLORS[0] })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -1082,8 +1080,8 @@ class RichTextEditor extends React.Component {
     this.state = { ...props }
 
     this.__es = []
-    for (let k in EMOJIS) {
-      const item = EMOJIS[k]
+    for (let k in RBEMOJIS) {
+      const item = RBEMOJIS[k]
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
           <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />

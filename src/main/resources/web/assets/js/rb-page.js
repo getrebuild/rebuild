@@ -753,7 +753,7 @@ var $mp = {
   },
 }
 
-var EMOJIS = {
+var RBEMOJIS = {
   '赞': 'rb_zan.png',
   '握手': 'rb_woshou.png',
   '耶': 'rb_ye.png',
@@ -835,8 +835,8 @@ var $converEmoji = function (text) {
   if (!es) return text
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
-    if (EMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" alt="' + key + '" />'
+    if (RBEMOJIS[key]) {
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" alt="' + key + '" />'
       text = text.replace(this, img)
     }
   })
@@ -995,3 +995,6 @@ var $isFullUrl = function (url) {
 var $isSysMask = function (label) {
   return label && (label.startsWith('SYS ') || label.contains('.SYS ')) && location.href.indexOf('/admin/') === -1
 }
+
+// 颜色
+var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']

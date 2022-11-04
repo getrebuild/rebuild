@@ -85,9 +85,8 @@ $(document).ready(() => {
     $this.addClass('select')
     render_option()
   })
-  $('.chart-option .custom-control').on('click', function () {
-    render_option()
-  })
+
+  $('.chart-option .custom-control').on('click', () => render_option())
 
   // 保存按钮
   $('.rb-toggle-left-sidebar')
@@ -377,12 +376,13 @@ const build_config = () => {
   if (dims.length === 0 && nums.length === 0) return
   cfg.axis = { dimension: dims, numerical: nums }
 
-  const opts = {}
+  const option = {}
   $('.chart-option input').each(function () {
     const name = $(this).data('name')
-    if (name) opts[name] = $val(this)
+    if (name) option[name] = $val(this)
   })
-  cfg.option = opts
+  if (option.useColor === '#000000') delete option.useColor
+  cfg.option = option
 
   if (dataFilter) cfg.filter = dataFilter
   // eslint-disable-next-line no-console

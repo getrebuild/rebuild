@@ -6,8 +6,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-undef */
 
-const _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']
-
 const isMulti = $urlp('multi') === 'true'
 const maxOptions = isMulti ? 20 : 100
 
@@ -15,7 +13,7 @@ $(document).ready(function () {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
 
   const $cs = $('.colors')
-  _COLORS.forEach((c) => {
+  RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
   })
   $cs.find('>a').on('click', function () {
