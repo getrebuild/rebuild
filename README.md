@@ -3,13 +3,13 @@
 [![Package](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/getrebuild?tab=packages&repo_name=rebuild)
 [![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
-[![License COMMERCIAL](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
+[![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
 
 ## 项目特色
 
-**_REBUILD 通过创新的业务流程引擎为你快速搭建各类企业管理系统，全图形化配置无需了解技术。_**
+**_REBUILD 通过创新的业务流程引擎帮助你快速搭建各类企业管理系统，全图形化配置无需了解技术。_**
 
-REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建，无需编程、无需编译代码，甚至无需了解技术。
+REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建！无需编程、无需编译代码，甚至无需了解任何技术。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
@@ -39,7 +39,7 @@ REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模
 
 ## 使用
 
-开始使用 REBUILD 非常简单，不需要搭建复杂的运行环境，零依赖快速部署，超简单！
+开始使用 REBUILD 非常简单，不需要配置复杂的运行环境，零依赖快速部署，超简单！
 
 #### 1. 使用已发布版本
 
@@ -80,7 +80,7 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 
 - JDK 1.8+（兼容 OpenJDK）
 - MySQL 5.6+
-- Redis 3.2+（非必须，默认使用内建的 Ehcache 缓存）
+- Redis 3.2+（非必须，默认使用内置的 Ehcache 缓存）
 - Tomcat 8.0+（非必须，默认使用 SpringBooot 内置 Tomcat）
 - Apache Maven 3.3+
 - IDEA 或 Eclipse (for JEE)
@@ -93,6 +93,6 @@ REBUILD 使用 GPL-3.0 开源许可和商业授权双重授权协议，使用将
 
 REBUILD uses the GPL-3.0 open source license and commercial license dual license agreement. Use will be deemed your voluntary commitment to accept all terms of the [Agreement](https://getrebuild.com/legal/service-terms).
 
-## 购买商业版
+## 购买商业授权
 
-从 2.0 版本开始，REBUILD 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 支持 REBUILD 可持续发展。除了增值功能以外，还可以得到更专业的技术支持服务。非常感谢！
+从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了永久享有全部最新功能以外，还可以得到更专业的技术支持服务。非常感谢！
