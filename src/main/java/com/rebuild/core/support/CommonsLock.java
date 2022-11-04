@@ -43,9 +43,9 @@ public class CommonsLock {
      * @return
      */
     public static Object[] getLockedUserFormat(ID source) {
-        ID l = getLockedUser(source);
-        if (l == null) return null;
-        return new Object[] { l, UserHelper.getName(l) };
+        ID u = getLockedUser(source);
+        if (u == null) return null;
+        return new Object[] { u, UserHelper.getName(u) };
     }
 
     /**
@@ -78,16 +78,15 @@ public class CommonsLock {
 
         if (lockedUser.equals(unlockUser)) {
             Object[] o = Application.createQueryNoFilter(
-                            "select lockId from CommonsLock where source = ?")
+                    "select lockId from CommonsLock where source = ?")
                     .setParameter(1, source)
                     .unique();
             if (o != null) {
                 Application.getCommonsService().delete((ID) o[0]);
             }
-
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

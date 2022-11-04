@@ -37,10 +37,14 @@ public class TriggerResult implements JSONAware {
         this.affected = affected;
     }
 
-    public void setChain(TriggerSource chain) {
+    protected void setChain(TriggerSource chain) {
         this.chain = chain;
     }
 
+    public boolean hasAffected() {
+        return affected != null && !affected.isEmpty();
+    }
+    
     @Override
     public String toJSONString() {
         JSONObject res = JSONUtils.toJSONObject("level", level);
