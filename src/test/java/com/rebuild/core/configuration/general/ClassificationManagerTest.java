@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 public class ClassificationManagerTest extends TestSupport {
 
     @Test
-    public void testFindByName() {
+    void testFindByName() {
         Entity test = MetadataHelper.getEntity(TestAllFields);
         Field classification = test.getField("classification");
 

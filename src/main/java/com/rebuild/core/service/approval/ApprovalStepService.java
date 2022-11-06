@@ -172,8 +172,8 @@ public class ApprovalStepService extends InternalPersistService {
         final String currentNode = (String) stepObject[2];
         final ID approver = UserContextHolder.getUser();
 
-        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
-        String remark = stepRecord.getString("remark");
+        final String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+        final String remark = stepRecord.getString("remark");
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
@@ -186,16 +186,14 @@ public class ApprovalStepService extends InternalPersistService {
             }
         }
 
+        // 更新主记录
+        final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+        setApprovalLastX(recordOfMain, approver, remark);
+
         // 拒绝了直接返回
         if (state == ApprovalState.REJECTED || state == ApprovalState.BACKED) {
             // 拒绝了，同一节点的其他审批人全部作废
             cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
-
-            // 更新主记录
-            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
-                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
-            }
 
             // 退回
             if (state == ApprovalState.BACKED) {
@@ -223,11 +221,11 @@ public class ApprovalStepService extends InternalPersistService {
 
         String approvalMsg = Language.L("有一条 %s 记录请你审批", entityLabel);
 
-        // 或签。一人通过其他作废
+        // 或签：一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
             cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
         }
-        // 会签。检查是否都签了
+        // 会签：检查是否都签了
         else {
             Object[][] currentNodeApprovers = Application.createQueryNoFilter(
                     "select state,isWaiting,stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
@@ -262,17 +260,15 @@ public class ApprovalStepService extends InternalPersistService {
 
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
+            super.update(recordOfMain);
+
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
             return;
         }
 
         // 进入下一步
         if (goNextNode) {
-            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
-            if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
-                recordOfMain.setID(EntityHelper.ApprovalLastUser, approver);
-            }
             super.update(recordOfMain);
         }
 
@@ -436,7 +432,7 @@ public class ApprovalStepService extends InternalPersistService {
     public boolean txAutoApproved(ID recordId, ID useApprover, ID useApproval) {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
         if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
-            log.warn("Invalid state {} for auto approval : {}", currentState, recordId);
+            log.warn("Invalid state {} for auto approve : {}", currentState, recordId);
             return false;
         }
 
@@ -458,6 +454,7 @@ public class ApprovalStepService extends InternalPersistService {
         Record recordOfMain = EntityHelper.forUpdate(recordId, useApprover, false);
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
+        setApprovalLastX(recordOfMain, useApprover, Language.L("自动审批"));
         super.update(recordOfMain);
 
         Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
@@ -491,9 +488,7 @@ public class ApprovalStepService extends InternalPersistService {
         recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
         recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
         recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalLastUser)) {
-            recordOfMain.setNull(EntityHelper.ApprovalLastUser);
-        }
+        setApprovalLastX(recordOfMain, null, null);
 
         Set<ID> ccList = nextNodes.getCcUsers(useApprover, recordId, null);
         Set<ID> ccs4share = nextNodes.getCcUsers4Share(useApprover, recordId, null);
@@ -620,6 +615,25 @@ public class ApprovalStepService extends InternalPersistService {
         } else if (when == TriggerWhen.REJECTED) {
             triggerManual.onRejectedOrCancel(
                     OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, approvalRecord));
+        }
+    }
+
+    /**
+     * @param record
+     * @param approver
+     * @param remark
+     */
+    protected static void setApprovalLastX(Record record, ID approver, String remark) {
+        Entity entity = record.getEntity();
+
+        if (entity.containsField(EntityHelper.ApprovalLastUser)) {
+            if (approver == null) record.setNull(EntityHelper.ApprovalLastUser);
+            else record.setID(EntityHelper.ApprovalLastUser, approver);
+        }
+
+        if (entity.containsField(EntityHelper.ApprovalLastRemark)) {
+            if (remark == null) record.setNull(EntityHelper.ApprovalLastRemark);
+            else record.setString(EntityHelper.ApprovalLastRemark, remark);
         }
     }
 }

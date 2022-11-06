@@ -67,7 +67,7 @@ public class LoginController extends LoginAction {
         // Token 登录
         final String useToken = getParameter(request, "token");
         if (StringUtils.isNotBlank(useToken)) {
-            ID tokenUser = AuthTokenManager.verifyToken(useToken, true);
+            ID tokenUser = AuthTokenManager.verifyToken(useToken, true, false);
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
 
@@ -187,28 +187,28 @@ public class LoginController extends LoginAction {
         ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         final User loginUser = Application.getUserStore().getUser(user);
-        final boolean isMobile = AppUtils.isRbMobile(request);
+        final boolean isRbMobile = AppUtils.isRbMobile(request);
 
         Map<String, Object> resMap = new HashMap<>();
 
         // 2FA
         int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-        if (faMode > 0
-                && (!UserHelper.isSuperAdmin(loginUser.getId()) || RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced))) {
+        boolean faModeSkip = UserHelper.isSuperAdmin(loginUser.getId()) && !RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
+        if (faMode > 0 && !faModeSkip) {
             resMap.put("login2FaMode", faMode);
 
             String userToken = CodecUtils.randomCode(40);
             Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), 15 * 60); // 15m
             resMap.put("login2FaUserToken", userToken);
 
-            if (isMobile) {
+            if (isRbMobile) {
                 request.getSession().invalidate();
             }
 
             return RespBody.ok(resMap);
         }
 
-        if (isMobile) {
+        if (isRbMobile) {
             resMap = loginSuccessedH5(request, response, loginUser.getId());
         } else {
             Integer ed = loginSuccessed(

@@ -180,7 +180,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             extraAttrs.put("displayType", dt.name());
 
             String cascadingField = extraAttrs.getString(EasyFieldConfigProps.REFERENCE_CASCADINGFIELD);
-            if (StringUtils.isNotBlank(cascadingField) && dt == DisplayType.REFERENCE) {
+            if (StringUtils.isNotBlank(cascadingField)
+                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                 extraAttrs.put("_cascadingFieldParent", cascadingField);
                 String[] fs = cascadingField.split(SPLITER_RE);
                 cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);
@@ -191,6 +192,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
         // 处理父级级联的父子级关系
         // 多个子级可能使用同一个父级字段，这里仅保留一个子级，对使用效果无影响（已布局的情况下）
+        // v3.1 有影响：因为如果是明细>主实体会涉及主实体变化清空明细，此处优先使用明细的子级（只能一个）
         for (String child : cascadingFieldsChild) {
             String[] fs = child.split(SPLITER_RE);
             Element fieldElement;
@@ -212,8 +214,12 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             }
 
             JSONObject extraAttrs = JSON.parseObject(fieldElement.valueOf("@extra-attrs"));
-            extraAttrs.put("_cascadingFieldChild", fs[2] + SPLITER + fs[3]);
-            fieldElement.addAttribute("extra-attrs", extraAttrs.toJSONString());
+            if (extraAttrs.containsKey("_cascadingFieldChild") && extraAttrs.getString("_cascadingFieldChild").contains(".")) {
+                // 优先明细>主实体
+            } else {
+                extraAttrs.put("_cascadingFieldChild", fs[2] + SPLITER + fs[3]);
+                fieldElement.addAttribute("extra-attrs", extraAttrs.toJSONString());
+            }
         }
 
         if (log.isDebugEnabled()) XmlHelper.dump(rootElement);

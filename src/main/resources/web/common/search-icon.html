@@ -29,19 +29,47 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/zmdi-icons.js}"></script>
+    <script th:src="@{/assets/js/mdi7-icons.js}"></script>
     <script type="text/babel">
-      $(document).ready(function () {
-        const call = parent && parent.clickIcon ? parent.clickIcon : console.log
+      const cb = parent && parent.clickIcon ? parent.clickIcon : console.log
+      $(document).ready(() => {
+        if ($urlp('mdi7')) renderMdi7()
+        else renderZmdi()
+        parent && parent.RbModal && parent.RbModal.resize()
+
+        window.bosskeyTrigger = function () {
+          $('#icons').empty()
+          $('#icons').text('MDI7 Loading')
+
+          setTimeout(() => {
+            $('#icons').empty()
+            renderMdi7()
+            parent && parent.RbModal && parent.RbModal.resize()
+          }, 666)
+        }
+      })
+
+      // V1
+      function renderZmdi() {
         $(ZMDI_ICONS).each(function () {
           if (!ZMDI_ICONS_IGNORE.contains(this + '')) {
             const $a = $(`<a data-icon="${this}" title="${this.toUpperCase()}"><i class="zmdi zmdi-${this}"></a>`).appendTo('#icons')
             $a.click(function () {
-              call($(this).data('icon'))
+              cb($(this).data('icon'))
             })
           }
         })
-        parent && parent.RbModal && parent.RbModal.resize()
-      })
+      }
+      // V2
+      function renderMdi7() {
+        for (let i = 0; i < MDI7_ICONS.length; i++) {
+          const icon = MDI7_ICONS[i]
+          const $a = $(`<a data-icon="${icon}" title="${icon.toUpperCase()}"><i class="mdi ${icon}"></a>`).appendTo('#icons')
+          $a.click(function () {
+            cb($(this).data('icon'))
+          })
+        }
+      }
     </script>
   </body>
 </html>

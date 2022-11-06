@@ -8,10 +8,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.RbAssert;
+import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * UCenter
@@ -21,10 +28,13 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/settings/ucenter")
-public class UCenterController {
+public class UCenterController extends BaseController {
 
     @PostMapping("/bind")
-    public RespBody bindCloudAccount(@RequestBody JSONObject body) {
+    public RespBody bindCloudAccount(@RequestBody JSONObject body, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
+
         String account = body.getString("cloudAccount");
         String passwd = body.getString("cloudPasswd");
 
@@ -42,9 +52,9 @@ public class UCenterController {
     }
 
     @GetMapping("/bind-query")
-    public RespBody bindQuery() {
+    public RespBody bindQuery(HttpServletRequest request) {
         JSONObject res = License.siteApi("api/ucenter/bind-query");
-        String bindAccount = res.getString("bindAccount");
-        return RespBody.ok(bindAccount);
+        res.put("canBind", UserHelper.isSuperAdmin(getRequestUser(request)));
+        return RespBody.ok(res);
     }
 }

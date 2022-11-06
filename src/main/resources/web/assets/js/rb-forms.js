@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global SimpleMDE, RepeatedViewer, ProTable */
+/* global SimpleMDE, RepeatedViewer, ProTable, Md2Html */
 
 /**
  * Callback API:
@@ -237,6 +237,7 @@ class RbForm extends React.Component {
             const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
             return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
           })}
+          {this.renderCustomizedFormArea()}
         </div>
 
         {this.renderDetailForm()}
@@ -249,10 +250,19 @@ class RbForm extends React.Component {
     const detailMeta = this.props.rawModel.detailMeta
     if (!detailMeta || !window.ProTable) return null
 
+    let _ProTable
+    if (window._CustomizedForms) {
+      _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
+      // 不显示
+      if (_ProTable === false) return null
+    }
+
     const that = this
 
     function _addNew(n = 1) {
-      for (let i = 0; i < n; i++) setTimeout(() => that._ProTable.addNew(), i * 20)
+      for (let i = 0; i < n; i++) {
+        setTimeout(() => that._ProTable.addNew(), i * 20)
+      }
     }
 
     function _setLines(details) {
@@ -275,10 +285,7 @@ class RbForm extends React.Component {
       }
     }
 
-    // 记录转换预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
-    // 明细导入
+    // 记录转换:明细导入
     let detailImports = []
     if (this.props.rawModel.detailImports) {
       this.props.rawModel.detailImports.forEach((item) => {
@@ -286,16 +293,24 @@ class RbForm extends React.Component {
           icon: item.icon,
           label: item.transName || item.entityLabel,
           fetch: (form, callback) => {
-            ProTable.detailImports(item.transid, form, callback)
+            const formdata = form.getFormData()
+            const mainid = form.props.id || null
+
+            $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+              if (res.error_code === 0) {
+                if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+                else typeof callback === 'function' && callback(res.data)
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+            })
           },
         })
       })
     }
 
-    if (window.FrontJS) {
-      const detailImports2 = window.FrontJS.shots.DEF_DETAIL_IMPORTS && window.FrontJS.shots.DEF_DETAIL_IMPORTS[detailMeta.entity]
-      if (detailImports2) detailImports.push(...detailImports2)
-    }
+    // 记录转换:预览模式
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
     const NADD = [5, 10, 20]
     return (
@@ -352,11 +367,15 @@ class RbForm extends React.Component {
           </div>
         </div>
 
-        <div className="mt-2">
-          <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-        </div>
+        <div className="mt-2">{_ProTable ? _ProTable : <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />}</div>
       </div>
     )
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    return _FormArea || null
   }
 
   renderFormAction() {
@@ -383,7 +402,7 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
         <div className="btn-group dropup btn-space">
@@ -506,26 +525,39 @@ class RbForm extends React.Component {
     if (this.__post === 1) return
     this.__post = 1
     setTimeout(() => (this.__post = 0), 800)
-
-    setTimeout(() => this._post(next), 30)
+    setTimeout(() => this._post(next), 40)
   }
 
   _post(next) {
-    const data = {}
+    let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
       if (err) return RbHighbar.create(err)
       else data[k] = this.__FormData[k].value
     }
-    data.metadata = {
-      entity: this.state.entity,
-      id: this.state.id,
+
+    if (this._FormArea) {
+      const data2 = this._FormArea.buildFormData(data)
+      if (data2 === false) return
+      if (typeof data2 === 'object') {
+        data = { ...data, ...data2 }
+      }
     }
 
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
+
+      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty === true) {
+        RbHighbar.create($L('请添加明细'))
+        return
+      }
       data['$DETAILS$'] = details
+    }
+
+    data.metadata = {
+      entity: this.state.entity,
+      id: this.state.id,
     }
 
     if (RbForm.postBefore(data) === false) {
@@ -1057,8 +1089,11 @@ class RbFormTextarea extends RbFormElement {
     if (this._height > 0) style.maxHeight = this._height
 
     if (this.props.useMdedit) {
-      const md2html = SimpleMDE.prototype.markdown(this.state.value)
-      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} style={style} />
+      return (
+        <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} style={style}>
+          <Md2Html markdown={this.state.value} />
+        </div>
+      )
     } else {
       return (
         <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>
@@ -1261,10 +1296,22 @@ class RbFormImage extends RbFormElement {
 
   renderElement() {
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !this.props.readonly
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly && !this.props.imageCapture
 
-    if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+    if (value.length === 0) {
+      if (this.props.readonly) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('只读')}
+          </div>
+        )
+      } else if (this.props.imageCapture) {
+        return (
+          <div className="form-control-plaintext text-muted">
+            <i className="mdi mdi-information-outline" /> {$L('仅允许拍照上传')}
+          </div>
+        )
+      }
     }
 
     return (
@@ -1286,7 +1333,7 @@ class RbFormImage extends RbFormElement {
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
-            <span className="zmdi zmdi-image-alt" />
+            <span className="zmdi zmdi-image-alt mt-1" />
           </label>
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
@@ -1324,6 +1371,9 @@ class RbFormImage extends RbFormElement {
     } else {
       if (!this._fieldValue__input) {
         console.warn('No element `_fieldValue__input` defined')
+        return
+      } else if (this.props.imageCapture === true) {
+        // Camera only
         return
       }
 
@@ -1377,7 +1427,11 @@ class RbFormFile extends RbFormImage {
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
     if (value.length === 0 && this.props.readonly) {
-      return <div className="form-control-plaintext text-muted">{$L('只读')}</div>
+      return (
+        <div className="form-control-plaintext text-muted">
+          <i className="mdi mdi-information-outline" /> {$L('只读')}
+        </div>
+      )
     }
 
     return (
@@ -1648,6 +1702,7 @@ class RbFormReference extends RbFormElement {
       }
     }
 
+    if (v && $.isArray(v)) v = v[0] // N2N
     return v ? v.id || v : null
   }
 
@@ -1810,6 +1865,11 @@ class RbFormN2NReference extends RbFormReference {
       that.setValue(val, true)
     })
     __addRecentlyUse(ids)
+
+    // v3.1 回填父级
+    if (selected[0] && this.props._cascadingFieldParent) {
+      this.triggerAutoFillin(selected[0])
+    }
   }
 
   onEditModeChanged(destroy) {
@@ -1817,6 +1877,13 @@ class RbFormN2NReference extends RbFormReference {
     if (!destroy && this.__select2) {
       this.__select2.on('select2:select', (e) => __addRecentlyUse(e.params.data.id))
     }
+  }
+}
+
+// TODO 任意引用
+class RbFormAnyReference extends RbFormReference {
+  renderElement() {
+    return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
   }
 }
 
@@ -2242,7 +2309,7 @@ class RbFormSign extends RbFormElement {
               }
             }}
             disabled={this.props.readonly}>
-            {value ? <img src={value} alt="SIGN" /> : <span className="zmdi zmdi-border-color" />}
+            {value ? <img src={value} alt="SIGN" /> : <span className="mdi mdi-file-sign" />}
           </label>
         </span>
       </div>
@@ -2349,6 +2416,8 @@ var detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'N2NREFERENCE') {
     return <RbFormN2NReference {...item} />
+  } else if (item.type === 'ANYREFERENCE') {
+    return <RbFormAnyReference {...item} readonly />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
@@ -2358,7 +2427,7 @@ var detectElement = function (item) {
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
   } else if (item.type === 'BARCODE') {
-    return <RbFormBarcode {...item} readonly={true} />
+    return <RbFormBarcode {...item} readonly />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'LOCATION') {

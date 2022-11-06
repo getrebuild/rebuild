@@ -112,10 +112,10 @@
             <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
             <div class="message">
               <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
-              <p>1</p>
+              <p>ALERT</p>
             </div>
           </div>
-          <div class="float-right" style="margin-top: -1px">
+          <div class="float-right">
             <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建角色')}]]</button>
             <button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">[[${bundle.L('保存')}]]</button>
           </div>
@@ -165,6 +165,7 @@
                     </tr>
                   </tbody>
                 </table>
+                <p th:if="${Entities.size() == 0}" class="text-muted mt-5">[[${bundle.L('暂无可用业务实体')}]]</p>
                 <div class="legend-wrap">
                   <div class="legend">
                     [[${bundle.L('图例')}]]

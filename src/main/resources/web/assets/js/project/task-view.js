@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, EMOJIS, SimpleMDE */
+/* global autosize, SimpleMDE, Md2Html */
 
 const wpc = window.__PageConfig
 
@@ -29,8 +29,8 @@ $(document).ready(() => {
     })
   }
 
-  $('.J_close').click(() => __TaskViewer.hide())
-  $('.J_reload').click(() => {
+  $('.J_close').on('click', () => __TaskViewer.hide())
+  $('.J_reload').on('click', () => {
     __TaskViewer.setLoadingState(true)
     location.reload()
   })
@@ -183,12 +183,12 @@ class ValueComp extends React.Component {
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   // 即时保存
-  handleChange(e, call) {
+  handleChange(e, cb) {
     const name = e.target.name
     const value = e.target.value
     const valueOld = this.state[name]
     if ($same(value, valueOld)) {
-      typeof call === 'function' && call()
+      typeof cb === 'function' && cb()
       return
     }
     this.setState({ [name]: value })
@@ -200,8 +200,8 @@ class ValueComp extends React.Component {
 
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
-        typeof call === 'function' && call(true)
+        typeof __TaskViewer.refreshTask === 'function' && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
+        typeof cb === 'function' && cb(true)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -401,8 +401,8 @@ class ValueDescription extends ValueComp {
   renderElement() {
     if (this.state.editMode) {
       return (
-        <div className="form-control-plaintext">
-          <textarea defaultValue={this.state.description || ''} ref={(c) => (this._editor = c)} />
+        <div className="form-control-plaintext" ref={(c) => (this._$mde = c)}>
+          <textarea defaultValue={this.state.description || ''} ref={(c) => (this._$editor = c)} />
           <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
@@ -421,7 +421,11 @@ class ValueDescription extends ValueComp {
       }
 
       if (this.state.description) {
-        return <div {...ps} dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+        return (
+          <div {...ps}>
+            <Md2Html markdown={this.state.description} />
+          </div>
+        )
       } else {
         return (
           <div {...ps}>
@@ -434,7 +438,11 @@ class ValueDescription extends ValueComp {
 
   renderViewElement() {
     if (this.state.description) {
-      return <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+      return (
+        <div className="form-control-plaintext mdedit-content">
+          <Md2Html markdown={this.state.description} />
+        </div>
+      )
     } else {
       return (
         <div className="form-control-plaintext mdedit-content">
@@ -444,16 +452,23 @@ class ValueDescription extends ValueComp {
     }
   }
 
-  _handleEditMode(editMode) {
-    if (!editMode && this._simplemde) {
-      this._simplemde.toTextArea()
+  _destroyMde() {
+    if (this._simplemde) {
+      try {
+        this._simplemde.toTextArea()
+      } catch (err) {}
       this._simplemde = null
+      $('.CodeMirror-wrap').remove()
     }
+  }
+
+  _handleEditMode(editMode) {
+    if (!editMode) this._destroyMde()
 
     this.setState({ editMode: editMode }, () => {
       if (this.state.editMode) {
         const mde = new SimpleMDE({
-          element: this._editor,
+          element: this._$editor,
           status: false,
           autoDownloadFontAwesome: false,
           spellChecker: false,
@@ -475,7 +490,10 @@ class ValueDescription extends ValueComp {
 
   handleChange() {
     const value = this._simplemde.value()
-    super.handleChange({ target: { name: 'description', value: value } }, () => this.setState({ description: value, editMode: false }))
+    super.handleChange({ target: { name: 'description', value: value } }, () => {
+      this.setState({ description: value, editMode: false })
+      this._destroyMde()
+    })
   }
 }
 
@@ -636,9 +654,7 @@ class ValueTags extends ValueComp {
             <a className="tag-add" title={$L('点击添加')} data-toggle="dropdown">
               <i className="zmdi zmdi-plus" />
             </a>
-            <div className="dropdown-menu dropdown-menu-right tags">
-              {<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} $$$parent={this} />}
-            </div>
+            <div className="dropdown-menu tags">{<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} $$$parent={this} />}</div>
           </span>
         ) : (
           tags.length === 0 && (
@@ -681,9 +697,7 @@ class ValueTags extends ValueComp {
 }
 
 class ValueTagsEditor extends React.Component {
-  static _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335']
-
-  state = { ...this.props, editMode: false, useColor: ValueTagsEditor._COLORS[0] }
+  state = { ...this.props, editMode: false, useColor: RBCOLORS[0] }
 
   render() {
     return (
@@ -762,7 +776,7 @@ class ValueTagsEditor extends React.Component {
             />
           </div>
           <div className="colors pt-2 pb-2 text-center">
-            {ValueTagsEditor._COLORS.map((color) => {
+            {RBCOLORS.map((color) => {
               return (
                 <a key={color} style={{ backgroundColor: color }} onClick={() => this.setState({ useColor: color })}>
                   {this.state.useColor === color && <i className="zmdi zmdi-check" />}
@@ -794,7 +808,7 @@ class ValueTagsEditor extends React.Component {
     if (typeof tag === 'object') {
       state = { ...state, createTagName: tag.name, tagId: tag.id, useColor: tag.color }
     } else {
-      state = { ...state, createTagName: this.state.searchTagName || '', tagId: null, useColor: ValueTagsEditor._COLORS[0] }
+      state = { ...state, createTagName: this.state.searchTagName || '', tagId: null, useColor: RBCOLORS[0] }
     }
 
     this.setState(state)
@@ -847,7 +861,7 @@ class ValueTagsEditor extends React.Component {
         this.fetchTags()
         this.toggleEditMode(false)
         this.props.$$$parent.refreshTags()
-        this.setState({ createTagName: null, useColor: ValueTagsEditor._COLORS[0] })
+        this.setState({ createTagName: null, useColor: RBCOLORS[0] })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -1066,8 +1080,8 @@ class RichTextEditor extends React.Component {
     this.state = { ...props }
 
     this.__es = []
-    for (let k in EMOJIS) {
-      const item = EMOJIS[k]
+    for (let k in RBEMOJIS) {
+      const item = RBEMOJIS[k]
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
           <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />

@@ -20,6 +20,7 @@ class RbModal extends React.Component {
     if (this.props.zIndex) styles.zIndex = this.props.zIndex
 
     const iframe = !this.props.children // No child
+    const style2 = { maxWidth: this.props.width || 680 }
 
     return (
       <div
@@ -29,8 +30,8 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className="modal-dialog" style={{ maxWidth: this.props.width || 680 }}>
-          <div className="modal-content">
+        <div className="modal-dialog" style={style2}>
+          <div className="modal-content" style={style2}>
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
@@ -741,6 +742,7 @@ class AnyRecordSelector extends React.Component {
         <div className="col-4 pr-0">
           <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
             {(this.state.entities || []).map((item) => {
+              if ($isSysMask(item.label)) return null
               return (
                 <option key={item.name} value={item.name}>
                   {item.label}
@@ -996,6 +998,33 @@ UserPopup.create = function (el) {
 
 // ~~ HTML 内容
 const WrapHtml = (htmlContent) => <span dangerouslySetInnerHTML={{ __html: htmlContent }} />
+
+// ~~ MD > HTML
+class Md2Html extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { md2html: SimpleMDE.prototype.markdown(props.markdown) }
+  }
+
+  render() {
+    return <span ref={(c) => (this._$md2html = c)} dangerouslySetInnerHTML={{ __html: this.state.md2html }} />
+  }
+
+  componentDidMount() {
+    $(this._$md2html)
+      .find('a')
+      .each(function () {
+        const $this = $(this)
+        $this.attr({
+          href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($this.attr('href'))}`,
+          target: '_blank',
+        })
+        $this.on('click', (e) => {
+          $stopEvent(e, false)
+        })
+      })
+  }
+}
 
 // ~~ short React.Fragment
 const RF = ({ children }) => <React.Fragment>{children}</React.Fragment>

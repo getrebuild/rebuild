@@ -696,16 +696,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (approvalUser == null) {
             approvalUser = UserService.SYSTEM_USER;
-            log.warn("Use system user for approval");
+            log.warn("Use system user for approve");
         }
 
         Record approvalRecord = EntityHelper.forUpdate(recordId, approvalUser, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
-        if (state == ApprovalState.APPROVED
-                && MetadataHelper.getEntity(recordId.getEntityCode()).containsField(EntityHelper.ApprovalLastUser)) {
-            approvalRecord.setID(EntityHelper.ApprovalLastUser, approvalUser);
-        }
-
         delegateService.update(approvalRecord);
 
         // 触发器

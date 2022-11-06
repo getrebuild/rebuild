@@ -6,18 +6,20 @@
     <style>
       .dd3-content > .zmdi {
         position: absolute;
-        width: 28px;
-        height: 28px;
+        margin-left: -22px;
         font-size: 1.45rem;
-        margin-left: -20px;
         margin-top: 1px;
       }
+      .dd3-content > .mdi {
+        font-size: 1.385rem;
+        margin-top: 0;
+      }
       .dd3-content {
-        padding-left: 60px !important;
+        padding-left: 64px !important;
         cursor: default;
       }
       .dd-item > ul {
-        margin-left: 22px;
+        margin-left: 17px;
         padding-left: 0;
         position: relative;
       }
@@ -33,8 +35,12 @@
         background-color: #eee;
         cursor: pointer;
       }
-      .input-group-prepend .input-group-text i.zmdi {
+      .input-group-prepend .input-group-text .zmdi {
         font-size: 1.5rem;
+      }
+      .input-group-prepend .input-group-text .mdi {
+        font-size: 1.461rem;
+        margin-top: -1px;
       }
     </style>
   </head>
@@ -100,7 +106,7 @@
         <div class="float-left">
           <div id="shareTo" class="shareTo--wrap"></div>
         </div>
-        <button class="btn btn-link" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.L('取消')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.L('取消')}]]</button>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
       </div>
     </div>

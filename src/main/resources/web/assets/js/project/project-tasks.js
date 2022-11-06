@@ -73,16 +73,27 @@ $(document).ready(() => {
   })
 
   // 高级查询
-  const confirmFilter = function (s) {
-    __PlanBoxes.setState({ filter: s })
-  }
+
   $('.J_filter').on('click', () => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal canNoFilters confirm={confirmFilter} />, null, function () {
-        __AdvFilter = this
-      })
+      renderRbcomp(
+        <AdvFilter
+          title={$L('高级查询')}
+          entity="ProjectTask"
+          inModal
+          canNoFilters
+          confirmText={$L('查询')}
+          onConfirm={(s) => {
+            __PlanBoxes.setState({ filter: s })
+          }}
+        />,
+        null,
+        function () {
+          __AdvFilter = this
+        }
+      )
     }
   })
 })
@@ -274,7 +285,7 @@ class PlanBox extends React.Component {
                     </div>
                   </div>
                   <div className="text-right">
-                    <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>
+                    <button className="btn btn-link w-auto mr-2" type="button" onClick={() => this.setState({ newMode: false })}>
                       {$L('取消')}
                     </button>
                     <button className="btn btn-primary" type="button" ref={(c) => (this._btn = c)} onClick={() => this._handleCreateTask()}>

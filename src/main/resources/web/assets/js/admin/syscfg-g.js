@@ -19,14 +19,18 @@ $(document).ready(() => {
   })
 
   // UC
-  UCenter.query((bindAccount) => {
+  UCenter.query((res) => {
+    const bindAccount = res.bindAccount
     $('.J_cloudAccount').removeClass('hide')
     if (bindAccount) {
       $('.J_not-bind').addClass('hide')
       $('.J_has-bind a').text(bindAccount)
     } else {
       $('.J_has-bind').addClass('hide')
-      $('.J_not-bind .btn').on('click', () => UCenter.bind())
+      $('.J_not-bind .btn').on('click', () => {
+        if (res.canBind) UCenter.bind()
+        else RbHighbar.create($L('仅超级管理员可操作'))
+      })
     }
   })
 })

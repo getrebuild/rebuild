@@ -77,7 +77,7 @@ $(document).ready(function () {
         $(`<td class="text-muted">${idx + 1}.</td>`).appendTo($tr)
         $(`<td>${this[0].split('UTC')[0]}</td>`).appendTo($tr)
         $(`<td>${this[1]}</td>`).appendTo($tr)
-        $(`<td>${this[2].replace(/\[Mobile]/i, `<i class="mdi mdi-cellphone support-plat" title="${$L('手机')}"></i>`)}</td>`).appendTo($tr)
+        $(`<td>${this[2].replace(/\[Mobile]/i, `<i class="support-plat2 mdi mdi-cellphone-marker" title="${$L('手机登录')}"></i>`)}</td>`).appendTo($tr)
       })
 
       $('#logs tbody>tr').each(function () {

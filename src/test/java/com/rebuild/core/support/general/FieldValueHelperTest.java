@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -31,12 +32,14 @@ import java.time.LocalTime;
 public class FieldValueHelperTest extends TestSupport {
 
     @Test
-    public void testWrapFieldValue() {
+    void testWrapFieldValue() {
         Entity useEntity = MetadataHelper.getEntity(TestAllFields);
         for (Field field : useEntity.getFields()) {
             Object value = RandomStringUtils.randomNumeric(10);
             if (field.getType() == FieldType.REFERENCE) {
                 value = ID.newId(field.getReferenceEntity().getEntityCode());
+            } if (field.getType() == FieldType.ANY_REFERENCE) {
+                value = ID.newId(EntityHelper.User);
             } else if (field.getType() == FieldType.DATE || field.getType() == FieldType.TIMESTAMP) {
                 value = CalendarUtils.now();
             } else if (field.getType() == FieldType.TIME) {
@@ -56,9 +59,10 @@ public class FieldValueHelperTest extends TestSupport {
                 value = easyField.exprDefaultValue();
             } else if (easyField.getDisplayType() == DisplayType.BARCODE
                     || easyField.getDisplayType() == DisplayType.ID) {
-                value = ID.newId(0);
+                value = ID.newId(useEntity.getEntityCode());
             }
 
+            System.out.println("Wrap ... " + easyField);
             Object wrappedValue = FieldValueHelper.wrapFieldValue(value, easyField, false);
             System.out.println(field.getName() + " > " + wrappedValue + " > " + easyField.isBuiltin());
             if (wrappedValue != null) {
@@ -69,7 +73,7 @@ public class FieldValueHelperTest extends TestSupport {
     }
 
     @Test
-    public void parseDateExpr() {
+    void parseDateExpr() {
         System.out.println(FieldValueHelper.parseDateExpr("{NOW}", null));
         System.out.println(FieldValueHelper.parseDateExpr("{NOW - 1H}", null));
         System.out.println(FieldValueHelper.parseDateExpr("{NOW + 1M}", null));
@@ -78,12 +82,12 @@ public class FieldValueHelperTest extends TestSupport {
     }
 
     @Test
-    public void testGetLabel() {
+    void testGetLabel() {
         System.out.println(FieldValueHelper.getLabel(SIMPLE_USER));
     }
 
     @Test
-    public void testGetLabelThrow() {
+    void testGetLabelThrow() {
         Assertions.assertThrows(NoRecordFoundException.class,
                 () -> FieldValueHelper.getLabel(ID.newId(1)));
     }

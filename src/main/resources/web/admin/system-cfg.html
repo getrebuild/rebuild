@@ -51,9 +51,6 @@
         border-radius: 2px;
         margin-right: 3px;
       }
-      .support-plat {
-        margin-top: -1px;
-      }
       .J_cloudAccount .icon {
         font-size: 24px;
         float: left;
@@ -121,14 +118,14 @@
                       <tr>
                         <td>
                           [[${bundle.L('登录页每日一图')}]]
-                          <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('支持 PC')}"></i>
                         </td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
                         <td>
                           [[${bundle.L('自定义登录页图')}]]
-                          <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                          <i class="support-plat2 mdi mdi-monitor mt-0" th:title="${bundle.L('支持 PC')}"></i>
                         </td>
                         <td class="fs-0 bgimg">
                           <a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
@@ -307,7 +304,7 @@
                   </div>
                   <div class="J_has-bind">
                     <p class="mb-1 mt-1 text-bold">
-                      <i class="mdi mdi-shield-check icon"></i>
+                      <i class="mdi mdi-shield-check icon up-3"></i>
                       [[${bundle.L('当前已绑定云账号')}]] <a href="https://getrebuild.com/ucenter/account" target="_blank" class="text-uppercase"></a>
                     </p>
                   </div>

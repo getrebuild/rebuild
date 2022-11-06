@@ -78,7 +78,9 @@
         <div class="main-content container-fluid pt-1">
           <div th:if="${useListMode}" class="card">
             <div class="card-header">
-              [[${bundle.L('列表模式')}]] <sup class="rbv"></sup> <i class="support-plat mdi mdi-monitor" th:title="${bundle.L('支持 PC')}" style="margin-top: 2px"></i>
+              [[${bundle.L('列表模式')}]]
+              <sup class="rbv"></sup>
+              <i class="support-plat2 mdi mdi-monitor mt-1" th:title="${bundle.L('支持 PC')}"></i>
             </div>
             <div class="card-body mode-select">
               <div class="row">
@@ -125,12 +127,12 @@
                   </div>
                 </div>
                 <div class="col">
-                  <div class="bosskey-show">
+                  <div class="bosskey-show hide">
                     <div class="row ph">
-                      <div class="col-3 p-0">
+                      <div class="col-2 p-0">
                         <div class="block"></div>
                       </div>
-                      <div class="col-9 p-0">
+                      <div class="col-10 p-0">
                         <div class="block">
                           <div class="block-item2" style="margin-left: 3%"><i class="mdi mdi-image"></i></div>
                           <div class="block-item2"><i class="mdi mdi-image"></i></div>

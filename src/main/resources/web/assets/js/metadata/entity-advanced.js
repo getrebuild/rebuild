@@ -191,7 +191,7 @@ class DlgMode1Option extends RbFormHandler {
 
       if (!$class2) {
         $class2 = $('.J_advListShowCategory select')
-        $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+        $.get(`/commons/metadata/fields?entity=${wpc.entityName}&deep=2`, (res) => {
           const _data = []
           res.data.forEach((item) => {
             if (CLASS_TYPES.includes(item.type)) _data.push(item)

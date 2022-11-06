@@ -125,7 +125,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
-      watermark_alpha: 0.1,
+      watermark_alpha: 0.15,
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
       monitor: true,
@@ -280,7 +280,7 @@ var $regex = {
   _Time: /^[0-9]{1,2}:[0-9]{1,2}(:[0-9]{1,2})?$/, // eg. 16:01:10, 10:1:9
   // eslint-disable-next-line no-useless-escape
   _Url: /^(http|https|ftp)\:\/\/[a-z0-9\-\.]+(:[0-9]*)?\/?([a-z0-9\-\._\?\,\'\/\\\+&amp;%\$#\=~!:])*$/i,
-  _Mail: /^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
+  _Mail: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
   _Number: /^[-+]?[0-9]+$/, // 数字
   _Decimal: /^[-+]?\d*\.?\d+$/, // 包括小数点的数字
   _Mobile: /^(1[3456789])\d{9}$/, // CN Mobile

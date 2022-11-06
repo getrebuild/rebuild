@@ -45,41 +45,42 @@ public class LocationUtils {
      * @return
      */
     public static JSON getLocation(String ip, boolean useCache) {
+        ip = ip.split(",")[0];
+
         if (PRIVATE_IP.matcher(ip).find()) {
             return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
         }
 
+        final String ckey = "IPLocation31" + ip;
+
         JSONObject result;
         if (useCache && Application.isReady()) {
-            result = (JSONObject) Application.getCommonsCache().getx("IPLocation2" + ip);
-            if (result != null) {
-                return result;
-            }
+            result = (JSONObject) Application.getCommonsCache().getx(ckey);
+            if (result != null) return result;
         }
 
         result = new JSONObject();
         result.put("ip", ip);
+        result.put("country", "N");
 
-        JSONObject fetchTry;
+        JSONObject fetchTry = getJSON(String.format("http://ip-api.com/json/%s", ip));
+        if (fetchTry != null) {
+            String message = fetchTry.getString("message");
+            if (fetchTry.getString("countryCode") != null) {
+                result.put("country", fetchTry.getString("countryCode"));
+                result.put("region", fetchTry.getString("regionName"));
+                result.put("city", fetchTry.getString("city"));
+            } else if (message != null && (message.contains("private") || message.contains("reserved"))) {
+                result.put("country", "R");
+            }
 
-//        // #1
-//        fetchTry = getJSON(String.format("https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", ip));
-//        if (fetchTry != null && fetchTry.getIntValue("code") == 0) {
-//            fetchTry = fetchTry.getJSONObject("data");
-//            String c = fetchTry.getString("country");
-//            if ("local".equalsIgnoreCase(fetchTry.getString("isp_id")) || "xx".equalsIgnoreCase(c)) {
-//                result.put("country", "R");
-//            } else {
-//                result.put("country", "xx".equalsIgnoreCase(c) ? "" : c);
-//                c = fetchTry.getString("region");
-//                result.put("region", "xx".equalsIgnoreCase(c) ? "" : c);
-//                c = fetchTry.getString("city");
-//                result.put("city", "xx".equalsIgnoreCase(c) ? "" : c);
-//            }
-//            return result;
-//        }
+            if (Application.isReady()) {
+                Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 90);
+            }
+            return result;
+        }
 
-        // #2
+        // try
         fetchTry = getJSON(String.format("https://ipapi.co/%s/json/", ip));
         if (fetchTry != null) {
             if (fetchTry.getString("country") != null) {
@@ -89,30 +90,10 @@ public class LocationUtils {
             } else if (fetchTry.getBooleanValue("reserved")) {
                 result.put("country", "R");
             }
-            return result;
-        }
-
-        // #3
-        fetchTry = getJSON(String.format("http://ip-api.com/json/%s", ip));
-        if (fetchTry != null) {
-            String message = fetchTry.getString("message");
-            if (fetchTry.getString("countryCode") != null) {
-                result.put("country", fetchTry.getString("countryCode"));
-                result.put("region", fetchTry.getString("regionName"));
-                result.put("city", fetchTry.getString("city"));
-                return result;
-            } else if (message != null && (message.contains("private") || message.contains("reserved"))) {
-                result.put("country", "R");
-                return result;
-            }
-        }
-
-        if (result.getString("country") == null) {
-            result.put("country", "N");
         }
 
         if (Application.isReady()) {
-            Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_DAY * 90);
+            Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 90);
         }
         return result;
     }

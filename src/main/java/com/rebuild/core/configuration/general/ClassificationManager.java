@@ -15,6 +15,9 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.Serializable;
 
 /**
  * 分类数据
@@ -22,6 +25,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28
  */
+@Slf4j
 public class ClassificationManager implements ConfigManager {
 
     public static final ClassificationManager instance = new ClassificationManager();
@@ -38,8 +42,8 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getName(ID itemId) {
-        String[] ns = getItemNames(itemId);
-        return ns == null ? null : ns[0];
+        Item item = getItem(itemId);
+        return item == null ? null : item.Name;
     }
 
     /**
@@ -49,31 +53,32 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public String getFullName(ID itemId) {
-        String[] ns = getItemNames(itemId);
-        return ns == null ? null : ns[1];
+        Item item = getItem(itemId);
+        return item == null ? null : item.FullName;
     }
 
     /**
      * @param itemId
-     * @return [名称, 全名称]
+     * @return
      */
-    private String[] getItemNames(ID itemId) {
-        final String ckey = "ClassificationNAME-" + itemId;
-        String[] cached = (String[]) Application.getCommonsCache().getx(ckey);
-        if (cached != null) {
-            return cached[0].equals(DELETED_ITEM) ? null : cached;
+    private Item getItem(ID itemId) {
+        final String ckey = "ClassificationITEM31-" + itemId;
+        Item ditem = (Item) Application.getCommonsCache().getx(ckey);
+        if (ditem != null) {
+            return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
         }
 
         Object[] o = Application.createQueryNoFilter(
-                "select name,fullName from ClassificationData where itemId = ?")
+                "select name,fullName,code from ClassificationData where itemId = ?")
                 .setParameter(1, itemId)
                 .unique();
-        if (o != null) cached = new String[]{(String) o[0], (String) o[1]};
-        // 可能已删除
-        if (cached == null) cached = new String[]{DELETED_ITEM, DELETED_ITEM};
+        if (o != null) ditem = new Item((String) o[0], (String) o[1], (String) o[2]);
 
-        Application.getCommonsCache().putx(ckey, cached);
-        return cached[0].equals(DELETED_ITEM) ? null : cached;
+        // 可能已删除
+        if (ditem == null) ditem = new Item(DELETED_ITEM, null, null);
+
+        Application.getCommonsCache().putx(ckey, ditem);
+        return DELETED_ITEM.equals(ditem.Name) ? null : ditem;
     }
 
     /**
@@ -85,21 +90,23 @@ public class ClassificationManager implements ConfigManager {
      */
     public ID findItemByName(String name, Field field) {
         ID dataId = getUseClassification(field, false);
-        if (dataId == null) {
-            return null;
-        }
+        if (dataId == null) return null;
+
+        int openLevel = getOpenLevel(field);
 
         // 后匹配
         String ql = String.format(
-                "select itemId from ClassificationData where dataId = '%s' and fullName like '%%%s'", dataId, name);
-        Object[][] hasMany = Application.createQueryNoFilter(ql).array();
-        if (hasMany.length == 0) {
+                "select itemId from ClassificationData where dataId = ? and level = ? and fullName like '%%%s'", name);
+        Object[][] found = Application.createQueryNoFilter(ql)
+                .setParameter(1, dataId)
+                .setParameter(2, openLevel)
+                .array();
+
+        if (found.length == 0) {
             return null;
-        } else if (hasMany.length == 1) {
-            return (ID) hasMany[0][0];
         } else {
-            // TODO 多个匹配
-            return (ID) hasMany[0][0];
+            // TODO 找到多个匹配的优选
+            return (ID) found[0][0];
         }
     }
 
@@ -111,12 +118,11 @@ public class ClassificationManager implements ConfigManager {
      */
     public int getOpenLevel(Field field) {
         ID dataId = getUseClassification(field, false);
-        if (dataId == null) {
-            return BAD_CLASSIFICATION;
-        }
+        if (dataId == null) return BAD_CLASSIFICATION;
 
-        String ckey = "ClassificationLEVEL-" + dataId;
+        final String ckey = "ClassificationLEVEL-" + dataId;
         Integer cLevel = (Integer) Application.getCommonsCache().getx(ckey);
+
         if (cLevel == null) {
             Object[] o = Application.createQueryNoFilter(
                     "select openLevel from Classification where dataId = ?")
@@ -141,29 +147,40 @@ public class ClassificationManager implements ConfigManager {
      * 获取指定字段所使用的分类
      *
      * @param field
-     * @param verfiy
+     * @param checkBad
      * @return
      */
-    public ID getUseClassification(Field field, boolean verfiy) {
+    public ID getUseClassification(Field field, boolean checkBad) {
         String classUse = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
         ID dataId = ID.isId(classUse) ? ID.valueOf(classUse) : null;
-        if (dataId == null) {
-            return null;
-        }
+        if (dataId == null) return null;
 
-        if (verfiy && getOpenLevel(field) == BAD_CLASSIFICATION) {
-            return null;
-        }
-        return dataId;
+        if (checkBad && getOpenLevel(field) == BAD_CLASSIFICATION) return null;
+        else return dataId;
     }
 
     @Override
     public void clean(Object cid) {
         ID id2 = (ID) cid;
         if (id2.getEntityCode() == EntityHelper.ClassificationData) {
-            Application.getCommonsCache().evict("ClassificationNAME-" + cid);
+            Application.getCommonsCache().evict("ClassificationITEM31-" + cid);
         } else if (id2.getEntityCode() == EntityHelper.Classification) {
             Application.getCommonsCache().evict("ClassificationLEVEL-" + cid);
         }
+    }
+
+    // Bean
+    public static class Item implements Serializable {
+        private static final long serialVersionUID = -1903227875771376652L;
+
+        Item(String name, String fullName, String code) {
+            this.Name = name;
+            this.FullName = fullName;
+            this.Code = code;
+        }
+
+        final public String Name;
+        final public String FullName;
+        final public String Code;
     }
 }

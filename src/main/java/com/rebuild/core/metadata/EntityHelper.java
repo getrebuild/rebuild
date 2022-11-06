@@ -164,7 +164,7 @@ public class EntityHelper {
      *
      * @param entityCode
      * @return
-     * @see #isUnsavedId(ID)
+     * @see #isUnsavedId(Object)
      */
     public static ID newUnsavedId(int entityCode) {
         if (entityCode == 0) return UNSAVED_ID;
@@ -174,11 +174,12 @@ public class EntityHelper {
     /**
      * @param id
      * @return
+     * @see #newUnsavedId(int)
      */
-    public static boolean isUnsavedId(ID id) {
-        return UNSAVED_ID.equals(id) || id.toLiteral().endsWith(UNSAVED_ID_SUFFIX);
+    public static boolean isUnsavedId(Object id) {
+        return ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
     }
-
+    
     // 公共字段/保留字段
 
     public static final String CreatedOn = "createdOn";
@@ -196,6 +197,7 @@ public class EntityHelper {
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
     public static final String ApprovalLastUser = "approvalLastUser";
+    public static final String ApprovalLastRemark = "approvalLastRemark";
 
     // 用户
 

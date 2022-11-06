@@ -57,7 +57,7 @@ public class AdminCLI2 {
      * @return
      */
     public String exec() {
-        if (this.commands.length == 0) return "Bad command";
+        if (this.commands.length == 0) return "WRAN: Bad command";
 
         String result = null;
         switch (commands[0]) {
@@ -92,7 +92,7 @@ public class AdminCLI2 {
             }
         }
 
-        return StringUtils.defaultIfBlank(result, "Unknown command : " + commands[0]);
+        return StringUtils.defaultIfBlank(result, "WRAN: Unknown command : `" + commands[0] + "`");
     }
 
     /**
@@ -101,7 +101,7 @@ public class AdminCLI2 {
      * @return
      */
     protected String execCache() {
-        if (commands.length < 2) return "Bad arguments";
+        if (commands.length < 2) return "WRAN: Bad arguments";
 
         String result = SUCCESS;
 
@@ -109,7 +109,7 @@ public class AdminCLI2 {
         if ("clean".equals(name)) {
             Installer.clearAllCache();
         } else {
-            result = "Bad arguments";
+            result = "WRAN: Bad arguments";
         }
 
         return result;
@@ -122,7 +122,7 @@ public class AdminCLI2 {
      * @see ConfigurationItem
      */
     protected String execSyscfg() {
-        if (commands.length < 2) return "Bad arguments";
+        if (commands.length < 2) return "WRAN: Bad arguments";
 
         String name = commands[1];
         try {
@@ -142,18 +142,19 @@ public class AdminCLI2 {
             }
 
             ConfigurationItem item = ConfigurationItem.valueOf(name);
-            // Get
+            // Getter
             if (commands.length == 2) {
                 return RebuildConfiguration.get(item);
             }
-
-            // Set
-            String value = commands[2];
-            RebuildConfiguration.set(item, value);
-            return "OK";
+            // Setter
+            else {
+                String value = commands[2];
+                RebuildConfiguration.set(item, value);
+                return "OK";
+            }
 
         } catch (IllegalArgumentException ex) {
-            return "Bad arguments [1] : " + name;
+            return "WRAN: Bad arguments [1] : " + name;
         }
     }
 
@@ -182,10 +183,10 @@ public class AdminCLI2 {
                 result.add("Backup datafile : " + backup);
             }
 
-            return result.isEmpty() ? "Nothing backup" : StringUtils.join(result, "\n");
+            return result.isEmpty() ? "WRAN: Nothing to backup" : StringUtils.join(result, "\n");
 
         } catch (Exception ex) {
-            return "Exec failed : " + ex.getLocalizedMessage();
+            return "WRAN: Exec failed `" + ex.getLocalizedMessage() + "`";
         }
     }
 
@@ -195,7 +196,7 @@ public class AdminCLI2 {
      * @return
      */
     protected String execAes() {
-        if (commands.length < 2) return "Bad arguments";
+        if (commands.length < 2) return "WRAN: Bad arguments";
 
         String value = commands.length > 2 ? commands[2] : commands[1];
         if ("decrypt".equalsIgnoreCase(commands[1])) {

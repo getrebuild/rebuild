@@ -19,28 +19,28 @@ public class AuthTokenManagerTest extends TestSupport {
 
     @Test
     void accessToken() {
-        // generate
+        // Generate
         String accessToken = AuthTokenManager.generateToken(SIMPLE_USER, 3, null);
 
-        // verify
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken, false));
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken, false));
+        // Verify
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken));
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(accessToken));
 
-        // refresh
+        // Refresh
         AuthTokenManager.refreshAccessToken(accessToken);
 
-        // destroy
-        AuthTokenManager.verifyToken(accessToken, true);
-        Assertions.assertNull(AuthTokenManager.verifyToken(accessToken, false));
+        // Destroy
+        AuthTokenManager.verifyToken(accessToken, true, true);
+        Assertions.assertNull(AuthTokenManager.verifyToken(accessToken));
     }
 
     @Test
     void onceToken() {
-        // generate
+        // Generate
         String onceToken = AuthTokenManager.generateOnceToken(null);
 
-        // verify
-        Assertions.assertNotNull(AuthTokenManager.verifyToken(onceToken, false));
-        Assertions.assertNull(AuthTokenManager.verifyToken(onceToken, false));
+        // Verify
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(onceToken));
+        Assertions.assertNull(AuthTokenManager.verifyToken(onceToken));
     }
 }

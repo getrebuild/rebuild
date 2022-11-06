@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
+import cn.devezhao.persist4j.metadata.impl.AnyEntity;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
@@ -33,6 +34,7 @@ import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
@@ -57,7 +59,7 @@ public class Field2Schema extends SetUser {
     // 小数位真实长度
     private static final int DECIMAL_SCALE = 8;
 
-    final protected Set<ID> recordedMetaId = new HashSet<>();
+    final protected Set<ID> recordedMetaIds = new HashSet<>();
 
     public Field2Schema() {
         super();
@@ -84,6 +86,20 @@ public class Field2Schema extends SetUser {
      * @return
      */
     public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
+        return createField(entity, fieldLabel, null, type, comments, refEntity, extConfig);
+    }
+
+    /**
+     * @param entity
+     * @param fieldLabel
+     * @param fieldName
+     * @param type
+     * @param comments
+     * @param refEntity
+     * @param extConfig
+     * @return
+     */
+    public String createField(Entity entity, String fieldLabel, String fieldName, DisplayType type, String comments, String refEntity, JSON extConfig) {
         if (!License.isCommercial()) {
             if (entity.getFields().length >= 50) {
                 throw new NeedRbvException("字段数量超出免费版限制");
@@ -91,7 +107,7 @@ public class Field2Schema extends SetUser {
 
             if (type == DisplayType.LOCATION || type == DisplayType.SIGN) {
                 Object[] limit = Application.createQueryNoFilter(
-                                "select count(fieldId) from MetaField where displayType = ?")
+                        "select count(fieldId) from MetaField where displayType = ?")
                         .setParameter(1, type.name())
                         .unique();
                 if (ObjectUtils.toInt(limit[0]) >= 1) {
@@ -100,7 +116,8 @@ public class Field2Schema extends SetUser {
             }
         }
 
-        String fieldName = toPinyinName(fieldLabel);
+        if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
+
         for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
                 fieldName += RandomUtils.nextInt(0, 9);
@@ -117,7 +134,7 @@ public class Field2Schema extends SetUser {
 
         boolean schemaReady = schema2Database(entity, new Field[]{field}, uniqueKeyFields);
         if (!schemaReady) {
-            Application.getCommonsService().delete(recordedMetaId.toArray(new ID[0]));
+            Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
@@ -301,6 +318,8 @@ public class Field2Schema extends SetUser {
             refEntity = "PickList";
         } else if (dt == DisplayType.CLASSIFICATION) {
             refEntity = "ClassificationData";
+        } else if (dt == DisplayType.ANYREFERENCE) {
+            refEntity = AnyEntity.FLAG;
         }
 
         if (extConfig != null) {
@@ -311,7 +330,7 @@ public class Field2Schema extends SetUser {
             // 忽略验证实体是否存在
             // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
             if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
-                if (!MetadataHelper.containsEntity(refEntity)) {
+                if (!(MetadataHelper.containsEntity(refEntity) || AnyEntity.FLAG.equals(refEntity))) {
                     throw new MetadataModificationException(Language.L("无效引用实体 : %s", refEntity));
                 }
             }
@@ -336,7 +355,7 @@ public class Field2Schema extends SetUser {
         }
 
         recordOfField = Application.getCommonsService().create(recordOfField);
-        recordedMetaId.add(recordOfField.getPrimary());
+        recordedMetaIds.add(recordOfField.getPrimary());
 
         // 以下会改变一些属性，因为并不想他们保存在元数据中
 
@@ -369,16 +388,13 @@ public class Field2Schema extends SetUser {
      */
     protected String toPinyinName(final String text) {
         String identifier = text;
-        if (text.length() < 4) {
-            identifier = "rb" + text + RandomUtils.nextInt(1000, 9999);
-        }
 
         // 全英文直接返回
-        if (identifier.matches("[a-zA-Z0-9]+")) {
+        if (identifier.length() >= 4 && identifier.matches("[a-zA-Z0-9]+")) {
             if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || BlockList.isBlock(identifier)) {
                 identifier = "rb" + identifier;
             }
-            return identifier;
+            return CommonsUtils.maxstr(identifier, 40);
         }
 
         identifier = HanLP.convertToPinyinString(identifier, "", false);
@@ -387,14 +403,13 @@ public class Field2Schema extends SetUser {
             identifier = "rb" + RandomUtils.nextInt(1000, 9999);
         }
 
-        char start = identifier.charAt(0);
-        if (!CharSet.ASCII_ALPHA.contains(start)) {
+        if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0))) {
             identifier = "rb" + identifier;
         }
 
         identifier = identifier.toLowerCase();
-        if (identifier.length() > 42) {
-            identifier = identifier.substring(0, 42);
+        if (identifier.length() > 40) {
+            identifier = identifier.substring(0, 40);
         } else if (identifier.length() < 4) {
             identifier += RandomUtils.nextInt(1000, 9999);
         }

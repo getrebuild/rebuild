@@ -65,6 +65,10 @@
         font-weight: normal;
         color: #777;
       }
+      .support-plat2.mdi-cellphone-marker {
+        margin-top: 1px;
+        color: var(--rb-theme-color);
+      }
     </style>
   </head>
   <body>
@@ -91,7 +95,7 @@
                             <label>
                               <i class="zmdi zmdi-camera"></i>
                               <br />[[${bundle.L('修改头像')}]]
-                              <input type="file" id="avatar-input" accept="image/*" data-maxsize="10485760" data-local="temp" />
+                              <input type="file" id="avatar-input" accept=".jpg,.jpeg,.gif,.png,.bpm" data-maxsize="10485760" data-local="temp" />
                             </label>
                           </div>
                         </div>

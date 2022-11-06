@@ -101,6 +101,12 @@ public class RelatedListController extends BaseController {
 
         Map<String, Integer> countMap = new HashMap<>();
         for (String related : relateds) {
+            // 附件特殊处理
+            if (related.startsWith("Attachment.")
+                    && !Application.getPrivilegesManager().allowRead(user, mainid)) {
+                continue;
+            }
+
             String sql = buildBaseSql(mainid, related, null, true, user);
 
             // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致

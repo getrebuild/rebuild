@@ -195,7 +195,11 @@ const AdvFilters = {
             })
           })
         } else {
-          renderRbcomp(<ListAdvFilter {...props} />, this.__$customAdvWrap, function () {
+          const storageKey = `CustomAdv-${props.entity}`
+          let storageFilter = localStorage.getItem(storageKey)
+          if (storageFilter) storageFilter = JSON.parse(storageFilter)
+
+          renderRbcomp(<ListAdvFilter {...props} filter={storageFilter} />, this.__$customAdvWrap, function () {
             that.__customAdv = this
           })
         }
@@ -345,7 +349,7 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <a className="btn btn-link btn-space" onClick={this.hide}>
+          <a className="btn btn-secondary btn-space" onClick={this.hide}>
             {$L('取消')}
           </a>
           <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
@@ -1316,7 +1320,7 @@ class RbListPagination extends React.Component {
                 <React.Fragment>
                   {$L('配置统计字段')}
                   <sup className="rbv" title={$L('增值功能')} />
-                  <i className="support-plat mdi mdi-monitor" title={$L('支持 PC')} style={{ marginTop: 5, marginLeft: 5 }} />
+                  <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
                 </React.Fragment>
               )
             }>
@@ -1466,7 +1470,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   )
 })
 
-CellRenders.addRender('REFERENCE', function (v, s, k) {
+const renderReference = function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
@@ -1476,7 +1480,9 @@ CellRenders.addRender('REFERENCE', function (v, s, k) {
       </div>
     </td>
   )
-})
+}
+CellRenders.addRender('REFERENCE', renderReference)
+CellRenders.addRender('ANYREFERENCE', renderReference)
 
 CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
   v = v || []

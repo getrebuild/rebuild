@@ -29,7 +29,9 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -94,8 +96,10 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
+        final DisplayType dt = field.getDisplayType();
+
         if (value != null && !field.isQueryable() &&
-                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
+                (dt == DisplayType.TEXT || dt == DisplayType.NTEXT)) {
             return DataDesensitized.SECURE_TEXT;
         }
 
@@ -111,7 +115,7 @@ public class FieldValueHelper {
         }
 
         // 非 ID 数组表示记录主键
-        if (field.getDisplayType() == DisplayType.N2NREFERENCE && value instanceof ID) {
+        if (dt == DisplayType.N2NREFERENCE && value instanceof ID) {
             value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
         }
 
@@ -275,8 +279,14 @@ public class FieldValueHelper {
             return false;
         }
 
-        return field.isDesensitized()
-                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
+        if (field.isDesensitized()) {
+            if (UserHelper.isAdmin(user) && RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) {
+                return true;
+            } else {
+                return !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
+            }
+        }
+        return false;
     }
 
     /**

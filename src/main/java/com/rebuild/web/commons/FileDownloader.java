@@ -12,7 +12,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -69,8 +68,11 @@ public class FileDownloader extends BaseController {
         String imageView2 = request.getQueryString();
         if (imageView2 != null && imageView2.contains("imageView2/")) {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
-            // svg does support
-            if (filePath.toLowerCase().endsWith(".svg")) imageView2 = null;
+
+            // svg/webp does not support
+            if (filePath.toLowerCase().endsWith(".svg") || filePath.toLowerCase().endsWith(".webp")) {
+                imageView2 = null;
+            }
         } else {
             imageView2 = null;
         }
@@ -85,7 +87,7 @@ public class FileDownloader extends BaseController {
                 response.setContentType(mimeType);
             }
 
-            ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
+            final ImageView2 iv2 = imageView2 == null ? null : new ImageView2(imageView2);
 
             // 使用原图
             if (iv2 == null || iv2.getWidth() <= 0 || iv2.getWidth() >= ImageView2.ORIGIN_WIDTH) {
@@ -101,7 +103,7 @@ public class FileDownloader extends BaseController {
                     return;
                 }
 
-                writeLocalFile(iv2.thumb(img), response);
+                writeLocalFile(iv2.thumbQuietly(img), response);
             }
 
         } else {
@@ -214,7 +216,7 @@ public class FileDownloader extends BaseController {
         if (filepath.contains("../")
                 || filepath.startsWith("_log/") || filepath.contains("/_log/")
                 || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
-            throw new RebuildException("Attack path detected : " + filepath);
+            throw new SecurityException("Attack path detected : " + filepath);
         }
         return filepath;
     }

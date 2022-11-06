@@ -780,6 +780,7 @@ body.dialog .main-content {
 
 .dialog-footer .btn {
   margin-left: 5px;
+  min-width: 98px;
 }
 
 .dialog-footer > .float-left > .custom-control {
@@ -912,14 +913,8 @@ select.form-control:not([disabled]) {
 }
 
 @media (min-width: 1064px) {
-  .form-layout > .row .form-group.col-sm-3,
-  .form-layout > .row .form-group.col-sm-4 {
-    padding-right: 0;
-  }
-
-  .form-layout > .row .form-group.col-sm-3 > .col-form-label,
-  .form-layout > .row .form-group.col-sm-4 > .col-form-label {
-    width: 110px;
+  .form-layout > .row .form-group.col-sm-3 > .col-form-label {
+    width: 100px;
   }
 }
 
@@ -1061,7 +1056,8 @@ select.form-control:not([disabled]) {
 
 .img-field .img-upload[disabled],
 .img-field .img-upload[disabled]:hover,
-.img-field .img-upload[disabled] .zmdi {
+.img-field .img-upload[disabled] .zmdi,
+.img-field .img-upload[disabled] .mdi {
   opacity: 1 !important;
   color: #dbdbdb !important;
   cursor: not-allowed !important;
@@ -1076,10 +1072,10 @@ select.form-control:not([disabled]) {
   cursor: pointer;
 }
 
-.img-field label.img-upload .zmdi {
-  font-size: 1.6rem;
+.img-field label.img-upload .zmdi,
+.img-field label.img-upload .mdi {
+  font-size: 1.8rem;
   color: #aaa;
-  font-weight: 300;
 }
 
 .img-field a.img-upload {
@@ -2433,6 +2429,10 @@ th.column-fixed {
   padding: 30px;
 }
 
+.dropdown-menu-advfilter .alert {
+  display: none;
+}
+
 div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
   width: 100%;
   display: block;
@@ -3537,7 +3537,7 @@ form {
 }
 
 #asideFilters .dropdown-item,
-#asideClass .dropdown-item {
+#asideCategory .dropdown-item {
   padding: 8px 10px;
   border-radius: 2px;
   font-size: 1rem;
@@ -3546,17 +3546,17 @@ form {
 }
 
 #asideFilters .dropdown-item:hover,
-#asideClass .dropdown-item:hover {
+#asideCategory .dropdown-item:hover {
   background-color: #eee;
 }
 
 #asideFilters .dropdown-item:active,
-#asideClass .dropdown-item:active {
+#asideCategory .dropdown-item:active {
   color: #404040;
 }
 
 #asideFilters .dropdown-item.active,
-#asideClass .dropdown-item.active {
+#asideCategory .dropdown-item.active {
   background-color: #4285f4;
   color: #fff;
 }
@@ -4183,6 +4183,12 @@ h3.modal-title > .rbv {
   font-weight: normal;
 }
 
+.mdedit-content a[target]:hover,
+.editor-preview a[target]:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
 .popover {
   max-width: 300px;
 }
@@ -4256,6 +4262,14 @@ html.external-auth .auth-body .card {
 html.external-auth .auth-body.must-center .card,
 html.external-auth .auth-body.must-center .login {
   display: none;
+}
+
+@media (max-width: 576px) {
+  html.external-auth .auth-body .card {
+    padding-left: 10px;
+    padding-right: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  }
 }
 
 .page-footer {
@@ -4881,6 +4895,7 @@ pre.unstyle {
 .rb-left-sidebar .sidebar-elements > li ul {
   background-color: #f5f5f5;
   background-color: #eee;
+  padding: 6px 0;
 }
 
 .rb-left-sidebar .sidebar-elements > li > a:hover,
@@ -4921,20 +4936,27 @@ pre.unstyle {
   background-color: #eee;
 }
 
-/* mdi7 */
+/* v3: mdi7 */
+
+.mdi {
+  display: inline-block;
+  line-height: 1;
+}
+
+.mdi.text-bold::before {
+  font-weight: bold;
+}
+
+.zmdi.mdi::before {
+  line-height: unset;
+}
 
 .modal-header > .icon.mdi,
 .header-icon.mdi {
   font-size: 2rem;
-  line-height: 1;
 }
 
-.over-tab {
-  margin-top: -63px;
-  transition: margin-top 0.4s;
-}
-
-/* theme defs v3.1 */
+/* v3.1: theme defs */
 
 .rb-left-sidebar .sidebar-elements > li.active > a,
 .rb-left-sidebar .sidebar-elements > li.active > a > span,
@@ -4946,17 +4968,14 @@ pre.unstyle {
   border-top-color: var(--rb-theme-color);
 }
 
-.support-plat {
+.support-plat2 {
   position: absolute;
-  margin-left: 8px;
-  background-color: var(--rb-color);
-  color: #fff;
-  display: inline-block;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
   cursor: help;
-  text-align: center;
-  font-size: 13px;
+  font-size: 15px;
+  margin-top: -1px;
+  margin-left: 8px;
+}
+
+.modal-title > .support-plat2 {
+  margin-top: 7px;
 }

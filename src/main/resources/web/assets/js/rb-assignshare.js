@@ -44,6 +44,7 @@ class DlgAssign extends RbModalHandler {
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
                   {(this.state.cascadesEntity || []).map((item) => {
+                    if ($isSysMask(item[1])) return null
                     return (
                       <option key={item[0]} value={item[0]}>
                         {item[1]}
@@ -307,14 +308,14 @@ class DlgShareManager extends RbModalHandler {
           </table>
         </div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>
+            {$L('取消')}
+          </button>
           {this.props.unshare === true && (
             <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
               {$L('取消共享')}
             </button>
           )}
-          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>
-            {$L('取消')}
-          </button>
         </div>
       </RbModal>
     )

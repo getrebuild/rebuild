@@ -340,20 +340,19 @@ const ChartsWidget = {
 }
 
 // 分类
-const ClassWidget = {
+const CategoryWidget = {
   init() {
-    $('.J_load-class').on('click', () => {
-      this._classLoaded !== true && this.loadClass()
+    $('.J_load-category').on('click', () => {
+      this._loaded !== true && this.loadCategory()
     })
 
-    this._$wrap = $('<div></div>').appendTo('#asideClass')
+    this._$wrap = $('<div></div>').appendTo('#asideCategory')
     $(`<div class="dropdown-item active" data-id="$ALL$">${$L('全部数据')}</div>`).appendTo(this._$wrap)
   },
 
-  loadClass() {
+  loadCategory() {
+    this._loaded = true
     $.get(`/app/${wpc.entity[0]}/widget-category-data`, (res) => {
-      this._classLoaded = true
-
       res.data &&
         res.data.forEach((item) => {
           $(`<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`).appendTo(this._$wrap)
@@ -385,7 +384,7 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('#asideFilters, #asideWidgets, #asideClass').length > 0) {
+  if ($('#asideFilters, #asideWidgets, #asideCategory').length > 0) {
     $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
@@ -398,7 +397,7 @@ $(document).ready(() => {
     })()
 
     if ($('#asideWidgets').length > 0) ChartsWidget.init()
-    if ($('#asideClass').length > 0) ClassWidget.init()
+    if ($('#asideCategory').length > 0) CategoryWidget.init()
   }
 
   const $wtab = $('.page-aside.widgets .nav a:eq(0)')

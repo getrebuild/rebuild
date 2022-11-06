@@ -13,13 +13,13 @@ window.clickIcon = function (icon) {
 
 const wpc = window.__PageConfig
 
-$(document).ready(function () {
+$(document).ready(() => {
   if (!wpc.metaId) $('.footer .alert').removeClass('hide')
   else $('.footer .J_action').removeClass('hide')
 
   $(`.J_tab-${wpc.entity} a`).addClass('active')
 
-  const $btn = $('.J_save').on('click', function () {
+  const $btn = $('.J_save').on('click', () => {
     if (!wpc.metaId) return
 
     let data = {
@@ -36,6 +36,12 @@ $(document).ready(function () {
       quickFields: $('#quickFields').val().join(','),
       tags: $('#tags').val().join(','),
     }
+    // v3.1
+    if ($('#notCoEditing')[0]) {
+      extConfig.notCoEditing = $val('#notCoEditing')
+      extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
+    }
+
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
     if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
 
@@ -51,15 +57,13 @@ $(document).ready(function () {
     }
 
     $btn.button('loading')
-    $.post('../entity-update', JSON.stringify(data), function (res) {
+    $.post('../entity-update', JSON.stringify(data), (res) => {
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
     })
   })
 
-  $('#entityIcon').on('click', function () {
-    RbModal.create('/p/common/search-icon', $L('选择图标'))
-  })
+  $('#entityIcon').on('click', () => RbModal.create('/p/common/search-icon', $L('选择图标')))
 
   // 排序
   function sortFields(fields) {
@@ -73,26 +77,16 @@ $(document).ready(function () {
     return ss
   }
 
-  // 系统级引用字段
-  const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId', 'approvalLastUser']
+  const SYS_FIELDS = ['approvalId', 'approvalLastUser']
+  const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
+  const CAN_QUICK = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'REFERENCE']
 
   $.get(`/commons/metadata/fields?deep=1&entity=${wpc.entity}`, function (d) {
     // 名称字段
-    const cNameFields = d.data.map((item) => {
-      const canName =
-        item.type === 'TEXT' ||
-        item.type === 'EMAIL' ||
-        item.type === 'URL' ||
-        item.type === 'PHONE' ||
-        item.type === 'SERIES' ||
-        item.type === 'LOCATION' ||
-        item.type === 'PICKLIST' ||
-        item.type === 'CLASSIFICATION' ||
-        item.type === 'DATE' ||
-        item.type === 'DATETIME' ||
-        item.type === 'TIME' ||
-        /* 开放引用字段是否有问题 ??? */
-        (item.type === 'REFERENCE' && !_SYS_REF_FIELDS.includes(item.name))
+    const canNameFields = d.data.map((item) => {
+      let canName = CAN_NAME.includes(item.type) && !SYS_FIELDS.includes(item.name)
+      if (canName && item.type === 'REFERENCE') canName = item.ref[0] !== wpc.entity
+
       return {
         id: item.name,
         text: item.label,
@@ -105,25 +99,15 @@ $(document).ready(function () {
       .select2({
         placeholder: $L('选择字段'),
         allowClear: false,
-        data: sortFields(cNameFields),
+        data: sortFields(canNameFields),
       })
-      .val(wpc.nameField)
+      .val(wpc.nameField || null)
       .trigger('change')
 
     // 快速查询
-    const cQuickFields = d.data.map((item) => {
-      const canQuick =
-        item.type === 'TEXT' ||
-        item.type === 'EMAIL' ||
-        item.type === 'URL' ||
-        item.type === 'PHONE' ||
-        item.type === 'SERIES' ||
-        item.type === 'LOCATION' ||
-        item.type === 'PICKLIST' ||
-        item.type === 'CLASSIFICATION' ||
-        // item.type === 'DATE' ||
-        // item.type === 'DATETIME'
-        (item.type === 'REFERENCE' && _SYS_REF_FIELDS.indexOf(item.name) === -1)
+    const canQuickFields = d.data.map((item) => {
+      let canQuick = CAN_QUICK.includes(item.type)
+      if (canQuick && item.type === 'REFERENCE') canQuick = item.ref[0] !== wpc.entity
 
       return {
         id: item.name,
@@ -136,10 +120,11 @@ $(document).ready(function () {
     $('#quickFields').select2({
       placeholder: $L('默认'),
       allowClear: true,
-      data: sortFields(cQuickFields),
+      data: sortFields(canQuickFields),
       multiple: true,
       maximumSelectionLength: 5,
     })
+
     if (wpc.extConfig.quickFields) {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
     }
@@ -168,4 +153,8 @@ $(document).ready(function () {
       $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
   })
+
+  // v3.1
+  if (wpc.extConfig.notCoEditing) $('#notCoEditing').attr('checked', true)
+  if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
 })

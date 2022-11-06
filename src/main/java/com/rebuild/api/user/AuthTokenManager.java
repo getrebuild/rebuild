@@ -40,7 +40,8 @@ public class AuthTokenManager {
      */
     public static final String TYPE_ONCE_TOKEN = "RBOT";
 
-    private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 12;
+    // 3d
+    private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 24 * 3;
 
     private static final String TOKEN_PREFIX = "TOKEN:";
 
@@ -107,7 +108,7 @@ public class AuthTokenManager {
      * @return
      */
     public static ID verifyToken(String token) {
-        return verifyToken(token, Boolean.FALSE);
+        return verifyToken(token, Boolean.FALSE, Boolean.FALSE);
     }
 
     /**
@@ -115,9 +116,10 @@ public class AuthTokenManager {
      *
      * @param token
      * @param verifyAfterDestroy
+     * @param verifyAfterRefresh
      * @return
      */
-    public static ID verifyToken(String token, boolean verifyAfterDestroy) {
+    public static ID verifyToken(String token, boolean verifyAfterDestroy, boolean verifyAfterRefresh) {
         Assert.notNull(token, "[token] cannot be null");
         String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
         if (desc == null) return null;
@@ -130,6 +132,11 @@ public class AuthTokenManager {
         if (verifyAfterDestroy) {
             log.debug("Destroy token ({}) : {}", descs[0], token);
             Application.getCommonsCache().evict(TOKEN_PREFIX + token);
+            verifyAfterRefresh = false;
+        }
+
+        if (verifyAfterRefresh && TYPE_ACCESS_TOKEN.equals(descs[0])) {
+            Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, ACCESSTOKEN_EXPIRES);
         }
 
         return ID.valueOf(descs[1]);
@@ -140,7 +147,10 @@ public class AuthTokenManager {
      *
      * @param token
      * @return
+     * @see #verifyToken(String, boolean, boolean)
+     * @deprecated Use {@link #verifyToken(String, boolean, boolean)}
      */
+    @Deprecated
     public static ID refreshAccessToken(String token) {
         Assert.notNull(token, "[token] cannot be null");
         String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);

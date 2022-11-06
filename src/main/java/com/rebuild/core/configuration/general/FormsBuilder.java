@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -54,8 +55,10 @@ public class FormsBuilder extends FormsManager {
 
     // 分割线
     public static final String DIVIDER_LINE = "$DIVIDER$";
+
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
+
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
 
@@ -193,7 +196,12 @@ public class FormsBuilder extends FormsManager {
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
         } else if (entityMeta.getDetailEntity() != null) {
-            model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+            // v3.1
+            if (!entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.NOT_COEDITING)) {
+                model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+                model.set("detailsNotEmpty",
+                        entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            }
         }
 
         if (recordData != null && recordData.hasValue(EntityHelper.ModifiedOn)) {
@@ -266,7 +274,8 @@ public class FormsBuilder extends FormsManager {
         final Date now = CalendarUtils.now();
 
         // 新建
-        final boolean isNew = recordData == null || recordData.getPrimary() == null || EntityHelper.isUnsavedId(recordData.getPrimary());
+        final boolean isNew = recordData == null || recordData.getPrimary() == null
+                || EntityHelper.isUnsavedId(recordData.getPrimary());
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -368,10 +377,11 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // 父级级联
-                ID parentValue = dt == DisplayType.REFERENCE && recordData.getPrimary() != null
-                        ? getCascadingFieldParentValue(easyField, recordData.getPrimary()) : null;
-                if (parentValue != null) {
-                    el.put("_cascadingFieldParentValue", parentValue);
+                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
+                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
+                    }
                 }
             }
             // 新建记录
@@ -433,9 +443,10 @@ public class FormsBuilder extends FormsManager {
                 }
 
                 // v3.1 父级级联
-                if (entity.getMainEntity() != null && dt == DisplayType.REFERENCE) {
+                if (entity.getMainEntity() != null && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                     ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                    ID parentValue = getCascadingFieldParentValue(easyField, mainid);
+                    ID parentValue = EntityHelper.isUnsavedId(mainid) ? null
+                            : getCascadingFieldParentValue(easyField, mainid, true);
                     if (parentValue != null) {
                         el.put("_cascadingFieldParentValue", parentValue);
                     }
@@ -549,7 +560,8 @@ public class FormsBuilder extends FormsManager {
             inFormFields.add(((JSONObject) o).getString("field"));
         }
 
-        // 保持在初始值中（TODO 更多保持字段）
+        // 保持在初始值中
+        // TODO 更多保持字段
         Set<String> initialValKeeps = new HashSet<>();
 
         Map<String, Object> initialValReady = new HashMap<>();
@@ -573,8 +585,10 @@ public class FormsBuilder extends FormsManager {
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value)
-                        : (DV_MAINID.equals(value) ? EntityHelper.UNSAVED_ID : value);
+                Object mixValue = inFormFields.contains(dtmField.getName())
+                        ? getReferenceMixValue(value)
+                        : (isNewMainId(value) ? EntityHelper.UNSAVED_ID : value);
+
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
@@ -619,7 +633,7 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON getReferenceMixValue(String idValue) {
-        if (DV_MAINID.equals(idValue)) {
+        if (isNewMainId(idValue)) {
             return FieldValueHelper.wrapMixValue(EntityHelper.UNSAVED_ID, Language.L("新的"));
         } else if (!ID.isId(idValue)) {
             return null;
@@ -639,28 +653,36 @@ public class FormsBuilder extends FormsManager {
      *
      * @param field
      * @param record
+     * @param recordIsMain
      * @return
      */
-    private ID getCascadingFieldParentValue(EasyField field, ID record) {
+    private ID getCascadingFieldParentValue(EasyField field, ID record, boolean recordIsMain) {
         String pf = field.getExtraAttr("_cascadingFieldParent");
         if (pf == null) return null;
 
         String[] pfs = pf.split(MetadataHelper.SPLITER_RE);
         String fieldParent = pfs[0];
-        // 明细级联主实体
-        if (pfs[0].contains(".")) {
+
+        // 明细字段使用主实体字段
+        // format: MAINENTITY.FIELD
+        boolean useMainField = pfs[0].contains(".");
+
+        if (recordIsMain) {
+            if (useMainField) {
+                fieldParent = pfs[0].split("\\.")[1];
+            } else {
+                return null;
+            }
+        } else if (useMainField) {
             Field dtf = MetadataHelper.getDetailToMainField(field.getRawMeta().getOwnEntity());
             fieldParent = dtf.getName() + "." + pfs[0].split("\\.")[1];
-
-            // 明细新建时 record 传入的是主记录
-            int fieldCode = field.getRawMeta().getOwnEntity().getEntityCode();
-            int recordCode = record.getEntityCode();
-            if (fieldCode != recordCode) {
-                fieldParent = pfs[0].split("\\.")[1];
-            }
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
         return o == null ? null : (ID) o[0];
+    }
+
+    private boolean isNewMainId(Object id) {
+        return DV_MAINID.equals(id) || EntityHelper.isUnsavedId(id);
     }
 }

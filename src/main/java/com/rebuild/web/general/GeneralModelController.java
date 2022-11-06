@@ -140,7 +140,7 @@ public class GeneralModelController extends EntityController {
                 FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
             }
 
-            // v3.1 明细导入
+            // v3.1 明细导入配置
             if (metaEntity.getDetailEntity() != null) {
                 List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
                 if (!imports.isEmpty()) {
@@ -202,7 +202,7 @@ public class GeneralModelController extends EntityController {
         final ID user = getRequestUser(request);
         final Entity metaEntity = MetadataHelper.getEntity(entity);
 
-        // 转换预览模式
+        // 记录转换预览模式
         final String previewid = request.getParameter("previewid");
         if (StringUtils.isNotBlank(previewid)) {
             return new TransformerPreview(previewid, user).buildForm(true);

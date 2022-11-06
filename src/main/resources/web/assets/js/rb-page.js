@@ -134,6 +134,7 @@ $(function () {
     if (e.shiftKey) {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
+        typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
       }
     }
   })
@@ -227,16 +228,24 @@ var _initNav = function () {
     })
     $('.sidebar-elements>li>a').tooltip('disable')
   } else {
-    var $el = $('.rb-collapsible-sidebar')
-    if (!$el.hasClass('rb-collapsible-sidebar-collapsed')) {
+    var $sidebar = $('.rb-collapsible-sidebar')
+    if (!$sidebar.hasClass('rb-collapsible-sidebar-collapsed')) {
       $('.sidebar-elements>li>a').tooltip('disable')
     }
 
     $('.rb-toggle-left-sidebar').on('click', function () {
-      $el.toggleClass('rb-collapsible-sidebar-collapsed')
-      $.cookie('rb.sidebarCollapsed', $el.hasClass('rb-collapsible-sidebar-collapsed'), { expires: 180 })
-
+      $sidebar.toggleClass('rb-collapsible-sidebar-collapsed')
       $('.sidebar-elements>li>a').tooltip('toggleEnabled')
+
+      const collapsed = $sidebar.hasClass('rb-collapsible-sidebar-collapsed')
+      $.cookie('rb.sidebarCollapsed', collapsed, { expires: 180 })
+
+      if (collapsed) {
+        $sidebar.find('.parent.open').each(function () {
+          $(this).find('>a')[0].click()
+        })
+      }
+
       $addResizeHandler()()
     })
   }
@@ -313,17 +322,19 @@ var _initNav = function () {
     $('.rbv').attr('title', $L('增值功能'))
   }, 400)
 
-  // Active URL Nav
+  // Active Outer-URL Nav
   var urls = location.href.split('/')
   var navUrl = '/' + urls.slice(3).join('/')
   var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
   if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
     $('.sidebar-elements li.active:not(.parent)').removeClass('active')
     $navHit.parent().addClass('active')
-    // parent
+    // Nav parent
     var $parent = $navHit.parents('li.parent:not(.active)')
     if ($parent.length > 0) {
-      $parent.addClass('active').first().trigger('click')
+      $parent.addClass('active')
+      // Not default open
+      if (!$parent.hasClass('open')) $parent.first().trigger('click')
     }
   }
 }
@@ -742,7 +753,7 @@ var $mp = {
   },
 }
 
-var EMOJIS = {
+var RBEMOJIS = {
   '赞': 'rb_zan.png',
   '握手': 'rb_woshou.png',
   '耶': 'rb_ye.png',
@@ -824,8 +835,8 @@ var $converEmoji = function (text) {
   if (!es) return text
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
-    if (EMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" alt="' + key + '" />'
+    if (RBEMOJIS[key]) {
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + RBEMOJIS[key] + '" alt="' + key + '" />'
       text = text.replace(this, img)
     }
   })
@@ -984,3 +995,6 @@ var $isFullUrl = function (url) {
 var $isSysMask = function (label) {
   return label && (label.startsWith('SYS ') || label.contains('.SYS ')) && location.href.indexOf('/admin/') === -1
 }
+
+// 颜色
+var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']

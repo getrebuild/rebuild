@@ -36,7 +36,9 @@ class AviatorUtilsTest {
 
     @Test
     void func() {
-        AviatorUtils.evalQuietly("p(DATEDIFF('2022-03-03 17:31:24', '2022-03-04 17:30:24', 'D'))");
+        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'D'))");
+        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'M'))");
+        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-09 23:59:59', 'Y'))");
 
         AviatorUtils.evalQuietly("p(DATEADD('2021-01-01 18:17:00', '2H'))");
 

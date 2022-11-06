@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -42,59 +41,57 @@ public class DataListCategory {
      * @return
      */
     public static JSON datas(Entity entity, ID user) {
-        final Field classField = getFieldOfCategory(entity);
-        if (classField == null) return null;
+        final Field categoryField = getFieldOfCategory(entity);
+        if (categoryField == null) return null;
 
-        final String ckey = String.format("DLC1.%s.%s", entity.getName(), classField.getName());
-        JSON c = (JSON) Application.getCommonsCache().getx(ckey);
-        if (c != null) return c;
+        DisplayType dt = EasyMetaFactory.getDisplayType(categoryField);
 
-        DisplayType dt = EasyMetaFactory.getDisplayType(classField);
-
-        List<Object[]> list = new ArrayList<>();
+        List<Object[]> clist = new ArrayList<>();
 
         if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST) {
-            ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(classField, true);
+            ConfigBean[] entries = MultiSelectManager.instance.getPickListRaw(categoryField, true);
             for (ConfigBean e : entries) {
                 Object id = e.getID("id");
                 if (dt == DisplayType.MULTISELECT) id = e.getLong("mask");
 
-                list.add(new Object[] { e.getString("text"), id });
+                clist.add(new Object[] { e.getString("text"), id });
             }
 
         } else {
+
+            // TODO 考虑支持更多分组字段类型，例如日期（但要考虑日期格式）
+
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = MessageFormat.format(
-                        "select referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}'' group by referenceId",
-                        entity.getName(), classField.getName());
+                        "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
+                        entity.getName(), categoryField.getName());
             } else {
                 sql = MessageFormat.format(
-                        "select {0} from {1} where {0} is not null group by {0}", classField.getName(), entity.getName());
+                        "select distinct {0} from {1} where {0} is not null", categoryField.getName(), entity.getName());
             }
-            
+
             Query query = user == null
-                        ? Application.createQueryNoFilter(sql) : Application.getQueryFactory().createQuery(sql, user);
+                    ? Application.createQueryNoFilter(sql)
+                    : Application.getQueryFactory().createQuery(sql, user);
             Object[][] array = query.array();
 
             for (Object[] o : array) {
                 Object id = o[0];
                 Object label = FieldValueHelper.getLabelNotry((ID) id);
-                list.add(new Object[] { label, id });
+                clist.add(new Object[] { label, id });
             }
 
-            list.sort(Comparator.comparing(o -> o[0].toString()));
+            // TODO 分类数据 code 排序
+            clist.sort(Comparator.comparing(o -> o[0].toString()));
         }
 
         JSONArray res = new JSONArray();
-        for (Object[] o : list) {
+        for (Object[] o : clist) {
             res.add(JSONUtils.toJSONObject(
                     new String[] { "label", "id", "count" },
                     new Object[] { o[0], o[1], 0 } ));
         }
-
-        // FIXME 1min 缓存
-        Application.getCommonsCache().putx(ckey, res, CacheTemplate.TS_HOUR / 60);  // 1min
 
         return res;
     }

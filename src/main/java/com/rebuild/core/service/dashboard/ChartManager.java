@@ -23,6 +23,7 @@ import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Iterator;
 
@@ -135,8 +136,8 @@ public class ChartManager implements ConfigManager {
     public void richingCharts(JSONArray charts, ID user) {
         for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
             JSONObject ch = (JSONObject) iter.next();
-            ID chartid = ID.valueOf(ch.getString("chart"));
-            ConfigBean e = getChart(chartid);
+            ID chartId = ID.valueOf(ch.getString("chart"));
+            ConfigBean e = getChart(chartId);
             if (e == null) {
                 iter.remove();
                 continue;
@@ -144,6 +145,11 @@ public class ChartManager implements ConfigManager {
 
             ch.put("title", e.getString("title"));
             ch.put("type", e.getString("type"));
+
+            try {
+                String c = ((JSONObject) e.getJSON("config")).getJSONObject("option").getString("useColor");
+                if (StringUtils.isNotBlank(c)) ch.put("color", c);
+            } catch (Exception ignore) {}
 
             if (user != null) {
                 ID createdBy = e.getID("createdBy");

@@ -49,6 +49,7 @@
                   <div class="col-sm-6">
                     <div class="dataTables_oper">
                       <button class="btn btn-primary btn-space J_new-field" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+                      <button class="btn btn-primary btn-space J_new2-field bosskey-show" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('批量添加')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -98,12 +99,16 @@
       $(document).ready(() => {
         loadFields()
 
-        $('.input-search .btn').on('click', () => __renderList())
+        $('.input-search .btn').on('click', () => renderList())
         $('.input-search .form-control').keydown((e) => {
           if (e.which === 13) $('.input-search .btn').trigger('click')
         })
         $('.J_new-field').on('click', () => {
           if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
+          else RbHighbar.error($L('仅超级管理员可添加字段'))
+        })
+        $('.J_new2-field').on('click', () => {
+          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new2?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
           else RbHighbar.error($L('仅超级管理员可添加字段'))
         })
       })
@@ -112,13 +117,13 @@
       const loadFields = function () {
         $.get(`../list-field?entity=${wpc.entityName}&refname=true`, function (res) {
           fields_data = res.data || []
-          __renderList()
+          renderList()
 
           $('.tablesort').tablesort()
         })
       }
 
-      const __renderList = function () {
+      const renderList = function () {
         const $tbody = $('#dataList tbody').empty()
         const q = ($val('.input-search .form-control') || '').toLowerCase()
 

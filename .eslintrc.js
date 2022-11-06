@@ -40,6 +40,8 @@ module.exports = {
     React: true,
     ReactDOM: true,
     PropTypes: true,
+    RBCOLORS: true,
+    RBEMOJIS: true,
     rb: true,
     $setTimeout: true,
     $random: true,

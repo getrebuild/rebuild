@@ -151,6 +151,11 @@ public class FieldAggregation extends TriggerAction {
             dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
         }
 
+        String filterSql = followSourceWhere;
+        if (dataFilterSql != null) {
+            filterSql = String.format("( %s ) and ( %s )", followSourceWhere, dataFilterSql);
+        }
+
         // 构建目标记录数据
         Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
 
@@ -160,11 +165,6 @@ public class FieldAggregation extends TriggerAction {
             String targetField = item.getString("targetField");
             if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
                 continue;
-            }
-
-            String filterSql = followSourceWhere;
-            if (dataFilterSql != null) {
-                filterSql = String.format("( %s ) and ( %s )", followSourceWhere, dataFilterSql);
             }
 
             Object evalValue = new AggregationEvaluator(item, sourceEntity, filterSql).eval();
@@ -227,10 +227,11 @@ public class FieldAggregation extends TriggerAction {
         String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
         if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
             String sql = String.format("select %s from %s where %s",
-                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), dataFilterSql);
+                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
             Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
-            for (Object[] fb : fillbacks) {
-                Record fbRecord = EntityHelper.forUpdate((ID) fb[0], UserService.SYSTEM_USER, false);
+
+            for (Object[] to : fillbacks) {
+                Record fbRecord = EntityHelper.forUpdate((ID) to[0], UserService.SYSTEM_USER, false);
                 fbRecord.setID(fillbackField, targetRecordId);
 
                 // FIXME 回填仅更新，无业务规则

@@ -55,7 +55,7 @@ $(document).ready(function () {
         RbHighbar.success($L('仪表盘已删除'))
         location.hash = ''
       } else {
-        const high = $('#chart-' + location.hash.substr(1)).addClass('high')
+        const high = $(`#chart-${location.hash.substr(1)}`).addClass('high')
         if (high.length > 0) {
           high.on('mouseleave', () => {
             high.removeClass('high').off('mouseleave')
@@ -228,13 +228,13 @@ const render_dashboard = function (init) {
 }
 
 const add_widget = function (item) {
-  const chid = 'chart-' + item.chart
-  if ($('#' + chid).length > 0) return false
+  const chid = `chart-${item.chart}`
+  if ($(`#${chid}`)[0]) return false // exsist
 
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  const gsi = `<div class="grid-stack-item"><div id="${chid}" class="grid-stack-item-content"></div></div>`
+  const gsi = `<div class="grid-stack-item ${item.color && 'color'}"><div id="${chid}" class="grid-stack-item-content" ${item.color ? `style="background-color:${item.color}` : ''}"></div></div>`
   // Use gridstar
   if (item.size_x || item.size_y) {
     gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, 2, 24)
@@ -309,7 +309,9 @@ class DlgAddChart extends RbFormHandler {
     const $entity = $(this.refs['entity'])
     $.get('/commons/metadata/entities?detail=true', (res) => {
       $(res.data).each(function () {
-        $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($entity)
+        if (!$isSysMask(this.label)) {
+          $(`<option value="${this.name}">${this.label}</option>`).appendTo($entity)
+        }
       })
       this.__select2 = $entity.select2({
         allowClear: false,
@@ -454,7 +456,7 @@ class DlgDashAdd extends RbFormHandler {
     if (this.state.copy === true) _data.__copy = gridstack_serialize
 
     $.post('/dashboard/dash-new', JSON.stringify(_data), (res) => {
-      if (res.error_code === 0) location.href = '?d=' + res.data.id
+      if (res.error_code === 0) location.href = `?d=${res.data.id}`
       else RbHighbar.error(res.error_msg)
     })
   }

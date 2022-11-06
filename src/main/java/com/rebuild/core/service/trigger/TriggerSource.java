@@ -32,6 +32,9 @@ public class TriggerSource {
 
     private boolean skipOnce = false;
 
+    // 触发次数
+    private int triggerTimes = 0;
+
     protected TriggerSource(OperatingContext origin, TriggerWhen originAction) {
         this.id = TSNO.incrementAndGet() + "-";
         addNext(origin, originAction);
@@ -74,6 +77,10 @@ public class TriggerSource {
         boolean skipOnceHold = skipOnce;
         skipOnce = false;
         return skipOnceHold;
+    }
+
+    public int incrTriggerTimes() {
+        return ++triggerTimes;
     }
 
     @Override

@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.11</version>
+        <version>2.6.13</version>
         <relativePath/>
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.1.0-beta1</version>
+    <version>3.2.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -296,14 +296,9 @@
             <version>1.9.9.1</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.13.4</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.12</version>
+            <version>1.2.14</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -317,12 +312,12 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.2.3</version>
+            <version>4.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.11.0</version>
+            <version>7.12.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -332,7 +327,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.2.2</version>
+            <version>6.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -372,7 +367,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>3.1.1</version>
+            <version>3.1.2</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -403,12 +398,12 @@
         <dependency>
             <groupId>com.googlecode.aviator</groupId>
             <artifactId>aviator</artifactId>
-            <version>5.3.2</version>
+            <version>5.3.3</version>
         </dependency>
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.17</version>
+            <version>0.4.18</version>
         </dependency>
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>
@@ -423,7 +418,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.17.6</version>
+            <version>3.17.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -454,10 +449,10 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.6</version>
+            <version>5.8.9</version>
         </dependency>
 
-        <!-- CVEs fix -->
+        <!-- fix: CVEs -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -466,8 +461,22 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
+            <version>1.22</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>2.14.0-rc3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.0-rc3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
+        </dependency>
     </dependencies>
 </project>

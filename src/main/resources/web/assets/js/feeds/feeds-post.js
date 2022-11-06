@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, EMOJIS */
+/* global autosize */
 
 // ~ 动态发布
 // eslint-disable-next-line no-unused-vars
@@ -118,7 +118,7 @@ class FeedsScope extends React.Component {
             {$L('私密')}
           </a>
           <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title={$L('团队成员可见')} ref={(c) => (this._$items['GROUP'] = c)}>
-            <i className="icon up-1 zmdi zmdi-accounts" />
+            <i className="icon up-1 mdi mdi-briefcase-account" />
             {$L('团队')}
           </a>
         </div>
@@ -182,8 +182,8 @@ class FeedsEditor extends React.Component {
     this.state = { ...props }
 
     this.__es = []
-    for (let k in EMOJIS) {
-      const item = EMOJIS[k]
+    for (let k in RBEMOJIS) {
+      const item = RBEMOJIS[k]
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
           <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />

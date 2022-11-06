@@ -84,7 +84,7 @@
                       </div>
                     </div>
                   </div>
-                  <div th:if="${fieldType == 'REFERENCE'}" class="form-group row">
+                  <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('父级级联字段')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <select class="form-control form-control-sm" id="referenceCascadingField">
@@ -161,6 +161,18 @@
                     <div class="form-text" th:utext="${bundle.L('如有多个类型请使用逗号分开')}"></div>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+                    <i class="support-plat2 mdi mdi-cellphone-check" style="margin-left: -18px" th:title="${bundle.L('支持 H5')}"></i>
+                    [[${bundle.L('仅允许拍照上传')}]]
+                  </label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="imageCapture" />
+                      <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                    </label>
+                  </div>
+                </div>
                 <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('选项列表')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -219,7 +231,8 @@
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('是否允许负数')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="notNegative" /><span class="custom-control-label"> [[${bundle.L('不允许')}]]</span>
+                      <input class="custom-control-input" type="checkbox" id="notNegative" />
+                      <span class="custom-control-label"> [[${bundle.L('不允许')}]]</span>
                     </label>
                   </div>
                 </div>
@@ -234,10 +247,12 @@
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示样式')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" checked /><span class="custom-control-label"> [[${bundle.L('二维码')}]]</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" checked />
+                        <span class="custom-control-label"> [[${bundle.L('二维码')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" /><span class="custom-control-label"> [[${bundle.L('条形码')}]] (CODE128)</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" />
+                        <span class="custom-control-label"> [[${bundle.L('条形码')}]] (CODE128)</span>
                       </label>
                     </div>
                   </div>
@@ -287,7 +302,8 @@
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('使用富文本编辑器')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="useMdedit" /><span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                      <input class="custom-control-input" type="checkbox" id="useMdedit" />
+                      <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
                     </label>
                   </div>
                 </div>
@@ -296,7 +312,8 @@
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('自动定位')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                        <input class="custom-control-input" type="checkbox" id="locationAutoLocation" /><span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                        <input class="custom-control-input" type="checkbox" id="locationAutoLocation" />
+                        <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
                       </label>
                     </div>
                   </div>
@@ -304,7 +321,8 @@
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('视图页直接显示地图')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                        <input class="custom-control-input" type="checkbox" id="locationMapOnView" /><span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                        <input class="custom-control-input" type="checkbox" id="locationMapOnView" />
+                        <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
                       </label>
                     </div>
                   </div>
