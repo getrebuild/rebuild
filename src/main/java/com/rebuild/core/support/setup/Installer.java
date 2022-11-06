@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.args.FlushMode;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -519,8 +518,9 @@ public class Installer implements InstallState {
     public static void clearAllCache() {
         if (isUseRedis()) {
             try (Jedis jedis = Application.getCommonsCache().getJedisPool().getResource()) {
-                // Delete all the keys of the currently selected DB
-                jedis.flushDB(FlushMode.SYNC);
+//                // Delete all the keys of the currently selected DB
+//                jedis.flushDB(FlushMode.SYNC);
+                jedis.flushAll();
             }
         } else {
             Application.getCommonsCache().getEhcacheCache().clear();
