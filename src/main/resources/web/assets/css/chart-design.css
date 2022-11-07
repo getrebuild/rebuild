@@ -433,3 +433,7 @@ a.ui-draggable.ui-draggable-dragging {
 .rbcolors > a:first-child > i {
   color: #777 !important;
 }
+
+.chart-option label {
+  margin-bottom: 10px;
+}

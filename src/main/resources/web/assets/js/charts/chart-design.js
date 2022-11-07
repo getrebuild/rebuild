@@ -68,7 +68,8 @@ $(document).ready(() => {
   }
 
   let _AdvFilter
-  $('.J_filter').on('click', () => {
+  $('.J_filter').on('click', (e) => {
+    $stopEvent(e, true)
     if (_AdvFilter) {
       _AdvFilter.show()
     } else {
