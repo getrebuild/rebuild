@@ -19,7 +19,6 @@ import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginController;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +34,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -51,8 +51,12 @@ import java.sql.SQLException;
 public class InstallController extends BaseController implements InstallState {
 
     @GetMapping("install")
-    public ModelAndView index(HttpServletRequest request) throws IOException {
-        RbAssert.checkAllow(checkInstalled());
+    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Application.isReady() && !Application.devMode()) {
+            response.sendError(404);
+            return null;
+        }
+
         ModelAndView mv = createModelAndView("/admin/setup/install");
         mv.getModel().put("Version", Application.VER);
 
@@ -64,7 +68,6 @@ public class InstallController extends BaseController implements InstallState {
 
     @PostMapping("test-connection")
     public RespBody testConnection(HttpServletRequest request) {
-        RbAssert.checkAllow(checkInstalled());
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
@@ -105,7 +108,6 @@ public class InstallController extends BaseController implements InstallState {
 
     @PostMapping("test-cache")
     public RespBody testCache(HttpServletRequest request) {
-        RbAssert.checkAllow(checkInstalled());
         JSONObject cacheProps = (JSONObject) ServletUtils.getRequestJson(request);
 
         JedisPool pool = new JedisPool(new JedisPoolConfig(),
@@ -131,7 +133,6 @@ public class InstallController extends BaseController implements InstallState {
 
     @PostMapping("install-rebuild")
     public RespBody installExec(HttpServletRequest request) {
-        RbAssert.checkAllow(checkInstalled());
         JSONObject installProps = (JSONObject) ServletUtils.getRequestJson(request);
 
         try {
