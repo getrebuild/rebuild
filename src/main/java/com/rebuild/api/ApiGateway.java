@@ -178,7 +178,7 @@ public class ApiGateway extends Controller implements Initialization {
         else {
             long systemTime = System.currentTimeMillis() / 1000;
             if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (Application.devMode() ? 100 : 15)) {
-                throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] : " + appid);
+                throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] : " + timestamp);
             }
 
             StringBuilder sign2 = new StringBuilder();
