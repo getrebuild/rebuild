@@ -7,11 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,6 +33,20 @@ public class RebuildApiService extends BaseConfigurationService implements Admin
     @Override
     public int getEntityCode() {
         return EntityHelper.RebuildApi;
+    }
+
+    @Override
+    public Record create(Record record) {
+        record.setString("appId", (100000000 + RandomUtils.nextInt(899999999)) + "");
+        record.setString("appSecret", CodecUtils.randomCode(40));
+        return super.create(record);
+    }
+
+    @Override
+    public Record update(Record record) {
+        record.removeValue("appId");
+        record.removeValue("appSecret");
+        return super.update(record);
     }
 
     @Override

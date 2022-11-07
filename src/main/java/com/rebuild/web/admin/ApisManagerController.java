@@ -17,8 +17,8 @@ import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.web.BaseController;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -39,10 +39,10 @@ public class ApisManagerController extends BaseController {
         return createModelAndView("/admin/integration/apis-manager");
     }
 
-    @RequestMapping("apis-manager/app-list")
+    @GetMapping("apis-manager/app-list")
     public RespBody appList() {
         Object[][] apps = Application.createQueryNoFilter(
-                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,appId from RebuildApi")
+                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,appId,bindIps from RebuildApi order by createdOn")
                 .array();
 
         // 近30日用量
@@ -60,24 +60,15 @@ public class ApisManagerController extends BaseController {
         return RespBody.ok(apps);
     }
 
-    @RequestMapping("apis-manager/app-create")
-    public RespBody appCreate(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        ID bindUser = getIdParameter(request, "bind");
-
-        Record record = EntityHelper.forNew(EntityHelper.RebuildApi, user);
-        record.setString("appId", (100000000 + RandomUtils.nextInt(899999999)) + "");
+    @PostMapping("apis-manager/reset-secret")
+    public RespBody resetSecret(HttpServletRequest request) {
+        ID appId = getIdParameterNotNull(request, "id");
+        Record record = EntityHelper.forUpdate(appId, getRequestUser(request));
         record.setString("appSecret", CodecUtils.randomCode(40));
-        record.setID("bindUser", bindUser);
-        Application.getBean(RebuildApiService.class).create(record);
+        Application.getCommonsService().update(record, false);
 
-        return RespBody.ok();
-    }
-
-    @RequestMapping("apis-manager/app-delete")
-    public RespBody appDelete(HttpServletRequest request) {
-        ID id = getIdParameterNotNull(request, "id");
-        Application.getBean(RebuildApiService.class).delete(id);
+        // cache
+        Application.getBean(RebuildApiService.class).update(record);
         return RespBody.ok();
     }
 }
