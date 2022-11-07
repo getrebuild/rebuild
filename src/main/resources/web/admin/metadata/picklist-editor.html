@@ -17,35 +17,8 @@
       .unset-list .dd-item:hover a.action {
         color: #fff;
       }
-
-      .colors {
-        line-height: 1;
-        font-size: 0;
-      }
-      .colors > a {
-        width: 24px;
-        height: 24px;
-        display: inline-block;
-        background-color: #ccc;
-        border-radius: 50%;
-        color: #fff;
-        overflow: hidden;
-        font-size: 1.3rem;
-        padding-top: 4px;
-        text-align: center;
-      }
-      .colors > a:hover {
-        opacity: 0.8;
-        color: rgb(117, 0, 234);
-      }
-      .colors > a + a {
-        margin-left: 9px;
-      }
-      .colors > a > i {
-        color: #fff !important;
-      }
-      .colors > a:first-child > i {
-        color: #aaa !important;
+      .rbcolors > a:first-child > i {
+        color: #777 !important;
       }
     </style>
   </head>
@@ -64,7 +37,7 @@
                 <button class="btn btn-secondary J_confirm" type="submit" style="min-width: 0">[[${bundle.L('添加')}]]</button>
               </div>
             </div>
-            <div class="colors mt-2">
+            <div class="rbcolors mt-2">
               <a style="background-color: #fff; border: 1px solid #ccc" th:title="${bundle.L('默认')}"></a>
             </div>
           </form>

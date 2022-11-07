@@ -429,3 +429,7 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-type > a.active > i.C243 {
   background-position: -1290px -1288px;
 }
+
+.rbcolors > a:first-child > i {
+  color: #777 !important;
+}

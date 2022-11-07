@@ -144,11 +144,12 @@ public class ChartManager implements ConfigManager {
             }
 
             ch.put("title", e.getString("title"));
-            ch.put("type", e.getString("type"));
+            String type = e.getString("type");
+            ch.put("type", type);
 
             try {
                 String c = ((JSONObject) e.getJSON("config")).getJSONObject("option").getString("useColor");
-                if (StringUtils.isNotBlank(c)) ch.put("color", c);
+                if ("INDEX".equals(type) && StringUtils.isNotBlank(c)) ch.put("color", c);
             } catch (Exception ignore) {}
 
             if (user != null) {

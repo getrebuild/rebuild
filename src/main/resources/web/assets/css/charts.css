@@ -122,11 +122,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.1rem;
   margin-bottom: 1px;
   opacity: 0.8;
+  line-height: 1;
 }
 
 .chart.index > .data-item strong {
   font-size: 3.1rem;
   font-weight: 400;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item p {
+  font-size: 3rem;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item strong {
+  font-size: 8.8rem;
 }
 
 .chart.index > .data-item a {

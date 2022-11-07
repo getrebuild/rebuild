@@ -77,47 +77,50 @@
                   </label>
                   <label class="custom-control custom-control-sm custom-checkbox mb-2 admin-show">
                     <input class="custom-control-input" type="checkbox" data-name="noPrivileges" />
-                    <span class="custom-control-label"> [[${bundle.L('使用全部数据')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('不启用则仅能查看登录用户权限内的数据')}"></i></span>
+                    <span class="custom-control-label">[[${bundle.L('使用全部数据')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('不启用则仅能查看登录用户权限内的数据')}"></i></span>
                   </label>
                   <label class="custom-control custom-control-sm custom-checkbox mb-2">
                     <input class="custom-control-input" type="checkbox" data-name="shareChart" />
-                    <span class="custom-control-label"> [[${bundle.L('共享此图表')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('共享后其他用户也可以使用 (不能修改)')}"></i></span>
+                    <span class="custom-control-label">[[${bundle.L('共享此图表')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('共享后其他用户也可以使用 (不能修改)')}"></i></span>
                   </label>
                   <label class="custom-control custom-control-sm custom-checkbox mb-2 hide">
                     <input class="custom-control-input" type="checkbox" data-name="noZero" />
-                    <span class="custom-control-label"> [[${bundle.L('排除空数据 (数值为 0 不显示)')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('排除空数据 (数值为 0 不显示)')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-TABLE">
                   <label class="custom-control custom-control-sm custom-checkbox mb-2">
                     <input class="custom-control-input" type="checkbox" data-name="showLineNumber" />
-                    <span class="custom-control-label"> [[${bundle.L('显示行号')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('显示行号')}]]</span>
                   </label>
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showSums" />
-                    <span class="custom-control-label"> [[${bundle.L('显示汇总')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('显示汇总')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox mb-2">
                     <input class="custom-control-input" type="checkbox" data-name="showNumerical" />
-                    <span class="custom-control-label"> [[${bundle.L('在图表上显示数值')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('在图表上显示数值')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox mb-2">
                     <input class="custom-control-input" type="checkbox" data-name="showGrid" />
-                    <span class="custom-control-label"> [[${bundle.L('显示参考线')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('显示参考线')}]]</span>
                   </label>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox mb-2">
                     <input class="custom-control-input" type="checkbox" data-name="showLegend" />
-                    <span class="custom-control-label"> [[${bundle.L('显示图例')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-INDEX bosskey-show">
-                  <input type="color" data-name="useColor" />
+                <div class="hide J_opt-INDEX">
+                  <label>[[${bundle.L('配色')}]]</label>
+                  <div id="useColor" class="rbcolors">
+                    <a style="background-color: #fff; border: 1px solid #ccc" th:title="${bundle.L('默认')}"></a>
+                  </div>
                 </div>
               </div>
             </div>

@@ -116,6 +116,16 @@ $(document).ready(() => {
     .find('.zmdi')
     .addClass('zmdi-arrow-left')
 
+  // Colors
+  const $cs = $('.rbcolors')
+  RBCOLORS.forEach((c) => {
+    $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
+  })
+  $cs.find('>a').on('click', function () {
+    $cs.find('>a .zmdi').remove()
+    $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+  })
+
   // Load
   if (wpc.chartConfig && wpc.chartConfig.axis) {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
@@ -136,6 +146,10 @@ $(document).ready(() => {
         } else {
           opt.val(option[k])
         }
+      }
+
+      if (k === 'useColor') {
+        $cs.find(`a[data-color="${option[k]}"]`).trigger('click')
       }
     }
   }
@@ -381,7 +395,10 @@ const build_config = () => {
     const name = $(this).data('name')
     if (name) option[name] = $val(this)
   })
-  if (option.useColor === '#000000') delete option.useColor
+
+  const color = $('.rbcolors >a>i').parent().data('color') || ''
+  option.useColor = color || ''
+
   cfg.option = option
 
   if (dataFilter) cfg.filter = dataFilter
