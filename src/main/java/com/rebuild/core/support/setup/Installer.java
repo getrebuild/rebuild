@@ -518,9 +518,13 @@ public class Installer implements InstallState {
     public static void clearAllCache() {
         if (isUseRedis()) {
             try (Jedis jedis = Application.getCommonsCache().getJedisPool().getResource()) {
-//                // Delete all the keys of the currently selected DB
-//                jedis.flushDB(FlushMode.SYNC);
-                jedis.flushAll();
+                try {
+                    // Delete all the keys of the currently selected DB
+                    jedis.flushDB();
+                } catch (Exception unsupported) {
+                    log.warn("Unsupported command `flushDB` : {}", unsupported.getLocalizedMessage());
+                    jedis.flushAll();
+                }
             }
         } else {
             Application.getCommonsCache().getEhcacheCache().clear();
