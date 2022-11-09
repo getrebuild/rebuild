@@ -235,7 +235,7 @@ const render_item = function (data) {
           fieldLabelOld: $item.find('.dd-handle').data('label'),
           fieldHeight: $item.find('.dd-handle').attr('data-height') || null,
         }
-        if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
+        // if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
         renderRbcomp(<DlgEditField onConfirm={_onConfirm} {...ov} displayType={data.displayTypeName} />)
       })
