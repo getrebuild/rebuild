@@ -30,7 +30,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.user.UserAvatar;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -183,8 +182,6 @@ public class LoginController extends LoginAction {
         // 清理验证码
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
-        // 头像缓存
-        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         final User loginUser = Application.getUserStore().getUser(user);
         final boolean isRbMobile = AppUtils.isRbMobile(request);

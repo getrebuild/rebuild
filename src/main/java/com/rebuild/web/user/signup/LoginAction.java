@@ -24,6 +24,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.UserAvatar;
 import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -74,6 +75,9 @@ public class LoginAction extends BaseController {
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
+
+        // 头像缓存
+        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
