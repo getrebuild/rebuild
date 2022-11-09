@@ -869,6 +869,13 @@ class RbFormText extends RbFormElement {
   constructor(props) {
     super(props)
   }
+
+  getValue() {
+    const v = super.getValue()
+    // fix: 3.1.1
+    if (v && v === $L('自动值')) return null
+    else return v
+  }
 }
 
 class RbFormUrl extends RbFormText {
