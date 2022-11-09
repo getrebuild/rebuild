@@ -486,7 +486,7 @@ public class AdvFilterParser extends SetUser {
 
         if (VF_ACU.equals(field)) {
             return String.format(
-                    "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and %s) and approvalState = 2)",
+                    "(exists (select recordId from RobotApprovalStep where ^%s = recordId and state = 1 and isCanceled = 'F' and %s) and approvalState = 2)",
                     specRootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
         } else {
             return sb.toString();
