@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.args.FlushMode;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -518,12 +519,11 @@ public class Installer implements InstallState {
     public static void clearAllCache() {
         if (isUseRedis()) {
             try (Jedis jedis = Application.getCommonsCache().getJedisPool().getResource()) {
+                // https://redis.io/commands/flushdb/
                 try {
-                    // Delete all the keys of the currently selected DB
+                    jedis.flushDB(FlushMode.SYNC);  // v6.2.0
+                } catch (Exception v620) {
                     jedis.flushDB();
-                } catch (Exception unsupported) {
-                    log.warn("Unsupported command `flushDB` : {}", unsupported.getLocalizedMessage());
-                    jedis.flushAll();
                 }
             }
         } else {
