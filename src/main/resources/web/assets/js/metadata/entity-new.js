@@ -55,7 +55,7 @@ $(document).ready(function () {
     if (entities) {
       typeof call === 'function' && call(entities)
     } else {
-      $.get('/admin/entity/entity-list', (res) => {
+      $.get('/admin/entity/entity-list?detail=true', (res) => {
         entities = res.data
         typeof call === 'function' && call(entities)
       })
