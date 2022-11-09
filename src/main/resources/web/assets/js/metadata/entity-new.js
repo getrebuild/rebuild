@@ -6,8 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global InitModels */
 
-$(document).ready(function () {
-  const $new = $('.btn-primary.new').on('click', function () {
+$(document).ready(() => {
+  const $bnew = $('.btn-primary.new').on('click', () => {
     const entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) return RbHighbar.create($L('请输入实体名称'))
@@ -22,14 +22,14 @@ $(document).ready(function () {
       if (!data.mainEntity) return RbHighbar.create($L('请选择主实体'))
     }
 
-    $new.button('loading')
+    $bnew.button('loading')
     $.post(`/admin/entity/entity-new?nameField=${$val('#nameField')}&seriesField=${$val('#seriesField')}`, JSON.stringify(data), (res) => {
       if (res.error_code === 0) parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
       else RbHighbar.error(res.error_msg)
     })
   })
 
-  const $copy = $('.btn-primary.copy').on('click', () => {
+  const $bcopy = $('.btn-primary.copy').on('click', () => {
     const sourceEntity = $val('#copySourceEntity')
     if (!sourceEntity) return RbHighbar.create($L('请选择从哪个实体复制'))
 
@@ -43,7 +43,7 @@ $(document).ready(function () {
       keepConfig: [],
     }
 
-    $copy.button('loading')
+    $bcopy.button('loading')
     $.post('/admin/entity/entity-copy', JSON.stringify(data), (res) => {
       if (res.error_code === 0) parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
       else RbHighbar.error(res.error_msg)
@@ -51,19 +51,19 @@ $(document).ready(function () {
   })
 
   let entities
-  function _loadEntities(call) {
+  function _loadEntities(c) {
     if (entities) {
-      typeof call === 'function' && call(entities)
+      typeof c === 'function' && c(entities)
     } else {
       $.get('/admin/entity/entity-list?detail=true', (res) => {
         entities = res.data
-        typeof call === 'function' && call(entities)
+        typeof c === 'function' && c(entities)
       })
     }
   }
 
   _loadEntities((e) => {
-    e.forEach(function (item) {
+    e.forEach((item) => {
       $(`<option value="${item.entityName}" data-detail="${item.detailEntity || ''}">${item.entityLabel}</option>`).appendTo('#copySourceEntity')
     })
 
@@ -80,17 +80,19 @@ $(document).ready(function () {
     if (e.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#copySourceEntity')
   })
 
-  $('#isDetail').on('click', function () {
+  $('#isDetail').on('click', () => {
     $('.J_mainEntity').toggleClass('hide')
     parent.RbModal.resize()
 
     if ($('#mainEntity option').length === 0) {
       _loadEntities((e) => {
-        e.forEach(function (item) {
-          if (!item.detailEntity) $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+        e.forEach((item) => {
+          if (!item.detailEntity && !item.mainEntity) {
+            $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+          }
         })
 
-        if (e.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#mainEntity')
+        if ($('#mainEntity option').length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#mainEntity')
       })
     }
   })
