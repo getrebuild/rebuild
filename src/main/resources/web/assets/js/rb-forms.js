@@ -796,9 +796,7 @@ class RbFormElement extends React.Component {
    */
   isValueError() {
     if (this.props.nullable === false) {
-      const v = this.state.value
-      if (v && $.type(v) === 'array') return v.length === 0 ? $L('不能为空') : null
-      else return !v ? $L('不能为空') : null
+      return $empty(this.state.value) ? $L('不能为空') : null
     }
   }
 
