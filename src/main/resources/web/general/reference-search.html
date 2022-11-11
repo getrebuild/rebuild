@@ -66,7 +66,7 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script type="text/babel">
       CellRenders.clickView = function (v, e) {
-        if (parent && parent.RbViewModal) {
+        if (parent && parent.RbViewModal && parent.RbViewModal.mode === 1) {
           parent.RbViewModal.create({ id: v.id, entity: v.entity })
         } else {
           const openUrl = `${rb.baseUrl}/app/${v.entity}/list/#!/View/${v.entity}/${v.id}`

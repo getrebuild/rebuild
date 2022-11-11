@@ -200,6 +200,9 @@ class RbViewModal extends React.Component {
   }
 
   // -- Usage
+
+  static mode = 1
+
   /**
    * @param {*} props
    * @param {Boolean} subView
