@@ -137,15 +137,19 @@ class ChartIndex extends BaseChart {
     super(props)
     this.label = this.state.title
     this.state.title = null
+    console.log(props)
   }
 
   renderChart(data) {
+    const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
+    const style2 = { color: color || null }
+
     const chartdata = (
-      <div className="chart index color" ref={(c) => (this._$chart = c)}>
+      <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          <p>{data.index.label || this.label}</p>
+          <p style={style2}>{data.index.label || this.label}</p>
           <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
-            <strong>{data.index.data}</strong>
+            <strong style={style2}>{data.index.data}</strong>
           </a>
         </div>
       </div>

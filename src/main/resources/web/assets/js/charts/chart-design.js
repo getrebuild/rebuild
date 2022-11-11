@@ -125,6 +125,7 @@ $(document).ready(() => {
   $cs.find('>a').on('click', function () {
     $cs.find('>a .zmdi').remove()
     $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    render_preview()
   })
 
   // Load

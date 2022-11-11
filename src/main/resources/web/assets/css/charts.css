@@ -462,17 +462,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none !important;
 }
 
-/* useColor */
+/* Colors */
 
-.grid-stack-item.color .grid-stack-item-content,
-.grid-stack-item.color .chart.index > .data-item strong {
+.grid-stack-item.bgcolor .grid-stack-item-content,
+.grid-stack-item.bgcolor .chart.index > .data-item strong {
   color: #fff;
 }
 
-.grid-stack-item.color .rb-loading:after {
+.grid-stack-item.bgcolor .rb-loading:after {
   background-color: transparent;
 }
 
-.grid-stack-item.color .rb-spinner svg {
+.grid-stack-item.bgcolor .rb-spinner svg {
   stroke: #fff;
 }
