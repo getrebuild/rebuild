@@ -92,9 +92,7 @@ public class AppUtils {
      */
     public static ID getRequestUser(HttpServletRequest request, boolean refreshToken) {
         Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
-        if (user == null) {
-            user = getRequestUserViaToken(request, refreshToken);
-        }
+        if (user == null) user = getRequestUserViaToken(request, refreshToken);
         return user == null ? null : (ID) user;
     }
 
