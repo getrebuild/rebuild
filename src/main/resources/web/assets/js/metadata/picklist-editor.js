@@ -12,7 +12,7 @@ const maxOptions = isMulti ? 20 : 100
 $(document).ready(function () {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
 
-  const $cs = $('.colors')
+  const $cs = $('.rbcolors')
   RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
   })
@@ -46,7 +46,7 @@ $(document).ready(function () {
     }
 
     const id = $('.J_text').attr('attr-id')
-    const color = $('.colors >a>i').parent().data('color') || ''
+    const color = $('.rbcolors >a>i').parent().data('color') || ''
 
     let exists = null
     $('.J_config .dd3-content, .unset-list .dd-handle>span').each(function () {

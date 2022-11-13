@@ -156,7 +156,16 @@ public class ApiGateway extends Controller implements Initialization {
 
         final ConfigBean apiConfig = RebuildApiManager.instance.getApp(appid);
         if (apiConfig == null) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [appid] " + appid);
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [appid] : " + appid);
+        }
+
+        // v3.1.1
+        final String bindIps = apiConfig.getString("bindIps");
+        if (StringUtils.isNotBlank(bindIps)) {
+            String clientIp = ServletUtils.getRemoteAddr(request);
+            if (!bindIps.contains(clientIp)) {
+                throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Client ip not in whitelist : " + clientIp);
+            }
         }
 
         // 验证签名

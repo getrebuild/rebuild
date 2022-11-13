@@ -122,11 +122,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.1rem;
   margin-bottom: 1px;
   opacity: 0.8;
+  line-height: 1;
 }
 
 .chart.index > .data-item strong {
   font-size: 3.1rem;
   font-weight: 400;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item p {
+  font-size: 3rem;
+}
+
+.grid-stack-item.fullscreen .chart.index > .data-item strong {
+  font-size: 8.8rem;
+  zoom: 1 !important;
 }
 
 .chart.index > .data-item a {
@@ -453,17 +463,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none !important;
 }
 
-/* useColor */
+/* Colors */
 
-.grid-stack-item.color .grid-stack-item-content,
-.grid-stack-item.color .chart.index > .data-item strong {
+.grid-stack-item.bgcolor .grid-stack-item-content,
+.grid-stack-item.bgcolor .chart.index > .data-item strong {
   color: #fff;
 }
 
-.grid-stack-item.color .rb-loading:after {
+.grid-stack-item.bgcolor .rb-loading:after {
   background-color: transparent;
 }
 
-.grid-stack-item.color .rb-spinner svg {
+.grid-stack-item.bgcolor .rb-spinner svg {
   stroke: #fff;
+}
+
+body.fullscreen {
+  background: #0a1b3b url(../img/datav-bg.png) no-repeat 0 0;
+  background-size: 100% 100%;
+}
+
+body.fullscreen .grid-stack .grid-stack-item .grid-stack-item-content {
+  background-color: rgba(6, 30, 93, 0.5);
+}
+
+body.fullscreen .grid-stack .grid-stack-item.fullscreen .grid-stack-item-content {
+  background-color: #0a1b3b;
 }

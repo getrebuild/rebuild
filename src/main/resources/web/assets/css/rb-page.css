@@ -4979,3 +4979,34 @@ pre.unstyle {
 .modal-title > .support-plat2 {
   margin-top: 7px;
 }
+
+.rbcolors {
+  line-height: 1;
+  font-size: 0;
+}
+
+.rbcolors > a {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-color: #ccc;
+  border-radius: 50%;
+  color: #fff;
+  overflow: hidden;
+  font-size: 1.3rem;
+  padding-top: 4px;
+  text-align: center;
+}
+
+.rbcolors > a:hover {
+  opacity: 0.8;
+  color: rgb(117, 0, 234);
+}
+
+.rbcolors > a + a {
+  margin-left: 7px;
+}
+
+.rbcolors > a > i {
+  color: #fff !important;
+}

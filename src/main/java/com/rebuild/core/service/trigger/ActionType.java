@@ -33,6 +33,7 @@ public enum ActionType {
     AUTOASSIGN("自动分派", AutoAssign.class),
     SENDNOTIFICATION("发送通知", SendNotification.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
+    PROXYTRIGGERACTION("自定义触发器", "com.rebuild.rbv.trigger.ProxyTriggerAction"),
 
     ;
 

@@ -678,6 +678,13 @@ public class FormsBuilder extends FormsManager {
             fieldParent = dtf.getName() + "." + pfs[0].split("\\.")[1];
         }
 
+        // v3.1.1 父级已删除
+        Entity entity = MetadataHelper.getEntity(record.getEntityCode());
+        if (MetadataHelper.getLastJoinField(entity, fieldParent) == null) {
+            log.warn("Unknow field : {} in {}", fieldParent, entity.getName());
+            return null;
+        }
+
         Object[] o = Application.getQueryFactory().uniqueNoFilter(record, fieldParent);
         return o == null ? null : (ID) o[0];
     }

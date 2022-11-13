@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -28,9 +27,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.*;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.user.UserAvatar;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,28 +82,9 @@ public class LoginController extends LoginAction {
         // 记住登录
         final String useAlt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
         if (StringUtils.isNotBlank(useAlt)) {
-            ID altUser = null;
-            try {
-                String[] alts = AES.decrypt(useAlt).split(",");
-                altUser = alts.length == 3 && ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
+            final ID altUser = (ID) Application.getCommonsCache().getx(PREFIX_ALT + useAlt);
 
-                // 最大30天有效期
-                if (altUser != null) {
-                    long t = ObjectUtils.toLong(alts[1]);
-                    if ((System.currentTimeMillis() - t) / 1000 > 30 * 24 * 60 * 60) {
-                        altUser = null;
-                    }
-                    if (altUser != null && !UserHelper.isActive(altUser)) {
-                        altUser = null;
-                    }
-                }
-
-            } catch (Exception ex) {
-                ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
-                log.error("Cannot decode User from alt : {}", useAlt, ex);
-            }
-
-            if (altUser != null && Application.getUserStore().existsUser(altUser)) {
+            if (altUser != null && UserHelper.isActive(altUser)) {
                 Integer ed = loginSuccessed(request, response, altUser, true);
 
                 String nexturl = getParameter(request, "nexturl", homeUrl);
@@ -183,8 +161,6 @@ public class LoginController extends LoginAction {
         // 清理验证码
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
-        // 头像缓存
-        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         final User loginUser = Application.getUserStore().getUser(user);
         final boolean isRbMobile = AppUtils.isRbMobile(request);
@@ -197,8 +173,8 @@ public class LoginController extends LoginAction {
         if (faMode > 0 && !faModeSkip) {
             resMap.put("login2FaMode", faMode);
 
-            String userToken = CodecUtils.randomCode(40);
-            Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), 15 * 60); // 15m
+            final String userToken = CodecUtils.randomCode(40);
+            Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), CommonsCache.TS_MINTE * 15);
             resMap.put("login2FaUserToken", userToken);
 
             if (isRbMobile) {

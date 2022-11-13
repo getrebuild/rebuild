@@ -73,4 +73,9 @@ public class ActionContext {
     public ID getConfigId() {
         return configId;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "#" + getConfigId();
+    }
 }

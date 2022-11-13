@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
@@ -64,7 +65,7 @@ public class AdminCLI2 {
             case C_HELP:
             case "?" : {
                 result = " Usage : " +
-                        " \ncache clean" +
+                        " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
                         " \nsyscfg clean-qiniu|clean-sms|clean-email" +
                         " \nbackup [database|datafile]" +
@@ -108,6 +109,12 @@ public class AdminCLI2 {
         String name = commands[1];
         if ("clean".equals(name)) {
             Installer.clearAllCache();
+        } else if ("get".equals(name)) {
+            if (commands.length < 3) return "WRAN: Bad arguments";
+            String key = commands[2];
+            Object value = Application.getCommonsCache().getx(key);
+            if (value == null) result = "/NULL/";
+            else result = value.toString();
         } else {
             result = "WRAN: Bad arguments";
         }

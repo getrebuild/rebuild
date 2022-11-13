@@ -17,6 +17,7 @@ const RBV_TRIGGERS = {
   'DATAVALIDATE': $L('数据校验'),
   'AUTOREVOKE': $L('自动撤销'),
   'AUTODELETE': $L('自动删除'),
+  'PROXYTRIGGERACTION': $L('自定义触发器'),
 }
 
 const WHENS = {
@@ -204,7 +205,12 @@ class TriggerEdit extends ConfigFormDlg {
     this.__select2 = []
     // #1
     $.get('/admin/robot/trigger/available-actions', (res) => {
-      this.setState({ actions: res.data }, () => {
+      let actions = res.data || []
+      if (!$urlp('bosskey-show')) {
+        actions = actions.filter((item) => item[0] !== 'PROXYTRIGGERACTION')
+      }
+
+      this.setState({ actions }, () => {
         const s2ot = $(this._$actionType)
           .select2({
             placeholder: $L('选择触发类型'),

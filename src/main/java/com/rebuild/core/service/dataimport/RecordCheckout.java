@@ -180,11 +180,11 @@ public class RecordCheckout {
 
         // 支持ID
         if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
-            ID iid = ID.valueOf(val);
-            if (ClassificationManager.instance.getName(iid) != null) {
-                return iid;
+            ID cid = ID.valueOf(val);
+            if (ClassificationManager.instance.getName(cid) != null) {
+                return cid;
             } else {
-                log.warn("No item of Classification found by ID : " + iid);
+                log.warn("No item of Classification found by ID : " + cid);
                 return null;
             }
         } else {

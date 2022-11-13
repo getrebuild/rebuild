@@ -16,14 +16,15 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.task.TaskExecutors;
-import com.rebuild.utils.AES;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.UserAvatar;
 import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -49,7 +50,8 @@ public class LoginAction extends BaseController {
     protected static final String SK_NEED_VCODE = "needLoginVCode";
     protected static final String SK_START_TOUR = "needStartTour";
 
-    protected static final String PREFIX_2FA = "2FA";
+    protected static final String PREFIX_2FA = "2FA:";
+    protected static final String PREFIX_ALT = "ALT:";
 
     /**
      * 登录成功
@@ -63,8 +65,9 @@ public class LoginAction extends BaseController {
     protected Integer loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
         // 自动登录
         if (autoLogin) {
-            String alt = user + "," + System.currentTimeMillis() + ",v1";
-            ServletUtils.addCookie(response, CK_AUTOLOGIN, AES.encrypt(alt));
+            final String altToken = CodecUtils.randomCode(60);
+            Application.getCommonsCache().putx(PREFIX_ALT + altToken, user, CommonsCache.TS_DAY * 14);
+            ServletUtils.addCookie(response, CK_AUTOLOGIN, altToken);
         } else {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }
@@ -74,6 +77,9 @@ public class LoginAction extends BaseController {
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
+
+        // 头像缓存
+        ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(

@@ -61,7 +61,7 @@ public class AuthTokenManager {
                 System.nanoTime());
         String token = EncryptUtils.toSHA1Hex(desc);
 
-        Application.getCommonsCache().putx(TOKEN_PREFIX + token, desc, expires);
+        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, expires);
         return token;
     }
 

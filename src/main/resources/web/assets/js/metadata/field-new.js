@@ -81,7 +81,7 @@ $(document).ready(function () {
     if (dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
       if (referenceLoaded === false) {
         referenceLoaded = true
-        $.get('/admin/entity/entity-list?detail=true&bizz=false', (res) => {
+        $.get('/admin/entity/entity-list?detail=true', (res) => {
           const d = res.data || []
           d.push({ entityName: 'User', entityLabel: $L('用户') })
           d.push({ entityName: 'Department', entityLabel: $L('部门') })
