@@ -278,14 +278,17 @@ var _initNav = function () {
     $sub.toggleClass('visible')
     $currsntSubnav = $this
     $this.find('a').eq(0).tooltip('hide')
-    $('.left-sidebar-scroll').perfectScrollbar('update')
 
     if ($sub.hasClass('visible')) $this.addClass('open')
     else $this.removeClass('open')
+
+    $('.left-sidebar-scroll').perfectScrollbar('update')
   })
+
   $('.sidebar-elements li.parent .sub-menu').on('click', function (e) {
     e.stopPropagation()
   })
+
   $(document.body).on('click', function () {
     closeSubnav()
     if (isOffcanvas) {
