@@ -39,7 +39,7 @@ public class CommonsUtils {
     private static final char[] SPECIAL_CHARS = "`~!@#$%^&*()_+=-{}|[];':\",./<>?".toCharArray();
 
     /**
-     * 不含特殊字符。不允许除 数字 字母 中文 及  _ - 以外的字符，包括空格
+     * 不含特殊字符。不允许除 `数字` `字母` `中文` `_` `-` 及空格以外的字符
      *
      * @param text
      * @return

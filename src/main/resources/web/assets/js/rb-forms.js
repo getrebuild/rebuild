@@ -21,6 +21,10 @@ class RbFormModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, _maximize: false }
+
+    this.__maximizeKey = `FormMaximize-${props.entity}`
+    this.state._maximize = $isTrue($storage.get(this.__maximizeKey))
+
     if (!props.id) this.state.id = null
   }
 
@@ -44,7 +48,15 @@ class RbFormModal extends React.Component {
                     <span className="zmdi zmdi-settings up-1" />
                   </a>
                 )}
-                <button className="close md-close" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this.setState({ _maximize: !this.state._maximize })}>
+                <button
+                  className="close md-close"
+                  type="button"
+                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
+                  onClick={() => {
+                    this.setState({ _maximize: !this.state._maximize }, () => {
+                      $storage.set(this.__maximizeKey, this.state._maximize)
+                    })
+                  }}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
                 <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
@@ -784,9 +796,7 @@ class RbFormElement extends React.Component {
    */
   isValueError() {
     if (this.props.nullable === false) {
-      const v = this.state.value
-      if (v && $.type(v) === 'array') return v.length === 0 ? $L('不能为空') : null
-      else return !v ? $L('不能为空') : null
+      return $empty(this.state.value) ? $L('不能为空') : null
     }
   }
 
@@ -856,6 +866,13 @@ class RbFormElement extends React.Component {
 class RbFormText extends RbFormElement {
   constructor(props) {
     super(props)
+  }
+
+  getValue() {
+    const v = super.getValue()
+    // fix: 3.1.1
+    if (v && v === $L('自动值')) return null
+    else return v
   }
 }
 

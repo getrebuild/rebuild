@@ -419,13 +419,14 @@ var $same = function (a, b) {
 var $is = $same
 
 /**
- * 是否为空。兼容对象或数组
+ * 值是否为空（兼容对象和数组）
  */
 var $empty = function (a) {
-  if (a === undefined || a === null || a === '') return true
-  var type = $.type(a)
-  if (type === 'array' && a.length === 0) return true
-  else return type === 'object' && Object.keys(a).length === 0
+  if (a === null || a === '' || typeof a === 'undefined') return true
+  var atype = $.type(a)
+  if (atype === 'array' && a.length === 0) return true
+  if (atype === 'object' && Object.keys(a).length === 0) return true
+  return !$.trim(a + '')
 }
 
 /**

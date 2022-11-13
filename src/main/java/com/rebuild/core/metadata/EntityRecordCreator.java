@@ -58,7 +58,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         final boolean isNew = record.getPrimary() == null;
 
         // 明细关联主记录
-        if (isNew && isDTF(field)) return true;
+        if (isNew && isDtmField(field)) return true;
 
         // 公共字段前台可能会布局出来
         // 此处忽略检查没问题，因为最后还会复写，即 #bindCommonsFieldsValue
@@ -107,7 +107,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isCreatable()) {
-                        if (!matchsPattern(easyField, hasVal)) {
+                        if (!patternMatches(easyField, hasVal)) {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
@@ -135,7 +135,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isUpdatable()) {
-                        if (!matchsPattern(easyField, hasVal)) {
+                        if (!patternMatches(easyField, hasVal)) {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
@@ -157,7 +157,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 明细关联主记录字段
-    private boolean isDTF(Field field) {
+    private boolean isDtmField(Field field) {
         if (field.getType() == FieldType.REFERENCE && entity.getMainEntity() != null) {
             return field.equals(MetadataHelper.getDetailToMainField(entity));
         }
@@ -166,7 +166,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     // 强制可新建
     private boolean isForceCreateable(Field field) {
-        if (isDTF(field)) return true;
+        if (isDtmField(field)) return true;
 
         // 自定定位
         EasyField easyField = EasyMetaFactory.valueOf(field);
@@ -178,7 +178,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 正则匹配
-    private boolean matchsPattern(EasyField easyField, Object val) {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean patternMatches(EasyField easyField, Object val) {
         if (!(easyField instanceof EasyText)) return true;
 
         Pattern patt = ((EasyText) easyField).getPattern();

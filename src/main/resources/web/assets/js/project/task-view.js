@@ -775,7 +775,7 @@ class ValueTagsEditor extends React.Component {
               onKeyDown={(e) => e.keyCode === 13 && this._saveTag()}
             />
           </div>
-          <div className="colors pt-2 pb-2 text-center">
+          <div className="rbcolors pt-2 pb-2 text-center">
             {RBCOLORS.map((color) => {
               return (
                 <a key={color} style={{ backgroundColor: color }} onClick={() => this.setState({ useColor: color })}>

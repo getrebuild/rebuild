@@ -28,6 +28,7 @@ public class TableChart extends ChartData {
 
     private boolean showLineNumber = false;
     private boolean showSums = false;
+    private boolean mergeCell = true;
 
     protected TableChart(JSONObject config) {
         super(config);
@@ -36,6 +37,7 @@ public class TableChart extends ChartData {
         if (option != null) {
             this.showLineNumber = option.getBooleanValue("showLineNumber");
             this.showSums = option.getBooleanValue("showSums");
+            if (option.containsKey("mergeCell")) this.mergeCell = option.getBooleanValue("mergeCell");
         }
     }
 
@@ -94,6 +96,10 @@ public class TableChart extends ChartData {
 
     protected boolean isShowSums() {
         return showSums;
+    }
+
+    protected boolean isMergeCell() {
+        return mergeCell;
     }
 
     protected String wrapSumValue(Axis sumAxis, Object value) {

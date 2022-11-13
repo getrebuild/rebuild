@@ -49,9 +49,10 @@ public class AviatorUtils {
         addCustomFunction(new CurrentBizunitFunction());
         addCustomFunction(new CurrentDateFunction());
         addCustomFunction(new LocationDistanceFunction());
-        addCustomFunction(new RequestFunctuin());
-        addCustomFunction(new TextFunction());
         addCustomFunction(new ChineseYuanFunction());
+        addCustomFunction(new TextFunction());
+        addCustomFunction(new RequestFunctuin());
+        addCustomFunction(new SqlQueryFunction());
     }
 
     /**

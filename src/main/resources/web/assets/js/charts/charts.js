@@ -140,12 +140,15 @@ class ChartIndex extends BaseChart {
   }
 
   renderChart(data) {
+    const color = __PREVIEW ? this.props.config.option.useColor : this.props.config.color
+    const style2 = { color: color || null }
+
     const chartdata = (
-      <div className="chart index color" ref={(c) => (this._$chart = c)}>
+      <div className="chart index" ref={(c) => (this._$chart = c)}>
         <div className="data-item must-center text-truncate w-auto">
-          <p>{data.index.label || this.label}</p>
+          <p style={style2}>{data.index.label || this.label}</p>
           <a href={__PREVIEW ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
-            <strong>{data.index.data}</strong>
+            <strong style={style2}>{data.index.data}</strong>
           </a>
         </div>
       </div>
@@ -159,7 +162,7 @@ class ChartIndex extends BaseChart {
 
   _resize() {
     const ch = $(this._$chart).height()
-    const zoom = ch > 100 ? 1.3 : 1
+    const zoom = ch > 100 ? (ch > 330 ? 2.831 : 1.3) : 1
     $(this._$chart).find('strong').css('zoom', zoom)
 
     // const $text = $(this._$chart).find('strong')

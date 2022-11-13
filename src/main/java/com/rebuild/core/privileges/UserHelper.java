@@ -314,18 +314,17 @@ public class UserHelper {
      */
     public static File generateAvatar(String name, boolean forceMake) {
         if (StringUtils.isBlank(name)) name = "RB";
-        File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + "29.jpg");
-        if (avatarFile.exists()) {
+
+        File avatar = RebuildConfiguration.getFileOfData("avatar-" + name + "29.jpg");
+        if (avatar.exists()) {
             if (forceMake) {
-                FileUtils.deleteQuietly(avatarFile);
+                FileUtils.deleteQuietly(avatar);
             } else {
-                return avatarFile;
+                return avatar;
             }
         }
 
-        if (name.length() > 2) {
-            name = name.substring(name.length() - 2);
-        }
+        if (name.length() > 2) name = name.substring(name.length() - 2);
         name = name.toUpperCase();
 
         BufferedImage bi = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
@@ -347,7 +346,7 @@ public class UserHelper {
             g2d.drawString("wbr", 0, 62);
             g2d.dispose();
 
-            try (FileOutputStream fos = new FileOutputStream(avatarFile)) {
+            try (FileOutputStream fos = new FileOutputStream(avatar)) {
                 ImageIO.write(bi, "png", fos);
                 fos.flush();
             }
@@ -360,7 +359,7 @@ public class UserHelper {
                 is = CommonsUtils.getStreamOfRes("/web" + DEFAULT_AVATAR);
 
                 bi = ImageIO.read(is);
-                try (FileOutputStream fos = new FileOutputStream(avatarFile)) {
+                try (FileOutputStream fos = new FileOutputStream(avatar)) {
                     ImageIO.write(bi, "png", fos);
                     fos.flush();
                 }
@@ -370,7 +369,7 @@ public class UserHelper {
             }
         }
 
-        return avatarFile;
+        return avatar;
     }
 
     private static Font createFont() {
@@ -408,7 +407,7 @@ public class UserHelper {
      * @see #sortUsers(boolean)
      */
     public static User[] sortUsers() {
-        return sortUsers(false);
+        return sortUsers(Boolean.FALSE);
     }
 
     /**

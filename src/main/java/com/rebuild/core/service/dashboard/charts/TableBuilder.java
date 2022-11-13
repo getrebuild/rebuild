@@ -90,32 +90,34 @@ public class TableBuilder {
         }
 
         // 合并纬度单元格
-        for (int i = 0; i < chart.getDimensions().length; i++) {
-            // 行号
-            if (chart.isShowLineNumber() && i == 0) continue;
+        if (chart.isMergeCell()) {
+            for (int i = 0; i < chart.getDimensions().length; i++) {
+                // 行号
+                if (chart.isShowLineNumber() && i == 0) continue;
 
-            TD last = null;
-            int sumMinus = 0;  // 合并的单元格
-            int childrenLen = tbody.children.size();
-            for (TR tr : tbody.children) {
-                TD current = tr.children.get(i);
-                if (last == null || childrenLen-- <= 1) {
-                    last = current;
-                    continue;
+                TD last = null;
+                int sumMinus = 0;  // 合并的单元格
+                int childrenLen = tbody.children.size();
+                for (TR tr : tbody.children) {
+                    TD current = tr.children.get(i);
+                    if (last == null || childrenLen-- <= 1) {
+                        last = current;
+                        continue;
+                    }
+
+                    if (last.content.equals(current.content)) {
+                        last.rowspan++;
+                        current.rowspan = 0;
+                        sumMinus++;
+                    } else {
+                        last = current;
+                    }
                 }
 
-                if (last.content.equals(current.content)) {
-                    last.rowspan++;
-                    current.rowspan = 0;
-                    sumMinus++;
-                } else {
-                    last = current;
+                if (chart.isShowSums() && sumMinus > 0 && StringUtils.isNotBlank(last.content)) {
+                    int num = ObjectUtils.toInt(last.content) - sumMinus;
+                    last.content = String.valueOf(num);
                 }
-            }
-
-            if (chart.isShowSums() && sumMinus > 0 && StringUtils.isNotBlank(last.content)) {
-                int num = ObjectUtils.toInt(last.content) - sumMinus;
-                last.content = String.valueOf(num);
             }
         }
 
