@@ -15,14 +15,14 @@ class ContentAutoAssign extends ActionContentSpec {
     return (
       <div className="auto-assign">
         <form className="simple">
-          <div className="form-group row pt-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('分派给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._assignTo = c)} />
             </div>
           </div>
 
-          <div className="form-group row pb-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('(多人) 分派规则')}</label>
             <div className="col-12 col-lg-8 pt-1" ref={(c) => (this._assignRule = c)}>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline">
@@ -36,7 +36,7 @@ class ContentAutoAssign extends ActionContentSpec {
             </div>
           </div>
 
-          <div className="form-group row pb-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时分派关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div className="entity-select">

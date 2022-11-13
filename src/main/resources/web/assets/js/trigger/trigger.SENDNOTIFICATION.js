@@ -73,7 +73,7 @@ class ContentSendNotification extends ActionContentSpec {
             </div>
           )}
 
-          <div className="form-group row pb-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
             <div className="col-12 col-lg-8">
               <textarea className="form-control form-control-sm row3x" ref={(c) => (this._content = c)} maxLength="600" />
