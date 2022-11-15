@@ -323,7 +323,7 @@ class FileShare extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide="true">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide={true}>
         <div className="file-share">
           <label>{$L('分享链接')}</label>
           <div className="input-group input-group-sm">
