@@ -30,6 +30,7 @@ public enum ActionType {
     AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
     AUTODELETE("自动删除", "com.rebuild.rbv.trigger.AutoDelete"),
     AUTOSHARE("自动共享", AutoShare.class),
+    AUTOUNSHARE("自动取消共享", "com.rebuild.rbv.trigger.AutoUnshare"),
     AUTOASSIGN("自动分派", AutoAssign.class),
     SENDNOTIFICATION("发送通知", SendNotification.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),

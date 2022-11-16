@@ -15,21 +15,21 @@ class ContentAutoShare extends ActionContentSpec {
     return (
       <div className="auto-share">
         <form className="simple">
-          <div className="form-group row pt-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('共享给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._shareTo = c)} />
             </div>
           </div>
 
-          <div className="form-group row pb-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
                   {(this.state.cascadesEntity || []).map((item) => {
                     return (
-                      <option key={'option-' + item[0]} value={item[0]}>
+                      <option key={item[0]} value={item[0]}>
                         {item[1]}
                       </option>
                     )
