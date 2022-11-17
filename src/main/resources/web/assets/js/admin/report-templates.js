@@ -122,7 +122,7 @@ class ReporEdit extends ConfigFormDlg {
                   <input className="custom-control-input" type="checkbox" />
                   <span className="custom-control-label">
                     {$L('这是一个列表模板')}
-                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在列表导出数据时使用')} />
+                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
                   </span>
                 </label>
 
