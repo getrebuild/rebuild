@@ -12,10 +12,10 @@ const _ENTITIES = {
 
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
-    $(res.data).each(function () {
-      $(`<option value="${this.name}">${this.label}</option>`).appendTo('#belongEntity')
-      _ENTITIES[this.name] = this.label
-    })
+    res.data && res.data.forEach((item) => (_ENTITIES[item.name] = item.label))
+    for (let name in _ENTITIES) {
+      $(`<option value="${name}">${_ENTITIES[name]}</option>`).appendTo('#belongEntity')
+    }
 
     renderRbcomp(<DataList />, 'react-list', function () {
       RbListPage._RbList = this._List
