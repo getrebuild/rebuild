@@ -64,7 +64,12 @@ class RbFormModal extends React.Component {
                 </button>
               </div>
               <div className={`modal-body rb-loading ${this.state.inLoad ? 'rb-loading-active' : ''}`}>
-                {this.state.alertMessage && <div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>}
+                {this.state.alertMessage && (
+                  <div className="alert alert-warning rbform-alert">
+                    <i className="zmdi zmdi-alert-triangle mr-1" />
+                    {this.state.alertMessage}
+                  </div>
+                )}
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
               </div>
@@ -153,7 +158,7 @@ class RbFormModal extends React.Component {
     }
 
     if (reset) {
-      state = { formComponent: null, initialValue: null, previewid: null, inLoad: true, ...state }
+      state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
       this.setState(state, () => this.showAfter({ reset: false }, true))
     } else {
       this.showAfter({ ...state, reset: false })
@@ -168,6 +173,7 @@ class RbFormModal extends React.Component {
     })
   }
 
+  // 脏数据检查
   _checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
 
@@ -185,9 +191,7 @@ class RbFormModal extends React.Component {
 
   _refresh() {
     const hs = { id: this.state.id, entity: this.state.entity }
-    this.setState({ id: null, alertMessage: null }, () => {
-      this.show(hs)
-    })
+    this.setState({ id: null, alertMessage: null }, () => this.show(hs))
   }
 
   hide(reset) {

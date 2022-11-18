@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -132,23 +133,26 @@ public class ViewAddonsManager extends BaseLayoutManager {
         // 未配置则使用全部
         if (config == null) {
             JSONArray useRefs = new JSONArray();
-            for (Field field : entityMeta.getReferenceToFields(true)) {
+            for (Field field : entityMeta.getReferenceToFields(Boolean.TRUE, Boolean.TRUE)) {
                 Entity e = field.getOwnEntity();
-                if (e.getMainEntity() == null &&
-                        Application.getPrivilegesManager().allow(user, e.getEntityCode(), useAction)) {
-                    useRefs.add(getEntityShow(field, mfRefs, applyType));
+                if (!MetadataHelper.isBusinessEntity(e)) continue;
+                if (e.equals(entityMeta.getDetailEntity())) continue;
+
+                Entity eCheck = ObjectUtils.defaultIfNull(e.getMainEntity(), e);
+                if (Application.getPrivilegesManager().allow(user, eCheck.getEntityCode(), useAction)) {
+                    useRefs.add(formatEntityShow(field, mfRefs, applyType));
                 }
             }
 
             // 跟进（动态）
-            useRefs.add(getEntityShow(
+            useRefs.add(formatEntityShow(
                     MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
             // 任务（项目）
-            useRefs.add(getEntityShow(
+            useRefs.add(formatEntityShow(
                     MetadataHelper.getField("ProjectTask", "relatedRecord"), mfRefs, applyType));
             // 附件
             if (TYPE_TAB.equals(applyType)) {
-                useRefs.add(getEntityShow(
+                useRefs.add(formatEntityShow(
                         MetadataHelper.getField("Attachment", "relatedRecord"), mfRefs, applyType));
             }
 
@@ -186,7 +190,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
             if (Application.getPrivilegesManager().allow(user, addonEntity.getEntityCode(), useAction)) {
                 JSONObject show = ef.length > 1
-                        ? getEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType)
+                        ? formatEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType)
                         : EasyMetaFactory.toJSON(addonEntity);
 
                 if (StringUtils.isNotBlank(label)) show.put("entityLabel", label);
@@ -211,7 +215,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
         Map<Entity, Integer> map = new HashMap<>();
         map.put(entity, 1);  // 包括自己
 
-        for (Field field : entity.getReferenceToFields(true)) {
+        for (Field field : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             Entity e = field.getOwnEntity();
             // 排除明细实体
             if (e.getMainEntity() == null) {
@@ -232,7 +236,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
     /**
      * @see EasyMetaFactory#toJSON(Entity)
      */
-    private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
+    private JSONObject formatEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
         Entity fieldEntity = field.getOwnEntity();
         JSONObject show = EasyMetaFactory.toJSON(fieldEntity);
         show.put("entity", fieldEntity.getName() + EF_SPLIT + field.getName());

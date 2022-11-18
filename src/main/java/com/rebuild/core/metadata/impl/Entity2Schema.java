@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
@@ -195,7 +194,7 @@ public class Entity2Schema extends Field2Schema {
 
         if (entity.getDetailEntity() != null) {
             if (force) {
-                log.warn("Force drop detail-entity first : " + entity.getDetailEntity().getName());
+                log.warn("Force drop detail-entity first : {}", entity.getDetailEntity().getName());
                 boolean dropDetail = this.dropEntity(entity.getDetailEntity(), true);
                 if (dropDetail) {
                     entity = MetadataHelper.getEntity(entity.getEntityCode());
@@ -208,9 +207,8 @@ public class Entity2Schema extends Field2Schema {
             }
         }
 
-        for (Field whoRef : entity.getReferenceToFields(false)) {
+        for (Field whoRef : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             if (whoRef.getOwnEntity().equals(entity)) continue;
-            if (whoRef.getType() == FieldType.ANY_REFERENCE) continue;
             throw new MetadataModificationException(
                     Language.L("实体已被其他实体引用 (引用实体 : %s)", Language.L(whoRef.getOwnEntity())));
         }

@@ -946,9 +946,10 @@ select.form-control:not([disabled]) {
 .rbform-alert {
   margin: -20px -20px 20px;
   text-align: center;
-  padding: 0.5em;
+  padding: 0.6rem;
   border-radius: 0;
-  color: #856404;
+  color: #fff;
+  font-weight: normal;
 }
 
 .rbform-alert p {
