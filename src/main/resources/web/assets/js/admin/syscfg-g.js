@@ -44,6 +44,10 @@ useEditComp = function (name) {
       </select>
     )
   } else if ('PasswordPolicy' === name) {
+    // 借用贵宝地
+    _toggleImage('.applogo')
+    _toggleImage('.bgimg')
+
     return (
       <select className="form-control form-control-sm">
         <option value="1">{$L('低 (最低6位，无字符类型限制)')}</option>
@@ -52,10 +56,6 @@ useEditComp = function (name) {
       </select>
     )
   } else if ('DefaultLanguage' === name) {
-    // 借用贵宝地
-    _toggleImage('.applogo')
-    _toggleImage('.bgimg')
-
     const options = []
     for (let k in wpc._LANGS) {
       options.push(
