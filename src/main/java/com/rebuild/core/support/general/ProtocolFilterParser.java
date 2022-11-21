@@ -189,22 +189,22 @@ public class ProtocolFilterParser {
      */
     protected String parseCategory(String entity, String value) {
         Entity rootEntity = MetadataHelper.getEntity(entity);
-        Field classField = DataListCategory.getFieldOfCategory(rootEntity);
-        if (classField == null) return "(9=9)";
+        Field categoryField = DataListCategory.instance.getFieldOfCategory(rootEntity);
+        if (categoryField == null) return "(9=9)";
 
-        DisplayType dt = EasyMetaFactory.getDisplayType(classField);
+        DisplayType dt = EasyMetaFactory.getDisplayType(categoryField);
 
         if (dt == DisplayType.MULTISELECT) {
-            return String.format("%s && %d", classField.getName(), ObjectUtils.toInt(value));
+            return String.format("%s && %d", categoryField.getName(), ObjectUtils.toInt(value));
         } else if (dt == DisplayType.N2NREFERENCE) {
             return String.format(
                     "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
-                    rootEntity.getPrimaryField().getName(), classField.getName(), StringEscapeUtils.escapeSql(value));
+                    rootEntity.getPrimaryField().getName(), categoryField.getName(), StringEscapeUtils.escapeSql(value));
         } else {
-            return String.format("%s = '%s'", classField.getName(), StringEscapeUtils.escapeSql(value));
+            return String.format("%s = '%s'", categoryField.getName(), StringEscapeUtils.escapeSql(value));
         }
     }
-
+    
     /**
      * @param relatedExpr
      * @param mainid
