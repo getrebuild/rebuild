@@ -197,6 +197,7 @@ public class EntityHelper {
     public static final String ApprovalState = "approvalState";
     public static final String ApprovalStepNode = "approvalStepNode";
     public static final String ApprovalLastUser = "approvalLastUser";
+    public static final String ApprovalLastTime = "approvalLastTime";
     public static final String ApprovalLastRemark = "approvalLastRemark";
 
     // 用户

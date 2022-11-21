@@ -98,7 +98,7 @@ public class ModelExtrasController extends BaseController {
                 entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            return RespBody.errorl("记录不存在");
+            return RespBody.errorl("NO_EXISTS");
         }
 
         return JSONUtils.toJSONObject(

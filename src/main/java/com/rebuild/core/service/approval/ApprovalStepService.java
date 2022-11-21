@@ -631,6 +631,11 @@ public class ApprovalStepService extends InternalPersistService {
             else record.setID(EntityHelper.ApprovalLastUser, approver);
         }
 
+        if (entity.containsField(EntityHelper.ApprovalLastTime)) {
+            if (approver == null) record.setNull(EntityHelper.ApprovalLastTime);
+            else record.setDate(EntityHelper.ApprovalLastTime, CalendarUtils.now());
+        }
+
         if (entity.containsField(EntityHelper.ApprovalLastRemark)) {
             if (remark == null) record.setNull(EntityHelper.ApprovalLastRemark);
             else record.setString(EntityHelper.ApprovalLastRemark, remark);

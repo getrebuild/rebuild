@@ -101,7 +101,7 @@ class RbViewForm extends React.Component {
           setTimeout(() => location.reload(), window.VIEW_LOAD_DELAY || 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
-        this.renderViewError($L('此记录已被删除'))
+        this.renderViewError($L('记录已经不存在，可能已被其他用户删除'))
         $('.view-operating').empty()
       }
     })

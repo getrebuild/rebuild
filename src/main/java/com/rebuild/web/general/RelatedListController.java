@@ -109,7 +109,7 @@ public class RelatedListController extends BaseController {
 
             String sql = buildBaseSql(mainid, related, null, true, user);
 
-            // 任务是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
+            // NOTE `项目任务`是获取了全部的相关记录，因此总数可能与实际显示的条目数量不一致
             Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
             Object[] count = QueryHelper.createQuery(sql, relatedEntity).unique();
             countMap.put(related, ObjectUtils.toInt(count[0]));

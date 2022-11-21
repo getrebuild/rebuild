@@ -80,31 +80,29 @@ public class ViewAddonsController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
-        List<String[]> refs = new ArrayList<>();
-        for (Field field : entityMeta.getReferenceToFields(true)) {
+        List<String[]> allRefs = new ArrayList<>();
+        for (Field field : entityMeta.getReferenceToFields(Boolean.TRUE, Boolean.TRUE)) {
             Entity e = field.getOwnEntity();
-            if (e.getMainEntity() != null) {
-                continue;
-            }
+            if (!MetadataHelper.isBusinessEntity(e)) continue;
+            if (e.equals(entityMeta.getDetailEntity())) continue;
 
             String label = EasyMetaFactory.getLabel(e);
-            if (mfRefs.contains(e)) {
-                label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
-            }
-            refs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
+            if (mfRefs.contains(e)) label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
+
+            allRefs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
         }
 
         // 跟进（动态）
-        refs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
+        allRefs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
         // 任务（项目）
-        refs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
+        allRefs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
         // 附件
         if (ViewAddonsManager.TYPE_TAB.equals(applyType)) {
-            refs.add(new String[] { "Attachment.relatedRecord", Language.L("附件") });
+            allRefs.add(new String[] { "Attachment.relatedRecord", Language.L("附件") });
         }
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },
-                new Object[] { configJson, refs });
+                new Object[] { configJson, allRefs });
     }
 }
