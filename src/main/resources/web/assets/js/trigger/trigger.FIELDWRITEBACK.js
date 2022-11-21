@@ -250,10 +250,18 @@ class ContentFieldWriteback extends ActionContentSpec {
       }
     })
 
+    // fix: GitHub#491
+    let sfLast = $(this._$sourceField).val()
+    sfLast = sourceFields.find((x) => x.name === sfLast)
+
     this.setState({ targetField: null, sourceFields: sourceFields }, () => {
-      if (sourceFields.length > 0) $(this._$sourceField).val(sourceFields[0].name)
+      if (!sfLast && sourceFields.length > 0) sfLast = sourceFields[0]
+
       // 强制销毁后再渲染
-      this.setState({ targetField: targetField })
+      this.setState({ targetField: targetField }, () => {
+        if (sfLast) $(this._$sourceField).val(sfLast.name)
+        $(this._$sourceField).trigger('change')
+      })
     })
   }
 

@@ -73,6 +73,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("LicenseType",
                 auth.getString("authType") + " (" + auth.getString("authObject") + ")");
         mv.getModel().put("Version", Application.VER);
+        mv.getModel().put("SN", "***" + License.SN().substring(12));
 
         return mv;
     }

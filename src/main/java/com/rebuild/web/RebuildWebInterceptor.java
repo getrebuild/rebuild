@@ -57,6 +57,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     private static final int CODE_STARTING = 600;
     private static final int CODE_DENIEDMSG = 601;
+    @SuppressWarnings("unused")
     private static final int CODE_MAINTAIN = 602;
     private static final int CODE_UNSAFE_USE = 603;
 
@@ -86,11 +87,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
         request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
 
-        final String requestUrl = requestEntry.getRequestUrl();
+        final String requestUri = requestEntry.getRequestUri();
 
         // 服务暂不可用
         if (!Application.isReady()) {
-            final boolean isError = requestUrl.endsWith("/error") || requestUrl.contains("/error/");
+            final boolean isError = requestUri.endsWith("/error") || requestUri.contains("/error/");
 
             // 已安装
             if (checkInstalled()) {
@@ -104,7 +105,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
             }
             // 未安装
-            else if (!(requestUrl.contains("/setup/") || requestUrl.contains("/commons/theme/") || isError)) {
+            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || isError)) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
             } else {
@@ -120,9 +121,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (requestUser != null) {
 
             // 管理中心二次验证
-            if (requestUrl.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (isHtmlRequest(request)) {
-                    sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUri());
+            if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
+                if (isHtmlRequest(requestUri, request)) {
+                    sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUriWithQuery());
                 } else {
                     response.sendError(HttpStatus.FORBIDDEN.value());
                 }
@@ -134,7 +135,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             // User
             request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
 
-            if (isHtmlRequest(request)) {
+            if (isHtmlRequest(requestUri, request)) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
@@ -142,7 +143,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
                 String sideCollapsedClazz = BooleanUtils.toBoolean(sidebarCollapsed) ? "rb-collapsible-sidebar-collapsed" : "";
                 // Aside collapsed
-                if (!(requestUrl.contains("/admin/") || requestUrl.contains("/setup/"))) {
+                if (!(requestUri.contains("/admin/") || requestUri.contains("/setup/"))) {
                     String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
                     if (BooleanUtils.toBoolean(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
                 }
@@ -156,14 +157,14 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) skipCheckSafeUse = false;
             else skipCheckSafeUse = UserHelper.isSuperAdmin(requestUser);
 
-        } else if (!isIgnoreAuth(requestUrl)) {
+        } else if (!isIgnoreAuth(requestUri)) {
             // 独立验证逻辑
-            if (requestUrl.contains("/filex/")) return true;
+            if (requestUri.contains("/filex/")) return true;
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
-            if (isHtmlRequest(request)) {
-                sendRedirect(response, "/user/login", requestEntry.getRequestUri());
+            if (isHtmlRequest(requestUri, request)) {
+                sendRedirect(response, "/user/login", requestEntry.getRequestUriWithQuery());
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
             }
@@ -190,7 +191,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         // 打印处理时间
         long time = requestEntry == null ? 0 : (System.currentTimeMillis() - requestEntry.getRequestTime());
-        if (time > 1000) {
+        if (time > 1500) {
             log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
 
@@ -203,38 +204,38 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (rbmobLocale != null) return rbmobLocale;
 
         // 0. Session
-        String havingLocale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
+        String useLocale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
 
         String urlLocale = request.getParameter("locale");
-        if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(havingLocale)) {
+        if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(useLocale)) {
             urlLocale = Application.getLanguage().available(urlLocale);
 
             if (urlLocale != null) {
-                havingLocale = urlLocale;
+                useLocale = urlLocale;
 
-                ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, havingLocale);
-                ServletUtils.addCookie(response, AppUtils.CK_LOCALE, havingLocale,
+                ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, useLocale);
+                ServletUtils.addCookie(response, AppUtils.CK_LOCALE, useLocale,
                         CommonsCache.TS_DAY * 90, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
 
                 if (Application.devMode()) Application.getLanguage().refresh();
             }
         }
-        if (havingLocale != null) return havingLocale;
+        if (useLocale != null) return useLocale;
 
         // 1. Cookie
-        havingLocale = ServletUtils.readCookie(request, AppUtils.CK_LOCALE);
-        if (havingLocale == null) {
+        useLocale = ServletUtils.readCookie(request, AppUtils.CK_LOCALE);
+        if (useLocale == null) {
             // 2. User-Local
-            havingLocale = request.getLocale().toString();
+            useLocale = request.getLocale().toString();
         }
 
         // 3. Default
-        if ((havingLocale = Application.getLanguage().available(havingLocale)) == null) {
-            havingLocale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+        if ((useLocale = Application.getLanguage().available(useLocale)) == null) {
+            useLocale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
 
-        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, havingLocale);
-        return havingLocale;
+        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, useLocale);
+        return useLocale;
     }
 
     private boolean isIgnoreAuth(String requestUri) {
@@ -242,14 +243,15 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             return true;
         }
 
-        requestUri = requestUri.split("\\?")[0];
         requestUri = requestUri.replaceFirst(AppUtils.getContextPath(), "");
 
         return requestUri.length() < 3
                 || requestUri.endsWith("/error") || requestUri.contains("/error/")
-                || requestUri.startsWith("/f/") || requestUri.startsWith("/s/")
-                || requestUri.startsWith("/setup/")
+                || requestUri.endsWith("/logout")
+                || requestUri.startsWith("/f/")
+                || requestUri.startsWith("/s/")
                 || requestUri.startsWith("/gw/")
+                || requestUri.startsWith("/setup/")
                 || requestUri.startsWith("/language/")
                 || requestUri.startsWith("/filex/access/")
                 || requestUri.startsWith("/filex/download/")
@@ -259,12 +261,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/barcode/render")
                 || requestUri.startsWith("/commons/theme/")
                 || requestUri.startsWith("/account/user-avatar/")
-                || requestUri.startsWith("/rbmob/env")
-                || requestUri.endsWith("/logout");
+                || requestUri.startsWith("/rbmob/env");
     }
 
-    private boolean isHtmlRequest(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {
         if (ServletUtils.isAjaxRequest(request)
                 || requestUri.contains("/assets/")
                 || requestUri.contains("/commons/frontjs/")
@@ -285,9 +285,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
-        String fullUrl = AppUtils.getContextPath(url);
-        if (nexturl != null) fullUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
-        response.sendRedirect(fullUrl);
+        String redirectUrl = AppUtils.getContextPath(url);
+        if (nexturl != null) redirectUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
+        response.sendRedirect(redirectUrl);
     }
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {
@@ -315,22 +315,21 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static class RequestEntry {
         final long requestTime;
         final String requestUri;
-        final String requestUrl;
+        final String requestUriWithQuery;
         final ID requestUser;
         final String locale;
 
         RequestEntry(HttpServletRequest request, String locale) {
             this.requestTime = System.currentTimeMillis();
-            this.requestUri = request.getRequestURI()
-                    + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
-            this.requestUrl = request.getRequestURI();
+            this.requestUri = request.getRequestURI();
+            this.requestUriWithQuery = this.requestUri + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
             this.requestUser = AppUtils.getRequestUser(request, true);
             this.locale = locale;
         }
 
         @Override
         public String toString() {
-            return requestUri;
+            return requestUriWithQuery;
         }
     }
 }

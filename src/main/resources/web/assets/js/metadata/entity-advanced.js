@@ -99,7 +99,8 @@ function modeSave(newOption, next) {
   })
 }
 
-const CLASS_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+// const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
+const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
@@ -109,7 +110,7 @@ class DlgMode1Option extends RbFormHandler {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“常用查询”')}</label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <div className="switch-button switch-button-xs">
                 <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
                 <span>
@@ -119,8 +120,8 @@ class DlgMode1Option extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row bosskey-show">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分类”')}</label>
-            <div className="col-sm-7">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分组”')}</label>
+            <div className="col-sm-9">
               <div className="switch-button switch-button-xs">
                 <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
                 <span>
@@ -128,23 +129,41 @@ class DlgMode1Option extends RbFormHandler {
                 </span>
               </div>
               <div className="clearfix"></div>
-              <div className={`J_advListShowCategory mt-2 ${this.state.advListShowCategory ? '' : 'hide'}`}>
-                <select className="form-control form-control-sm">
-                  {this.state.advListShowCategoryFields &&
-                    this.state.advListShowCategoryFields.map((item) => {
-                      return (
-                        <option key={item.name} value={item.name}>
-                          {item.label}
-                        </option>
-                      )
-                    })}
-                </select>
+              <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
+                <div className="row">
+                  <div className="col-8">
+                    <label className="mb-1">{$L('分组字段')}</label>
+                    <select className="form-control form-control-sm">
+                      {this.state.advListShowCategoryFields &&
+                        this.state.advListShowCategoryFields.map((item) => {
+                          return (
+                            <option key={item.name} value={item.name}>
+                              {item.label}
+                            </option>
+                          )
+                        })}
+                    </select>
+                  </div>
+                  <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
+                    <label className="mb-1">{$L('字段格式')}</label>
+                    <select className="form-control form-control-sm" disabled>
+                      {this.state.advListShowCategoryFormats &&
+                        this.state.advListShowCategoryFormats.map((item) => {
+                          return (
+                            <option key={item[0]} value={item[0]}>
+                              {item[1]}
+                            </option>
+                          )
+                        })}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“图表”')}</label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <div className="switch-button switch-button-xs">
                 <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
                 <span>
@@ -155,7 +174,7 @@ class DlgMode1Option extends RbFormHandler {
           </div>
           <div className="form-group row bosskey-show">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部查询面板')}</label>
-            <div className="col-sm-7">
+            <div className="col-sm-9">
               <div className="switch-button switch-button-xs">
                 <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
                 <span>
@@ -165,7 +184,7 @@ class DlgMode1Option extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
+            <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
                 {$L('确定')}
               </button>
@@ -180,8 +199,9 @@ class DlgMode1Option extends RbFormHandler {
   }
 
   componentDidMount() {
+    let $catFields, $catFormats
+
     const that = this
-    let $class2
     $('#advListShowCategory').on('change', function () {
       if ($val(this)) {
         that.setState({ advListShowCategory: true })
@@ -189,19 +209,63 @@ class DlgMode1Option extends RbFormHandler {
         that.setState({ advListShowCategory: null })
       }
 
-      if (!$class2) {
-        $class2 = $('.J_advListShowCategory select')
+      if (!$catFields) {
+        $catFields = $('.advListShowCategory-set select:eq(0)')
+        $catFormats = $('.advListShowCategory-set select:eq(1)')
+
         $.get(`/commons/metadata/fields?entity=${wpc.entityName}&deep=2`, (res) => {
           const _data = []
-          res.data.forEach((item) => {
-            if (CLASS_TYPES.includes(item.type)) _data.push(item)
-          })
+          res.data &&
+            res.data.forEach((item) => {
+              if (CATE_TYPES.includes(item.type) && !(item.name.includes('owningDept.') || item.name.includes('owningUser.'))) {
+                _data.push(item)
+              }
+            })
 
+          // FIELD:[FORMAT]
+          let set = wpc.extConfig && wpc.extConfig.advListShowCategory ? wpc.extConfig.advListShowCategory : null
+          if (set) set = set.split(':')
+
+          wpc.extConfig.advListShowCategory
           that.setState({ advListShowCategoryFields: _data }, () => {
-            $class2
-              .select2({ placeholder: $L('选择分类字段') })
-              .val((wpc.extConfig && wpc.extConfig.advListShowCategory) || null)
-              .trigger('change')
+            $catFields
+              .select2({
+                placeholder: $L('选择分类字段'),
+                allowClear: false,
+              })
+              .on('change', () => {
+                const s = $catFields.val()
+                const found = _data.find((x) => x.name === s)
+
+                let formats
+                if (found && found.type === 'CLASSIFICATION') {
+                  formats = [
+                    [0, $L('%d 级分类', 1)],
+                    [1, $L('%d 级分类', 2)],
+                    [2, $L('%d 级分类', 3)],
+                    [3, $L('%d 级分类', 4)],
+                  ]
+                } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
+                  formats = [
+                    ['yyyy', 'YYYY'],
+                    ['yyyy-MM', 'YYYY-MM'],
+                    ['yyyy-MM-dd', 'YYYY-MM-DD'],
+                  ]
+                }
+
+                that.setState({ advListShowCategoryFormats: formats }, () => {
+                  $catFormats.val(null).trigger('change')
+                })
+              })
+
+            $catFormats.select2({ placeholder: $L('默认') })
+
+            if (set) {
+              $catFields.val(set[0]).trigger('change')
+              setTimeout(() => {
+                if (set[1]) $catFormats.val(set[1]).trigger('change')
+              }, 200)
+            }
           })
         })
       }
@@ -216,8 +280,11 @@ class DlgMode1Option extends RbFormHandler {
     const o = {
       advListHideFilters: !$val('#advListHideFilters'),
       advListHideCharts: !$val('#advListHideCharts'),
-      advListShowCategory: this.state.advListShowCategory ? $val('.J_advListShowCategory select') : null,
       advListFilterPane: $val('#advListFilterPane'),
+    }
+
+    if (this.state.advListShowCategory) {
+      o.advListShowCategory = `${$val('.advListShowCategory-set select:eq(0)')}:${$val('.advListShowCategory-set select:eq(1)') || ''}`
     }
 
     this.disabled(true)

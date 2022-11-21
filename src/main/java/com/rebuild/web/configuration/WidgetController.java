@@ -69,7 +69,7 @@ public class WidgetController extends BaseController implements ShareTo {
 
     @GetMapping("widget-category-data")
     public RespBody getCategoryData(@PathVariable String entity, HttpServletRequest request) {
-        JSON data = DataListCategory.datas(
+        JSON data = DataListCategory.instance.datas(
                 MetadataHelper.getEntity(entity), getRequestUser(request));
         return RespBody.ok(data);
     }
