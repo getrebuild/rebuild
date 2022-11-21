@@ -162,7 +162,7 @@ class ChartIndex extends BaseChart {
 
   _resize() {
     const ch = $(this._$chart).height()
-    const zoom = ch > 100 ? (ch > 330 ? 2.831 : 1.3) : 1
+    const zoom = ch > 100 ? (ch > 330 ? 2 : 1.3) : 1
     $(this._$chart).find('strong').css('zoom', zoom)
 
     // const $text = $(this._$chart).find('strong')

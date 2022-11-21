@@ -58,7 +58,7 @@ class RbViewForm extends React.Component {
             {res.data.elements.map((item) => {
               if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
               item.$$$parent = this
-              return detectViewElement(item)
+              return detectViewElement(item, this.props.entity)
             })}
           </div>
         </React.Fragment>
@@ -163,12 +163,11 @@ class RbViewForm extends React.Component {
   }
 }
 
-const detectViewElement = function (item) {
+const detectViewElement = function (item, entity) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  // item.key = `col-${item.field === TYPE_DIVIDER ? $random() : item.field}`
-  return window.detectElement(item)
+  return window.detectElement(item, entity)
 }
 
 const _renderError = (message) => {

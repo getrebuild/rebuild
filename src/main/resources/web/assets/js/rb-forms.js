@@ -117,7 +117,7 @@ class RbFormModal extends React.Component {
       const FORM = (
         <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this}>
           {formModel.elements.map((item) => {
-            return detectElement(item)
+            return detectElement(item, entity)
           })}
         </RbForm>
       )
@@ -269,8 +269,7 @@ class RbForm extends React.Component {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
-      // 不显示
-      if (_ProTable === false) return null
+      if (_ProTable === false) return null // 不显示
     }
 
     const that = this
@@ -2406,8 +2405,13 @@ class RbFormDivider extends React.Component {
 }
 
 // 确定元素类型
-var detectElement = function (item) {
-  if (!item.key) item.key = 'field-' + (item.field === TYPE_DIVIDER ? $random() : item.field)
+var detectElement = function (item, entity) {
+  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+
+  if (entity && window._CustomizedForms) {
+    const c = window._CustomizedForms.useFormElement(entity, item)
+    if (c) return c
+  }
 
   if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
