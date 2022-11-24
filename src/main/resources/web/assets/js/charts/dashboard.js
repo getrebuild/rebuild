@@ -132,6 +132,8 @@ $(document).ready(function () {
     // eslint-disable-next-line no-undef
     BaseChart.currentFullscreen && BaseChart.currentFullscreen.toggleFullscreen(true)
   })
+
+  $('.J_darkmode button').on('click', () => $(document.body).toggleClass('darkmode'))
 })
 
 // 全屏工具
@@ -234,7 +236,9 @@ const add_widget = function (item) {
   const chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${item.bgcolor ? `style="background-color:${item.bgcolor}` : ''}"></div></div>`
+  const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${
+    item.bgcolor ? `style="background-color:${item.bgcolor}` : ''
+  }"></div></div>`
   // Use gridstar
   if (item.size_x || item.size_y) {
     gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, 2, 24)
