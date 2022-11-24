@@ -59,7 +59,7 @@ public class GroupAggregationRefresh {
             }
         }
 
-        // 全部刷新
+        // 全量刷新，性能较低
         if (targetWhere.size() <= 1) {
             targetWhere.clear();
             targetWhere.add("(1=1)");
@@ -72,6 +72,7 @@ public class GroupAggregationRefresh {
                 entity.getPrimaryField().getName(),
                 entity.getName(),
                 StringUtils.join(targetWhere, " or "));
+
         Object[][] targetArray = Application.createQueryNoFilter(sql).array();
         log.info("Maybe refresh target record(s) : {}", targetArray.length);
 
@@ -98,6 +99,7 @@ public class GroupAggregationRefresh {
             }
 
             ID fakeUpdateReferenceId = null;
+
             // 1.尝试获取触发源
             for (int i = 0; i < o.length - 1; i++) {
                 Object mayId = o[i];
