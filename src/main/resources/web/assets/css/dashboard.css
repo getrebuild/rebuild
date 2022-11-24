@@ -230,7 +230,7 @@ body.fullscreen .tools-bar h4 {
   color: #fff;
 }
 
-.grid-stack-item.bgcolor .rb-loading:after {
+.grid-stack-item.bgcolor .rb-loading::after {
   background-color: transparent;
 }
 
