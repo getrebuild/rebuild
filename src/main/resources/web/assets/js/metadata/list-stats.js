@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$(document).ready(function () {
+$(document).ready(() => {
   const entity = $urlp('entity')
   const settingsUrl = `/admin/entity/${entity}/list-stats`
 
@@ -87,6 +87,9 @@ const render_set = function (item) {
     return
   }
 
+  // 唯一
+  if (!item.key2) item.key2 = $random('stat-')
+
   const $to = $('.set-items')
 
   const calc = item.calc || 'SUM'
@@ -108,10 +111,10 @@ const render_set = function (item) {
   $(`<li class="dropdown-item" data-calc='_LABEL'>${$L('显示样式')}</li>`).appendTo($ul)
 
   $ul.find('.dropdown-item').on('click', function () {
-    const calc = $(this).data('calc')
-    if (calc === '_LABEL') {
-      if (ShowStyles_Comps[item.name]) {
-        ShowStyles_Comps[item.name].show()
+    const c = $(this).data('calc')
+    if (c === '_LABEL') {
+      if (ShowStyles_Comps[item.key2]) {
+        ShowStyles_Comps[item.key2].show()
       } else {
         renderRbcomp(
           // eslint-disable-next-line react/jsx-no-undef
@@ -126,12 +129,12 @@ const render_set = function (item) {
           />,
           null,
           function () {
-            ShowStyles_Comps[item.name] = this
+            ShowStyles_Comps[item.key2] = this
           }
         )
       }
     } else {
-      $item.attr('data-calc', calc).find('.item > span').text(`${item.label} (${CALC_TYPES[calc]})`)
+      $item.attr('data-calc', c).find('.item > span').text(`${item.label} (${CALC_TYPES[c]})`)
     }
   })
 }
