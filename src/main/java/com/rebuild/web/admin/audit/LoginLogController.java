@@ -43,7 +43,7 @@ public class LoginLogController extends EntityController {
     public ModelAndView pageList(HttpServletRequest request) {
         ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/audit/login-logs", "LoginLog", user);
-        JSON config = DataListManager.instance.getFieldsLayout("LoginLog", user);
+        JSON config = DataListManager.instance.getListFields("LoginLog", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         return mv;
     }
