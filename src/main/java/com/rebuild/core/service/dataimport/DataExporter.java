@@ -220,7 +220,7 @@ public class DataExporter extends SetUser {
         @Override
         protected DataListWrapper createDataListWrapper(int totalRows, Object[][] data, Query query) {
             DataListWrapper wrapper = super.createDataListWrapper(totalRows, data, query);
-            wrapper.setSecWrapper(false);
+            wrapper.setMixWrapper(false);
             return wrapper;
         }
     }
