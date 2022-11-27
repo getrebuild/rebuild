@@ -70,7 +70,7 @@ class GridList extends React.Component {
             setTimeout(() => location.reload(), 500)
           } else {
             this.disabled(false)
-            RbHighbar.error(res.error_msg)
+            RbHighbar.error(WrapHtml(res.error_msg))
           }
         })
       },
