@@ -10,6 +10,7 @@ package com.rebuild.web.robot.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -20,6 +21,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
 import org.apache.commons.lang.StringUtils;
@@ -113,7 +115,7 @@ public class TriggerAdminController extends BaseController {
     public Object[][] triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,configId,priority from RobotTriggerConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,configId,priority,actionContent from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
@@ -121,7 +123,27 @@ public class TriggerAdminController extends BaseController {
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
             o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
+
+            // 目标实体
+            o[10] = parseTargetEntity((String) o[10], (String) o[1]);
         }
         return array;
+    }
+
+    private String parseTargetEntity(String config, String sourceEntity) {
+        if (!JSONUtils.wellFormat(config)) return null;
+
+        JSONObject configJson = JSON.parseObject(config);
+        String targetEntity = configJson.getString("targetEntity");
+        if (StringUtils.isBlank(targetEntity)) return null;
+
+        if (targetEntity.startsWith(TriggerAction.SOURCE_SELF)) targetEntity = sourceEntity;
+        else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
+
+        if (MetadataHelper.containsEntity(targetEntity)) {
+            return EasyMetaFactory.getLabel(targetEntity);
+        } else {
+            return String.format("[%s]", targetEntity.toUpperCase());
+        }
     }
 }
