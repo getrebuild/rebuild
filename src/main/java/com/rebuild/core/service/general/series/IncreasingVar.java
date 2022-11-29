@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class IncreasingVar extends SeriesVar {
 
-    private static final Map<String, Object> LOCKS = new ConcurrentHashMap<>();
+    private static final Object LOCK = new Object();
     private static final Map<String, AtomicInteger> INCREASINGS = new ConcurrentHashMap<>();
 
     private Field field;
@@ -63,20 +63,7 @@ public class IncreasingVar extends SeriesVar {
 
         final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 
-        Object keyLock = LOCKS.get(nameKey);
-        if (keyLock == null) {
-            synchronized (LOCKS) {
-                // double check
-                keyLock = LOCKS.get(nameKey);
-                if (keyLock == null) {
-                    LOCKS.put(nameKey, new Object());
-                    keyLock = LOCKS.get(nameKey);
-                }
-            }
-        }
-
-        //noinspection ReassignedVariable,SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (keyLock) {
+        synchronized (LOCK) {
             AtomicInteger incr = INCREASINGS.get(nameKey);
             if (incr == null) {
                 String val = KVStorage.getCustomValue(nameKey);
@@ -101,7 +88,7 @@ public class IncreasingVar extends SeriesVar {
 
         final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 
-        synchronized (LOCKS) {
+        synchronized (LOCK) {
             INCREASINGS.remove(nameKey);
             RebuildConfiguration.setCustomValue(nameKey, 0, Boolean.TRUE);
         }
