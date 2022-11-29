@@ -178,11 +178,12 @@ $(function () {
     })
   })
 
-  if (rb.commercial === 11) {
-    $('a[target="_blank"]').each(function () {
-      if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
-    })
-  }
+  // if (rb.commercial === 11) {
+  //   $('a[target="_blank"]').each(function () {
+  //     if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
+  //   })
+  //   $('.commercial11').addClass('hide')
+  // }
 })
 
 var $addResizeHandler__calls = []

@@ -174,3 +174,66 @@ body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
 .chart-grid.uneditable .chart-box .chart-head .chart-title {
   cursor: default;
 }
+
+.dash-right .J_darkmode {
+  display: none;
+}
+
+body.fullscreen .dash-right .J_darkmode {
+  display: inline-block;
+}
+
+body.fullscreen.darkmode {
+  background: #0a1b3b url(../img/datav-bg.png) no-repeat 0 0;
+  background-size: 100% 100%;
+}
+
+body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content {
+  background-color: rgba(6, 30, 93, 0.5);
+}
+
+body.fullscreen.darkmode .grid-stack .grid-stack-item.fullscreen .grid-stack-item-content {
+  background-color: #0a1b3b;
+}
+
+.grid-stack-item.fullscreen {
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 99;
+}
+
+.grid-stack-item.fullscreen .ui-resizable-handle {
+  display: none !important;
+}
+
+body.fullscreen.darkmode .chart-title {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+body.fullscreen.darkmode .chart.index > .data-item p,
+body.fullscreen.darkmode .chart.index > .data-item strong,
+body.fullscreen.darkmode .tools-bar h4 {
+  color: #fff;
+}
+
+body.fullscreen .tools-bar h4 {
+  font-weight: bold;
+}
+
+/* bgcolor */
+
+.grid-stack-item.bgcolor .grid-stack-item-content,
+.grid-stack-item.bgcolor .chart.index > .data-item strong {
+  color: #fff;
+}
+
+.grid-stack-item.bgcolor .rb-loading::after {
+  background-color: transparent;
+}
+
+.grid-stack-item.bgcolor .rb-spinner svg {
+  stroke: #fff;
+}

@@ -3295,6 +3295,12 @@ form {
   height: auto;
 }
 
+.preview-modal .container.fp-content.fullwidth {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .file-share {
   padding: 10px 40px;
 }

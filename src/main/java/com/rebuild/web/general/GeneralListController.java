@@ -27,9 +27,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
-import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -81,7 +79,7 @@ public class GeneralListController extends EntityController {
         JSON listConfig = null;
 
         if (listMode == 1) {
-            listConfig = DataListManager.instance.getFieldsLayout(entity, user);
+            listConfig = DataListManager.instance.getListFields(entity, user);
 
             // 扩展配置
             String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);

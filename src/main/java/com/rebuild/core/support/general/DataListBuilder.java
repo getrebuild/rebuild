@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSON;
 
 /**
  * @author Zhao Fangfang
- * @since 1.0, 2013-6-20
+ * @since 1.0, 2018-6-20
  */
 public interface DataListBuilder {
 

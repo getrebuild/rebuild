@@ -99,8 +99,7 @@ function modeSave(newOption, next) {
   })
 }
 
-// const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
-const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+const CATE_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE']
 
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
@@ -146,7 +145,7 @@ class DlgMode1Option extends RbFormHandler {
                   </div>
                   <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
                     <label className="mb-1">{$L('字段格式')}</label>
-                    <select className="form-control form-control-sm" disabled>
+                    <select className="form-control form-control-sm">
                       {this.state.advListShowCategoryFormats &&
                         this.state.advListShowCategoryFormats.map((item) => {
                           return (
@@ -213,11 +212,11 @@ class DlgMode1Option extends RbFormHandler {
         $catFields = $('.advListShowCategory-set select:eq(0)')
         $catFormats = $('.advListShowCategory-set select:eq(1)')
 
-        $.get(`/commons/metadata/fields?entity=${wpc.entityName}&deep=2`, (res) => {
+        $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
           const _data = []
           res.data &&
             res.data.forEach((item) => {
-              if (CATE_TYPES.includes(item.type) && !(item.name.includes('owningDept.') || item.name.includes('owningUser.'))) {
+              if (CATE_TYPES.includes(item.type)) {
                 _data.push(item)
               }
             })
@@ -240,10 +239,10 @@ class DlgMode1Option extends RbFormHandler {
                 let formats
                 if (found && found.type === 'CLASSIFICATION') {
                   formats = [
-                    [0, $L('%d 级分类', 1)],
-                    [1, $L('%d 级分类', 2)],
-                    [2, $L('%d 级分类', 3)],
-                    [3, $L('%d 级分类', 4)],
+                    // [0, $L('%d 级分类', 1)],
+                    // [1, $L('%d 级分类', 2)],
+                    // [2, $L('%d 级分类', 3)],
+                    // [3, $L('%d 级分类', 4)],
                   ]
                 } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
                   formats = [

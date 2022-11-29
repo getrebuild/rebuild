@@ -15,10 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.ImageView2;
-import com.rebuild.utils.OkHttpUtils;
-import com.rebuild.utils.RbAssert;
+import com.rebuild.utils.*;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -129,7 +126,7 @@ public class FileDownloader extends BaseController {
         // 共享查看
         if (request.getRequestURI().contains("/filex/access/")) {
             String e = getParameter(request, "e");
-            if (StringUtils.isBlank(e) || Application.getCommonsCache().get(e) == null) {
+            if (!checkEsign(e)) {
                 response.sendError(HttpStatus.FORBIDDEN.value(), Language.L("分享的文件已过期"));
                 return;
             }
@@ -161,15 +158,21 @@ public class FileDownloader extends BaseController {
 
     @GetMapping(value = "read-raw")
     public void readRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RbAssert.isAllow(checkUser(request), "Unauthorized access");
         String filePath = getParameterNotNull(request, "url");
+        boolean fullUrl = CommonsUtils.isExternalUrl(filePath);
         String charset = getParameter(request, "charset", AppUtils.UTF8);
 
         String content;
         if (QiniuCloud.instance().available()) {
-            String privateUrl = QiniuCloud.instance().makeUrl(filePath);
+            String privateUrl = fullUrl ? filePath : QiniuCloud.instance().makeUrl(filePath);
             content = OkHttpUtils.get(privateUrl, null, charset);
         } else {
+
+            if (fullUrl) {
+                String e = filePath.split("\\?e=")[1];
+                RbAssert.is(checkEsign(e), "Unauthorized access");
+                filePath = filePath.split("/filex/access/")[1].split("\\?")[0];
+            }
 
             // Local storage
             filePath = checkFilePath(filePath);
@@ -207,6 +210,11 @@ public class FileDownloader extends BaseController {
         }
 
         return user != null;
+    }
+
+    private static boolean checkEsign(String e) {
+        String check = e == null ? null : Application.getCommonsCache().get(e);
+        return "rb".equalsIgnoreCase(check);
     }
 
     private static String checkFilePath(String filepath) {

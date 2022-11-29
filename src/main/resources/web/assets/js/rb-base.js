@@ -70,7 +70,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
-      'X-Client': 'RB/WEB-2.9',
+      'X-Client': 'RB/WEB',
       'X-CsrfToken': rb.csrfToken || '',
       'X-AuthToken': rb.authToken || '',
     },
