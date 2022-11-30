@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -26,6 +27,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -115,39 +117,37 @@ public class DataListWrapper {
                     continue;
                 }
 
-                Object value = row[colIndex];
+                final Object value = row[colIndex];
                 if (value == null) {
                     row[colIndex] = StringUtils.EMPTY;
                     continue;
                 }
 
-                SelectItem fieldItem = selectFields[colIndex];
-                Field fieldMeta = fieldItem.getField();
-
-                // Last
-                if (fieldMeta.getType() == FieldType.PRIMARY) {
-                    // 如果最终没能取得名称字段则补充
-                    if (nameValue == null) {
-                        nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
-                        if (isUseDesensitized(nameFieldEasy)) {
-                            nameValue = FieldValueHelper.desensitized(nameFieldEasy, nameValue);
-                        }
-
-                    } else {
-                        nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFieldEasy, true);
-                        if (nameValue == null) nameValue = StringUtils.EMPTY;
-                    }
-
-                    ((ID) value).setLabel(nameValue);
-                }
-
-                value = wrapFieldValue(value, fieldMeta);
-                row[colIndex] = value;
+                final SelectItem fieldItem = selectFields[colIndex];
+                final Field fieldMeta = fieldItem.getField();
 
                 // 名称字段值
                 if (fieldMeta.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
                     nameValue = value;
                 }
+
+                // At last
+                if (fieldMeta.getType() == FieldType.PRIMARY) {
+                    // 如无名称字段值则补充
+                    if (nameValue == null) {
+                        nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
+                    } else {
+                        nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFiled, true);
+                    }
+
+                    if (nameValue != null && isUseDesensitized(nameFieldEasy)) {
+                        nameValue = FieldValueHelper.desensitized(nameFieldEasy, nameValue);
+                    }
+
+                    ((ID) value).setLabel(ObjectUtils.defaultIfNull(nameValue, StringUtils.EMPTY));
+                }
+
+                row[colIndex] = wrapFieldValue(value, fieldMeta);
             }
         }
 
@@ -165,17 +165,28 @@ public class DataListWrapper {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
 
+        final DisplayType dt = easyField.getDisplayType();
         final Object originValue = value;
 
-        boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
-                || easyField.getDisplayType() == DisplayType.PICKLIST
-                || easyField.getDisplayType() == DisplayType.STATE
-                || easyField.getDisplayType() == DisplayType.BOOL;
+        boolean unpack = dt == DisplayType.CLASSIFICATION || dt == DisplayType.PICKLIST
+                || dt == DisplayType.STATE || dt == DisplayType.BOOL;
 
         value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
 
-        if (value != null && isUseDesensitized(easyField)) {
-            value = FieldValueHelper.desensitized(easyField, value);
+        if (value != null) {
+            if (isUseDesensitized(easyField)) {
+                value = FieldValueHelper.desensitized(easyField, value);
+            }
+
+            // v3.1.3 引用字段使用名称字段作为脱敏依据
+            if (this.useDesensitized
+                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+                Field useNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
+                EasyField useNameFieldEasy = EasyMetaFactory.valueOf(useNameField);
+                if (useNameFieldEasy.isDesensitized()) {
+                    desensitizedMixValue((JSON) value, useNameFieldEasy);
+                }
+            }
         }
 
         // v2.10 Color
@@ -212,6 +223,19 @@ public class DataListWrapper {
         }
 
         return value;
+    }
+
+    private void desensitizedMixValue(JSON value, EasyField easyField) {
+        if (value instanceof JSONObject) {
+            String text = ((JSONObject) value).getString("text");
+            if (text != null) {
+                ((JSONObject) value).put("text", FieldValueHelper.desensitized(easyField, text));
+            }
+        }
+        // N2N
+        else if (value instanceof JSONArray) {
+            for (Object o : (JSONArray) value) desensitizedMixValue((JSON) o, easyField);
+        }
     }
 
     /**
