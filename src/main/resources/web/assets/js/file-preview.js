@@ -120,7 +120,7 @@ class RbPreview extends React.Component {
 
   renderDoc() {
     return (
-      <div className="container fp-content">
+      <div className={`container fp-content ${this.props.fullwidth && 'fullwidth'}`}>
         <div className="iframe">
           {!this.state.docRendered && (
             <div className="must-center">
@@ -135,10 +135,10 @@ class RbPreview extends React.Component {
 
   renderText() {
     return (
-      <div className="container fp-content">
+      <div className={`container fp-content ${this.props.fullwidth && 'fullwidth'}`}>
         <div className="iframe text">
           {this.state.previewText || this.state.previewText === '' ? (
-            <pre>{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
+            <pre className="mb-0">{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
           ) : (
             <div className="must-center">
               <RbSpinner fully={true} />

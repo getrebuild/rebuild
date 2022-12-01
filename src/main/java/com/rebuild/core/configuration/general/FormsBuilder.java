@@ -179,10 +179,17 @@ public class FormsBuilder extends FormsManager {
 
         // 自动只读
         Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(entity);
+        Set<String> roAutosWithout = record == null ? null : Collections.emptySet();
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
             if (roAutos.contains(field.getString("field"))) {
                 field.put("readonly", true);
+
+                // 前端可收集值
+                if (roAutosWithout == null) roAutosWithout = AutoFillinManager.instance.getAutoReadonlyFields(entity);
+                if (roAutosWithout.contains(field.getString("field"))) {
+                    field.put("readonlyw", true);
+                }
             }
         }
 

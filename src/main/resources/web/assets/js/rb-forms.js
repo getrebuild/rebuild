@@ -442,12 +442,12 @@ class RbForm extends React.Component {
     if (this.isNew) {
       this.props.children.map((child) => {
         let val = child.props.value
-        if (val && child.props.readonly !== true) {
+        if (val && (child.props.readonly !== true || child.props.readonlyw === true)) {
           if (typeof val === 'object') {
             if ($.isArray(val)) {
-              // [file1, file2, image1]
+              // eg. [file1, file2, image1]
             } else {
-              // {id:xxx, text:xxx}
+              // eg. {id:xxx, text:xxx}
               val = val.id
             }
           }
@@ -1048,9 +1048,10 @@ class RbFormNumber extends RbFormText {
 
   // 移除千分为位
   _removeComma(n) {
+    if (n === null || n === undefined) return ''
     if (n) return (n + '').replace(/,/g, '')
-    else if (isNaN(n)) return ''
-    else return n // `0`
+    if (isNaN(n)) return ''
+    return n // `0`
   }
 }
 

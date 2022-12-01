@@ -13,7 +13,14 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * K/V 对存储
@@ -21,36 +28,51 @@ import org.apache.commons.lang.StringUtils;
  * @author devezhao
  * @since 2019/11/22
  */
+@Slf4j
 public class KVStorage {
 
     public static final Object SETNULL = new Object();
 
+    private static final String CUSTOM_PREFIX = "custom.";
+
     /**
-     * 存储
-     *
+     * 取
      * @param key 会自动加 `custom.` 前缀
      * @return
      */
     public static String getCustomValue(String key) {
-        return getValue("custom." + key, false, null);
+        return getValue(CUSTOM_PREFIX + key, false, null);
     }
 
     /**
-     * 获取
-     *
-     * @param key   会自动加 `custom.` 前缀
+     * 存
+     * @param key
      * @param value
      */
     public static void setCustomValue(String key, Object value) {
-        setValue("custom." + key, value);
+        setValue(CUSTOM_PREFIX + key, value);
     }
 
     /**
+     * 存
+     * @param key
+     * @param value
+     * @param throttled 是否节流
+     */
+    public static void setCustomValue(String key, Object value, boolean throttled) {
+        if (throttled) THROTTLED_QUEUE.put(key, value);
+        else setCustomValue(key, value);
+    }
+
+    /**
+     * 删
      * @param key
      */
     public static void removeCustomValue(String key) {
         setCustomValue(key, SETNULL);
     }
+
+    // -- RAW
 
     /**
      * @param key
@@ -129,5 +151,27 @@ public class KVStorage {
         }
 
         return value;
+    }
+
+    // -- ASYNC
+
+    private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
+    private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
+
+    static {
+        THROTTLED_TIMER.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (THROTTLED_QUEUE.isEmpty()) return;
+
+                final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
+                THROTTLED_QUEUE.clear();
+
+                log.info("Synchronize KV pairs ... {}", queue);
+                for (Map.Entry<String, Object> e : queue.entrySet()) {
+                    RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                }
+            }
+        }, 1000, 1000);
     }
 }

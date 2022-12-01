@@ -39,7 +39,7 @@ import java.util.Set;
  * 基于角色权限的查询过滤器
  *
  * @author Zhao Fangfang
- * @since 1.0, 2013-6-21
+ * @since 1.0, 2018-6-21
  */
 @Slf4j
 public class RoleBaseQueryFilter implements Filter, QueryFilter {

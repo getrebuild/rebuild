@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -26,6 +27,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import java.util.Map;
  * 数据包装
  *
  * @author Zhao Fangfang
- * @since 1.0, 2013-6-20
+ * @since 1.0, 2018-6-20
  */
 public class DataListWrapper {
 
@@ -52,7 +54,7 @@ public class DataListWrapper {
     // 信息脱敏
     protected boolean useDesensitized = false;
 
-    private boolean secWrapper = true;
+    private boolean mixWrapper = true;
 
 
     /**
@@ -93,6 +95,8 @@ public class DataListWrapper {
      */
     public JSON toJson() {
         final Field nameFiled = entity.getNameField();
+        final EasyField nameFieldEasy = EasyMetaFactory.valueOf(nameFiled);
+
         final int joinFieldsLen = queryJoinFields == null ? 0 : queryJoinFields.size();
         final int selectFieldsLen = selectFields.length - joinFieldsLen;
 
@@ -119,26 +123,31 @@ public class DataListWrapper {
                     continue;
                 }
 
-                SelectItem fieldItem = selectFields[colIndex];
-                Field field = fieldItem.getField();
-                if (field.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
+                final SelectItem fieldItem = selectFields[colIndex];
+                final Field fieldMeta = fieldItem.getField();
+
+                // 名称字段值
+                if (fieldMeta.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
                     nameValue = value;
                 }
 
-                // 如果最终没能取得名称字段则补充
-                if (field.getType() == FieldType.PRIMARY) {
+                // At last
+                if (fieldMeta.getType() == FieldType.PRIMARY) {
+                    // 如无名称字段值则补充
                     if (nameValue == null) {
                         nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
                     } else {
                         nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFiled, true);
-                        if (nameValue == null) {
-                            nameValue = StringUtils.EMPTY;
-                        }
                     }
-                    ((ID) value).setLabel(nameValue);
+
+                    if (nameValue != null && isUseDesensitized(nameFieldEasy)) {
+                        nameValue = FieldValueHelper.desensitized(nameFieldEasy, nameValue);
+                    }
+
+                    ((ID) value).setLabel(ObjectUtils.defaultIfNull(nameValue, StringUtils.EMPTY));
                 }
 
-                row[colIndex] = wrapFieldValue(value, field);
+                row[colIndex] = wrapFieldValue(value, fieldMeta);
             }
         }
 
@@ -156,21 +165,32 @@ public class DataListWrapper {
             return FieldValueHelper.wrapMixValue((ID) value, null);
         }
 
+        final DisplayType dt = easyField.getDisplayType();
         final Object originValue = value;
 
-        boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
-                || easyField.getDisplayType() == DisplayType.PICKLIST
-                || easyField.getDisplayType() == DisplayType.STATE
-                || easyField.getDisplayType() == DisplayType.BOOL;
+        boolean unpack = dt == DisplayType.CLASSIFICATION || dt == DisplayType.PICKLIST
+                || dt == DisplayType.STATE || dt == DisplayType.BOOL;
 
         value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
 
-        if (value != null && isUseDesensitized(easyField)) {
-            value = FieldValueHelper.desensitized(easyField, value);
+        if (value != null) {
+            if (isUseDesensitized(easyField)) {
+                value = FieldValueHelper.desensitized(easyField, value);
+            }
+
+            // v3.1.3 引用字段使用名称字段作为脱敏依据
+            if (this.useDesensitized
+                    && (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
+                Field useNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
+                EasyField useNameFieldEasy = EasyMetaFactory.valueOf(useNameField);
+                if (useNameFieldEasy.isDesensitized()) {
+                    desensitizedMixValue((JSON) value, useNameFieldEasy);
+                }
+            }
         }
 
         // v2.10 Color
-        if (value != null && this.secWrapper) {
+        if (value != null && this.mixWrapper) {
             if (easyField.getDisplayType() == DisplayType.PICKLIST) {
                 String color = PickListManager.instance.getColor((ID) originValue);
                 if (StringUtils.isNotBlank(color)) {
@@ -205,6 +225,19 @@ public class DataListWrapper {
         return value;
     }
 
+    private void desensitizedMixValue(JSON value, EasyField easyField) {
+        if (value instanceof JSONObject) {
+            String text = ((JSONObject) value).getString("text");
+            if (text != null) {
+                ((JSONObject) value).put("text", FieldValueHelper.desensitized(easyField, text));
+            }
+        }
+        // N2N
+        else if (value instanceof JSONArray) {
+            for (Object o : (JSONArray) value) desensitizedMixValue((JSON) o, easyField);
+        }
+    }
+
     /**
      * @see FieldValueHelper#isUseDesensitized(EasyField, ID)
      */
@@ -237,9 +270,9 @@ public class DataListWrapper {
     /**
      * 进一步封装查询结果
      *
-     * @param secWrapper
+     * @param mixWrapper
      */
-    public void setSecWrapper(boolean secWrapper) {
-        this.secWrapper = secWrapper;
+    public void setMixWrapper(boolean mixWrapper) {
+        this.mixWrapper = mixWrapper;
     }
 }

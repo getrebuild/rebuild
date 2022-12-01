@@ -5,6 +5,11 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/approval" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
     <title>[[${bundle.L('审批流程')}]]</title>
+    <style>
+      tr.ui-sortable-handle.ui-sortable-helper td:first-child {
+        width: 339px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">

@@ -140,6 +140,7 @@ $(document).ready(() => {
     }
 
     const option = wpc.chartConfig.option || {}
+    if (typeof option['mergeCell'] === undefined) option.mergeCell = true // fix: 3.1.3
     for (let k in option) {
       const opt = $(`.chart-option input[data-name=${k}]`)
       if (opt.length > 0) {

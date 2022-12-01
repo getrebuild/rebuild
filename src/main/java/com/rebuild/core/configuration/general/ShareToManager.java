@@ -73,16 +73,30 @@ public abstract class ShareToManager implements ConfigManager {
      * @param belongEntity
      * @param applyType
      * @return
+     * @see #detectUseConfig(ID, String, String, boolean)
      */
     public ID detectUseConfig(ID user, String belongEntity, String applyType) {
+        return detectUseConfig(user, belongEntity, applyType, Boolean.TRUE);
+    }
+
+    /**
+     * @param user
+     * @param belongEntity
+     * @param applyType
+     * @param firstUseSelf
+     * @return
+     */
+    protected ID detectUseConfig(ID user, String belongEntity, String applyType, boolean firstUseSelf) {
         final Object[][] alls = getAllConfig(belongEntity, applyType);
         if (alls.length == 0) return null;
 
         // 1.优先使用自己的
-        for (Object[] d : alls) {
-            ID createdBy = (ID) d[2];
-            if (UserHelper.isSelf(user, createdBy)) {
-                return (ID) d[0];
+        if (firstUseSelf) {
+            for (Object[] d : alls) {
+                ID createdBy = (ID) d[2];
+                if (UserHelper.isSelf(user, createdBy)) {
+                    return (ID) d[0];
+                }
             }
         }
 

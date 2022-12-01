@@ -11,6 +11,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -107,11 +108,11 @@ public class GroupAggregation extends FieldAggregation {
 
         // 1.源记录数据
 
-        String ql = String.format("select %s from %s where %s = ?",
+        String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),
                 sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
 
-        Record sourceRecord = Application.createQueryNoFilter(ql)
+        final Record sourceRecord = Application.createQueryNoFilter(sql)
                 .setParameter(1, actionContext.getSourceRecord())
                 .record();
 
@@ -122,9 +123,23 @@ public class GroupAggregation extends FieldAggregation {
         List<String[]> qFieldsRefresh = new ArrayList<>();
         boolean allNull = true;
 
+        final boolean isGroupUpdate = operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == GroupAggregation.class;
+
+        // 保存前/后值
+        Map<String, Object[]> valueChanged = new HashMap<>();
+
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
+
+            if (isGroupUpdate) {
+                Object beforeValue = operatingContext.getBeforeRecord().getObjectValue(sourceField);
+                Object afterValue = operatingContext.getAfterRecord().getObjectValue(sourceField);
+                if (NullValue.isNull(beforeValue) && NullValue.isNull(afterValue)) {
+                } else {
+                    valueChanged.put(sourceField, new Object[] { beforeValue, afterValue });
+                }
+            }
 
             Object val = sourceRecord.getObjectValue(sourceField);
             if (val == null) {
@@ -211,21 +226,26 @@ public class GroupAggregation extends FieldAggregation {
         }
 
         if (allNull) {
-            log.warn("All group-fields are null");
+            // 如果分组字段值全空将会触发全量更新
+            if (!valueChanged.isEmpty()) {
+                this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
+            } else {
+                log.warn("All group-fields are null, ignored");
+            }
             return;
         }
 
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
 
-        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == GroupAggregation.class) {
+        if (isGroupUpdate) {
             this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
         }
 
-        ql = String.format("select %s from %s where ( %s )",
+        sql = String.format("select %s from %s where ( %s )",
                 targetEntity.getPrimaryField().getName(), targetEntity.getName(),
                 StringUtils.join(qFields.iterator(), " and "));
 
-        Object[] targetRecord = Application.createQueryNoFilter(ql).unique();
+        Object[] targetRecord = Application.createQueryNoFilter(sql).unique();
         if (targetRecord != null) {
             targetRecordId = (ID) targetRecord[0];
             return;

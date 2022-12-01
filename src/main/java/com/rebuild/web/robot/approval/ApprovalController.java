@@ -141,6 +141,7 @@ public class ApprovalController extends BaseController {
             JSONArray aform = new FormBuilder(recordId, user).build(editableFields);
             if (aform != null && !aform.isEmpty()) {
                 data.put("aform", aform);
+                data.put("aentity", MetadataHelper.getEntityName(recordId));
             }
         }
 
