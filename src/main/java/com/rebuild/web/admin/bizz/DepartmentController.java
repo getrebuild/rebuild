@@ -41,7 +41,7 @@ public class DepartmentController extends EntityController {
         final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/bizuser/dept-list", "Department", user);
 
-        JSON config = DataListManager.instance.getFieldsLayout("Department", user);
+        JSON config = DataListManager.instance.getListFields("Department", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         return mv;
     }

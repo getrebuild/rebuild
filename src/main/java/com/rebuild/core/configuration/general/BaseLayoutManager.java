@@ -10,8 +10,9 @@ package com.rebuild.core.configuration.general;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 
 /**
  * 基础布局管理
@@ -36,13 +37,12 @@ public class BaseLayoutManager extends ShareToManager {
     public static final String TYPE_LISTSTATS = "LISTSTATS";
     // 列表-查询面板
     public static final String TYPE_LISTFILTERPANE = "LISTFILTERPANE";
-    // 列表-图表 of Widget
+    // 列表-图表
     public static final String TYPE_WCHARTS = "WCHARTS";
     // 视图-相关项
     public static final String TYPE_TAB = "TAB";
     // 视图-新建相关
     public static final String TYPE_ADD = "ADD";
-
 
     @Override
     protected String getConfigEntity() {
@@ -82,13 +82,19 @@ public class BaseLayoutManager extends ShareToManager {
      * @return
      */
     public ConfigBean getLayout(ID user, String belongEntity, String applyType) {
-        ID detected = detectUseConfig(user, belongEntity, applyType);
-        if (detected == null) {
-            return null;
+        // 221125 无权限不允许使用自有配置
+        boolean firstUseSelf = true;
+        if (TYPE_NAV.equals(applyType)) {
+            firstUseSelf = Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav);
+        } else if (TYPE_DATALIST.equals(applyType)) {
+            firstUseSelf = Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList);
         }
 
+        ID detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf);
+        if (detected == null) return null;
+
         Object[][] cached = getAllConfig(belongEntity, applyType);
-        return findEntry(cached, detected);
+        return findConfigBean(cached, detected);
     }
 
     /**
@@ -100,12 +106,10 @@ public class BaseLayoutManager extends ShareToManager {
                 "select belongEntity,applyType from LayoutConfig where configId = ?")
                 .setParameter(1, cfgid)
                 .unique();
-        if (o == null) {
-            throw new RebuildException("No config found : " + cfgid);
-        }
+        if (o == null) throw new ConfigurationException("No config found : " + cfgid);
 
         Object[][] cached = getAllConfig((String) o[0], (String) o[1]);
-        return findEntry(cached, cfgid);
+        return findConfigBean(cached, cfgid);
     }
 
     /**
@@ -113,7 +117,7 @@ public class BaseLayoutManager extends ShareToManager {
      * @param cfgid
      * @return
      */
-    protected ConfigBean findEntry(Object[][] uses, ID cfgid) {
+    protected ConfigBean findConfigBean(Object[][] uses, ID cfgid) {
         for (Object[] c : uses) {
             if (c[0].equals(cfgid)) {
                 return new ConfigBean()

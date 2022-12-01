@@ -68,7 +68,14 @@ class TriggerList extends ConfigList {
                 <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[7]}</td>
+              <td>
+                {item[7]}
+                {item[10] && (
+                  <span title={$L('目标实体')} className="ml-1">
+                    ({item[10]})
+                  </span>
+                )}
+              </td>
               <td className="text-wrap">{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
                 <span className="badge badge-light">{item[9]}</span>

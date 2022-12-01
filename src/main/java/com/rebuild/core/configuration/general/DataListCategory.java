@@ -64,13 +64,18 @@ public class DataListCategory {
 
         } else {
 
+            String cf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
+            String[] ff = cf.split(":");
+            String ffField = ff[0];
+            String ffFormat = ff.length > 1 ? ff[1] : null;
+
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = MessageFormat.format(
                         "select distinct referenceId from NreferenceItem where belongEntity = ''{0}'' and belongField = ''{1}''",
-                        entity.getName(), categoryField.getName());
+                        entity.getName(), ffField);
             } else {
-                String wrapField = categoryField.getName();
+                String wrapField = ffField;
                 if (dt == DisplayType.DATETIME) {
                     wrapField = String.format("DATE_FORMAT(%s, '%%Y-%%m-%%d')", wrapField);
                 }
@@ -85,10 +90,6 @@ public class DataListCategory {
                     : Application.getQueryFactory().createQuery(sql, user);
             Object[][] array = query.array();
 
-            String cf = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
-            String[] ff = cf.split(":");
-            String format = ff.length > 1 ? ff[1] : null;
-
             Set<Object> unique = new HashSet<>();
 
             for (Object[] o : array) {
@@ -96,11 +97,11 @@ public class DataListCategory {
                 Object label;
 
                 if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                    format = StringUtils.defaultIfBlank(format, CalendarUtils.UTC_DATE_FORMAT);
+                    ffFormat = StringUtils.defaultIfBlank(ffFormat, CalendarUtils.UTC_DATE_FORMAT);
                     if (id instanceof Date) {
-                        label = CalendarUtils.format(format, (Date) id);
+                        label = CalendarUtils.format(ffFormat, (Date) id);
                     } else {
-                        label = id.toString().substring(0, format.length());
+                        label = id.toString().substring(0, ffFormat.length());
                     }
                     id = label;
 

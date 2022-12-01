@@ -284,7 +284,7 @@ public class ReferenceSearchController extends EntityController {
         ModelAndView mv = createModelAndView("/general/reference-search");
         putEntityMeta(mv, searchEntity);
 
-        JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), user);
+        JSON config = DataListManager.instance.getListFields(searchEntity.getName(), user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 
         // 可新建

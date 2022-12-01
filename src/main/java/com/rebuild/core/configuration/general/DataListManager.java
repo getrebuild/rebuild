@@ -47,19 +47,21 @@ public class DataListManager extends BaseLayoutManager {
      * @param entity
      * @param user
      * @return
+     * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
-    public JSON getFieldsLayout(String entity, ID user) {
-        return getFieldsLayout(entity, user, true);
+    public JSON getListFields(String entity, ID user) {
+        return getListFields(entity, user, true);
     }
 
     /**
      * @param entity
      * @param user
-     * @param filter 过滤无读取权限的字段
+     * @param filter
      * @return
+     * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
-    public JSON getFieldsLayout(String entity, ID user, boolean filter) {
-        return formatFieldsLayout(entity, user, filter, getLayoutOfDatalist(user, entity));
+    public JSON getListFields(String entity, ID user, boolean filter) {
+        return formatListFields(entity, user, filter, getLayoutOfDatalist(user, entity));
     }
 
     /**
@@ -69,7 +71,7 @@ public class DataListManager extends BaseLayoutManager {
      * @param config
      * @return
      */
-    public JSON formatFieldsLayout(String entity, ID user, boolean filter, ConfigBean config) {
+    public JSON formatListFields(String entity, ID user, boolean filter, ConfigBean config) {
         List<Map<String, Object>> columnList = new ArrayList<>();
         Entity entityMeta = MetadataHelper.getEntity(entity);
         Field namedField = entityMeta.getNameField();
@@ -259,7 +261,7 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public JSON getFieldsLayoutMode2(Entity entity) {
-        JSONObject emptyConfig = (JSONObject) formatFieldsLayout(entity.getName(), null, true, null);
+        JSONObject emptyConfig = (JSONObject) formatListFields(entity.getName(), null, true, null);
         JSONArray fields = emptyConfig.getJSONArray("fields");
 
         if (entity.containsField(EntityHelper.ApprovalState)) {

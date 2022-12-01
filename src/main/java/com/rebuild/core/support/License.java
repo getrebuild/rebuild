@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @author ZHAO
- * @since 2019-08-23
+ * !!!! 请勿修改或删除本文件
+ * !!!! 请严格遵守《REBUILD 用户服务协议》https://getrebuild.com/legal/service-terms
  */
 @Slf4j
 public final class License {

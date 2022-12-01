@@ -46,7 +46,7 @@ public class TeamController extends EntityController {
         final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/bizuser/team-list", "Team", user);
 
-        JSON config = DataListManager.instance.getFieldsLayout("Team", user);
+        JSON config = DataListManager.instance.getListFields("Team", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         return mv;
     }

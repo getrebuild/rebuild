@@ -54,7 +54,7 @@ public class DataListBuilderTest extends TestSupport {
 
     @Test
     public void testColumnLayout() {
-        JSON layout = DataListManager.instance.getFieldsLayout(Account, SIMPLE_USER);
+        JSON layout = DataListManager.instance.getListFields(Account, SIMPLE_USER);
         System.out.println(layout);
     }
 }
