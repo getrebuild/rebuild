@@ -1044,9 +1044,10 @@ class RbFormNumber extends RbFormText {
 
   // 移除千分为位
   _removeComma(n) {
+    if (n === null || n === undefined) return ''
     if (n) return (n + '').replace(/,/g, '')
-    else if (isNaN(n)) return ''
-    else return n // `0`
+    if (isNaN(n)) return ''
+    return n // `0`
   }
 }
 
