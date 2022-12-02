@@ -1,44 +1,46 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('视图配置')}]]</title>
+    <title>[[${bundle.L('列显示')}]]</title>
+    <style>
+      .slider.slider-horizontal {
+        width: 100%;
+        margin-top: 6px;
+      }
+    </style>
   </head>
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
         <div class="col-6 sortable-swap">
           <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
-          <div class="sortable-box rb-scroller">
-            <ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
+          <div class="sortable-box h380 rb-scroller">
+            <ol class="dd-list J_config"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
         <div class="col-6">
           <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
-          <div class="sortable-box rb-scroller">
+          <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>
         </div>
       </div>
       <div class="dialog-footer">
-        <span th:if="${param.type[0] == 'TAB'}" class="float-left pt-1">
-          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-            <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
-            <span class="custom-control-label">[[${bundle.L('自动展开记录')}]]</span>
-          </label>
-          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
-            <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
-            <span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
-          </label>
-        </span>
+        <div class="float-left">
+          <div id="shareTo" class="shareTo--wrap"></div>
+        </div>
         <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/widget/bootstrap-slider.min.js}"></script>
     <script th:src="@{/assets/js/sortable.js}"></script>
+    <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/show-styles.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/metadata/view-addons.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/list-fields.js}" type="text/babel"></script>
   </body>
 </html>

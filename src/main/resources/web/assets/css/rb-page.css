@@ -5017,3 +5017,10 @@ pre.unstyle {
 .rbcolors > a > i {
   color: #fff !important;
 }
+
+.dd-item.star .dd3-content::after {
+  content: '*';
+  margin-left: 4px;
+  font-weight: bold;
+  color: #fbbc05;
+}
