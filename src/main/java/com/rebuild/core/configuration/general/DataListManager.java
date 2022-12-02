@@ -50,7 +50,7 @@ public class DataListManager extends BaseLayoutManager {
      * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
     public JSON getListFields(String entity, ID user) {
-        return getListFields(entity, user, true);
+        return getListFields(entity, user, Boolean.TRUE);
     }
 
     /**
@@ -61,7 +61,15 @@ public class DataListManager extends BaseLayoutManager {
      * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
     public JSON getListFields(String entity, ID user, boolean filter) {
-        return formatListFields(entity, user, filter, getLayoutOfDatalist(user, entity));
+        JSONObject config = (JSONObject) formatListFields(entity, user, filter, getLayoutOfDatalist(user, entity));
+        JSONArray fields = config.getJSONArray("fields");
+
+        for (Object o : fields) {
+            JSONObject item = (JSONObject) o;
+            String label2 = (String) item.remove("label2");
+            if (StringUtils.isNotBlank(label2)) item.put("label", label2);
+        }
+        return config;
     }
 
     /**
@@ -116,10 +124,11 @@ public class DataListManager extends BaseLayoutManager {
                 }
 
                 if (formatted != null) {
-                    Integer width = item.getInteger("width");
-                    if (width != null) {
-                        formatted.put("width", width);
-                    }
+                    Object width = item.get("width");
+                    if (width != null) formatted.put("width", width);
+                    Object label2 = item.get("label2");
+                    if (label2 != null) formatted.put("label2", label2);
+
                     columnList.add(formatted);
                 }
             }
