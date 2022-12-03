@@ -29,7 +29,7 @@ class RbFormModal extends React.Component {
   }
 
   render() {
-    let style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
+    const style2 = { maxWidth: this.props.width || MODAL_MAXWIDTH }
     if (this.state._maximize) {
       style2.maxWidth = $(window).width() - 60
       if (style2.maxWidth < MODAL_MAXWIDTH) style2.maxWidth = MODAL_MAXWIDTH
@@ -212,7 +212,7 @@ class RbFormModal extends React.Component {
    */
   static create(props, forceNew) {
     if (forceNew === true) {
-      renderRbcomp(<RbFormModal {...props} />)
+      renderRbcomp(<RbFormModal {...props} disposeOnHide />)
       return
     }
 
@@ -243,6 +243,9 @@ class RbForm extends React.Component {
     }
 
     this.isNew = !props.id
+
+    this._postBefore = props.postBefore || props.$$$parent.props.postBefore
+    this._postAfter = props.postAfter || props.$$$parent.props.postAfter
   }
 
   render() {
@@ -394,7 +397,7 @@ class RbForm extends React.Component {
   }
 
   renderFormAction() {
-    const moreActions = []
+    let moreActions = []
     // 添加明细
     if (this.props.rawModel.mainMeta) {
       const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
@@ -414,6 +417,9 @@ class RbForm extends React.Component {
         </a>
       )
     }
+
+    // Clean others action
+    if (this._postAfter) moreActions = []
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
@@ -602,11 +608,13 @@ class RbForm extends React.Component {
 
         setTimeout(() => {
           $$$parent.hide(true)
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
 
           const recordId = res.data.id
 
-          if (next === RbForm.NEXT_ADDDETAIL) {
+          if (typeof this._postAfter === 'function') {
+            this._postAfter(recordId)
+            return
+          } else if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = { '$MAINID$': recordId }
             const dm = this.props.rawModel.detailMeta
             RbFormModal.create({
@@ -621,6 +629,8 @@ class RbForm extends React.Component {
             window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
           }
 
+          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
+
           // ...
         }, 200)
       } else if (res.error_code === 499) {
@@ -631,6 +641,8 @@ class RbForm extends React.Component {
     })
     return true
   }
+
+  // -- HOOK
 
   // 保存前调用（返回 false 则不继续保存）
   static postBefore(data) {
@@ -1390,11 +1402,11 @@ class RbFormImage extends RbFormElement {
     if (destroy) {
       // NOOP
     } else {
-      if (!this._fieldValue__input) {
-        console.warn('No element `_fieldValue__input` defined')
+      // Mobile camera only
+      if (this.props.imageCapture === true) {
         return
-      } else if (this.props.imageCapture === true) {
-        // Camera only
+      } else if (!this._fieldValue__input) {
+        console.warn('No element `_fieldValue__input` defined')
         return
       }
 
@@ -1588,6 +1600,8 @@ class RbFormReference extends RbFormElement {
   }
 
   renderElement() {
+    const quickNew = this.props.referenceQuickNew && !this.props.onView
+
     return (
       <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
@@ -1596,6 +1610,11 @@ class RbFormReference extends RbFormElement {
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
               <i className="icon zmdi zmdi-search" />
             </button>
+            {quickNew && (
+              <button className="btn btn-secondary" type="button" onClick={() => this.quickNew()} title={$L('新建')}>
+                <i className="icon zmdi zmdi-plus" />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -1798,15 +1817,28 @@ class RbFormReference extends RbFormElement {
   }
 
   showSearcher_call(selected, that) {
-    const s = selected[0]
-    if ($(that._fieldValue).find(`option[value="${s}"]`).length > 0) {
-      that.__select2.val(s).trigger('change')
+    const id = selected[0]
+    if ($(that._fieldValue).find(`option[value="${id}"]`).length > 0) {
+      that.__select2.val(id).trigger('change')
     } else {
-      $.get(`/commons/search/read-labels?ids=${s}`, (res) => {
-        const o = new Option(res.data[s], s, true, true)
+      $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
+        const o = new Option(res.data[id], id, true, true)
         that.__select2.append(o).trigger('change')
       })
     }
+  }
+
+  quickNew() {
+    const e = this.props.referenceEntity
+    RbFormModal.create(
+      {
+        title: $L('新建%s', e.entityLabel),
+        entity: e.entity,
+        icon: e.icon,
+        postAfter: (id) => this.showSearcher_call([id], this),
+      },
+      true
+    )
   }
 }
 

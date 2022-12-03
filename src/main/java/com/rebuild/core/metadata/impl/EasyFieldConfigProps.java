@@ -107,17 +107,23 @@ public class EasyFieldConfigProps {
      * 父级级联字段
      */
     public static final String REFERENCE_CASCADINGFIELD = "referenceCascadingField";
+    /**
+     * 快速新建
+     */
+    public static final String REFERENCE_QUICKNEW = "referenceQuickNew";
 
     /**
-     * 多引用字段数据过滤
      * @see #REFERENCE_DATAFILTER
      */
     public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
     /**
-     * 父级级联字段
      * @see #REFERENCE_CASCADINGFIELD
      */
     public static final String N2NREFERENCE_CASCADINGFIELD = REFERENCE_CASCADINGFIELD;
+    /**
+     * @see #REFERENCE_QUICKNEW
+     */
+    public static final String N2NREFERENCE_QUICKNEW = REFERENCE_QUICKNEW;
 
     /**
      * 多行文本使用 MD 编辑器
