@@ -374,6 +374,14 @@ public class FormsBuilder extends FormsManager {
                 el.put(EasyFieldConfigProps.TIME_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
+            } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+                Entity refEntity = fieldMeta.getReferenceEntity();
+                boolean quickNew = el.getBooleanValue(EasyFieldConfigProps.REFERENCE_QUICKNEW);
+                if (quickNew) {
+                    el.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
+                            Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
+                    el.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
+                }
             }
 
             // 编辑/视图

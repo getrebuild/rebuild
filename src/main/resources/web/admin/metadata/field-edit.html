@@ -84,7 +84,7 @@
                       </div>
                     </div>
                   </div>
-                  <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="form-group row">
+                  <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('父级级联字段')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <select class="form-control form-control-sm" id="referenceCascadingField">
@@ -98,6 +98,15 @@
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('点击设置')}]]</a>
                       <p class="form-text mb-0 mt-0">[[${bundle.L('符合过滤条件的数据才能被选择或使用')}]]</p>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('启用快速新建')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                        <input class="custom-control-input" type="checkbox" id="referenceQuickNew" />
+                        <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -134,7 +143,7 @@
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传数量')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
-                    <input class="bslider form-control form-control-sm" id="uploadNumber" type="text" data-slider-min="0" data-slider-max="9" data-slider-value="[0,9]" data-slider-step="1" />
+                    <input class="bslider" id="uploadNumber" type="text" data-slider-min="0" data-slider-max="9" data-slider-value="[0,9]" data-slider-step="1" />
                     <div class="form-text J_minmax" th:utext="${bundle.L('最少上传 **0** 个，最多上传 **9** 个')}"></div>
                   </div>
                 </div>
@@ -152,7 +161,7 @@
                     <div class="form-text" th:utext="${bundle.L('如有多个类型请使用逗号分开')}"></div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE bosskey-show">
+                <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
                     <i class="support-plat2 mdi mdi-cellphone-check" style="margin-left: -18px" th:title="${bundle.L('支持 H5')}"></i>
                     [[${bundle.L('仅允许拍照上传')}]]
@@ -357,7 +366,7 @@
                     <label class="custom-control custom-control-sm custom-checkbox bosskey-show">
                       <input class="custom-control-input" type="checkbox" id="textScanCode" th:data-o="${textScanCode}" />
                       <span class="custom-control-label">
-                        [[${bundle.L('开启扫码')}]]
+                        [[${bundle.L('启用扫码')}]]
                         <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('仅可在手机版企业微信、钉钉中使用')}"></i>
                       </span>
                     </label>
