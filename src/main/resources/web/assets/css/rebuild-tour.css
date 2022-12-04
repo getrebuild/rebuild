@@ -93,3 +93,83 @@ body.rebuild-tour-body {
 .introjs-tooltipbuttons a > i {
   font: normal normal normal 17px/1 'Material-Design-Iconic-Font';
 }
+
+body.rebuild-guide-body {
+}
+
+.rebuild-guide-screen {
+  position: absolute;
+  background-color: #fff;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  border-radius: 4px;
+}
+
+.rebuild-guide-screen .rebuild-guide {
+  margin: 25px;
+}
+
+.rebuild-guide .top #guide-progress {
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+}
+
+.rebuild-guide .guide {
+  width: 220px;
+  display: inline-block;
+  margin-right: 25px;
+  background-image: linear-gradient(206.19deg, #deebff 17.41%, #b3d4ff 83.81%);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rebuild-guide .guide .header {
+  background-color: var(--rb-color);
+}
+
+.rebuild-guide .guide .header h5 {
+  margin: 0;
+  padding: 10px 20px;
+  color: #fff;
+  position: relative;
+}
+
+.rebuild-guide .guide .header h5 small {
+  position: absolute;
+  right: 15px;
+  bottom: 12px;
+  font-weight: normal;
+}
+
+.rebuild-guide .guide .header h5 > strong {
+  font-size: 2rem;
+  margin-right: 2px;
+  font-weight: normal;
+}
+
+.rebuild-guide .guide ul {
+  margin: 20px;
+}
+
+.rebuild-guide .guide ul > li {
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 7px 10px;
+  margin-top: 10px;
+  display: block;
+  border: 1px solid #fff;
+}
+
+.rebuild-guide .guide ul > li.confirm {
+  border-color: #34a853;
+}
+
+.rebuild-guide .guide ul > li a.confirm::before {
+  content: '|';
+  font-size: 12px;
+  color: #eee;
+  margin-left: 7px;
+  margin-right: 8px;
+}
