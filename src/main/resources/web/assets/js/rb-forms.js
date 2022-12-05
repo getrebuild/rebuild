@@ -708,7 +708,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!props.nullable && $empty(props.value) && props.autovalue > 2) {
+      if (!props.nullable && $empty(props.value) && props.readonlyw !== 2) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       }
       // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
@@ -737,7 +737,7 @@ class RbFormElement extends React.Component {
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
-        placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
+        placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
         maxLength={this.props.maxLength || 200}
       />
     )
@@ -974,7 +974,7 @@ class RbFormNumber extends RbFormText {
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
-        placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
+        placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
         maxLength="29"
       />
     )
@@ -1089,7 +1089,7 @@ class RbFormTextarea extends RbFormElement {
           onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
-          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
+          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           maxLength="6000"
         />
         {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />}
@@ -1209,7 +1209,7 @@ class RbFormDateTime extends RbFormElement {
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
-          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
+          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
@@ -2201,7 +2201,7 @@ class RbFormLocation extends RbFormElement {
           value={lnglat ? lnglat.text || '' : ''}
           onChange={(e) => this.handleChange(e)}
           readOnly
-          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
+          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           onClick={() => this._showMap(lnglat)}
         />
         <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={() => this.handleClear()} title={$L('清除')} />
