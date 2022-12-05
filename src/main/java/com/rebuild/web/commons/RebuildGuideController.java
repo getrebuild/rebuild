@@ -43,8 +43,8 @@ public class RebuildGuideController extends BaseController {
         List<JSON> items = new ArrayList<>();
         items.add(buildItem(Language.L("系统配置"), "admin/systems", 0));
         items.add(buildItem(Language.L("邮件与短信"), "admin/integration/submail", 0));
-        items.add(buildItem(Language.L("与钉钉集成"), "admin/integration/dingtalk", 0));
-        items.add(buildItem(Language.L("与企业微信集成"), "admin/integration/wxwork", 0));
+        items.add(buildItem(Language.L("企业微信集成"), "admin/integration/wxwork", 0));
+        items.add(buildItem(Language.L("或钉钉集成"), "admin/integration/dingtalk", 0));
         return RespBody.ok(items);
     }
 

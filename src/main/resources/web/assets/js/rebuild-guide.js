@@ -12,12 +12,14 @@ class RebuildGuide extends React.Component {
         <div className="top d-flex mb-2">
           <div className="w-75">
             <div className="float-left mr-3">
-              <div id="guide-progress"></div>
+              <div id="rebuild-guide-progress2"></div>
             </div>
             <h3 className="m-0 mb-1 mt-1">{$L('初始化向导')}</h3>
             <p className="text-muted">{$L('跟随初始化向导，帮助你快速完成系统搭建')}</p>
           </div>
           <div className="w-25 text-right">
+            <input type="checkbox" className="mr-1 down-2" />
+            <span className="mr-2">{$L('下次不再显示')}</span>
             <a
               href="###"
               onClick={(e) => {
@@ -52,9 +54,8 @@ class RebuildGuide extends React.Component {
     let option = {
       series: {
         type: 'pie',
-        radius: ['85%', '100%'],
+        radius: ['80%', '100%'],
         center: ['50%', '50%'],
-        startAngle: 280,
         hoverAnimation: false,
         silent: false,
         label: {
@@ -91,7 +92,9 @@ class RebuildGuide extends React.Component {
     // eslint-disable-next-line no-undef
     option = { ...ECHART_BASE, ...option }
     // eslint-disable-next-line no-undef
-    renderEChart(option, 'guide-progress')
+    renderEChart(option, 'rebuild-guide-progress1')
+    // eslint-disable-next-line no-undef
+    renderEChart(option, 'rebuild-guide-progress2')
   }
 }
 
@@ -194,8 +197,9 @@ class CommonGuide extends React.Component {
 }
 
 $(document).ready(() => {
-  $(document.body).addClass('rebuild-guide-body')
   const $mc = $('.main-content')
+  $(`<div class="rebuild-guide-progress" title="${$L('打开初始化向导')}"><div id="rebuild-guide-progress1"></div></div>`).appendTo($mc)
+
   const $wrap = $('<div class="rebuild-guide-screen shadow"></div>').appendTo($mc)
   renderRbcomp(<RebuildGuide />, $wrap[0])
 
@@ -203,4 +207,9 @@ $(document).ready(() => {
     const wh = $(window).height()
     $mc.css('height', wh - 88)
   })()
+
+  const $c = $('.rebuild-guide-progress').on('click', () => {
+    $(document.body).addClass('rebuild-guide-body')
+  })
+  $c.trigger('click')
 })

@@ -96,10 +96,45 @@ body.rebuild-tour-body {
 
 body.rebuild-guide-body .main-content {
   overflow: hidden;
+  position: relative;
 }
 
 body.rebuild-guide-body .rebuild-guide-screen {
   display: block;
+}
+
+body.rebuild-guide-body .rebuild-guide-progress {
+  opacity: 0;
+  bottom: 0;
+}
+
+.rebuild-guide-progress {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  z-index: 11;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity, bottom 0.3s ease;
+  opacity: 1;
+  width: 66px;
+  height: 66px;
+  background-color: #fff;
+  padding-top: 3px;
+  padding-left: 3px;
+}
+
+.rebuild-guide-progress:hover {
+  opacity: 0.8;
+}
+
+#rebuild-guide-progress1,
+#rebuild-guide-progress2 {
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+  pointer-events: none;
 }
 
 .rebuild-guide-screen {
@@ -111,26 +146,34 @@ body.rebuild-guide-body .rebuild-guide-screen {
   bottom: 0;
   display: none;
   border-radius: 6px;
-  overflow: hidden;
+  overflow: auto;
+  z-index: 10;
 }
 
 .rebuild-guide-screen .rebuild-guide {
   margin: 25px;
 }
 
-.rebuild-guide .top #guide-progress {
-  width: 57px;
-  height: 57px;
-  display: inline-block;
-}
-
 .rebuild-guide .guide {
-  width: 260px;
-  margin-right: 25px;
+  width: 250px;
   background-image: linear-gradient(206.19deg, #deebff 17.41%, #b3d4ff 83.81%);
   border-radius: 4px;
   float: left;
   overflow: hidden;
+}
+
+.rebuild-guide .guide + .guide {
+  margin-left: 25px;
+}
+
+@media (max-width: 1280px) {
+  .rebuild-guide .guide {
+    width: 230px;
+  }
+
+  .rebuild-guide .guide + .guide {
+    margin-left: 10px;
+  }
 }
 
 .rebuild-guide .guide .header {
