@@ -111,4 +111,11 @@ public class RebuildGuideController extends BaseController {
         KVStorage.setCustomValue(key, CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         return RespBody.ok();
     }
+
+    @PostMapping("show-naver")
+    public RespBody showNaver(HttpServletRequest request) {
+        boolean s = getBoolParameter(request, "s");
+        KVStorage.setCustomValue("GuideShowNaver", s);
+        return RespBody.ok();
+    }
 }

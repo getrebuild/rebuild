@@ -8,22 +8,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class RebuildGuide extends React.Component {
   render() {
     return (
-      <div className="rebuild-guide">
+      <div className="rebuild-guide" ref={(c) => (this._$guide = c)}>
         <div className="top d-flex mb-2">
           <div className="w-75">
             <div className="float-left mr-3">
               <div id="rebuild-guide-progress2"></div>
             </div>
             <h3 className="m-0 mb-1 mt-1">{$L('初始化向导')}</h3>
-            <p className="text-muted">{$L('跟随初始化向导，帮助你快速完成系统搭建')}</p>
+            <p>{$L('跟随初始化向导，帮助你快速完成系统搭建')}</p>
           </div>
           <div className="w-25 text-right">
-            <input type="checkbox" className="mr-1 down-2" />
-            <span className="mr-2">{$L('下次不再显示')}</span>
+            <input
+              type="checkbox"
+              className="mr-1 down-1"
+              onClick={(e) => {
+                const s = $val(e.target)
+                $.cookie('GuideShowNaver', s, { expires: null })
+                $.post(`/common/guide/show-naver?s=${s}`, () => {})
+              }}
+            />
+            <span className="mr-2 text-muted">{$L('下次不再显示')}</span>
             <a
               href="###"
               onClick={(e) => {
                 $stopEvent(e, true)
+                $.cookie('GuideShowNaverTime', true, { expires: null })
                 $('.rebuild-guide-body').removeClass('rebuild-guide-body')
               }}>
               {$L('关闭')}
@@ -40,7 +49,11 @@ class RebuildGuide extends React.Component {
     )
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    if ($isTrue($.cookie('GuideShowNaver'))) {
+      $(this._$guide).find('input[type="checkbox"]').attr('checked', true)
+    }
+  }
 
   pcalc() {
     $setTimeout(() => this._pcalc(), 200, 'rebuild-guide-p')
@@ -210,6 +223,8 @@ $(document).ready(() => {
 
   const $c = $('.rebuild-guide-progress').on('click', () => {
     $(document.body).addClass('rebuild-guide-body')
+    $.removeCookie('GuideShowNaverTime')
   })
-  $c.trigger('click')
+
+  if (!$.cookie('GuideShowNaverTime')) $c.trigger('click')
 })
