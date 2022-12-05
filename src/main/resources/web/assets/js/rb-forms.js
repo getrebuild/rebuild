@@ -438,7 +438,7 @@ class RbForm extends React.Component {
     if (this.isNew) {
       this.props.children.map((child) => {
         let iv = child.props.value
-        if (iv && child.props.readonly !== true) {
+        if (iv && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
             if ($.isArray(iv)) {
               // eg. [file1, file2, image1]
