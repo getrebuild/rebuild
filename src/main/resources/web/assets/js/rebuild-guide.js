@@ -22,30 +22,39 @@ class RebuildGuide extends React.Component {
               href="###"
               onClick={(e) => {
                 $stopEvent(e, true)
-                $('.rebuild-guide').addClass('hide')
+                $('.rebuild-guide-body').removeClass('rebuild-guide-body')
               }}>
               {$L('关闭')}
             </a>
           </div>
         </div>
 
-        <CommonGuide title={$L('系统配置')} feat="syscfg" />
+        <CommonGuide title={$L('系统通用配置')} feat="syscfg" index="1" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('业务实体配置')} feat="entitymrg" index="2" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('用户配置')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('更多功能')} feat="others" index="4" pcalc={() => this.pcalc()} />
+        <div className="clearfix"></div>
       </div>
     )
   }
 
-  componentDidMount() {
-    setTimeout(() => this._pcalc(15), 1000)
+  componentDidMount() {}
+
+  pcalc() {
+    $setTimeout(() => this._pcalc(), 200, 'rebuild-guide-p')
   }
 
-  _pcalc(value) {
-    const option = {
-      animation: false,
+  _pcalc() {
+    const t1 = $('.rebuild-guide .guide .items li').length
+    const t2 = $('.rebuild-guide .guide .items li.confirm').length
+    const p = ~~((t2 * 100) / t1)
+
+    let option = {
       series: {
         type: 'pie',
-        radius: ['80%', '100%'],
+        radius: ['85%', '100%'],
         center: ['50%', '50%'],
-        startAngle: 260,
+        startAngle: 280,
         hoverAnimation: false,
         silent: false,
         label: {
@@ -55,7 +64,7 @@ class RebuildGuide extends React.Component {
           fontSize: 18,
         },
         color: ['#eeeeee', '#34a853'],
-        emphais: {
+        emphasis: {
           scale: false,
         },
         labelLine: {
@@ -63,22 +72,24 @@ class RebuildGuide extends React.Component {
         },
         data: [
           {
-            value: 100 - value,
+            value: 100 - p,
             name: '',
-            emphais: {
+            emphasis: {
               label: {
                 show: false,
               },
             },
           },
           {
-            value: value,
+            value: p,
             name: '',
           },
         ],
       },
     }
 
+    // eslint-disable-next-line no-undef
+    option = { ...ECHART_BASE, ...option }
     // eslint-disable-next-line no-undef
     renderEChart(option, 'guide-progress')
   }
@@ -111,18 +122,24 @@ class CommonGuide extends React.Component {
       <ul className="list-unstyled">
         {items.map((item) => {
           return (
-            <li key={item.item} className={`shadow-sm ${item.confirm && 'confirm'}`}>
+            <li key={item.item} className={`shadow-sm1 ${item.confirm && 'confirm'}`}>
               <div className="d-flex">
                 <span className="w-50">
-                  {item.confirm && <i className="icon mdi mdi-check-circle-outline text-bold mr-1 text-success" />}
+                  {item.confirm && <i className="icon mdi mdi-check-circle-outline mr-1 text-success" />}
                   {item.item}
                 </span>
                 <span className="w-50 text-right">
                   {item.confirm ? (
-                    <a href={`${rb.baseUrl}/${item.url}`}>{$L('继续完善')}</a>
+                    <a href={`${rb.baseUrl}/${item.url}`}>
+                      {item.num === -1 ? $L('继续使用') : $L('继续完善')}
+                      {item.num > 0 && ` (${item.num})`}
+                    </a>
                   ) : (
                     <RF>
-                      <a href={`${rb.baseUrl}/${item.url}`}>{$L('去设置')}</a>
+                      <a href={`${rb.baseUrl}/${item.url}`}>
+                        {item.num === -1 ? $L('去使用') : $L('去配置')}
+                        {item.num > 0 && ` (${item.num})`}
+                      </a>
                       <a
                         href="###"
                         className="confirm"
@@ -156,8 +173,7 @@ class CommonGuide extends React.Component {
     items.forEach((item) => {
       if (item.confirm) p++
     })
-
-    this.setState({ p: (p * 100) / items.length })
+    this.setState({ p: ~~((p * 100) / items.length) }, () => this.props.pcalc())
   }
 
   handleConfirm(url) {
@@ -179,6 +195,12 @@ class CommonGuide extends React.Component {
 
 $(document).ready(() => {
   $(document.body).addClass('rebuild-guide-body')
-  const $wrap = $('<div class="rebuild-guide-screen"></div>').appendTo('.main-content')
+  const $mc = $('.main-content')
+  const $wrap = $('<div class="rebuild-guide-screen shadow"></div>').appendTo($mc)
   renderRbcomp(<RebuildGuide />, $wrap[0])
+
+  $addResizeHandler(() => {
+    const wh = $(window).height()
+    $mc.css('height', wh - 88)
+  })()
 })
