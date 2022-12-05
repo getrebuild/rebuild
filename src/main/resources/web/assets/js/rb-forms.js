@@ -437,18 +437,18 @@ class RbForm extends React.Component {
     // 新纪录初始值
     if (this.isNew) {
       this.props.children.map((child) => {
-        let val = child.props.value
-        if (val && (child.props.readonly !== true || child.props.readonlyw === true)) {
-          if (typeof val === 'object') {
-            if ($.isArray(val)) {
+        let iv = child.props.value
+        if (iv && child.props.readonly !== true) {
+          if (typeof iv === 'object') {
+            if ($.isArray(iv)) {
               // eg. [file1, file2, image1]
             } else {
               // eg. {id:xxx, text:xxx}
-              val = val.id
+              iv = iv.id
             }
           }
 
-          this.setFieldValue(child.props.field, val)
+          this.setFieldValue(child.props.field, iv)
         }
       })
     }
@@ -708,7 +708,9 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
+      if (!props.nullable && $empty(props.value) && props.autovalue > 2) {
+        props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
+      }
       // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
 
       this.onEditModeChanged()
@@ -735,6 +737,7 @@ class RbFormElement extends React.Component {
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
+        placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
         maxLength={this.props.maxLength || 200}
       />
     )
@@ -866,13 +869,6 @@ class RbFormText extends RbFormElement {
   constructor(props) {
     super(props)
   }
-
-  getValue() {
-    const v = super.getValue()
-    // fix: 3.1.1
-    if (v && v === $L('自动值')) return null
-    else return v
-  }
 }
 
 class RbFormUrl extends RbFormText {
@@ -978,6 +974,7 @@ class RbFormNumber extends RbFormText {
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
+        placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
         maxLength="29"
       />
     )
@@ -1092,6 +1089,7 @@ class RbFormTextarea extends RbFormElement {
           onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
+          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
           maxLength="6000"
         />
         {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />}
@@ -1211,6 +1209,7 @@ class RbFormDateTime extends RbFormElement {
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
+          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
           maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
@@ -2202,6 +2201,7 @@ class RbFormLocation extends RbFormElement {
           value={lnglat ? lnglat.text || '' : ''}
           onChange={(e) => this.handleChange(e)}
           readOnly
+          placeholder={this.props.autovalue > 0 ? $L('自动值') : null}
           onClick={() => this._showMap(lnglat)}
         />
         <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={() => this.handleClear()} title={$L('清除')} />

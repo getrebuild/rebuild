@@ -62,6 +62,10 @@ public class FormsBuilder extends FormsManager {
     // 引用记录
     public static final String DV_REFERENCE_PREFIX = "&";
 
+    private static final int READONLYW = 1;
+    private static final int READONLYW_RO = 2;
+    private static final int READONLYW_RW = 3;
+
     /**
      * 表单-编辑
      *
@@ -184,11 +188,12 @@ public class FormsBuilder extends FormsManager {
             JSONObject field = (JSONObject) o;
             if (roAutos.contains(field.getString("field"))) {
                 field.put("readonly", true);
+                field.put("readonlyw", READONLYW_RO);
 
                 // 前端可收集值
                 if (roAutosWithout == null) roAutosWithout = AutoFillinManager.instance.getAutoReadonlyFields(entity);
                 if (roAutosWithout.contains(field.getString("field"))) {
-                    field.put("readonlyw", true);
+                    field.put("readonlyw", READONLYW_RW);
                 }
             }
         }
@@ -424,7 +429,7 @@ public class FormsBuilder extends FormsManager {
                 // 默认值
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
-                        el.put("value", Language.L("自动值"));
+                        el.put("readonlyw", READONLYW);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
@@ -445,7 +450,8 @@ public class FormsBuilder extends FormsManager {
                             || dt == DisplayType.SERIES
                             || dt == DisplayType.TEXT
                             || dt == DisplayType.NTEXT) {
-                        el.put("value", Language.L("自动值"));
+                        Integer readonlyw = el.getInteger("readonlyw");
+                        if (readonlyw == null) el.put("readonlyw", READONLYW);
                     }
                 }
 
