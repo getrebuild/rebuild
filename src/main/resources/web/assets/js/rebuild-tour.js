@@ -19,7 +19,7 @@ const startTour123 = function () {
   if (location.href.includes('/dashboard/home')) {
     stepName = 'TourEnd-Dashboard'
     steps = StepRebuild()
-    StepDashboard().forEach((item) => steps.push(item))
+    // StepDashboard().forEach((item) => steps.push(item))
   } else if (location.href.includes('/list') && wpc.type === 'RecordList') {
     if ($('.datalist-mode2').length > 0) {
       stepName = 'TourEnd-RecordList2'

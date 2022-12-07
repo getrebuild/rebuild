@@ -27,7 +27,7 @@ class RebuildGuide extends React.Component {
                 $.post(`/common/guide/show-naver?s=${s}`, () => {})
               }}
             />
-            <span className="mr-2 text-muted">{$L('下次不再显示')}</span>
+            <span className="mr-2 text-muted">{$L('下次登录不再显示')}</span>
             <a
               href="###"
               onClick={(e) => {
@@ -42,9 +42,13 @@ class RebuildGuide extends React.Component {
 
         <CommonGuide title={$L('系统通用配置')} feat="syscfg" index="1" pcalc={() => this.pcalc()} />
         <CommonGuide title={$L('业务实体配置')} feat="entitymrg" index="2" pcalc={() => this.pcalc()} />
-        <CommonGuide title={$L('用户配置')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('组织架构配置')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
         <CommonGuide title={$L('更多功能')} feat="others" index="4" pcalc={() => this.pcalc()} />
         <div className="clearfix"></div>
+
+        <div>
+
+        </div>
       </div>
     )
   }
@@ -135,7 +139,7 @@ class CommonGuide extends React.Component {
   renderItems() {
     const items = this.state.items || []
     return (
-      <ul className="list-unstyled">
+      <ul className="list-unstyled" ref={(c) => (this._$guideItems = c)}>
         {items.map((item) => {
           return (
             <li key={item.item} className={`shadow-sm1 ${item.confirm && 'confirm'}`}>
@@ -156,11 +160,13 @@ class CommonGuide extends React.Component {
                         {item.num === -1 ? $L('去使用') : $L('去配置')}
                         {item.num > 0 && ` (${item.num})`}
                       </a>
+                      <em>|</em>
                       <a
                         href="###"
                         className="confirm"
                         title={$L('我已完成')}
                         onClick={(e) => {
+                          $(e.currentTarget).tooltip('dispose')
                           $stopEvent(e, true)
                           this.handleConfirm(item.url)
                         }}>
@@ -179,7 +185,10 @@ class CommonGuide extends React.Component {
 
   componentDidMount() {
     $.get(`/common/guide/${this.props.feat}`, (res) => {
-      this.setState({ items: res.data }, () => this._pcalc())
+      this.setState({ items: res.data }, () => {
+        this._pcalc()
+        $(this._$guideItems).find('a.confirm').tooltip({})
+      })
     })
   }
 
@@ -193,18 +202,12 @@ class CommonGuide extends React.Component {
   }
 
   handleConfirm(url) {
-    const that = this
-    RbAlert.create($L('已完成此项？'), {
-      onConfirm: function () {
-        this.hide()
-        $.post(`/common/guide/confirm?url=${$encode(url)}`)
-
-        const items = that.state.items
-        items.forEach((item) => {
-          if (item.url === url) item.confirm = true
-        })
-        that.setState({ items }, () => that._pcalc())
-      },
+    $.post(`/common/guide/confirm?url=${$encode(url)}`, () => {
+      const items = this.state.items
+      items.forEach((item) => {
+        if (item.url === url) item.confirm = true
+      })
+      this.setState({ items }, () => this._pcalc())
     })
   }
 }
