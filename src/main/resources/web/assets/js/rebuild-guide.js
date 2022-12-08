@@ -42,7 +42,7 @@ class RebuildGuide extends React.Component {
 
         <CommonGuide title={$L('系统通用配置')} feat="syscfg" index="1" pcalc={() => this.pcalc()} />
         <CommonGuide title={$L('业务实体配置')} feat="entitymrg" index="2" pcalc={() => this.pcalc()} />
-        <CommonGuide title={$L('组织架构配置')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('登录用户管理')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
         <CommonGuide title={$L('更多功能')} feat="others" index="4" pcalc={() => this.pcalc()} />
         <div className="clearfix"></div>
 
