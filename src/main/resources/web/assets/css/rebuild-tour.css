@@ -93,3 +93,134 @@ body.rebuild-tour-body {
 .introjs-tooltipbuttons a > i {
   font: normal normal normal 17px/1 'Material-Design-Iconic-Font';
 }
+
+body.rebuild-guide-body .main-content {
+  overflow: hidden;
+  position: relative;
+}
+
+body.rebuild-guide-body .rebuild-guide-screen {
+  display: block;
+}
+
+body.rebuild-guide-body .rebuild-guide-progress {
+  opacity: 0;
+  bottom: 0;
+}
+
+.rebuild-guide-progress {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  z-index: 11;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity, bottom 0.3s ease;
+  opacity: 1;
+  width: 66px;
+  height: 66px;
+  background-color: #fff;
+  padding-top: 3px;
+  padding-left: 3px;
+}
+
+.rebuild-guide-progress:hover {
+  opacity: 0.8;
+}
+
+#rebuild-guide-progress1,
+#rebuild-guide-progress2 {
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+  pointer-events: none;
+}
+
+.rebuild-guide-screen {
+  position: absolute;
+  background-color: #fff;
+  top: 15px;
+  left: 25px;
+  right: 25px;
+  bottom: 0;
+  display: none;
+  border-radius: 6px;
+  overflow: auto;
+  z-index: 10;
+}
+
+.rebuild-guide-screen .rebuild-guide {
+  margin: 25px;
+}
+
+.rebuild-guide .guide {
+  width: 260px;
+  background-image: linear-gradient(206.19deg, #deebff 17.41%, #b3d4ff 83.81%);
+  border-radius: 4px;
+  float: left;
+  overflow: hidden;
+}
+
+.rebuild-guide .guide + .guide {
+  margin-left: 25px;
+}
+
+@media (max-width: 1280px) {
+  .rebuild-guide .guide {
+    width: 230px;
+  }
+
+  .rebuild-guide .guide + .guide {
+    margin-left: 10px;
+  }
+}
+
+.rebuild-guide .guide .header {
+  background-color: var(--rb-color);
+}
+
+.rebuild-guide .guide .header h5 {
+  margin: 0;
+  padding: 10px 20px;
+  color: #fff;
+  position: relative;
+}
+
+.rebuild-guide .guide .header h5 small {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  font-weight: normal;
+}
+
+.rebuild-guide .guide .header h5 > strong {
+  font-size: 2rem;
+  margin-right: 4px;
+  font-weight: normal;
+}
+
+.rebuild-guide .guide ul {
+  margin: 20px;
+}
+
+.rebuild-guide .guide ul > li {
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 15px;
+  display: block;
+  border: 1px solid #fff;
+}
+
+.rebuild-guide .guide ul > li.confirm {
+  border-color: #34a853;
+}
+
+.rebuild-guide .guide ul > li em {
+  display: inline-block;
+  font-size: 12px;
+  color: #ddd;
+  margin-left: 6px;
+  margin-right: 5px;
+}

@@ -18,6 +18,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.KVStorage;
@@ -80,6 +81,14 @@ public class LoginAction extends BaseController {
 
         // 头像缓存
         ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
+
+        // v3.2 Guide
+        if (UserHelper.isSuperAdmin(user)) {
+            Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
+            if (!ObjectUtils.toBool(GuideShowNaver)) {
+                ServletUtils.setSessionAttribute(request, "GuideShow", true);
+            }
+        }
 
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
