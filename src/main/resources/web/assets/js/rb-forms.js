@@ -246,6 +246,7 @@ class RbForm extends React.Component {
 
     this._postBefore = props.postBefore || props.$$$parent.props.postBefore
     this._postAfter = props.postAfter || props.$$$parent.props.postAfter
+    this._dividerRefs = []
   }
 
   render() {
@@ -253,9 +254,13 @@ class RbForm extends React.Component {
       <div className="rbform form-layout">
         <div className="form row" ref={(c) => (this._form = c)}>
           {this.props.children.map((fieldComp) => {
-            const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
-            return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
+            const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
+            if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
+              this._dividerRefs.push(ref)
+            }
+            return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
           })}
+
           {this.renderCustomizedFormArea()}
         </div>
 
@@ -263,6 +268,12 @@ class RbForm extends React.Component {
         {this.renderFormAction()}
       </div>
     )
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    return _FormArea || null
   }
 
   renderDetailForm() {
@@ -390,12 +401,6 @@ class RbForm extends React.Component {
     )
   }
 
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-    return _FormArea || null
-  }
-
   renderFormAction() {
     let moreActions = []
     // 添加明细
@@ -462,6 +467,12 @@ class RbForm extends React.Component {
         }
       })
     }
+
+    // v3.2 默认收起
+    this._dividerRefs.forEach((d) => {
+      // eslint-disable-next-line react/no-string-refs
+      this.refs[d].toggle()
+    })
 
     setTimeout(() => RbForm.renderAfter(this), 0)
   }
@@ -2415,11 +2426,14 @@ class RbFormDivider extends React.Component {
   }
 
   render() {
+    if (this.props.breaked === true) {
+      return <div className="form-line-breaked"></div>
+    }
     return (
       <div className="form-line hover" ref={(c) => (this._$formLine = c)}>
         <fieldset>
           {this.props.label && (
-            <legend onClick={() => this.toggle()} className="text-bold">
+            <legend onClick={() => this.toggle()} className="text-bold" title={$L('展开/收起')}>
               {this.props.label}
             </legend>
           )}
@@ -2538,5 +2552,42 @@ const __findMultiTexts = function (options, maskValue, useColor) {
 const __addRecentlyUse = function (id) {
   if (id && typeof id === 'string') {
     $.post(`/commons/search/recently-add?id=${id}`)
+  }
+}
+
+// -- Lite
+
+// eslint-disable-next-line no-unused-vars
+class LiteForm extends RbForm {
+  renderCustomizedFormArea() {
+    return null
+  }
+
+  renderDetailForm() {
+    return null
+  }
+
+  renderFormAction() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // TODO init...
+  }
+
+  buildFormData() {
+    const s = {}
+    const data = this.__FormData || {}
+    for (let k in data) {
+      const error = data[k].error
+      if (error) {
+        RbHighbar.create(error)
+        return false
+      }
+      s[k] = data[k].value
+    }
+    s.metadata = { id: this.props.id || '' }
+    return s
   }
 }

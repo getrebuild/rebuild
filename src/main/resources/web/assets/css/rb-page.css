@@ -29,6 +29,12 @@ html.admin .admin-show.row {
   display: flex;
 }
 
+html.admin,
+html.admin body {
+  min-width: 1200px;
+  overflow: auto;
+}
+
 .rbv-hide,
 .dev-show {
   display: none;
@@ -923,7 +929,8 @@ select.form-control:not([disabled]) {
   position: relative;
 }
 
-.form-layout .form-line {
+.form-layout .form-line,
+.form-layout .form-line-breaked {
   width: 100%;
   margin-left: 15px;
   margin-right: 15px;
@@ -2007,7 +2014,7 @@ th.column-fixed {
   left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 3px 5px;
-  color: #777;
+  color: #666;
 }
 
 .form-line.hover fieldset legend {
@@ -2016,6 +2023,12 @@ th.column-fixed {
 
 .form-line.hover fieldset legend:hover {
   color: #4285f4;
+}
+
+.form-line-breaked {
+  height: 0;
+  font-size: 0;
+  overflow: hidden;
 }
 
 .btn-primary.btn-outline,

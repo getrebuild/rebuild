@@ -11,6 +11,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .rb-right-sidebar.field-aside {
   width: 280px;
+}
+
+.page-aside,
+.field-aside {
   z-index: 1;
 }
 

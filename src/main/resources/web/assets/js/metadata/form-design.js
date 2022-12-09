@@ -43,7 +43,7 @@ $(document).ready(function () {
     $(wpc.formConfig.elements).each(function () {
       const field = validFields[this.field]
       if (this.field === DIVIDER_LINE) {
-        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4 })
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, collapsed: this.collapsed, breaked: this.breaked })
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
           '.form-preview'
@@ -112,6 +112,8 @@ $(document).ready(function () {
       if (item.field === DIVIDER_LINE) {
         item.colspan = 4
         item.label = $this.find('span').text() || ''
+        item.collapsed = $isTrue($this.attr('data-collapsed'))
+        item.breaked = $isTrue($this.attr('data-breaked'))
       } else {
         item.colspan = 2 // default
         if ($this.parent().hasClass('w-100')) item.colspan = 4
@@ -184,15 +186,17 @@ const render_item = function (data) {
     `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : 'FIELD'}">${data.fieldLabel}</span></div>`
   ).appendTo($item)
 
-  if (data.creatable === false) $handle.addClass('readonly')
-  else if (data.nullable === false) $handle.addClass('not-nullable')
-  // 填写提示
-  if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
-  // 高度
-  if (data.height) $handle.attr('data-height', data.height)
-
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
+  // 字段
   if (data.displayType) {
+    if (data.creatable === false) $handle.addClass('readonly')
+    else if (data.nullable === false) $handle.addClass('not-nullable')
+
+    // 填写提示
+    if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
+    // 高度
+    if (data.height) $handle.attr('data-height', data.height)
+
     $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
     $(`<a class="mr-1 colspan" title="${$L('宽度')}" data-toggle="dropdown"><i class="zmdi zmdi-view-column"></i></a>`).appendTo($action)
 
@@ -250,15 +254,26 @@ const render_item = function (data) {
 
   if (isDivider) {
     $item.addClass('divider')
+    const $handle = $item.find('.dd-handle').attr({
+      'data-collapsed': data.collapsed,
+      'data-breaked': data.breaked,
+    })
+
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
-      .on('click', function () {
+      .on('click', () => {
         const _onConfirm = function (nv) {
           $item.find('.dd-handle span').text(nv.dividerName || '')
+          $handle.attr('data-collapsed', $isTrue(nv.collapsed))
+          $handle.attr('data-breaked', $isTrue(nv.breaked))
         }
 
-        const ov = $item.find('.dd-handle span').text()
-        renderRbcomp(<DlgEditDivider onConfirm={_onConfirm} dividerName={ov || ''} />)
+        const ov = {
+          dividerName: $item.find('.dd-handle span').text() || '',
+          collapsed: $handle.attr('data-collapsed'),
+          breaked: $handle.attr('data-breaked'),
+        }
+        renderRbcomp(<DlgEditDivider onConfirm={_onConfirm} {...ov} />)
       })
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
@@ -344,8 +359,8 @@ class DlgEditField extends RbAlert {
   }
 
   handleChange = (e) => {
-    let target = e.target
-    let s = {}
+    const target = e.target
+    const s = {}
     s[target.name] = target.type === 'checkbox' ? target.checked : target.value
     this.setState(s)
   }
@@ -368,6 +383,16 @@ class DlgEditDivider extends DlgEditField {
         <div className="form-group">
           <label>{$L('分栏名称')}</label>
           <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
+        </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.collapsed)} name="collapsed" onChange={this.handleChange} />
+            <span className="custom-control-label">{$L('默认收起')}</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0 bosskey-show">
+            <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.breaked)} name="breaked" onChange={this.handleChange} />
+            <span className="custom-control-label">{$L('仅用于断行')}</span>
+          </label>
         </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
