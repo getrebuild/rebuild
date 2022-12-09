@@ -16,7 +16,7 @@ const COLSPANS = {
   9: 'w-33',
 }
 
-$(document).ready(function () {
+$(document).ready(() => {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     const validFields = {},
       configFields = []
@@ -24,21 +24,12 @@ $(document).ready(function () {
       configFields.push(this.field)
     })
 
-    const $advControls = $('#adv-control tbody')
-    const template = $advControls.find('tr').html()
-    $advControls.find('tr').remove()
-
     $(res.data).each(function () {
       validFields[this.fieldName] = this
-      if (configFields.includes(this.fieldName) === false) render_unset(this)
-
-      // Adv control
-      const $control = $(`<tr data-field="${this.fieldName}">${template}</tr>`).appendTo($advControls)
-      $control.find('td:eq(0)').text(this.fieldLabel)
-      const $req = $control.find('td:eq(2)')
-      if (this.builtin) $req.empty()
-      else if (!this.nullable) $req.find('input').attr({ disabled: true, checked: true })
+      if (!configFields.includes(this.fieldName)) render_unset(this)
     })
+
+    AdvControl.init()
 
     $(wpc.formConfig.elements).each(function () {
       const field = validFields[this.field]
@@ -53,8 +44,7 @@ $(document).ready(function () {
           $item.remove()
         })
       } else {
-        render_item({ ...field, isFull: this.isFull || false, colspan: this.colspan, tip: this.tip || null, height: this.height || null })
-        AdvControl.set(this)
+        render_item({ ...field, ...this })
       }
     })
 
@@ -67,7 +57,7 @@ $(document).ready(function () {
       .disableSelection()
   })
 
-  $('.J_add-divider').on('click', function () {
+  $('.J_add-divider').on('click', () => {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 })
   })
@@ -128,7 +118,7 @@ $(document).ready(function () {
         const height = $this.attr('data-height')
         if (height) item.height = height
 
-        AdvControl.append(item)
+        AdvControl.cfgAppend(item)
       }
       formElements.push(item)
     })
@@ -194,7 +184,7 @@ const render_item = function (data) {
 
     // 填写提示
     if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
-    // 高度
+    // 长文本高度
     if (data.height) $handle.attr('data-height', data.height)
 
     $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
@@ -250,6 +240,8 @@ const render_item = function (data) {
         render_unset(data)
         $item.remove()
       })
+
+    AdvControl.set({ ...data })
   }
 
   if (isDivider) {
@@ -278,9 +270,7 @@ const render_item = function (data) {
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
-      .on('click', function () {
-        $item.remove()
-      })
+      .on('click', () => $item.remove())
   }
 }
 
@@ -421,22 +411,33 @@ const add2Layout = function (fieldName) {
 
 // 高级控制
 const AdvControl = {
-  $controls: $('#adv-control tbody'),
+  $tbody: $('#adv-control tbody'),
 
-  append: function (item) {
-    this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
+  init() {
+    this._template = this.$tbody.find('tr').html()
+    this.$tbody.find('tr').remove()
+  },
+
+  set: function (field) {
+    const $c = $(`<tr data-field="${field.fieldName}">${this._template}</tr>`).appendTo(this.$tbody)
+    $c.find('td:eq(0)').text(field.fieldLabel)
+    const $req = $c.find('td:eq(2)')
+    if (field.builtin) $req.empty()
+    else if (!field.nullable) $req.find('input').attr({ disabled: true, checked: true })
+
+    this.$tbody.find(`tr[data-field="${field.fieldName}"] input`).each(function () {
       const $this = $(this)
       if ($this.prop('disabled')) return
-      item[$this.attr('name')] = $this.prop('checked')
+      const v = field[$this.attr('name')]
+      if (v === true || v === false) $this.attr('checked', v)
     })
   },
 
-  set: function (item) {
-    this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
+  cfgAppend: function (item) {
+    this.$tbody.find(`tr[data-field="${item.field}"] input`).each(function () {
       const $this = $(this)
       if ($this.prop('disabled')) return
-      const v = item[$this.attr('name')]
-      if (v === true || v === false) $this.attr('checked', v)
+      item[$this.attr('name')] = $this.prop('checked')
     })
   },
 }
