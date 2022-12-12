@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
  * @since 2020/11/17
  */
 @Slf4j
-public class EasyMultiSelect extends EasyField implements MixValue {
+public class EasyMultiSelect extends EasyField implements MixValue, MultiValue {
     private static final long serialVersionUID = -1615061627351160386L;
 
     protected EasyMultiSelect(Field field, DisplayType displayType) {
@@ -73,10 +73,10 @@ public class EasyMultiSelect extends EasyField implements MixValue {
     public Object unpackWrapValue(Object wrappedValue) {
         if (wrappedValue instanceof Long) {
             return StringUtils.join(
-                    MultiSelectManager.instance.getLabels((Long) wrappedValue, getRawMeta()), ", ");
+                    MultiSelectManager.instance.getLabels((Long) wrappedValue, getRawMeta()), MV_SPLIT);
         }
 
         JSONObject mixValue = (JSONObject) wrappedValue;
-        return StringUtils.join(mixValue.getJSONArray("text"), ", ");
+        return StringUtils.join(mixValue.getJSONArray("text"), MV_SPLIT);
     }
 }

@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -274,8 +275,8 @@ public class EasyExcelGenerator extends SetUser {
         for (final String fieldName : varsMap.values()) {
             if (fieldName == null) continue;
 
-            EasyField easyField = EasyMetaFactory.valueOf(
-                    Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
+            @SuppressWarnings("DataFlowIssue")
+            EasyField easyField = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
             DisplayType dt = easyField.getDisplayType();
 
             // 替换成变量名
@@ -316,14 +317,31 @@ public class EasyExcelGenerator extends SetUser {
                         // Keep Type
                         fieldValue = ObjectUtils.round(((BigDecimal) fieldValue).doubleValue(), scale);
                     } else {
-                        fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, true);
+                        fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
                     }
 
-                    if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
-                        fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
-                    } else if (record.getEntity().getEntityCode() == EntityHelper.RobotApprovalStep
-                            && "state".equalsIgnoreCase(fieldName)) {
+                    if (record.getEntity().getEntityCode() == EntityHelper.RobotApprovalStep && "state".equalsIgnoreCase(fieldName)) {
                         fieldValue = Language.L(ApprovalState.valueOf(ObjectUtils.toInt(fieldValue)));
+                    } else if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
+                        fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
+                    }
+                    // v3.1.4
+                    else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+
+                        Field refNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
+                        EasyField easyNameField = EasyMetaFactory.valueOf(refNameField);
+
+                        if (FieldValueHelper.isUseDesensitized(easyNameField, this.getUser())) {
+                            if (dt == DisplayType.N2NREFERENCE) {
+                                List<String> fieldValueList = new ArrayList<>();
+                                for (String s : fieldValue.toString().split(MultiValue.MV_SPLIT)) {
+                                    fieldValueList.add((String) FieldValueHelper.desensitized(easyNameField, s));
+                                }
+                                fieldValue = StringUtils.join(fieldValueList, MultiValue.MV_SPLIT);
+                            } else {
+                                fieldValue = FieldValueHelper.desensitized(easyNameField, fieldValue);
+                            }
+                        }
                     }
                 }
                 data.put(varName, fieldValue);

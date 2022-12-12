@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -184,7 +183,7 @@ public class DataListWrapper {
                 Field useNameField = easyField.getRawMeta().getReferenceEntity().getNameField();
                 EasyField useNameFieldEasy = EasyMetaFactory.valueOf(useNameField);
                 if (useNameFieldEasy.isDesensitized()) {
-                    desensitizedMixValue((JSON) value, useNameFieldEasy);
+                    FieldValueHelper.desensitizedMixValue(useNameFieldEasy, (JSON) value);
                 }
             }
         }
@@ -223,19 +222,6 @@ public class DataListWrapper {
         }
 
         return value;
-    }
-
-    private void desensitizedMixValue(JSON value, EasyField easyField) {
-        if (value instanceof JSONObject) {
-            String text = ((JSONObject) value).getString("text");
-            if (text != null) {
-                ((JSONObject) value).put("text", FieldValueHelper.desensitized(easyField, text));
-            }
-        }
-        // N2N
-        else if (value instanceof JSONArray) {
-            for (Object o : (JSONArray) value) desensitizedMixValue((JSON) o, easyField);
-        }
     }
 
     /**
