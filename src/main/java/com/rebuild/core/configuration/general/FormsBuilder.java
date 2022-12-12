@@ -112,6 +112,7 @@ public class FormsBuilder extends FormsManager {
         final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
+        String readonlyMessage = null;
 
         // 判断表单权限
 
@@ -123,11 +124,10 @@ public class FormsBuilder extends FormsManager {
 
                 approvalState = EntityHelper.isUnsavedId(mainid) ? null : getHadApproval(hasMainEntity, mainid);
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
-                    return formatModelError(approvalState == ApprovalState.APPROVED
+                    readonlyMessage = approvalState == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")
-                            : Language.L("主记录正在审批中，不能添加明细"));
+                            : Language.L("主记录正在审批中，不能添加明细");
                 }
-
                 // 明细无需审批
                 approvalState = null;
 
@@ -161,9 +161,9 @@ public class FormsBuilder extends FormsManager {
             if (approvalState != null) {
                 String recordType = hasMainEntity == null ? Language.L("记录") : Language.L("主记录");
                 if (approvalState == ApprovalState.APPROVED) {
-                    return formatModelError(Language.L("%s已完成审批，禁止编辑", recordType));
+                    readonlyMessage = Language.L("%s已完成审批，禁止编辑", recordType);
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    return formatModelError(Language.L("%s正在审批中，禁止编辑", recordType));
+                    readonlyMessage = Language.L("%s正在审批中，禁止编辑", recordType);
                 }
             }
         }
@@ -187,7 +187,7 @@ public class FormsBuilder extends FormsManager {
         Set<String> roAutosWithout = record == null ? null : Collections.emptySet();
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
-            if (roAutos.contains(field.getString("field"))) {
+            if (roAutos.contains(field.getString("field")) || readonlyMessage != null) {
                 field.put("readonly", true);
 
                 // 前端可收集值
@@ -213,8 +213,7 @@ public class FormsBuilder extends FormsManager {
             // v3.1
             if (!entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.NOT_COEDITING)) {
                 model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
-                model.set("detailsNotEmpty",
-                        entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+                model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
             }
         }
 
@@ -222,9 +221,8 @@ public class FormsBuilder extends FormsManager {
             model.set("lastModified", recordData.getDate(EntityHelper.ModifiedOn).getTime());
         }
 
-        if (approvalState != null) {
-            model.set("hadApproval", approvalState.getState());
-        }
+        if (approvalState != null) model.set("hadApproval", approvalState.getState());
+        if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
         model.set("id", null);  // Clean form's ID of config
         return model.toJSON();

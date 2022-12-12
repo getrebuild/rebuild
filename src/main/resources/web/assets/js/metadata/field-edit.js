@@ -280,7 +280,10 @@ const _handlePicklist = function (dt) {
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').on('click', () => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
+
+  $('.J_picklist-edit').on('click', () => {
+    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('配置选项'))
+  })
 }
 
 const _handleSeries = function () {

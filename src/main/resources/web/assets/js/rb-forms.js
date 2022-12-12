@@ -115,14 +115,14 @@ class RbFormModal extends React.Component {
 
       const formModel = res.data
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
         </RbForm>
       )
 
-      this.setState({ formComponent: FORM }, () => {
+      this.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
         this.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [res.data])
@@ -244,8 +244,11 @@ class RbForm extends React.Component {
 
     this.isNew = !props.id
 
-    this._postBefore = props.postBefore || props.$$$parent.props.postBefore
-    this._postAfter = props.postAfter || props.$$$parent.props.postAfter
+    const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
+    this._postBefore = props.postBefore || $$$props.postBefore
+    this._postAfter = props.postAfter || $$$props.postAfter
+
+    this._dividerRefs = []
   }
 
   render() {
@@ -253,9 +256,13 @@ class RbForm extends React.Component {
       <div className="rbform form-layout">
         <div className="form row" ref={(c) => (this._form = c)}>
           {this.props.children.map((fieldComp) => {
-            const refid = fieldComp.props.field === TYPE_DIVIDER ? null : `fieldcomp-${fieldComp.props.field}`
-            return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
+            const ref = fieldComp.props.field === TYPE_DIVIDER ? $random('divider-') : `fieldcomp-${fieldComp.props.field}`
+            if (fieldComp.props.field === TYPE_DIVIDER && fieldComp.props.collapsed) {
+              this._dividerRefs.push(ref)
+            }
+            return React.cloneElement(fieldComp, { $$$parent: this, ref: ref })
           })}
+
           {this.renderCustomizedFormArea()}
         </div>
 
@@ -263,6 +270,12 @@ class RbForm extends React.Component {
         {this.renderFormAction()}
       </div>
     )
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    return _FormArea || null
   }
 
   renderDetailForm() {
@@ -330,7 +343,10 @@ class RbForm extends React.Component {
     // 记录转换:预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
-    const NADD = [5, 10, 20]
+    if (!_ProTable) {
+      _ProTable = <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
+    }
+
     return (
       <div className="detail-form-table">
         <div className="row">
@@ -340,6 +356,7 @@ class RbForm extends React.Component {
               {detailMeta.entityLabel}
             </h5>
           </div>
+
           <div className="col text-right">
             {detailImports && detailImports.length > 0 && (
               <div className="btn-group mr-2">
@@ -365,15 +382,15 @@ class RbForm extends React.Component {
             )}
 
             <div className="btn-group">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                 <i className="icon zmdi zmdi-chevron-down" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
-                {NADD.map((n) => {
+                {[5, 10, 20].map((n) => {
                   return (
                     <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
                       {$L('添加 %d 条', n)}
@@ -385,15 +402,9 @@ class RbForm extends React.Component {
           </div>
         </div>
 
-        <div className="mt-2">{_ProTable ? _ProTable : <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />}</div>
+        <div className="mt-2">{_ProTable}</div>
       </div>
     )
-  }
-
-  renderCustomizedFormArea() {
-    let _FormArea
-    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
-    return _FormArea || null
   }
 
   renderFormAction() {
@@ -423,22 +434,24 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
-        <div className="btn-group dropup btn-space">
-          <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-            {$L('保存')}
-          </button>
-          {moreActions.length > 0 && (
-            <React.Fragment>
-              <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
-                <i className="icon zmdi zmdi-chevron-up" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
-            </React.Fragment>
-          )}
-        </div>
+        {!this.props.readonly && (
+          <div className="btn-group dropup btn-space ml-1">
+            <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+              {$L('保存')}
+            </button>
+            {moreActions.length > 0 && (
+              <React.Fragment>
+                <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+                  <i className="icon zmdi zmdi-chevron-up" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
+              </React.Fragment>
+            )}
+          </div>
+        )}
       </div>
     )
   }
@@ -462,6 +475,12 @@ class RbForm extends React.Component {
         }
       })
     }
+
+    // v3.2 默认收起
+    this._dividerRefs.forEach((d) => {
+      // eslint-disable-next-line react/no-string-refs
+      this.refs[d].toggle()
+    })
 
     setTimeout(() => RbForm.renderAfter(this), 0)
   }
@@ -2415,11 +2434,14 @@ class RbFormDivider extends React.Component {
   }
 
   render() {
+    if (this.props.breaked === true) {
+      return <div className="form-line-breaked"></div>
+    }
     return (
       <div className="form-line hover" ref={(c) => (this._$formLine = c)}>
         <fieldset>
           {this.props.label && (
-            <legend onClick={() => this.toggle()} className="text-bold">
+            <legend onClick={() => this.toggle()} className="text-bold" title={$L('展开/收起')}>
               {this.props.label}
             </legend>
           )}
@@ -2538,5 +2560,42 @@ const __findMultiTexts = function (options, maskValue, useColor) {
 const __addRecentlyUse = function (id) {
   if (id && typeof id === 'string') {
     $.post(`/commons/search/recently-add?id=${id}`)
+  }
+}
+
+// -- Lite
+
+// eslint-disable-next-line no-unused-vars
+class LiteForm extends RbForm {
+  renderCustomizedFormArea() {
+    return null
+  }
+
+  renderDetailForm() {
+    return null
+  }
+
+  renderFormAction() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // TODO init...
+  }
+
+  buildFormData() {
+    const s = {}
+    const data = this.__FormData || {}
+    for (let k in data) {
+      const error = data[k].error
+      if (error) {
+        RbHighbar.create(error)
+        return false
+      }
+      s[k] = data[k].value
+    }
+    s.metadata = { id: this.props.id || '' }
+    return s
   }
 }

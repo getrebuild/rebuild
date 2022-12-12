@@ -923,7 +923,8 @@ select.form-control:not([disabled]) {
   position: relative;
 }
 
-.form-layout .form-line {
+.form-layout .form-line,
+.form-layout .form-line-breaked {
   width: 100%;
   margin-left: 15px;
   margin-right: 15px;
@@ -946,9 +947,10 @@ select.form-control:not([disabled]) {
 .rbform-alert {
   margin: -20px -20px 20px;
   text-align: center;
-  padding: 0.6rem;
+  padding: 0.4rem;
   border-radius: 0;
   color: #fff;
+  color: #836203;
   font-weight: normal;
 }
 
@@ -2007,7 +2009,7 @@ th.column-fixed {
   left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 3px 5px;
-  color: #777;
+  color: #666;
 }
 
 .form-line.hover fieldset legend {
@@ -2016,6 +2018,12 @@ th.column-fixed {
 
 .form-line.hover fieldset legend:hover {
   color: #4285f4;
+}
+
+.form-line-breaked {
+  height: 0;
+  font-size: 0;
+  overflow: hidden;
 }
 
 .btn-primary.btn-outline,
@@ -4342,7 +4350,7 @@ html.external-auth .auth-body.must-center .login {
   box-shadow: none;
 }
 
-.btn.btn-light:hover {
+.btn.btn-light:not(:disabled):hover {
   background-color: #e6e6e6;
 }
 
