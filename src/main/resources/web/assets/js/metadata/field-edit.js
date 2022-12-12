@@ -282,7 +282,7 @@ const _handlePicklist = function (dt) {
   })
 
   $('.J_picklist-edit').on('click', () => {
-    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('配置选项'))
+    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&type=${dt}`, $L('配置选项'))
   })
 }
 
