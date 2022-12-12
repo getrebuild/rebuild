@@ -35,7 +35,6 @@ public class ProjectManager implements ConfigManager {
 
     public static final ProjectManager instance = new ProjectManager();
 
-
     private ProjectManager() {
     }
 
@@ -235,7 +234,6 @@ public class ProjectManager implements ConfigManager {
             throw new AccessDeniedException(Language.L("无权访问该项目"), ex);
         }
     }
-
 
     @Override
     public void clean(Object nullOrAnyProjectId) {

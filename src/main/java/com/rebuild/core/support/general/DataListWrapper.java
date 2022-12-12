@@ -56,7 +56,6 @@ public class DataListWrapper {
 
     private boolean mixWrapper = true;
 
-
     /**
      * @param total
      * @param data

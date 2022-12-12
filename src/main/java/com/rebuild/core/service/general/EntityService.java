@@ -25,9 +25,6 @@ import java.util.List;
  */
 public interface EntityService extends ServiceSpec {
 
-    // 将新建的记录 ID
-
-
     /**
      * 取消共享，跟随共享权限
      *
