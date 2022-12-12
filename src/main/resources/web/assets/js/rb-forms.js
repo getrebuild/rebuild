@@ -244,8 +244,10 @@ class RbForm extends React.Component {
 
     this.isNew = !props.id
 
-    this._postBefore = props.postBefore || props.$$$parent.props.postBefore
-    this._postAfter = props.postAfter || props.$$$parent.props.postAfter
+    const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
+    this._postBefore = props.postBefore || $$$props.postBefore
+    this._postAfter = props.postAfter || $$$props.postAfter
+
     this._dividerRefs = []
   }
 
