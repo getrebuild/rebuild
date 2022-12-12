@@ -26,7 +26,7 @@ import java.util.List;
  * @see N2NReferenceSupport
  */
 @Slf4j
-public class EasyN2NReference extends EasyReference {
+public class EasyN2NReference extends EasyReference implements MultiValue {
     private static final long serialVersionUID = -16180408450167432L;
 
     protected EasyN2NReference(Field field, DisplayType displayType) {
@@ -68,7 +68,7 @@ public class EasyN2NReference extends EasyReference {
         }
 
         List<ID> idArray = new ArrayList<>();
-        for (String id : valueExpr.split(",")) {
+        for (String id : valueExpr.split(MV_SPLIT.trim())) {
             if (ID.isId(id)) idArray.add(ID.valueOf(id));
         }
         return idArray.toArray(new ID[0]);
@@ -93,6 +93,6 @@ public class EasyN2NReference extends EasyReference {
         for (Object item : arrayValue) {
             texts.add(((JSONObject) item).getString ("text"));
         }
-        return StringUtils.join(texts, ", ");
+        return StringUtils.join(texts, MV_SPLIT);
     }
 }

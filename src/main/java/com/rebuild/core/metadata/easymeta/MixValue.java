@@ -10,7 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 将复合值转为可识别值
+ * 复合值
  *
  * @author devezhao
  * @since 2020/11/17

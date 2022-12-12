@@ -527,15 +527,16 @@ public class FormsBuilder extends FormsManager {
      * @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      */
     public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
+        final DisplayType dt = field.getDisplayType();
         Object value = data.getObjectValue(field.getName());
 
         // 使用主键
-        if (field.getDisplayType() == DisplayType.BARCODE) {
+        if (dt == DisplayType.BARCODE) {
             value = data.getPrimary();
         }
 
         // 处理日期格式
-        if (field.getDisplayType() == DisplayType.REFERENCE
+        if (dt == DisplayType.REFERENCE
                 && value instanceof ID && ((ID) value).getLabelRaw() != null) {
             Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
 
@@ -552,8 +553,20 @@ public class FormsBuilder extends FormsManager {
 
         value = FieldValueHelper.wrapFieldValue(value, field);
 
-        if (value != null && FieldValueHelper.isUseDesensitized(field, user4Desensitized)) {
-            value = FieldValueHelper.desensitized(field, value);
+        if (value != null) {
+            if (FieldValueHelper.isUseDesensitized(field, user4Desensitized)) {
+                value = FieldValueHelper.desensitized(field, value);
+            }
+            // v3.1.4
+            else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+
+                Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
+                EasyField easyNameField = EasyMetaFactory.valueOf(nameField);
+
+                if (FieldValueHelper.isUseDesensitized(easyNameField, user4Desensitized)) {
+                    FieldValueHelper.desensitizedMixValue(easyNameField, (JSON) value);
+                }
+            }
         }
         return value;
     }
