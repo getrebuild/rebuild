@@ -133,7 +133,8 @@ public class GroupAggregation extends FieldAggregation {
             String targetField = e.getValue();
 
             if (isGroupUpdate) {
-                Object beforeValue = operatingContext.getBeforeRecord().getObjectValue(sourceField);
+                Object beforeValue = operatingContext.getBeforeRecord() == null
+                        ? null : operatingContext.getBeforeRecord().getObjectValue(sourceField);
                 Object afterValue = operatingContext.getAfterRecord().getObjectValue(sourceField);
                 if (NullValue.isNull(beforeValue) && NullValue.isNull(afterValue)) {
                 } else {
