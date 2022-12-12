@@ -77,7 +77,7 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
             <div className="col-12 col-lg-8">
               <textarea className="form-control form-control-sm row3x" ref={(c) => (this._content = c)} maxLength="600" />
-              <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为触发实体的字段内部标识)') }} />
+              <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
             </div>
           </div>
         </form>

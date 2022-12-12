@@ -72,23 +72,9 @@ public class SendNotification extends TriggerAction {
     }
 
     private void executeAsync(OperatingContext operatingContext) {
+        if (!hasWhenUpdateFields(actionContext, operatingContext)) return;
+
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-
-        // 指定字段
-        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
-        if (operatingContext.getAction() == BizzPermission.UPDATE
-                && whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
-            Record updatedRecord = operatingContext.getAfterRecord();
-            boolean hasUpdated = false;
-            for (String field : updatedRecord.getAvailableFields()) {
-                if (whenUpdateFields.contains(field)) {
-                    hasUpdated = true;
-                    break;
-                }
-            }
-
-            if (!hasUpdated) return;
-        }
 
         final int type = content.getIntValue("type");
         final int userType = content.getIntValue("userType");
@@ -117,7 +103,7 @@ public class SendNotification extends TriggerAction {
         Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), actionContext.getSourceRecord());
         if (toUsers.isEmpty()) return -1;
 
-        String[] message = getMessageContent(operatingContext);
+        String[] message = formatMessageContent(actionContext, operatingContext);
         int send = 0;
 
         for (ID user : toUsers) {
@@ -163,7 +149,7 @@ public class SendNotification extends TriggerAction {
                 actionContext.getSourceRecord(), validFields.toArray(new String[0]));
         if (o == null) return -1;
 
-        String[] message = getMessageContent(operatingContext);
+        String[] message = formatMessageContent(actionContext, operatingContext);
         int send = 0;
 
         for (Object item : o) {
@@ -181,7 +167,16 @@ public class SendNotification extends TriggerAction {
         return send;
     }
 
-    private String[] getMessageContent(OperatingContext operatingContext) {
+    // --
+
+    /**
+     * 处理消息内容
+     *
+     * @param actionContext
+     * @param operatingContext
+     * @return
+     */
+    public static String[] formatMessageContent(ActionContext actionContext, OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
 
         String message = content.getString("content");
@@ -197,5 +192,30 @@ public class SendNotification extends TriggerAction {
         }
 
         return new String[] { message, emailSubject };
+    }
+
+    /**
+     * 是否指定字段更新
+     *
+     * @param actionContext
+     * @param operatingContext
+     * @return
+     */
+    public static boolean hasWhenUpdateFields(ActionContext actionContext, OperatingContext operatingContext) {
+        if (operatingContext.getAction() != BizzPermission.UPDATE) return false;
+
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
+        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
+        if (whenUpdateFields == null || whenUpdateFields.isEmpty()) return false;
+
+        Record updatedRecord = operatingContext.getAfterRecord();
+        boolean hasUpdated = false;
+        for (String field : updatedRecord.getAvailableFields()) {
+            if (whenUpdateFields.contains(field)) {
+                hasUpdated = true;
+                break;
+            }
+        }
+        return hasUpdated;
     }
 }
