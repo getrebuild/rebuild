@@ -5026,6 +5026,15 @@ pre.unstyle {
   color: #fff !important;
 }
 
+.rbcolors > a.default {
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+.rbcolors > a.default > i {
+  color: #444 !important;
+}
+
 .dd-item.star .dd3-content::after {
   content: '*';
   margin-left: 4px;
