@@ -1,6 +1,21 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #48 (v3.2)
+-- ************ Entity [TagItem] DDL ************
+create table if not exists `tag_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `TAG_NAME`           varchar(100) not null comment '标签名称',
+  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  primary key  (`ITEM_ID`),
+  unique index AIX0_tag_item (`SEQ`),
+  index IX1_tag_item (`BELONG_ENTITY`),
+  unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
 -- #47 (v3.1)
 alter table `robot_approval_step`
   add column `CC_USERS` varchar(420) comment '抄送人';

@@ -588,6 +588,20 @@ create table if not exists `nreference_item` (
   unique index UIX2_nreference_item (`BELONG_FIELD`, `RECORD_ID`, `REFERENCE_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [TagItem] DDL ************
+create table if not exists `tag_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `TAG_NAME`           varchar(100) not null comment '标签名称',
+  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  primary key  (`ITEM_ID`),
+  unique index AIX0_tag_item (`SEQ`),
+  index IX1_tag_item (`BELONG_ENTITY`),
+  unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
 -- ************ Entity [Feeds] DDL ************
 create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
@@ -853,4 +867,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 47);
+  values ('021-9000000000000001', 'DBVer', 48);

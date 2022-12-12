@@ -15,7 +15,7 @@ import com.rebuild.core.support.general.N2NReferenceSupport;
  * @since 2022/12/12
  * @see N2NReferenceSupport
  */
-public class EasyTag extends EasyField {
+public class EasyTag extends EasyField implements MultiValue, MixValue {
     private static final long serialVersionUID = -5827184319679918289L;
 
     protected EasyTag(Field field, DisplayType displayType) {
