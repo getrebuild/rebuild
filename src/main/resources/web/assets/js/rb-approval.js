@@ -613,6 +613,10 @@ class EditableForm extends RbForm {
   renderDetailForm() {
     return null
   }
+
+  renderCustomizedFormArea() {
+    return null
+  }
 }
 
 const STATE_NAMES = {
