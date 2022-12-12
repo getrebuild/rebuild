@@ -29,12 +29,6 @@ html.admin .admin-show.row {
   display: flex;
 }
 
-html.admin,
-html.admin body {
-  min-width: 1200px;
-  overflow: auto;
-}
-
 .rbv-hide,
 .dev-show {
   display: none;
@@ -953,9 +947,10 @@ select.form-control:not([disabled]) {
 .rbform-alert {
   margin: -20px -20px 20px;
   text-align: center;
-  padding: 0.6rem;
+  padding: 0.4rem;
   border-radius: 0;
   color: #fff;
+  color: #836203;
   font-weight: normal;
 }
 

@@ -115,14 +115,14 @@ class RbFormModal extends React.Component {
 
       const formModel = res.data
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
         </RbForm>
       )
 
-      this.setState({ formComponent: FORM }, () => {
+      this.setState({ formComponent: FORM, alertMessage: formModel.readonlyMessage || null }, () => {
         this.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [res.data])
@@ -428,22 +428,24 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
           {$L('取消')}
         </button>
-        <div className="btn-group dropup btn-space">
-          <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-            {$L('保存')}
-          </button>
-          {moreActions.length > 0 && (
-            <React.Fragment>
-              <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
-                <i className="icon zmdi zmdi-chevron-up" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
-            </React.Fragment>
-          )}
-        </div>
+        {!this.props.readonly && (
+          <div className="btn-group dropup btn-space ml-1">
+            <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+              {$L('保存')}
+            </button>
+            {moreActions.length > 0 && (
+              <React.Fragment>
+                <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+                  <i className="icon zmdi zmdi-chevron-up" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
+              </React.Fragment>
+            )}
+          </div>
+        )}
       </div>
     )
   }
