@@ -4350,7 +4350,7 @@ html.external-auth .auth-body.must-center .login {
   box-shadow: none;
 }
 
-.btn.btn-light:hover {
+.btn.btn-light:not(:disabled):hover {
   background-color: #e6e6e6;
 }
 

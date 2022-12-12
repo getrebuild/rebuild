@@ -343,7 +343,10 @@ class RbForm extends React.Component {
     // 记录转换:预览模式
     const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
 
-    const NADD = [5, 10, 20]
+    if (!_ProTable) {
+      _ProTable = <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
+    }
+
     return (
       <div className="detail-form-table">
         <div className="row">
@@ -353,6 +356,7 @@ class RbForm extends React.Component {
               {detailMeta.entityLabel}
             </h5>
           </div>
+
           <div className="col text-right">
             {detailImports && detailImports.length > 0 && (
               <div className="btn-group mr-2">
@@ -378,15 +382,15 @@ class RbForm extends React.Component {
             )}
 
             <div className="btn-group">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
+              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
                 <i className="icon zmdi zmdi-chevron-down" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
-                {NADD.map((n) => {
+                {[5, 10, 20].map((n) => {
                   return (
                     <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
                       {$L('添加 %d 条', n)}
@@ -398,7 +402,7 @@ class RbForm extends React.Component {
           </div>
         </div>
 
-        <div className="mt-2">{_ProTable ? _ProTable : <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />}</div>
+        <div className="mt-2">{_ProTable}</div>
       </div>
     )
   }
