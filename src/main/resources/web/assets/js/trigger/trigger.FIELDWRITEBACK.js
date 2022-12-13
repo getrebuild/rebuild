@@ -349,24 +349,26 @@ class FieldFormula extends React.Component {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     } else {
       return (
-        <div className="form-control-plaintext formula" _title={$L('计算公式')} onClick={() => this.show(toFieldType)}>
+        <div className="form-control-plaintext formula" _title={$L('计算公式')} title={$L('编辑计算公式')} onClick={() => this.show(toFieldType)}>
           {this.state.valueText}
         </div>
       )
     }
   }
 
-  show(ft) {
-    const ndVars = []
+  show(type) {
+    const fieldVars = []
     this.props.fields.forEach((item) => {
       if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
-        ndVars.push([item.name, item.label, item.type])
+        fieldVars.push([item.name, item.label, item.type])
       }
     })
 
     // 数字、日期支持计算器模式
-    const ndType = ['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(ft)
-    renderRbcomp(<FormulaCalcWithCode fields={ndVars} forceCode={!ndType} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula entity={this.state.entity} />)
+    const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(type)
+    const initCode = forceCode && this._value ? this._value.substr(4, this._value.length - 8) : null
+
+    renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initCode={initCode} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
   }
 
   onConfirm(expr) {
@@ -504,7 +506,15 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="4000" placeholder="// Support AviatorScript" autoFocus />
+        <textarea
+          className="formula-code"
+          ref={(c) => (this._$formulaInput = c)}
+          defaultValue={this.props.initCode || ''}
+          maxLength="4000"
+          placeholder="// Support AviatorScript"
+          wrap="off"
+          autoFocus
+        />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
