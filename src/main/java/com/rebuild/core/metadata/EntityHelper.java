@@ -242,6 +242,7 @@ public class EntityHelper {
     public static final int TransformConfig = 37;
     public static final int FrontjsCode = 38;
     public static final int NreferenceItem = 39;
+    public static final int TagItem = 80;
 
     // 动态
 

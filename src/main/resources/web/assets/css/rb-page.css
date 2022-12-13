@@ -850,6 +850,19 @@ body.view-body {
   padding: 2px 10px;
 }
 
+.select2-container--default .select2-results__option--highlighted::after {
+  font-family: 'Material Design Icons';
+  content: '\F0311';
+  float: right;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field,
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  color: #404040;
+}
+
 textarea.row2x {
   height: 52px !important;
   resize: none;
@@ -1031,6 +1044,10 @@ select.form-control:not([disabled]) {
 
 .type-LOCATION .form-control.bg-white {
   cursor: text;
+}
+
+.type-TAG .select2-selection__clear {
+  margin-right: -1px !important;
 }
 
 .img-field {

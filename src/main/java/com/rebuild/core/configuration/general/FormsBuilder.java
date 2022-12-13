@@ -362,6 +362,8 @@ public class FormsBuilder extends FormsManager {
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
+            } else if (dt == DisplayType.TAG) {
+                el.put("options", el.remove("tagList"));
             } else if (dt == DisplayType.DATETIME) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT),

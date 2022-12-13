@@ -42,20 +42,24 @@ public class BaseService extends InternalPersistService {
     @Override
     public Record create(Record record) {
         setQuickCodeValue(record);
-        Callable2<Integer, Record> call = processN2NReference(record, true);
+        Callable2<Integer, Record> call1 = processN2NReference(record, Boolean.TRUE);
+        Callable2<Integer, Record> call2 = processTag(record, Boolean.TRUE);
 
         record = super.create(record);
-        if (call != null) call.call(record);
+        if (call1 != null) call1.call(record);
+        if (call2 != null) call2.call(record);
         return record;
     }
 
     @Override
     public Record update(Record record) {
         setQuickCodeValue(record);
-        Callable2<Integer, Record> call = processN2NReference(record, false);
+        Callable2<Integer, Record> call1 = processN2NReference(record, Boolean.FALSE);
+        Callable2<Integer, Record> call2 = processTag(record, Boolean.FALSE);
 
         record = super.update(record);
-        if (call != null) call.call(record);
+        if (call1 != null) call1.call(record);
+        if (call2 != null) call2.call(record);
         return record;
     }
 
@@ -189,6 +193,128 @@ public class BaseService extends InternalPersistService {
             return argv -> {
                 // 还原
                 for (Map.Entry<String, ID[]> e : holdN2NValues.entrySet()) {
+                    argv.setIDArray(e.getKey(), e.getValue());
+                }
+
+                PersistManager pm = getPersistManagerFactory().createPersistManager();
+                for (Record item : addItems) {
+                    pm.save(item);
+                }
+                if (!delItems.isEmpty()) {
+                    pm.delete(delItems.toArray(new ID[0]));
+                }
+                return addItems.size() + delItems.size();
+            };
+        }
+    }
+
+    private Callable2<Integer, Record> processTag(final Record record, boolean isNew) {
+        Entity entity = record.getEntity();
+        Field[] tagFields = MetadataSorter.sortFields(entity, DisplayType.TAG);
+        if (tagFields.length == 0) return null;
+
+        final Record tagRecord = EntityHelper.forNew(EntityHelper.TagItem, UserService.SYSTEM_USER);
+        tagRecord.setString("belongEntity", entity.getName());
+
+        final List<Record> addItems = new ArrayList<>();
+        final List<ID> delItems = new ArrayList<>();
+
+        final Map<String, ID[]> holdTagValues = new HashMap<>();
+
+        for (Field tagField : tagFields) {
+            ID[] idRefs;
+            if (isNew) {
+                idRefs = record.getIDArray(tagField.getName());
+                if (idRefs == null || idRefs.length == 0) continue;
+            } else {
+                if (record.hasValue(tagField.getName())) {
+                    Object maybeNull = record.getObjectValue(tagField.getName());
+                    idRefs = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
+                } else {
+                    continue;
+                }
+            }
+
+            // 保持值
+            holdTagValues.put(tagField.getName(), idRefs);
+
+            // 仅保留第一个用于标识是否为空
+            if (idRefs.length == 0) record.setNull(tagField.getName());
+            else record.setIDArray(tagField.getName(), new ID[] { idRefs[0] });
+
+            // 哪个字段
+            tagRecord.setString("belongField", tagField.getName());
+
+            // 新建
+            if (isNew) {
+                for (ID idRef : idRefs) {
+                    Record clone = tagRecord.clone();
+                    clone.setID("referenceId", idRef);
+                    addItems.add(clone);
+                }
+            }
+            // 更新
+            else {
+                Object[][] before = getPersistManagerFactory().createQuery(
+                                "select referenceId,itemId from NreferenceItem where belongField = ? and recordId = ?")
+                        .setParameter(1, tagField.getName())
+                        .setParameter(2, record.getPrimary())
+                        .array();
+
+                Map<ID, ID> beforeIds = new HashMap<>();
+                for (Object[] o : before) {
+                    beforeIds.put((ID) o[0], (ID) o[1]);
+                }
+
+                Set<ID> afterIds = new LinkedHashSet<>();
+                CollectionUtils.addAll(afterIds, idRefs);
+
+                for (Iterator<ID> iter = afterIds.iterator(); iter.hasNext(); ) {
+                    ID a = iter.next();
+                    if (beforeIds.containsKey(a)) {
+                        beforeIds.remove(a);
+                        iter.remove();
+                    }
+                }
+
+                for (Map.Entry<ID, ID> e : beforeIds.entrySet()) {
+                    if (!afterIds.contains(e.getKey())) {
+                        delItems.add(e.getValue());
+                    }
+                }
+
+                tagRecord.setID("recordId", record.getPrimary());
+                for (ID idRef : afterIds) {
+                    Record clone = tagRecord.clone();
+                    clone.setID("referenceId", idRef);
+                    addItems.add(clone);
+                }
+            }
+        }
+
+        if (addItems.isEmpty() && delItems.isEmpty()) return null;
+
+        // 新建
+        if (isNew) {
+            return argv -> {
+                // 还原
+                for (Map.Entry<String, ID[]> e : holdTagValues.entrySet()) {
+                    argv.setIDArray(e.getKey(), e.getValue());
+                }
+
+                PersistManager pm = getPersistManagerFactory().createPersistManager();
+                for (Record item : addItems) {
+                    item.setID("recordId", argv.getPrimary());
+                    pm.save(item);
+                }
+                return addItems.size();
+            };
+        }
+        // 更新
+        else {
+            return argv -> {
+                // 还原
+                for (Map.Entry<String, ID[]> e : holdTagValues.entrySet()) {
                     argv.setIDArray(e.getKey(), e.getValue());
                 }
 

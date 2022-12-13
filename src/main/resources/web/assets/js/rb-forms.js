@@ -1557,9 +1557,9 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    // if (!this.state.options || this.state.options.length === 0) {
-    //   return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
-    // }
+    if ((this.state.options || []).length === 0) {
+      return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
+    }
 
     const keyName = `${this.state.field}-opt-`
     return (
@@ -2055,7 +2055,7 @@ class RbFormClassification extends RbFormElement {
 
 class RbFormMultiSelect extends RbFormElement {
   renderElement() {
-    if (!this.props.options || this.props.options.length === 0) {
+    if ((this.props.options || []).length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
@@ -2412,6 +2412,64 @@ class RbFormSign extends RbFormElement {
   }
 }
 
+class RbFormTag extends RbFormElement {
+  constructor(props) {
+    super(props)
+
+    if (props.$$$parent.isNew) {
+      this.state.value = props.options.filter((x) => x.default === true)
+    }
+  }
+
+  renderElement() {
+    const keyName = `${this.state.field}-tag-`
+    return (
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" onChange={(e) => this.handleChange(e)} multiple>
+        {this.state.options.map((item) => {
+          return (
+            <option key={`${keyName}${item.name}`} value={item.name} disabled={$isSysMask(item.text)}>
+              {item.name}
+            </option>
+          )
+        })}
+      </select>
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    return <div className="form-control-plaintext multi-values">{__findTagTexts(this.props.options, this.state.value)}</div>
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+    } else {
+      this.__select2 = $(this._fieldValue).select2({
+        placeholder: $L('输入%s', this.props.label),
+        maximumSelectionLength: 9,
+        tags: true,
+        language: {
+          noResults: function () {
+            return $L('输入后回车')
+          },
+        },
+      })
+
+      const that = this
+      this.__select2
+        .on('change', function (e) {
+          const mVal = $(e.currentTarget).val()
+          that.handleChange({ target: { value: mVal } }, true)
+        })
+        .trigger('change')
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
+    }
+  }
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -2514,6 +2572,8 @@ var detectElement = function (item, entity) {
     return <RbFormLocation {...item} />
   } else if (item.type === 'SIGN') {
     return <RbFormSign {...item} />
+  } else if (item.type === 'TAG') {
+    return <RbFormTag {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
@@ -2552,6 +2612,24 @@ const __findMultiTexts = function (options, maskValue, useColor) {
       )
       texts.push(text)
     }
+  })
+  return texts
+}
+
+// 标签文本
+const __findTagTexts = function (options, value) {
+  const texts = []
+  value.map((v) => {
+    let item = options.find((x) => x.name === v)
+    if (!item) item = { name: v }
+
+    const style2 = item.color ? { borderColor: item.color, color: item.color } : null
+    const text = (
+      <span key={`tag-${item.name}`} style={style2}>
+        {item.text}
+      </span>
+    )
+    texts.push(text)
   })
   return texts
 }
