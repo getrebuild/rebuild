@@ -2415,17 +2415,13 @@ class RbFormSign extends RbFormElement {
 class RbFormTag extends RbFormElement {
   constructor(props) {
     super(props)
-
-    if (props.$$$parent.isNew) {
-      this.state.value = props.options.filter((x) => x.default === true)
-    }
   }
 
   renderElement() {
     const keyName = `${this.state.field}-tag-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" onChange={(e) => this.handleChange(e)} multiple>
-        {this.state.options.map((item) => {
+        {this.props.options.map((item) => {
           return (
             <option key={`${keyName}${item.name}`} value={item.name} disabled={$isSysMask(item.text)}>
               {item.name}
@@ -2461,11 +2457,22 @@ class RbFormTag extends RbFormElement {
       this.__select2
         .on('change', function (e) {
           const mVal = $(e.currentTarget).val()
-          that.handleChange({ target: { value: mVal } }, true)
+          that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
         })
         .trigger('change')
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
+    }
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // init
+    let value = this.props.value
+    if (value && this.__select2) {
+      if (typeof value === 'string') value = value.split('$$$$')
+      $(this.__select2).val(value).trigger('change')
     }
   }
 }
@@ -2618,6 +2625,8 @@ const __findMultiTexts = function (options, maskValue, useColor) {
 
 // 标签文本
 const __findTagTexts = function (options, value) {
+  if (typeof value === 'string') value = value.split('$$$$')
+
   const texts = []
   value.map((v) => {
     let item = options.find((x) => x.name === v)
@@ -2626,7 +2635,7 @@ const __findTagTexts = function (options, value) {
     const style2 = item.color ? { borderColor: item.color, color: item.color } : null
     const text = (
       <span key={`tag-${item.name}`} style={style2}>
-        {item.text}
+        {item.name}
       </span>
     )
     texts.push(text)

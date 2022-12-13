@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.configuration.general.TagManager;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.N2NReferenceSupport;
 
 /**
@@ -17,6 +19,9 @@ import com.rebuild.core.support.general.N2NReferenceSupport;
  */
 public class EasyTag extends EasyField implements MultiValue, MixValue {
     private static final long serialVersionUID = -5827184319679918289L;
+
+    public static final String VALUE_SPLIT = MetadataHelper.SPLITER;
+    public static final String VALUE_SPLIT_RE = MetadataHelper.SPLITER_RE;
 
     protected EasyTag(Field field, DisplayType displayType) {
         super(field, displayType);
@@ -29,6 +34,6 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
 
     @Override
     public Object exprDefaultValue() {
-        return super.exprDefaultValue();
+        return TagManager.instance.getDefaultValue(this);
     }
 }

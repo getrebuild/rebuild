@@ -7,14 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service;
 
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.MultiValue;
+import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.utils.Callable2;
@@ -309,7 +308,7 @@ public class BaseService extends InternalPersistService {
             return argv -> {
                 // 还原
                 for (Map.Entry<String, String[]> e : holdTagValues.entrySet()) {
-                    argv.setString(e.getKey(), StringUtils.join(e.getValue(), MultiValue.MV_SPLIT));
+                    argv.setString(e.getKey(), StringUtils.join(e.getValue(), EasyTag.VALUE_SPLIT));
                 }
 
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
@@ -325,7 +324,7 @@ public class BaseService extends InternalPersistService {
             return argv -> {
                 // 还原
                 for (Map.Entry<String, String[]> e : holdTagValues.entrySet()) {
-                    argv.setString(e.getKey(), StringUtils.join(e.getValue(), MultiValue.MV_SPLIT));
+                    argv.setString(e.getKey(), StringUtils.join(e.getValue(), EasyTag.VALUE_SPLIT));
                 }
 
                 PersistManager pm = getPersistManagerFactory().createPersistManager();
@@ -344,7 +343,7 @@ public class BaseService extends InternalPersistService {
         if (NullValue.isNull(raw) || StringUtils.isBlank((String) raw)) return new String[0];
 
         List<String> list = new ArrayList<>();
-        for (String s : ((String) raw).split(MultiValue.MV_SPLIT)) {
+        for (String s : ((String) raw).split(EasyTag.VALUE_SPLIT_RE)) {
             if (StringUtils.isNotBlank(s)) list.add(s.trim());
         }
         return list.toArray(new String[0]);

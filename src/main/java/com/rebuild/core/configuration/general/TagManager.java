@@ -7,10 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
-import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONArray;
-import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.utils.JSONUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.metadata.easymeta.EasyTag;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 标签管理
@@ -19,7 +23,7 @@ import com.rebuild.utils.JSONUtils;
  * @since 2022/12/12
  * @see com.rebuild.core.metadata.easymeta.EasyTag
  */
-public class TagManager extends PickListManager {
+public class TagManager implements ConfigManager {
 
     public static final TagManager instance = new TagManager();
 
@@ -30,11 +34,20 @@ public class TagManager extends PickListManager {
      * @param field
      * @return
      */
-    public JSONArray getTagList(Field field) {
-        ConfigBean[] entries = getPickListRaw(field, false);
-        for (ConfigBean e : entries) {
-            e.set("hide", null).set("id", null);
+    public Object getDefaultValue(EasyTag field) {
+        JSONArray tagList = field.getExtraAttrs(Boolean.TRUE).getJSONArray(EasyFieldConfigProps.TAG_LIST);
+        if (tagList == null || tagList.isEmpty()) return null;
+
+        List<String> dv = new ArrayList<>();
+        for (Object o : tagList) {
+            JSONObject tag = (JSONObject) o;
+            if (tag.getBooleanValue("default")) dv.add(tag.getString("name"));
         }
-        return JSONUtils.toJSONArray(entries);
+        return dv.toArray(new String[0]);
+    }
+
+    @Override
+    public void clean(Object cacheKey) {
+        // Notings
     }
 }
