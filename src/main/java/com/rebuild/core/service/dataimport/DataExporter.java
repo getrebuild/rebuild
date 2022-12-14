@@ -124,7 +124,7 @@ public class DataExporter extends SetUser {
             if (b) b = false;
             else sb.append(",");
 
-            sb.append(s);
+            sb.append(s.replace(", ", " / "));
         }
         return sb.toString();
     }

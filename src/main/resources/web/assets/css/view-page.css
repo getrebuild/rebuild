@@ -654,20 +654,20 @@ body {
 }
 
 .form-control-plaintext.multi-values {
-  padding-top: 6px;
-  padding-bottom: 4px;
+  padding-top: 4px;
+  padding-bottom: 3px;
 }
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
   border-radius: 3px;
   padding: 1px 6px;
-  margin-right: 3px;
+  margin-right: 4px;
   margin-bottom: 3px;
   display: inline-block;
   border: 1px solid #ccc;
   background-color: #fff;
-  line-height: 17px;
+  line-height: 21px;
 }
 
 .file-list.inview {

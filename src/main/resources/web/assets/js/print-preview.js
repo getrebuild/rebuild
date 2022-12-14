@@ -196,6 +196,14 @@ class PreviewTable extends React.Component {
           </span>
         </div>
       )
+    } else if (item.type === 'TAG') {
+      return (
+        <ul className="m-0 p-0 pl-3">
+          {(item.value || []).map((x) => {
+            return <li key={x}>{x}</li>
+          })}
+        </ul>
+      )
     } else if (typeof item.value === 'object') {
       return this._findMixValue(item.value)
     } else {

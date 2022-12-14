@@ -8,9 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.configuration.general.TagManager;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.N2NReferenceSupport;
+import com.rebuild.core.support.general.TagSupport;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Zixin
@@ -34,6 +37,20 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
 
     @Override
     public Object exprDefaultValue() {
-        return TagManager.instance.getDefaultValue(this);
+        return TagSupport.getDefaultValue(this);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        if (value == null) return null;
+        if (value instanceof String) return value.toString();  // When single-edit
+        if (((String[]) value).length == 0) return null;
+
+        return JSON.toJSON(value);
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        return StringUtils.join((JSONArray) wrappedValue, MV_SPLIT);
     }
 }

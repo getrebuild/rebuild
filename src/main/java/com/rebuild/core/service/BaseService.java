@@ -234,7 +234,7 @@ public class BaseService extends InternalPersistService {
         for (Field tagField : tagFields) {
             String[] newTags;
             if (isNew) {
-                newTags = cleanNameArray(record.getString(tagField.getName()));
+                newTags = cleanNameArray(record.getObjectValue(tagField.getName()));
                 if (newTags.length == 0) continue;
             } else {
                 if (record.hasValue(tagField.getName())) {
@@ -340,7 +340,8 @@ public class BaseService extends InternalPersistService {
     }
 
     private String[] cleanNameArray(Object raw) {
-        if (NullValue.isNull(raw) || StringUtils.isBlank((String) raw)) return new String[0];
+        if (NullValue.isNull(raw)) return new String[0];
+        if (raw instanceof String[]) return (String[]) raw;
 
         List<String> list = new ArrayList<>();
         for (String s : ((String) raw).split(EasyTag.VALUE_SPLIT_RE)) {

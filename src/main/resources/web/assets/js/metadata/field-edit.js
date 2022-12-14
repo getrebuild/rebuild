@@ -581,6 +581,7 @@ const _handleTag = function (tagList) {
   }
 
   tagList.forEach((item) => _add(item))
+  $items.find('.no-item').text($L('请添加标签'))
 
   $('.J_tag-add').on('click', () => {
     renderRbcomp(

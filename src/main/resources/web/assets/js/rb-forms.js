@@ -463,8 +463,12 @@ class RbForm extends React.Component {
         let iv = child.props.value
         if (iv && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
-            if ($.isArray(iv)) {
-              // eg. [file1, file2, image1]
+            if (child.props.type === 'TAG') {
+              // eg. 标签
+              iv = iv.map((item) => item.name)
+              iv = iv.join('$$$$')
+            } else if ($.isArray(iv)) {
+              // eg. 文件/图片
             } else {
               // eg. {id:xxx, text:xxx}
               iv = iv.id
@@ -1537,8 +1541,8 @@ class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
 
-    const options = props.options
-    if (options && props.value) {
+    const options = [...props.options]
+    if (props.value) {
       // Check value has been deleted
       let deleted = true
       $(options).each(function () {
@@ -1551,9 +1555,9 @@ class RbFormPickList extends RbFormElement {
 
       if (deleted) {
         options.push({ id: props.value, text: '[DELETED]' })
-        this.state.options = options
       }
     }
+    this._options = options
   }
 
   renderElement() {
@@ -1561,11 +1565,11 @@ class RbFormPickList extends RbFormElement {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
-    const keyName = `${this.state.field}-opt-`
+    const keyName = `${this.state.field}-option-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={(e) => this.handleChange(e)}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
         <option value="" />
-        {this.state.options.map((item) => {
+        {this._options.map((item) => {
           return (
             <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
@@ -1589,12 +1593,10 @@ class RbFormPickList extends RbFormElement {
       })
 
       const that = this
-      this.__select2
-        .on('change', function (e) {
-          const val = e.target.value
-          that.handleChange({ target: { value: val } }, true)
-        })
-        .trigger('change')
+      this.__select2.on('change', function (e) {
+        const val = e.target.value
+        that.handleChange({ target: { value: val } }, true)
+      })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
@@ -2415,15 +2417,33 @@ class RbFormSign extends RbFormElement {
 class RbFormTag extends RbFormElement {
   constructor(props) {
     super(props)
+
+    let options = [...props.options]
+    let selected = []
+    if (this.props.$$$parent.isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
+      })
+    } else if (props.value) {
+      props.value.forEach((name) => {
+        selected.push(name)
+        const found = props.options.find((x) => x.name === name)
+        if (!found) options.push({ name: name })
+      })
+    }
+    this._options = options
+    this._selected = selected
+
+    this.__maxSelect = props.tagMaxSelect || 20
   }
 
   renderElement() {
     const keyName = `${this.state.field}-tag-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" onChange={(e) => this.handleChange(e)} multiple>
-        {this.props.options.map((item) => {
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected}>
+        {this._options.map((item) => {
           return (
-            <option key={`${keyName}${item.name}`} value={item.name} disabled={$isSysMask(item.text)}>
+            <option key={`${keyName}${item.name}`} value={item.name}>
               {item.name}
             </option>
           )
@@ -2443,8 +2463,8 @@ class RbFormTag extends RbFormElement {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('输入%s', this.props.label),
-        maximumSelectionLength: 9,
+        placeholder: '',
+        maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {
           noResults: function () {
@@ -2454,27 +2474,16 @@ class RbFormTag extends RbFormElement {
       })
 
       const that = this
-      this.__select2
-        .on('change', function (e) {
-          const mVal = $(e.currentTarget).val()
-          that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
-        })
-        .trigger('change')
+      this.__select2.on('change', function (e) {
+        const mVal = $(e.currentTarget).val()
+        that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
+      })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-
-    // init
-    let value = this.props.value
-    if (value && this.__select2) {
-      if (typeof value === 'string') value = value.split('$$$$')
-      $(this.__select2).val(value).trigger('change')
-    }
-  }
+  // isValueUnchanged() {}
 }
 
 // 不支持/未开放的字段
@@ -2628,9 +2637,9 @@ const __findTagTexts = function (options, value) {
   if (typeof value === 'string') value = value.split('$$$$')
 
   const texts = []
-  value.map((v) => {
-    let item = options.find((x) => x.name === v)
-    if (!item) item = { name: v }
+  value.map((name) => {
+    let item = options.find((x) => x.name === name)
+    if (!item) item = { name: name }
 
     const style2 = item.color ? { borderColor: item.color, color: item.color } : null
     const text = (

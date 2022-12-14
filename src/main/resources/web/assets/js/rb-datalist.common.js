@@ -1581,8 +1581,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           if (typeof item === 'object') {
-            const style2 = { borderColor: item.color, backgroundColor: item.color, color: '#fff' }
-            // const style2 = { borderColor: item.color, color: item.color }
+            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: '#fff' } : null
             return (
               <span key={item.text} className="badge" title={item.text} style={style2}>
                 {item.text}
@@ -1638,8 +1637,7 @@ CellRenders.addRender('SIGN', function (v, s, k) {
 CellRenders.addRender('PICKLIST', function (v, s, k) {
   // Use badge
   if (typeof v === 'object') {
-    const style2 = { borderColor: v.color, backgroundColor: v.color, color: '#fff' }
-    // const style2 = { borderColor: v.color, color: v.color, backgroundColor: '#fff' }
+    const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: '#fff' } : null
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v.text}>
@@ -1652,4 +1650,22 @@ CellRenders.addRender('PICKLIST', function (v, s, k) {
   } else {
     return CellRenders.renderSimple(v, s, k)
   }
+})
+
+CellRenders.addRender('TAG', function (v, s, k) {
+  const vLen = (v || []).length
+  return (
+    <td key={k} className="td-sm" title={$L('共 %d 项', vLen)}>
+      <div className="column-multi" style={s}>
+        {(v || []).map((item) => {
+          const style2 = item.color ? { color: item.color, borderColor: item.color } : null
+          return (
+            <span key={item.name} className="badge" title={item.name} style={style2}>
+              {item.name}
+            </span>
+          )
+        })}
+      </div>
+    </td>
+  )
 })
