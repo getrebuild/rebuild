@@ -103,7 +103,10 @@ public class EasyExcelGenerator extends SetUser {
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
         try (ExcelWriter excelWriter = EasyExcel.write(tmp).withTemplate(template).build()) {
-            WriteSheet writeSheet = EasyExcel.writerSheet().registerWriteHandler(new FixsMergeStrategy()).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet()
+                    .registerWriteHandler(new FixsMergeStrategy())
+                    .registerWriteHandler(new FormulaCellWriteHandler())
+                    .build();
 
             // 有明细记录
             if (!datas.isEmpty()) {
