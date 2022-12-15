@@ -224,3 +224,11 @@ body.rebuild-guide-body .rebuild-guide-progress {
   margin-left: 6px;
   margin-right: 5px;
 }
+
+.rebuild-guide .guide ul > li a.confirm {
+  color: #777;
+}
+
+.rebuild-guide .guide ul > li a.confirm:hover {
+  color: #34a853;
+}
