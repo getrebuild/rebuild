@@ -52,7 +52,7 @@ public class RebuildGuideController extends BaseController {
         List<JSON> items = new ArrayList<>();
         items.add(buildItem(Language.L("管理用户"), "admin/bizuser/users", Application.getUserStore().getAllUsers().length - 1));
         items.add(buildItem(Language.L("管理部门"), "admin/bizuser/departments", Application.getUserStore().getAllDepartments().length));
-        items.add(buildItem(Language.L("管理角色"), "admin/bizuser/role-privileges", Application.getUserStore().getAllRoles().length));
+        items.add(buildItem(Language.L("角色权限"), "admin/bizuser/role-privileges", Application.getUserStore().getAllRoles().length));
         return RespBody.ok(items);
     }
 
@@ -71,8 +71,9 @@ public class RebuildGuideController extends BaseController {
     public RespBody featOthers() {
         List<JSON> items = new ArrayList<>();
         items.add(buildItem(Language.L("企业微信集成"), "admin/integration/wxwork", 0));
-        items.add(buildItem(Language.L("或钉钉集成"), "admin/integration/dingtalk", 0));
-        items.add(buildItem("Open API", "admin/apis-manager", count(EntityHelper.RebuildApi)));
+        items.add(buildItem(Language.L("钉钉集成"), "admin/integration/dingtalk", 0));
+        items.add(buildItem(Language.L("项目管理"), "admin/projects", count(EntityHelper.ProjectConfig)));
+        items.add(buildItem(Language.L("外部表单"), "admin/extforms", count(EntityHelper.ExtformConfig)));
         return RespBody.ok(items);
     }
 
