@@ -30,6 +30,7 @@ import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -81,17 +82,19 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File file = null;
+        File file;
         try {
             file = new EasyExcelGenerator(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
+            log.error(null, ex);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     Language.L("无法输出报表，请检查报表模板是否有误") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return;
         }
 
         RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String fileName = getReportName(entity, reportId, file);
+        String fileName = getReportName(entity, reportId, recordId, file);
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
@@ -133,7 +136,8 @@ public class ReportsController extends BaseController {
             DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
             File file = exporter.export(reportId);
 
-            String fileName = reportId != null ? getReportName(entity, reportId, file) : null;
+            // csv or excel
+            String fileName = reportId == null ? null : getReportName(entity, reportId, null, file);
             if (fileName == null) {
                 fileName = String.format("%s-%s.csv",
                         EasyMetaFactory.getLabel(entity),
@@ -153,15 +157,24 @@ public class ReportsController extends BaseController {
         }
     }
 
-    private String getReportName(String entity, ID report, File file) {
+    private String getReportName(String entity, ID reportId, ID recordId, File file) {
+        String name = null;
+
         for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
-            if (cb.getID("id").equals(report)) {
-                return String.format("%s-%s.%s",
-                        cb.getString("name"),
-                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
-                        file.getName().endsWith(".xlsx") ? "xlsx" : "xls");
+            if (cb.getID("id").equals(reportId)) {
+                name = cb.getString("name");
+                if (recordId == null || ContentWithFieldVars.matchsVars(name).isEmpty()) {
+                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+                } else {
+                    name = ContentWithFieldVars.replaceWithRecord(name, recordId);
+                }
+
+                // suffix
+                name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
+                break;
             }
         }
-        return null;
+
+        return StringUtils.defaultIfBlank(name, "UNDEFINED");
     }
 }
