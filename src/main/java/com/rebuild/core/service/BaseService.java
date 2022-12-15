@@ -18,6 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.utils.Callable2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -340,7 +341,7 @@ public class BaseService extends InternalPersistService {
     }
 
     private String[] cleanNameArray(Object raw) {
-        if (NullValue.isNull(raw)) return new String[0];
+        if (NullValue.isNull(raw)) return ArrayUtils.EMPTY_STRING_ARRAY;
         if (raw instanceof String[]) return (String[]) raw;
 
         List<String> list = new ArrayList<>();

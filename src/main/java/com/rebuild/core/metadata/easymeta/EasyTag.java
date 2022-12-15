@@ -11,14 +11,15 @@ import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.core.support.general.TagSupport;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * @author Zixin
  * @since 2022/12/12
- * @see N2NReferenceSupport
+ * @see EasyN2NReference
+ * @see EasyMultiSelect
  */
 public class EasyTag extends EasyField implements MultiValue, MixValue {
     private static final long serialVersionUID = -5827184319679918289L;
@@ -32,7 +33,14 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        return super.convertCompatibleValue(value, targetField);
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return unpackWrapValue(value);
+        }
+
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        return value;
     }
 
     @Override
@@ -51,6 +59,7 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
 
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
+        if (wrappedValue instanceof String[]) return StringUtils.join((String[]) wrappedValue, MV_SPLIT);
         return StringUtils.join((JSONArray) wrappedValue, MV_SPLIT);
     }
 }

@@ -46,6 +46,8 @@ import java.util.*;
 @Slf4j
 public class RecordCheckout {
 
+    private static final String MVAL_SPLIT = "[,，;；]";
+
     final private List<String> traceLogs = new ArrayList<>();
 
     final private Map<Field, Integer> fieldsMapping;
@@ -105,6 +107,7 @@ public class RecordCheckout {
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
         final DisplayType dt = EasyMetaFactory.getDisplayType(field);
+
         if (dt == DisplayType.NUMBER) {
             return cell.asLong();
         } else if (dt == DisplayType.DECIMAL) {
@@ -129,6 +132,8 @@ public class RecordCheckout {
             return checkoutMultiSelectValue(field, cell);
         } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
             return checkoutFileOrImage(cell);
+        } else if (dt == DisplayType.TAG) {
+            return checkoutTagValue(cell);
         }
 
         String text = cell.asString();
@@ -246,7 +251,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         Set<ID> ids = new LinkedHashSet<>();
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             ID id = checkoutReferenceValue(field, new Cell(s, cell.getRowNo(), cell.getColumnNo()));
             if (id != null) ids.add(id);
         }
@@ -284,7 +289,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         long mVal = 0;
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
         }
         return mVal == 0 ? null : mVal;
@@ -294,10 +299,15 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         List<String> urls = new ArrayList<>();
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             if (EasyUrl.isUrl(s)) urls.add(s);
         }
         return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
+    }
+
+    protected String[] checkoutTagValue(Cell cell) {
+        final String val = cell.asString();
+        return val.split(MVAL_SPLIT);
     }
 
     /**
