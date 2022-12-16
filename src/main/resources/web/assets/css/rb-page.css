@@ -3030,6 +3030,21 @@ form {
   margin-top: 3px;
 }
 
+.form.approval-form .cc-accounts {
+  color: #666;
+}
+
+.form.approval-form .cc-accounts a {
+  color: #404040;
+}
+
+.form.approval-form .cc-accounts a + a::before {
+  content: ',';
+  margin-left: 1px;
+  margin-right: 4px;
+  color: #8a8a8a;
+}
+
 .select2-sm .select2-container--default .select2-selection--single,
 .select2-sm .select2-container--default .select2-selection--multiple {
   min-height: 36px;
@@ -4407,7 +4422,7 @@ html.external-auth .auth-body.must-center .login {
 
 .user-popup .infos p.phone::after,
 .user-popup .infos p.email::after {
-  font-family: 'Material-Design-Iconic-Font', serif;
+  font-family: 'Material Design Icons', serif;
 }
 
 .user-popup .infos p.phone::after,
@@ -4418,12 +4433,11 @@ html.external-auth .auth-body.must-center .login {
 }
 
 .user-popup .infos p.phone::after {
-  content: '\f2d4';
+  content: '\F011C';
 }
 
 .user-popup .infos p.email::after {
-  content: '\f15a';
-  transform: translateY(1px);
+  content: '\F01F0';
 }
 
 .copied-check > .zmdi-copy::before {

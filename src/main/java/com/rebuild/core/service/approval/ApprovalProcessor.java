@@ -190,9 +190,11 @@ public class ApprovalProcessor extends SetUser {
             ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
         }
 
+        Set<String> ccAccounts = nextNodes.getCcAccounts(this.record);
+
         FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
         Application.getBean(ApprovalStepService.class)
-                .txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData, checkUseGroup);
+                .txApprove(approvedStep, currentNode.getSignMode(), ccs, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
         // 非主事物
         if (ccs4share != null) share2CcIfNeed(this.record, ccs4share);
@@ -435,7 +437,7 @@ public class ApprovalProcessor extends SetUser {
         this.approval = status.getApprovalId();
 
         Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers from RobotApprovalStep" +
+                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts from RobotApprovalStep" +
                         " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
                 .setParameter(1, this.record)
                 .array();
@@ -536,6 +538,11 @@ public class ApprovalProcessor extends SetUser {
             List<String> names = new ArrayList<>();
             for (ID u : (ID[]) step[9]) names.add(UserHelper.getName(u));
             s.put("ccUsers", names);
+        }
+        if (step.length > 10 && step[10] != null) {
+            List<String> mobileOrEmails = new ArrayList<>();
+            Collections.addAll(mobileOrEmails, step[10].toString().split(","));
+            s.put("ccAccounts", mobileOrEmails);
         }
 
         return s;

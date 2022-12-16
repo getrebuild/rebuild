@@ -323,6 +323,15 @@ class ApprovalUsersForm extends RbFormHandler {
                 <UserSelector ref={(c) => (this._ccSelector = c)} />
               </div>
             )}
+
+            {(this.state.nextCcAccounts || []).length > 0 && (
+              <div className="mt-2 cc-accounts">
+                <span className="mr-1">{$L('及外部人员')}</span>
+                {this.state.nextCcAccounts.map((me) => {
+                  return <a key={me}>{me}</a>
+                })}
+              </div>
+            )}
           </div>
         )}
       </React.Fragment>
@@ -734,15 +743,22 @@ class ApprovalStepViewer extends React.Component {
                   <p className="text-wrap">{item.remark}</p>
                 </blockquote>
               )}
-              {item.ccUsers && item.state >= 10 && (
+              {item.state >= 10 && (item.ccUsers || []).length + (item.ccAccounts || []).length > 0 && (
                 <blockquote className="blockquote timeline-blockquote mb-0 cc">
                   <p className="text-wrap">
                     <span className="mr-1">
                       <i className="zmdi zmdi-mail-send mr-1" />
                       {$L('已抄送')}
                     </span>
-                    {item.ccUsers.map((item) => {
+                    {(item.ccUsers || []).map((item) => {
                       return <a key={item}>{item}</a>
+                    })}
+                    {(item.ccAccounts || []).map((item) => {
+                      return (
+                        <a key={item} title={$L('外部人员')}>
+                          {item}
+                        </a>
+                      )
                     })}
                   </p>
                 </blockquote>

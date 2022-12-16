@@ -60,6 +60,7 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
               <div className={this.state.userType === 2 ? '' : 'hide'}>
                 <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
+                <p className="form-text">{$L('选择外部人员的电话（手机）或邮箱字段')}</p>
               </div>
             </div>
           </div>
@@ -180,12 +181,12 @@ class AccountSelectorWithField extends UserSelector {
 
     this._fields = []
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
-      $(res.data).each((idx, item) => {
-        if (item.type === 'PHONE' || item.type === 'EMAIL') {
-          this._fields.push({ id: item.name, text: item.label })
-        }
-      })
-
+      res.data &&
+        res.data.forEach((item) => {
+          if (item.type === 'PHONE' || item.type === 'EMAIL') {
+            this._fields.push({ id: item.name, text: item.label })
+          }
+        })
       this.switchTab()
     })
   }

@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #49 (v3.2)
+alter table `robot_approval_step`
+  add column `CC_ACCOUNTS` varchar(500) comment '抄送外部人员';
+
 -- #47 (v3.1)
 alter table `robot_approval_step`
   add column `CC_USERS` varchar(420) comment '抄送人';
