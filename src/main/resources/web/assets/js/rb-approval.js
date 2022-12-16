@@ -326,10 +326,12 @@ class ApprovalUsersForm extends RbFormHandler {
 
             {(this.state.nextCcAccounts || []).length > 0 && (
               <div className="mt-2 cc-accounts">
-                <span className="mr-1">{$L('及外部人员')}</span>
-                {this.state.nextCcAccounts.map((me) => {
-                  return <a key={me}>{me}</a>
-                })}
+                <span>{$L('及以下外部人员')}</span>
+                <div className="mt-1">
+                  {this.state.nextCcAccounts.map((me) => {
+                    return <a key={me}>{me}</a>
+                  })}
+                </div>
               </div>
             )}
           </div>
