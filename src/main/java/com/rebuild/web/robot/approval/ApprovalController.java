@@ -126,6 +126,7 @@ public class ApprovalController extends BaseController {
         JSONObject data = new JSONObject();
         data.put("nextApprovers", formatUsers(approverList));
         data.put("nextCcs", formatUsers(ccList));
+        data.put("nextCcAccounts", nextNodes.getCcAccounts(recordId));
         data.put("approverSelfSelecting", nextNodes.allowSelfSelectingApprover());
         data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
         data.put("isLastStep", nextNodes.isLastStep());
