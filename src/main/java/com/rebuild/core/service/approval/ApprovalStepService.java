@@ -10,6 +10,7 @@ package com.rebuild.core.service.approval;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -35,6 +36,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.SMSender;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -123,12 +125,13 @@ public class ApprovalStepService extends InternalPersistService {
      * @param stepRecord
      * @param signMode
      * @param cc
+     * @param ccAccounts
      * @param nextApprovers [驳回时无需]
      * @param nextNode      下一节点或回退节点
      * @param addedData     [驳回时无需]
      * @param checkUseGroup [驳回时无需]
      */
-    public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
+    public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<String> ccAccounts, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
         // 审批时更新主记录（驳回时不会传这个值）
         if (addedData != null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(addedData.getPrimary());
@@ -158,6 +161,9 @@ public class ApprovalStepService extends InternalPersistService {
         if (cc != null && !cc.isEmpty()) {
             stepRecord.setIDArray("ccUsers", cc.toArray(new ID[0]));
         }
+        if (ccAccounts != null && !ccAccounts.isEmpty()) {
+            stepRecord.setString("ccAccounts", StringUtils.join(ccAccounts, ","));
+        }
 
         super.update(stepRecord);
         final ID stepRecordId = stepRecord.getPrimary();
@@ -175,14 +181,30 @@ public class ApprovalStepService extends InternalPersistService {
         final String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
         final String remark = stepRecord.getString("remark");
 
-        // 抄送人
+        // 抄送
+        final String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
+                submitter, entityLabel, approver, Language.L(state));
+
         if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
-                    submitter, entityLabel, approver, Language.L(state));
-            if (StringUtils.isNotBlank(remark)) ccMsg += "\n > " + remark;
+            String innerMsg = ccMsg;
+            if (StringUtils.isNotBlank(remark)) innerMsg += "\n > " + remark;
 
             for (ID c : cc) {
-                Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, recordId));
+                Application.getNotifications().send(MessageBuilder.createApproval(c, innerMsg, recordId));
+            }
+        }
+        // v3.2 外部人员
+        if (ccAccounts != null && !ccAccounts.isEmpty()) {
+            String mobileMsg = MessageBuilder.formatMessage(ccMsg, Boolean.FALSE);
+
+            String emailSubject = Language.L("审批通知");
+            String emailMsg = ccMsg;
+            if (StringUtils.isNotBlank(remark)) emailMsg += "\n > " + remark;
+            emailMsg = MessageBuilder.formatMessage(emailMsg, Boolean.TRUE);
+
+            for (String me : ccAccounts) {
+                if (SMSender.availableSMS() && RegexUtils.isCNMobile(me)) SMSender.sendSMSAsync(me, mobileMsg);
+                else if (SMSender.availableMail()) SMSender.sendMailAsync(me, emailSubject, emailMsg);
             }
         }
 

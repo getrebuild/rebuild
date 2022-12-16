@@ -106,6 +106,21 @@ public class FlowNodeGroup {
     }
 
     /**
+     * @param recordId
+     * @return
+     */
+    public Set<String> getCcAccounts(ID recordId) {
+        Set<String> mobileOrEmails = new HashSet<>();
+        // 一般就一个，但不排除多个 CC 节点
+        for (FlowNode node : nodes) {
+            if (FlowNode.TYPE_CC.equals(node.getType())) {
+                mobileOrEmails.addAll(node.getCcAccounts(recordId));
+            }
+        }
+        return mobileOrEmails;
+    }
+
+    /**
      * @param operator
      * @param recordId
      * @param selectUsers
