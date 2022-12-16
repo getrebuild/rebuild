@@ -2463,7 +2463,7 @@ class RbFormTag extends RbFormElement {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: '',
+        placeholder: $L('输入%s', this.props.label),
         maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {

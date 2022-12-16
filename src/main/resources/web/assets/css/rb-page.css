@@ -852,11 +852,12 @@ body.view-body {
 
 .select2-container--default .select2-selection--multiple,
 .select2-container--default .select2-selection--single {
+  border-width: 1px;
   border-top-color: #bdc0c7;
 }
 
-.select2-container--default .select2-selection--multiple .select2-results__option--highlighted::after {
-  font-family: 'Material Design Icons';
+.select2-container--default .select2-results__option--highlighted::after {
+  font-family: 'Material Design Icons', serif;
   content: '\F0311';
   float: right;
   color: rgba(255, 255, 255, 0.8);
@@ -866,6 +867,10 @@ body.view-body {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field,
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
   color: #404040;
+}
+
+.select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
+  border-color: #4285f4;
 }
 
 textarea.row2x {
