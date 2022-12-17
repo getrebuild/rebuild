@@ -35,6 +35,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class CommonsUtils {
 
+    // 通用分隔符
+    public static final String COMM_SPLITER = "$$$$";
+    // 通用分隔符 REGEX
+    public static final String COMM_SPLITER_RE = "\\$\\$\\$\\$";
+
     private static final Pattern PATT_PLAINTEXT = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 
     private static final char[] SPECIAL_CHARS = "`~!@#$%^&*()_+=-{}|[];':\",./<>?".toCharArray();

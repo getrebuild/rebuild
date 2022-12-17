@@ -12,6 +12,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -44,7 +45,8 @@ public class SysbaseHeartbeat {
 
         JSONObject checkBuild = License.siteApi("api/authority/check-build");
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
-            dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
+            dangers.put(HasUpdate,
+                    checkBuild.getString("version") + CommonsUtils.COMM_SPLITER + checkBuild.getString("releaseUrl"));
         } else {
             dangers.remove(HasUpdate);
         }
@@ -105,8 +107,8 @@ public class SysbaseHeartbeat {
         dangers.remove(UsersMsg);
 
         String hasUpdate = dangers.get(HasUpdate);
-        if (hasUpdate != null && hasUpdate.contains("$$$$")) {
-            String[] ss = hasUpdate.split("\\$\\$\\$\\$");
+        if (hasUpdate != null && hasUpdate.contains(CommonsUtils.COMM_SPLITER)) {
+            String[] ss = hasUpdate.split(CommonsUtils.COMM_SPLITER_RE);
             hasUpdate = Language.L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
             dangers.put(HasUpdate, hasUpdate);

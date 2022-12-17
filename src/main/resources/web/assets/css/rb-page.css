@@ -1360,7 +1360,8 @@ select.form-control:not([disabled]) {
   color: #fff;
 }
 
-.rbhighbar > .alert > .message a[target='_blank']:hover {
+.rbhighbar > .alert > .message a[target='_blank']:hover,
+.admin-danger-list a[target='_blank']:hover {
   text-decoration: underline;
 }
 

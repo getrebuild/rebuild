@@ -39,8 +39,8 @@ import java.util.*;
 public class MetadataHelper {
 
     // 通用分隔符
-    public static final String SPLITER = "$$$$";
-    public static final String SPLITER_RE = "\\$\\$\\$\\$";
+    public static final String SPLITER = CommonsUtils.COMM_SPLITER;
+    public static final String SPLITER_RE = CommonsUtils.COMM_SPLITER_RE;
 
     /**
      * 元数据工厂
