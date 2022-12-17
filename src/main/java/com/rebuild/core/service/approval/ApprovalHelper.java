@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
@@ -118,5 +119,14 @@ public class ApprovalHelper {
             return lastField;
         }
         return null;
+    }
+
+    /**
+     * @param entityOrRecord
+     * @return
+     */
+    public static String buildApprovalMsg(Object entityOrRecord) {
+        Entity ae = (Entity) entityOrRecord;
+        return Language.L("有一条 %s 记录请你审批", EasyMetaFactory.getLabel(ae));
     }
 }
