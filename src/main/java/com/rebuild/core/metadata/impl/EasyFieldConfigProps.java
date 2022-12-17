@@ -154,4 +154,9 @@ public class EasyFieldConfigProps {
      * 扫码
      */
     public static final String TEXT_SCANCODE = "textScanCode";
+
+    /**
+     * 标签
+     */
+    public static final String TAG_LIST = "tagList";
 }

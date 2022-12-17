@@ -45,12 +45,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .dt-MULTISELECT .dd-handle,
-.dt-PICKLIST .dd-handle {
+.dt-PICKLIST .dd-handle,
+.dt-TAG .dd-handle {
   padding-left: 31px !important;
 }
 
 .dt-MULTISELECT .dd-handle::before,
-.dt-PICKLIST .dd-handle::before {
+.dt-PICKLIST .dd-handle::before,
+.dt-TAG .dd-handle::before {
   position: absolute;
   font-family: 'Material-Design-Iconic-Font';
   font-size: 20px;
@@ -59,7 +61,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   content: '\f279';
 }
 
-.dt-MULTISELECT .default .dd-handle::before {
+.dt-MULTISELECT .default .dd-handle::before,
+.dt-TAG .default .dd-handle::before {
   content: '\f26a';
 }
 
@@ -71,6 +74,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dt-PICKLIST .default .dd-handle::before {
   content: '\f269';
+}
+
+.dt-TAG .dd-handle > a {
+  float: right;
+  color: #a1a1a1;
+  font-size: 1.23rem;
+  display: none;
+}
+
+.dt-TAG .dd-handle > a:hover {
+  color: gray;
+}
+
+.dt-TAG .dd-handle:hover > a {
+  display: inline-block;
 }
 
 .form-text.help b {
@@ -241,4 +259,10 @@ a#entityIcon:hover {
 .common-patt .badge:hover,
 .common-suff .badge:hover {
   color: #4285f4 !important;
+}
+
+.field-option-form {
+  width: 500px;
+  max-width: 400px;
+  margin: 0 auto;
 }

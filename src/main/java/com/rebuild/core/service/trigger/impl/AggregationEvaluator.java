@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -46,7 +47,7 @@ public class AggregationEvaluator {
     }
 
     /**
-     * 计算
+     * 执行计算
      *
      * @return
      */
@@ -73,11 +74,13 @@ public class AggregationEvaluator {
     }
 
     /**
-     * 计算公式（只会涉及数字运算）
+     * 执行计算公式
      *
      * @return
      */
     public Object evalFormula() {
+        final String NN = "nn:";  // Not Number
+
         String formula = item.getString("sourceFormula");
         Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
@@ -94,7 +97,7 @@ public class AggregationEvaluator {
             // 数字型
             if (fieldAndFunc.length > 1 || field.getType() == FieldType.LONG || field.getType() == FieldType.DECIMAL);
             else {
-                nonNumericFields.add("nn:" + fieldAndFunc[0]);
+                nonNumericFields.add(NN + fieldAndFunc[0]);
             }
         }
         if (fields.isEmpty()) {
@@ -146,7 +149,9 @@ public class AggregationEvaluator {
             }
 
             Object value = useSourceData[i];
-            if (value == null) value = nonNumericFields.contains("nn:" + field[0]) ? "" : 0;
+            if (value == null) value = nonNumericFields.contains(NN + field[0]) ? StringUtils.EMPTY : 0;
+            else if (value instanceof Date) value = CalendarUtils.getUTCDateTimeFormat().format(value);
+
             envMap.put(fieldKey, value);
         }
 

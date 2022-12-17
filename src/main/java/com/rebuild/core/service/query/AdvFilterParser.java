@@ -274,6 +274,14 @@ public class AdvFilterParser extends SetUser {
                         "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
                         specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
             }
+
+        } else if (dt == DisplayType.TAG && (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op))) {
+            String existsWhere = String.format(
+                    "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName in (%s))",
+                    specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), quoteValue(value, FieldType.STRING));
+
+            if (ParseHelper.NIN.equals(op)) return "not " + existsWhere;
+            return existsWhere;
         }
 
         // 根据字段类型转换 `op`

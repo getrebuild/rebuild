@@ -463,8 +463,12 @@ class RbForm extends React.Component {
         let iv = child.props.value
         if (iv && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
-            if ($.isArray(iv)) {
-              // eg. [file1, file2, image1]
+            if (child.props.type === 'TAG') {
+              // eg. 标签
+              iv = iv.map((item) => item.name)
+              iv = iv.join('$$$$')
+            } else if ($.isArray(iv)) {
+              // eg. 文件/图片
             } else {
               // eg. {id:xxx, text:xxx}
               iv = iv.id
@@ -1537,8 +1541,8 @@ class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
 
-    const options = props.options
-    if (options && props.value) {
+    const options = [...props.options]
+    if (props.value) {
       // Check value has been deleted
       let deleted = true
       $(options).each(function () {
@@ -1551,21 +1555,21 @@ class RbFormPickList extends RbFormElement {
 
       if (deleted) {
         options.push({ id: props.value, text: '[DELETED]' })
-        this.state.options = options
       }
     }
+    this._options = options
   }
 
   renderElement() {
-    // if (!this.state.options || this.state.options.length === 0) {
+    // if ((this.state.options || []).length === 0) {
     //   return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     // }
 
-    const keyName = `${this.state.field}-opt-`
+    const keyName = `${this.state.field}-option-`
     return (
-      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={(e) => this.handleChange(e)}>
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" defaultValue={this.state.value || ''}>
         <option value="" />
-        {this.state.options.map((item) => {
+        {this._options.map((item) => {
           return (
             <option key={`${keyName}${item.id}`} value={item.id} disabled={$isSysMask(item.text)}>
               {item.text}
@@ -1589,12 +1593,10 @@ class RbFormPickList extends RbFormElement {
       })
 
       const that = this
-      this.__select2
-        .on('change', function (e) {
-          const val = e.target.value
-          that.handleChange({ target: { value: val } }, true)
-        })
-        .trigger('change')
+      this.__select2.on('change', function (e) {
+        const val = e.target.value
+        that.handleChange({ target: { value: val } }, true)
+      })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
@@ -2055,7 +2057,7 @@ class RbFormClassification extends RbFormElement {
 
 class RbFormMultiSelect extends RbFormElement {
   renderElement() {
-    if (!this.props.options || this.props.options.length === 0) {
+    if ((this.props.options || []).length === 0) {
       return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
     }
 
@@ -2412,6 +2414,78 @@ class RbFormSign extends RbFormElement {
   }
 }
 
+class RbFormTag extends RbFormElement {
+  constructor(props) {
+    super(props)
+
+    let options = [...props.options]
+    let selected = []
+    if (this.props.$$$parent.isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
+      })
+    } else if (props.value) {
+      props.value.forEach((name) => {
+        selected.push(name)
+        const found = props.options.find((x) => x.name === name)
+        if (!found) options.push({ name: name })
+      })
+    }
+    this._options = options
+    this._selected = selected
+
+    this.__maxSelect = props.tagMaxSelect || 20
+  }
+
+  renderElement() {
+    const keyName = `${this.state.field}-tag-`
+    return (
+      <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" multiple defaultValue={this._selected}>
+        {this._options.map((item) => {
+          return (
+            <option key={`${keyName}${item.name}`} value={item.name}>
+              {item.name}
+            </option>
+          )
+        })}
+      </select>
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    return <div className="form-control-plaintext multi-values">{__findTagTexts(this.props.options, this.state.value)}</div>
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      super.onEditModeChanged(destroy)
+    } else {
+      this.__select2 = $(this._fieldValue).select2({
+        placeholder: $L('输入%s', this.props.label),
+        maximumSelectionLength: this.__maxSelect,
+        tags: true,
+        language: {
+          noResults: function () {
+            return $L('输入后回车')
+          },
+        },
+      })
+
+      const that = this
+      this.__select2.on('change', function (e) {
+        const mVal = $(e.currentTarget).val()
+        that.handleChange({ target: { value: mVal.join('$$$$') } }, true)
+      })
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
+    }
+  }
+
+  // isValueUnchanged() {}
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -2514,6 +2588,8 @@ var detectElement = function (item, entity) {
     return <RbFormLocation {...item} />
   } else if (item.type === 'SIGN') {
     return <RbFormSign {...item} />
+  } else if (item.type === 'TAG') {
+    return <RbFormTag {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
@@ -2552,6 +2628,26 @@ const __findMultiTexts = function (options, maskValue, useColor) {
       )
       texts.push(text)
     }
+  })
+  return texts
+}
+
+// 标签文本
+const __findTagTexts = function (options, value) {
+  if (typeof value === 'string') value = value.split('$$$$')
+
+  const texts = []
+  value.map((name) => {
+    let item = options.find((x) => x.name === name)
+    if (!item) item = { name: name }
+
+    const style2 = item.color ? { borderColor: item.color, color: item.color } : null
+    const text = (
+      <span key={`tag-${item.name}`} style={style2}>
+        {item.name}
+      </span>
+    )
+    texts.push(text)
   })
   return texts
 }

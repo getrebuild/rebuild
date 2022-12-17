@@ -406,6 +406,8 @@ class FilterItem extends React.Component {
       op = ['EQ']
     } else if (fieldType === 'LOCATION') {
       op = ['LK', 'NLK']
+    } else if (fieldType === 'TAG') {
+      op = ['IN', 'NIN']
     }
 
     if (this.isApprovalState()) op = ['IN', 'NIN']

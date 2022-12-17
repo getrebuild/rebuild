@@ -184,6 +184,17 @@
                     <button class="btn btn-secondary btn-sm J_picklist-edit" type="button"><i class="zmdi zmdi-settings"></i> [[${bundle.L('配置选项')}]]</button>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'TAG'}" class="form-group row J_for-TAG">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('预置标签')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div th:class="|rb-scroller sortable-box autoh dt-${fieldType}|">
+                      <ol class="dd-list" id="tag-items">
+                        <li class="no-item">[[${bundle.L('加载中')}]]</li>
+                      </ol>
+                    </div>
+                    <button class="btn btn-secondary btn-sm J_tag-add" type="button">+ [[${bundle.L('添加')}]]</button>
+                  </div>
+                </div>
                 <div th:if="${fieldType == 'SERIES'}" class="J_for-SERIES">
                   <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('编号规则')}]]</label>

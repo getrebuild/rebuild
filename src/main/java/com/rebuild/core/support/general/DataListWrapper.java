@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -155,6 +156,9 @@ public class DataListWrapper {
     }
 
     /**
+     * @param value
+     * @param field
+     * @return
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField, boolean)
      */
     protected Object wrapFieldValue(Object value, Field field) {
@@ -217,6 +221,17 @@ public class DataListWrapper {
                 }
 
                 ((JSONObject) value).put("text", colorLabels);
+
+            } else if (easyField.getDisplayType() == DisplayType.TAG) {
+
+                Map<String, String> colorNames = TagSupport.getNamesColor(easyField);
+                List<Object> colorValue = new ArrayList<>();
+                for (Object o : (JSONArray) value) {
+                    String name = o.toString();
+                    colorValue.add(JSONUtils.toJSONObject(
+                            new String[]{ "name", "color" }, new Object[]{ name, colorNames.get(name) }));
+                }
+                value = colorValue;
             }
         }
 

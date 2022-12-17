@@ -637,9 +637,9 @@ function __renderRichContent(e) {
         <div className="img-field">
           {e.images.map((item, idx) => {
             return (
-              <span key={'img-' + item}>
+              <span key={`img-${item}`}>
                 <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} alt="Avatar" />
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
                 </a>
               </span>
             )

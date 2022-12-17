@@ -6,10 +6,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-undef */
 
-const isMulti = $urlp('multi') === 'true'
+const isMulti = ['MULTISELECT'].includes($urlp('type'))
 const maxOptions = isMulti ? 20 : 100
 
-$(document).ready(function () {
+$(document).ready(() => {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
 
   const $cs = $('.rbcolors')
