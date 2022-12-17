@@ -1561,9 +1561,9 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    if ((this.state.options || []).length === 0) {
-      return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
-    }
+    // if ((this.state.options || []).length === 0) {
+    //   return <div className="form-control-plaintext text-danger">{$L('未配置')}</div>
+    // }
 
     const keyName = `${this.state.field}-option-`
     return (
