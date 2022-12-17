@@ -265,10 +265,6 @@ class ApprovalProcessor extends React.Component {
 
 // 审批人/抄送人选择
 class ApprovalUsersForm extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   renderUsers() {
     if (!this.state.isLoaded) return null
 
@@ -288,7 +284,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {approverHas ? (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
+              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
@@ -311,7 +307,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {ccHas && (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-mail-send zicon" /> {$L('本次审批结果将抄送给')}
+              <i className="zmdi zmdi-mail-send zicon" /> {this._ccLabel || $L('本次审批结果将抄送给')}
             </label>
             <div>
               {(this.state.nextCcs || []).map((item) => {
@@ -326,12 +322,10 @@ class ApprovalUsersForm extends RbFormHandler {
 
             {(this.state.nextCcAccounts || []).length > 0 && (
               <div className="mt-2 cc-accounts">
-                <span>{$L('及以下外部人员')}</span>
-                <div className="mt-1">
-                  {this.state.nextCcAccounts.map((me) => {
-                    return <a key={me}>{me}</a>
-                  })}
-                </div>
+                <span className="mr-1">{$L('及以下外部人员')}</span>
+                {this.state.nextCcAccounts.map((me) => {
+                  return <a key={me}>{me}</a>
+                })}
               </div>
             )}
           </div>
@@ -371,6 +365,8 @@ class ApprovalUsersForm extends RbFormHandler {
 class ApprovalSubmitForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
+    this._ccLabel = $L('本次提交将抄送给')
+    this._approverLabel = $L('审批人')
     this.state.approvals = []
   }
 
@@ -456,11 +452,6 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 
 // 审批
 class ApprovalApproveForm extends ApprovalUsersForm {
-  constructor(props) {
-    super(props)
-    this._approverLabel = $L('下一审批人')
-  }
-
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('审批')} width="600">
@@ -470,7 +461,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
               <RbAlertBox message={this.state.bizMessage} onClose={() => this.setState({ bizMessage: null })} />
             </div>
           )}
-          {this.state.aform && this._renderEditableForm()}
+          {this.state.aform && this.renderLiteForm()}
           <div className="form-group">
             <label>{$L('批注')}</label>
             <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
@@ -489,7 +480,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     )
   }
 
-  _renderEditableForm() {
+  renderLiteForm() {
     const fake = {
       state: { id: this.props.id },
     }
@@ -497,13 +488,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <EditableForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
+        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}
-        </EditableForm>
+        </LiteForm>
       </div>
     )
   }
@@ -558,18 +549,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   post2(state, rejectNode, _alert) {
-    const aformData = {}
+    let aformData = {}
     if (this.state.aform && state === 10) {
-      const fd = this._rbform.__FormData
-      for (let k in fd) {
-        const err = fd[k].error
-        if (err) {
-          RbHighbar.create(err)
-          return
-        }
-        aformData[k] = fd[k].value
-      }
-      aformData.metadata = { id: this.props.id }
+      aformData = this._rbform.buildFormData()
+      if (aformData === false) return
     }
 
     let selectUsers
@@ -607,26 +590,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
 
     fn()
-  }
-}
-
-// @see `rb-forms.js`
-// eslint-disable-next-line no-undef
-class EditableForm extends RbForm {
-  constructor(props) {
-    super(props)
-  }
-
-  renderFormAction() {
-    return null
-  }
-
-  renderDetailForm() {
-    return null
-  }
-
-  renderCustomizedFormArea() {
-    return null
   }
 }
 

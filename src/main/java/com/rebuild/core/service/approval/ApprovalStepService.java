@@ -37,6 +37,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -75,9 +76,10 @@ public class ApprovalStepService extends InternalPersistService {
     /**
      * @param recordOfMain
      * @param cc
+     * @param ccAccounts
      * @param nextApprovers
      */
-    public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
+    public void txSubmit(Record recordOfMain, Set<ID> cc, Set<String> ccAccounts, Set<ID> nextApprovers) {
         final ID submitter = recordOfMain.getEditor();
         final ID recordId = recordOfMain.getPrimary();
         final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
@@ -87,10 +89,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         super.update(recordOfMain);
 
-        String entityLabel = EasyMetaFactory.getLabel(recordOfMain.getEntity());
-
-        // 审批人
-        String approvalMsg = Language.L("有一条 %s 记录请你审批", entityLabel);
+        final String approvalMsg = ApprovalHelper.buildApprovalMsg(recordOfMain.getEntity());
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
         step.setID("recordId", recordId);
@@ -106,13 +105,12 @@ public class ApprovalStepService extends InternalPersistService {
             Application.getNotifications().send(MessageBuilder.createApproval(to, approvalMsg, recordId));
         }
 
-        // 抄送人
-        if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.L("用户 @%s 提交了一条 %s 审批，请知悉", submitter, entityLabel);
-            for (ID to : cc) {
-                Application.getNotifications().send(MessageBuilder.createApproval(to, ccMsg, recordId));
-            }
-        }
+        // 抄送
+        String ccMsg = Language.L("@%s 提交了一条 %s 审批，请知悉",
+                submitter, EasyMetaFactory.getLabel(recordOfMain.getEntity()));
+        sendCcMsgs(recordId, ccMsg, cc, ccAccounts);
+
+        // TODO 未记录CC到数据库
 
         // see #getSubmitter
         String ckey = "ApprovalSubmitter" + recordId + approvalId;
@@ -132,7 +130,7 @@ public class ApprovalStepService extends InternalPersistService {
      * @param checkUseGroup [驳回时无需]
      */
     public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<String> ccAccounts, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
-        // 审批时更新主记录（驳回时不会传这个值）
+        // 审批时更新主记录。驳回时不会/不要传这个值
         if (addedData != null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(addedData.getPrimary());
             try {
@@ -158,10 +156,10 @@ public class ApprovalStepService extends InternalPersistService {
 
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
-        if (cc != null && !cc.isEmpty()) {
+        if (!CommonsUtils.isEmpty(cc)) {
             stepRecord.setIDArray("ccUsers", cc.toArray(new ID[0]));
         }
-        if (ccAccounts != null && !ccAccounts.isEmpty()) {
+        if (!CommonsUtils.isEmpty(ccAccounts)) {
             stepRecord.setString("ccAccounts", StringUtils.join(ccAccounts, ","));
         }
 
@@ -177,36 +175,16 @@ public class ApprovalStepService extends InternalPersistService {
         final ID approvalId = (ID) stepObject[1];
         final String currentNode = (String) stepObject[2];
         final ID approver = UserContextHolder.getUser();
-
-        final String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
         final String remark = stepRecord.getString("remark");
 
+        final Entity entityMeta = MetadataHelper.getEntity(recordId.getEntityCode());
+        final String entityLabel = EasyMetaFactory.getLabel(entityMeta);
+
         // 抄送
-        final String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知悉",
+        String ccMsg = Language.L("@%s 提交的 %s 审批已由 @%s %s，请知悉",
                 submitter, entityLabel, approver, Language.L(state));
-
-        if (cc != null && !cc.isEmpty()) {
-            String innerMsg = ccMsg;
-            if (StringUtils.isNotBlank(remark)) innerMsg += "\n > " + remark;
-
-            for (ID c : cc) {
-                Application.getNotifications().send(MessageBuilder.createApproval(c, innerMsg, recordId));
-            }
-        }
-        // v3.2 外部人员
-        if (ccAccounts != null && !ccAccounts.isEmpty()) {
-            String mobileMsg = MessageBuilder.formatMessage(ccMsg, Boolean.FALSE);
-
-            String emailSubject = Language.L("审批通知");
-            String emailMsg = ccMsg;
-            if (StringUtils.isNotBlank(remark)) emailMsg += "\n > " + remark;
-            emailMsg = MessageBuilder.formatMessage(emailMsg, Boolean.TRUE);
-
-            for (String me : ccAccounts) {
-                if (SMSender.availableSMS() && RegexUtils.isCNMobile(me)) SMSender.sendSMSAsync(me, mobileMsg);
-                else if (SMSender.availableMail()) SMSender.sendMailAsync(me, emailSubject, emailMsg);
-            }
-        }
+        if (StringUtils.isNotBlank(remark)) ccMsg += "\n > " + remark;
+        sendCcMsgs(recordId, ccMsg, cc, ccAccounts);
 
         // 更新主记录
         final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
@@ -241,7 +219,7 @@ public class ApprovalStepService extends InternalPersistService {
         // 或签/会签
         boolean goNextNode = true;
 
-        String approvalMsg = Language.L("有一条 %s 记录请你审批", entityLabel);
+        final String approvalMsg = ApprovalHelper.buildApprovalMsg(entityMeta);
 
         // 或签：一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
@@ -512,11 +490,11 @@ public class ApprovalStepService extends InternalPersistService {
         recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
         setApprovalLastX(recordOfMain, null, null);
 
-        Set<ID> ccList = nextNodes.getCcUsers(useApprover, recordId, null);
+        Set<ID> ccUsers = nextNodes.getCcUsers(useApprover, recordId, null);
+        Set<String> ccAccounts = nextNodes.getCcAccounts(recordId);
+        txSubmit(recordOfMain, ccUsers, ccAccounts, approverList);
+
         Set<ID> ccs4share = nextNodes.getCcUsers4Share(useApprover, recordId, null);
-
-        txSubmit(recordOfMain, ccList, approverList);
-
         // 非主事物
         ApprovalProcessor.share2CcIfNeed(recordId, ccs4share);
     }
@@ -568,9 +546,9 @@ public class ApprovalStepService extends InternalPersistService {
 
             // 通知退回
             if (!(Boolean) o[1]) {
-                String rejectedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审核", o[0], entityLabel);
-                if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
-                Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], rejectedMsg, recordId));
+                String backedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审批", o[0], entityLabel);
+                if (StringUtils.isNotBlank(remark)) backedMsg += "\n > " + remark;
+                Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], backedMsg, recordId));
             }
 
             // 标记为退回
@@ -603,8 +581,6 @@ public class ApprovalStepService extends InternalPersistService {
     }
 
     /**
-     * @param approvalRecord
-     * @param when
      * @see com.rebuild.core.service.general.GeneralEntityService#approve(ID, ApprovalState, ID)
      */
     private void execTriggers(Record approvalRecord, TriggerWhen when) {
@@ -661,6 +637,27 @@ public class ApprovalStepService extends InternalPersistService {
         if (entity.containsField(EntityHelper.ApprovalLastRemark)) {
             if (remark == null) record.setNull(EntityHelper.ApprovalLastRemark);
             else record.setString(EntityHelper.ApprovalLastRemark, remark);
+        }
+    }
+
+    // 抄送
+    private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
+        if (!CommonsUtils.isEmpty(ccUsers)) {
+            for (ID cc : ccUsers) {
+                Application.getNotifications().send(MessageBuilder.createApproval(cc, ccMsg, recordId));
+            }
+        }
+
+        // v3.2 外部人员
+        if (!CommonsUtils.isEmpty(ccAccounts)) {
+            String mobileMsg = MessageBuilder.formatMessage(ccMsg, Boolean.FALSE);
+            String emailSubject = Language.L("审批通知");
+            String emailMsg = MessageBuilder.formatMessage(ccMsg, Boolean.TRUE);
+
+            for (String me : ccAccounts) {
+                if (SMSender.availableSMS() && RegexUtils.isCNMobile(me)) SMSender.sendSMSAsync(me, mobileMsg);
+                if (SMSender.availableMail() && RegexUtils.isEMail(me)) SMSender.sendMailAsync(me, emailSubject, emailMsg);
+            }
         }
     }
 }

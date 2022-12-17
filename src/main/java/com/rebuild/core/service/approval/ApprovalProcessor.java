@@ -25,6 +25,7 @@ import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -93,7 +94,7 @@ public class ApprovalProcessor extends SetUser {
         }
 
         Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
-        Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+        Set<String> ccAccounts = nextNodes.getCcAccounts(this.record);
 
         Record recordOfMain = EntityHelper.forUpdate(this.record, this.getUser(), false);
         recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
@@ -102,9 +103,10 @@ public class ApprovalProcessor extends SetUser {
         // Clear on submit
         ApprovalStepService.setApprovalLastX(recordOfMain, null, null);
 
-        Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
+        Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, ccAccounts, nextApprovers);
 
-        // 非主事物
+        // 审批时共享
+        Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
         share2CcIfNeed(this.record, ccs4share);
 
         return true;
@@ -184,20 +186,17 @@ public class ApprovalProcessor extends SetUser {
         }
 
         Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
-        Set<ID> ccs4share = null;
-        // 审批时共享
-        if (state == ApprovalState.APPROVED) {
-            ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
-        }
-
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.record);
 
         FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
         Application.getBean(ApprovalStepService.class)
                 .txApprove(approvedStep, currentNode.getSignMode(), ccs, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
-        // 非主事物
-        if (ccs4share != null) share2CcIfNeed(this.record, ccs4share);
+        // 审批时共享
+        if (state == ApprovalState.APPROVED) {
+            Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+            share2CcIfNeed(this.record, ccs4share);
+        }
     }
 
     /**
@@ -219,7 +218,7 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 3.1.催审
      *
-     * @return -1=频率超限
+     * @return -1=频率超限 5m
      */
     public int urge() {
         if (this.approval == null) {
@@ -564,7 +563,9 @@ public class ApprovalProcessor extends SetUser {
         LinkedList<String[]> set = new LinkedList<>();
         while (currentNode != null) {
             FlowNode node = flowParser.getNode(currentNode);
-            set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
+            if (!FlowNode.TYPE_CC.equals(node.getType())) {
+                set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
+            }
 
             currentNode = node.prevNodes;
             if (FlowNode.NODE_ROOT.equals(currentNode)) currentNode = null;
@@ -612,12 +613,14 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 共享给抄送人
+     * 共享给抄送人。注意非主事物
      *
      * @param recordId
      * @param shareTo
      */
     protected static void share2CcIfNeed(ID recordId, Set<ID> shareTo) {
+        if (CommonsUtils.isEmpty(shareTo)) return;
+
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
             if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
