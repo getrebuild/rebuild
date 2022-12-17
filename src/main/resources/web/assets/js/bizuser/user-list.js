@@ -16,26 +16,23 @@ RbForm.postAfter = function (data, next) {
 }
 
 $(document).ready(function () {
-  $('.J_new').click(function () {
+  $('.J_new').click(() => {
     formPostType = 1
   })
-  $('.J_new-dept').click(function () {
+  $('.J_new-dept').click(() => {
     formPostType = 2
     RbFormModal.create({ title: $L('新建部门'), entity: 'Department', icon: 'accounts' })
   })
 
   $('.J_imports').click(() => renderRbcomp(<UserImport />))
+  $('.J_resign').click(() => renderRbcomp(<UserResigntion />))
 })
 
 // 用户导入
 class UserImport extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
-      <RbModal title={$L('导入用户')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('导入用户')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
@@ -122,5 +119,61 @@ class UserImport extends RbModalHandler {
         setTimeout(() => this._checkState(), 1000)
       }
     })
+  }
+}
+
+// 离职继任
+class UserResigntion extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={$L('离职继任')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('离职用户')}</label>
+            <div className="col-sm-8">
+              <div className="w-75">
+                <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector1 = c)} />
+              </div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('继任用户')}</label>
+            <div className="col-sm-8">
+              <div className="w-75">
+                <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector2 = c)} />
+              </div>
+              <p className="form-text mt-2">{$L('离职继任将把离职用户的业务数据（所属用户）、审批中的记录（审批人）转移至继任用户')}</p>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._btn = c)}>
+                {$L('开始转移')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  start() {
+    RbAlert.create($L('如数据较多将耗费较长时间，请耐心等待。确认转移吗？'), {
+      onConfirm: function () {
+        this.hide()
+      }
+    })
+  }
+
+  _checkState() {
+    // $.get(`/commons/task/state?taskid=${this.__taskid}`, (res) => {
+    //   if (res.data && res.data.isCompleted) {
+    //     this.hide()
+    //     RbListPage.reload()
+    //     RbHighbar.success($L('成功导入 %d 用户', res.data.succeeded))
+    //   } else {
+    //     setTimeout(() => this._checkState(), 1000)
+    //   }
+    // })
   }
 }
