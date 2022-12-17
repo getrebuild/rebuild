@@ -214,7 +214,7 @@ class FeedsEditor extends React.Component {
             <ul className="list-unstyled list-inline m-0 p-0">
               <li className="list-inline-item use-dropdown">
                 <a onClick={() => this.setState({ renderEmoji: true })} title={$L('表情')} data-toggle="dropdown">
-                  <i className="zmdi zmdi-mood" />
+                  <i className="mdi mdi-emoticon-excited-outline" />
                 </a>
                 <div className="dropdown-menu">{this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}</div>
               </li>
@@ -227,8 +227,8 @@ class FeedsEditor extends React.Component {
                   multiple={false}
                   ref={(c) => (this._UserSelector = c)}
                   compToggle={
-                    <a title={`@${$L('用户')}`} data-toggle="dropdown">
-                      <i className="zmdi at-text">@</i>
+                    <a title={`@${$L('用户')}`} data-toggle="dropdown" className="at-user pt-0">
+                      <i className="mdi mdi-at" />
                     </a>
                   }
                   targetInput={this._$editor}
@@ -238,12 +238,12 @@ class FeedsEditor extends React.Component {
               </li>
               <li className="list-inline-item">
                 <a title={$L('图片')} onClick={() => this._$imageInput.click()}>
-                  <i className="zmdi zmdi-image-o" />
+                  <i className="mdi mdi-image-outline" />
                 </a>
               </li>
               <li className="list-inline-item">
-                <a title={$L('附件')} onClick={() => this._$fileInput.click()} style={{ marginLeft: -5 }}>
-                  <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
+                <a title={$L('附件')} onClick={() => this._$fileInput.click()}>
+                  <i className="mdi mdi-attachment mdi-rotate-315" />
                 </a>
               </li>
             </ul>
@@ -276,7 +276,7 @@ class FeedsEditor extends React.Component {
                 return (
                   <span key={'img-' + item}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} alt="Avatar" />
+                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
                         <span className="zmdi zmdi-close" />
                       </b>
