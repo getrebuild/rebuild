@@ -39,7 +39,7 @@ class UserImport extends RbModalHandler {
             <div className="col-sm-9">
               <div className="float-left">
                 <div className="file-select">
-                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="temp" ref={(c) => (this._upload = c)} />
+                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="temp" ref={(c) => (this._$upload = c)} />
                   <label htmlFor="upload-input" className="btn-secondary">
                     <i className="zmdi zmdi-upload" />
                     <span>{$L('选择文件')}</span>
@@ -64,7 +64,7 @@ class UserImport extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right" />
             <div className="col-sm-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._notify = c)} />
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$notify = c)} />
                 <span className="custom-control-label">
                   {$L('导入成功后发送邮件通知用户')} {window.__PageConfig.serviceMail !== 'true' && <span>({$L('不可用')})</span>}
                 </span>
@@ -72,8 +72,8 @@ class UserImport extends RbModalHandler {
             </div>
           </div>
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={() => this.imports()} ref={(c) => (this._btn = c)}>
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.imports()} ref={(c) => (this._$btn = c)}>
                 {$L('开始导入')}
               </button>
             </div>
@@ -86,7 +86,7 @@ class UserImport extends RbModalHandler {
   componentDidMount() {
     const that = this
     $createUploader(
-      this._upload,
+      this._$upload,
       () => $mp.start(),
       (res) => {
         $mp.end()
@@ -97,10 +97,12 @@ class UserImport extends RbModalHandler {
 
   imports() {
     if (!this.state.uploadFile) return RbHighbar.create($L('请上传文件'))
-    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {
+
+    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._$notify).prop('checked')}`, (res) => {
       if (res.error_code === 0) {
+        $(this._$btn).button('loading')
+
         this.__taskid = res.data
-        $(this._btn).button('loading')
         this._checkState()
       } else {
         RbHighbar.create(res.error_msg)
@@ -111,7 +113,7 @@ class UserImport extends RbModalHandler {
   _checkState() {
     $.get(`/commons/task/state?taskid=${this.__taskid}`, (res) => {
       if (res.data && res.data.isCompleted) {
-        // $(this._btn).button('reset')
+        // $(this._$btn).button('reset')
         this.hide()
         RbListPage.reload()
         RbHighbar.success($L('成功导入 %d 用户', res.data.succeeded))
@@ -125,8 +127,15 @@ class UserImport extends RbModalHandler {
 // 离职继任
 class UserResigntion extends RbModalHandler {
   render() {
+    const title = (
+      <RF>
+        {$L('离职继任')}
+        <sup className="rbv" title={$L('增值功能')} />
+      </RF>
+    )
+
     return (
-      <RbModal title={$L('离职继任')} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('离职用户')}</label>
@@ -142,12 +151,26 @@ class UserResigntion extends RbModalHandler {
               <div className="w-75">
                 <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector2 = c)} />
               </div>
-              <p className="form-text mt-2">{$L('离职继任将把离职用户的业务数据（所属用户）、审批中的记录（审批人）转移至继任用户')}</p>
             </div>
           </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <div className="col-sm-8">
+              <div className="w-75">
+                <label>
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input className="custom-control-input" type="checkbox" ref={(c) => (this._$disabled = c)} />
+                    <span className="custom-control-label">{$L('同时禁用离职用户')}</span>
+                  </label>
+                </label>
+              </div>
+              <p className="form-text mt-2">{$L('离职继任将把离职用户的业务数据 (所属用户)、审批中的记录 (审批人) 转移至继任用户')}</p>
+            </div>
+          </div>
+
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
-              <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._btn = c)}>
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._$btn = c)}>
                 {$L('开始转移')}
               </button>
             </div>
@@ -158,22 +181,42 @@ class UserResigntion extends RbModalHandler {
   }
 
   start() {
+    if (rb.commercial < 100) {
+      RbHighbar.error(WrapHtml($L('免费版不支持离职继任功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    const post = {
+      oldUser: this._UserSelector1.val()[0],
+      newUser: this._UserSelector2.val()[0],
+      disabledOldUser: $val(this._$disabled),
+    }
+    if (!post.oldUser) return RbHighbar.create($L('请选择离职用户'))
+    if (!post.newUser) return RbHighbar.create($L('请选择继任用户'))
+    if (post.oldUser === post.newUser) return RbHighbar.create($L('不能是同一个用户'))
+
+    const that = this
     RbAlert.create($L('如数据较多将耗费较长时间，请耐心等待。确认转移吗？'), {
       onConfirm: function () {
         this.hide()
-      }
+
+        const $btn = $(that._$btn).button('loading')
+        $mp.start()
+
+        $.post('/admin/bizuser/user-resignation', JSON.stringify(post), (res) => {
+          $mp.end()
+
+          if (res.error_code === 0) {
+            RbHighbar.success($L('离职继任数据转移成功'))
+            setTimeout(() => that.hide(), 500)
+          } else {
+            RbHighbar.error(res.error_msg)
+            $btn.button('reset')
+          }
+        })
+      },
     })
   }
 
-  _checkState() {
-    // $.get(`/commons/task/state?taskid=${this.__taskid}`, (res) => {
-    //   if (res.data && res.data.isCompleted) {
-    //     this.hide()
-    //     RbListPage.reload()
-    //     RbHighbar.success($L('成功导入 %d 用户', res.data.succeeded))
-    //   } else {
-    //     setTimeout(() => this._checkState(), 1000)
-    //   }
-    // })
-  }
+  _checkState() {}
 }

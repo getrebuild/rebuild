@@ -50,9 +50,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
         final String recordKey = record.toLiteral();
 
         ID hits = getx(recordKey);
-        if (hits != null) {
-            return hits;
-        }
+        if (hits != null) return hits;
 
         Entity entity = MetadataHelper.getEntity(record.getEntityCode());
         Entity useMain = null;
