@@ -1680,7 +1680,6 @@ class RbFormReference extends RbFormElement {
         name: this.props.field,
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
-        // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
