@@ -86,10 +86,18 @@ public class ApprovalHelper {
      * @return
      */
     public static int checkInUsed(ID approvalId) {
-        Object[] belongEntity = Application.createQueryNoFilter(
-                "select belongEntity from RobotApprovalConfig where configId = ?")
-                .setParameter(1, approvalId)
-                .unique();
+        return checkUsed(approvalId, ApprovalState.PROCESSING);
+    }
+
+    /**
+     * 获取流程使用状态
+     *
+     * @param approvalId
+     * @param state
+     * @return
+     */
+    public static int checkUsed(ID approvalId, ApprovalState state) {
+        Object[] belongEntity = Application.getQueryFactory().uniqueNoFilter(approvalId, "belongEntity");
         Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
 
         String sql = String.format(
@@ -97,7 +105,7 @@ public class ApprovalHelper {
                 entity.getPrimaryField().getName(), entity.getName());
         Object[] inUsed = Application.createQueryNoFilter(sql)
                 .setParameter(1, approvalId)
-                .setParameter(2, ApprovalState.PROCESSING.getState())
+                .setParameter(2, state.getState())
                 .unique();
 
         return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;

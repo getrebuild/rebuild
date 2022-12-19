@@ -22,7 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * Base Controller
+ * Base Controller.
+ * 请求方法可返回 {@link com.rebuild.api.RespBody} 或 {@link JSON}
  *
  * @author Zixin (RB)
  * @since 05/21/2017

@@ -139,32 +139,26 @@ class UserResigntion extends RbModalHandler {
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('离职用户')}</label>
-            <div className="col-sm-8">
-              <div className="w-75">
-                <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector1 = c)} />
-              </div>
+            <div className="col-sm-7">
+              <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector1 = c)} />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('继任用户')}</label>
-            <div className="col-sm-8">
-              <div className="w-75">
-                <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector2 = c)} />
-              </div>
+            <div className="col-sm-7">
+              <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector2 = c)} />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right"></label>
-            <div className="col-sm-8">
-              <div className="w-75">
-                <label>
-                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                    <input className="custom-control-input" type="checkbox" ref={(c) => (this._$disabled = c)} />
-                    <span className="custom-control-label">{$L('同时禁用离职用户')}</span>
-                  </label>
+            <div className="col-sm-7">
+              <label>
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$disabled = c)} />
+                  <span className="custom-control-label">{$L('同时禁用离职用户')}</span>
                 </label>
-              </div>
-              <p className="form-text mt-2">{$L('离职继任将把离职用户的业务数据 (所属用户)、审批中的记录 (审批人) 转移至继任用户')}</p>
+              </label>
+              <p className="form-text mt-1">{$L('离职继任将把离职用户的业务数据 (所属用户、共享用户)、审批中的记录 (审批人) 转移至继任用户')}</p>
             </div>
           </div>
 
@@ -181,7 +175,7 @@ class UserResigntion extends RbModalHandler {
   }
 
   start() {
-    if (rb.commercial < 100) {
+    if (rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持离职继任功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
@@ -196,7 +190,7 @@ class UserResigntion extends RbModalHandler {
     if (post.oldUser === post.newUser) return RbHighbar.create($L('不能是同一个用户'))
 
     const that = this
-    RbAlert.create($L('如数据较多将耗费较长时间，请耐心等待。确认转移吗？'), {
+    RbAlert.create($L('如数据较多耗时会较长，请耐心等待。确定转移吗？'), {
       onConfirm: function () {
         this.hide()
 
@@ -207,8 +201,8 @@ class UserResigntion extends RbModalHandler {
           $mp.end()
 
           if (res.error_code === 0) {
-            RbHighbar.success($L('离职继任数据转移成功'))
-            setTimeout(() => that.hide(), 500)
+            RbHighbar.success($L('数据转移完成'))
+            setTimeout(() => that.hide(), 1500)
           } else {
             RbHighbar.error(res.error_msg)
             $btn.button('reset')

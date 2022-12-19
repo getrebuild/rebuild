@@ -25,6 +25,7 @@ import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -56,7 +57,7 @@ public class DataImporter extends HeavyTask<Integer> {
         final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
         this.setTotal(rows.size() - 1);
 
-        final ID defaultOwning = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
+        final ID defaultOwning = ObjectUtils.defaultIfNull(rule.getDefaultOwningUser(), getUser());
         GeneralEntityServiceContextHolder.setSkipSeriesValue();
 
         for (final Cell[] row : rows) {
@@ -192,6 +193,7 @@ public class DataImporter extends HeavyTask<Integer> {
 
     /**
      * 错误日志
+     *
      * @return
      */
     public List<Object[]> getTraceLogs() {

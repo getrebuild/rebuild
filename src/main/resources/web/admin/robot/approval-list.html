@@ -4,6 +4,11 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/approval" />
     <title>[[${bundle.L('审批流程')}]]</title>
+    <style>
+      .badge.badge-light {
+        cursor: help;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside" th:classappend="${sideCollapsedClazz}">
@@ -23,7 +28,13 @@
         <div class="page-head">
           <div class="float-left"><div class="page-head-title">[[${bundle.L('审批流程')}]]</div></div>
           <div class="float-right pt-1">
-            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+            <div class="btn-group">
+              <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+              <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
+              <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                <a class="dropdown-item J_referral"><i class="icon mdi mdi-account-arrow-right-outline"></i> [[${bundle.L('批量转审')}]]</a>
+              </div>
+            </div>
           </div>
           <div class="float-right pt-1 mr-3">
             <div class="input-group input-search">
@@ -47,6 +58,7 @@
                           <tr>
                             <th>[[${bundle.L('名称')}]]</th>
                             <th>[[${bundle.L('应用实体')}]]</th>
+                            <th>[[${bundle.L('使用情况')}]]</th>
                             <th width="80" class="no-sort">[[${bundle.L('启用')}]]</th>
                             <th width="120" class="no-sort">[[${bundle.L('修改时间')}]]</th>
                             <th width="80" class="no-sort"></th>
