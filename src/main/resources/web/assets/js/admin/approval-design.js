@@ -634,12 +634,26 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className={`form-group mb-3 ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
             <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
-          <div className="form-group mb-0">
+          <div className="form-group">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
               <span className="custom-control-label">{$L('同时允许自选')}</span>
             </label>
           </div>
+
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
+              <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('允许转审')}</span>
+            </label>
+          </div>
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('允许加签')}</span>
+            </label>
+          </div>
+
           <div className="form-group mt-4">
             <label className="text-bold">{$L('当有多人审批时')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2 hide">
