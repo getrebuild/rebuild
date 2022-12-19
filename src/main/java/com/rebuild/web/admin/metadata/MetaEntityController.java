@@ -169,7 +169,7 @@ public class MetaEntityController extends BaseController {
 
         try {
             String entityName = new Entity2Schema()
-                    .createEntity(label, comments, mainEntity, getBoolParameter(request, "nameField"));
+                    .createEntity(label, comments, mainEntity, getBoolParameter(request, "nameField"), getBoolParameter(request, "seriesField"));
             return RespBody.ok(entityName);
         } catch (Exception ex) {
             log.error("entity-new", ex);
