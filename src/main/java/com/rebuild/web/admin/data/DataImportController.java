@@ -59,16 +59,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping({ "/admin/data/", "/app/data/" })
 public class DataImportController extends BaseController {
 
-    /**
-      * 管理员访问路径/admin/data/data-imports，普通用户访问路径:/app/data/data-imports
-    */
-    private static final String ADMIN_URI = "/admin/data/data-imports";
-
     @GetMapping("/data-imports")
     public ModelAndView page(HttpServletRequest request) {
         ModelAndView modelAndView =  new ModelAndView("/admin/data/data-imports");
         String uri = request.getRequestURI();
-        modelAndView.addObject("navLeft", ADMIN_URI.equals(uri)
+        modelAndView.addObject("navLeft", uri.contains("/admin/")
                 ? "~{/_include/nav-left-admin(active='data-imports')}" : "~{/_include/nav-left}");
         return modelAndView;
     }
