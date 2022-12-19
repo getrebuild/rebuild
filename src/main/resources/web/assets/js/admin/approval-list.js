@@ -57,8 +57,8 @@ class ApprovalList extends ConfigList {
       if (s[0] + s[1] === 0) {
         states.push(`<span class="text-warning">(${$L('未使用')})</span>`)
       } else {
-        if (s[0] > 0) states.push(`<span class="badge badge-light text-warning" title="${$L('审批中')}">${s[0]}</span>`)
-        if (s[1] > 0) states.push(`<span class="badge badge-light text-success" title="${$L('审批通过')}">${s[1]}</span>`)
+        if (s[0] > 0) states.push(`<span class="badge badge-light text-warning border-warning" title="${$L('审批中')}">${s[0]}</span>`)
+        if (s[1] > 0) states.push(`<span class="badge badge-light text-success border-success" title="${$L('审批通过')}">${s[1]}</span>`)
       }
       $(`.J_state-${aid}`).html(states.join(''))
     }
