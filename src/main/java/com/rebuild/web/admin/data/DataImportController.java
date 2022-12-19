@@ -7,12 +7,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.excel.Cell;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
@@ -33,19 +41,14 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
@@ -53,12 +56,21 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/data/")
+@RequestMapping({ "/admin/data/", "/app/data/" })
 public class DataImportController extends BaseController {
 
+    /**
+      * 管理员访问路径/admin/data/data-imports，普通用户访问路径:/app/data/data-imports
+    */
+    private static final String ADMIN_URI = "/admin/data/data-imports";
+
     @GetMapping("/data-imports")
-    public ModelAndView page() {
-        return createModelAndView("/admin/data/data-imports");
+    public ModelAndView page(HttpServletRequest request) {
+        ModelAndView modelAndView =  new ModelAndView("/admin/data/data-imports");
+        String uri = request.getRequestURI();
+        modelAndView.addObject("navLeft", ADMIN_URI.equals(uri)
+                ? "~{/_include/nav-left-admin(active='data-imports')}" : "~{/_include/nav-left}");
+        return modelAndView;
     }
 
     // 检查导入文件

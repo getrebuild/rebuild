@@ -51,7 +51,7 @@
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
-      <th:block th:replace="~{/_include/nav-left-admin(active='data-imports')}" />
+      <th:blcok th:replace="__${navLeft}__"/>
       <div class="rb-content">
         <div class="page-head">
           <div class="page-head-title">[[${bundle.L('数据导入')}]]</div>
