@@ -104,7 +104,7 @@ const step2_mapping = () => {
   }
 
   const $btn = $('.J_step1-btn').button('loading')
-  $.get(`/${rb.isAdminVerified ? 'admin' : 'app'}/data/data-imports/check-file?file=${$encode(_Config.file)}`, (res) => {
+  $.get(`/${location.pathname.contains('/admin/') ? 'admin' : 'app'}/data/data-imports/check-file?file=${$encode(_Config.file)}`, (res) => {
     $btn.button('reset')
     if (res.error_code > 0) {
       RbHighbar.create(res.error_msg)
@@ -149,7 +149,7 @@ const step3_import = () => {
   RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
     confirm: function () {
       this.disabled(true)
-      $.post(`/${rb.isAdminVerified ? 'admin' : 'app'}/data/data-imports/import-submit`, JSON.stringify(_Config), (res) => {
+      $.post(`/${location.pathname.contains('/admin/') ? 'admin' : 'app'}/data/data-imports/import-submit`, JSON.stringify(_Config), (res) => {
         if (res.error_code === 0) {
           this.hide()
           step3_import_show()
@@ -305,7 +305,7 @@ function _secToTime(s) {
 // 检查所属用户权限
 function _checkUserPrivileges() {
   if (!_Config.entity || !_Config.owning_user) return
-  $.get(`/${rb.isAdminVerified ? 'admin' : 'app'}/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
+  $.get(`/${location.pathname.contains('/admin/') ? 'admin' : 'app'}/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
     let hasError = []
     if (res.data.canCreate !== true) hasError.push($L('新建'))
     if (res.data.canUpdate !== true) hasError.push($L('编辑'))
@@ -331,7 +331,7 @@ function _renderRepeatFields(entity) {
   const excludeNames = ['createdBy', 'createdOn', 'modifiedOn', 'modifiedBy']
   const excludeTypes = ['AVATAR', 'FILE', 'IMAGE', 'MULTISELECT', 'N2NREFERENCE', 'LOCATION']
 
-  $.get(`/${rb.isAdminVerified ? 'admin' : 'app'}/data/data-imports/import-fields?entity=${entity}`, (res) => {
+  $.get(`/${location.pathname.contains('/admin/') ? 'admin' : 'app'}/data/data-imports/import-fields?entity=${entity}`, (res) => {
     $(res.data).each(function () {
       if (excludeNames.includes(this.name) || excludeTypes.includes(this.type)) return
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
@@ -427,7 +427,7 @@ class ImportsTraceViewer extends RbAlert {
   }
 
   load() {
-    $.get(`/${rb.isAdminVerified ? 'admin' : 'app'}/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
+    $.get(`/${location.pathname.contains('/admin/') ? 'admin' : 'app'}/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
       if (res.error_code === 0) {
         this._datas = res.data || []
         this.showData()
