@@ -47,26 +47,13 @@ public class Entity2Schema extends Field2Schema {
     }
 
     /**
+     * @param entityName [可空]
      * @param entityLabel
      * @param comments
      * @param mainEntity
      * @param haveNameField
      * @param haveSeriesField
-     * @return
-     * @see #createEntity(String, String, String, boolean, boolean)
-     */
-    public String createEntity(String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
-        return createEntity(null, entityLabel, comments, mainEntity, haveNameField, haveSeriesField);
-    }
-
-    /**
-     * @param entityName
-     * @param entityLabel
-     * @param comments
-     * @param mainEntity
-     * @param haveNameField
-     * @param haveSeriesField
-     * @return returns 实体名称
+     * @return Returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
         if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
