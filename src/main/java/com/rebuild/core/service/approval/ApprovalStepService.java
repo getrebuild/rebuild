@@ -499,6 +499,10 @@ public class ApprovalStepService extends InternalPersistService {
         ApprovalProcessor.share2CcIfNeed(recordId, ccs4share);
     }
 
+    public void txUpdateApprovers() {
+
+    }
+
     /**
      * @param currentNode
      * @param rejectNode

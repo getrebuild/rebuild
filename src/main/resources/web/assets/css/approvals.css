@@ -475,6 +475,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  padding-right: 16px;
 }
 
 .node-wrap-box .content .arrow,

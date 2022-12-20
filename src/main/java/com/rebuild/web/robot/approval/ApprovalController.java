@@ -24,6 +24,7 @@ import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.approval.*;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdArrayParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -32,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -133,11 +135,14 @@ public class ApprovalController extends BaseController {
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
         // current
-        data.put("isRejectStep", approvalProcessor.getCurrentNode().getRejectStep());
-        data.put("currentNode", approvalProcessor.getCurrentNode().getNodeId());
+        final FlowNode currentFlowNode = approvalProcessor.getCurrentNode();
+        data.put("isRejectStep", currentFlowNode.getRejectStep());
+        data.put("currentNode", currentFlowNode.getNodeId());
+        data.put("allowReferral", currentFlowNode.allowReferral());
+        data.put("allowCountersign", currentFlowNode.allowCountersign());
 
         // 可修改字段
-        JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
+        JSONArray editableFields = currentFlowNode.getEditableFields();
         if (editableFields != null && !editableFields.isEmpty()) {
             JSONArray aform = new FormBuilder(recordId, user).build(editableFields);
             if (aform != null && !aform.isEmpty()) {
@@ -246,6 +251,28 @@ public class ApprovalController extends BaseController {
     public RespBody doRevoke(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).revoke();
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("referral")
+    public RespBody doReferral(@IdParam(name = "record") ID recordId, @IdParam(name = "to") ID toUser) {
+        try {
+            new ApprovalProcessor(recordId).referral(toUser);
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("countersign")
+    public RespBody doCountersign(@IdParam(name = "record") ID recordId, @IdArrayParam(name = "to") ID[] toUsers) {
+        try {
+            new ApprovalProcessor(recordId).countersign(toUsers);
             return RespBody.ok();
 
         } catch (ApprovalException ex) {

@@ -180,15 +180,7 @@ public class FlowNodeGroup {
         FlowNode node = getApprovalNode();
         return node == null ? FlowNode.SIGN_OR : node.getSignMode();
     }
-
-    /**
-     * @return
-     */
-    public boolean getRejectStep() {
-        FlowNode node = getApprovalNode();
-        return node == null ? Boolean.FALSE : node.getRejectStep();
-    }
-
+    
     /**
      * @return
      */

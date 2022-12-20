@@ -138,11 +138,7 @@ public class ApprovalProcessor extends SetUser {
      * @throws ApprovalException
      */
     public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode) throws ApprovalException {
-        final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
-        ApprovalState currentState = status.getCurrentState();
-        if (currentState != ApprovalState.PROCESSING) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
-        }
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         final Object[] stepApprover = Application.createQueryNoFilter(
                 "select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
@@ -205,26 +201,20 @@ public class ApprovalProcessor extends SetUser {
      * @throws ApprovalException
      */
     public void cancel() throws ApprovalException {
-        final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
-        ApprovalState currentState = status.getCurrentState();
-        if (currentState != ApprovalState.PROCESSING) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
-        }
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         Application.getBean(ApprovalStepService.class).txCancel(
                 this.record, status.getApprovalId(), getCurrentNodeId(status), false);
     }
 
     /**
-     * 3.1.催审
+     * 2.1.催审
      *
      * @return -1=频率超限 5m
      */
     public int urge() {
-        if (this.approval == null) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(this.record, EntityHelper.ApprovalId);
-            this.approval = (ID) o[0];
-        }
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
+        this.approval = status.getApprovalId();
 
         final String sentKey = String.format("URGE:%s-%s", this.approval, this.record);
         if (Application.getCommonsCache().getx(sentKey) != null) {
@@ -245,8 +235,29 @@ public class ApprovalProcessor extends SetUser {
             sent++;
         }
 
+        // 5m
         Application.getCommonsCache().putx(sentKey, CalendarUtils.now(), CacheTemplate.TS_MINTE * 5);
         return sent;
+    }
+
+    /**
+     * 2.2.转审
+     *
+     * @param toUser
+     */
+    public void referral(ID toUser) {
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
+        this.approval = status.getApprovalId();
+    }
+
+    /**
+     * 2.3.加签
+     *
+     * @param toUsers
+     */
+    public void countersign(ID[] toUsers) {
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
+        this.approval = status.getApprovalId();
     }
 
     /**
@@ -255,10 +266,7 @@ public class ApprovalProcessor extends SetUser {
      * @throws ApprovalException
      */
     public void revoke() throws ApprovalException {
-        final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
-        if (status.getCurrentState() != ApprovalState.APPROVED) {
-            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
-        }
+        final ApprovalStatus status = checkApprovalState(ApprovalState.APPROVED);
 
         Object[] count = Application.createQueryNoFilter(
                 "select count(stepId) from RobotApprovalStep where recordId = ? and state = ?")
@@ -633,5 +641,13 @@ public class ApprovalProcessor extends SetUser {
                 }
             }
         }
+    }
+
+    private ApprovalStatus checkApprovalState(ApprovalState mustbe) {
+        final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+        if (status.getCurrentState() != mustbe) {
+            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
+        }
+        return status;
     }
 }
