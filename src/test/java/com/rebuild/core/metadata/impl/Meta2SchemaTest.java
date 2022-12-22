@@ -30,7 +30,7 @@ class Meta2SchemaTest extends TestSupport {
     @Test
     void testCreateEntity() {
         String newEntityName = new Entity2Schema(UserService.ADMIN_USER)
-                .createEntity("测试实体", null, null, false);
+                .createEntity(null, "测试实体", null, null, Boolean.TRUE, Boolean.TRUE);
         System.out.println("New Entity is created : " + newEntityName);
 
         Entity newEntity = MetadataHelper.getEntity(newEntityName);
@@ -41,7 +41,7 @@ class Meta2SchemaTest extends TestSupport {
     @Test
     void testCreateField() {
         String newEntityName = new Entity2Schema(UserService.ADMIN_USER)
-                .createEntity("测试字段", null, null, false);
+                .createEntity(null, "测试字段", null, null, Boolean.TRUE, Boolean.TRUE);
         Entity newEntity = MetadataHelper.getEntity(newEntityName);
 
         String newFiled = new Field2Schema(UserService.ADMIN_USER)

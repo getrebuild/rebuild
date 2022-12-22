@@ -265,10 +265,6 @@ class ApprovalProcessor extends React.Component {
 
 // 审批人/抄送人选择
 class ApprovalUsersForm extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   renderUsers() {
     if (!this.state.isLoaded) return null
 
@@ -288,7 +284,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {approverHas ? (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
+              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
@@ -311,7 +307,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {ccHas && (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-mail-send zicon" /> {$L('本次审批结果将抄送给')}
+              <i className="zmdi zmdi-mail-send zicon" /> {this._ccLabel || $L('本次审批结果将抄送给')}
             </label>
             <div>
               {(this.state.nextCcs || []).map((item) => {
@@ -326,12 +322,10 @@ class ApprovalUsersForm extends RbFormHandler {
 
             {(this.state.nextCcAccounts || []).length > 0 && (
               <div className="mt-2 cc-accounts">
-                <span>{$L('及以下外部人员')}</span>
-                <div className="mt-1">
-                  {this.state.nextCcAccounts.map((me) => {
-                    return <a key={me}>{me}</a>
-                  })}
-                </div>
+                <span className="mr-1">{$L('及以下外部人员')}</span>
+                {this.state.nextCcAccounts.map((me) => {
+                  return <a key={me}>{me}</a>
+                })}
               </div>
             )}
           </div>
@@ -371,6 +365,8 @@ class ApprovalUsersForm extends RbFormHandler {
 class ApprovalSubmitForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
+    this._ccLabel = $L('本次提交将抄送给')
+    this._approverLabel = $L('审批人')
     this.state.approvals = []
   }
 
@@ -456,11 +452,6 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 
 // 审批
 class ApprovalApproveForm extends ApprovalUsersForm {
-  constructor(props) {
-    super(props)
-    this._approverLabel = $L('下一审批人')
-  }
-
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('审批')} width="600">
@@ -470,12 +461,16 @@ class ApprovalApproveForm extends ApprovalUsersForm {
               <RbAlertBox message={this.state.bizMessage} onClose={() => this.setState({ bizMessage: null })} />
             </div>
           )}
-          {this.state.aform && this._renderEditableForm()}
+
+          {this.state.aform && this.renderLiteForm()}
+
           <div className="form-group">
             <label>{$L('批注')}</label>
             <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
           </div>
+
           {this.renderUsers()}
+
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
             <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
               {$L('同意')}
@@ -483,13 +478,33 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
               {$L('驳回')}
             </button>
+
+            {(this.state.allowReferral || this.state.allowCountersign) && (
+              <div className="btn-group btn-space">
+                <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
+                  <i className="icon zmdi zmdi-more-vert" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  {this.state.allowReferral && (
+                    <a className="dropdown-item" onClick={() => this._handleReferral()}>
+                      <i className="icon mdi mdi-account-arrow-right-outline" /> {$L('转审')}
+                    </a>
+                  )}
+                  {this.state.allowCountersign && (
+                    <a className="dropdown-item" onClick={() => this._handleCountersign()}>
+                      <i className="icon mdi mdi-account-multiple-plus-outline" /> {$L('加签')}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </RbModal>
     )
   }
 
-  _renderEditableForm() {
+  renderLiteForm() {
     const fake = {
       state: { id: this.props.id },
     }
@@ -497,13 +512,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <EditableForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
+        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}
-        </EditableForm>
+        </LiteForm>
       </div>
     )
   }
@@ -558,18 +573,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   post2(state, rejectNode, _alert) {
-    const aformData = {}
+    let aformData = {}
     if (this.state.aform && state === 10) {
-      const fd = this._rbform.__FormData
-      for (let k in fd) {
-        const err = fd[k].error
-        if (err) {
-          RbHighbar.create(err)
-          return
-        }
-        aformData[k] = fd[k].value
-      }
-      aformData.metadata = { id: this.props.id }
+      aformData = this._rbform.buildFormData()
+      if (aformData === false) return
     }
 
     let selectUsers
@@ -585,48 +592,92 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       useGroup: this.state.useGroup,
     }
 
-    const that = this
-    function fn() {
-      that.disabled(true)
-      _alert && _alert.disabled(true)
-      $.post(`/app/entity/approval/approve?record=${that.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
-        that.disabled()
-        _alert && _alert.disabled()
+    _alert && _alert.disabled(true)
+    this.disabled(true)
 
-        if (res.error_code === 498) {
-          that.setState({ bizMessage: res.error_msg })
-          that.getNextStep()
-        } else if (res.error_code > 0) {
-          RbHighbar.error(res.error_msg)
+    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
+      _alert && _alert.disabled()
+      this.disabled()
+
+      if (res.error_code === 498) {
+        this.setState({ bizMessage: res.error_msg })
+        this.getNextStep()
+      } else if (res.error_code > 0) {
+        RbHighbar.error(res.error_msg)
+      } else {
+        _alert && _alert.hide()
+        _reload(this, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
+        typeof this.props.call === 'function' && this.props.call()
+      }
+    })
+  }
+
+  _handleReferral() {
+    const that = this
+    function handle(to, _alert) {
+      _alert.disabled(true)
+      $.post(`/app/entity/approval/referral?record=${that.props.id}&to=${to}`, (res) => {
+        _alert.disabled()
+
+        if (res.error_code === 0) {
+          _alert.hide()
+          _reload(that, $L('已转审'))
         } else {
-          _alert && _alert.hide()
-          _reload(that, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
-          typeof that.props.call === 'function' && that.props.call()
+          RbHighbar.error(res.error_msg)
         }
       })
     }
 
-    fn()
+    let _UserSelector
+    RbAlert.create(
+      <RF>
+        <div className="text-bold">{$L('请选择转审给谁')}</div>
+        <div className="widget-sm mt-3">
+          <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (_UserSelector = c)} />
+        </div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const to = _UserSelector.val()[0]
+          if (!to) return RbHighbar.create($L('请选择转审给谁'))
+          handle(to, this)
+        },
+      }
+    )
   }
-}
 
-// @see `rb-forms.js`
-// eslint-disable-next-line no-undef
-class EditableForm extends RbForm {
-  constructor(props) {
-    super(props)
-  }
+  _handleCountersign() {
+    const that = this
+    function handle(to, _alert) {
+      _alert.disabled(true)
+      $.post(`/app/entity/approval/countersign?record=${that.props.id}&to=${to.join(',')}`, (res) => {
+        _alert.disabled()
 
-  renderFormAction() {
-    return null
-  }
+        if (res.error_code === 0) {
+          _alert.hide()
+          _reload(that, $L('已加签'))
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
+      })
+    }
 
-  renderDetailForm() {
-    return null
-  }
-
-  renderCustomizedFormArea() {
-    return null
+    let _UserSelector
+    RbAlert.create(
+      <RF>
+        <div className="text-bold">{$L('请选择加签哪些用户')}</div>
+        <div className="widget-sm mt-3">
+          <UserSelector hideDepartment hideRole hideTeam multiple ref={(c) => (_UserSelector = c)} />
+        </div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const to = _UserSelector.val()
+          if (to.length === 0) return RbHighbar.create($L('请选择加签哪些用户'))
+          handle(to, this)
+        },
+      }
+    )
   }
 }
 
@@ -716,7 +767,9 @@ class ApprovalStepViewer extends React.Component {
       if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state] || item.state)
       if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
-      const action = item.approver === rb.currentUser && item.state === 1 && stateLast === 1
+      // TODO 验证是否有 BUG
+      let approveAction = item.approver === rb.currentUser && item.state === 1 && stateLast === 2
+      approveAction = false
 
       sss.push(
         <li className={`timeline-item state${item.state}`} key={`step-${$random()}`}>
@@ -728,11 +781,22 @@ class ApprovalStepViewer extends React.Component {
             <div className="timeline-header">
               <p className="timeline-activity">
                 {aMsg}
-                {action && (
+                {item.referralFrom && (
+                  <span className="badge badge-danger" title={$L('由 %s 转审', item.referralFrom)}>
+                    {$L('转审')}
+                  </span>
+                )}
+                {item.countersignFrom && (
+                  <span className="badge badge-danger" title={$L('由 %s 加签', item.countersignFrom)}>
+                    {$L('加签')}
+                  </span>
+                )}
+                {approveAction && (
                   <a
-                    href="javascript:;"
+                    href="###"
                     className="action"
-                    onClick={() => {
+                    onClick={(e) => {
+                      $stopEvent(e, true)
                       this.props.$$$parent && this.props.$$$parent.approve()
                       this.hide()
                     }}>

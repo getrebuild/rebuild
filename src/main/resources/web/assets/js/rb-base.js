@@ -505,3 +505,11 @@ var $clone = function (o) {
   if (!o) return o
   return JSON.parse(JSON.stringify(o))
 }
+
+/**
+ * CommonsUtils#escapeHtml
+ */
+var $escapeHtml = function (s) {
+  if (!s) return ''
+  return s.replace(/</gi, '&lt;').replace(/>/gi, '&gt;')
+}

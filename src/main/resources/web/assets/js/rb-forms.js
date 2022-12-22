@@ -1680,7 +1680,6 @@ class RbFormReference extends RbFormElement {
         name: this.props.field,
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
-        // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -2418,22 +2417,7 @@ class RbFormTag extends RbFormElement {
   constructor(props) {
     super(props)
 
-    let options = [...props.options]
-    let selected = []
-    if (this.props.$$$parent.isNew) {
-      props.options.forEach((item) => {
-        if (item.default) selected.push(item.name)
-      })
-    } else if (props.value) {
-      props.value.forEach((name) => {
-        selected.push(name)
-        const found = props.options.find((x) => x.name === name)
-        if (!found) options.push({ name: name })
-      })
-    }
-    this._options = options
-    this._selected = selected
-
+    this._initOptions()
     this.__maxSelect = props.tagMaxSelect || 20
   }
 
@@ -2458,9 +2442,33 @@ class RbFormTag extends RbFormElement {
     return <div className="form-control-plaintext multi-values">{__findTagTexts(this.props.options, this.state.value)}</div>
   }
 
+  _initOptions() {
+    const props = this.props
+
+    let options = [...props.options]
+    let selected = []
+    if (props.$$$parent.isNew) {
+      props.options.forEach((item) => {
+        if (item.default) selected.push(item.name)
+      })
+    } else if (this.state.value) {
+      let value = this.state.value
+      if (typeof value === 'string') value = value.split('$$$$') // Save after
+
+      value.forEach((name) => {
+        selected.push(name)
+        const found = props.options.find((x) => x.name === name)
+        if (!found) options.push({ name: name })
+      })
+    }
+    this._options = options
+    this._selected = selected
+  }
+
   onEditModeChanged(destroy) {
     if (destroy) {
       super.onEditModeChanged(destroy)
+      this._initOptions()
     } else {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: $L('输入%s', this.props.label),

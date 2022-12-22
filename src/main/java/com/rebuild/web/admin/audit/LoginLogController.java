@@ -74,17 +74,7 @@ public class LoginLogController extends EntityController {
     @RequestMapping("/admin/audit/kill-session")
     public RespBody killSession(HttpServletRequest request) {
         String sessionId = getParameterNotNull(request, "user");
-
-        for (HttpSession s : Application.getSessionStore().getAllSession()) {
-            if (s.getId().equals(sessionId)) {
-                log.warn("Admin kill session : {} ({})", sessionId, s.getAttribute(WebUtils.CURRENT_USER));
-                try {
-                    s.invalidate();
-                } catch (Exception ignored) {
-                }
-                break;
-            }
-        }
+        Application.getSessionStore().killSession(sessionId);
         return RespBody.ok();
     }
 

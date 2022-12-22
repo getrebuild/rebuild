@@ -131,7 +131,8 @@ public class TestSupport {
 
         if (!MetadataHelper.containsEntity(TestAllFields)) {
             Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-            String entityName = entity2Schema.createEntity(TestAllFields.toUpperCase(), null, null, true);
+            String entityName = entity2Schema.createEntity(
+                    null, TestAllFields.toUpperCase(), null, null, Boolean.TRUE, Boolean.FALSE);
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {

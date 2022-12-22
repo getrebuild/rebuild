@@ -195,7 +195,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
         Entity2Schema entity2Schema = new Entity2Schema(this.getUser());
         entity2Schema.createEntity(
-                entityName, entityLabel, schema.getString("comments"), mainEntity, false);
+                entityName, entityLabel, schema.getString("comments"), mainEntity, Boolean.FALSE, Boolean.FALSE);
 
         Entity newEntity = MetadataHelper.getEntity(entityName);
         this.setCompleted((int) (this.getCompleted() * 1.5));

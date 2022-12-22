@@ -742,6 +742,14 @@ div.dataTables_filter .filter-badge:hover .close {
   max-width: 551px;
 }
 
+.modal.show.rbalert {
+  z-index: 1051;
+}
+
+.modal-backdrop.show.rbalert {
+  z-index: 1050;
+}
+
 .modal-body.iframe {
   padding: 0 !important;
   height: 100%;
@@ -840,28 +848,10 @@ body.view-body {
   color: #4285f4;
 }
 
-.select2-container--default.data-filter-tip .select2-results__options::after {
-  content: '当前字段已启用数据过滤';
-  display: block;
-  background-color: #f2f3f4;
-  color: #777;
-  font-style: italic;
-  font-size: 12px;
-  padding: 2px 10px;
-}
-
 .select2-container--default .select2-selection--multiple,
 .select2-container--default .select2-selection--single {
   border-width: 1px;
   border-top-color: #bdc0c7;
-}
-
-.select2-container--default .select2-results__option--highlighted::after {
-  font-family: 'Material Design Icons', serif;
-  content: '\F0311';
-  float: right;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
 }
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field,
@@ -871,6 +861,14 @@ body.view-body {
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;
+}
+
+.select2-container--default .select2-results__option--highlighted:not([id])::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F0311';
+  float: right;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
 }
 
 textarea.row2x {
@@ -1360,7 +1358,8 @@ select.form-control:not([disabled]) {
   color: #fff;
 }
 
-.rbhighbar > .alert > .message a[target='_blank']:hover {
+.rbhighbar > .alert > .message a[target='_blank']:hover,
+.admin-danger-list a[target='_blank']:hover {
   text-decoration: underline;
 }
 

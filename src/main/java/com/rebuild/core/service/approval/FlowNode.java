@@ -249,6 +249,22 @@ public class FlowNode {
         return mobileOrEmail;
     }
 
+    /**
+     * @return
+     */
+    public boolean allowReferral() {
+        Boolean b = getDataMap().getBoolean("allowReferral");
+        return b == null || b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowCountersign() {
+        Boolean b = getDataMap().getBoolean("allowCountersign");
+        return b == null || b;
+    }
+
     @Override
     public String toString() {
         String string = String.format("Id:%s, Type:%s", nodeId, type);

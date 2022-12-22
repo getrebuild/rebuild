@@ -277,11 +277,17 @@ class RbAlert extends React.Component {
   componentDidMount() {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
-      .on('hidden.bs.modal', () => {
+      .on('hidden.bs.modal', function () {
         $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
       })
+
+    // z-index
+    setTimeout(() => {
+      const mb = $('.modal-backdrop.show')
+      if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
+    }, 0)
   }
 
   hide(forceHide) {

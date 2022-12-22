@@ -97,7 +97,7 @@ public class UseThemeController extends BaseController {
 
         KVStorage.setCustomValue("THEME." + user, theme);
         ServletUtils.setSessionAttribute(request, LoginController.SK_USER_THEME, theme);
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 
     // -- LOGO
