@@ -681,29 +681,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 }
 
-// class ApprovalAlert extends RbAlert {
-
-//   renderContent() {
-//     return (
-
-//       <div className="text-center ml-6 mr-6" ref={(c) => (this._element = c)}>
-//         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
-//         <div className={this.props.title ? '' : 'mt-3'}>
-//           <div>{this.props.message}</div>
-//         </div>
-//         <div className="mt-4 mb-3">
-//           <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
-//             {this.props.cancelText || $L('取消')}
-//           </button>
-//           <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
-//             {this.props.confirmText || $L('确定')}
-//           </button>
-//         </div>
-//       </div>
-//     )
-//   }
-// }
-
 const STATE_NAMES = {
   10: $L('审批同意'),
   11: $L('审批驳回'),
