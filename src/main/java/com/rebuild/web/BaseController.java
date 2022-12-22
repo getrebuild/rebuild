@@ -19,7 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base Controller.
@@ -48,24 +50,10 @@ public abstract class BaseController extends Controller {
 
     /**
      * @param response
-     */
-    protected void writeSuccess(HttpServletResponse response) {
-        writeSuccess(response, null);
-    }
-
-    /**
-     * @param response
      * @param data
      */
     protected void writeSuccess(HttpServletResponse response, Object data) {
         writeJSON(response, formatSuccess(data));
-    }
-
-    /**
-     * @param response
-     */
-    protected void writeFailure(HttpServletResponse response) {
-        writeFailure(response, null);
     }
 
     /**
@@ -77,14 +65,9 @@ public abstract class BaseController extends Controller {
     }
 
     /**
-     * @param response
-     * @param message
-     * @param errorCode
+     * @see com.rebuild.api.RespBody
+     * @see ControllerRespBodyAdvice
      */
-    protected void writeFailure(HttpServletResponse response, String message, int errorCode) {
-        writeJSON(response, formatFailure(message, errorCode));
-    }
-
     private void writeJSON(HttpServletResponse response, Object aJson) {
         String aJsonString;
         if (aJson instanceof String) {
@@ -194,6 +177,22 @@ public abstract class BaseController extends Controller {
         String v = request.getParameter(name);
         if (ID.isId(v)) return ID.valueOf(v);
         throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, v));
+    }
+
+    /**
+     * @param request
+     * @param name
+     * @return
+     */
+    protected ID[] getIdArrayParameter(HttpServletRequest request, String name) {
+        String v = request.getParameter(name);
+        if (v == null) return ID.EMPTY_ID_ARRAY;
+
+        Set<ID> set = new LinkedHashSet<>();
+        for (String id : v.split("[,;|]")) {
+            if (ID.isId(id)) set.add(ID.valueOf(id));
+        }
+        return set.toArray(new ID[0]);
     }
 
     /**

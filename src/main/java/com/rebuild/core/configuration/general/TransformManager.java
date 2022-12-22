@@ -99,11 +99,11 @@ public class TransformManager implements ConfigManager {
         throw new ConfigurationException("No `TransformConfig` found : " + configId);
     }
 
-    @SuppressWarnings("unchecked")
     public List<ConfigBean> getRawTransforms(String sourceEntity) {
         final String cKey = "TransformManager31-" + sourceEntity;
         Object cached = Application.getCommonsCache().getx(cKey);
         if (cached != null) {
+            //noinspection unchecked
             return (List<ConfigBean>) cached;
         }
 

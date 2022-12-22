@@ -742,6 +742,14 @@ div.dataTables_filter .filter-badge:hover .close {
   max-width: 551px;
 }
 
+.modal.show.rbalert {
+  z-index: 1051;
+}
+
+.modal-backdrop.show.rbalert {
+  z-index: 1050;
+}
+
 .modal-body.iframe {
   padding: 0 !important;
   height: 100%;
