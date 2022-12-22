@@ -93,7 +93,7 @@ public class CommonsUtils {
 
         // https://www.php.net/htmlspecialchars
         return text.toString()
-                .replace("&", "&amp;")
+//                .replace("&", "&amp;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;")
                 .replace(">", "&gt;")
