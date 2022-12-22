@@ -24,7 +24,6 @@ import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.approval.*;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.IdArrayParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -33,7 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -83,7 +81,7 @@ public class ApprovalController extends BaseController {
             data.put("approvalId", useApproval);
             // 审批中
             if (stateVal < ApprovalState.APPROVED.getState()) {
-                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status.getCurrentStepNode());
+                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status);
                 data.put("currentStep", current);
 
                 for (Object o : current) {
@@ -259,9 +257,9 @@ public class ApprovalController extends BaseController {
     }
 
     @RequestMapping("referral")
-    public RespBody doReferral(@IdParam(name = "record") ID recordId, @IdParam(name = "to") ID toUser) {
+    public RespBody doReferral(@IdParam(name = "record") ID recordId, @IdParam(name = "to") ID toUser, HttpServletRequest request) {
         try {
-            new ApprovalProcessor(recordId).referral(toUser);
+            new ApprovalProcessor(recordId).referral(getRequestUser(request), toUser);
             return RespBody.ok();
 
         } catch (ApprovalException ex) {
@@ -270,9 +268,10 @@ public class ApprovalController extends BaseController {
     }
 
     @RequestMapping("countersign")
-    public RespBody doCountersign(@IdParam(name = "record") ID recordId, @IdArrayParam(name = "to") ID[] toUsers) {
+    public RespBody doCountersign(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+        ID[] toUsers = getIdArrayParameter(request, "to");
         try {
-            new ApprovalProcessor(recordId).countersign(toUsers);
+            new ApprovalProcessor(recordId).countersign(getRequestUser(request), toUsers);
             return RespBody.ok();
 
         } catch (ApprovalException ex) {

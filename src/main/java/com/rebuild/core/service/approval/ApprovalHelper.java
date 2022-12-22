@@ -133,8 +133,10 @@ public class ApprovalHelper {
      * @param entityOrRecord
      * @return
      */
-    public static String buildApprovalMsg(Object entityOrRecord) {
-        Entity ae = (Entity) entityOrRecord;
-        return Language.L("有一条 %s 记录请你审批", EasyMetaFactory.getLabel(ae));
+    public static String buildApproveMsg(Object entityOrRecord) {
+        Entity be = entityOrRecord instanceof  ID
+                ? MetadataHelper.getEntity(((ID) entityOrRecord).getEntityCode())
+                : (Entity) entityOrRecord;
+        return Language.L("有一条 %s 记录请你审批", EasyMetaFactory.getLabel(be));
     }
 }

@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
@@ -38,6 +39,7 @@ import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -75,11 +77,11 @@ public class ApprovalStepService extends InternalPersistService {
 
     /**
      * @param recordOfMain
-     * @param cc
+     * @param ccUsers
      * @param ccAccounts
      * @param nextApprovers
      */
-    public void txSubmit(Record recordOfMain, Set<ID> cc, Set<String> ccAccounts, Set<ID> nextApprovers) {
+    public void txSubmit(Record recordOfMain, Set<ID> ccUsers, Set<String> ccAccounts, Set<ID> nextApprovers) {
         final ID submitter = recordOfMain.getEditor();
         final ID recordId = recordOfMain.getPrimary();
         final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
@@ -89,7 +91,7 @@ public class ApprovalStepService extends InternalPersistService {
 
         super.update(recordOfMain);
 
-        final String approvalMsg = ApprovalHelper.buildApprovalMsg(recordOfMain.getEntity());
+        final String approveMsg = ApprovalHelper.buildApproveMsg(recordOfMain.getEntity());
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
         step.setID("recordId", recordId);
@@ -102,13 +104,13 @@ public class ApprovalStepService extends InternalPersistService {
             clone.setID("approver", to);
             super.create(clone);
 
-            Application.getNotifications().send(MessageBuilder.createApproval(to, approvalMsg, recordId));
+            sendNotification(to, approveMsg, recordId);
         }
 
         // 抄送
         String ccMsg = Language.L("@%s 提交了一条 %s 审批，请知悉",
                 submitter, EasyMetaFactory.getLabel(recordOfMain.getEntity()));
-        sendCcMsgs(recordId, ccMsg, cc, ccAccounts);
+        sendCcMsgs(recordId, ccMsg, ccUsers, ccAccounts);
 
         // TODO 未记录CC到数据库
 
@@ -122,14 +124,14 @@ public class ApprovalStepService extends InternalPersistService {
     /**
      * @param stepRecord
      * @param signMode
-     * @param cc
+     * @param ccUsers
      * @param ccAccounts
      * @param nextApprovers [驳回时无需]
      * @param nextNode      下一节点或回退节点
      * @param addedData     [驳回时无需]
      * @param checkUseGroup [驳回时无需]
      */
-    public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<String> ccAccounts, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
+    public void txApprove(Record stepRecord, String signMode, Set<ID> ccUsers, Set<String> ccAccounts, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
         // 审批时更新主记录。驳回时不会/不要传这个值
         if (addedData != null) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(addedData.getPrimary());
@@ -156,8 +158,8 @@ public class ApprovalStepService extends InternalPersistService {
 
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
-        if (!CommonsUtils.isEmpty(cc)) {
-            stepRecord.setIDArray("ccUsers", cc.toArray(new ID[0]));
+        if (!CommonsUtils.isEmpty(ccUsers)) {
+            stepRecord.setIDArray("ccUsers", ccUsers.toArray(new ID[0]));
         }
         if (!CommonsUtils.isEmpty(ccAccounts)) {
             stepRecord.setString("ccAccounts", StringUtils.join(ccAccounts, ","));
@@ -184,7 +186,7 @@ public class ApprovalStepService extends InternalPersistService {
         String ccMsg = Language.L("@%s 提交的 %s 审批已由 @%s %s，请知悉",
                 submitter, entityLabel, approver, Language.L(state));
         if (StringUtils.isNotBlank(remark)) ccMsg += "\n > " + remark;
-        sendCcMsgs(recordId, ccMsg, cc, ccAccounts);
+        sendCcMsgs(recordId, ccMsg, ccUsers, ccAccounts);
 
         // 更新主记录
         final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
@@ -209,7 +211,7 @@ public class ApprovalStepService extends InternalPersistService {
 
                 String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批，请重新提交", approver, entityLabel);
                 if (StringUtils.isNotBlank(remark)) rejectedMsg += "\n > " + remark;
-                Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
+                sendNotification(submitter, rejectedMsg, recordId);
 
                 execTriggers(recordOfMain, TriggerWhen.REJECTED);
             }
@@ -219,7 +221,7 @@ public class ApprovalStepService extends InternalPersistService {
         // 或签/会签
         boolean goNextNode = true;
 
-        final String approvalMsg = ApprovalHelper.buildApprovalMsg(entityMeta);
+        final String approveMsg = ApprovalHelper.buildApproveMsg(entityMeta);
 
         // 或签：一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
@@ -253,7 +255,7 @@ public class ApprovalStepService extends InternalPersistService {
                     r.setBoolean("isWaiting", false);
                     super.update(r);
 
-                    Application.getNotifications().send(MessageBuilder.createApproval((ID) o[1], approvalMsg, recordId));
+                    sendNotification((ID) o[1], approveMsg, recordId);
                 }
             }
         }
@@ -276,12 +278,11 @@ public class ApprovalStepService extends InternalPersistService {
         if (nextApprovers != null) {
             String nodeBatch = getBatchNo(recordId, approvalId, nextNode);
             for (ID to : nextApprovers) {
-                ID created = createStepIfNeed(recordId, approvalId, nextNode, to, !goNextNode, currentNode,
-                        (Date) stepObject[4], nodeBatch);
+                ID created = createStepIfNeed(recordId, approvalId, nextNode, to, !goNextNode, currentNode, (Date) stepObject[4], nodeBatch);
 
                 // 非会签通知审批
                 if (goNextNode && created != null) {
-                    Application.getNotifications().send(MessageBuilder.createApproval(to, approvalMsg, recordId));
+                    sendNotification(to, approveMsg, recordId);
                 }
             }
         }
@@ -341,10 +342,11 @@ public class ApprovalStepService extends InternalPersistService {
      * @param isWaiting
      * @param prevNode
      * @param afterCreate
+     * @param nodeBatch
      * @return
      */
     private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode, Date afterCreate, String nodeBatch) {
-        Object[] hadApprover = Application.createQueryNoFilter(
+        Object[] hasApprover = Application.createQueryNoFilter(
                 "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F' and createdOn >= ?")
                 .setParameter(1, recordId)
                 .setParameter(2, approvalId)
@@ -352,7 +354,7 @@ public class ApprovalStepService extends InternalPersistService {
                 .setParameter(4, approver)
                 .setParameter(5, afterCreate)
                 .unique();
-        if (hadApprover != null) return null;
+        if (hasApprover != null) return null;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, approver);
         step.setID("recordId", recordId);
@@ -374,7 +376,7 @@ public class ApprovalStepService extends InternalPersistService {
      * @param approvalId
      * @param node
      * @param excludeStep
-     * @param darftOnly 仅草稿
+     * @param darftOnly
      */
     private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean darftOnly) {
         String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
@@ -441,9 +443,8 @@ public class ApprovalStepService extends InternalPersistService {
         // 作废之前的
         cancelAliveSteps(recordId, null, null, null, false);
 
-        ID stepId = createStepIfNeed(recordId, useApproval,
-                FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT,
-                CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
+        ID stepId = createStepIfNeed(recordId, useApproval, FlowNode.NODE_AUTOAPPROVAL, useApprover,
+                Boolean.FALSE, FlowNode.NODE_ROOT, CalendarUtils.now(), getBatchNo(recordId, useApproval, FlowNode.NODE_ROOT));
 
         Record step = EntityHelper.forUpdate(stepId, useApprover, false);
         step.setInt("state", ApprovalState.APPROVED.getState());
@@ -494,13 +495,77 @@ public class ApprovalStepService extends InternalPersistService {
         Set<String> ccAccounts = nextNodes.getCcAccounts(recordId);
         txSubmit(recordOfMain, ccUsers, ccAccounts, approverList);
 
+        // 共享的
         Set<ID> ccs4share = nextNodes.getCcUsers4Share(useApprover, recordId, null);
-        // 非主事物
         ApprovalProcessor.share2CcIfNeed(recordId, ccs4share);
     }
 
-    public void txUpdateApprovers() {
+    /**
+     * 转审
+     *
+     * @param sourceStepId
+     * @param approver
+     * @return
+     */
+    public boolean txReferral(ID sourceStepId, ID approver) {
+        final Record sourceStep = QueryHelper.recordNoFilter(sourceStepId);
+        final ID recordId = sourceStep.getID("recordId");
+        final ID oldApprover = sourceStep.getID("approver");
 
+        // 标记转审
+        String attrMore = sourceStep.getString("attrMore");
+        JSONObject attrMoreJson = JSONUtils.wellFormat(attrMore) ? JSON.parseObject(attrMore) : new JSONObject();
+        attrMoreJson.put("referralFrom", oldApprover);
+
+        Record sourceStepUpdate = EntityHelper.forUpdate(sourceStepId, approver);
+        sourceStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
+        sourceStepUpdate.setID("approver", approver);
+        super.update(sourceStepUpdate);
+
+        String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
+        approveMsg += "\n > " + Language.L("由 %s 转审给你", UserHelper.getName(oldApprover));
+        sendNotification(approver, approveMsg, recordId);
+        return true;
+    }
+
+    /**
+     * 加签
+     *
+     * @param sourceStepId
+     * @param approvers
+     * @return
+     */
+    public int txCountersign(ID sourceStepId, ID[] approvers) {
+        final Record sourceStep = QueryHelper.recordNoFilter(sourceStepId);
+        final ID approver = sourceStep.getID("approver");
+        final ID recordId = sourceStep.getID("recordId");
+        final ID approvalId = sourceStep.getID("approvalId");
+        final String node = sourceStep.getString("node");
+        final String prevNode = sourceStep.getString("prevNode");
+        final String nodeBatch = sourceStep.getString("nodeBatch");
+
+        String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
+        approveMsg += "\n > " + Language.L("由 %s 加签给你", UserHelper.getName(approver));
+
+        final Date fakeDate = CalendarUtils.parse("2019-01-31");
+
+        int c = 0;
+        for (ID to : approvers) {
+            if (to.equals(approver)) continue;
+            ID created = createStepIfNeed(recordId, approvalId, node, to, Boolean.FALSE, prevNode, fakeDate, nodeBatch);
+
+            if (created != null) {
+                // 标记加签
+                Record newStepUpdate = EntityHelper.forUpdate(created, UserService.SYSTEM_USER);
+                String attrMore = String.format("{countersignFrom:'%s'}", approver);
+                newStepUpdate.setString("attrMore", attrMore);
+                super.update(newStepUpdate);
+
+                sendNotification(to, approveMsg, recordId);
+                c++;
+            }
+        }
+        return c;
     }
 
     /**
@@ -552,7 +617,7 @@ public class ApprovalStepService extends InternalPersistService {
             if (!(Boolean) o[1]) {
                 String backedMsg = Language.L("@%s 退回了你的 %s 审批，请重新审批", o[0], entityLabel);
                 if (StringUtils.isNotBlank(remark)) backedMsg += "\n > " + remark;
-                Application.getNotifications().send(MessageBuilder.createApproval((ID) o[0], backedMsg, recordId));
+                sendNotification((ID) o[0], backedMsg, recordId);
             }
 
             // 标记为退回
@@ -648,7 +713,7 @@ public class ApprovalStepService extends InternalPersistService {
     private void sendCcMsgs(ID recordId, String ccMsg, Set<ID> ccUsers, Set<String> ccAccounts) {
         if (!CommonsUtils.isEmpty(ccUsers)) {
             for (ID cc : ccUsers) {
-                Application.getNotifications().send(MessageBuilder.createApproval(cc, ccMsg, recordId));
+                sendNotification(cc, ccMsg, recordId);
             }
         }
 
@@ -663,5 +728,10 @@ public class ApprovalStepService extends InternalPersistService {
                 if (SMSender.availableMail() && RegexUtils.isEMail(me)) SMSender.sendMailAsync(me, emailSubject, emailMsg);
             }
         }
+    }
+
+    // 发送通知
+    private void sendNotification(ID to, String message, ID recordId) {
+        Application.getNotifications().send(MessageBuilder.createApproval(to, message, recordId));
     }
 }

@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 /**
- * 审批处理
+ * 审批处理。此类是作为 ApprovalStepService 的辅助，因为有些逻辑放在 Service 中不合适
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
@@ -93,7 +93,7 @@ public class ApprovalProcessor extends SetUser {
             return false;
         }
 
-        Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+        Set<ID> ccUsers = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.record);
 
         Record recordOfMain = EntityHelper.forUpdate(this.record, this.getUser(), false);
@@ -103,7 +103,7 @@ public class ApprovalProcessor extends SetUser {
         // Clear on submit
         ApprovalStepService.setApprovalLastX(recordOfMain, null, null);
 
-        Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, ccAccounts, nextApprovers);
+        Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccUsers, ccAccounts, nextApprovers);
 
         // 审批时共享
         Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
@@ -146,9 +146,10 @@ public class ApprovalProcessor extends SetUser {
                 .setParameter(2, approver)
                 .setParameter(3, getCurrentNodeId(status))
                 .unique();
-        if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
+        if (stepApprover == null || (Integer) stepApprover[1] != 1) {
             throw new ApprovalException(Language.L(stepApprover == null
-                    ? Language.L("当前流程已经被其他人审批") : Language.L("你已经审批过当前流程")));
+                    ? Language.L("当前流程已经被其他人审批")
+                    : Language.L("你已经审批过当前流程")));
         }
 
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
@@ -181,14 +182,14 @@ public class ApprovalProcessor extends SetUser {
             nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
         }
 
-        Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+        Set<ID> ccUsers = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
         Set<String> ccAccounts = nextNodes.getCcAccounts(this.record);
 
         FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
         Application.getBean(ApprovalStepService.class)
-                .txApprove(approvedStep, currentNode.getSignMode(), ccs, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
+                .txApprove(approvedStep, currentNode.getSignMode(), ccUsers, ccAccounts, nextApprovers, nextNode, addedData, checkUseGroup);
 
-        // 审批时共享
+        // 同意时共享
         if (state == ApprovalState.APPROVED) {
             Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
             share2CcIfNeed(this.record, ccs4share);
@@ -224,7 +225,7 @@ public class ApprovalProcessor extends SetUser {
         int sent = 0;
         String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(this.record.getEntityCode()));
 
-        JSONArray step = getCurrentStep(null);
+        JSONArray step = getCurrentStep(status);
         for (Object o : step) {
             JSONObject s = (JSONObject) o;
             if (s.getIntValue("state") != 1) continue;
@@ -243,21 +244,27 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 2.2.转审
      *
+     * @param approver
      * @param toUser
      */
-    public void referral(ID toUser) {
-        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
-        this.approval = status.getApprovalId();
+    public void referral(ID approver, ID toUser) {
+        final Object[] stepApprover = findProcessingStepApprover(approver);
+        if (toUser.equals(stepApprover[2])) {
+            throw new ApprovalException(Language.L("不能转审给自己"));
+        }
+
+        Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser);
     }
 
     /**
      * 2.3.加签
      *
+     * @param approver
      * @param toUsers
      */
-    public void countersign(ID[] toUsers) {
-        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
-        this.approval = status.getApprovalId();
+    public void countersign(ID approver, ID[] toUsers) {
+        final Object[] stepApprover = findProcessingStepApprover(approver);
+        Application.getBean(ApprovalStepService.class).txCountersign((ID) stepApprover[0], toUsers);
     }
 
     /**
@@ -306,9 +313,7 @@ public class ApprovalProcessor extends SetUser {
         Assert.notNull(currentNode, "[currentNode] cannot be null");
 
         List<FlowNode> nextNodes = getFlowParser().getNextNodes(currentNode);
-        if (nextNodes.isEmpty()) {
-            return null;
-        }
+        if (nextNodes.isEmpty()) return null;
 
         FlowNode firstNode = nextNodes.get(0);
         if (!FlowNode.TYPE_BRANCH.equals(firstNode.getType())) {
@@ -398,13 +403,13 @@ public class ApprovalProcessor extends SetUser {
     /**
      * 获取当前审批步骤
      *
-     * @param currentNode
+     * @param useStatus
      * @return returns [S, S]
      */
-    public JSONArray getCurrentStep(String currentNode) {
-        if (currentNode == null) {
-            currentNode = ApprovalHelper.getApprovalStatus(this.record).getCurrentStepNode();
-        }
+    public JSONArray getCurrentStep(ApprovalStatus useStatus) {
+        if (useStatus == null) useStatus = ApprovalHelper.getApprovalStatus(this.record);
+
+        final String currentNode = useStatus.getCurrentStepNode();
 
         // 1.哪个批次
         String sql = "select nodeBatch from RobotApprovalStep" +
@@ -444,7 +449,7 @@ public class ApprovalProcessor extends SetUser {
         this.approval = status.getApprovalId();
 
         Object[][] array = Application.createQueryNoFilter(
-                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts from RobotApprovalStep" +
+                "select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,nodeBatch,ccUsers,ccAccounts,attrMore from RobotApprovalStep" +
                         " where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
                 .setParameter(1, this.record)
                 .array();
@@ -551,6 +556,15 @@ public class ApprovalProcessor extends SetUser {
             Collections.addAll(mobileOrEmails, step[10].toString().split(","));
             s.put("ccAccounts", mobileOrEmails);
         }
+        if (step.length > 11 && step[11] != null) {
+            JSONObject attrMored = JSONArray.parseObject((String) step[11]);
+            // 转审
+            String referralFrom = attrMored.getString("referralFrom");
+            s.put("referralFrom", ID.isId(referralFrom) ? UserHelper.getName(ID.valueOf(referralFrom)) : null);
+            // 加签
+            String countersignFrom = attrMored.getString("countersignFrom");
+            s.put("countersignFrom", ID.isId(countersignFrom) ? UserHelper.getName(ID.valueOf(countersignFrom)) : null);
+        }
 
         return s;
     }
@@ -649,5 +663,26 @@ public class ApprovalProcessor extends SetUser {
             throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
         }
         return status;
+    }
+
+    private Object[] findProcessingStepApprover(ID approver) {
+        final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
+        this.approval = status.getApprovalId();
+
+        String currentNodeId = getCurrentNodeId(status);
+        Object[] stepApprover = Application.createQueryNoFilter(
+                "select stepId,state,approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F'")
+                .setParameter(1, this.record)
+                .setParameter(2, this.approval)
+                .setParameter(3, currentNodeId)
+                .setParameter(4, approver)
+                .unique();
+
+        if (stepApprover == null || (int) stepApprover[1] != 1) {
+            throw new ApprovalException(Language.L(stepApprover == null
+                    ? Language.L("当前流程已经被其他人审批")
+                    : Language.L("你已经审批过当前流程")));
+        }
+        return stepApprover;
     }
 }

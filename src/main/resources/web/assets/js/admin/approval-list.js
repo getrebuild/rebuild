@@ -202,6 +202,7 @@ class ApprovalReferral extends RbModalHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('转审哪些实体')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} multiple></select>
+              <p className="form-text">{$L('可转审所有实体或指定实体的审批')}</p>
             </div>
           </div>
           <div className="form-group row">
