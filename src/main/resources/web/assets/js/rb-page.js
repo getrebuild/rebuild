@@ -422,9 +422,9 @@ var _initGlobalSearch = function () {
     var $item = $(item)
     var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
-      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($gs)
+      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
-      $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($gs)
+      $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     }
   })
 

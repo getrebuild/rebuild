@@ -26,6 +26,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -325,6 +326,7 @@ public class NavBuilder extends NavManager {
         else iconClazz = "zmdi zmdi-" + iconClazz;
 
         String navText = item.getString("text");
+        navText = CommonsUtils.escapeHtml(navText);
 
         JSONArray subNavs = null;
         if (activeNav != null) {

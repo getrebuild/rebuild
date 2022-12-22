@@ -125,5 +125,6 @@ module.exports = {
     $isFullUrl: true,
     $clone: true,
     $isSysMask: true,
+    $escapeHtml: true,
   },
 }
