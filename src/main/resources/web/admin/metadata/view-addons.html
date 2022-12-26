@@ -24,12 +24,16 @@
       <div class="dialog-footer">
         <span th:if="${param.type[0] == 'TAB'}" class="float-left pt-1">
           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-            <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
-            <span class="custom-control-label">[[${bundle.L('自动展开记录')}]]</span>
-          </label>
-          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
             <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
             <span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
+          </label>
+          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
+            <input class="custom-control-input" type="checkbox" id="relatedDefaultList" />
+            <span class="custom-control-label">[[${bundle.L('默认表格视图')}]]</span>
+          </label>
+          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
+            <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
+            <span class="custom-control-label">[[${bundle.L('自动展开记录')}]]</span>
           </label>
         </span>
         <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>

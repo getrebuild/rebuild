@@ -90,6 +90,7 @@ public class GeneralModelController extends EntityController {
             extras.put("ViewTabs", vtab.getJSONArray("items"));
             extras.put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
             extras.put("ViewTabsAutoHide", vtab.getBooleanValue("autoHide"));
+            extras.put("ViewTabsDefaultList", vtab.getBooleanValue("defaultList"));
             JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
             extras.put("ViewAdds", vadd.getJSONArray("items"));
         }

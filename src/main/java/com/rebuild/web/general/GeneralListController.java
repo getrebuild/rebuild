@@ -142,7 +142,7 @@ public class GeneralListController extends EntityController {
         }
 
         final Entity checkEntity = MetadataHelper.getEntity(entity);
-        if (!checkEntity.isQueryable()) {
+        if (!checkEntity.isQueryable() || !MetadataHelper.hasPrivilegesField(checkEntity)) {
             response.sendError(404);
             return null;
         }
