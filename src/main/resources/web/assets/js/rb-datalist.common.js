@@ -11,7 +11,7 @@ const _RbList = function () {
   return RbListPage._RbList || {}
 }
 
-// ~~ 高级查询操作
+// ~ 高级查询操作
 
 const AdvFilters = {
   /**
@@ -125,25 +125,6 @@ const AdvFilters = {
           that._effectFilter($(this), 'aside')
         })
         $ghost.appendTo($('#asideFilters').empty())
-
-        // v3.1 取消
-        // if ($ghost.find('.dropdown-item').length < 2 && typeof window.startTour === 'function') {
-        //   const $hub = $('<div class="mt-3"></div>').appendTo($('#asideFilters'))
-        //   renderRbcomp(
-        //     <RbAlertBox
-        //       type="info"
-        //       message={
-        //         <RF>
-        //           <a className="mr-1" href="#" onClick={(e) => AdvFilters.showAddCommonQuery(e)}>
-        //             {$L('添加')}
-        //           </a>
-        //           {$L('常用查询方便以后使用')}
-        //         </RF>
-        //       }
-        //     />,
-        //     $hub
-        //   )
-        // }
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -221,84 +202,9 @@ const AdvFilters = {
   _getFilter(id, call) {
     $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   },
-
-  // showAddCommonQuery(e) {
-  //   $stopEvent(e, true)
-  //   if (this._AddCommonQuery) {
-  //     this._AddCommonQuery.show()
-  //   } else {
-  //     const that = this
-  //     renderRbcomp(<AddCommonQuery entity={this.__entity} />, null, function () {
-  //       that._AddCommonQuery = this
-  //     })
-  //   }
-  // },
 }
 
-// ~~ 添加常用查询
-
-// class AddCommonQuery extends RbFormHandler {
-//   render() {
-//     const defs = [
-//       [$L('今天新增的'), 'DAY_NEW'],
-//       [$L('本周新增的'), 'WEEK_NEW'],
-//       [$L('本月新增的'), 'MONTH_NEW'],
-//       [],
-//       [$L('属于我的'), 'MY_OWN'],
-//       [$L('我创建的'), 'MY_CREATE'],
-//       [$L('我修改的'), 'MY_MODIFY'],
-//     ]
-
-//     return (
-//       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加常用查询')}>
-//         <RbAlertBox type="info" message={$L('可在添加后修改这些查询，以便更适合自己的使用需要')} />
-
-//         <div ref={(c) => (this._$chks = c)}>
-//           {defs.map((item, idx) => {
-//             if (item.length === 0) return <br key={idx} />
-//             return (
-//               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline w-25" key={item[1]}>
-//                 <input className="custom-control-input" type="checkbox" value={item[1]} />
-//                 <span className="custom-control-label"> {item[0]}</span>
-//               </label>
-//             )
-//           })}
-//         </div>
-//         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-//           <button className="btn btn-primary" type="button" onClick={() => this.saveAdd()}>
-//             {$L('确定')}
-//           </button>
-//           <button className="btn btn-secondary" onClick={() => this.hide()} type="button">
-//             {$L('取消')}
-//           </button>
-//         </div>
-//       </RbModal>
-//     )
-//   }
-
-//   saveAdd() {
-//     const adds = []
-//     $(this._$chks)
-//       .find('input')
-//       .each(function () {
-//         const $this = $(this)
-//         if ($this.prop('checked')) adds.push($this.val())
-//       })
-
-//     if (adds.length === 0) return RbHighbar.create($L('请选择要添加的常用查询'))
-
-//     this.disabled(true)
-//     $.post(`/app/${this.props.entity}/advfilter/add-commons?adds=${adds.join(',')}`, (res) => {
-//       this.disabled()
-//       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
-
-//       AdvFilters.loadFilters()
-//       this.hide()
-//     })
-//   }
-// }
-
-// ~~ 列表记录批量操作
+// ~ 列表记录批量操作
 
 class BatchOperator extends RbFormHandler {
   constructor(props) {
@@ -688,7 +594,7 @@ class BatchUpdateEditor extends React.Component {
   }
 }
 
-// ~~ 通用操作
+// ~ 通用操作
 
 // eslint-disable-next-line no-unused-vars
 const RbListCommon = {
@@ -743,7 +649,7 @@ const RbListCommon = {
   },
 }
 
-// default: 数据列表
+// ~ 数据列表
 
 const wpc = window.__PageConfig || {}
 
@@ -752,7 +658,7 @@ const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
 
 // IE/Edge 不支持首/列固定
-const supportFixedColumns = !($.browser.msie || $.browser.msedge) && $(window).width() > 767
+const supportFixedColumns = !($.browser.msie || $.browser.msedge)
 
 // eslint-disable-next-line no-unused-vars
 class RbList extends React.Component {
@@ -795,7 +701,7 @@ class RbList extends React.Component {
       <React.Fragment>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
-            <div className="rb-scroller" ref={(c) => (this._rblistScroller = c)}>
+            <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
               <table className="table table-hover table-striped">
                 <thead>
                   <tr>
@@ -826,7 +732,7 @@ class RbList extends React.Component {
                     <th className="column-empty" />
                   </tr>
                 </thead>
-                <tbody ref={(c) => (this._rblistBody = c)}>
+                <tbody ref={(c) => (this._$tbody = c)}>
                   {this.state.rowsData.map((item) => {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
@@ -870,14 +776,14 @@ class RbList extends React.Component {
   componentDidMount() {
     // FIXME 拖到底部才能左右滚动
 
-    const $scroller = $(this._rblistScroller)
+    const $scroller = $(this._$scroller)
     $scroller.perfectScrollbar({
       // suppressScrollY: true,
       // wheelSpeed: 1,
     })
 
     // Use `pin`
-    if (this.props.unpin !== true && $(window).height() > 666 && $(window).width() >= 1280) {
+    if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
@@ -971,7 +877,7 @@ class RbList extends React.Component {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
           this._clearSelected()
-          $(this._rblistScroller).scrollTop(0)
+          $(this._$scroller).scrollTop(0)
         })
 
         if (reload && this._Pagination) {
@@ -1013,7 +919,7 @@ class RbList extends React.Component {
 
   // 全选
   _toggleRows(e, uncheck) {
-    const $body = $(this._rblistBody)
+    const $body = $(this._$tbody)
     if (e.target.checked) {
       $body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
     } else {
@@ -1041,7 +947,7 @@ class RbList extends React.Component {
   }
 
   _checkSelected() {
-    const chkSelected = $(this._rblistBody).find('>tr .custom-control-input:checked').length
+    const chkSelected = $(this._$tbody).find('>tr .custom-control-input:checked').length
 
     // 全选/半选/全清
     const chkAll = this.state.rowsData.length
@@ -1104,7 +1010,7 @@ class RbList extends React.Component {
     if (!$(e.target).is('body')) return
     if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
 
-    const $chk = $(this._rblistBody).find('>tr .custom-control-input:checked').last()
+    const $chk = $(this._$tbody).find('>tr .custom-control-input:checked').last()
     if ($chk.length === 0) return
 
     const $tr = $chk.eq(0).parents('tr')
@@ -1194,7 +1100,7 @@ class RbList extends React.Component {
    */
   getSelectedIds(noWarn) {
     const selected = []
-    $(this._rblistBody)
+    $(this._$tbody)
       .find('>tr .custom-control-input:checked')
       .each(function () {
         selected.push($(this).parents('tr').data('id'))
@@ -1242,7 +1148,7 @@ class RbListPagination extends React.Component {
       <div className="row rb-datatable-footer">
         <div className="col-12 col-lg-6 col-xl-7">
           <div className="dataTables_info" key="page-rowsTotal">
-            {this._renderStats()}
+            {this.renderStats()}
           </div>
         </div>
         <div className="col-12 col-lg-6 col-xl-5">
@@ -1299,7 +1205,7 @@ class RbListPagination extends React.Component {
     )
   }
 
-  _renderStats() {
+  renderStats() {
     return (
       <div>
         {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
@@ -1375,16 +1281,15 @@ const CellRenders = {
     return false
   },
 
-  __renders: {},
-
+  __RENDERS: {},
   addRender(type, func) {
-    this.__renders[type] = func
+    this.__RENDERS[type] = func
   },
 
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
     if (!value) return this.renderSimple(value, style, key)
-    else return (this.__renders[type] || this.renderSimple)(value, style, key)
+    else return (this.__RENDERS[type] || this.renderSimple)(value, style, key)
   },
 
   /**
