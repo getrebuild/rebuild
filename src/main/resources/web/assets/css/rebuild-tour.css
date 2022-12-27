@@ -232,3 +232,10 @@ body.rebuild-guide-body .rebuild-guide-progress {
 .rebuild-guide .guide ul > li a.confirm:hover {
   color: #34a853;
 }
+
+.rebuild-guide .guide p.tips {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: -5px 20px 20px;
+}

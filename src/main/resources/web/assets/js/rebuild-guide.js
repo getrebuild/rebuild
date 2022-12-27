@@ -40,15 +40,11 @@ class RebuildGuide extends React.Component {
           </div>
         </div>
 
-        <CommonGuide title={$L('系统通用配置')} feat="syscfg" index="1" pcalc={() => this.pcalc()} />
-        <CommonGuide title={$L('业务实体配置')} feat="entitymrg" index="2" pcalc={() => this.pcalc()} />
-        <CommonGuide title={$L('用户管理')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
-        <CommonGuide title={$L('更多功能')} feat="others" index="4" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('系统通用配置')} tips={$L('配置系统名称、LOGO，或根据需要配置短信和邮件服务等')} feat="syscfg" index="1" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('业务实体配置')} tips={$L('业务实体是系统的基础与核心，所有业务功能均由此展开')} feat="entitymrg" index="2" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('系统用户与权限')} tips={$L('添加登录用户并为他们分配角色，角色规定了他们对业务数据的的访问权限')} feat="usermrg" index="3" pcalc={() => this.pcalc()} />
+        <CommonGuide title={$L('更多功能')} tips={$L('REBUILD 拥有众多强大的功能，你可以持续探索')} feat="others" index="4" pcalc={() => this.pcalc()} />
         <div className="clearfix"></div>
-
-        <div>
-
-        </div>
       </div>
     )
   }
@@ -132,6 +128,7 @@ class CommonGuide extends React.Component {
           </h5>
         </div>
         <div className="items">{this.renderItems()}</div>
+        <p className="tips">{this.props.tips}</p>
       </div>
     )
   }
