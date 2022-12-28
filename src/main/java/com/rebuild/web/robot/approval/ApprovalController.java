@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
+import com.rebuild.core.configuration.general.LiteFormBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -142,7 +143,7 @@ public class ApprovalController extends BaseController {
         // 可修改字段
         JSONArray editableFields = currentFlowNode.getEditableFields();
         if (editableFields != null && !editableFields.isEmpty()) {
-            JSONArray aform = new FormBuilder(recordId, user).build(editableFields);
+            JSONArray aform = new LiteFormBuilder(recordId, user).build(editableFields);
             if (aform != null && !aform.isEmpty()) {
                 data.put("aform", aform);
                 data.put("aentity", MetadataHelper.getEntityName(recordId));
