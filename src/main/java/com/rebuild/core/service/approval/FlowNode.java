@@ -113,7 +113,7 @@ public class FlowNode {
      */
     public boolean getRejectStep() {
         Boolean b = getDataMap().getBoolean("rejectStep");
-        return b == null || b;  // 默认允许
+        return b == null || b;
     }
 
     /**
@@ -121,7 +121,7 @@ public class FlowNode {
      */
     public boolean allowSelfSelecting() {
         Boolean b = getDataMap().getBoolean("selfSelecting");
-        return b == null || b;  // 默认允许
+        return b == null || b;
     }
 
     /**
@@ -129,7 +129,7 @@ public class FlowNode {
      */
     public boolean allowCcAutoShare() {
         Boolean b = getDataMap().getBoolean("ccAutoShare");
-        return b == null || b;  // 默认允许
+        return b != null && b;
     }
 
     /**
