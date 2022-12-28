@@ -126,8 +126,10 @@ $(document).ready(function () {
       const items = []
       $('#tag-items li').each(function () {
         const $this = $(this)
+        const name = $this.find('span').text()
+        if (!name) return
         items.push({
-          name: $this.find('span').text(),
+          name: name,
           color: $this.data('color') || null,
           default: $this.hasClass('default') || false,
         })

@@ -54,9 +54,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .dt-PICKLIST .dd-handle::before,
 .dt-TAG .dd-handle::before {
   position: absolute;
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 20px;
-  color: #bbb;
+  color: #ddd;
   left: 10px;
   content: '\f279';
 }

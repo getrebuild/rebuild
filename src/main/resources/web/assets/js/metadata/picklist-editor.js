@@ -157,7 +157,7 @@ render_item_after = function (item, data) {
 
   item.find('a.J_del').attr('title', $L('禁用'))
 
-  const $edit = $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
+  const $edit = $(`<a title="${$L('修改')}" class="mr-1"><i class="zmdi zmdi-edit"></i></a>`)
   item.find('.dd3-action').prepend($edit)
   $edit.on('click', () => {
     $('.J_confirm').text($L('修改'))
@@ -167,7 +167,7 @@ render_item_after = function (item, data) {
     if (data[3]) $(`.colors>a[data-color="${data[3]}"]`).trigger('click')
   })
 
-  const $def = $(`<a title="${$L('设为默认')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
+  const $def = $(`<a title="${$L('设为默认')}" class="J_def mr-1"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
   item.find('.dd3-action').prepend($def)
   $def.on('click', () => {
     if (item.hasClass('active')) {
