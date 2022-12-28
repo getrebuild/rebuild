@@ -236,33 +236,3 @@ a#entityIcon:hover {
   border-top-right-radius: 2px !important;
   border-bottom-right-radius: 2px !important;
 }
-
-.common-patt,
-.common-suff {
-  padding: 15px;
-}
-
-.common-patt > h5,
-.common-suff > h5 {
-  margin: 0;
-  color: #777;
-}
-
-.common-patt .badge,
-.common-suff .badge {
-  margin: 6px 3px 0 0;
-  font-weight: normal;
-  border: 0 none;
-  background-color: rgb(245, 247, 249);
-}
-
-.common-patt .badge:hover,
-.common-suff .badge:hover {
-  color: #4285f4 !important;
-}
-
-.field-option-form {
-  width: 500px;
-  max-width: 400px;
-  margin: 0 auto;
-}

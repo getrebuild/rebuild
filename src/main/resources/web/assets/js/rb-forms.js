@@ -850,7 +850,7 @@ class RbFormElement extends React.Component {
   }
 
   /**
-   * 视图编辑-编辑状态改变
+   * 编辑模式
    *
    * @param {Boolean} destroy
    */
@@ -907,6 +907,33 @@ class RbFormElement extends React.Component {
 class RbFormText extends RbFormElement {
   constructor(props) {
     super(props)
+  }
+
+  renderElement() {
+    const comp = super.renderElement()
+    if (this.props.readonly || !this.props.textCommon) return comp
+
+    return (
+      <RF>
+        {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
+        <div className="dropdown-menu common-texts">
+          <h5>{$L('常用')}</h5>
+          {this.props.textCommon.split(',').map((item) => {
+            return (
+              <a
+                key={item}
+                className="badge"
+                onClick={() => {
+                  // $(this._fieldValue).val(item)
+                  this.handleChange({ target: { value: item } }, true)
+                }}>
+                {item}
+              </a>
+            )
+          })}
+        </div>
+      </RF>
+    )
   }
 }
 

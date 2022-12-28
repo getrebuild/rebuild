@@ -154,6 +154,10 @@ public class EasyFieldConfigProps {
      * 扫码
      */
     public static final String TEXT_SCANCODE = "textScanCode";
+    /**
+     * 常用值
+     */
+    public static final String TEXT_COMMON = "textCommon";
 
     /**
      * 标签

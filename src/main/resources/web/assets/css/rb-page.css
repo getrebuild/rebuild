@@ -5081,3 +5081,33 @@ pre.unstyle {
   font-weight: bold;
   color: #fbbc05;
 }
+
+.dropdown-menu.common-texts {
+  padding: 15px;
+}
+
+.dropdown-menu.common-texts.w-100 {
+  max-width: 100%;
+}
+
+.dropdown-menu.common-texts > h5 {
+  margin: 0;
+  color: #777;
+}
+
+.dropdown-menu.common-texts .badge {
+  margin: 6px 3px 0 0;
+  font-weight: normal;
+  border: 0 none;
+  background-color: rgb(245, 247, 249);
+}
+
+.dropdown-menu.common-texts .badge:hover {
+  color: #4285f4 !important;
+}
+
+.rbalert-form-sm {
+  width: 500px;
+  max-width: 400px;
+  margin: 0 auto;
+}

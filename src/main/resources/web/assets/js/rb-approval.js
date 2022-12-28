@@ -657,7 +657,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 class ApproveFormExtAction extends RbAlert {
   renderContent() {
     return (
-      <form style={{ maxWidth: 400, margin: '0 auto' }}>
+      <form className="rbalert-form-sm">
         <div className="form-group">
           <label className="text-bold">{this.props.title}</label>
           <UserSelector hideDepartment hideRole hideTeam multiple={this.props.multiple === true} ref={(c) => (this._UserSelector = c)} />
