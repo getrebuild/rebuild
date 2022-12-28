@@ -2506,6 +2506,7 @@ class RbFormTag extends RbFormElement {
             return $L('输入后回车')
           },
         },
+        theme: 'default select2-tag',
       })
 
       const that = this

@@ -150,8 +150,6 @@ button[disabled] {
 }
 
 .zmdi-hc-rotate-45 {
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
 
@@ -863,7 +861,7 @@ body.view-body {
   border-color: #4285f4;
 }
 
-.select2-container--default .select2-results__option--highlighted:not([id])::after {
+.select2-container--default.select2-tag .select2-results__option--highlighted:not([id])::after {
   font-family: 'Material Design Icons', serif;
   content: '\F0311';
   float: right;
@@ -970,7 +968,6 @@ select.form-control:not([disabled]) {
   text-align: center;
   padding: 0.4rem;
   border-radius: 0;
-  color: #fff;
   color: #836203;
   font-weight: normal;
 }
@@ -4945,7 +4942,7 @@ pre.unstyle {
   padding-right: 5px;
 }
 
-/* nav 2.10 */
+/* nav v2.10 */
 
 .rb-left-sidebar .sidebar-elements > li ul {
   background-color: #f5f5f5;
@@ -4987,8 +4984,10 @@ pre.unstyle {
   cursor: pointer;
 }
 
+.map-suggestion.dropdown-menu .dropdown-item:hover,
 .map-suggestion.dropdown-menu .dropdown-item.active {
-  background-color: #eee;
+  background-color: #4285f4;
+  color: #fff;
 }
 
 /* v3: mdi7 */

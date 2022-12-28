@@ -520,6 +520,7 @@ public class ApprovalStepService extends InternalPersistService {
         Record sourceStepUpdate = EntityHelper.forUpdate(sourceStepId, approver);
         sourceStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
         sourceStepUpdate.setID("approver", approver);
+        sourceStepUpdate.setDate(EntityHelper.CreatedOn, CalendarUtils.now());  // 使用当前时间
         super.update(sourceStepUpdate);
 
         String approveMsg = ApprovalHelper.buildApproveMsg(recordId);

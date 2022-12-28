@@ -103,15 +103,20 @@ $(document).ready(function () {
 
     // 文件
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
-      let fix = extConfigNew['fileSuffix']
-      fix = fix.replaceAll('，', ',').replaceAll(' ', ',').replaceAll(',,', ',')
-      extConfigNew['fileSuffix'] = fix
+      const fix = []
+      extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
+        if (n) {
+          if (n.substring(0, 1) !== '.') n = `.${n.trim()}`
+          fix.push(n.trim())
+        }
+      })
+      extConfigNew['fileSuffix'] = fix.join(',')
     }
     // 文本
     if (dt === 'TEXT' && extConfigNew['textCommon']) {
-      let fix = extConfigNew['textCommon']
-      fix = fix.replaceAll('，', ',').replaceAll(',,', ',')
-      extConfigNew['textCommon'] = fix
+      const fix = []
+      extConfigNew['textCommon'].split(/[,，]/).forEach((n) => n && fix.push(n.trim()))
+      extConfigNew['textCommon'] = fix.join(',')
     }
     // 二维码
     if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) {

@@ -472,13 +472,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.renderUsers()}
 
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
-              {$L('同意')}
-            </button>
-            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
-              {$L('驳回')}
-            </button>
-
             {(this.state.allowReferral || this.state.allowCountersign) && (
               <div className="btn-group btn-space">
                 <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
@@ -498,6 +491,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                 </div>
               </div>
             )}
+            
+            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+              {$L('同意')}
+            </button>
+            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
+              {$L('驳回')}
+            </button>
           </div>
         </div>
       </RbModal>
@@ -699,7 +699,7 @@ class ApprovalStepViewer extends React.Component {
     const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)} tabIndex="-1">
+      <div className="modal" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -781,12 +781,12 @@ class ApprovalStepViewer extends React.Component {
               <p className="timeline-activity">
                 {aMsg}
                 {item.referralFrom && (
-                  <span className="badge badge-danger" title={$L('由 %s 转审', item.referralFrom)}>
+                  <span className="badge badge-warning" title={$L('由 %s 转审', item.referralFrom)}>
                     {$L('转审')}
                   </span>
                 )}
                 {item.countersignFrom && (
-                  <span className="badge badge-danger" title={$L('由 %s 加签', item.countersignFrom)}>
+                  <span className="badge badge-warning" title={$L('由 %s 加签', item.countersignFrom)}>
                     {$L('加签')}
                   </span>
                 )}
