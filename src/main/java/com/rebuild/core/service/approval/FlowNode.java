@@ -120,24 +120,32 @@ public class FlowNode {
      * @return
      */
     public boolean allowSelfSelecting() {
-        if (getDataMap().containsKey("selfSelecting")) {
-            return getDataMap().getBooleanValue("selfSelecting");
-        } else {
-            // 默认允许
-            return true;
-        }
+        Boolean b = getDataMap().getBoolean("selfSelecting");
+        return b == null || b;
     }
 
     /**
      * @return
      */
     public boolean allowCcAutoShare() {
-        if (getDataMap().containsKey("ccAutoShare")) {
-            return getDataMap().getBooleanValue("ccAutoShare");
-        } else {
-            // 默认允许
-            return true;
-        }
+        Boolean b = getDataMap().getBoolean("ccAutoShare");
+        return b != null && b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowReferral() {
+        Boolean b = getDataMap().getBoolean("allowReferral");
+        return b != null && b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowCountersign() {
+        Boolean b = getDataMap().getBoolean("allowCountersign");
+        return b != null && b;
     }
 
     /**
@@ -247,22 +255,6 @@ public class FlowNode {
             }
         }
         return mobileOrEmail;
-    }
-
-    /**
-     * @return
-     */
-    public boolean allowReferral() {
-        Boolean b = getDataMap().getBoolean("allowReferral");
-        return b == null || b;
-    }
-
-    /**
-     * @return
-     */
-    public boolean allowCountersign() {
-        Boolean b = getDataMap().getBoolean("allowCountersign");
-        return b == null || b;
     }
 
     @Override

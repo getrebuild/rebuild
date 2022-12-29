@@ -42,7 +42,7 @@ $(document).ready(function () {
   if (SHOW_ADVPATTERN.includes(dt)) {
     $('.J_advOpt').removeClass('hide')
 
-    $('.common-patt .badge').on('click', function () {
+    $('.J_advPattern .badge').on('click', function () {
       $('#advPattern').val($(this).data('patt'))
     })
   } else {
@@ -56,7 +56,7 @@ $(document).ready(function () {
   }
   // 文件
   if (dt === 'FILE') {
-    $('.common-suff .badge').on('click', function () {
+    $('.J_fileSuffix .badge').on('click', function () {
       $('#fileSuffix').val($(this).data('suff'))
     })
   }
@@ -103,28 +103,43 @@ $(document).ready(function () {
 
     // 文件
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
-      let fix = extConfigNew['fileSuffix']
-      fix = fix.replaceAll('，', ',').replaceAll(' ', ',').replaceAll(',,', ',')
-      extConfigNew['fileSuffix'] = fix
+      const fix = []
+      extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
+        if (n) {
+          if (n.substring(0, 1) !== '.') n = `.${n.trim()}`
+          fix.push(n.trim())
+        }
+      })
+      extConfigNew['fileSuffix'] = fix.join(',')
     }
-
-    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) return RbHighbar.create($L('请输入编码规则'))
-    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) return RbHighbar.create($L('请输入编号规则'))
-
+    // 文本
+    if (dt === 'TEXT' && extConfigNew['textCommon']) {
+      const fix = []
+      extConfigNew['textCommon'].split(/[,，]/).forEach((n) => n && fix.push(n.trim()))
+      extConfigNew['textCommon'] = fix.join(',')
+    }
+    // 二维码
+    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) {
+      return RbHighbar.create($L('请输入编码规则'))
+    }
+    // 自动编号
+    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) {
+      return RbHighbar.create($L('请输入编号规则'))
+    }
     // 标签
     if (dt === 'TAG') {
-      const tags = []
+      const items = []
       $('#tag-items li').each(function () {
         const $this = $(this)
         const name = $this.find('span').text()
         if (!name) return
-        tags.push({
+        items.push({
           name: name,
           color: $this.data('color') || null,
           default: $this.hasClass('default') || false,
         })
       })
-      extConfigNew['tagList'] = tags
+      extConfigNew['tagList'] = items
     }
 
     // fix
@@ -612,7 +627,7 @@ const _handleTag = function (tagList) {
 class TagEditor extends RbAlert {
   renderContent() {
     return (
-      <div className="field-option-form">
+      <div className="rbalert-form-sm">
         <div className="form-group">
           <label className="text-bold">{$L('标签')}</label>
           <input type="text" className="form-control form-control-sm" name="name" placeholder={$L('输入标签')} ref={(c) => (this._$name = c)} />

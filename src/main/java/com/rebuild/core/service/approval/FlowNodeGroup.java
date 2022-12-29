@@ -74,7 +74,7 @@ public class FlowNodeGroup {
         }
 
         if (selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId, Boolean.TRUE));
         }
         return users;
     }
@@ -100,7 +100,7 @@ public class FlowNodeGroup {
 
         // 因为 CC 会合并，此处以第一个 CC 节点的设置为准
         if (firstNode != null && selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId, Boolean.TRUE));
         }
         return users;
     }
@@ -135,7 +135,7 @@ public class FlowNodeGroup {
         }
 
         if (selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId, Boolean.TRUE));
         }
         return users;
     }

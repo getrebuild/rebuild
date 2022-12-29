@@ -143,7 +143,7 @@
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传数量')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
-                    <input class="bslider" id="uploadNumber" type="text" data-slider-min="0" data-slider-max="9" data-slider-value="[0,9]" data-slider-step="1" />
+                    <input class="bslider border-0" id="uploadNumber" type="text" data-slider-min="0" data-slider-max="9" data-slider-value="[0,9]" data-slider-step="1" />
                     <div class="form-text J_minmax" th:utext="${bundle.L('最少上传 **0** 个，最多上传 **9** 个')}"></div>
                   </div>
                 </div>
@@ -151,7 +151,7 @@
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传类型')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="text" class="form-control form-control-sm" id="fileSuffix" th:placeholder="${bundle.L('不限')}" data-toggle="dropdown" autocomplete="off" />
-                    <div class="dropdown-menu common-suff">
+                    <div class="dropdown-menu common-texts J_fileSuffix">
                       <h5>[[${bundle.L('常用')}]]</h5>
                       <a class="badge" data-suff=".docx,.doc,.xlsx,.xls">[[${bundle.L('Office 文件')}]]</a>
                       <a class="badge" data-suff=".docx,.doc">Word</a>
@@ -185,7 +185,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'TAG'}" class="form-group row J_for-TAG">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('预置标签')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('常用标签')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div th:class="|rb-scroller sortable-box autoh dt-${fieldType}|">
                       <ol class="dd-list" id="tag-items">
@@ -338,6 +338,13 @@
                     </div>
                   </div>
                 </th:block>
+                <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('常用值')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <textarea class="form-control form-control-sm row2x" id="textCommon" th:placeholder="${bundle.L('(选填)')}"></textarea>
+                    <div class="form-text" th:utext="${bundle.L('如有多个常用值请使用逗号分开')}"></div>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -397,7 +404,7 @@
                         data-toggle="dropdown"
                         autocomplete="off"
                       />
-                      <div class="dropdown-menu common-patt">
+                      <div class="dropdown-menu common-texts J_advPattern">
                         <h5>[[${bundle.L('常用')}]]</h5>
                         <a class="badge" data-patt="^([0-9A-Z]{15}|[0-9A-Z]{17}|[0-9A-Z]{18}|[0-9A-Z]{20})$">[[${bundle.L('税号')}]]</a>
                         <a class="badge" data-patt="^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$">[[${bundle.L('身份证')}]]</a>

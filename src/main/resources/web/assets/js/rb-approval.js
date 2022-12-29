@@ -472,13 +472,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.renderUsers()}
 
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
-              {$L('同意')}
-            </button>
-            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
-              {$L('驳回')}
-            </button>
-
             {(this.state.allowReferral || this.state.allowCountersign) && (
               <div className="btn-group btn-space">
                 <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
@@ -498,6 +491,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                 </div>
               </div>
             )}
+            
+            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+              {$L('同意')}
+            </button>
+            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
+              {$L('驳回')}
+            </button>
           </div>
         </div>
       </RbModal>
@@ -613,70 +613,69 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 
   _handleReferral() {
-    const that = this
-    function handle(to, _alert) {
-      _alert.disabled(true)
-      $.post(`/app/entity/approval/referral?record=${that.props.id}&to=${to}`, (res) => {
-        _alert.disabled()
-
-        if (res.error_code === 0) {
-          _alert.hide()
-          _reload(that, $L('已转审'))
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
-      })
-    }
-
-    let _UserSelector
-    RbAlert.create(
-      <RF>
-        <div className="text-bold">{$L('请选择转审给谁')}</div>
-        <div className="widget-sm mt-3">
-          <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (_UserSelector = c)} />
-        </div>
-      </RF>,
-      {
-        onConfirm: function () {
-          const to = _UserSelector.val()[0]
-          if (!to) return RbHighbar.create($L('请选择转审给谁'))
-          handle(to, this)
-        },
-      }
+    renderRbcomp(
+      <ApproveFormExtAction
+        title={$L('请选择转审给谁')}
+        onConfirm={(s, _alert) => {
+          _alert.disabled(true)
+          $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, (res) => {
+            _alert.disabled()
+            if (res.error_code === 0) {
+              _alert.hide()
+              _reload(this, $L('已转审'))
+            } else {
+              RbHighbar.error(res.error_msg)
+            }
+          })
+        }}
+      />
     )
   }
 
   _handleCountersign() {
-    const that = this
-    function handle(to, _alert) {
-      _alert.disabled(true)
-      $.post(`/app/entity/approval/countersign?record=${that.props.id}&to=${to.join(',')}`, (res) => {
-        _alert.disabled()
+    renderRbcomp(
+      <ApproveFormExtAction
+        multiple
+        title={$L('请选择加签哪些用户')}
+        onConfirm={(s, _alert) => {
+          _alert.disabled(true)
+          $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, (res) => {
+            _alert.disabled()
+            if (res.error_code === 0) {
+              _alert.hide()
+              _reload(this, $L('已加签'))
+            } else {
+              RbHighbar.error(res.error_msg)
+            }
+          })
+        }}
+      />
+    )
+  }
+}
 
-        if (res.error_code === 0) {
-          _alert.hide()
-          _reload(that, $L('已加签'))
-        } else {
-          RbHighbar.error(res.error_msg)
-        }
-      })
-    }
-
-    let _UserSelector
-    RbAlert.create(
-      <RF>
-        <div className="text-bold">{$L('请选择加签哪些用户')}</div>
-        <div className="widget-sm mt-3">
-          <UserSelector hideDepartment hideRole hideTeam multiple ref={(c) => (_UserSelector = c)} />
+class ApproveFormExtAction extends RbAlert {
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title}</label>
+          <UserSelector hideDepartment hideRole hideTeam multiple={this.props.multiple === true} ref={(c) => (this._UserSelector = c)} />
         </div>
-      </RF>,
-      {
-        onConfirm: function () {
-          const to = _UserSelector.val()
-          if (to.length === 0) return RbHighbar.create($L('请选择加签哪些用户'))
-          handle(to, this)
-        },
-      }
+        <div className="form-group mb-1">
+          <button
+            disabled={this.state.disable}
+            type="button"
+            className="btn btn-space btn-primary"
+            onClick={() => {
+              const s = this._UserSelector.val()
+              if (s.length === 0) return RbHighbar.create(this.props.title)
+              else this.props.onConfirm(s, this)
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
     )
   }
 }
@@ -700,7 +699,7 @@ class ApprovalStepViewer extends React.Component {
     const stateLast = this.state.steps ? this.state.steps[0].approvalState : 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)} tabIndex="-1">
+      <div className="modal" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -782,12 +781,12 @@ class ApprovalStepViewer extends React.Component {
               <p className="timeline-activity">
                 {aMsg}
                 {item.referralFrom && (
-                  <span className="badge badge-danger" title={$L('由 %s 转审', item.referralFrom)}>
+                  <span className="badge badge-warning" title={$L('由 %s 转审', item.referralFrom)}>
                     {$L('转审')}
                   </span>
                 )}
                 {item.countersignFrom && (
-                  <span className="badge badge-danger" title={$L('由 %s 加签', item.countersignFrom)}>
+                  <span className="badge badge-warning" title={$L('由 %s 加签', item.countersignFrom)}>
                     {$L('加签')}
                   </span>
                 )}

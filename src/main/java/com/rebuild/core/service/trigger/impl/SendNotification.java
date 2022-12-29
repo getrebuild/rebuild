@@ -100,7 +100,8 @@ public class SendNotification extends TriggerAction {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int type = content.getIntValue("type");
 
-        Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), actionContext.getSourceRecord());
+        Set<ID> toUsers = UserHelper.parseUsers(
+                content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
         if (toUsers.isEmpty()) return -1;
 
         String[] message = formatMessageContent(actionContext, operatingContext);

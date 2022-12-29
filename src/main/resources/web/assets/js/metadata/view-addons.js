@@ -35,6 +35,7 @@ $(document).ready(function () {
 
       $('#relatedAutoExpand').attr('checked', res.data.config.autoExpand === true)
       $('#relatedAutoHide').attr('checked', res.data.config.autoHide === true)
+      $('#relatedDefaultList').attr('checked', res.data.config.defaultList === true)
     }
 
     if (!res.data.refs || res.data.refs.length === 0) {
@@ -53,6 +54,7 @@ $(document).ready(function () {
       items: config,
       autoExpand: $val('#relatedAutoExpand'),
       autoHide: $val('#relatedAutoHide'),
+      defaultList: $val('#relatedDefaultList'),
     }
 
     $btn.button('loading')
