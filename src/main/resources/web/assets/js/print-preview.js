@@ -32,6 +32,7 @@ class PreviewTable extends React.Component {
       else if (c.colspan === 2) colspan = 6
       else if (c.colspan === 1) colspan = 3
       else if (c.colspan === 9) colspan = 4
+      else if (c.colspan === 8) colspan = 8
       // correct
       c.colspan = colspan
 

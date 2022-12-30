@@ -14,6 +14,7 @@ const COLSPANS = {
   3: 'w-75',
   4: 'w-100',
   9: 'w-33',
+  8: 'w-66',
 }
 
 $(document).ready(() => {
@@ -110,6 +111,7 @@ $(document).ready(() => {
         if ($this.parent().hasClass('w-75')) item.colspan = 3
         if ($this.parent().hasClass('w-25')) item.colspan = 1
         if ($this.parent().hasClass('w-33')) item.colspan = 9
+        if ($this.parent().hasClass('w-66')) item.colspan = 8
 
         const tip = $this.find('.J_tip').attr('title')
         if (tip) item.tip = tip
@@ -195,11 +197,12 @@ const render_item = function (data) {
     $('<a data-colspan="9" title="3"></a>').appendTo($colspan)
     $('<a data-colspan="2" title="2"></a>').appendTo($colspan)
     $('<a data-colspan="4" title="1"></a>').appendTo($colspan)
-    $('<a data-colspan="3" title="3/4"></a>').appendTo($colspan)
+    $('<a data-colspan="3" title="3/4" class="text-right"></a>').appendTo($colspan)
+    $('<a data-colspan="8" title="2/3" class="text-right"></a>').appendTo($colspan)
 
     $colspan.find('a').on('click', function () {
       const colspan = ~~$(this).data('colspan')
-      $item.removeClass('w-25 w-50 w-75 w-100 w-33').addClass(COLSPANS[colspan])
+      $item.removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass(COLSPANS[colspan])
     })
 
     $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)

@@ -713,6 +713,7 @@ class RbFormElement extends React.Component {
     else if (props.colspan === 1) colspan = 3
     else if (props.colspan === 3) colspan = 9
     else if (props.colspan === 9) colspan = 4
+    else if (props.colspan === 8) colspan = 8
 
     const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
