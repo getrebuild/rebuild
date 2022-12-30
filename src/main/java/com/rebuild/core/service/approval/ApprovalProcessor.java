@@ -253,6 +253,17 @@ public class ApprovalProcessor extends SetUser {
             throw new ApprovalException(Language.L("不能转审给自己"));
         }
 
+        Object[] instepApprover = Application.createQueryNoFilter(
+                "select state from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F'")
+                .setParameter(1, this.record)
+                .setParameter(2, this.approval)
+                .setParameter(3, getCurrentNodeId(null))
+                .setParameter(4, toUser)
+                .unique();
+        if (instepApprover != null) {
+            throw new ApprovalException(Language.L("审批人已在当前审批步骤中"));
+        }
+        
         Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser);
     }
 
