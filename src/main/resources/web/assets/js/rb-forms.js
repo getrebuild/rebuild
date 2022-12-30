@@ -465,7 +465,6 @@ class RbForm extends React.Component {
           if (typeof iv === 'object') {
             if (child.props.type === 'TAG') {
               // eg. 标签
-              iv = iv.map((item) => item.name)
               iv = iv.join('$$$$')
             } else if ($.isArray(iv)) {
               // eg. 文件/图片
