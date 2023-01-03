@@ -1055,6 +1055,15 @@ select.form-control:not([disabled]) {
   margin-right: -1px !important;
 }
 
+.type-DECIMAL em.vflag {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  font-size: 12px;
+  font-style: normal;
+  color: #878787;
+}
+
 .img-field {
   line-height: 1;
   font-size: 0;

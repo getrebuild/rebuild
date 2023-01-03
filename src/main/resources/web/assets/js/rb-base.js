@@ -319,6 +319,9 @@ var $regex = {
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
   },
+  clearNumber: function (n) {
+    return (n + '').match(/[\d\.\-]/g).join('')
+  }
 }
 
 /**

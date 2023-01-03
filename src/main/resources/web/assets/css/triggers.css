@@ -396,6 +396,7 @@ textarea.formula-code {
   text-align: center;
   appearance: none;
   outline: none;
+  background-color: #fff;
 }
 
 .on-timers input:focus,

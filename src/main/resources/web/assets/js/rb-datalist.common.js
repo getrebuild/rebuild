@@ -1464,7 +1464,8 @@ CellRenders.addRender('STATE', function (v, s, k) {
 })
 
 const renderNumber = function (v, s, k) {
-  if ((v + '').substr(0, 1) === '-') {
+  // 负数
+  if ((v + '').includes('-')) {
     return (
       <td key={k}>
         <div className="text-danger" style={s} title={v}>

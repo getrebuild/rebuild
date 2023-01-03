@@ -236,3 +236,14 @@ a#entityIcon:hover {
   border-top-right-radius: 2px !important;
   border-bottom-right-radius: 2px !important;
 }
+
+select.underline-sm {
+  width: 60px;
+  padding: 1px;
+  border: 0 none;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  appearance: none;
+  outline: none;
+  background-color: #fff;
+}
