@@ -23,7 +23,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyDate;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
@@ -542,7 +541,10 @@ public class AdvFilterParser extends SetUser {
             }
             // 修正月、日
             else if (field.getType() == FieldType.DATE && valueLen == 10) {
-                String dateFormat = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT);
+                String dateFormat = StringUtils.defaultIfBlank(
+                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+                        DisplayType.DATE.getDefaultFormat());
+
                 if (dateFormat.length() == 4) {
                     value = value.substring(0, 4) + "-01-01";
                 } else if (dateFormat.length() == 7) {
