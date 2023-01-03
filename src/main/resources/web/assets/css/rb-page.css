@@ -3915,19 +3915,14 @@ a.icon-link > .zmdi {
   .btn {
     min-width: 88px;
   }
-}
 
-.mr-zero {
-  margin-right: -15px;
-}
-
-.ml-zero {
-  margin-left: -15px;
-}
-
-a.avatar.x26 img {
-  width: 26px;
-  height: 26px;
+  /* .page-aside {
+    width: 200px;
+  }
+  .rb-aside .main-content,
+  .rb-aside .page-head {
+    margin-left: 200px;
+  } */
 }
 
 /* text overflow */
@@ -4972,14 +4967,10 @@ pre.unstyle {
   margin-left: 0;
 }
 
-.tablesort thead th:hover {
+.tablesort thead th:not(.no-sort):hover,
+.tablesort thead th.sorted {
   cursor: pointer;
-  opacity: 0.8;
-}
-
-.tablesort thead th.no-sort {
-  cursor: default;
-  opacity: unset;
+  background-color: #dee2e6;
 }
 
 .map-suggestion.dropdown-menu {
