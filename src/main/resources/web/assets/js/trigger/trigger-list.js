@@ -19,6 +19,7 @@ const RBV_TRIGGERS = {
   'AUTODELETE': $L('自动删除'),
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
+  'CREATEFEED': $L('新建动态'),
 }
 
 const WHENS = {
