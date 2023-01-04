@@ -116,7 +116,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 分派权限
+     * 分配权限
      *
      * @param user
      * @param entity
@@ -171,7 +171,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 分派权限
+     * 分配权限
      *
      * @param user
      * @param target
@@ -238,7 +238,7 @@ public class PrivilegesManager {
             if (action == BizzPermission.CREATE) {
                 throw new PrivilegesException("Unsupported checks detail-entity : " + entity);
             }
-            // 明细无分派/共享
+            // 明细无分配/共享
             else if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
                 return false;
             }
@@ -304,7 +304,7 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
-        // 明细无 分派/共享
+        // 明细无 分配/共享
         if (entity.getMainEntity() != null) {
             if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
                 return false;

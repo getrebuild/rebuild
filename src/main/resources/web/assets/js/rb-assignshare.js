@@ -6,12 +6,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
 
-// ~~ 分派
+// ~~ 分配
 class DlgAssign extends RbModalHandler {
   constructor(props) {
     super(props)
     this.onView = !!window.RbViewPage
-    this._Props = ['assign', $L('分派'), 'A']
+    this._Props = ['assign', $L('分配'), 'A']
   }
 
   render() {

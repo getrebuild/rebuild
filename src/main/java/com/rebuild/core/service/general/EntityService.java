@@ -42,11 +42,11 @@ public interface EntityService extends ServiceSpec {
     int delete(ID record, String[] cascades);
 
     /**
-     * 分派
+     * 分配
      *
      * @param record
      * @param to
-     * @param cascades 需要级联分派的实体
+     * @param cascades 需要级联分配的实体
      * @return
      */
     int assign(ID record, ID to, String[] cascades);
@@ -68,7 +68,7 @@ public interface EntityService extends ServiceSpec {
      *
      * @param record
      * @param to
-     * @param cascades 需要级联分派的实体
+     * @param cascades 需要级联分配的实体
      * @param rights 共享权限
      * @return
      */

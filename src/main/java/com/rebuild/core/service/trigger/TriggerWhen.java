@@ -36,7 +36,7 @@ public enum TriggerWhen {
      */
     UPDATE(BizzPermission.UPDATE.getMask()),
     /**
-     * 分派时
+     * 分配时
      */
     ASSIGN(BizzPermission.ASSIGN.getMask()),
     /**

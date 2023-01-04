@@ -214,7 +214,7 @@ public class ProjectTaskService extends BaseTaskService {
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
         if (task[0] == null) return;
 
-        String msg = Language.L("有一个新任务分派给你") + " \n> " + task[1];
+        String msg = Language.L("有一个新任务分配给你") + " \n> " + task[1];
         Application.getNotifications().send(
                 MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }

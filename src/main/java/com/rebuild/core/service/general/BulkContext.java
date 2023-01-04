@@ -69,7 +69,7 @@ public class BulkContext {
     }
 
     /**
-     * 有目标用户的，如分派/共享/删除
+     * 有目标用户的，如分配/共享/删除
      *
      * @param opUser
      * @param action
