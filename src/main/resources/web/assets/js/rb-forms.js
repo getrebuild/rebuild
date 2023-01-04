@@ -1018,7 +1018,7 @@ class RbFormNumber extends RbFormText {
           title={this.state.hasError}
           type="text"
           value={this._removeComma(value)}
-          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
@@ -1104,6 +1104,7 @@ class RbFormNumber extends RbFormText {
     // if (n) return (n + '').replace(/,/g, '')
     // debugger
     if (n) n = $regex.clearNumber(n)
+    if (n === '-') return n
     if (isNaN(n)) return ''
     return n // `0`
   }
@@ -1151,7 +1152,7 @@ class RbFormTextarea extends RbFormElement {
           className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
@@ -1268,7 +1269,7 @@ class RbFormDateTime extends RbFormElement {
           title={this.state.hasError}
           type="text"
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           maxLength="20"

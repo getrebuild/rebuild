@@ -138,6 +138,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: text;
 }
 
+.form-control-plaintext.formula:empty {
+  border: 1px dotted #bdc0c7 !important;
+}
+
 .form-control-plaintext.formula:empty::after {
   content: attr(_title);
   color: #878787;
@@ -246,4 +250,8 @@ select.underline-sm {
   appearance: none;
   outline: none;
   background-color: #fff;
+}
+
+select.underline-sm:focus {
+  border-color: #4285f4;
 }

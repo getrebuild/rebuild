@@ -966,7 +966,7 @@ select.form-control:not([disabled]) {
 .rbform-alert {
   margin: -20px -20px 20px;
   text-align: center;
-  padding: 0.4rem;
+  padding: 0.5rem;
   border-radius: 0;
   color: #836203;
   font-weight: normal;
@@ -1057,8 +1057,8 @@ select.form-control:not([disabled]) {
 
 .type-DECIMAL em.vflag {
   position: absolute;
-  right: 9px;
-  top: 9px;
+  right: 10px;
+  top: 10px;
   font-size: 12px;
   font-style: normal;
   color: #878787;
