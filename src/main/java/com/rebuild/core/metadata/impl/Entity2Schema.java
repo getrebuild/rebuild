@@ -216,13 +216,13 @@ public class Entity2Schema extends Field2Schema {
 
         // 先删配置
 
-        final ID sessionUser = UserContextHolder.getUser(true);
-        if (sessionUser == null) UserContextHolder.setUser(getUser());
+        final ID threadUser = UserContextHolder.getUser(Boolean.TRUE);
+        if (threadUser == null) UserContextHolder.setUser(getUser());
 
         try {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);
         } finally {
-            if (sessionUser == null) UserContextHolder.clear();
+            if (threadUser == null) UserContextHolder.clearUser();
         }
 
         // 最后删表

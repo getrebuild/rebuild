@@ -422,7 +422,7 @@ public class UserService extends BaseService {
         try {
             record = this.create(record, false);
         } finally {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
 
         // 通知管理员
