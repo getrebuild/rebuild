@@ -320,7 +320,7 @@ var $regex = {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
   },
   clearNumber: function (n) {
-    return (n + '').replace(/[^\d|^\.|^\-]/g, '')
+    return (n + '').replace(/[^\d|^\\.|^\\-]/g, '')
   }
 }
 
