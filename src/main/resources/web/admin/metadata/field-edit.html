@@ -6,6 +6,11 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%AD%97%E6%AE%B5" />
     <title>[[${bundle.L('字段信息')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
+    <style>
+      .support-plat2 {
+        margin-left: -18px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -201,7 +206,7 @@
                 </div>
                 <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-cellphone-check" style="margin-left: -18px" th:title="${bundle.L('支持 H5')}"></i>
+                    <i class="support-plat2 mdi mdi-cellphone-check" th:title="${bundle.L('支持 H5')}"></i>
                     [[${bundle.L('仅允许拍照上传')}]]
                   </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -377,7 +382,10 @@
                   </div>
                 </th:block>
                 <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT bosskey-show">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('常用值')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">
+                    <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                    [[${bundle.L('常用值')}]]
+                  </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <textarea class="form-control form-control-sm row2x" id="textCommon" th:placeholder="${bundle.L('(选填)')}"></textarea>
                     <div class="form-text" th:utext="${bundle.L('如有多个常用值请使用逗号分开')}"></div>
