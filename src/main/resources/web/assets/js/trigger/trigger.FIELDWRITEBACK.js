@@ -481,7 +481,7 @@ class FormulaCalcWithCode extends FormulaCalc {
     if (this._$fields) {
       $(this._$fields).css('max-height', 221)
 
-      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon zmdi zmdi-edit"></i></a>`)
+      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
       $(this._$formula).addClass('switch-code').after($btn)
       $btn.click(() => this.setState({ useCode: true }))
     }

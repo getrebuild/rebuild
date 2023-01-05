@@ -337,17 +337,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .form-control-plaintext.formula.switch-code + .switch-code-btn {
   position: absolute;
-  right: 2px;
-  top: 2px;
+  right: 3px;
+  top: 3px;
   display: inline-block;
-  width: 33px;
-  height: 33px;
-  line-height: 33px;
+  width: 31px;
+  height: 31px;
+  line-height: 32px;
   text-align: center;
-  font-size: 1.35rem;
-  color: #777;
-  border-radius: 2px;
-  transition: background-color 0.2s;
+  font-size: 1.3rem;
+  color: #212121;
+  border-radius: 4px;
+  transition: all 0.4s;
 }
 
 .form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
@@ -514,4 +514,36 @@ textarea.formula-code {
 
 .alert-mb-0 > .alert {
   margin-bottom: 0;
+}
+
+.edtior-wrap {
+  position: relative;
+}
+
+.edtior-wrap > .fields-vars {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: inline-block;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 3px;
+  padding-bottom: 2px;
+  padding-top: 4px;
+  border-radius: 4px;
+  background-color: #212121;
+  opacity: 0.4;
+  transition: opacity 0.4s;
+}
+
+.edtior-wrap:hover > .fields-vars {
+  opacity: 1;
+}
+
+.edtior-wrap > .fields-vars > .mdi {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.edtior-wrap > .fields-vars:hover > .mdi {
+  color: rgba(255, 255, 255, 1);
 }
