@@ -912,7 +912,7 @@ select.form-control:not([disabled]) {
   background-size: 16px;
 }
 
-/* FormPage */
+/* rbform */
 
 .form-layout > .row {
   display: flex;
@@ -976,11 +976,11 @@ select.form-control:not([disabled]) {
   margin: 0;
 }
 
-.rbform .type-IMAGE {
+.type-IMAGE {
   padding-bottom: 1px !important;
 }
 
-.rbform .type-FILE {
+.type-FILE {
   padding-bottom: 4px !important;
 }
 
@@ -988,11 +988,11 @@ select.form-control:not([disabled]) {
   padding: 7px 0 0;
 }
 
-.rbform .type-BOOL .mt-1 {
+.type-BOOL .mt-1 {
   margin-top: 0.25rem !important;
 }
 
-.rbform .type-BOOL .mt-1 + .form-text {
+.type-BOOL .mt-1 + .form-text {
   margin: 0;
 }
 
@@ -4671,10 +4671,25 @@ pre.unstyle {
 
 .protable .table tr td .custom-control {
   padding-left: 2.1377rem;
+  margin-bottom: 4px;
 }
 
-.protable .table tr td .custom-control + .custom-control {
-  margin-left: 1.385rem;
+.protable .type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
+.protable .type-MULTISELECT {
+  padding-bottom: 0 !important;
+  margin-bottom: -2px !important;
+}
+
+.protable .type-FILE {
+  margin-bottom: 0 !important;
+}
+
+.protable .type-IMAGE {
+  margin-bottom: -5px !important;
+  padding-bottom: 0 !important;
 }
 
 .protable .table {

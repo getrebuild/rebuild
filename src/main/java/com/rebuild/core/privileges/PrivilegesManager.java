@@ -232,7 +232,7 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
-        if (MetadataHelper.getEntity(entity).getMainEntity() != null) {
+        if (MetadataHelper.getEntityType(entity) == MetadataHelper.TYPE_DETAIL) {
             // 明细实体不能使用此方法检查创建权限
             // 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
             if (action == BizzPermission.CREATE) {
@@ -431,12 +431,12 @@ public class PrivilegesManager {
     /**
      * 获取真实的权限实体。如明细的权限依赖主实体
      *
-     * @param entity
+     * @param entityCode
      * @return
      */
-    private int convert2MainEntity(int entity) {
-        Entity em = MetadataHelper.getEntity(entity);
-        return em.getMainEntity() == null ? entity : em.getMainEntity().getEntityCode();
+    private int convert2MainEntity(int entityCode) {
+        Entity em = MetadataHelper.getEntity(entityCode);
+        return em.getMainEntity() == null ? entityCode : em.getMainEntity().getEntityCode();
     }
 
     /**

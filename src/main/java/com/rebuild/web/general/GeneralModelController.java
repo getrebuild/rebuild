@@ -44,6 +44,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+import static com.rebuild.web.general.GeneralListController.checkPageOfEntity;
+
 /**
  * 表单/视图
  *
@@ -59,7 +61,7 @@ public class GeneralModelController extends EntityController {
     public ModelAndView pageView(@PathVariable String entity, @PathVariable ID id,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
-        final Entity useEntity = GeneralListController.checkPageOfEntity(user, entity, response);
+        final Entity useEntity = checkPageOfEntity(user, entity, response);
         if (useEntity == null) return null;
 
         if (Application.devMode() && !Objects.equals(id.getEntityCode(), MetadataHelper.getEntity(entity).getEntityCode())) {
