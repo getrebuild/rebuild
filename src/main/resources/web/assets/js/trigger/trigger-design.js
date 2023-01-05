@@ -312,9 +312,19 @@ class EditorWithFieldVars extends React.Component {
   }
 
   render() {
+    let attrs = {
+      className: 'form-control form-control-sm row3x',
+      maxLength: 600,
+      placeholder: this.props.placeholder || null,
+    }
+
+    if (this.props.isCode) {
+      attrs = { ...attrs, className: 'formula-code', maxLength: 4000, wrap: 'off', autoFocus: true }
+    }
+
     return (
-      <div className="edtior-wrap">
-        <textarea className="form-control form-control-sm row3x" ref={(c) => (this._$content = c)} maxLength="600" placeholder={this.props.placeholder || null} />
+      <div className="textarea-wrap">
+        <textarea {...attrs} ref={(c) => (this._$content = c)} />
         <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
           <i className="mdi mdi-code-braces" />
         </a>
@@ -337,6 +347,9 @@ class EditorWithFieldVars extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-undef
+    autosize(this._$content)
+
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar({})

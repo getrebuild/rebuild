@@ -370,6 +370,10 @@ textarea.formula-code {
   padding: 4px 10px;
 }
 
+textarea.formula-code + .fields-vars {
+  bottom: 14px;
+}
+
 .auto-assign .select2-selection__rendered,
 .auto-share .select2-selection__rendered {
   display: block !important;
@@ -516,34 +520,32 @@ textarea.formula-code {
   margin-bottom: 0;
 }
 
-.edtior-wrap {
+.textarea-wrap {
   position: relative;
 }
 
-.edtior-wrap > .fields-vars {
+.textarea-wrap > .fields-vars {
   position: absolute;
   right: 6px;
   bottom: 6px;
   display: inline-block;
   font-size: 1.3rem;
   line-height: 1;
-  padding: 3px;
-  padding-bottom: 2px;
-  padding-top: 4px;
+  padding: 4px 3px 2px;
   border-radius: 4px;
   background-color: #212121;
   opacity: 0.4;
   transition: opacity 0.4s;
 }
 
-.edtior-wrap:hover > .fields-vars {
+.textarea-wrap:hover > .fields-vars {
   opacity: 1;
 }
 
-.edtior-wrap > .fields-vars > .mdi {
+.textarea-wrap > .fields-vars > .mdi {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.edtior-wrap > .fields-vars:hover > .mdi {
+.textarea-wrap > .fields-vars:hover > .mdi {
   color: rgba(255, 255, 255, 1);
 }
