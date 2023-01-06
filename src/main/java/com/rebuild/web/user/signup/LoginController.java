@@ -263,9 +263,9 @@ public class LoginController extends LoginAction {
         User user = Application.getUserStore().getUserByEmail(email);
         Record record = EntityHelper.forUpdate(user.getId(), user.getId());
         record.setString("password", newpwd);
-        try {
-            UserContextHolder.setUser(user.getId());
 
+        UserContextHolder.setUser(user.getId());
+        try {
             Application.getBean(UserService.class).update(record);
             VerfiyCode.clean(email);
 

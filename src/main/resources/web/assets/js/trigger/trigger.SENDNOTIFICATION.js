@@ -4,7 +4,9 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global UserSelectorWithField */
+/* global UserSelectorWithField, EditorWithFieldVars */
+
+const wpc = window.__PageConfig
 
 // ~~ 发送通知
 // eslint-disable-next-line no-undef
@@ -69,7 +71,7 @@ class ContentSendNotification extends ActionContentSpec {
             <div className="form-group row pb-1">
               <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件标题')}</label>
               <div className="col-12 col-lg-8">
-                <input type="text" className="form-control form-control-sm" ref={(c) => (this._title = c)} maxLength="60" placeholder={$L('你有一条新通知')} />
+                <input type="text" className="form-control form-control-sm" ref={(c) => (this._$title = c)} maxLength="60" placeholder={$L('你有一条新通知')} style={{ maxWidth: '100%' }} />
               </div>
             </div>
           )}
@@ -77,7 +79,7 @@ class ContentSendNotification extends ActionContentSpec {
           <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
             <div className="col-12 col-lg-8">
-              <textarea className="form-control form-control-sm row3x" ref={(c) => (this._content = c)} maxLength="600" />
+              <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
               <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
             </div>
           </div>
@@ -115,8 +117,8 @@ class ContentSendNotification extends ActionContentSpec {
           userType: content.userType ? content.userType : 1,
         },
         () => {
-          $(this._title).val(content.title || '')
-          $(this._content).val(content.content || '')
+          $(this._$title).val(content.title || '')
+          this._content.val(content.content || '')
         }
       )
 
@@ -138,8 +140,8 @@ class ContentSendNotification extends ActionContentSpec {
       type: this.state.type,
       userType: this.state.userType,
       sendTo: this.state.userType === 2 ? this._sendTo2.getSelected() : this._sendTo1.getSelected(),
-      title: $(this._title).val(),
-      content: $(this._content).val(),
+      title: $(this._$title).val(),
+      content: this._content.val(),
     }
 
     if ((_data.sendTo || []).length === 0) {
@@ -167,8 +169,6 @@ renderContentComp = function (props) {
   // 指定字段
   $('.when-update a.hide').removeClass('hide')
 }
-
-const wpc = window.__PageConfig
 
 class AccountSelectorWithField extends UserSelector {
   constructor(props) {

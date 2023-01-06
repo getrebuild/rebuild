@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -58,42 +57,41 @@ public class SendNotification extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && !hasUpdateFields(operatingContext)) {
+            return TriggerResult.wran("No update fields");
+        }
+
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
+
+        final int msgType = content.getIntValue("type");
+        final int userType = content.getIntValue("userType");
+
+        if (msgType == MTYPE_MAIL && !SMSender.availableMail()) {
+            return TriggerResult.wran("email-service unavailable");
+        } else if (msgType == MTYPE_SMS && !SMSender.availableSMS()) {
+            return TriggerResult.wran("sms-service unavailable");
+        } else if (msgType == MTYPE_NOTIFICATION) {
+            // default
+        }
+
         ThreadPool.exec(() -> {
             try {
-                // FIXME 等待事物完成
+                // 等待事物完成
                 ThreadPool.waitFor(3000);
 
-                executeAsync(operatingContext);
+                int s;
+                if (userType == UTYPE_ACCOUNT) {
+                    s = sendToAccounts(operatingContext);
+                } else {  // UTYPE_USER
+                    s = sendToUsers(operatingContext);
+                }
+                log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
+
             } catch (Exception ex) {
                 log.error(null, ex);
             }
         });
         return TriggerResult.success("async");
-    }
-
-    private void executeAsync(OperatingContext operatingContext) {
-        if (!hasWhenUpdateFields(actionContext, operatingContext)) return;
-
-        final JSONObject content = (JSONObject) actionContext.getActionContent();
-
-        final int type = content.getIntValue("type");
-        final int userType = content.getIntValue("userType");
-
-        if (type == MTYPE_MAIL && !SMSender.availableMail()) {
-            log.warn("Could not send because email-service is unavailable");
-            return;
-        } else if (type == MTYPE_SMS && !SMSender.availableSMS()) {
-            log.warn("Could not send because sms-service is unavailable");
-            return;
-        }
-
-        int s;
-        if (userType == UTYPE_ACCOUNT) {
-            s = sendToAccounts(operatingContext);
-        } else {  // UTYPE_USER
-            s = sendToUsers(operatingContext);
-        }
-        log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
     }
 
     private int sendToUsers(OperatingContext operatingContext) {
@@ -193,30 +191,5 @@ public class SendNotification extends TriggerAction {
         }
 
         return new String[] { message, emailSubject };
-    }
-
-    /**
-     * 是否指定字段更新
-     *
-     * @param actionContext
-     * @param operatingContext
-     * @return
-     */
-    public static boolean hasWhenUpdateFields(ActionContext actionContext, OperatingContext operatingContext) {
-        if (operatingContext.getAction() != BizzPermission.UPDATE) return false;
-
-        final JSONObject content = (JSONObject) actionContext.getActionContent();
-        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
-        if (whenUpdateFields == null || whenUpdateFields.isEmpty()) return false;
-
-        Record updatedRecord = operatingContext.getAfterRecord();
-        boolean hasUpdated = false;
-        for (String field : updatedRecord.getAvailableFields()) {
-            if (whenUpdateFields.contains(field)) {
-                hasUpdated = true;
-                break;
-            }
-        }
-        return hasUpdated;
     }
 }

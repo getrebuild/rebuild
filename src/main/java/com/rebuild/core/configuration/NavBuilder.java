@@ -247,7 +247,7 @@ public class NavBuilder extends NavManager {
         try {
             Application.getService(EntityHelper.LayoutConfig).create(record);
         } finally {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
     }
 

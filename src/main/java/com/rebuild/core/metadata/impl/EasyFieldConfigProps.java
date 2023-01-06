@@ -33,9 +33,13 @@ public class EasyFieldConfigProps {
      */
     public static final String DECIMAL_NOTNEGATIVE = NUMBER_NOTNEGATIVE;
     /**
-     * 格式
+     * 格式（小数长度）
      */
     public static final String DECIMAL_FORMAT = "decimalFormat";
+    /**
+     * 格式
+     */
+    public static final String DECIMAL_TYPE = "decimalType";
     /**
      * 表单公式
      */

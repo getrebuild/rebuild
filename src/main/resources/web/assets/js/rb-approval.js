@@ -615,7 +615,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   _handleReferral() {
     renderRbcomp(
       <ApproveFormExtAction
-        title={$L('请选择转审给谁')}
+        title={$L('转审给谁')}
+        tips={$L('请选择转审给谁')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
           $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, (res) => {
@@ -636,7 +637,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     renderRbcomp(
       <ApproveFormExtAction
         multiple
-        title={$L('请选择加签哪些用户')}
+        title={$L('加签哪些用户')}
+        tips={$L('请选择加签哪些用户')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
           $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, (res) => {
@@ -669,7 +671,7 @@ class ApproveFormExtAction extends RbAlert {
             className="btn btn-space btn-primary"
             onClick={() => {
               const s = this._UserSelector.val()
-              if (s.length === 0) return RbHighbar.create(this.props.title)
+              if (s.length === 0) return RbHighbar.create(this.props.tips)
               else this.props.onConfirm(s, this)
             }}>
             {$L('确定')}

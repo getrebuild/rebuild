@@ -912,7 +912,7 @@ select.form-control:not([disabled]) {
   background-size: 16px;
 }
 
-/* FormPage */
+/* rbform */
 
 .form-layout > .row {
   display: flex;
@@ -966,7 +966,7 @@ select.form-control:not([disabled]) {
 .rbform-alert {
   margin: -20px -20px 20px;
   text-align: center;
-  padding: 0.4rem;
+  padding: 0.5rem;
   border-radius: 0;
   color: #836203;
   font-weight: normal;
@@ -976,11 +976,11 @@ select.form-control:not([disabled]) {
   margin: 0;
 }
 
-.rbform .type-IMAGE {
+.type-IMAGE {
   padding-bottom: 1px !important;
 }
 
-.rbform .type-FILE {
+.type-FILE {
   padding-bottom: 4px !important;
 }
 
@@ -988,11 +988,11 @@ select.form-control:not([disabled]) {
   padding: 7px 0 0;
 }
 
-.rbform .type-BOOL .mt-1 {
+.type-BOOL .mt-1 {
   margin-top: 0.25rem !important;
 }
 
-.rbform .type-BOOL .mt-1 + .form-text {
+.type-BOOL .mt-1 + .form-text {
   margin: 0;
 }
 
@@ -1053,6 +1053,15 @@ select.form-control:not([disabled]) {
 
 .type-TAG .select2-selection__clear {
   margin-right: -1px !important;
+}
+
+.type-DECIMAL em.vflag {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 12px;
+  font-style: normal;
+  color: #878787;
 }
 
 .img-field {
@@ -3906,19 +3915,14 @@ a.icon-link > .zmdi {
   .btn {
     min-width: 88px;
   }
-}
 
-.mr-zero {
-  margin-right: -15px;
-}
-
-.ml-zero {
-  margin-left: -15px;
-}
-
-a.avatar.x26 img {
-  width: 26px;
-  height: 26px;
+  /* .page-aside {
+    width: 200px;
+  }
+  .rb-aside .main-content,
+  .rb-aside .page-head {
+    margin-left: 200px;
+  } */
 }
 
 /* text overflow */
@@ -4667,10 +4671,25 @@ pre.unstyle {
 
 .protable .table tr td .custom-control {
   padding-left: 2.1377rem;
+  margin-bottom: 4px;
 }
 
-.protable .table tr td .custom-control + .custom-control {
-  margin-left: 1.385rem;
+.protable .type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
+.protable .type-MULTISELECT {
+  padding-bottom: 0 !important;
+  margin-bottom: -2px !important;
+}
+
+.protable .type-FILE {
+  margin-bottom: 0 !important;
+}
+
+.protable .type-IMAGE {
+  margin-bottom: -5px !important;
+  padding-bottom: 0 !important;
 }
 
 .protable .table {
@@ -4963,14 +4982,10 @@ pre.unstyle {
   margin-left: 0;
 }
 
-.tablesort thead th:hover {
+.tablesort thead th:not(.no-sort):hover,
+.tablesort thead th.sorted {
   cursor: pointer;
-  opacity: 0.8;
-}
-
-.tablesort thead th.no-sort {
-  cursor: default;
-  opacity: unset;
+  background-color: #dee2e6;
 }
 
 .map-suggestion.dropdown-menu {

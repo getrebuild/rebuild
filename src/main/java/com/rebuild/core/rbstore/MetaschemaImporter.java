@@ -138,8 +138,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        final ID sessionUser = UserContextHolder.getUser(true);
-        if (sessionUser == null) UserContextHolder.setUser(getUser());
+        final ID threadUser = UserContextHolder.getUser(Boolean.TRUE);
+        if (threadUser == null) UserContextHolder.setUser(getUser());
 
         // 字段选项
         try {
@@ -170,7 +170,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
         setCompleted(100);
 
-        if (sessionUser == null) UserContextHolder.clear();
+        if (threadUser == null) UserContextHolder.clearUser();
+
         return entityName;
     }
 

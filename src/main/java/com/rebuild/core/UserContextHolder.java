@@ -44,11 +44,12 @@ public class UserContextHolder {
 
     /**
      * @param user
+     * @see #clearUser()
      */
     public static void setUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID exists = getUser(true);
+        ID exists = getUser(Boolean.TRUE);
         if (exists != null) {
             log.warn("Replace user in current session (thread) : " + exists + " > " + user);
             CALLER.remove();
@@ -68,7 +69,7 @@ public class UserContextHolder {
      * @return
      */
     public static ID getUser() {
-        return getUser(false);
+        return getUser(Boolean.FALSE);
     }
 
     /**

@@ -22,7 +22,7 @@ const FIELD_TYPES = {
   'PICKLIST': [$L('下拉列表'), 'mdi-form-select'],
   'CLASSIFICATION': [$L('分类'), 'mdi-form-dropdown'],
   'MULTISELECT': [$L('多选'), 'mdi-format-list-checks'],
-  'TAG': [$L('标签'), 'mdi-tag-outline'],
+  'TAG': [$L('标签'), 'mdi-tag-outline', true],
   'REFERENCE': [$L('引用'), 'mdi-feature-search-outline'],
   'N2NREFERENCE': [$L('多引用'), 'mdi-text-box-search-outline'],
   'FILE': [$L('附件'), 'mdi-attachment'],

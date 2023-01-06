@@ -4,7 +4,9 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet */
+/* global FieldValueSet, EditorWithFieldVars */
+
+const wpc = window.__PageConfig
 
 const UPDATE_MODES = {
   FIELD: $L('字段值'),
@@ -366,7 +368,7 @@ class FieldFormula extends React.Component {
 
     // 数字、日期支持计算器模式
     const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(type)
-    const initCode = forceCode && this._value ? this._value.substr(4, this._value.length - 8) : null
+    const initCode = this._value ? this._value.substr(4, this._value.length - 8) : null
 
     renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initCode={initCode} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
   }
@@ -387,7 +389,7 @@ class FieldFormula extends React.Component {
 }
 
 FieldFormula.formatText = function (formula, fields) {
-  if (!formula) return
+  if (!formula) return null
 
   // CODE
   if (formula.startsWith('{{{{')) {
@@ -416,7 +418,7 @@ class FormulaCalcWithCode extends FormulaCalc {
         <FormulaCode
           initCode={this.props.initCode}
           onConfirm={(code) => {
-            this.props.onConfirm(`{{{{${code}}}}}`)
+            this.props.onConfirm(!$.trim(code) ? null : `{{{{${code}}}}}`)
             this.hide()
           }}
           verifyFormula
@@ -481,7 +483,7 @@ class FormulaCalcWithCode extends FormulaCalc {
     if (this._$fields) {
       $(this._$fields).css('max-height', 221)
 
-      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon zmdi zmdi-edit"></i></a>`)
+      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon mdi mdi-code-tags"></i></a>`)
       $(this._$formula).addClass('switch-code').after($btn)
       $btn.click(() => this.setState({ useCode: true }))
     }
@@ -506,15 +508,7 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea
-          className="formula-code"
-          ref={(c) => (this._$formulaInput = c)}
-          defaultValue={this.props.initCode || ''}
-          maxLength="4000"
-          placeholder="// Support AviatorScript"
-          wrap="off"
-          autoFocus
-        />
+        <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._formulaCode = c)} placeholder="// Support AviatorScript" isCode />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
@@ -525,7 +519,7 @@ class FormulaCode extends React.Component {
             </span>
           </div>
           <div className="col text-right">
-            <button type="button" className="btn btn-primary" onClick={() => this.confirm()}>
+            <button type="button" className="btn btn-primary" onClick={() => this.handleConfirm()}>
               {$L('确定')}
             </button>
           </div>
@@ -534,8 +528,12 @@ class FormulaCode extends React.Component {
     )
   }
 
-  confirm() {
-    const formula = $val(this._$formulaInput)
+  componentDidMount() {
+    this._formulaCode.val(this.props.initCode || '')
+  }
+
+  handleConfirm() {
+    const formula = this._formulaCode.val()
     const that = this
     function _onConfirm() {
       typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)

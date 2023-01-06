@@ -1084,7 +1084,7 @@ class RbList extends React.Component {
 
   _buildQuick(el) {
     el = $(el || '.input-search>input')
-    const q = el.val()
+    const q = $.trim(el.val())
     if (!q && !this.lastFilter) return null
 
     return {
@@ -1464,7 +1464,8 @@ CellRenders.addRender('STATE', function (v, s, k) {
 })
 
 const renderNumber = function (v, s, k) {
-  if ((v + '').substr(0, 1) === '-') {
+  // 负数
+  if ((v + '').includes('-')) {
     return (
       <td key={k}>
         <div className="text-danger" style={s} title={v}>

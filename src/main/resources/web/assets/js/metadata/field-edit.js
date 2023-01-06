@@ -141,6 +141,10 @@ $(document).ready(function () {
       })
       extConfigNew['tagList'] = items
     }
+    // 小数
+    if (dt === 'DECIMAL' && extConfigNew['decimalType'] === '¥') {
+      extConfigNew['decimalType'] = $val('.J_decimalTypeFlag') || '¥'
+    }
 
     // fix
     delete extConfigNew['undefined']
@@ -242,11 +246,22 @@ $(document).ready(function () {
     $('.J_fieldAttrs input').attr('disabled', true)
   } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
     _handleNumber(extConfig.calcFormula)
+
+    if (dt === 'DECIMAL') {
+      if (extConfig.decimalType === '%') {
+        // 百分比
+      } else if (!extConfig.decimalType || extConfig.decimalType === 0) {
+        // 数字
+      } else {
+        $('input[name="decimalType"]:eq(2)').attr('checked', true)
+        $('.J_decimalTypeFlag').val(extConfig.decimalType)
+      }
+    }
   } else if (dt === 'TAG') {
     _handleTag(extConfig.tagList || [])
   }
 
-  // // 只读属性
+  // 只读属性
   // delete extConfig['classification']
   // delete extConfig['stateClass']
 

@@ -161,7 +161,7 @@ public class ModelExtrasController extends BaseController {
             if (revType == 1) o[0] = Language.L("新建");
             else if (revType == 2) o[0] = Language.L("删除");
             else if (revType == 4) o[0] = Language.L("更新");
-            else if (revType == 16) o[0] = Language.L("分派");
+            else if (revType == 16) o[0] = Language.L("分配");
             else if (revType == 32) o[0] = Language.L("共享");
             else if (revType == 64) o[0] = Language.L("取消共享");
             else if (revType == 991) o[0] = Language.L("审批通过");

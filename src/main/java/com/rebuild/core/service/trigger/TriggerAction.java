@@ -7,6 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
+import cn.devezhao.persist4j.Record;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.service.general.OperatingContext;
 
 /**
@@ -60,6 +63,28 @@ public abstract class TriggerAction {
      */
     public boolean isUsableSourceEntity(int entityCode) {
         return true;
+    }
+
+    /**
+     * 是否指定字段更新
+     *
+     * @param operatingContext
+     * @return
+     */
+    protected boolean hasUpdateFields(OperatingContext operatingContext) {
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
+        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
+        if (whenUpdateFields == null || whenUpdateFields.isEmpty()) return true;
+
+        Record updatedRecord = operatingContext.getAfterRecord();
+        boolean hasUpdated = false;
+        for (String field : updatedRecord.getAvailableFields()) {
+            if (whenUpdateFields.contains(field)) {
+                hasUpdated = true;
+                break;
+            }
+        }
+        return hasUpdated;
     }
 
     @Override

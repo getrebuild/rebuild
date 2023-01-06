@@ -465,7 +465,6 @@ class RbForm extends React.Component {
           if (typeof iv === 'object') {
             if (child.props.type === 'TAG') {
               // eg. 标签
-              iv = iv.map((item) => item.name)
               iv = iv.join('$$$$')
             } else if ($.isArray(iv)) {
               // eg. 文件/图片
@@ -906,10 +905,6 @@ class RbFormElement extends React.Component {
 }
 
 class RbFormText extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     const comp = super.renderElement()
     if (this.props.readonly || !this.props.textCommon) return comp
@@ -939,10 +934,6 @@ class RbFormText extends RbFormElement {
 }
 
 class RbFormUrl extends RbFormText {
-  constructor(props) {
-    super(props)
-  }
-
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
@@ -964,10 +955,6 @@ class RbFormUrl extends RbFormText {
 }
 
 class RbFormEMail extends RbFormText {
-  constructor(props) {
-    super(props)
-  }
-
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
@@ -988,10 +975,6 @@ class RbFormEMail extends RbFormText {
 }
 
 class RbFormPhone extends RbFormText {
-  constructor(props) {
-    super(props)
-  }
-
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
@@ -1012,10 +995,6 @@ class RbFormPhone extends RbFormText {
 }
 
 class RbFormNumber extends RbFormText {
-  constructor(props) {
-    super(props)
-  }
-
   isValueError() {
     const err = super.isValueError()
     if (err) return err
@@ -1032,19 +1011,32 @@ class RbFormNumber extends RbFormText {
   renderElement() {
     const value = arguments.length > 0 ? arguments[0] : this.state.value
     return (
-      <input
-        ref={(c) => (this._fieldValue = c)}
-        className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
-        title={this.state.hasError}
-        type="text"
-        value={this._removeComma(value)}
-        onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
-        // onBlur={this.props.readonly ? null : () => this.checkValue()}
-        readOnly={this.props.readonly}
-        placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
-        maxLength="29"
-      />
+      <RF>
+        <input
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
+          title={this.state.hasError}
+          type="text"
+          value={this._removeComma(value)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
+          // onBlur={this.props.readonly ? null : () => this.checkValue()}
+          readOnly={this.props.readonly}
+          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+          maxLength="29"
+        />
+        {this.__valueFlag && <em className="vflag">{this.__valueFlag}</em>}
+      </RF>
     )
+  }
+
+  renderViewElement() {
+    const c = super.renderViewElement()
+    // 负数
+    if (this.state.value && (this.state.value + '').includes('-')) {
+      return React.cloneElement(c, { className: 'form-control-plaintext text-danger' })
+    } else {
+      return c
+    }
   }
 
   componentDidMount() {
@@ -1109,7 +1101,10 @@ class RbFormNumber extends RbFormText {
   // 移除千分为位
   _removeComma(n) {
     if (n === null || n === undefined) return ''
-    if (n) return (n + '').replace(/,/g, '')
+    // if (n) return (n + '').replace(/,/g, '')
+    // debugger
+    if (n) n = $regex.clearNumber(n)
+    if (n === '-') return n
     if (isNaN(n)) return ''
     return n // `0`
   }
@@ -1118,6 +1113,10 @@ class RbFormNumber extends RbFormText {
 class RbFormDecimal extends RbFormNumber {
   constructor(props) {
     super(props)
+    // 0, %, etc.
+    if (props.decimalType && props.decimalType !== '0') {
+      this.__valueFlag = props.decimalType
+    }
   }
 
   isValueError() {
@@ -1153,7 +1152,7 @@ class RbFormTextarea extends RbFormElement {
           className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
@@ -1259,10 +1258,6 @@ class RbFormTextarea extends RbFormElement {
 }
 
 class RbFormDateTime extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     if (this.props.readonly) return super.renderElement()
 
@@ -1274,7 +1269,7 @@ class RbFormDateTime extends RbFormElement {
           title={this.state.hasError}
           type="text"
           value={this.state.value || ''}
-          onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
+          onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           maxLength="20"
@@ -1501,10 +1496,6 @@ class RbFormImage extends RbFormElement {
 }
 
 class RbFormFile extends RbFormImage {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
@@ -1988,10 +1979,6 @@ class RbFormAnyReference extends RbFormReference {
 }
 
 class RbFormClassification extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     return (
       <div className="input-group has-append">
@@ -2172,17 +2159,9 @@ class RbFormBool extends RbFormElement {
   }
 }
 
-class RbFormState extends RbFormPickList {
-  constructor(props) {
-    super(props)
-  }
-}
+class RbFormState extends RbFormPickList {}
 
 class RbFormBarcode extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     if (this.state.value) return this.renderViewElement()
 
@@ -2390,10 +2369,6 @@ class RbFormLocation extends RbFormElement {
 }
 
 class RbFormSign extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     const value = this.state.value
 
@@ -2525,10 +2500,6 @@ class RbFormTag extends RbFormElement {
 
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-
   renderElement() {
     return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
   }

@@ -834,6 +834,9 @@ body {
   font-size: 12px;
   margin-left: 5px;
   cursor: help;
+  border-radius: 99px;
+  border-bottom-left-radius: 0;
+  transform: translateY(-1px);
 }
 
 .timeline.approved-steps .timeline-item.last {
