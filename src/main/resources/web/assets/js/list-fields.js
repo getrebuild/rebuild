@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// 列表显示字段
+// 列表字段显示
 
 const _configLabels = {}
 const _configWidths = {}
@@ -47,7 +47,7 @@ $(document).ready(() => {
     $.get(`${settingsUrl}/alist`, (res) => {
       const ccfg = res.data.find((x) => x[0] === cfgid)
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('列显示')} list={res.data} configName={ccfg ? ccfg[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
+        renderRbcomp(<Share2 title={$L('字段显示')} list={res.data} configName={ccfg ? ccfg[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
           shareToComp = this
         })
       } else {
@@ -56,7 +56,7 @@ $(document).ready(() => {
           return x
         })
         // eslint-disable-next-line no-undef
-        renderSwitchButton(data, $L('列显示'), cfgid)
+        renderSwitchButton(data, $L('字段显示'), cfgid)
       }
 
       // 有自有才提示覆盖
@@ -91,7 +91,7 @@ $(document).ready(() => {
     }
 
     if (overwriteMode) {
-      RbAlert.create($L('保存将覆盖你现有的列显示。继续吗？'), {
+      RbAlert.create($L('保存将覆盖你现有的字段显示。继续吗？'), {
         confirm: function () {
           this.hide()
           saveFn()

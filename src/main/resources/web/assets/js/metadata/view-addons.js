@@ -8,12 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _configLabels = {}
 const _configFilters = {}
 
-$(document).ready(function () {
+$(document).ready(() => {
   const entity = $urlp('entity'),
     type = $urlp('type')
   const url = `/admin/entity/${entity}/view-addons?type=${type}`
 
-  $.get(url, function (res) {
+  $.get(url, (res) => {
     $(res.data.refs).each(function () {
       // eslint-disable-next-line no-undef
       render_unset(this)
@@ -64,6 +64,8 @@ $(document).ready(function () {
       else RbHighbar.error(res.error_msg)
     })
   })
+
+  $unhideDropdown($('.J_extoption'))
 })
 
 const refreshConfigStar = function () {

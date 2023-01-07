@@ -60,7 +60,7 @@ const RbListPage = {
       }
     })
 
-    $('.J_columns').on('click', () => RbModal.create(`/p/general/list-fields?entity=${entity[0]}`, $L('设置列显示')))
+    $('.J_columns').on('click', () => RbModal.create(`/p/general/list-fields?entity=${entity[0]}`, $L('设置字段显示')))
 
     // 权限实体才有
 

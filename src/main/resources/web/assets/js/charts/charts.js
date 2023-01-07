@@ -1149,7 +1149,7 @@ class DataListSettings extends RbModalHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('字段显示')}</label>
             <div className="col-sm-7">
               <div className="sortable-box rb-scroller" ref={(c) => (this._$showfields = c)}>
                 <ol className="dd-list" _title={$L('无')}></ol>
@@ -1235,7 +1235,7 @@ class DataListSettings extends RbModalHandler {
         that.setState({ fields: that._fields }, () => {
           $field = $(that._$field)
             .select2({
-              placeholder: $L('添加显示字段'),
+              placeholder: $L('添加字段显示'),
               allowClear: false,
             })
             .on('change', (e) => {
@@ -1287,7 +1287,7 @@ class DataListSettings extends RbModalHandler {
     }
 
     if (!data.entity) return RbHighbar.create($L('请选择图表数据来源'))
-    if (data.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
+    if (data.fields.length === 0) return RbHighbar.create($L('请添加字段显示'))
 
     console.log(data)
   }

@@ -162,7 +162,7 @@ public class DataListManager extends BaseLayoutManager {
     }
 
     /**
-     * 获取可用列显示ID
+     * 获取可用字段显示ID
      *
      * @param entity
      * @param user
