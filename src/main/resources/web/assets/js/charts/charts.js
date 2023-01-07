@@ -30,7 +30,7 @@ class BaseChart extends React.Component {
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.isManageable && !this.props.builtin && (
-          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`} ref={(c) => (this._$actionEdit = c)}>
             <i className="zmdi zmdi-edit" />
           </a>
         )}
@@ -174,7 +174,7 @@ class ChartIndex extends BaseChart {
   }
 }
 
-// 表格
+// 统计表
 class ChartTable extends BaseChart {
   renderChart(data) {
     if (!data.html) {
@@ -1115,6 +1115,189 @@ class ProjectTasks extends BaseChart {
   }
 }
 
+// ~~ 通用数据列表
+class DataList extends BaseChart {
+  componentDidMount() {
+    super.componentDidMount()
+
+    $(this._$actionEdit).on('click', (e) => {
+      $stopEvent(e, true)
+      renderRbcomp(<DataListSettings />)
+    })
+  }
+}
+
+// ~~ 数据列表配置
+class DataListSettings extends RbModalHandler {
+  render() {
+    const state = this.state || {}
+    return (
+      <RbModal title={$L('设置数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {(state.entities || []).map((item) => {
+                  return (
+                    <option key={item.name} value={item.name}>
+                      {item.entityLabel}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <div className="col-sm-7">
+              <div className="sortable-box rb-scroller" ref={(c) => (this._$showfields = c)}>
+                <ol className="dd-list" _title={$L('无')}></ol>
+              </div>
+              <div>
+                <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
+                  <option value=""></option>
+                  {(state.fields || []).map((item) => {
+                    return (
+                      <option key={item.name} value={item.name}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
+            <div className="col-sm-7">
+              <a className="btn btn-sm btn-link pl-0 text-left down-2">{$L('点击设置')}</a>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示行数')}</label>
+            <div className="col-sm-7">
+              <input type="number" className="form-control form-control-sm" placeholder="40" />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} />
+            </div>
+          </div>
+
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    let $showfields = $(this._$showfields).perfectScrollbar()
+    $showfields = $showfields
+      .find('ol')
+      .sortable({
+        placeholder: 'dd-placeholder',
+        handle: '.dd3-handle',
+        axis: 'y',
+      })
+      .disableSelection()
+
+    const that = this
+    let $field
+    function _loadfs(entity) {
+      if (!entity) {
+        $(that._$field).select2({
+          placeholder: $L('无可用字段'),
+        })
+        return
+      }
+
+      $.get(`/commons/metadata/fields?entity=${entity}&deep=2`, (res) => {
+        if ($field) {
+          $(that._$field).select2('destroy')
+          $(that._$field).val('')
+          $showfields.empty()
+        }
+
+        that._fields = res.data || []
+        that.setState({ fields: that._fields }, () => {
+          $field = $(that._$field)
+            .select2({
+              placeholder: $L('添加显示字段'),
+              allowClear: false,
+            })
+            .on('change', (e) => {
+              let name = e.target.value
+              $showfields.find('li').each(function () {
+                if ($(this).data('key') === name) {
+                  name = null
+                }
+              })
+              const x = that._findField(name)
+              if (!x) return
+
+              const $item = $(
+                `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"><a title="移除"><i class="zmdi zmdi-close"></i></a></div></li>`
+              ).appendTo($showfields)
+              $item.find('.dd3-action>a').on('click', () => $item.remove())
+            })
+        })
+      })
+    }
+
+    $.get('/commons/metadata/entities?detail=yes', (res) => {
+      this.setState({ entities: res.data || [] }, () => {
+        $(this._$entity)
+          .select2({
+            allowClear: false,
+          })
+          .on('change', (e) => {
+            _loadfs(e.target.value)
+          })
+          .trigger('change')
+      })
+    })
+  }
+
+  _handleSave() {
+    const that = this
+    const fields = []
+    $(this._$showfields)
+      .find('li')
+      .each(function () {
+        const x = that._findField($(this).data('key'))
+        x && fields.push({ field: x.name, type: x.type, label: x.label })
+      })
+
+    const data = {
+      entity: $(this._$entity).val(),
+      fields: fields,
+    }
+
+    if (!data.entity) return RbHighbar.create($L('请选择图表数据来源'))
+    if (data.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
+
+    console.log(data)
+  }
+
+  _findField(name) {
+    if (!name) return null
+    return this._fields.find((x) => x.name === name)
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1146,6 +1329,8 @@ const detectChart = function (cfg, id) {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin={true} />
+  } else if (cfg.type === 'DataList') {
+    return <DataList {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
