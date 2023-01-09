@@ -55,12 +55,12 @@ public class DataList extends ChartData implements BuiltinChart {
     @Override
     public JSON build() {
         Map<String, Object> params = getExtraParams();
-        JSONObject extconfig = (JSONObject) params.get("extconfig");
+        final JSONObject extconfig = (JSONObject) params.get("extconfig");
         if (extconfig == null) {
-            throw new DefinedException(Language.L("请配置图表后使用"));
+            throw new DefinedException("UNSET");
         }
 
-        Entity entity = MetadataHelper.getEntity(extconfig.getString("entity"));
+        final Entity entity = MetadataHelper.getEntity(extconfig.getString("entity"));
 
         JSONArray fields = extconfig.getJSONArray("fields");
         List<Object> fieldsRich = new ArrayList<>();

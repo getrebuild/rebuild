@@ -1855,6 +1855,11 @@ th.column-fixed {
   height: 300px;
 }
 
+.sortable-box.autoh,
+.sortable-box.autoh .dd-list {
+  height: auto;
+}
+
 .sortable-box .dd-list:empty::before {
   content: attr(_title);
   color: #777;

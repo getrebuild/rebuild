@@ -1121,10 +1121,15 @@ class DataList extends BaseChart {
     super.componentDidMount()
 
     const config = this.props.config
-    config.extconfig && $(this._$box).parent().attr('data-extconfig', JSON.stringify(config.extconfig))
-
     const $op = $(this._$box).find('.chart-oper')
-    $op.find('.J_view-source').addClass('hide')
+
+    if (config.extconfig) {
+      $(this._$box).parent().attr('data-extconfig', JSON.stringify(config.extconfig))
+      $op.find('.J_view-source').attr('href', `${rb.baseUrl}/app/${config.extconfig.entity}/list`)
+    } else {
+      $op.find('.J_view-source').addClass('hide')
+    }
+
     $op.find('.J_chart-edit').on('click', (e) => {
       $stopEvent(e, true)
 
@@ -1148,6 +1153,11 @@ class DataList extends BaseChart {
     })
   }
 
+  renderError(msg) {
+    if (msg === 'UNSET') msg = <span>{$L('暂无数据。请[编辑](###)图表配置')}</span>
+    super.renderError(msg)
+  }
+
   renderChart(data) {
     const config = this.state.config
     config.extconfig && this.setState({ title: config.extconfig.chartTitle || $L('数据列表') })
@@ -1161,8 +1171,6 @@ class DataList extends BaseChart {
         <thead>
           <tr ref={(c) => (this._$head = c)}>
             {listFields.map((item) => {
-              console.log(this.state.sortField === item.field)
-
               return (
                 <th
                   key={item.field}
@@ -1229,6 +1237,9 @@ class DataList extends BaseChart {
 class DataListSettings extends RbModalHandler {
   render() {
     const state = this.state || {}
+    const fields = state.fields || []
+    const filterLen = state.filterData ? (state.filterData.items || []).length : 0
+
     return (
       <RbModal title={$L('设置数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
         <div className="form">
@@ -1246,16 +1257,16 @@ class DataListSettings extends RbModalHandler {
               </select>
             </div>
           </div>
-          <div className="form-group row">
+          <div className="form-group row pb-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-7">
-              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
+              <div className={`sortable-box rb-scroller h200 ${fields.length > 5 ? '' : 'autoh'}`} ref={(c) => (this._$showfields = c)}>
                 <ol className="dd-list" _title={$L('无')}></ol>
               </div>
-              <div>
+              <div className="DataList-add-field">
                 <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
                   <option value=""></option>
-                  {(state.fields || []).map((item) => {
+                  {fields.map((item) => {
                     return (
                       <option key={item.name} value={item.name}>
                         {item.label}
@@ -1267,21 +1278,29 @@ class DataListSettings extends RbModalHandler {
             </div>
           </div>
 
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
+          <div className={`form-group row ${this.state.showMore ? 'hide' : ''}`}>
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
             <div className="col-sm-7">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
-                {this.state.advFilterData && this.state.advFilterData.items ? $L('已设置条件') + ` (${this.state.advFilterData.items.length})` : $L('点击设置')}
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.setState({ showMore: true })}>
+                {$L('更多选项')}
               </a>
             </div>
           </div>
-          <div className="form-group row">
+          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
+            <div className="col-sm-7">
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
+                {filterLen > 0 ? $L('已设置条件') + ` (${filterLen})` : $L('点击设置')}
+              </a>
+            </div>
+          </div>
+          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
             <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示行数')}</label>
             <div className="col-sm-7">
               <input type="number" className="form-control form-control-sm" placeholder="40" ref={(c) => (this._$pageSize = c)} />
             </div>
           </div>
-          <div className="form-group row">
+          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
@@ -1318,7 +1337,7 @@ class DataListSettings extends RbModalHandler {
     const props = this.props
 
     let $field
-    function _loadfs() {
+    function _loadFields() {
       if (!that._entity) {
         $(that._$field).select2({
           placeholder: $L('无可用字段'),
@@ -1329,7 +1348,6 @@ class DataListSettings extends RbModalHandler {
       $.get(`/commons/metadata/fields?entity=${that._entity}&deep=2`, (res) => {
         if ($field) {
           $(that._$field).select2('destroy')
-          $(that._$field).val('')
           $showfields.empty()
         }
 
@@ -1340,6 +1358,7 @@ class DataListSettings extends RbModalHandler {
               placeholder: $L('添加显示字段'),
               allowClear: false,
             })
+            .val('')
             .on('change', (e) => {
               let name = e.target.value
               $showfields.find('li').each(function () {
@@ -1352,9 +1371,22 @@ class DataListSettings extends RbModalHandler {
               if (!x) return
 
               const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"><a title="移除"><i class="zmdi zmdi-close"></i></a></div></li>`
+                `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
               ).appendTo($showfields)
-              $item.find('.dd3-action>a').on('click', () => $item.remove())
+
+              const $sort = $(`<a title="${$L('默认排序')}"><i class="fs-18 zmdi zmdi-chevron-down"></i></a>`)
+                .appendTo($item.find('.dd3-action'))
+                .on('click', () => {
+                  $showfields.find('.dd-item').removeClass('active')
+                  $item.addClass('active')
+
+                  const hasAsc = $sort.find('.zmdi').hasClass('zmdi-chevron-up')
+                  $showfields.find('.zmdi').removeClass('zmdi-chevron-up')
+                  hasAsc && $sort.find('.zmdi').addClass('zmdi-chevron-up')
+                })
+              $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
+                .appendTo($item.find('.dd3-action'))
+                .on('click', () => $item.remove())
             })
 
           // init
@@ -1362,6 +1394,7 @@ class DataListSettings extends RbModalHandler {
             props.fields.forEach((name) => {
               $field.val(name).trigger('change')
             })
+            $field.val('').trigger('change')
           }
         })
       })
@@ -1369,33 +1402,35 @@ class DataListSettings extends RbModalHandler {
 
     $.get('/commons/metadata/entities?detail=yes', (res) => {
       this.setState({ entities: res.data || [] }, () => {
-        $(this._$entity)
-          .select2({
-            allowClear: false,
-          })
-          .val(props.entity || null)
-          .on('change', (e) => {
-            this._entity = e.target.value
-            _loadfs()
-          })
-          .trigger('change')
+        const $s = $(this._$entity).select2({
+          allowClear: false,
+        })
+
+        if (props.entity) $s.val(props.entity || null)
+        $s.on('change', (e) => {
+          this._entity = e.target.value
+          _loadFields()
+        }).trigger('change')
       })
     })
 
     $(this._$pageSize).val(props.pageSize || null)
     $(this._$chartTitle).val(props.chartTitle || null)
+    if (props.filter) {
+      this.setState({ filterData: props.filter })
+    }
   }
 
   _showFilter() {
     renderRbcomp(
       <AdvFilter
         entity={this._entity}
-        filter={this._advFilterData}
+        filter={this.state.filterData || null}
         title={$L('附加过滤条件')}
         inModal
         canNoFilters
         onConfirm={(s) => {
-          this.setState({ advFilterData: s })
+          this.setState({ filterData: s })
         }}
       />
     )
@@ -1403,18 +1438,24 @@ class DataListSettings extends RbModalHandler {
 
   handleConfirm() {
     const fields = []
+    let sort = null
     $(this._$showfields)
       .find('li')
       .each(function () {
-        fields.push($(this).data('key'))
+        const $this = $(this)
+        fields.push($this.data('key'))
+
+        if ($this.hasClass('active')) {
+          sort = $this.data('key') + `:${$this.find('.zmdi-chevron-up') ? 'asc' : 'desc'}`
+        }
       })
 
     const data = {
       entity: $(this._$entity).val(),
       fields: fields,
       pageSize: $(this._$pageSize).val(),
-      advFilter: this.state.advFilterData || null,
-      sort: null,
+      filter: this.state.filterData || null,
+      sort: sort,
       chartTitle: $(this._$chartTitle).val(),
     }
 

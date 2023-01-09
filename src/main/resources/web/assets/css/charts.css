@@ -465,7 +465,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-box.DataList .chart.ctable th,
 .chart-box.DataList .chart.ctable td {
-  padding: 10px;
+  padding: 9px 10px;
 }
 
 .chart-box.DataList .chart.ctable .td-sm {
@@ -481,7 +481,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4285f4;
   font-weight: 500;
   margin-left: 5px;
-  margin-top: -2px;
+  margin-top: 1px;
 }
 
 .chart-box.DataList .chart.ctable thead th.sort-desc::after {
@@ -492,4 +492,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.DataList .chart.ctable thead th:active {
   cursor: pointer;
   background-color: #dee2e6;
+}
+
+.DataList-add-field .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
+  content: '\f278';
+  font-size: 1.4rem;
 }
