@@ -1541,10 +1541,7 @@ i.dividing.ui-draggable-dragging {
   max-width: 1000px;
 }
 
-.data-list .table td.td-sm {
-  padding: 3px 10px;
-}
-
+.data-list .table td.td-sm,
 .data-list .table tbody tr td.user-avatar {
   padding: 3px 10px;
 }
@@ -1849,7 +1846,7 @@ th.column-fixed {
 .sortable-box {
   border: 1px solid #eee;
   padding: 0 2px;
-  height: 308px;
+  height: 306px;
   z-index: 1;
   margin-bottom: 12px;
 }
@@ -1867,7 +1864,7 @@ th.column-fixed {
 }
 
 .sortable-box.h380 {
-  height: 388px;
+  height: 386px;
 }
 
 .sortable-box.h380 .dd-list {

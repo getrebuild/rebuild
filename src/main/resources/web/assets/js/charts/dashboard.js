@@ -260,12 +260,16 @@ const save_dashboard = function () {
     const $this = $(this)
     const chid = $this.find('.grid-stack-item-content').attr('id')
     if (chid && chid.length > 20) {
+      let extconfig = $this.find('.grid-stack-item-content').attr('data-extconfig') || null
+      if (extconfig) extconfig = JSON.parse(extconfig)
+
       s.push({
         x: $this.attr('data-gs-x'),
         y: $this.attr('data-gs-y'),
         w: $this.attr('data-gs-width'),
         h: $this.attr('data-gs-height'),
         chart: chid.substr(6),
+        extconfig: extconfig,
       })
     }
   })

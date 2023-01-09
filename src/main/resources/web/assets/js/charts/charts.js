@@ -19,7 +19,7 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+          <a className="J_view-source" title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
@@ -30,7 +30,7 @@ class BaseChart extends React.Component {
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.isManageable && !this.props.builtin && (
-          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`} ref={(c) => (this._$actionEdit = c)}>
+          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
             <i className="zmdi zmdi-edit" />
           </a>
         )}
@@ -188,7 +188,7 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    let colLast = null
+    let cellActive = null
     this.setState({ chartdata: chartdata }, () => {
       const $tb = $(this._$body)
       $tb
@@ -196,13 +196,13 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      const $cols = $tb.find('tbody td').on('mousedown', function () {
-        if (colLast === this) {
+      const $cells = $tb.find('tbody td').on('mousedown', function () {
+        if (cellActive === this) {
           $(this).toggleClass('active')
           return
         }
-        colLast = this
-        $cols.removeClass('active')
+        cellActive = this
+        $cells.removeClass('active')
         $(this).addClass('active')
       })
 
@@ -211,7 +211,7 @@ class ChartTable extends BaseChart {
       } else {
         $tb.find('tbody td>a').each(function () {
           const $a = $(this)
-          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}` })
+          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
         })
       }
 
@@ -1120,10 +1120,108 @@ class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
 
-    $(this._$actionEdit).on('click', (e) => {
+    const config = this.props.config
+    config.extconfig && $(this._$box).parent().attr('data-extconfig', JSON.stringify(config.extconfig))
+
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_view-source').addClass('hide')
+    $op.find('.J_chart-edit').on('click', (e) => {
       $stopEvent(e, true)
-      renderRbcomp(<DataListSettings />)
+
+      const config2 = this.state.config
+      renderRbcomp(
+        <DataListSettings
+          {...config2.extconfig}
+          onConfirm={(s) => {
+            $(this._$box).parent().attr('data-extconfig', JSON.stringify(s))
+            if (typeof window.save_dashboard === 'function') {
+              window.save_dashboard()
+
+              config2.extconfig = s
+              this.setState({ config: config2 }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
     })
+  }
+
+  renderChart(data) {
+    const config = this.state.config
+    config.extconfig && this.setState({ title: config.extconfig.chartTitle || $L('数据列表') })
+
+    const listFields = data.fields
+    const listData = data.data
+    const lastIndex = listFields.length
+
+    const table = (
+      <table className="table table-hover">
+        <thead>
+          <tr ref={(c) => (this._$head = c)}>
+            {listFields.map((item) => {
+              console.log(this.state.sortField === item.field)
+
+              return (
+                <th
+                  key={item.field}
+                  data-field={item.field}
+                  onClick={(e) => {
+                    console.log(item)
+                    // eslint-disable-next-line no-undef
+                    if (COLUMN_UNSORT.includes(item.type)) return
+
+                    const $th = $(e.target)
+                    const hasAsc = $th.hasClass('sort-asc'),
+                      hasDesc = $th.hasClass('sort-desc')
+
+                    $(this._$head).find('th').removeClass('sort-asc sort-desc')
+                    if (hasDesc) $th.addClass('sort-asc')
+                    else if (hasAsc) $th.addClass('sort-desc')
+                    else $th.addClass('sort-asc')
+                  }}>
+                  {item.label}
+                </th>
+              )
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {listData.map((row) => {
+            const lastCell = row[lastIndex]
+            const rkey = `tr-${lastCell.id}`
+            return (
+              <tr
+                key={rkey}
+                data-id={lastCell.id}
+                onDoubleClick={(e) => {
+                  $stopEvent(e, true)
+                  window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
+                }}>
+                {row.map((c, idx) => {
+                  if (idx === lastIndex) return null // Last is ID
+                  return this.renderCell(c, listFields[idx])
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    )
+
+    this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
+      const $tb = $(this._$body)
+      $tb
+        .find('.ctable')
+        .css('height', $tb.height() - 20)
+        .perfectScrollbar()
+    })
+  }
+
+  renderCell(cellVal, field) {
+    const c = CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
+    return c
   }
 }
 
@@ -1149,9 +1247,9 @@ class DataListSettings extends RbModalHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('字段显示')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-7">
-              <div className="sortable-box rb-scroller" ref={(c) => (this._$showfields = c)}>
+              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
                 <ol className="dd-list" _title={$L('无')}></ol>
               </div>
               <div>
@@ -1172,25 +1270,27 @@ class DataListSettings extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
             <div className="col-sm-7">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2">{$L('点击设置')}</a>
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
+                {this.state.advFilterData && this.state.advFilterData.items ? $L('已设置条件') + ` (${this.state.advFilterData.items.length})` : $L('点击设置')}
+              </a>
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示行数')}</label>
             <div className="col-sm-7">
-              <input type="number" className="form-control form-control-sm" placeholder="40" />
+              <input type="number" className="form-control form-control-sm" placeholder="40" ref={(c) => (this._$pageSize = c)} />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} />
+              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
             </div>
           </div>
 
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
-              <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
+              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
                 {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
@@ -1215,16 +1315,18 @@ class DataListSettings extends RbModalHandler {
       .disableSelection()
 
     const that = this
+    const props = this.props
+
     let $field
-    function _loadfs(entity) {
-      if (!entity) {
+    function _loadfs() {
+      if (!that._entity) {
         $(that._$field).select2({
           placeholder: $L('无可用字段'),
         })
         return
       }
 
-      $.get(`/commons/metadata/fields?entity=${entity}&deep=2`, (res) => {
+      $.get(`/commons/metadata/fields?entity=${that._entity}&deep=2`, (res) => {
         if ($field) {
           $(that._$field).select2('destroy')
           $(that._$field).val('')
@@ -1235,7 +1337,7 @@ class DataListSettings extends RbModalHandler {
         that.setState({ fields: that._fields }, () => {
           $field = $(that._$field)
             .select2({
-              placeholder: $L('添加字段显示'),
+              placeholder: $L('添加显示字段'),
               allowClear: false,
             })
             .on('change', (e) => {
@@ -1245,7 +1347,8 @@ class DataListSettings extends RbModalHandler {
                   name = null
                 }
               })
-              const x = that._findField(name)
+
+              const x = name ? that._fields.find((x) => x.name === name) : null
               if (!x) return
 
               const $item = $(
@@ -1253,6 +1356,13 @@ class DataListSettings extends RbModalHandler {
               ).appendTo($showfields)
               $item.find('.dd3-action>a').on('click', () => $item.remove())
             })
+
+          // init
+          if (props.entity === that._entity && props.fields) {
+            props.fields.forEach((name) => {
+              $field.val(name).trigger('change')
+            })
+          }
         })
       })
     }
@@ -1263,38 +1373,56 @@ class DataListSettings extends RbModalHandler {
           .select2({
             allowClear: false,
           })
+          .val(props.entity || null)
           .on('change', (e) => {
-            _loadfs(e.target.value)
+            this._entity = e.target.value
+            _loadfs()
           })
           .trigger('change')
       })
     })
+
+    $(this._$pageSize).val(props.pageSize || null)
+    $(this._$chartTitle).val(props.chartTitle || null)
   }
 
-  _handleSave() {
-    const that = this
+  _showFilter() {
+    renderRbcomp(
+      <AdvFilter
+        entity={this._entity}
+        filter={this._advFilterData}
+        title={$L('附加过滤条件')}
+        inModal
+        canNoFilters
+        onConfirm={(s) => {
+          this.setState({ advFilterData: s })
+        }}
+      />
+    )
+  }
+
+  handleConfirm() {
     const fields = []
     $(this._$showfields)
       .find('li')
       .each(function () {
-        const x = that._findField($(this).data('key'))
-        x && fields.push({ field: x.name, type: x.type, label: x.label })
+        fields.push($(this).data('key'))
       })
 
     const data = {
       entity: $(this._$entity).val(),
       fields: fields,
+      pageSize: $(this._$pageSize).val(),
+      advFilter: this.state.advFilterData || null,
+      sort: null,
+      chartTitle: $(this._$chartTitle).val(),
     }
 
     if (!data.entity) return RbHighbar.create($L('请选择图表数据来源'))
-    if (data.fields.length === 0) return RbHighbar.create($L('请添加字段显示'))
+    if (data.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
 
-    console.log(data)
-  }
-
-  _findField(name) {
-    if (!name) return null
-    return this._fields.find((x) => x.name === name)
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
+    this.hide()
   }
 }
 

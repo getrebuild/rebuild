@@ -449,3 +449,47 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-list > div .chart-icon > i.SUNBURST {
   background-position: -1372px -1464px;
 }
+
+.sortable-box.h200 {
+  height: 208px;
+}
+
+.sortable-box.h200 .dd-list {
+  height: 200px;
+}
+
+.chart-box.DataList .chart.ctable tbody,
+.chart-box.DataList .chart.ctable thead {
+  border: 1px solid #dee2e6;
+}
+
+.chart-box.DataList .chart.ctable th,
+.chart-box.DataList .chart.ctable td {
+  padding: 10px;
+}
+
+.chart-box.DataList .chart.ctable .td-sm {
+  padding: 3px 10px;
+}
+
+.chart-box.DataList .chart.ctable thead th.sort-asc::after,
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
+  position: absolute;
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  content: '\f2fc';
+  font-size: 18px;
+  color: #4285f4;
+  font-weight: 500;
+  margin-left: 5px;
+  margin-top: -2px;
+}
+
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
+  content: '\f2f9';
+}
+
+.chart-box.DataList .chart.ctable thead th:hover,
+.chart-box.DataList .chart.ctable thead th:active {
+  cursor: pointer;
+  background-color: #dee2e6;
+}

@@ -656,6 +656,7 @@ const wpc = window.__PageConfig || {}
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
+const COLUMN_UNSORT = ['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR', 'TAG']
 
 // IE/Edge 不支持首/列固定
 const supportFixedColumns = !($.browser.msie || $.browser.msedge)
@@ -679,7 +680,7 @@ class RbList extends React.Component {
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
-      if (['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR'].includes(fields[i].type)) fields[i].unsort = true
+      if (COLUMN_UNSORT.includes(fields[i].type)) fields[i].unsort = true
     }
 
     delete props.config.fields
@@ -1269,8 +1270,10 @@ const CellRenders = {
       window.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else if (parent && parent.RbViewModal) {
       parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
+    } else {
+      window.open(`${rb.baseUrl}/app/list-and-view?id=${v.id}`)
     }
-    e && $stopEvent(e)
+    e && $stopEvent(e, true)
     return false
   },
 
