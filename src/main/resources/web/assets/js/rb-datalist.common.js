@@ -228,20 +228,20 @@ class BatchOperator extends RbFormHandler {
                 <label className="custom-control custom-control-sm custom-radio mb-2">
                   <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
                   <span className="custom-control-label">
-                    {$L('选中的数据')} ({$L('共 %d 条', selectedRows)})
+                    {$L('选中的记录')} ({$L('共 %d 条', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('当前页的数据')} ({$L('共 %d 条', pageRows)})
+                  {$L('当前页的记录')} ({$L('共 %d 条', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('查询后的数据')} ({$L('共 %d 条', queryRows)})
+                  {$L('查询后的记录')} ({$L('共 %d 条', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
@@ -1210,7 +1210,7 @@ class RbListPagination extends React.Component {
     return (
       <div>
         {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
-        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条记录', this.state.rowsTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
