@@ -155,12 +155,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart.ctable .table td,
 .chart.ctable .table th {
-  padding: 8px 10px;
+  padding: 9px 10px;
   cursor: default;
   font-size: 1rem;
 }
 
-.chart.ctable .table td.active {
+.chart.ctable .table td.active,
+.chart.ctable .table td.highlight,
+.chart.ctable .table tr.highlight {
   outline: 1px solid #4285f4;
   background-color: #f5f8fd;
 }
@@ -463,11 +465,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 1px solid #dee2e6;
 }
 
-.chart-box.DataList .chart.ctable th,
-.chart-box.DataList .chart.ctable td {
-  padding: 9px 10px;
-}
-
 .chart-box.DataList .chart.ctable .td-sm {
   padding: 3px 10px;
 }
@@ -479,9 +476,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   content: '\f2fc';
   font-size: 18px;
   color: #4285f4;
-  font-weight: 500;
-  margin-left: 5px;
-  margin-top: 1px;
+  font-weight: normal;
+  margin-left: 4px;
+  margin-top: -1px;
 }
 
 .chart-box.DataList .chart.ctable thead th.sort-desc::after {
@@ -494,7 +491,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #dee2e6;
 }
 
-.DataList-add-field .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
-  content: '\f278';
+.DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\f0415';
   font-size: 1.4rem;
+  margin-left: -2px;
+}
+
+.DataList-showfields .sortable-box .dd-item .sort.desc::before {
+  content: '\F05BF';
+}
+
+.DataList-showfields .sortable-box .dd-item.active .sort {
+  color: #4285f4 !important;
 }

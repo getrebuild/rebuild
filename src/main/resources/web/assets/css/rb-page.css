@@ -1857,7 +1857,7 @@ th.column-fixed {
 
 .sortable-box.autoh,
 .sortable-box.autoh .dd-list {
-  height: auto;
+  height: auto !important;
 }
 
 .sortable-box .dd-list:empty::before {

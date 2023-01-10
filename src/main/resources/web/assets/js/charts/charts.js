@@ -63,8 +63,8 @@ class BaseChart extends React.Component {
     if (this._echarts) this._echarts.dispose()
   }
 
-  loadChartData() {
-    this.setState({ chartdata: null })
+  loadChartData(notClear) {
+    if (notClear !== true) this.setState({ chartdata: null })
     $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
       if (this._echarts) this._echarts.dispose()
 
@@ -1154,13 +1154,13 @@ class DataList extends BaseChart {
   }
 
   renderError(msg) {
-    if (msg === 'UNSET') msg = <span>{$L('暂无数据。请[编辑](###)图表配置')}</span>
+    if (msg === 'UNSET') msg = <span>{$L('暂无数据。请 [设置图表](###)')}</span>
     super.renderError(msg)
   }
 
   renderChart(data) {
-    const config = this.state.config
-    config.extconfig && this.setState({ title: config.extconfig.chartTitle || $L('数据列表') })
+    const extconfig = this.state.config.extconfig
+    extconfig && this.setState({ title: extconfig.chartTitle || $L('数据列表') })
 
     const listFields = data.fields
     const listData = data.data
@@ -1171,12 +1171,19 @@ class DataList extends BaseChart {
         <thead>
           <tr ref={(c) => (this._$head = c)}>
             {listFields.map((item) => {
+              let sortClazz = null
+              if (extconfig && extconfig.sort) {
+                const s = extconfig.sort.split(':')
+                if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
+                if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
+              }
+
               return (
                 <th
                   key={item.field}
                   data-field={item.field}
+                  className={sortClazz}
                   onClick={(e) => {
-                    console.log(item)
                     // eslint-disable-next-line no-undef
                     if (COLUMN_UNSORT.includes(item.type)) return
 
@@ -1188,6 +1195,11 @@ class DataList extends BaseChart {
                     if (hasDesc) $th.addClass('sort-asc')
                     else if (hasAsc) $th.addClass('sort-desc')
                     else $th.addClass('sort-asc')
+
+                    // refresh
+                    const config2 = this.state.config
+                    config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
+                    this.setState({ config: config2 }, () => this.loadChartData(true))
                   }}>
                   {item.label}
                 </th>
@@ -1206,6 +1218,11 @@ class DataList extends BaseChart {
                 onDoubleClick={(e) => {
                   $stopEvent(e, true)
                   window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
+                }}
+                onClick={() => {
+                  // const $tr = $(e.currentTarget)
+                  // $tr.parent().find('tr').removeClass('highlight')
+                  // $tr.addClass('highlight')
                 }}>
                 {row.map((c, idx) => {
                   if (idx === lastIndex) return null // Last is ID
@@ -1219,10 +1236,10 @@ class DataList extends BaseChart {
     )
 
     this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
-      const $tb = $(this._$body)
-      $tb
+      this._$tb = $(this._$body)
+      this._$tb
         .find('.ctable')
-        .css('height', $tb.height() - 20)
+        .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
     })
   }
@@ -1231,13 +1248,22 @@ class DataList extends BaseChart {
     const c = CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
     return c
   }
+
+  resize() {
+    $setTimeout(
+      () => {
+        if (this._$tb) this._$tb.find('.ctable').css('height', this._$tb.height() - 20)
+      },
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
 }
 
 // ~~ 数据列表配置
 class DataListSettings extends RbModalHandler {
   render() {
     const state = this.state || {}
-    const fields = state.fields || []
     const filterLen = state.filterData ? (state.filterData.items || []).length : 0
 
     return (
@@ -1257,16 +1283,16 @@ class DataListSettings extends RbModalHandler {
               </select>
             </div>
           </div>
-          <div className="form-group row pb-1">
+          <div className="form-group row pb-1 DataList-showfields">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-7">
-              <div className={`sortable-box rb-scroller h200 ${fields.length > 5 ? '' : 'autoh'}`} ref={(c) => (this._$showfields = c)}>
+              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
                 <ol className="dd-list" _title={$L('无')}></ol>
               </div>
-              <div className="DataList-add-field">
+              <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
                   <option value=""></option>
-                  {fields.map((item) => {
+                  {(state.fields || []).map((item) => {
                     return (
                       <option key={item.name} value={item.name}>
                         {item.label}
@@ -1278,15 +1304,7 @@ class DataListSettings extends RbModalHandler {
             </div>
           </div>
 
-          <div className={`form-group row ${this.state.showMore ? 'hide' : ''}`}>
-            <label className="col-sm-3 col-form-label text-sm-right"></label>
-            <div className="col-sm-7">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.setState({ showMore: true })}>
-                {$L('更多选项')}
-              </a>
-            </div>
-          </div>
-          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
             <div className="col-sm-7">
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
@@ -1294,13 +1312,13 @@ class DataListSettings extends RbModalHandler {
               </a>
             </div>
           </div>
-          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示行数')}</label>
             <div className="col-sm-7">
-              <input type="number" className="form-control form-control-sm" placeholder="40" ref={(c) => (this._$pageSize = c)} />
+              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
             </div>
           </div>
-          <div className={`form-group row ${this.state.showMore ? '' : 'hide'}`}>
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
@@ -1374,16 +1392,27 @@ class DataListSettings extends RbModalHandler {
                 `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
               ).appendTo($showfields)
 
-              const $sort = $(`<a title="${$L('默认排序')}"><i class="fs-18 zmdi zmdi-chevron-down"></i></a>`)
-                .appendTo($item.find('.dd3-action'))
-                .on('click', () => {
-                  $showfields.find('.dd-item').removeClass('active')
-                  $item.addClass('active')
+              // eslint-disable-next-line no-undef
+              if (!COLUMN_UNSORT.includes(x.type)) {
+                $(`<a title="${$L('默认排序')}"><i class="zmdi mdi mdi-sort-alphabetical-ascending sort"></i></a>`)
+                  .appendTo($item.find('.dd3-action'))
+                  .on('click', () => {
+                    const hasActive = $item.hasClass('active')
+                    $showfields.find('.dd-item').removeClass('active')
+                    $item.addClass('active')
+                    if (hasActive) $item.find('.sort').toggleClass('desc')
+                  })
 
-                  const hasAsc = $sort.find('.zmdi').hasClass('zmdi-chevron-up')
-                  $showfields.find('.zmdi').removeClass('zmdi-chevron-up')
-                  hasAsc && $sort.find('.zmdi').addClass('zmdi-chevron-up')
-                })
+                // init
+                if (props.entity === that._entity && props.sort) {
+                  const s = props.sort.split(':')
+                  if (s[0] === name) {
+                    $item.addClass('active')
+                    if (s[1] === 'desc') $item.find('.sort').toggleClass('desc')
+                  }
+                }
+              }
+
               $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
                 .appendTo($item.find('.dd3-action'))
                 .on('click', () => $item.remove())
@@ -1446,7 +1475,7 @@ class DataListSettings extends RbModalHandler {
         fields.push($this.data('key'))
 
         if ($this.hasClass('active')) {
-          sort = $this.data('key') + `:${$this.find('.zmdi-chevron-up') ? 'asc' : 'desc'}`
+          sort = $this.data('key') + `:${$this.find('.desc')[0] ? 'desc' : 'asc'}`
         }
       })
 
@@ -1461,6 +1490,7 @@ class DataListSettings extends RbModalHandler {
 
     if (!data.entity) return RbHighbar.create($L('请选择图表数据来源'))
     if (data.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
+    if (data.pageSize && data.pageSize > 500) data.pageSize = 500
 
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()
