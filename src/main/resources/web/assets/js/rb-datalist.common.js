@@ -290,43 +290,30 @@ class DataExport extends BatchOperator {
   }
 
   renderOperator() {
+    const reports = this.state.reports || []
     return (
       <div className="form-group">
-        <label className="text-bold">
-          {$L('使用报表模板')} <sup className="rbv" title={$L('增值功能')} />
-        </label>
+        <label className="text-bold">{$L('选择导出格式')}</label>
         <select className="form-control form-control-sm w-50" ref={(c) => (this._$report = c)}>
-          <option value="0">{$L('不使用')}</option>
-          {(this.state.reports || []).map((item) => {
-            return (
-              <option value={item.id} key={item.id}>
-                {item.name}
-              </option>
-            )
-          })}
+          <option value="csv">CSV</option>
+          <option value="xls">Excel</option>
+          <optgroup label={$L('使用报表模板')}>
+            {reports.map((item) => {
+              return (
+                <option value={item.id} key={item.id}>
+                  {item.name}
+                </option>
+              )
+            })}
+            {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}
+          </optgroup>
         </select>
-
-        {this.state.reports && this.state.reports.length === 0 && (
-          <p className="text-muted mt-1 mb-0">
-            {$L('暂无报表模板')}
-            {rb.isAdminUser && (
-              <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                <i className="zmdi zmdi-settings" /> {$L('点击配置')}
-              </a>
-            )}
-          </p>
-        )}
       </div>
     )
   }
 
   handleConfirm() {
-    const useReport = $(this._$report).val()
-    if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return false
-    }
-
+    const useReport = $(this._$report).val() || 'csv'
     this.disabled(true)
     $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
