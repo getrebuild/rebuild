@@ -294,7 +294,7 @@ class DataExport extends BatchOperator {
     return (
       <div className="form-group">
         <label className="text-bold">{$L('选择导出格式')}</label>
-        <select className="form-control form-control-sm w-50" ref={(c) => (this._$report = c)}>
+        <select className="form-control form-control-sm" style={{ width: 325 }} ref={(c) => (this._$report = c)} defaultValue="xls">
           <option value="csv">CSV</option>
           <option value="xls">Excel</option>
           <optgroup label={$L('使用报表模板')}>

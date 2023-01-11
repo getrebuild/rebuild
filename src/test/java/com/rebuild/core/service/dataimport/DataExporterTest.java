@@ -34,7 +34,7 @@ public class DataExporterTest extends TestSupport {
         }
         query.put("fields", fields);
 
-        File file = ((DataExporter) new DataExporter(query).setUser(UserService.ADMIN_USER)).export();
+        File file = ((DataExporter) new DataExporter(query).setUser(UserService.ADMIN_USER)).export("cvs");
         System.out.println(file);
     }
 }

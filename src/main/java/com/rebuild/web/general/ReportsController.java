@@ -9,9 +9,9 @@ package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -88,7 +88,7 @@ public class ReportsController extends BaseController {
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    Language.L("无法输出报表，请检查报表模板是否有误") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    Language.L("无法输出报表，请检查报表模板是否有误"));
             return;
         }
 
@@ -130,16 +130,19 @@ public class ReportsController extends BaseController {
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
         queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
 
-        ID reportId = getIdParameter(request, "report");
+        // 导出格式
+        String reportType = getParameter(request, "report");
+        ID useReport = ID.isId(reportType) ? ID.valueOf(reportType) : null;
 
         try {
             DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
-            File file = exporter.export(reportId);
+            File output;
+            if (useReport != null) output = exporter.export(useReport);
+            else output = exporter.export(reportType);
 
-            // csv or excel
-            String fileName = reportId == null ? null : getReportName(entity, reportId, null, file);
+            String fileName = useReport == null ? null : getReportName(entity, useReport, null, output);
             if (fileName == null) {
-                fileName = String.format("%s-%s.csv",
+                fileName = String.format("%s-%s." + FileUtil.getSuffix(output),
                         EasyMetaFactory.getLabel(entity),
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
             }
@@ -148,7 +151,7 @@ public class ReportsController extends BaseController {
                     String.format("%s:%d", entity, exporter.getExportCount()));
 
             JSON data = JSONUtils.toJSONObject(
-                    new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
+                    new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
             return RespBody.ok(data);
 
         } catch (Exception ex) {
