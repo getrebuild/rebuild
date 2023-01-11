@@ -440,4 +440,15 @@ public class MetadataHelper {
         if (hasPrivilegesField(entity)) return TYPE_NORMAL;
         return TYPE_SYS;
     }
+
+    /**
+     * @param text
+     * @param entityCode
+     * @return
+     */
+    public static ID isSpecEntityId(String text, int entityCode) {
+        if (!ID.isId(text)) return null;
+        ID id = ID.valueOf(text);
+        return id.getEntityCode() == entityCode ? id : null;
+    }
 }
