@@ -32,6 +32,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.time.LocalTime;
@@ -125,7 +126,7 @@ public class RecordCheckout {
         } else if (dt == DisplayType.N2NREFERENCE) {
             return checkoutN2NReferenceValue(field, cell);
         } else if (dt == DisplayType.BOOL) {
-            return cell.asBool();
+            return cell.asBool() || "是".equals(cell.asString()) || "Y".equalsIgnoreCase(cell.asString());
         } else if (dt == DisplayType.STATE) {
             return checkoutStateValue(field, cell);
         } else if (dt == DisplayType.MULTISELECT) {
@@ -306,8 +307,11 @@ public class RecordCheckout {
     }
 
     protected String[] checkoutTagValue(Cell cell) {
-        final String val = cell.asString();
-        return val.split(MVAL_SPLIT);
+        Set<String> mVal = new HashSet<>();
+        for (String s : cell.asString().split(MVAL_SPLIT)) {
+            if (StringUtils.isNotBlank(s)) mVal.add(s.trim());
+        }
+        return mVal.toArray(new String[0]);
     }
 
     /**
