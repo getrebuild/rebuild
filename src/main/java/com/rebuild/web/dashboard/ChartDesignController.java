@@ -29,6 +29,7 @@ import com.rebuild.core.service.dashboard.ChartConfigService;
 import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
+import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -36,6 +37,7 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -197,5 +199,30 @@ public class ChartDesignController extends EntityController {
     public RespBody chartDelete(@IdParam ID chartId) {
         Application.getBean(ChartConfigService.class).delete(chartId);
         return RespBody.ok();
+    }
+
+    @RequestMapping("builtin-chart-save")
+    public RespBody chartCopy(@IdParam(required = false) ID chartId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
+
+        Record record;
+        if (chartId != null) {
+            record = EntityHelper.forUpdate(chartId, user);
+        } else {
+            // FIXME 只能复制 DataList
+            ID sourceChart = getIdParameter(request, "source");
+            Assert.isTrue(DataList.MYID.equals(sourceChart), "Not allowed");
+
+            record = EntityHelper.forNew(EntityHelper.ChartConfig, user);
+            record.setString("chartType", "DataList");
+        }
+
+        record.setString("config", config.toJSONString());
+        record.setString("title", config.getString("title"));
+        record.setString("belongEntity", config.getString("entity"));
+        record = Application.getBean(ChartConfigService.class).createOrUpdate(record);
+
+        return RespBody.ok(record.getPrimary());
     }
 }

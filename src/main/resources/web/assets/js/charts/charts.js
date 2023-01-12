@@ -188,7 +188,6 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    let cellActive = null
     this.setState({ chartdata: chartdata }, () => {
       const $tb = $(this._$body)
       $tb
@@ -196,14 +195,15 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      const $cells = $tb.find('tbody td').on('mousedown', function () {
-        if (cellActive === this) {
-          $(this).toggleClass('active')
+      let tdActive = null
+      const $els = $tb.find('tbody td').on('mousedown', function () {
+        if (tdActive === this) {
+          $(this).toggleClass('highlight')
           return
         }
-        cellActive = this
-        $cells.removeClass('active')
-        $(this).addClass('active')
+        tdActive = this
+        $els.removeClass('highlight')
+        $(this).addClass('highlight')
       })
 
       if (window.render_preview_chart) {
@@ -1120,28 +1120,17 @@ class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
 
-    const config = this.props.config
     const $op = $(this._$box).find('.chart-oper')
-
-    if (config.extconfig) {
-      $(this._$box).parent().attr('data-extconfig', JSON.stringify(config.extconfig))
-      $op.find('.J_view-source').attr('href', `${rb.baseUrl}/app/${config.extconfig.entity}/list`)
-    } else {
-      $op.find('.J_view-source').addClass('hide')
-    }
-
     $op.find('.J_chart-edit').on('click', (e) => {
       $stopEvent(e, true)
 
       const config2 = this.state.config
       renderRbcomp(
         <DataListSettings
+          chart={config2.chart}
           {...config2.extconfig}
           onConfirm={(s) => {
-            $(this._$box).parent().attr('data-extconfig', JSON.stringify(s))
             if (typeof window.save_dashboard === 'function') {
-              window.save_dashboard()
-
               config2.extconfig = s
               this.setState({ config: config2 }, () => this.loadChartData())
             } else {
@@ -1154,13 +1143,26 @@ class DataList extends BaseChart {
   }
 
   renderError(msg) {
-    if (msg === 'UNSET') msg = <span>{$L('暂无数据。请 [设置图表](###)')}</span>
+    if (msg === 'UNSET') {
+      msg = (
+        <RF>
+          <span>{$L('当前图表无数据')}</span>
+          {this.props.isManageable && (
+            <div>
+              <a href="###" onClick={() => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')}>
+                {$L('请先编辑图表')}
+              </a>
+            </div>
+          )}
+        </RF>
+      )
+    }
     super.renderError(msg)
   }
 
   renderChart(data) {
     const extconfig = this.state.config.extconfig
-    extconfig && this.setState({ title: extconfig.chartTitle || $L('数据列表') })
+    extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
 
     const listFields = data.fields
     const listData = data.data
@@ -1241,6 +1243,17 @@ class DataList extends BaseChart {
         .find('.ctable')
         .css('height', this._$tb.height() - 20)
         .perfectScrollbar()
+
+      let trActive
+      const $els = this._$tb.find('tbody tr').on('mousedown', function () {
+        if (trActive === this) {
+          $(this).toggleClass('highlight')
+          return
+        }
+        trActive = this
+        $els.removeClass('highlight')
+        $(this).addClass('highlight')
+      })
     })
   }
 
@@ -1304,7 +1317,7 @@ class DataListSettings extends RbModalHandler {
             </div>
           </div>
 
-          <div className="form-group row">
+          <div className="form-group row pb-1">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
             <div className="col-sm-7">
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
@@ -1312,8 +1325,22 @@ class DataListSettings extends RbModalHandler {
               </a>
             </div>
           </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pb-2 pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
+                  <span className="custom-control-label">
+                    {$L('共享此图表')}
+                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示行数')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
             <div className="col-sm-7">
               <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
             </div>
@@ -1326,9 +1353,9 @@ class DataListSettings extends RbModalHandler {
           </div>
 
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
-                {$L('确定')}
+                {$L('保存')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}
@@ -1364,9 +1391,11 @@ class DataListSettings extends RbModalHandler {
       }
 
       $.get(`/commons/metadata/fields?entity=${that._entity}&deep=2`, (res) => {
+        // clear last
         if ($field) {
           $(that._$field).select2('destroy')
           $showfields.empty()
+          that.setState({ filterData: null })
         }
 
         that._fields = res.data || []
@@ -1435,7 +1464,7 @@ class DataListSettings extends RbModalHandler {
           allowClear: false,
         })
 
-        if (props.entity) $s.val(props.entity || null)
+        if (props.entity && props.entity !== 'User') $s.val(props.entity || null)
         $s.on('change', (e) => {
           this._entity = e.target.value
           _loadFields()
@@ -1443,11 +1472,11 @@ class DataListSettings extends RbModalHandler {
       })
     })
 
+    // init
     $(this._$pageSize).val(props.pageSize || null)
-    $(this._$chartTitle).val(props.chartTitle || null)
-    if (props.filter) {
-      this.setState({ filterData: props.filter })
-    }
+    $(this._$chartTitle).val(props.title || null)
+    if (props.filter) this.setState({ filterData: props.filter })
+    if ((props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
   }
 
   _showFilter() {
@@ -1479,21 +1508,33 @@ class DataListSettings extends RbModalHandler {
         }
       })
 
-    const data = {
+    const post = {
+      type: 'DataList',
       entity: $(this._$entity).val(),
+      title: $(this._$chartTitle).val() || $L('数据列表'),
+      option: {
+        shareChart: $val(this._$shareChart) && rb.isAdminUser,
+      },
       fields: fields,
       pageSize: $(this._$pageSize).val(),
       filter: this.state.filterData || null,
       sort: sort,
-      chartTitle: $(this._$chartTitle).val(),
     }
 
-    if (!data.entity) return RbHighbar.create($L('请选择图表数据来源'))
-    if (data.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
-    if (data.pageSize && data.pageSize > 500) data.pageSize = 500
+    if (!post.entity) return RbHighbar.create($L('请选择图表数据来源'))
+    if (post.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
+    if (post.pageSize && post.pageSize > 500) post.pageSize = 500
 
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
-    this.hide()
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 }
 
@@ -1545,6 +1586,8 @@ class ChartSelect extends RbModalHandler {
   }
 
   render() {
+    const chartList = this.state.chartList || []
+
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')}>
         <div className="row chart-select-wrap">
@@ -1568,12 +1611,12 @@ class ChartSelect extends RbModalHandler {
           </div>
           <div className="col-9 pl-0">
             <div className="chart-list">
-              {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
-              {(this.state.chartList || []).map((item) => {
+              {chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
+              {chartList.map((item) => {
                 return (
-                  <div key={`chart-${item.id}`}>
+                  <div key={item.id}>
                     <span className="float-left chart-icon">
-                      <i className={item.type} />
+                      <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
                     </span>
                     <span className="float-left title">
                       <strong>{item.title}</strong>
@@ -1608,9 +1651,8 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount = () => this.__loadCharts()
-
-  __loadCharts() {
+  componentDidMount = () => this._loadCharts()
+  _loadCharts() {
     $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })
     })
@@ -1633,7 +1675,7 @@ class ChartSelect extends RbModalHandler {
         $.post(`/dashboard/chart-delete?id=${id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else {
-            that.__loadCharts()
+            that._loadCharts()
             this.hide()
           }
         })
@@ -1642,8 +1684,8 @@ class ChartSelect extends RbModalHandler {
   }
 
   switchTab = (e) => {
-    e.preventDefault()
-    const t = $(e.target).attr('href')
-    this.setState({ tabActive: t }, () => this.__loadCharts())
+    $stopEvent(e, true)
+    const h = $(e.target).attr('href')
+    this.setState({ tabActive: h }, () => this._loadCharts())
   }
 }

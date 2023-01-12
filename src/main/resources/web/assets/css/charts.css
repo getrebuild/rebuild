@@ -161,10 +161,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart.ctable .table td.active,
-.chart.ctable .table td.highlight,
-.chart.ctable .table tr.highlight {
+.chart.ctable .table td.highlight {
   outline: 1px solid #4285f4;
   background-color: #f5f8fd;
+}
+
+.chart.ctable .table tr.highlight {
+  background-color: #dee2e6;
 }
 
 .chart.ctable .table td:first-child.active {
