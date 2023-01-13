@@ -100,7 +100,7 @@ const startTour123 = function () {
     .onexit(() => {
       window.tourStarted = undefined
       $(document.body).removeClass('rebuild-tour-body')
-      
+
       if (!_oncomplete) {
         $.cookie('rb.TourEnd', 'session', { expires: null })
       }
@@ -139,7 +139,7 @@ const StepRebuild = () => {
       rbLeft: 5,
     },
     {
-      element: '.global-create',
+      element: '.global-create2',
       title: $L('快速新建'),
       intro: $L('点击此处快速新建业务记录'),
       rbLeft: 8,
