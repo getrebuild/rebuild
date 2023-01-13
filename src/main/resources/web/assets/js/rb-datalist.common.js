@@ -679,7 +679,7 @@ class RbList extends React.Component {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
-      if (sort[0] === fields[i].field) fields[i].sort = sort[1]
+      if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
       else fields[i].sort = null
       if (COLUMN_UNSORT.includes(fields[i].type)) fields[i].unsort = true
     }

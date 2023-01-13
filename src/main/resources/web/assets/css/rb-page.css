@@ -2426,7 +2426,7 @@ th.column-fixed {
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-  width: 160px;
+  /* width: 160px; */
   height: 34px !important;
   margin-top: 2px;
 }
@@ -2438,7 +2438,7 @@ th.column-fixed {
 .adv-filter .dialog-footer .custom-control {
   cursor: default;
   margin-top: 10px;
-  margin-left: 10px;
+  /* margin-left: 10px; */
 }
 
 .adv-filter .item.dialog-footer {

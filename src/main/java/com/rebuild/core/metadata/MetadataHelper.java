@@ -435,8 +435,8 @@ public class MetadataHelper {
      * @return
      */
     public static int getEntityType(Entity entity) {
-        if (entity.getMainEntity() != null) return TYPE_MAIN;
-        if (entity.getDetailEntity() != null) return TYPE_DETAIL;
+        if (entity.getMainEntity() != null) return TYPE_DETAIL;
+        if (entity.getDetailEntity() != null) return TYPE_MAIN;
         if (hasPrivilegesField(entity)) return TYPE_NORMAL;
         return TYPE_SYS;
     }

@@ -843,18 +843,29 @@ class ListAdvFilter extends AdvFilter {
         {this.props.inModal ? (
           <RF>
             <div className="float-left">
-              <div className="float-left input">
-                <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} />
-              </div>
-              {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} shareTo={this.props.shareTo} noSwitch />}
+              {rb.isAdminUser ? (
+                <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
+              ) : (
+                <div className="float-left input">
+                  <input
+                    className="form-control form-control-sm text"
+                    maxLength="20"
+                    value={this.state.filterName || ''}
+                    data-id="filterName"
+                    onChange={this.handleChange}
+                    placeholder={$L('输入名称')}
+                  />
+                </div>
+              )}
             </div>
             <div className="float-right">
               <button
                 className="btn btn-primary"
                 type="button"
                 onClick={() => {
-                  const name = this.state.filterName
-                  const shareTo = this._shareTo ? this._shareTo.getData().shareTo : null
+                  const d = this._Share2 ? this._Share2.getData() : null
+                  const name = d ? d.configName : this.state.filterName
+                  const shareTo = d ? d.shareTo : null
                   this.post(name, shareTo)
                 }}>
                 {$L('保存')}
