@@ -56,11 +56,11 @@ public class DataList extends ChartData implements BuiltinChart {
     public JSON build() {
         Map<String, Object> params = getExtraParams();
         final JSONObject extconfig = (JSONObject) params.get("extconfig");
-        if (extconfig == null) throw new DefinedException("UNSET");
+        if (extconfig == null) return JSONUtils.toJSONObject("error", "UNSET");
 
         final Entity entity = MetadataHelper.getEntity(extconfig.getString("entity"));
         final JSONArray fields = extconfig.getJSONArray("fields");
-        if (fields == null || fields.isEmpty()) throw new DefinedException("UNSET");
+        if (fields == null || fields.isEmpty()) return JSONUtils.toJSONObject("error", "UNSET");
 
         List<Object> fieldsRich = new ArrayList<>();
         for (Object o : fields) {

@@ -119,8 +119,8 @@ class BaseChart extends React.Component {
     })
   }
 
-  renderError(msg) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> })
+  renderError(msg, cb) {
+    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> }, cb)
   }
 
   renderChart(data) {
@@ -1142,25 +1142,25 @@ class DataList extends BaseChart {
     })
   }
 
-  renderError(msg) {
-    if (msg === 'UNSET') {
-      msg = (
+  renderChart(data) {
+    if (data.error === 'UNSET') {
+      super.renderError(
         <RF>
           <span>{$L('当前图表无数据')}</span>
-          {this.props.isManageable && (
-            <div>
-              <a href="###" onClick={() => $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')}>
-                {$L('请先编辑图表')}
-              </a>
-            </div>
-          )}
-        </RF>
+          {this.props.isManageable && <div>{$L('请先 [编辑图表](###)')}</div>}
+        </RF>,
+        () => {
+          $(this._$body)
+            .find('a')
+            .on('click', (e) => {
+              $stopEvent(e, true)
+              $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')
+            })
+        }
       )
+      return
     }
-    super.renderError(msg)
-  }
 
-  renderChart(data) {
     const extconfig = this.state.config.extconfig
     extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
 
@@ -1169,72 +1169,70 @@ class DataList extends BaseChart {
     const lastIndex = listFields.length
 
     const table = (
-      <table className="table table-hover">
-        <thead>
-          <tr ref={(c) => (this._$head = c)}>
-            {listFields.map((item) => {
-              let sortClazz = null
-              if (extconfig && extconfig.sort) {
-                const s = extconfig.sort.split(':')
-                if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
-                if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
-              }
+      <RF>
+        <table className="table table-hover">
+          <thead>
+            <tr ref={(c) => (this._$head = c)}>
+              {listFields.map((item) => {
+                let sortClazz = null
+                if (extconfig && extconfig.sort) {
+                  const s = extconfig.sort.split(':')
+                  if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
+                  if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
+                }
 
+                return (
+                  <th
+                    key={item.field}
+                    data-field={item.field}
+                    className={sortClazz}
+                    onClick={(e) => {
+                      // eslint-disable-next-line no-undef
+                      if (COLUMN_UNSORT.includes(item.type)) return
+
+                      const $th = $(e.target)
+                      const hasAsc = $th.hasClass('sort-asc'),
+                        hasDesc = $th.hasClass('sort-desc')
+
+                      $(this._$head).find('th').removeClass('sort-asc sort-desc')
+                      if (hasDesc) $th.addClass('sort-asc')
+                      else if (hasAsc) $th.addClass('sort-desc')
+                      else $th.addClass('sort-asc')
+
+                      // refresh
+                      const config2 = this.state.config
+                      config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
+                      this.setState({ config: config2 }, () => this.loadChartData(true))
+                    }}>
+                    {item.label}
+                  </th>
+                )
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {listData.map((row) => {
+              const lastCell = row[lastIndex]
+              const rkey = `tr-${lastCell.id}`
               return (
-                <th
-                  key={item.field}
-                  data-field={item.field}
-                  className={sortClazz}
-                  onClick={(e) => {
-                    // eslint-disable-next-line no-undef
-                    if (COLUMN_UNSORT.includes(item.type)) return
-
-                    const $th = $(e.target)
-                    const hasAsc = $th.hasClass('sort-asc'),
-                      hasDesc = $th.hasClass('sort-desc')
-
-                    $(this._$head).find('th').removeClass('sort-asc sort-desc')
-                    if (hasDesc) $th.addClass('sort-asc')
-                    else if (hasAsc) $th.addClass('sort-desc')
-                    else $th.addClass('sort-asc')
-
-                    // refresh
-                    const config2 = this.state.config
-                    config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
-                    this.setState({ config: config2 }, () => this.loadChartData(true))
+                <tr
+                  key={rkey}
+                  data-id={lastCell.id}
+                  onDoubleClick={(e) => {
+                    $stopEvent(e, true)
+                    window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
                   }}>
-                  {item.label}
-                </th>
+                  {row.map((c, idx) => {
+                    if (idx === lastIndex) return null // Last is ID
+                    return this.renderCell(c, listFields[idx])
+                  })}
+                </tr>
               )
             })}
-          </tr>
-        </thead>
-        <tbody>
-          {listData.map((row) => {
-            const lastCell = row[lastIndex]
-            const rkey = `tr-${lastCell.id}`
-            return (
-              <tr
-                key={rkey}
-                data-id={lastCell.id}
-                onDoubleClick={(e) => {
-                  $stopEvent(e, true)
-                  window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
-                }}
-                onClick={() => {
-                  // const $tr = $(e.currentTarget)
-                  // $tr.parent().find('tr').removeClass('highlight')
-                  // $tr.addClass('highlight')
-                }}>
-                {row.map((c, idx) => {
-                  if (idx === lastIndex) return null // Last is ID
-                  return this.renderCell(c, listFields[idx])
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+        {listData.length === 0 && <div className="chart-undata must-center">{$L('暂无数据')}</div>}
+      </RF>
     )
 
     this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
