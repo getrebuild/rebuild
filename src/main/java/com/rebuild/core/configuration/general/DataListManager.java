@@ -128,6 +128,8 @@ public class DataListManager extends BaseLayoutManager {
                     if (width != null) formatted.put("width", width);
                     Object label2 = item.get("label2");
                     if (label2 != null) formatted.put("label2", label2);
+                    Object sort = item.get("sort");
+                    if (sort != null) formatted.put("sort", sort);
 
                     columnList.add(formatted);
                 }

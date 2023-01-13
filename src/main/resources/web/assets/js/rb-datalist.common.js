@@ -660,13 +660,27 @@ class RbList extends React.Component {
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
 
-    const sort = ($storage.get(this.__sortFieldKey) || props.config.sort || ':').split(':')
     const fields = props.config.fields || []
+
+    // 排序
+    let sort = $storage.get(this.__sortFieldKey) || props.config.sort
+    if (sort) {
+      sort = sort.split(':')
+    } else {
+      for (let i = 0; i < fields.length; i++) {
+        if (fields[i].sort) {
+          sort = [fields[i].field, `sort-${fields[i].sort}`]
+          break
+        }
+      }
+    }
+
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
+      else fields[i].sort = null
       if (COLUMN_UNSORT.includes(fields[i].type)) fields[i].unsort = true
     }
 
@@ -705,11 +719,11 @@ class RbList extends React.Component {
                     )}
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || this.__defaultColumnWidth
-                      const styles = { width: cWidth }
+                      const style2 = { width: cWidth }
                       const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th key={`column-${item.field}`} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
-                          <div style={styles}>
+                        <th key={`column-${item.field}`} style={style2} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                          <div style={style2}>
                             <span style={{ width: cWidth - 8 }}>{item.label}</span>
                             <i className={`zmdi ${item.sort || ''}`} />
                             <i className="dividing" />
