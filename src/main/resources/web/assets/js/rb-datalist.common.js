@@ -228,20 +228,20 @@ class BatchOperator extends RbFormHandler {
                 <label className="custom-control custom-control-sm custom-radio mb-2">
                   <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
                   <span className="custom-control-label">
-                    {$L('选中的数据')} ({$L('共 %d 条', selectedRows)})
+                    {$L('选中的记录')} ({$L('共 %d 条', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('当前页的数据')} ({$L('共 %d 条', pageRows)})
+                  {$L('当前页的记录')} ({$L('共 %d 条', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('查询后的数据')} ({$L('共 %d 条', queryRows)})
+                  {$L('查询后的记录')} ({$L('共 %d 条', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
@@ -290,43 +290,30 @@ class DataExport extends BatchOperator {
   }
 
   renderOperator() {
+    const reports = this.state.reports || []
     return (
       <div className="form-group">
-        <label className="text-bold">
-          {$L('使用报表模板')} <sup className="rbv" title={$L('增值功能')} />
-        </label>
-        <select className="form-control form-control-sm w-50" ref={(c) => (this._$report = c)}>
-          <option value="0">{$L('不使用')}</option>
-          {(this.state.reports || []).map((item) => {
-            return (
-              <option value={item.id} key={item.id}>
-                {item.name}
-              </option>
-            )
-          })}
+        <label className="text-bold">{$L('选择导出格式')}</label>
+        <select className="form-control form-control-sm" style={{ width: 325 }} ref={(c) => (this._$report = c)} defaultValue="xls">
+          <option value="csv">CSV</option>
+          <option value="xls">Excel</option>
+          <optgroup label={$L('使用报表模板')}>
+            {reports.map((item) => {
+              return (
+                <option value={item.id} key={item.id}>
+                  {item.name}
+                </option>
+              )
+            })}
+            {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}
+          </optgroup>
         </select>
-
-        {this.state.reports && this.state.reports.length === 0 && (
-          <p className="text-muted mt-1 mb-0">
-            {$L('暂无报表模板')}
-            {rb.isAdminUser && (
-              <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                <i className="zmdi zmdi-settings" /> {$L('点击配置')}
-              </a>
-            )}
-          </p>
-        )}
       </div>
     )
   }
 
   handleConfirm() {
-    const useReport = $(this._$report).val()
-    if (useReport !== '0' && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持使用报表模板 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      return false
-    }
-
+    const useReport = $(this._$report).val() || 'csv'
     this.disabled(true)
     $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
@@ -601,9 +588,12 @@ const RbListCommon = {
   inUrlViewId: null,
 
   init: function (wpc) {
-    // 全局搜索
     const gs = $urlp('gs', location.hash)
-    if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
+    if (gs) {
+      // eslint-disable-next-line no-undef
+      _showGlobalSearch(gs)
+      $('.input-search>input').val($decode(gs))
+    }
 
     // 快速查询
     const $btn = $('.input-search .input-group-btn .btn'),
@@ -656,6 +646,7 @@ const wpc = window.__PageConfig || {}
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
+const COLUMN_UNSORT = ['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR', 'TAG']
 
 // IE/Edge 不支持首/列固定
 const supportFixedColumns = !($.browser.msie || $.browser.msedge)
@@ -672,14 +663,28 @@ class RbList extends React.Component {
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
 
-    const sort = ($storage.get(this.__sortFieldKey) || props.config.sort || ':').split(':')
     const fields = props.config.fields || []
+
+    // 排序
+    let sort = $storage.get(this.__sortFieldKey) || props.config.sort
+    if (sort) {
+      sort = sort.split(':')
+    } else {
+      for (let i = 0; i < fields.length; i++) {
+        if (fields[i].sort) {
+          sort = [fields[i].field, `sort-${fields[i].sort}`]
+          break
+        }
+      }
+    }
+
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
 
-      if (sort[0] === fields[i].field) fields[i].sort = sort[1]
-      if (['SIGN', 'N2NREFERENCE', 'MULTISELECT', 'FILE', 'IMAGE', 'AVATAR'].includes(fields[i].type)) fields[i].unsort = true
+      if (sort && sort[0] === fields[i].field) fields[i].sort = sort[1]
+      else fields[i].sort = null
+      if (COLUMN_UNSORT.includes(fields[i].type)) fields[i].unsort = true
     }
 
     delete props.config.fields
@@ -717,11 +722,11 @@ class RbList extends React.Component {
                     )}
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || this.__defaultColumnWidth
-                      const styles = { width: cWidth }
+                      const style2 = { width: cWidth }
                       const clazz = `unselect sortable ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th key={`column-${item.field}`} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
-                          <div style={styles}>
+                        <th key={`column-${item.field}`} style={style2} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                          <div style={style2}>
                             <span style={{ width: cWidth - 8 }}>{item.label}</span>
                             <i className={`zmdi ${item.sort || ''}`} />
                             <i className="dividing" />
@@ -1209,7 +1214,7 @@ class RbListPagination extends React.Component {
     return (
       <div>
         {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
-        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条记录', this.state.rowsTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
@@ -1269,8 +1274,10 @@ const CellRenders = {
       window.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else if (parent && parent.RbViewModal) {
       parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
+    } else {
+      window.open(`${rb.baseUrl}/app/list-and-view?id=${v.id}`)
     }
-    e && $stopEvent(e)
+    e && $stopEvent(e, true)
     return false
   },
 

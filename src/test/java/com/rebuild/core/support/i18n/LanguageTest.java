@@ -26,7 +26,7 @@ class LanguageTest extends TestSupport {
     void getLang() {
         System.out.println(Language.L("首页"));
         System.out.println(Language.L("%s首页", "谁的"));
-        System.out.println(Language.L("%d条数据", 100));
+        System.out.println(Language.L("%d条记录", 100));
 
         Entity entity = MetadataHelper.getEntity(EntityHelper.User);
         System.out.println(Language.L(entity));

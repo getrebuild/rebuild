@@ -203,7 +203,7 @@ public class ProjectTaskController extends BaseController {
     }
 
     private JSONArray queryCardDatas(ConfigBean project, ID user, String queryWhere, int[] limits) {
-        // 卡片显示字段
+        // 卡片字段显示
         JSON cardFields = project.getJSON("cardFields");
 
         final Set<String> fields2show = new HashSet<>();

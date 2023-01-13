@@ -435,9 +435,20 @@ public class MetadataHelper {
      * @return
      */
     public static int getEntityType(Entity entity) {
-        if (entity.getMainEntity() != null) return TYPE_MAIN;
-        if (entity.getDetailEntity() != null) return TYPE_DETAIL;
+        if (entity.getMainEntity() != null) return TYPE_DETAIL;
+        if (entity.getDetailEntity() != null) return TYPE_MAIN;
         if (hasPrivilegesField(entity)) return TYPE_NORMAL;
         return TYPE_SYS;
+    }
+
+    /**
+     * @param text
+     * @param entityCode
+     * @return
+     */
+    public static ID isSpecEntityId(String text, int entityCode) {
+        if (!ID.isId(text)) return null;
+        ID id = ID.valueOf(text);
+        return id.getEntityCode() == entityCode ? id : null;
     }
 }

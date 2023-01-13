@@ -155,14 +155,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart.ctable .table td,
 .chart.ctable .table th {
-  padding: 8px 10px;
+  padding: 9px 10px;
   cursor: default;
   font-size: 1rem;
 }
 
-.chart.ctable .table td.active {
+.chart.ctable .table td.active,
+.chart.ctable .table td.highlight {
   outline: 1px solid #4285f4;
   background-color: #f5f8fd;
+}
+
+.chart.ctable .table tr.highlight {
+  background-color: #dee2e6;
 }
 
 .chart.ctable .table td:first-child.active {
@@ -448,4 +453,58 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-list > div .chart-icon > i.SUNBURST {
   background-position: -1372px -1464px;
+}
+
+.sortable-box.h200 {
+  height: 208px;
+}
+
+.sortable-box.h200 .dd-list {
+  height: 200px;
+}
+
+.chart-box.DataList .chart.ctable tbody,
+.chart-box.DataList .chart.ctable thead {
+  border: 1px solid #dee2e6;
+}
+
+.chart-box.DataList .chart.ctable .td-sm {
+  padding: 3px 10px;
+}
+
+.chart-box.DataList .chart.ctable thead th.sort-asc::after,
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
+  position: absolute;
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  content: '\f2fc';
+  font-size: 18px;
+  color: #4285f4;
+  font-weight: normal;
+  margin-left: 4px;
+  margin-top: -1px;
+}
+
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
+  content: '\f2f9';
+}
+
+.chart-box.DataList .chart.ctable thead th:hover,
+.chart-box.DataList .chart.ctable thead th:active {
+  cursor: pointer;
+  background-color: #dee2e6;
+}
+
+.DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\f0415';
+  font-size: 1.4rem;
+  margin-left: -2px;
+}
+
+.DataList-showfields .sortable-box .dd-item .sort.desc::before {
+  content: '\F05BF';
+}
+
+.DataList-showfields .sortable-box .dd-item.active .sort {
+  color: #4285f4 !important;
 }

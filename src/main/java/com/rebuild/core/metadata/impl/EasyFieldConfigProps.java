@@ -167,4 +167,9 @@ public class EasyFieldConfigProps {
      * 标签
      */
     public static final String TAG_LIST = "tagList";
+
+    /**
+     * 引用字段扫码
+     */
+    public static final String REFERENCE_SCANCODE = TEXT_SCANCODE;
 }

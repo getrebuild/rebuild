@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
@@ -32,6 +33,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.time.LocalTime;
@@ -125,7 +127,7 @@ public class RecordCheckout {
         } else if (dt == DisplayType.N2NREFERENCE) {
             return checkoutN2NReferenceValue(field, cell);
         } else if (dt == DisplayType.BOOL) {
-            return cell.asBool();
+            return cell.asBool() || "是".equals(cell.asString()) || "Y".equalsIgnoreCase(cell.asString());
         } else if (dt == DisplayType.STATE) {
             return checkoutStateValue(field, cell);
         } else if (dt == DisplayType.MULTISELECT) {
@@ -157,12 +159,12 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
-            ID iid = ID.valueOf(val);
-            if (PickListManager.instance.getLabel(iid) != null) {
-                return iid;
+        ID val2id = MetadataHelper.isSpecEntityId(val, EntityHelper.PickList);
+        if (val2id != null) {
+            if (PickListManager.instance.getLabel(val2id) != null) {
+                return val2id;
             } else {
-                log.warn("No item of PickList found by ID : " + iid);
+                log.warn("No item of PickList found by ID {}", val2id);
                 return null;
             }
         } else {
@@ -184,12 +186,12 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
-            ID cid = ID.valueOf(val);
-            if (ClassificationManager.instance.getName(cid) != null) {
-                return cid;
+        ID vla2id = MetadataHelper.isSpecEntityId(val, EntityHelper.ClassificationData);
+        if (vla2id != null) {
+            if (ClassificationManager.instance.getName(vla2id) != null) {
+                return vla2id;
             } else {
-                log.warn("No item of Classification found by ID : " + cid);
+                log.warn("No item of Classification found by ID : {}", vla2id);
                 return null;
             }
         } else {
@@ -201,15 +203,15 @@ public class RecordCheckout {
         final String val = cell.asString();
         final Entity refEntity = field.getReferenceEntity();
 
-        // 支持 ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == refEntity.getEntityCode()) {
-            ID checkId = ID.valueOf(val);
-            Object exists = Application.getQueryFactory().uniqueNoFilter(checkId, refEntity.getPrimaryField().getName());
+        // 支持ID
+        ID vla2id = MetadataHelper.isSpecEntityId(val, refEntity.getEntityCode());
+        if (vla2id != null) {
+            Object exists = Application.getQueryFactory().uniqueNoFilter(vla2id, refEntity.getPrimaryField().getName());
             if (exists == null) {
-                log.warn("Reference ID `{}` not exists", checkId);
+                log.warn("Reference ID `{}` not exists", vla2id);
                 return null;
             } else {
-                return checkId;
+                return vla2id;
             }
         }
 
@@ -306,8 +308,11 @@ public class RecordCheckout {
     }
 
     protected String[] checkoutTagValue(Cell cell) {
-        final String val = cell.asString();
-        return val.split(MVAL_SPLIT);
+        Set<String> mVal = new HashSet<>();
+        for (String s : cell.asString().split(MVAL_SPLIT)) {
+            if (StringUtils.isNotBlank(s)) mVal.add(s.trim());
+        }
+        return mVal.toArray(new String[0]);
     }
 
     /**

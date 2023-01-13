@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -83,9 +84,9 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
 
             } catch (Exception ex) {
-                log.error("ROW#{} > {}", fc.getRowNo(), ex);
+                String error = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+                log.error("ROW#{} > {}", fc.getRowNo(), error, ex);
 
-                String error = ex.getLocalizedMessage();
                 if (ex instanceof JdbcException) {
                     String know = KnownExceptionConverter.convert2ErrorMsg(ex);
                     if (know != null) error = know;

@@ -131,8 +131,10 @@ $(document).ready(() => {
 
   const gs = $urlp('gs', location.hash)
   if (gs) {
+    // eslint-disable-next-line no-undef
+    _showGlobalSearch(gs)
     currentSearch = $decode(gs)
-    $('.search-input-gs, .input-search input').val(currentSearch)
+    $('.input-search input').val(currentSearch)
   }
 
   $('.J_sort .dropdown-item').click(function () {

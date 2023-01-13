@@ -414,10 +414,17 @@ var _showNotification = function () {
  * 全局搜索
  */
 var _initGlobalSearch = function () {
-  var $gs = $('.global-search .dropdown-menu').on('click', function (e) {
-    $stopEvent(e)
-    return false
+  $('.global-search2>a').on('click', function () {
+    _showGlobalSearch()
+    $('.search-container input')[0].focus()
+    setTimeout(function () {
+      $('.search-container .dropdown-toggle').dropdown('toggle')
+    }, 100)
   })
+
+  $unhideDropdown('.global-search')
+  var $gs = $('.global-search .dropdown-menu')
+
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
     var $a = $item.find('>a')
@@ -428,11 +435,11 @@ var _initGlobalSearch = function () {
     }
   })
 
-  var $aa = $gs.find('a').on('click', function () {
+  var $es = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
-  if ($aa.length === 0) return
+  if ($es.length === 0) return
 
   var _tryActive = function ($active, $el) {
     if ($el.length === 1) {
@@ -441,7 +448,7 @@ var _initGlobalSearch = function () {
     }
   }
 
-  $aa.eq(0).addClass('active')
+  $es.eq(0).addClass('active')
   $('.global-search input').on('keydown', function (e) {
     var $active = $('.global-search a.active')
     if (e.keyCode === 37 || e.keyCode === 38) {
@@ -454,6 +461,11 @@ var _initGlobalSearch = function () {
     }
   })
 }
+var _showGlobalSearch = function (gs) {
+  $('.global-search2>a').hide()
+  $('.search-container').removeClass('hide')
+  gs && $('.search-container input').val($decode(gs))
+}
 /**
  * 全局新建
  */
@@ -463,10 +475,13 @@ var _initGlobalCreate = function () {
     var e = $(this).data('entity')
     if (e && e !== '$PARENT$' && !entities.contains(e)) entities.push(e)
   })
-  if (entities.length === 0) return
+  if (entities.length === 0) {
+    $('<em>' + $L('无可新建项') + '</em>').appendTo('.global-create2 .dropdown-menu')
+    return
+  }
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
-    var $gc = $('.global-create .dropdown-menu')
+    var $gc = $('.global-create2 .dropdown-menu')
     $gc.perfectScrollbar()
     $(res.data || []).each(function () {
       var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)

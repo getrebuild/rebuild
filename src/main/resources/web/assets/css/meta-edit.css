@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .sortable-box {
   height: 208px;
-  max-width: 300px;
+  max-width: 325px;
 }
 
 .sortable-box .dd-list {
@@ -29,11 +29,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 9px;
   text-align: center;
   color: #999;
-}
-
-.sortable-box.autoh,
-.sortable-box.autoh .dd-list {
-  height: auto;
 }
 
 .sortable-box .default .dd-handle {

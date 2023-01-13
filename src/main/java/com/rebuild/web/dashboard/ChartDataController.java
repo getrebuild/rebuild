@@ -7,12 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.dashboard;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.service.dashboard.ChartManager;
-import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.web.BaseController;
@@ -38,13 +38,21 @@ public class ChartDataController extends BaseController {
 
     @RequestMapping("/chart-data")
     public JSON data(@IdParam ID chartId, HttpServletRequest request) {
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> extraParams = new HashMap<>();
         for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
-            paramMap.put(e.getKey(), StringUtils.join(e.getValue(), ","));
+            extraParams.put(e.getKey(), StringUtils.join(e.getValue(), ","));
         }
 
-        ChartData chart = ChartsFactory.create(chartId);
-        return chart.setExtraParams(paramMap).build();
+        // v3.2
+        JSON config = ServletUtils.getRequestJson(request);
+        if (config instanceof JSONObject) {
+            JSON extconfig = ((JSONObject) config).getJSONObject("extconfig");
+            if (extconfig != null) extraParams.put("extconfig", extconfig);
+        }
+
+        return ChartsFactory.create(chartId)
+                .setExtraParams(extraParams)
+                .build();
     }
 
     /**
