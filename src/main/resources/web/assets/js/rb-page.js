@@ -415,8 +415,7 @@ var _showNotification = function () {
  */
 var _initGlobalSearch = function () {
   $('.global-search2>a').on('click', function () {
-    $(this).hide()
-    $('.search-container').removeClass('hide')
+    _showGlobalSearch()
     $('.search-container input')[0].focus()
     setTimeout(function () {
       $('.search-container .dropdown-toggle').dropdown('toggle')
@@ -461,6 +460,11 @@ var _initGlobalSearch = function () {
       location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
     }
   })
+}
+var _showGlobalSearch = function (gs) {
+  $('.global-search2>a').hide()
+  $('.search-container').removeClass('hide')
+  gs && $('.search-container input').val($decode(gs))
 }
 /**
  * 全局新建

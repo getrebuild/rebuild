@@ -588,9 +588,12 @@ const RbListCommon = {
   inUrlViewId: null,
 
   init: function (wpc) {
-    // 全局搜索
     const gs = $urlp('gs', location.hash)
-    if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
+    if (gs) {
+      // eslint-disable-next-line no-undef
+      _showGlobalSearch(gs)
+      $('.input-search>input').val($decode(gs))
+    }
 
     // 快速查询
     const $btn = $('.input-search .input-group-btn .btn'),

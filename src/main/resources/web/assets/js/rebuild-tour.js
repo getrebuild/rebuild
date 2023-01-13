@@ -133,7 +133,7 @@ const StepRebuild = () => {
       rbBottom: -10,
     },
     {
-      element: '.global-search',
+      element: '.global-search2',
       title: $L('全局搜索'),
       intro: $L('全局搜索可以帮助你快速查询需要的数据'),
       rbLeft: 5,
@@ -142,18 +142,19 @@ const StepRebuild = () => {
       element: '.global-create2',
       title: $L('快速新建'),
       intro: $L('点击此处快速新建业务记录'),
-      rbLeft: 8,
+      rbLeft: 5,
     },
     {
       element: '.admin-settings',
       title: $L('管理中心'),
       intro: $L('REBUILD 拥有强大的配置管理中心，你可以根据需求自由搭建系统'),
+      rbLeft: 5,
     },
     {
       element: '.page-help',
       title: $L('帮助中心'),
       intro: $L('使用遇到问题可以查阅帮助文档，你也可以通过阅读文档 GET 更多技能'),
-      rbLeft: -2,
+      rbLeft: 6,
     },
     {
       element: '.J_top-notifications',
