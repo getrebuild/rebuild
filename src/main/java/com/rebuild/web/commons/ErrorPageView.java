@@ -119,11 +119,11 @@ public class ErrorPageView extends BaseController {
     @RequestMapping("/error/jslog")
     public void jslog(HttpServletRequest request, HttpServletResponse response) {
         String error = ServletUtils.getRequestString(request);
-        if (error == null) error = getParameter(request, "error");
+        if (error == null) error = getParameter(request, "error", "-");
 
         String errorLog = "\n++ JSLOG TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
                 "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
-                "\nMessage : " + StringUtils.defaultIfEmpty(error, "-") +
+                "\nMessage : " + error.replace("\\n", "\n") +
                 "\n";
         log.error(errorLog);
 
