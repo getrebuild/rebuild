@@ -106,6 +106,8 @@ class ConfigList extends React.Component {
 
             if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
             else $('.list-nodata').addClass('hide')
+
+            this.loadDataAfter()
           })
         }
       } else {
@@ -113,6 +115,8 @@ class ConfigList extends React.Component {
       }
     })
   }
+
+  loadDataAfter() {}
 
   // 渲染实体树
   renderEntityTree(data) {

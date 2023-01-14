@@ -303,3 +303,65 @@ function disableWhen() {
       }
     })
 }
+
+// eslint-disable-next-line no-unused-vars
+class EditorWithFieldVars extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    let attrs = {
+      className: 'form-control form-control-sm row3x',
+      maxLength: 600,
+      placeholder: this.props.placeholder || null,
+    }
+
+    if (this.props.isCode) {
+      attrs = { ...attrs, className: 'formula-code', maxLength: 4000, wrap: 'off', autoFocus: true }
+    }
+
+    return (
+      <div className="textarea-wrap">
+        <textarea {...attrs} ref={(c) => (this._$content = c)} />
+        <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
+          <i className="mdi mdi-code-braces" />
+        </a>
+        <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
+          {(this.state.fieldVars || []).map((item) => {
+            return (
+              <a
+                className="dropdown-item"
+                key={item.name}
+                onClick={() => {
+                  $(this._$content).insertAtCursor(`{${item.name}}`)
+                }}>
+                {item.label}
+              </a>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    // eslint-disable-next-line no-undef
+    autosize(this._$content)
+
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
+      this.setState({ fieldVars: res.data || [] }, () => {
+        $(this._$fieldVars).perfectScrollbar({})
+      })
+    })
+  }
+
+  val() {
+    if (arguments.length > 0) {
+      $(this._$content).val(arguments[0])
+    } else {
+      return $(this._$content).val()
+    }
+  }
+}

@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -58,12 +57,36 @@ public class SendNotification extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && !hasUpdateFields(operatingContext)) {
+            return TriggerResult.wran("No update fields");
+        }
+
+        final JSONObject content = (JSONObject) actionContext.getActionContent();
+
+        final int msgType = content.getIntValue("type");
+        final int userType = content.getIntValue("userType");
+
+        if (msgType == MTYPE_MAIL && !SMSender.availableMail()) {
+            return TriggerResult.wran("email-service unavailable");
+        } else if (msgType == MTYPE_SMS && !SMSender.availableSMS()) {
+            return TriggerResult.wran("sms-service unavailable");
+        } else if (msgType == MTYPE_NOTIFICATION) {
+            // default
+        }
+
         ThreadPool.exec(() -> {
             try {
-                // FIXME 等待事物完成
+                // 等待事物完成
                 ThreadPool.waitFor(3000);
 
-                executeAsync(operatingContext);
+                int s;
+                if (userType == UTYPE_ACCOUNT) {
+                    s = sendToAccounts(operatingContext);
+                } else {  // UTYPE_USER
+                    s = sendToUsers(operatingContext);
+                }
+                log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
+
             } catch (Exception ex) {
                 log.error(null, ex);
             }
@@ -71,53 +94,15 @@ public class SendNotification extends TriggerAction {
         return TriggerResult.success("async");
     }
 
-    private void executeAsync(OperatingContext operatingContext) {
-        final JSONObject content = (JSONObject) actionContext.getActionContent();
-
-        // 指定字段
-        JSONArray whenUpdateFields = content.getJSONArray("whenUpdateFields");
-        if (operatingContext.getAction() == BizzPermission.UPDATE
-                && whenUpdateFields != null && !whenUpdateFields.isEmpty()) {
-            Record updatedRecord = operatingContext.getAfterRecord();
-            boolean hasUpdated = false;
-            for (String field : updatedRecord.getAvailableFields()) {
-                if (whenUpdateFields.contains(field)) {
-                    hasUpdated = true;
-                    break;
-                }
-            }
-
-            if (!hasUpdated) return;
-        }
-
-        final int type = content.getIntValue("type");
-        final int userType = content.getIntValue("userType");
-
-        if (type == MTYPE_MAIL && !SMSender.availableMail()) {
-            log.warn("Could not send because email-service is unavailable");
-            return;
-        } else if (type == MTYPE_SMS && !SMSender.availableSMS()) {
-            log.warn("Could not send because sms-service is unavailable");
-            return;
-        }
-
-        int s;
-        if (userType == UTYPE_ACCOUNT) {
-            s = sendToAccounts(operatingContext);
-        } else {  // UTYPE_USER
-            s = sendToUsers(operatingContext);
-        }
-        log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
-    }
-
     private int sendToUsers(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int type = content.getIntValue("type");
 
-        Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), actionContext.getSourceRecord());
+        Set<ID> toUsers = UserHelper.parseUsers(
+                content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
         if (toUsers.isEmpty()) return -1;
 
-        String[] message = getMessageContent(operatingContext);
+        String[] message = formatMessageContent(actionContext, operatingContext);
         int send = 0;
 
         for (ID user : toUsers) {
@@ -163,7 +148,7 @@ public class SendNotification extends TriggerAction {
                 actionContext.getSourceRecord(), validFields.toArray(new String[0]));
         if (o == null) return -1;
 
-        String[] message = getMessageContent(operatingContext);
+        String[] message = formatMessageContent(actionContext, operatingContext);
         int send = 0;
 
         for (Object item : o) {
@@ -181,7 +166,16 @@ public class SendNotification extends TriggerAction {
         return send;
     }
 
-    private String[] getMessageContent(OperatingContext operatingContext) {
+    // --
+
+    /**
+     * 处理消息内容
+     *
+     * @param actionContext
+     * @param operatingContext
+     * @return
+     */
+    public static String[] formatMessageContent(ActionContext actionContext, OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
 
         String message = content.getString("content");

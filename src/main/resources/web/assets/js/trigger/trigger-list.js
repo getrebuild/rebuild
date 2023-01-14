@@ -19,13 +19,14 @@ const RBV_TRIGGERS = {
   'AUTODELETE': $L('自动删除'),
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
+  'CREATEFEED': $L('新建动态'),
 }
 
 const WHENS = {
   1: $L('新建'),
   4: $L('更新'),
   2: $L('删除'),
-  16: $L('分派'),
+  16: $L('分配'),
   32: $L('共享'),
   64: $L('取消共享'),
   128: $L('审批通过'),
@@ -68,7 +69,14 @@ class TriggerList extends ConfigList {
                 <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[7]}</td>
+              <td>
+                {item[7]}
+                {item[10] && (
+                  <span title={$L('目标实体')} className="ml-1">
+                    ({item[10]})
+                  </span>
+                )}
+              </td>
               <td className="text-wrap">{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
               <td>
                 <span className="badge badge-light">{item[9]}</span>

@@ -53,6 +53,14 @@ public class EasyDecimal extends EasyField {
     public Object wrapValue(Object value) {
         String format = StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT), getDisplayType().getDefaultFormat());
-        return new DecimalFormat(format).format(value);
+        String n = new DecimalFormat(format).format(value);
+
+        // 0, %, etc.
+        String type = getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
+        if (type != null && !"0".equals(type)) {
+            if ("%".equals(type)) n += "%";
+            else n = type + " " + n;
+        }
+        return n;
     }
 }

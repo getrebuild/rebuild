@@ -321,6 +321,11 @@ public class UserService extends BaseService {
         if (beforeUnEnabled) {
             notifyEnableUser(Application.getUserStore().getUser(enUser.getId()));
         }
+
+        // Kill session
+        if (enableNew != null && !enableNew) {
+            Application.getSessionStore().killSession(user);
+        }
     }
 
     /**
@@ -417,7 +422,7 @@ public class UserService extends BaseService {
         try {
             record = this.create(record, false);
         } finally {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
 
         // 通知管理员

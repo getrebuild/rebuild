@@ -70,7 +70,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
-      'X-Client': 'RB/WEB-2.9',
+      'X-Client': 'RB/WEB',
       'X-CsrfToken': rb.csrfToken || '',
       'X-AuthToken': rb.authToken || '',
     },
@@ -125,7 +125,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
-      watermark_alpha: 0.15,
+      watermark_alpha: 0.06,
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
       monitor: true,
@@ -319,6 +319,9 @@ var $regex = {
   isId: function (id) {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
   },
+  clearNumber: function (n) {
+    return (n + '').replace(/[^\d|^\\.|^\\-]/g, '')
+  }
 }
 
 /**
@@ -504,4 +507,12 @@ var $timechunk = function (array, fn, count) {
 var $clone = function (o) {
   if (!o) return o
   return JSON.parse(JSON.stringify(o))
+}
+
+/**
+ * CommonsUtils#escapeHtml
+ */
+var $escapeHtml = function (s) {
+  if (!s) return ''
+  return s.replace(/</gi, '&lt;').replace(/>/gi, '&gt;')
 }

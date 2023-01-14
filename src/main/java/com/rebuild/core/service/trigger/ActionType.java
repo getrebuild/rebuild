@@ -31,9 +31,10 @@ public enum ActionType {
     AUTODELETE("自动删除", "com.rebuild.rbv.trigger.AutoDelete"),
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOUNSHARE("自动取消共享", "com.rebuild.rbv.trigger.AutoUnshare"),
-    AUTOASSIGN("自动分派", AutoAssign.class),
+    AUTOASSIGN("自动分配", AutoAssign.class),
     SENDNOTIFICATION("发送通知", SendNotification.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
+    CREATEFEED("新建动态", "com.rebuild.rbv.trigger.CreateFeed"),
     PROXYTRIGGERACTION("自定义触发器", "com.rebuild.rbv.trigger.ProxyTriggerAction"),
 
     ;

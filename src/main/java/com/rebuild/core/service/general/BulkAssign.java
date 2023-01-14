@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Set;
 
 /**
- * 分派
+ * 分配
  *
  * @author devezhao
  * @since 09/29/2018

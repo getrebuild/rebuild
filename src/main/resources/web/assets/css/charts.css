@@ -155,14 +155,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart.ctable .table td,
 .chart.ctable .table th {
-  padding: 8px 10px;
+  padding: 9px 10px;
   cursor: default;
   font-size: 1rem;
 }
 
-.chart.ctable .table td.active {
+.chart.ctable .table td.active,
+.chart.ctable .table td.highlight {
   outline: 1px solid #4285f4;
   background-color: #f5f8fd;
+}
+
+.chart.ctable .table tr.highlight {
+  background-color: #dee2e6;
 }
 
 .chart.ctable .table td:first-child.active {
@@ -450,43 +455,56 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-position: -1372px -1464px;
 }
 
-.grid-stack-item.fullscreen {
+.sortable-box.h200 {
+  height: 208px;
+}
+
+.sortable-box.h200 .dd-list {
+  height: 200px;
+}
+
+.chart-box.DataList .chart.ctable tbody,
+.chart-box.DataList .chart.ctable thead {
+  border: 1px solid #dee2e6;
+}
+
+.chart-box.DataList .chart.ctable .td-sm {
+  padding: 3px 10px;
+}
+
+.chart-box.DataList .chart.ctable thead th.sort-asc::after,
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
   position: absolute;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 99;
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  content: '\f2fc';
+  font-size: 18px;
+  color: #4285f4;
+  font-weight: normal;
+  margin-left: 4px;
+  margin-top: -1px;
 }
 
-.grid-stack-item.fullscreen .ui-resizable-handle {
-  display: none !important;
+.chart-box.DataList .chart.ctable thead th.sort-desc::after {
+  content: '\f2f9';
 }
 
-/* Colors */
-
-.grid-stack-item.bgcolor .grid-stack-item-content,
-.grid-stack-item.bgcolor .chart.index > .data-item strong {
-  color: #fff;
+.chart-box.DataList .chart.ctable thead th:hover,
+.chart-box.DataList .chart.ctable thead th:active {
+  cursor: pointer;
+  background-color: #dee2e6;
 }
 
-.grid-stack-item.bgcolor .rb-loading:after {
-  background-color: transparent;
+.DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\f0415';
+  font-size: 1.4rem;
+  margin-left: -2px;
 }
 
-.grid-stack-item.bgcolor .rb-spinner svg {
-  stroke: #fff;
+.DataList-showfields .sortable-box .dd-item .sort.desc::before {
+  content: '\F05BF';
 }
 
-body.fullscreen {
-  background: #0a1b3b url(../img/datav-bg.png) no-repeat 0 0;
-  background-size: 100% 100%;
-}
-
-body.fullscreen .grid-stack .grid-stack-item .grid-stack-item-content {
-  background-color: rgba(6, 30, 93, 0.5);
-}
-
-body.fullscreen .grid-stack .grid-stack-item.fullscreen .grid-stack-item-content {
-  background-color: #0a1b3b;
+.DataList-showfields .sortable-box .dd-item.active .sort {
+  color: #4285f4 !important;
 }

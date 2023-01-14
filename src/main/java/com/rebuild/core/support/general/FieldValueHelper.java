@@ -14,6 +14,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -310,6 +312,25 @@ public class FieldValueHelper {
             return DataDesensitized.SECURE_TEXT;
         } else {
             return value;
+        }
+    }
+
+    /**
+     * 字段值脱敏：复合值
+     *
+     * @param easyField
+     * @param mixValue
+     */
+    public static void desensitizedMixValue(EasyField easyField, JSON mixValue) {
+        if (mixValue instanceof JSONObject) {
+            String text = ((JSONObject) mixValue).getString("text");
+            if (text != null) {
+                ((JSONObject) mixValue).put("text", FieldValueHelper.desensitized(easyField, text));
+            }
+        }
+        // N2N
+        else if (mixValue instanceof JSONArray) {
+            for (Object o : (JSONArray) mixValue) desensitizedMixValue(easyField, (JSON) o);
         }
     }
 

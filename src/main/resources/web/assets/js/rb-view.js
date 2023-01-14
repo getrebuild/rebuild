@@ -204,7 +204,9 @@ class RelatedList extends React.Component {
     // default:CARD
     if (props.showViewMode) {
       this.__viewModeKey = `RelatedListViewMode-${props.entity.split('.')[0]}`
-      this.state.viewMode = $storage.get(this.__viewModeKey) || 'CARD'
+      let vm = $storage.get(this.__viewModeKey)
+      if (!vm) vm = props.defaultList ? 'LIST' : null
+      this.state.viewMode = vm || 'CARD'
     }
   }
 
@@ -243,7 +245,7 @@ class RelatedList extends React.Component {
                     <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
-                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('数据列表视图')}>
                     <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
@@ -760,7 +762,16 @@ const RbViewPage = {
       const configThat = this
       $tabNav.find('a').on('click', function () {
         $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(<MixRelatedList entity={entity} entity2={[configThat.entityLabel, configThat.icon]} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+          renderRbcomp(
+            <MixRelatedList
+              entity={entity}
+              entity2={[configThat.entityLabel, configThat.icon]}
+              mainid={that.__id}
+              autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
+              defaultList={$isTrue(wpc.viewTabsDefaultList)}
+            />,
+            $tabPane
+          )
       })
     })
     this.updateVTabs()

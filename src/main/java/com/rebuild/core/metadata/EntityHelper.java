@@ -23,7 +23,7 @@ import java.util.Date;
 /**
  * @author Zhao Fangfang
  * @see MetadataHelper
- * @since 1.0, 2013-6-26
+ * @since 1.0, 2018-6-26
  */
 public class EntityHelper {
 
@@ -242,6 +242,7 @@ public class EntityHelper {
     public static final int TransformConfig = 37;
     public static final int FrontjsCode = 38;
     public static final int NreferenceItem = 39;
+    public static final int TagItem = 80;
 
     // 动态
 

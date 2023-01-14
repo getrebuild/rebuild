@@ -89,7 +89,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         putCommonsFields(request, record);
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 
     @GetMapping("list-fields")
@@ -139,7 +139,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
             raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
         }
 
-        JSONObject config = (JSONObject) DataListManager.instance.formatFieldsLayout(entity, user, false, raw);
+        JSONObject config = (JSONObject) DataListManager.instance.formatListFields(entity, user, false, raw);
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("fieldList", fieldList);

@@ -114,8 +114,7 @@ public class ChartManager implements ConfigManager {
 
                 JSONObject config = JSONUtils.wellFormat((String) o[2]) ? JSON.parseObject((String) o[2]) : null;
                 JSONObject chartOption = config == null ? null : config.getJSONObject("option");
-                if (chartOption == null
-                        || !chartOption.containsKey("shareChart") || !chartOption.getBoolean("shareChart")) {
+                if (chartOption == null || !chartOption.getBooleanValue("shareChart")) {
                     continue;
                 }
             }
@@ -147,10 +146,18 @@ public class ChartManager implements ConfigManager {
             String type = e.getString("type");
             ch.put("type", type);
 
-            try {
-                String c = ((JSONObject) e.getJSON("config")).getJSONObject("option").getString("useColor");
-                if ("INDEX".equals(type) && StringUtils.isNotBlank(c)) ch.put("color", c);
-            } catch (Exception ignore) {}
+            JSONObject config = (JSONObject) e.getJSON("config");
+            if (config != null) {
+                if ("INDEX".equals(type)) {
+                    JSONObject option = config.getJSONObject("option");
+                    String c = option == null ? null : option.getString("useColor");
+                    if (StringUtils.isNotBlank(c)) ch.put("color", c);
+                }
+
+                if ("DataList".equals(type)) {
+                    ch.put("extconfig", config);
+                }
+            }
 
             if (user != null) {
                 ID createdBy = e.getID("createdBy");

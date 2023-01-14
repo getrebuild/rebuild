@@ -40,7 +40,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 1px 4px 0;
 }
 
-.rich-editor .action-btns li > a {
+.rich-editor .action-btns li > a,
+.rich-editor .action-btns li a.at-user {
   display: inline-block;
   padding: 7px 5px;
   font-size: 19px;
@@ -50,14 +51,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.rich-editor .action-btns li a .zmdi.at-text {
-  font-size: 17px;
-  color: #888;
-  transform: translateY(-3px);
-  font-weight: bold;
-}
-
-.rich-editor .action-btns li a .zmdi.at-text:hover {
+.rich-editor .action-btns li > a:hover,
+.rich-editor .action-btns li a.at-user:hover {
   color: rgb(64, 64, 64);
 }
 

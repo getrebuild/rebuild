@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
+import com.rebuild.core.configuration.general.LiteFormBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -81,7 +82,7 @@ public class ApprovalController extends BaseController {
             data.put("approvalId", useApproval);
             // 审批中
             if (stateVal < ApprovalState.APPROVED.getState()) {
-                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status.getCurrentStepNode());
+                JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep(status);
                 data.put("currentStep", current);
 
                 for (Object o : current) {
@@ -126,21 +127,26 @@ public class ApprovalController extends BaseController {
         JSONObject data = new JSONObject();
         data.put("nextApprovers", formatUsers(approverList));
         data.put("nextCcs", formatUsers(ccList));
+        data.put("nextCcAccounts", nextNodes.getCcAccounts(recordId));
         data.put("approverSelfSelecting", nextNodes.allowSelfSelectingApprover());
         data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
         data.put("isLastStep", nextNodes.isLastStep());
         data.put("signMode", nextNodes.getSignMode());
         data.put("useGroup", nextNodes.getGroupId());
         // current
-        data.put("isRejectStep", approvalProcessor.getCurrentNode().getRejectStep());
-        data.put("currentNode", approvalProcessor.getCurrentNode().getNodeId());
+        final FlowNode currentFlowNode = approvalProcessor.getCurrentNode();
+        data.put("isRejectStep", currentFlowNode.getRejectStep());
+        data.put("currentNode", currentFlowNode.getNodeId());
+        data.put("allowReferral", currentFlowNode.allowReferral());
+        data.put("allowCountersign", currentFlowNode.allowCountersign());
 
         // 可修改字段
-        JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
+        JSONArray editableFields = currentFlowNode.getEditableFields();
         if (editableFields != null && !editableFields.isEmpty()) {
-            JSONArray aform = new FormBuilder(recordId, user).build(editableFields);
+            JSONArray aform = new LiteFormBuilder(recordId, user).build(editableFields);
             if (aform != null && !aform.isEmpty()) {
                 data.put("aform", aform);
+                data.put("aentity", MetadataHelper.getEntityName(recordId));
             }
         }
 
@@ -244,6 +250,29 @@ public class ApprovalController extends BaseController {
     public RespBody doRevoke(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).revoke();
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("referral")
+    public RespBody doReferral(@IdParam(name = "record") ID recordId, @IdParam(name = "to") ID toUser, HttpServletRequest request) {
+        try {
+            new ApprovalProcessor(recordId).referral(getRequestUser(request), toUser);
+            return RespBody.ok();
+
+        } catch (ApprovalException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+    }
+
+    @RequestMapping("countersign")
+    public RespBody doCountersign(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
+        ID[] toUsers = getIdArrayParameter(request, "to");
+        try {
+            new ApprovalProcessor(recordId).countersign(getRequestUser(request), toUsers);
             return RespBody.ok();
 
         } catch (ApprovalException ex) {

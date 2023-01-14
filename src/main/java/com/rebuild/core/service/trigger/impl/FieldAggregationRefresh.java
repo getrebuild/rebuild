@@ -45,14 +45,15 @@ public class FieldAggregationRefresh {
 
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) parentAc.getActionContent()).getString("targetEntity").split("\\.");
+        String followSourceField = targetFieldEntity[0];
 
-        ID beforeRefreshedId = operatingContext.getBeforeRecord().getID(targetFieldEntity[0]);
-        ID afterRefreshedId = operatingContext.getAfterRecord().getID(targetFieldEntity[0]);
+        final ID beforeValue = operatingContext.getBeforeRecord().getID(followSourceField);
+        final ID afterValue = operatingContext.getAfterRecord().getID(followSourceField);
 
         // 之前未聚合
-        if (beforeRefreshedId == null) return;
+        if (beforeValue == null) return;
         // 未更新
-        if (beforeRefreshedId.equals(afterRefreshedId)) return;
+        if (beforeValue.equals(afterValue)) return;
 
         ActionContext actionContext = new ActionContext(null,
                 parentAc.getSourceEntity(), parentAc.getActionContent(), parentAc.getConfigId());
@@ -60,17 +61,14 @@ public class FieldAggregationRefresh {
         FieldAggregation fa = new FieldAggregation(actionContext, true);
         fa.sourceEntity = parent.sourceEntity;
         fa.targetEntity = parent.targetEntity;
-        fa.targetRecordId = beforeRefreshedId;
-        fa.followSourceWhere = String.format("%s = '%s'", targetFieldEntity[0], beforeRefreshedId);
+        fa.targetRecordId = beforeValue;
+        fa.followSourceWhere = String.format("%s = '%s'", followSourceField, beforeValue);
 
-        Record fakeSourceRecord = EntityHelper.forUpdate(beforeRefreshedId, triggerUser, false);
+        Record fakeSourceRecord = EntityHelper.forUpdate(beforeValue, triggerUser, false);
         OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
         try {
             fa.execute(oCtx);
-//        } catch (Throwable ex) {
-//            // v3.1 出现异常可能导致事物回滚执行，因此此处 catch 并无意义
-//            log.error("Error on trigger ({}) refresh", parentAc.getConfigId(), ex);
         } finally {
             fa.clean();
         }

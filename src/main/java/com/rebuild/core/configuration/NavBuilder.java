@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
@@ -25,6 +26,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -141,14 +143,16 @@ public class NavBuilder extends NavManager {
 
         } else if ("URL".equals(type)) {
 
-            // 替换 RBTOKEN
+            // 替换 RBTOKEN https://juejin.cn/post/7045494433797652511
             // https://getrebuild.com/docs/rbv/openapi/page-token-verify
 
             if (value.contains("$RBTOKEN$") || value.contains("%24RBTOKEN%24")) {
-                String ptoken = PTOKEN_IFNEED.get();
+
+                final String key = "PTOKEN:" + user;
+                String ptoken = Application.getCommonsCache().get(key);
                 if (ptoken == null) {
-                    ptoken = PageTokenVerify.generate(UserContextHolder.getUser());
-                    PTOKEN_IFNEED.set(ptoken);
+                    ptoken = PageTokenVerify.generate(user);
+                    Application.getCommonsCache().put(key, ptoken, CommonsCache.TS_HOUR / 2);
                 }
 
                 if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", ptoken);
@@ -157,7 +161,7 @@ public class NavBuilder extends NavManager {
                 item.put("value", value);
             }
 
-            // URL 绑定实体权限
+            // URL 绑定实体权限 https://juejin.cn/post/7045494433797652511
             // 如 https://www.baidu.com/::ENTITY_NAME
 
             String[] ss = value.split("::");
@@ -243,7 +247,7 @@ public class NavBuilder extends NavManager {
         try {
             Application.getService(EntityHelper.LayoutConfig).create(record);
         } finally {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
     }
 
@@ -322,6 +326,7 @@ public class NavBuilder extends NavManager {
         else iconClazz = "zmdi zmdi-" + iconClazz;
 
         String navText = item.getString("text");
+        navText = CommonsUtils.escapeHtml(navText);
 
         JSONArray subNavs = null;
         if (activeNav != null) {

@@ -264,6 +264,17 @@ public class FieldAggregation extends TriggerAction {
             targetRecordId = (ID) o[0];
         }
 
+        // fix: v3.1.3 清空字段值以后无法找到记录
+        if (o != null && targetRecordId == null
+                && operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
+            ID beforeValue = operatingContext.getBeforeRecord() == null
+                    ? null : operatingContext.getBeforeRecord().getID(followSourceField);
+            ID afterValue = operatingContext.getAfterRecord().getID(followSourceField);
+            if (beforeValue != null && afterValue == null) {
+                targetRecordId = beforeValue;
+            }
+        }
+
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 

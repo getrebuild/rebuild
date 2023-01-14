@@ -32,6 +32,7 @@ class PreviewTable extends React.Component {
       else if (c.colspan === 2) colspan = 6
       else if (c.colspan === 1) colspan = 3
       else if (c.colspan === 9) colspan = 4
+      else if (c.colspan === 8) colspan = 8
       // correct
       c.colspan = colspan
 
@@ -195,6 +196,14 @@ class PreviewTable extends React.Component {
             <img src={item.value} alt="SIGN" />
           </span>
         </div>
+      )
+    } else if (item.type === 'TAG') {
+      return (
+        <ul className="m-0 p-0 pl-3">
+          {(item.value || []).map((x) => {
+            return <li key={x}>{x}</li>
+          })}
+        </ul>
       )
     } else if (typeof item.value === 'object') {
       return this._findMixValue(item.value)

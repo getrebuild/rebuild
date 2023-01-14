@@ -35,7 +35,6 @@ public class DataImporterTest extends TestSupport {
         System.out.println("ImportsEnter 3 : " + importsEnter);
     }
 
-
     @Test
     public void testErrorRule() {
         JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFieldsName', repeat_opt:3, fields_mapping:{ TestAllFieldsName:5 } }");

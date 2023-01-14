@@ -298,6 +298,8 @@
         <field name="isBacked" type="bool" default-value="F" description="是否退回"/>
         <field name="nodeBatch" type="string" max-length="100" updatable="false" description="审批节点批次"/>
         <field name="ccUsers" type="reference-list" ref-entity="User" updatable="false" description="抄送人"/>
+        <field name="ccAccounts" type="string" max-length="500" updatable="false" description="抄送外部人员"/>
+        <field name="attrMore" type="string" max-length="700" updatable="false" description="扩展属性 (JSON Map)"/>
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
     </entity>
 
@@ -403,6 +405,17 @@
         <field name="seq" type="long" auto-value="true" description="前后顺序"/>
         <index field-list="belongEntity"/>
         <index field-list="belongField,recordId,referenceId" type="unique"/>
+    </entity>
+
+    <entity name="TagItem" type-code="080" description="TAG" parent="false" queryable="false">
+        <field name="itemId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体"/>
+        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="哪个字段"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
+        <field name="tagName" type="string" max-length="100" nullable="false" updatable="false" description="标签名称"/>
+        <field name="seq" type="long" auto-value="true" description="前后顺序"/>
+        <index field-list="belongEntity"/>
+        <index field-list="belongField,recordId,tagName" type="unique"/>
     </entity>
 
     <!-- 动态不涉及审计 -->

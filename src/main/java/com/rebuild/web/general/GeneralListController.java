@@ -27,9 +27,7 @@ import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
-import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +56,7 @@ public class GeneralListController extends EntityController {
             throws IOException {
         final ID user = getRequestUser(request);
         final Entity listEntity = checkPageOfEntity(user, entity, response);
-        if (listEntity == null) return null;  // 404
+        if (listEntity == null) return null;
 
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
@@ -81,7 +79,7 @@ public class GeneralListController extends EntityController {
         JSON listConfig = null;
 
         if (listMode == 1) {
-            listConfig = DataListManager.instance.getFieldsLayout(entity, user);
+            listConfig = DataListManager.instance.getListFields(entity, user);
 
             // 扩展配置
             String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
@@ -136,7 +134,15 @@ public class GeneralListController extends EntityController {
         return builder.getJSONResult();
     }
 
-    // 检查实体页面
+    /**
+     * 检查实体页面
+     *
+     * @param user
+     * @param entity
+     * @param response
+     * @return
+     * @throws IOException
+     */
     static Entity checkPageOfEntity(ID user, String entity, HttpServletResponse response) throws IOException {
         if (!MetadataHelper.containsEntity(entity)) {
             response.sendError(404);
@@ -144,7 +150,7 @@ public class GeneralListController extends EntityController {
         }
 
         final Entity checkEntity = MetadataHelper.getEntity(entity);
-        if (!checkEntity.isQueryable()) {
+        if (MetadataHelper.getEntityType(checkEntity) == MetadataHelper.TYPE_SYS) {
             response.sendError(404);
             return null;
         }

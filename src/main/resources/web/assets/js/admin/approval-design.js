@@ -203,6 +203,9 @@ class SimpleNode extends NodeSpec {
 
     if (data.selfSelecting && data.users.length > 0) descs.push($L('允许自选'))
     if (data.ccAutoShare) descs.push($L('自动共享'))
+    if (data.accounts && data.accounts.length > 0) descs.push(`${$L('外部人员')}(${data.accounts.length})`)
+    if (data.allowReferral) descs.push($L('允许转审'))
+    if (data.allowCountersign) descs.push($L('允许加签'))
     if (this.nodeType === 'approver') descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
 
     return (
@@ -633,12 +636,26 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className={`form-group mb-3 ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
             <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
-          <div className="form-group mb-0">
+          <div className="form-group">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
               <span className="custom-control-label">{$L('同时允许自选')}</span>
             </label>
           </div>
+
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
+              <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('允许审批人转审')}</span>
+            </label>
+          </div>
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
+              <span className="custom-control-label">{$L('允许审批人加签')}</span>
+            </label>
+          </div>
+
           <div className="form-group mt-4">
             <label className="text-bold">{$L('当有多人审批时')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2 hide">
@@ -654,6 +671,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('或签 (一名审批人同意或拒绝)')}</span>
             </label>
           </div>
+
           <div className="form-group mt-4 bosskey-show" title="FIXME 默认启用无需配置">
             <label className="text-bold">{$L('驳回时')}</label>
             <label className="custom-control custom-control-sm custom-checkbox">
@@ -661,6 +679,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('允许退回到指定步骤 (否则为整体驳回)')}</span>
             </label>
           </div>
+
           <div className="form-group mt-4">
             <label className="text-bold">{$L('可修改字段')}</label>
             <div style={{ position: 'relative' }}>
@@ -730,6 +749,8 @@ class ApproverNodeConfig extends StartNodeConfig {
       selfSelecting: this.state.selfSelecting,
       editableFields: editableFields,
       rejectStep: this.state.rejectStep,
+      allowReferral: this.state.allowReferral,
+      allowCountersign: this.state.allowCountersign,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -764,10 +785,6 @@ class ApproverNodeConfig extends StartNodeConfig {
 
 // 抄送人
 class CCNodeConfig extends StartNodeConfig {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div>
@@ -790,10 +807,31 @@ class CCNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('抄送人无读取权限时自动共享')}</span>
             </label>
           </div>
+
+          <div className="form-group mt-3">
+            <label className="text-bold">
+              {$L('抄送给外部人员 (可选)')} <sup className="rbv" title={$L('增值功能')} />
+            </label>
+            <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
+            <p className="form-text">{$L('选择外部人员的电话（手机）或邮箱字段')}</p>
+          </div>
         </div>
+
         {this.renderButton()}
       </div>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    if ((this.props.accounts || []).length > 0) {
+      $.post(`/commons/search/user-selector?entity=${this.props.entity || wpc.applyEntity}`, JSON.stringify(this.props.accounts), (res) => {
+        if (res.error_code === 0 && res.data.length > 0) {
+          this._UserSelector2.setState({ selected: res.data })
+        }
+      })
+    }
   }
 
   save = () => {
@@ -802,6 +840,12 @@ class CCNodeConfig extends StartNodeConfig {
       users: this._UserSelector.getSelected(),
       selfSelecting: this.state.selfSelecting,
       ccAutoShare: this.state.ccAutoShare,
+      accounts: this._UserSelector2.getSelected(),
+    }
+
+    if (d.accounts.length > 1 && rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持抄送给外部人员功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -1040,12 +1084,31 @@ class UserSelectorWithField extends UserSelector {
     super.componentDidMount()
 
     this._fields = []
-    $.get(`/admin/robot/approval/user-fields?entity=${this.props.entity || wpc.applyEntity}`, (res) => {
-      this._fields = res.data || []
-    })
+
+    // 外部人员
+    if (this.props.userType === 2) {
+      $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+        res.data &&
+          res.data.forEach((item) => {
+            if (item.type === 'PHONE' || item.type === 'EMAIL') {
+              this._fields.push({ id: item.name, text: item.label })
+            }
+          })
+        this.switchTab()
+      })
+    } else {
+      $.get(`/admin/robot/approval/user-fields?entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+        this._fields = res.data || []
+      })
+    }
   }
 
   switchTab(type) {
+    if (this.props.userType === 2) {
+      this.setState({ tabType: 'FIELDS', items: this._fields || [] })
+      return
+    }
+
     type = type || this.state.tabType
     if (type === 'FIELDS') {
       const q = this.state.query

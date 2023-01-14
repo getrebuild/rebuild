@@ -93,7 +93,7 @@ public class NotificationObserver extends OperatingObserver {
         }
 
         if (action == BizzPermission.ASSIGN) {
-            message = message.replace(Language.L("共享"), Language.L("分派"));
+            message = message.replace(Language.L("共享"), Language.L("分配"));
         }
         return message;
     }

@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
- * 业务实体操作（增/改/删/分派/共享）
+ * 业务实体操作（增/改/删/分配/共享）
  *
  * @author Zixin (RB)
  * @since 08/30/2018
@@ -216,7 +216,7 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            return RespBody.errorl("没有要分派的记录");
+            return RespBody.errorl("没有要分配的记录");
         }
 
         final ID firstId = records[0];

@@ -43,7 +43,7 @@ public class LoginLogController extends EntityController {
     public ModelAndView pageList(HttpServletRequest request) {
         ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/audit/login-logs", "LoginLog", user);
-        JSON config = DataListManager.instance.getFieldsLayout("LoginLog", user);
+        JSON config = DataListManager.instance.getListFields("LoginLog", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         return mv;
     }
@@ -74,17 +74,7 @@ public class LoginLogController extends EntityController {
     @RequestMapping("/admin/audit/kill-session")
     public RespBody killSession(HttpServletRequest request) {
         String sessionId = getParameterNotNull(request, "user");
-
-        for (HttpSession s : Application.getSessionStore().getAllSession()) {
-            if (s.getId().equals(sessionId)) {
-                log.warn("Admin kill session : {} ({})", sessionId, s.getAttribute(WebUtils.CURRENT_USER));
-                try {
-                    s.invalidate();
-                } catch (Exception ignored) {
-                }
-                break;
-            }
-        }
+        Application.getSessionStore().killSession(sessionId);
         return RespBody.ok();
     }
 

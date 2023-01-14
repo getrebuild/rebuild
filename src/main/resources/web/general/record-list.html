@@ -92,7 +92,7 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
                           <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除')}]]</a>
-                          <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('分派')}]]</a>
+                          <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('分配')}]]</a>
                           <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('共享')}]]</a>
                           <a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> [[${bundle.L('取消共享')}]]</a>
                           <div class="dropdown-divider"></div>
@@ -101,7 +101,7 @@
                             <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
-                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
+                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('字段显示')}]]</a>
                         </div>
                       </div>
                     </div>

@@ -33,9 +33,13 @@ public class EasyFieldConfigProps {
      */
     public static final String DECIMAL_NOTNEGATIVE = NUMBER_NOTNEGATIVE;
     /**
-     * 格式
+     * 格式（小数长度）
      */
     public static final String DECIMAL_FORMAT = "decimalFormat";
+    /**
+     * 格式
+     */
+    public static final String DECIMAL_TYPE = "decimalType";
     /**
      * 表单公式
      */
@@ -107,17 +111,23 @@ public class EasyFieldConfigProps {
      * 父级级联字段
      */
     public static final String REFERENCE_CASCADINGFIELD = "referenceCascadingField";
+    /**
+     * 快速新建
+     */
+    public static final String REFERENCE_QUICKNEW = "referenceQuickNew";
 
     /**
-     * 多引用字段数据过滤
      * @see #REFERENCE_DATAFILTER
      */
     public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
     /**
-     * 父级级联字段
      * @see #REFERENCE_CASCADINGFIELD
      */
     public static final String N2NREFERENCE_CASCADINGFIELD = REFERENCE_CASCADINGFIELD;
+    /**
+     * @see #REFERENCE_QUICKNEW
+     */
+    public static final String N2NREFERENCE_QUICKNEW = REFERENCE_QUICKNEW;
 
     /**
      * 多行文本使用 MD 编辑器
@@ -148,4 +158,18 @@ public class EasyFieldConfigProps {
      * 扫码
      */
     public static final String TEXT_SCANCODE = "textScanCode";
+    /**
+     * 常用值
+     */
+    public static final String TEXT_COMMON = "textCommon";
+
+    /**
+     * 标签
+     */
+    public static final String TAG_LIST = "tagList";
+
+    /**
+     * 引用字段扫码
+     */
+    public static final String REFERENCE_SCANCODE = TEXT_SCANCODE;
 }

@@ -13,7 +13,7 @@ const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', '
 const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
 const SHOW_ADVPATTERN = ['TEXT']
-const SHOW_SCANCODE = ['TEXT']
+const SHOW_SCANCODE = ['TEXT', 'REFERENCE']
 
 const CURRENT_BIZZ = '{CURRENT}'
 
@@ -42,7 +42,7 @@ $(document).ready(function () {
   if (SHOW_ADVPATTERN.includes(dt)) {
     $('.J_advOpt').removeClass('hide')
 
-    $('.common-patt .badge').on('click', function () {
+    $('.J_advPattern .badge').on('click', function () {
       $('#advPattern').val($(this).data('patt'))
     })
   } else {
@@ -56,7 +56,7 @@ $(document).ready(function () {
   }
   // 文件
   if (dt === 'FILE') {
-    $('.common-suff .badge').on('click', function () {
+    $('.J_fileSuffix .badge').on('click', function () {
       $('#fileSuffix').val($(this).data('suff'))
     })
   }
@@ -93,23 +93,58 @@ $(document).ready(function () {
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      extConfigNew[k] = $val(this)
+      if (k) extConfigNew[k] = $val(this)
     })
     // 单选型
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
       const k = $(this).attr('name')
-      extConfigNew[k] = $val(this)
+      if (k) extConfigNew[k] = $val(this)
     })
 
     // 文件
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
-      let fix = extConfigNew['fileSuffix']
-      fix = fix.replaceAll('，', ',').replaceAll(' ', ',').replaceAll(',,', ',')
-      extConfigNew['fileSuffix'] = fix
+      const fix = []
+      extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
+        if (n) {
+          if (n.substring(0, 1) !== '.') n = `.${n.trim()}`
+          fix.push(n.trim())
+        }
+      })
+      extConfigNew['fileSuffix'] = fix.join(',')
     }
-
-    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) return RbHighbar.create($L('请输入编码规则'))
-    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) return RbHighbar.create($L('请输入编号规则'))
+    // 文本
+    if (dt === 'TEXT' && extConfigNew['textCommon']) {
+      const fix = []
+      extConfigNew['textCommon'].split(/[,，]/).forEach((n) => n && fix.push(n.trim()))
+      extConfigNew['textCommon'] = fix.join(',')
+    }
+    // 二维码
+    if (dt === 'BARCODE' && !extConfigNew['barcodeFormat']) {
+      return RbHighbar.create($L('请输入编码规则'))
+    }
+    // 自动编号
+    if (dt === 'SERIES' && !extConfigNew['seriesFormat']) {
+      return RbHighbar.create($L('请输入编号规则'))
+    }
+    // 标签
+    if (dt === 'TAG') {
+      const items = []
+      $('#tag-items li').each(function () {
+        const $this = $(this)
+        const name = $this.find('span').text()
+        if (!name) return
+        items.push({
+          name: name,
+          color: $this.data('color') || null,
+          default: $this.hasClass('default') || false,
+        })
+      })
+      extConfigNew['tagList'] = items
+    }
+    // 小数
+    if (dt === 'DECIMAL' && extConfigNew['decimalType'] === '¥') {
+      extConfigNew['decimalType'] = $val('.J_decimalTypeFlag') || '¥'
+    }
 
     // fix
     delete extConfigNew['undefined']
@@ -211,9 +246,22 @@ $(document).ready(function () {
     $('.J_fieldAttrs input').attr('disabled', true)
   } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
     _handleNumber(extConfig.calcFormula)
+
+    if (dt === 'DECIMAL') {
+      if (extConfig.decimalType === '%') {
+        // 百分比
+      } else if (!extConfig.decimalType || extConfig.decimalType === 0) {
+        // 数字
+      } else {
+        $('input[name="decimalType"]:eq(2)').attr('checked', true)
+        $('.J_decimalTypeFlag').val(extConfig.decimalType)
+      }
+    }
+  } else if (dt === 'TAG') {
+    _handleTag(extConfig.tagList || [])
   }
 
-  // // 只读属性
+  // 只读属性
   // delete extConfig['classification']
   // delete extConfig['stateClass']
 
@@ -245,12 +293,6 @@ $(document).ready(function () {
   })
 })
 
-// Render item to PickList box
-const picklistItemRender = function (data) {
-  const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle" style="color:${data.color || 'inherit'} !important">${data.text}</div></li>`).appendTo('#picklist-items')
-  if ($isTrue(data['default'])) $item.addClass('default')
-}
-
 // Check incorrect?
 // Also see RbFormElement#checkHasError in rb-forms.js
 const checkDefaultValue = function (v, t) {
@@ -276,11 +318,15 @@ const _handlePicklist = function (dt) {
     }
     $('#picklist-items').empty()
     $(res.data).each(function () {
-      picklistItemRender(this)
+      const $item = $(`<li class="dd-item" data-key="${this.id}"><div class="dd-handle" style="color:${this.color || 'inherit'} !important">${this.text}</div></li>`).appendTo('#picklist-items')
+      if ($isTrue(this['default'])) $item.addClass('default')
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').on('click', () => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
+
+  $('.J_picklist-edit').on('click', () => {
+    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&type=${dt}`, $L('配置选项'))
+  })
 }
 
 const _handleSeries = function () {
@@ -545,4 +591,99 @@ const _handleNumber = function (calcFormula) {
   }
 
   $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
+}
+
+const _handleTag = function (tagList) {
+  const $items = $('#tag-items')
+  function _add(item) {
+    $items.find('.no-item').addClass('hide')
+    const $item = $(`<li class="dd-item" data-color="${item.color || ''}"><div class="dd-handle" style="color:${item.color || 'inherit'} !important"><span>${item.name}</span></div></li>`).appendTo(
+      $items
+    )
+    if ($isTrue(item['default'])) $item.addClass('default')
+
+    const $del = $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`).appendTo($item.find('.dd-handle'))
+    $del.on('click', () => {
+      $item.remove()
+      tagList = tagList.filter((x) => x.name !== item.name)
+      if (tagList.length === 0) $items.find('.no-item').removeClass('hide')
+    })
+  }
+
+  tagList.forEach((item) => _add(item))
+  $items.find('.no-item').text($L('请添加标签'))
+
+  $('.J_tag-add').on('click', () => {
+    renderRbcomp(
+      <TagEditor
+        onConfirm={(d) => {
+          let r = false
+          $(tagList).each(function () {
+            if (this.name === d.name) {
+              r = true
+              return false
+            }
+          })
+
+          if (r) {
+            RbHighbar.create($L('标签重复'))
+            return false
+          }
+
+          tagList.push(d)
+          _add(d)
+          return true
+        }}
+      />
+    )
+  })
+}
+
+class TagEditor extends RbAlert {
+  renderContent() {
+    return (
+      <div className="rbalert-form-sm">
+        <div className="form-group">
+          <label className="text-bold">{$L('标签')}</label>
+          <input type="text" className="form-control form-control-sm" name="name" placeholder={$L('输入标签')} ref={(c) => (this._$name = c)} />
+          <div className="rbcolors mt-2" ref={(c) => (this._$rbcolors = c)}>
+            <a className="default" title={$L('默认')}></a>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+            <input className="custom-control-input" type="checkbox" ref={(c) => (this._$default = c)} />
+            <span className="custom-control-label">{$L('设为默认')}</span>
+          </label>
+        </div>
+
+        <div className="mt-2 mb-2">
+          <button className="btn btn-primary" type="button" onClick={() => this._onConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    const $cs = $(this._$rbcolors)
+    RBCOLORS.forEach((c) => {
+      $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
+    })
+    $cs.find('>a').on('click', function () {
+      $cs.find('>a .zmdi').remove()
+      $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    })
+  }
+
+  _onConfirm() {
+    const name = $val(this._$name)
+    if (!name) return RbHighbar.create($L('请输入标签'))
+    const color = $(this._$rbcolors).find('>a>i').parent().data('color') || ''
+    const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
+    ok && this.hide()
+  }
 }

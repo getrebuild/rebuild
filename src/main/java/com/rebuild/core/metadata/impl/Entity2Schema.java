@@ -47,26 +47,15 @@ public class Entity2Schema extends Field2Schema {
     }
 
     /**
+     * @param entityName [可空]
      * @param entityLabel
      * @param comments
      * @param mainEntity
      * @param haveNameField
-     * @return
-     * @see #createEntity(String, String, String, String, boolean)
+     * @param haveSeriesField
+     * @return Returns 实体名称
      */
-    public String createEntity(String entityLabel, String comments, String mainEntity, boolean haveNameField) {
-        return createEntity(null, entityLabel, comments, mainEntity, haveNameField);
-    }
-
-    /**
-     * @param entityName
-     * @param entityLabel
-     * @param comments
-     * @param mainEntity
-     * @param haveNameField
-     * @return returns 实体名称
-     */
-    public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField) {
+    public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
         if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
@@ -129,6 +118,10 @@ public class Entity2Schema extends Field2Schema {
             if (haveNameField) {
                 createUnsafeField(
                         tempEntity, nameFiled, Language.L("%s名称", entityLabel), DisplayType.TEXT, false, true, true, true, true, null, null, null, null, null);
+            }
+            if (haveSeriesField) {
+                createUnsafeField(
+                        tempEntity, entityName + "No", Language.L("%s编号", entityLabel), DisplayType.SERIES, false, false, false, false, true, null, null, null, null, null);
             }
 
             createBuiltinField(tempEntity, EntityHelper.CreatedBy, Language.L("创建人"), DisplayType.REFERENCE, null, "User", null);
@@ -223,13 +216,13 @@ public class Entity2Schema extends Field2Schema {
 
         // 先删配置
 
-        final ID sessionUser = UserContextHolder.getUser(true);
-        if (sessionUser == null) UserContextHolder.setUser(getUser());
+        final ID threadUser = UserContextHolder.getUser(Boolean.TRUE);
+        if (threadUser == null) UserContextHolder.setUser(getUser());
 
         try {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);
         } finally {
-            if (sessionUser == null) UserContextHolder.clear();
+            if (threadUser == null) UserContextHolder.clearUser();
         }
 
         // 最后删表

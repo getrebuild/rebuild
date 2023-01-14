@@ -125,9 +125,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         fields.add(base.getEntity().getPrimaryField().getName());
         Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
 
-        if (snap == null) {
-            throw new NoRecordFoundException(primaryId);
-        }
+        if (snap == null) throw new NoRecordFoundException(primaryId);
         return snap;
     }
 

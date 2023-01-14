@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
@@ -274,6 +275,14 @@ public class AdvFilterParser extends SetUser {
                         "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
                         specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
             }
+
+        } else if (dt == DisplayType.TAG && (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op))) {
+            String existsWhere = String.format(
+                    "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName in (%s))",
+                    specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), quoteValue(value, FieldType.STRING));
+
+            if (ParseHelper.NIN.equals(op)) return "not " + existsWhere;
+            return existsWhere;
         }
 
         // 根据字段类型转换 `op`
@@ -514,8 +523,10 @@ public class AdvFilterParser extends SetUser {
             value = val == null ? null : val.toString();
             if (StringUtils.isBlank(value)) return null;
 
+            final int valueLen = StringUtils.length(value);
+
             // TIMESTAMP 仅指定了日期值，则补充时间值
-            if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
+            if (field.getType() == FieldType.TIMESTAMP && valueLen == 10) {
                 if (ParseHelper.GT.equalsIgnoreCase(op)) {
                     value += ParseHelper.FULL_TIME;  // 不含当日
                 } else if (ParseHelper.LT.equalsIgnoreCase(op)) {
@@ -526,6 +537,18 @@ public class AdvFilterParser extends SetUser {
                     value += ParseHelper.FULL_TIME;  // 含当日
                 } else if (ParseHelper.BW.equalsIgnoreCase(op)) {
                     value += (fullTime ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
+                }
+            }
+            // 修正月、日
+            else if (field.getType() == FieldType.DATE && valueLen == 10) {
+                String dateFormat = StringUtils.defaultIfBlank(
+                        EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+                        DisplayType.DATE.getDefaultFormat());
+
+                if (dateFormat.length() == 4) {
+                    value = value.substring(0, 4) + "-01-01";
+                } else if (dateFormat.length() == 7) {
+                    value = value.substring(0, 7) + "-01";
                 }
             }
 

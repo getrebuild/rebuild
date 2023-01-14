@@ -48,8 +48,6 @@ public class Language implements Initialization {
 
         Resource[] resources = new PathMatchingResourcePatternResolver().getResources(
                 "classpath:i18n/lang.*.json");
-        if (resources.length == 0) return;
-
         for (Resource res : resources) {
             log.info("Loading language bundle : {}", res);
             String locale = Objects.requireNonNull(res.getFilename()).split("\\.")[1];
