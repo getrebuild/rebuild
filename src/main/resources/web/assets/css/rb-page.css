@@ -71,7 +71,7 @@ button[disabled] {
 }
 
 .dropdown-menu.auto-scroller {
-  max-height: 500px;
+  max-height: 487px;
   overflow-x: auto;
 }
 
@@ -4675,6 +4675,11 @@ pre.unstyle {
 
 .protable .type-MULTISELECT .custom-checkbox {
   min-width: 48%;
+}
+
+.protable .table tr td .custom-control.custom-radio {
+  margin-right: 10px;
+  margin-bottom: 0;
 }
 
 .protable .type-MULTISELECT {

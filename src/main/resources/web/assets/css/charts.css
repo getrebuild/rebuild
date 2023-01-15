@@ -160,6 +160,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1rem;
 }
 
+.chart.ctable .table td > div {
+  min-height: 16px;
+}
+
 .chart.ctable .table td.active,
 .chart.ctable .table td.highlight {
   outline: 1px solid #4285f4;
