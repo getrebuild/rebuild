@@ -565,7 +565,7 @@ var $createUploader = function (input, next, complete, error) {
 
   function _qiniuUpload(file) {
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
-      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true })
       o.subscribe({
         next: function (res) {
           typeof next === 'function' && next({ percent: res.total.percent, file: file })

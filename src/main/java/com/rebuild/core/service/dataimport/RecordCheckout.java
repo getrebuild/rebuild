@@ -238,7 +238,7 @@ public class RecordCheckout {
                             refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
                 sql.append(String.format("%s = '%s' or ",
-                        qf, StringEscapeUtils.escapeSql((String) val2Text)));
+                        qf, StringEscapeUtils.escapeSql(val2Text.toString())));
             }
             sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 
