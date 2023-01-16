@@ -105,9 +105,4 @@ public class AES {
         String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
         return StringUtils.defaultIfEmpty(key, "REBUILD2018");
     }
-
-    // for Encrypt
-    public static void main(String[] args) {
-        System.out.println(encrypt("428115fbdc40413c43a1e977a83c8a5a"));
-    }
 }

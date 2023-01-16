@@ -27,30 +27,6 @@
         <finalName>rebuild</finalName>
         <plugins>
             <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!-- https://www.guardsquare.com/manual/configuration/usage -->
-                    <options>
-                        <option>-libraryjars ${java.home}/jmods</option>
-                        <option>-dontshrink</option>
-                        <option>-dontoptimize</option>
-                        <option>-dontobfuscate</option>
-                        <option>-ignorewarnings</option>
-                        <option>-keep class ** { *; }</option>
-<!--                        <option>-keep class !com.rebuild.rbv.** { *; }</option>-->
-                    </options>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
@@ -153,6 +129,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- https://www.guardsquare.com/manual/configuration/usage -->
+                    <options>
+                        <!--
+                        <option>-libraryjars ${java.home}/jmods</option>
+                        <option>-dontobfuscate</option>
+                        <option>-keep public class ** { *; }</option>
+                        -->
+                        <option>-libraryjars ${java.home}/lib</option>
+                        <option>-dontshrink</option>
+                        <option>-dontoptimize</option>
+                        <option>-ignorewarnings</option>
+                        <option>-keep class !com.rebuild.rbv.** { *; }</option>
+                        <option>-keeppackagenames</option>
+                        <option>-keepattributes **</option>
+                        <option>-keepdirectories</option>
+                    </options>
+                </configuration>
             </plugin>
             <!-- Codecov : `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
             <plugin>
