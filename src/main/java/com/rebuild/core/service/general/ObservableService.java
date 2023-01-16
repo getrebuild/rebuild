@@ -33,6 +33,7 @@ import java.util.*;
  * @see OperatingObserver
  * @since 12/28/2018
  */
+@SuppressWarnings("deprecation")
 @Slf4j
 public abstract class ObservableService extends Observable implements ServiceSpec {
 
@@ -90,7 +91,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
         Record deleted = null;
         if (countObservers() > 0) {
-            deleted = EntityHelper.forUpdate(recordId, currentUser);
+            deleted = EntityHelper.forUpdate(recordId, currentUser, Boolean.FALSE);
             deleted = recordSnap(deleted);
 
             // 删除前触发，做一些状态保持
