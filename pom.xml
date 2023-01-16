@@ -27,6 +27,30 @@
         <finalName>rebuild</finalName>
         <plugins>
             <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- https://www.guardsquare.com/manual/configuration/usage -->
+                    <options>
+                        <option>-libraryjars ${java.home}/jmods</option>
+                        <option>-dontshrink</option>
+                        <option>-dontoptimize</option>
+                        <option>-dontobfuscate</option>
+                        <option>-ignorewarnings</option>
+                        <option>-keep class ** { *; }</option>
+<!--                        <option>-keep class !com.rebuild.rbv.** { *; }</option>-->
+                    </options>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
