@@ -5134,3 +5134,14 @@ pre.unstyle {
   max-width: 400px;
   margin: 0 auto;
 }
+
+/* TOP-MENU */
+
+.navbar-collapse .navbar-nav > li > a.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.rb-color-header .navbar-collapse,
+.rb-offcanvas-menu .navbar-collapse {
+  display: none !important;
+}

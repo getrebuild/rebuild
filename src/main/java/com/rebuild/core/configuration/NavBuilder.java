@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -24,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -79,7 +81,30 @@ public class NavBuilder extends NavManager {
      * @return
      */
     public JSONArray getUserNav(ID user) {
-        ConfigBean config = getLayoutOfNav(user);
+        return getUserNav(user, null);
+    }
+
+    /**
+     * @param user
+     * @param request
+     * @return
+     */
+    public JSONArray getUserNav(ID user, HttpServletRequest request) {
+        ConfigBean config = null;
+
+        if (request != null) {
+            String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
+            ID useNavId;
+            if ((useNavId = MetadataHelper.isSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
+                Object[][] cached = getAllConfig(null, TYPE_NAV);
+                config = findConfigBean(cached, useNavId);
+            }
+        }
+
+        if (config == null) {
+            config = getLayoutOfNav(user);
+        }
+
         if (config == null) {
             JSONArray useDefault = replaceLang(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(1)).put("sub", buildAvailableProjects(user));
@@ -260,8 +285,10 @@ public class NavBuilder extends NavManager {
      */
     public static String renderNav(HttpServletRequest request, String activeNav) {
         if (activeNav == null) activeNav = "dashboard-home";
-
-        JSONArray navs = NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
+        
+        JSONArray navs = License.isCommercial()
+                ? NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request), request)
+                : NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {

@@ -32,23 +32,23 @@ $(document).ready(() => {
       return
     }
 
-    let d = dash_list[0] // default
+    let use = dash_list[0] // default
     if (dash_list.length > 1) {
-      const dset = $storage.get('DashDefault')
+      const dset = $.cookie('AppHome.Dash') || $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
           if (res.data[i][0] === dset) {
-            d = res.data[i]
+            use = res.data[i]
             break
           }
         }
       }
     }
 
-    dashid = d[0]
-    dash_editable = d[2]
-    render_dashboard(d[3])
-    $('.dash-list h4').text(d[4])
+    dashid = use[0]
+    dash_editable = use[2]
+    render_dashboard(use[3])
+    $('.dash-list h4').text(use[4])
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
@@ -71,7 +71,7 @@ $(document).ready(() => {
     }
 
     $('.J_dash-new').on('click', () => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
+    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: use[4], shareTo: use[1] }))
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
@@ -263,8 +263,6 @@ const add_widget = function (item) {
   } else {
     gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 24)
   }
-
-  console.log(item)
 
   item.editable = dash_editable
   // eslint-disable-next-line no-undef
