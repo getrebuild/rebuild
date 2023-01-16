@@ -2194,12 +2194,23 @@ class RbFormAvatar extends RbFormElement {
   }
 
   renderElement() {
+    const readonly = this.props.readonly
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
-          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />}
-          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" disabled={this.props.readonly}>
+          {!readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />}
+          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" disabled={readonly}>
             <img src={this._formatUrl(this.state.value)} alt="Avatar" />
+            {!readonly && this.state.value && (
+              <b
+                title={$L('移除')}
+                onClick={(e) => {
+                  $stopEvent(e, true)
+                  this.handleClear()
+                }}>
+                <span className="zmdi zmdi-close" />
+              </b>
+            )}
           </label>
         </span>
       </div>

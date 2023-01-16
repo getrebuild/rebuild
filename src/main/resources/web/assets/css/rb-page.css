@@ -1117,29 +1117,37 @@ select.form-control:not([disabled]) {
 }
 
 .img-field a.img-upload b,
+.img-field label.img-upload b,
 .file-field .img-thumbnail b {
   position: absolute;
   bottom: 0;
   width: 100%;
   left: 0;
   right: 0;
-  font-size: 14px;
+  font-size: 1.2rem;
+  color: #fff;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.3);
-  color: #fff;
   text-align: center;
-  line-height: 1;
+  line-height: 18px;
   display: none;
 }
 
+.img-field label.img-upload b .zmdi {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
 .img-field a.img-upload:hover b,
+.img-field label.img-upload:hover b,
 .file-field .img-thumbnail:hover b {
   display: block;
 }
 
 .img-field a.img-upload:hover b:hover,
+.img-field label.img-upload:hover b:hover,
 .file-field .img-thumbnail:hover b:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .img-field.avatar,
