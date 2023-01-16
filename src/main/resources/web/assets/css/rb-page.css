@@ -3112,7 +3112,7 @@ form {
 
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
-  .rb-top-header .global-create2 {
+  .rb-top-header .global-create2-- {
     display: none !important;
   }
 }
@@ -3189,16 +3189,21 @@ form {
   padding: 15px !important;
 }
 
-.global-create2 .dropdown-menu > em {
-  padding: 7px 15px !important;
-  display: block;
+.global-create2 .dropdown-menu:empty {
+  padding: 13px 15px !important;
 }
 
 .global-search .dropdown-menu:empty::after,
-.global-create2 .dropdown-menu > em {
-  content: attr(_title);
+.global-create2 .dropdown-menu:empty::after {
   font-style: italic;
+  font-size: 1rem;
   color: #999;
+  content: attr(_title) !important;
+  position: static !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 none !important;
 }
 
 .preview-modal {
