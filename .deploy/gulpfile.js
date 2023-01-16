@@ -60,7 +60,7 @@ function _useAssetsHex(file) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
       } catch (err1) {
-        if (file.includes('frontjs-sdk.js')) console.log('No `@rbv` exists :', file)
+        if (file.includes('frontjs-sdk.js') || file.includes('syscfg-sync.js') || file.includes('rb-filterpane.js')) console.log('No `@rbv` exists :', file)
         else console.log('Cannot #revHash :', file, err1)
 
         // Use date
