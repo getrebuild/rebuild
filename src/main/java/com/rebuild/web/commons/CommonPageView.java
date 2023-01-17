@@ -7,13 +7,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -81,5 +85,22 @@ public class CommonPageView extends BaseController {
         String p = request.getRequestURI();
         p = p.split("/p/")[1];
         return createModelAndView("/" + p);
+    }
+
+    @GetMapping("/app/home")
+    public void home(@IdParam(name = "n", required = false) ID useNav, @IdParam(name = "d", required = false) ID useDash,
+                     HttpServletResponse response) throws IOException {
+        // 设置默认
+        addCookie("AppHome.Nav", useNav, response);
+        addCookie("AppHome.Dash", useDash, response);
+
+        response.sendRedirect("../dashboard/home");
+    }
+
+    private void addCookie(String name, ID value, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, value == null ? "N" : CodecUtils.urlEncode(value.toLiteral()));
+        cookie.setPath("/");
+        if (value == null) cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }

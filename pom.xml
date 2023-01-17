@@ -453,6 +453,14 @@
             <artifactId>hutool-core</artifactId>
             <version>5.8.11</version>
         </dependency>
+        <!-- Need JDK11+ -->
+        <!--
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+            <version>15.4</version>
+        </dependency>
+        -->
 
         <!-- fix: CVEs -->
         <dependency>

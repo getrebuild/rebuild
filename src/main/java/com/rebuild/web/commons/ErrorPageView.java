@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,8 +55,6 @@ public class ErrorPageView extends BaseController {
         mv.getModelMap().put("error_msg", msg);
         return mv;
     }
-
-    // -- Status
 
     @GetMapping("/error/server-status")
     public ModelAndView pageServerStatus(HttpServletRequest request) {
@@ -115,5 +114,19 @@ public class ErrorPageView extends BaseController {
         if (StringUtils.isNotBlank(reason)) url += "&reason=" + CodecUtils.urlEncode(reason);
 
         response.sendRedirect(url);
+    }
+
+    @RequestMapping("/error/jslog")
+    public void jslog(HttpServletRequest request, HttpServletResponse response) {
+        String error = ServletUtils.getRequestString(request);
+        if (error == null) error = getParameter(request, "error", "-");
+
+        String errorLog = "\n++ JSLOG TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
+                "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
+                "\nMessage : " + error.replace("\\n", "\n") +
+                "\n";
+        log.error(errorLog);
+
+        ServletUtils.write(response, "{error_code:0}");
     }
 }

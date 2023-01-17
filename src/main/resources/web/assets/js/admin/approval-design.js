@@ -646,13 +646,13 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人转审')}</span>
+              <span className="custom-control-label">{$L('允许审批人转审')} <sup className="rbv" title={$L('增值功能')} /></span>
             </label>
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人加签')}</span>
+              <span className="custom-control-label">{$L('允许审批人加签')} <sup className="rbv" title={$L('增值功能')} /></span>
             </label>
           </div>
 
@@ -758,6 +758,11 @@ class ApproverNodeConfig extends StartNodeConfig {
       return
     }
 
+    if (rb.commercial < 1 && (d.allowReferral || d.allowCountersign)) {
+      RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     typeof this.props.call === 'function' && this.props.call(d)
     this.cancel()
   }
@@ -810,10 +815,10 @@ class CCNodeConfig extends StartNodeConfig {
 
           <div className="form-group mt-3">
             <label className="text-bold">
-              {$L('抄送给外部人员 (可选)')} <sup className="rbv" title={$L('增值功能')} />
+              {$L('抄送给外部人员')} <sup className="rbv" title={$L('增值功能')} />
             </label>
             <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
-            <p className="form-text">{$L('选择外部人员的电话（手机）或邮箱字段')}</p>
+            <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
           </div>
         </div>
 

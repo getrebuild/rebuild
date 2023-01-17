@@ -26,12 +26,13 @@ import org.springframework.util.Assert;
 public class UserContextHolder {
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
+    private static final ThreadLocal<ID> CALLER_PREV = new NamedThreadLocal<>("Previous user");
 
     private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Request locale");
 
     private static final ThreadLocal<String> REQIP = new NamedThreadLocal<>("Request IP");
 
-    private UserContextHolder() { }
+    private UserContextHolder() {}
 
     /**
      * @param user
@@ -49,9 +50,9 @@ public class UserContextHolder {
     public static void setUser(ID user) {
         Assert.notNull(user, "[user] cannot be null");
 
-        ID exists = getUser(Boolean.TRUE);
-        if (exists != null) {
-            log.warn("Replace user in current session (thread) : " + exists + " > " + user);
+        ID e = getUser(Boolean.TRUE);
+        if (e != null) {
+            log.warn("Replace user in current thread (session) : {} < {}", user, e);
             CALLER.remove();
         }
         CALLER.set(user);
@@ -82,7 +83,7 @@ public class UserContextHolder {
         if (user != null) return user;
 
         if (allowNull) return null;
-        else throw new AccessDeniedException("No user found in current session (thread)");
+        throw new AccessDeniedException("No user found in current session (thread)");
     }
 
     /**
@@ -108,12 +109,42 @@ public class UserContextHolder {
      */
     public static void clearUser() {
         CALLER.remove();
+        CALLER_PREV.remove();
     }
 
     /**
      */
     public static void clearLocale() {
         LOCALE.remove();
+    }
+
+    /**
+     * @param user
+     * @see #restoreUser()
+     * @see #setUser(ID)
+     */
+    public static void replaceUser(ID user) {
+        Assert.notNull(user, "[user] cannot be null");
+
+        ID e = getUser(Boolean.TRUE);
+        if (e != null) CALLER_PREV.set(e);
+        else CALLER_PREV.remove();
+
+        CALLER.set(user);
+    }
+
+    /**
+     * @return
+     * @see #replaceUser(ID)
+     */
+    public static boolean restoreUser() {
+        ID e = CALLER_PREV.get();
+        if (e != null) {
+            clearUser();
+            setUser(e);
+            return true;
+        }
+        return false;
     }
 
     // --

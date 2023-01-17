@@ -422,7 +422,7 @@ var _initGlobalSearch = function () {
     }, 100)
   })
 
-  $unhideDropdown('.global-search')
+  // $unhideDropdown('.global-search')
   var $gs = $('.global-search .dropdown-menu')
 
   $('.sidebar-elements li').each(function (idx, item) {
@@ -475,10 +475,7 @@ var _initGlobalCreate = function () {
     var e = $(this).data('entity')
     if (e && e !== '$PARENT$' && !entities.contains(e)) entities.push(e)
   })
-  if (entities.length === 0) {
-    $('<em>' + $L('无可新建项') + '</em>').appendTo('.global-create2 .dropdown-menu')
-    return
-  }
+  if (entities.length === 0) return
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
     var $gc = $('.global-create2 .dropdown-menu')
@@ -565,7 +562,7 @@ var $createUploader = function (input, next, complete, error) {
 
   function _qiniuUpload(file) {
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
-      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true })
       o.subscribe({
         next: function (res) {
           typeof next === 'function' && next({ percent: res.total.percent, file: file })

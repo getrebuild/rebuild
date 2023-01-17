@@ -1147,7 +1147,7 @@ class DataList extends BaseChart {
       super.renderError(
         <RF>
           <span>{$L('当前图表无数据')}</span>
-          {this.props.isManageable && <div>{$L('请先 [编辑图表](###)')}</div>}
+          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
         </RF>,
         () => {
           $(this._$body)
@@ -1294,7 +1294,7 @@ class DataListSettings extends RbModalHandler {
               </select>
             </div>
           </div>
-          <div className="form-group row pb-1 DataList-showfields">
+          <div className="form-group row pb-0 DataList-showfields">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
             <div className="col-sm-7">
               <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
@@ -1323,6 +1323,18 @@ class DataListSettings extends RbModalHandler {
               </a>
             </div>
           </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
+            <div className="col-sm-7">
+              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
+            </div>
+          </div>
           {rb.isAdminUser && (
             <div className="form-group row pb-2 pt-1">
               <label className="col-sm-3 col-form-label text-sm-right"></label>
@@ -1337,18 +1349,6 @@ class DataListSettings extends RbModalHandler {
               </div>
             </div>
           )}
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
-            <div className="col-sm-7">
-              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
-            <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
-            </div>
-          </div>
 
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>

@@ -7,7 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
-import cn.devezhao.persist4j.*;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Filter;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
 import com.rebuild.core.Application;

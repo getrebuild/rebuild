@@ -71,7 +71,7 @@ button[disabled] {
 }
 
 .dropdown-menu.auto-scroller {
-  max-height: 500px;
+  max-height: 487px;
   overflow-x: auto;
 }
 
@@ -1117,29 +1117,37 @@ select.form-control:not([disabled]) {
 }
 
 .img-field a.img-upload b,
+.img-field label.img-upload b,
 .file-field .img-thumbnail b {
   position: absolute;
   bottom: 0;
   width: 100%;
   left: 0;
   right: 0;
-  font-size: 14px;
+  font-size: 1.2rem;
+  color: #fff;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.3);
-  color: #fff;
   text-align: center;
-  line-height: 1;
+  line-height: 18px;
   display: none;
 }
 
+.img-field label.img-upload b .zmdi {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
 .img-field a.img-upload:hover b,
+.img-field label.img-upload:hover b,
 .file-field .img-thumbnail:hover b {
   display: block;
 }
 
 .img-field a.img-upload:hover b:hover,
+.img-field label.img-upload:hover b:hover,
 .file-field .img-thumbnail:hover b:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .img-field.avatar,
@@ -3112,7 +3120,7 @@ form {
 
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
-  .rb-top-header .global-create2 {
+  .rb-top-header .global-create2-- {
     display: none !important;
   }
 }
@@ -3189,16 +3197,21 @@ form {
   padding: 15px !important;
 }
 
-.global-create2 .dropdown-menu > em {
-  padding: 7px 15px !important;
-  display: block;
+.global-create2 .dropdown-menu:empty {
+  padding: 13px 15px !important;
 }
 
 .global-search .dropdown-menu:empty::after,
-.global-create2 .dropdown-menu > em {
-  content: attr(_title);
+.global-create2 .dropdown-menu:empty::after {
   font-style: italic;
+  font-size: 1rem;
   color: #999;
+  content: attr(_title) !important;
+  position: static !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 none !important;
 }
 
 .preview-modal {
@@ -4677,6 +4690,11 @@ pre.unstyle {
   min-width: 48%;
 }
 
+.protable .table tr td .custom-control.custom-radio {
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
 .protable .type-MULTISELECT {
   padding-bottom: 0 !important;
   margin-bottom: -2px !important;
@@ -5123,4 +5141,15 @@ pre.unstyle {
   width: 500px;
   max-width: 400px;
   margin: 0 auto;
+}
+
+/* TOP-MENU */
+
+.navbar-collapse .navbar-nav > li > a.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.rb-color-header .navbar-collapse,
+.rb-offcanvas-menu .navbar-collapse {
+  display: none !important;
 }
