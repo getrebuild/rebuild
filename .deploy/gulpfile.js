@@ -17,10 +17,12 @@ const revHash = require('rev-hash')
 const replace = require('gulp-replace')
 const filter = require('gulp-filter')
 
+// https://babeljs.io/docs/en/options#primary-options
 const BABEL_OPTIONS = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-class-properties'],
   minified: true,
+  comments: false,
 }
 
 const WEB_ROOT = '../src/main/resources/web'
