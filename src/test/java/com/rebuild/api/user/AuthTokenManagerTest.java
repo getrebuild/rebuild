@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 public class AuthTokenManagerTest extends TestSupport {
 
+    @SuppressWarnings("deprecation")
     @Test
     void accessToken() {
         // Generate
