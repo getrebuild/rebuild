@@ -870,7 +870,7 @@ const RbViewPage = {
               const mainid = _TransformRich.getMainId()
               if (mainid === false) return
 
-              this.disabled(true)
+              this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide()

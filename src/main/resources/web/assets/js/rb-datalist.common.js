@@ -103,6 +103,7 @@ const AdvFilters = {
                     }
                   } else {
                     RbHighbar.error(res.error_msg)
+                    this.disabled()
                   }
                 })
               },
@@ -320,8 +321,8 @@ class DataExport extends BatchOperator {
         this.hide()
         window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
-        this.disabled(false)
         RbHighbar.error(res.error_msg)
+        this.disabled(false)
       }
     })
   }

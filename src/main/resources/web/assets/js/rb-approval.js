@@ -208,7 +208,7 @@ class ApprovalProcessor extends React.Component {
     const that = this
     RbAlert.create($L('将要撤回已提交审批。是否继续？'), {
       confirm: function () {
-        this.disabled(true)
+        this.disabled(true, true)
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reload(this, $L('审批已撤回'))
@@ -241,7 +241,7 @@ class ApprovalProcessor extends React.Component {
     RbAlert.create($L('将要撤销已通过审批。是否继续？'), {
       type: 'danger',
       confirm: function () {
-        this.disabled(true)
+        this.disabled(true, true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reload(this, $L('审批已撤销'))
@@ -441,7 +441,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     const selectUsers = this.getSelectUsers()
     if (!selectUsers) return
 
-    this.disabled(true)
+    this.disabled(true, true)
     $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else _reload(this, $L('审批已提交'))
@@ -491,7 +491,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                 </div>
               </div>
             )}
-            
+
             <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
               {$L('同意')}
             </button>
@@ -528,9 +528,9 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   post(state) {
     const that = this
     if (state === 11 && this.state.isRejectStep) {
-      this.disabled(true)
+      this.disabled(true, true)
       $.get(`/app/entity/approval/fetch-backsteps?record=${this.props.id}`, (res) => {
-        this.disabled()
+        this.disabled(false)
 
         const ss = res.data || []
         RbAlert.create(
@@ -555,7 +555,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           </RF>,
           {
             onConfirm: function () {
-              this.disabled(true)
+              this.disabled(true, true)
               const node = $(this._element).find('select').val()
               that.post2(state, node === '0' ? null : node, this)
             },
@@ -592,7 +592,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       useGroup: this.state.useGroup,
     }
 
-    _alert && _alert.disabled(true)
+    _alert && _alert.disabled(true, true)
     this.disabled(true)
 
     $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}&rejectNode=${rejectNode || ''}`, JSON.stringify(data), (res) => {
@@ -621,6 +621,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           _alert.disabled(true)
           $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, (res) => {
             _alert.disabled()
+
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已转审'))
@@ -643,6 +644,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           _alert.disabled(true)
           $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, (res) => {
             _alert.disabled()
+
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已加签'))

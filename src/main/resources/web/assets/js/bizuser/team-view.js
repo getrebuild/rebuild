@@ -45,6 +45,7 @@ class MemberAddDlg extends RbFormHandler {
         RbHighbar.success($L('团队成员已添加'))
       } else {
         RbHighbar.error(res.error_msg)
+        this.disabled()
       }
     })
   }
@@ -147,6 +148,7 @@ class MemberList extends React.Component {
             RbHighbar.success($L('团队成员已删除'))
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },
@@ -180,7 +182,10 @@ $(document).ready(() => {
             if (res.error_code === 0) {
               parent.location.hash = '!/View/'
               parent.location.reload()
-            } else RbHighbar.error(res.error_msg)
+            } else {
+              RbHighbar.error(res.error_msg)
+              this.disabled()
+            }
           })
         },
       })

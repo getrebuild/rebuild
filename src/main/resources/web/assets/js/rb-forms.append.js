@@ -245,10 +245,10 @@ class DeleteConfirm extends RbAlert {
                   </div>
                 )}
                 <div className="mt-4 mb-3" ref={(c) => (this._btns = c)}>
-                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
+                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
                     {$L('取消')}
                   </button>
-                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
+                  <button disabled={this.state.disable} className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
                     {$L('删除')}
                   </button>
                 </div>
@@ -283,7 +283,7 @@ class DeleteConfirm extends RbAlert {
     if (typeof ids === 'object') ids = ids.join(',')
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
-    const $btns = $(this._btns).find('.btn').button('loading')
+    this.disabled(true, true)
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) RbHighbar.success($L('删除成功'))
@@ -294,7 +294,7 @@ class DeleteConfirm extends RbAlert {
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
       } else {
         RbHighbar.error(res.error_msg)
-        $btns.button('reset')
+        this.disabled(false)
       }
     })
   }

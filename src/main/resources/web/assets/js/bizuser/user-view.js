@@ -51,11 +51,13 @@ $(document).ready(function () {
       onConfirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
-          this.disabled()
           if (res.error_code === 0) {
             RbHighbar.success($L('重置密码成功'))
             this.hide()
-          } else RbHighbar.error(res.error_code)
+          } else {
+            RbHighbar.error(res.error_code)
+            this.disabled()
+          }
         })
       },
       onRendered: function () {
@@ -136,8 +138,8 @@ $(document).ready(function () {
 })
 
 // 启用/禁用
-const toggleDisabled = function (disabled, alert) {
-  alert && alert.disabled(true)
+const toggleDisabled = function (disabled, _alert) {
+  _alert && _alert.disabled(true)
 
   const data = {
     user: userId,
@@ -150,13 +152,14 @@ const toggleDisabled = function (disabled, alert) {
       _reload(200)
     } else {
       RbHighbar.error(res.error_msg)
+      _alert && _alert.disabled()
     }
   })
 }
 
 // 删除用户
-const deleteUser = function (id, alert) {
-  alert && alert.disabled(true)
+const deleteUser = function (id, _alert) {
+  _alert && _alert.disabled(true)
 
   $.post(`/admin/bizuser/user-delete?id=${id}`, (res) => {
     if (res.error_code === 0) {
@@ -164,6 +167,7 @@ const deleteUser = function (id, alert) {
       parent.location.reload()
     } else {
       RbHighbar.error(res.error_msg)
+      _alert && _alert.disabled()
     }
   })
 }
