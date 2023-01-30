@@ -571,7 +571,7 @@ class RbForm extends React.Component {
     setTimeout(() => this._post(next), 40)
   }
 
-  _post(next) {
+  _post(next, weakMode) {
     let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -613,7 +613,12 @@ class RbForm extends React.Component {
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
-    if (previewid) url += '?previewid=' + previewid
+    if (previewid) url += `?previewid=${previewid}`
+    if (weakMode) {
+      if (url.includes('?')) url += '&weakMode=true'
+      else url += '?weakMode=true'
+    }
+
     $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
@@ -657,6 +662,14 @@ class RbForm extends React.Component {
         }, 200)
       } else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
+      } else if (res.error_code === 497) {
+        const that = this
+        RbAlert.create(res.error_msg, {
+          onConfirm: function () {
+            this.hide()
+            that._post(next, true)
+          },
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }
