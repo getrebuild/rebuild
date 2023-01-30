@@ -431,7 +431,7 @@ class EntityRelatedList extends RelatedList {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
 
-    const pageSize = 5
+    const pageSize = 20
     const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
       this.__searchKey
     )}`
