@@ -614,7 +614,7 @@ class RbForm extends React.Component {
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
     if (previewid) url += `?previewid=${previewid}`
-    if (weakMode) {
+    if (weakMode === true) {
       if (url.includes('?')) url += '&weakMode=true'
       else url += '?weakMode=true'
     }

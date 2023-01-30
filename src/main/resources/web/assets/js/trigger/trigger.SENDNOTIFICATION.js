@@ -62,7 +62,7 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
               <div className={this.state.userType === 2 ? '' : 'hide'}>
                 <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
-                <p className="form-text">{$L('选择外部人员的电话（手机）或邮箱字段')}</p>
+                <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
               </div>
             </div>
           </div>
