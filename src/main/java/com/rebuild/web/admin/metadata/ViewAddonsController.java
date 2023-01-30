@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -81,10 +82,14 @@ public class ViewAddonsController extends BaseController {
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
         List<String[]> allRefs = new ArrayList<>();
-        for (Field field : entityMeta.getReferenceToFields(Boolean.TRUE, Boolean.TRUE)) {
+        for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             Entity e = field.getOwnEntity();
             if (!MetadataHelper.isBusinessEntity(e)) continue;
             if (e.equals(entityMeta.getDetailEntity())) continue;
+            // 新建项无明细、多引用
+            if (ViewAddonsManager.TYPE_ADD.equals(applyType)) {
+                if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;
+            }
 
             String label = EasyMetaFactory.getLabel(e);
             if (mfRefs.contains(e)) label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
