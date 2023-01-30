@@ -157,7 +157,10 @@ const step3_import = () => {
           import_taskid = res.data.taskid
           location.hash = '#task=' + import_taskid
           step3_import_state(import_taskid)
-        } else RbHighbar.error(res.error_msg)
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
       })
     },
   })

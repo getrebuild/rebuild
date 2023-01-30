@@ -99,11 +99,11 @@ public class TransformManager implements ConfigManager {
         throw new ConfigurationException("No `TransformConfig` found : " + configId);
     }
 
+    @SuppressWarnings("unchecked")
     public List<ConfigBean> getRawTransforms(String sourceEntity) {
         final String cKey = "TransformManager31-" + sourceEntity;
         Object cached = Application.getCommonsCache().getx(cKey);
         if (cached != null) {
-            //noinspection unchecked
             return (List<ConfigBean>) cached;
         }
 
@@ -154,9 +154,9 @@ public class TransformManager implements ConfigManager {
      * @param targetEntity
      * @return
      */
+    @SuppressWarnings("unchecked")
     public List<ConfigBean> getDetailImports(String targetEntity) {
         if (WEAK_CACHED.containsKey(targetEntity)) {
-            //noinspection unchecked
             return (List<ConfigBean>) WEAK_CACHED.get(targetEntity);
         }
 

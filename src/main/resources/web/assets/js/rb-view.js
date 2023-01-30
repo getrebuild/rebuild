@@ -431,7 +431,7 @@ class EntityRelatedList extends RelatedList {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
 
-    const pageSize = 5
+    const pageSize = 20
     const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
       this.__searchKey
     )}`
@@ -870,7 +870,7 @@ const RbViewPage = {
               const mainid = _TransformRich.getMainId()
               if (mainid === false) return
 
-              this.disabled(true)
+              this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide()

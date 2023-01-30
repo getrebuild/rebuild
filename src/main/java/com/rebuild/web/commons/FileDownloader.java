@@ -74,7 +74,8 @@ public class FileDownloader extends BaseController {
             imageView2 = null;
         }
 
-        ServletUtils.addCacheHead(response, 60);
+        final int cacheTime = 60;
+        ServletUtils.addCacheHead(response, cacheTime);
 
         // Local storage || temp || local
         if (!QiniuCloud.instance().available() || local) {
@@ -114,7 +115,7 @@ public class FileDownloader extends BaseController {
                 filePath += "?" + imageView2;
             }
 
-            String privateUrl = QiniuCloud.instance().makeUrl(filePath, 30 * 60);
+            String privateUrl = QiniuCloud.instance().makeUrl(filePath, cacheTime * 60);
             response.sendRedirect(privateUrl);
         }
     }
@@ -141,6 +142,7 @@ public class FileDownloader extends BaseController {
         if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
 
         boolean temp = getBoolParameter(request, "temp");
+
         ServletUtils.setNoCacheHeaders(response);
 
         if (QiniuCloud.instance().available() && !temp) {
@@ -212,6 +214,7 @@ public class FileDownloader extends BaseController {
         return user != null;
     }
 
+    // @see FileShareController#makePublicUrl
     private static boolean checkEsign(String e) {
         String check = e == null ? null : Application.getCommonsCache().get(e);
         return "rb".equalsIgnoreCase(check);

@@ -832,6 +832,7 @@ class FeedsSchedule extends BaseChart {
             that.loadChartData()
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },
@@ -1671,10 +1672,12 @@ class ChartSelect extends RbModalHandler {
       confirm: function () {
         this.disabled(true)
         $.post(`/dashboard/chart-delete?id=${id}`, (res) => {
-          if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else {
-            that._loadCharts()
+          if (res.error_code === 0) {
             this.hide()
+            that._loadCharts()
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },

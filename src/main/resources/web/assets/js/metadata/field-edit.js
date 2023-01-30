@@ -283,7 +283,10 @@ $(document).ready(function () {
             setTimeout(function () {
               location.replace('../fields')
             }, 1500)
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
       call: function () {

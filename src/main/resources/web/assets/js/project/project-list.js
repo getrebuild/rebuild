@@ -68,12 +68,13 @@ class GridList extends React.Component {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${projectId}`, (res) => {
-          this.hide()
           if (res.error_code === 0) {
+            this.hide()
             RbHighbar.success($L('项目已删除'))
             setTimeout(() => location.reload(), 500)
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },

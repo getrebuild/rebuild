@@ -28,6 +28,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 0;
   position: relative;
   min-height: 200px;
+  overflow: hidden;
+}
+
+#chart-preview::after {
+  content: attr(_title);
+  position: absolute;
+  top: 14px;
+  right: -25px;
+  background-color: grey;
+  color: #fff;
+  transform: rotate(45deg);
+  font-size: 12px;
+  width: 100px;
+  text-align: center;
+  padding: 5px;
+  line-height: 1;
+  text-transform: uppercase;
+  z-index: 11;
 }
 
 .data-aside,

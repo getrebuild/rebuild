@@ -212,11 +212,14 @@ function useExecManual() {
       }
 
       RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.disabled(true, true)
+          $mp.start()
+
           // eslint-disable-next-line no-undef
           $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
-            this.hide(true)
+            $mp.end()
+            this.hide()
             RbHighbar.success($L('执行成功'))
           })
         },

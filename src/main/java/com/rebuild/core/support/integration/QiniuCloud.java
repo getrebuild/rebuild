@@ -142,7 +142,7 @@ public class QiniuCloud {
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 60 * 3);
+        return makeUrl(filePath, 3 * 60);
     }
 
     /**
@@ -159,11 +159,7 @@ public class QiniuCloud {
             baseUrl = "https:" + baseUrl;
         }
 
-        long deadline = System.currentTimeMillis() / 1000 + seconds;
-        // Use http cache
-        seconds /= 2;
-        deadline = deadline / seconds * seconds;
-        return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
+        return getAuth().privateDownloadUrl(baseUrl, seconds);
     }
 
     /**
@@ -172,7 +168,7 @@ public class QiniuCloud {
      * @throws IOException
      */
     public void download(String filePath, File dest) throws IOException {
-        String url = makeUrl(filePath, 60);
+        String url = makeUrl(filePath);
         OkHttpUtils.readBinary(url, dest, null);
     }
 

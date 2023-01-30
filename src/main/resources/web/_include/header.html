@@ -48,4 +48,9 @@
       background-image: url('[[${baseUrl}]]/commons/theme/use-logo-white');
     }
   </style>
+  <style th:if="${commercial > 1}">
+    .rbv {
+      display: none !important;
+    }
+  </style>
 </th:block>

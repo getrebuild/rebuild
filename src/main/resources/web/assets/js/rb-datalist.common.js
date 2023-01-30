@@ -103,6 +103,7 @@ const AdvFilters = {
                     }
                   } else {
                     RbHighbar.error(res.error_msg)
+                    this.disabled()
                   }
                 })
               },
@@ -320,8 +321,8 @@ class DataExport extends BatchOperator {
         this.hide()
         window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
-        this.disabled(false)
         RbHighbar.error(res.error_msg)
+        this.disabled(false)
       }
     })
   }
@@ -1151,12 +1152,12 @@ class RbListPagination extends React.Component {
 
     return (
       <div className="row rb-datatable-footer">
-        <div className="col-12 col-lg-6 col-xl-7">
+        <div className="col-12 col-lg-6">
           <div className="dataTables_info" key="page-rowsTotal">
             {this.renderStats()}
           </div>
         </div>
-        <div className="col-12 col-lg-6 col-xl-5">
+        <div className="col-12 col-lg-6">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
