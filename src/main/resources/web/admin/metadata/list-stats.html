@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('统计字段')}]]</title>
+    <title>[[${bundle.L('统计列')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
       .axis-target {
@@ -55,7 +55,7 @@
           <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
           <div class="message">
             <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
-            <p>[[${bundle.L('添加过多的统计字段可能会影响列表加载速度')}]]</p>
+            <p>[[${bundle.L('添加过多的统计列可能会影响列表加载速度')}]]</p>
           </div>
         </div>
 
