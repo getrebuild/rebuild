@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// 列表字显示
+// 列显示
 
 const _configLabels = {}
 const _configWidths = {}
