@@ -589,9 +589,10 @@ div.dataTables_filter .filter-badge {
   padding: 4px 10px;
   font-size: 1rem;
   font-weight: normal;
-  border-radius: 99px;
   margin-top: 3px;
   cursor: default;
+  border-radius: 99px;
+  border-bottom-left-radius: 0;
 }
 
 div.dataTables_filter .filter-badge .close {
