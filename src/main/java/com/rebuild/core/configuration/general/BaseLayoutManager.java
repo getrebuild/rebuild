@@ -33,7 +33,7 @@ public class BaseLayoutManager extends ShareToManager {
     public static final String TYPE_FORM = "FORM";
     // 列表
     public static final String TYPE_DATALIST = "DATALIST";
-    // 列表-统计字段
+    // 列表-统计列
     public static final String TYPE_LISTSTATS = "LISTSTATS";
     // 列表-查询面板
     public static final String TYPE_LISTFILTERPANE = "LISTFILTERPANE";

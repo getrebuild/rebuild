@@ -1230,13 +1230,13 @@ class RbListPagination extends React.Component {
               RbModal.create(
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
                 <React.Fragment>
-                  {$L('配置统计字段')}
+                  {$L('配置统计列')}
                   <sup className="rbv" title={$L('增值功能')} />
                   <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
                 </React.Fragment>
               )
             }>
-            <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
+            <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}
       </div>

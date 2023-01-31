@@ -38,7 +38,12 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.service.trigger.RobotTriggerManual;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -47,7 +52,14 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -722,10 +734,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (state == ApprovalState.REVOKED) {
                     triggerManual.onRevoked(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 } else {
                     triggerManual.onApproved(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 }
             }
         }
@@ -734,11 +746,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
             triggerManual.onRevoked(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         } else {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
             triggerManual.onApproved(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         }
 
         // 手动记录历史
