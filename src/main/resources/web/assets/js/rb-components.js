@@ -277,18 +277,21 @@ class RbAlert extends React.Component {
   componentDidMount() {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
-      .on('hidden.bs.modal', () => {
+      .on('hidden.bs.modal', function () {
         $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
       })
+
+    // z-index
+    setTimeout(() => {
+      const mb = $('.modal-backdrop.show')
+      if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
+    }, 0)
   }
 
-  hide(forceHide) {
-    if (forceHide) {
-      $mp.end()
-      $(this._dlg).off('hide.bs.modal')
-    }
+  hide() {
+    $(this._dlg).off('hide.bs.modal') // force
     $(this._dlg).modal('hide')
   }
 
@@ -297,10 +300,15 @@ class RbAlert extends React.Component {
     // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
     this.setState({ disable: d }, () => {
       if (d && preventHide) {
-        $mp.start()
         $(this._dlg).find('.close').attr('disabled', true)
         $(this._dlg).on('hide.bs.modal', function () {
           return false
+        })
+      }
+      if (!d) {
+        $(this._dlg).find('.close').attr('disabled', false)
+        $(this._dlg).on('hide.bs.modal', function () {
+          return true
         })
       }
     })

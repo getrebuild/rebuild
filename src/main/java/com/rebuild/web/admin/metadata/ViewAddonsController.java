@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -80,31 +81,33 @@ public class ViewAddonsController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
-        List<String[]> refs = new ArrayList<>();
-        for (Field field : entityMeta.getReferenceToFields(true)) {
+        List<String[]> allRefs = new ArrayList<>();
+        for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             Entity e = field.getOwnEntity();
-            if (e.getMainEntity() != null) {
-                continue;
+            if (!MetadataHelper.isBusinessEntity(e)) continue;
+            if (e.equals(entityMeta.getDetailEntity())) continue;
+            // 新建项无明细、多引用
+            if (ViewAddonsManager.TYPE_ADD.equals(applyType)) {
+                if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;
             }
 
             String label = EasyMetaFactory.getLabel(e);
-            if (mfRefs.contains(e)) {
-                label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
-            }
-            refs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
+            if (mfRefs.contains(e)) label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
+
+            allRefs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
         }
 
         // 跟进（动态）
-        refs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
+        allRefs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
         // 任务（项目）
-        refs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
+        allRefs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
         // 附件
         if (ViewAddonsManager.TYPE_TAB.equals(applyType)) {
-            refs.add(new String[] { "Attachment.relatedRecord", Language.L("附件") });
+            allRefs.add(new String[] { "Attachment.relatedRecord", Language.L("附件") });
         }
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },
-                new Object[] { configJson, refs });
+                new Object[] { configJson, allRefs });
     }
 }

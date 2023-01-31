@@ -82,7 +82,6 @@ public class SignUpController extends BaseController {
         String content = Language.L("你的注册验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, title, content);
 
-
         log.warn(email + " >>>>> " + content);
         if (sentid != null) {
             return RespBody.ok();

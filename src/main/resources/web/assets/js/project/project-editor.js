@@ -183,7 +183,10 @@ class PlanList extends React.Component {
           if (res.error_code === 0) {
             that.loadPlans()
             RbHighbar.success($L('任务面板已删除'))
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
     })

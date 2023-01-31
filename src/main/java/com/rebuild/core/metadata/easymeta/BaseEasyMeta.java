@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import org.apache.commons.lang.StringUtils;
@@ -126,7 +127,8 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
      * @see com.rebuild.core.support.i18n.Language#L(BaseMeta)
      */
     public String getLabel() {
-        return Language.L(getRawMeta());
+        String l = Language.L(getRawMeta());
+        return CommonsUtils.escapeHtml(l);
     }
 
     /**

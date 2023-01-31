@@ -65,6 +65,13 @@ public class FilesHelper {
         }
         if (FILESIZES.containsKey(filePath)) {
             attach.setInt("fileSize", FILESIZES.remove(filePath));
+        } else {
+            Object[] db = Application.createQueryNoFilter("select fileSize from Attachment where filePath = ?")
+                    .setParameter(1, filePath)
+                    .unique();
+            if (db != null) {
+                attach.setInt("fileSize", (Integer) db[0]);
+            }
         }
         return attach;
     }

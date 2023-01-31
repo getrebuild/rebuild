@@ -24,6 +24,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
@@ -32,6 +33,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.time.LocalTime;
@@ -45,6 +47,8 @@ import java.util.*;
  */
 @Slf4j
 public class RecordCheckout {
+
+    private static final String MVAL_SPLIT = "[,，;；]";
 
     final private List<String> traceLogs = new ArrayList<>();
 
@@ -105,6 +109,7 @@ public class RecordCheckout {
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
         final DisplayType dt = EasyMetaFactory.getDisplayType(field);
+
         if (dt == DisplayType.NUMBER) {
             return cell.asLong();
         } else if (dt == DisplayType.DECIMAL) {
@@ -122,13 +127,15 @@ public class RecordCheckout {
         } else if (dt == DisplayType.N2NREFERENCE) {
             return checkoutN2NReferenceValue(field, cell);
         } else if (dt == DisplayType.BOOL) {
-            return cell.asBool();
+            return cell.asBool() || "是".equals(cell.asString()) || "Y".equalsIgnoreCase(cell.asString());
         } else if (dt == DisplayType.STATE) {
             return checkoutStateValue(field, cell);
         } else if (dt == DisplayType.MULTISELECT) {
             return checkoutMultiSelectValue(field, cell);
         } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
             return checkoutFileOrImage(cell);
+        } else if (dt == DisplayType.TAG) {
+            return checkoutTagValue(cell);
         }
 
         String text = cell.asString();
@@ -152,12 +159,12 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
-            ID iid = ID.valueOf(val);
-            if (PickListManager.instance.getLabel(iid) != null) {
-                return iid;
+        ID val2id = MetadataHelper.isSpecEntityId(val, EntityHelper.PickList);
+        if (val2id != null) {
+            if (PickListManager.instance.getLabel(val2id) != null) {
+                return val2id;
             } else {
-                log.warn("No item of PickList found by ID : " + iid);
+                log.warn("No item of PickList found by ID {}", val2id);
                 return null;
             }
         } else {
@@ -179,12 +186,12 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
-            ID cid = ID.valueOf(val);
-            if (ClassificationManager.instance.getName(cid) != null) {
-                return cid;
+        ID vla2id = MetadataHelper.isSpecEntityId(val, EntityHelper.ClassificationData);
+        if (vla2id != null) {
+            if (ClassificationManager.instance.getName(vla2id) != null) {
+                return vla2id;
             } else {
-                log.warn("No item of Classification found by ID : " + cid);
+                log.warn("No item of Classification found by ID : {}", vla2id);
                 return null;
             }
         } else {
@@ -196,15 +203,15 @@ public class RecordCheckout {
         final String val = cell.asString();
         final Entity refEntity = field.getReferenceEntity();
 
-        // 支持 ID
-        if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == refEntity.getEntityCode()) {
-            ID checkId = ID.valueOf(val);
-            Object exists = Application.getQueryFactory().uniqueNoFilter(checkId, refEntity.getPrimaryField().getName());
+        // 支持ID
+        ID vla2id = MetadataHelper.isSpecEntityId(val, refEntity.getEntityCode());
+        if (vla2id != null) {
+            Object exists = Application.getQueryFactory().uniqueNoFilter(vla2id, refEntity.getPrimaryField().getName());
             if (exists == null) {
-                log.warn("Reference ID `{}` not exists", checkId);
+                log.warn("Reference ID `{}` not exists", vla2id);
                 return null;
             } else {
-                return checkId;
+                return vla2id;
             }
         }
 
@@ -231,7 +238,7 @@ public class RecordCheckout {
                             refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
                 sql.append(String.format("%s = '%s' or ",
-                        qf, StringEscapeUtils.escapeSql((String) val2Text)));
+                        qf, StringEscapeUtils.escapeSql(val2Text.toString())));
             }
             sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 
@@ -246,7 +253,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         Set<ID> ids = new LinkedHashSet<>();
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             ID id = checkoutReferenceValue(field, new Cell(s, cell.getRowNo(), cell.getColumnNo()));
             if (id != null) ids.add(id);
         }
@@ -284,7 +291,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         long mVal = 0;
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
         }
         return mVal == 0 ? null : mVal;
@@ -294,10 +301,18 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         List<String> urls = new ArrayList<>();
-        for (String s : val.split("[,，;；]")) {
+        for (String s : val.split(MVAL_SPLIT)) {
             if (EasyUrl.isUrl(s)) urls.add(s);
         }
         return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
+    }
+
+    protected String[] checkoutTagValue(Cell cell) {
+        Set<String> mVal = new HashSet<>();
+        for (String s : cell.asString().split(MVAL_SPLIT)) {
+            if (StringUtils.isNotBlank(s)) mVal.add(s.trim());
+        }
+        return mVal.toArray(new String[0]);
     }
 
     /**

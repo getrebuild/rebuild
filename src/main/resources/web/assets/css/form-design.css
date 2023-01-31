@@ -11,6 +11,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .rb-right-sidebar.field-aside {
   width: 280px;
+}
+
+.page-aside,
+.field-aside {
   z-index: 1;
 }
 
@@ -85,8 +89,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu {
   padding: 6px 0;
   margin: 0;
-  width: 180px;
-  min-width: 180px;
+  width: 200px;
+  min-width: 200px;
   text-align: center;
   border-radius: 2px;
   font-size: 0;
@@ -94,16 +98,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a {
-  width: 17%;
+  width: 14%;
   display: inline-block;
   background-color: #eee;
   padding: 0;
   height: 18px;
   text-align: left;
+  border: 1px solid #fff;
 }
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a:hover {
   outline: 2px solid #4285f4;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a:hover::after {
+  background-color: #4285f4;
 }
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a::after {
@@ -132,6 +141,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='9']::after {
   width: 33.33%;
+}
+
+.dd-list .dd-item .dd-action a.colspan + .dropdown-menu > a[data-colspan='8']::after {
+  width: 66.66%;
 }
 
 .form-preview .dd-item,
@@ -166,6 +179,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .form-preview .dd-item.w-33 {
   width: 32.33% !important;
+}
+
+.form-preview .dd-item.w-66 {
+  width: 65.66% !important;
 }
 
 .form-preview .dd-item span.ft {

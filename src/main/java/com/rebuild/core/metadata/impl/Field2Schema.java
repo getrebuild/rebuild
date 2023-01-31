@@ -28,8 +28,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.support.License;
-import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
@@ -100,22 +98,6 @@ public class Field2Schema extends SetUser {
      * @return
      */
     public String createField(Entity entity, String fieldLabel, String fieldName, DisplayType type, String comments, String refEntity, JSON extConfig) {
-        if (!License.isCommercial()) {
-            if (entity.getFields().length >= 50) {
-                throw new NeedRbvException("字段数量超出免费版限制");
-            }
-
-            if (type == DisplayType.LOCATION || type == DisplayType.SIGN) {
-                Object[] limit = Application.createQueryNoFilter(
-                        "select count(fieldId) from MetaField where displayType = ?")
-                        .setParameter(1, type.name())
-                        .unique();
-                if (ObjectUtils.toInt(limit[0]) >= 1) {
-                    throw new NeedRbvException(type.getDisplayName() + "字段超出免费版限制");
-                }
-            }
-        }
-
         if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
 
         for (int i = 0; i < 6; i++) {

@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.svg', '.webp']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
 
@@ -323,7 +323,7 @@ class FileShare extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide="true">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide={true}>
         <div className="file-share">
           <label>{$L('分享链接')}</label>
           <div className="input-group input-group-sm">

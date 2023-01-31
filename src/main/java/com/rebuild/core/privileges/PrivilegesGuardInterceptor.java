@@ -210,7 +210,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         } else if (action == BizzPermission.UPDATE) {
             actionHuman = Language.L("编辑");
         } else if (action == BizzPermission.ASSIGN) {
-            actionHuman = Language.L("分派");
+            actionHuman = Language.L("分配");
         } else if (action == BizzPermission.SHARE) {
             actionHuman = Language.L("共享");
         } else if (action == EntityService.UNSHARE) {

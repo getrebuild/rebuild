@@ -9,9 +9,9 @@ package com.rebuild.web.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -30,6 +30,7 @@ import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -81,17 +82,19 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File file = null;
+        File file;
         try {
             file = new EasyExcelGenerator(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
+            log.error(null, ex);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    Language.L("无法输出报表，请检查报表模板是否有误") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    Language.L("无法输出报表，请检查报表模板是否有误"));
+            return;
         }
 
         RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String fileName = getReportName(entity, reportId, file);
+        String fileName = getReportName(entity, reportId, recordId, file);
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
@@ -127,15 +130,19 @@ public class ReportsController extends BaseController {
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
         queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
 
-        ID reportId = getIdParameter(request, "report");
+        // 导出格式
+        String reportType = getParameter(request, "report");
+        ID useReport = ID.isId(reportType) ? ID.valueOf(reportType) : null;
 
         try {
             DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
-            File file = exporter.export(reportId);
+            File output;
+            if (useReport != null) output = exporter.export(useReport);
+            else output = exporter.export(reportType);
 
-            String fileName = reportId != null ? getReportName(entity, reportId, file) : null;
+            String fileName = useReport == null ? null : getReportName(entity, useReport, null, output);
             if (fileName == null) {
-                fileName = String.format("%s-%s.csv",
+                fileName = String.format("%s-%s." + FileUtil.getSuffix(output),
                         EasyMetaFactory.getLabel(entity),
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
             }
@@ -144,7 +151,7 @@ public class ReportsController extends BaseController {
                     String.format("%s:%d", entity, exporter.getExportCount()));
 
             JSON data = JSONUtils.toJSONObject(
-                    new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
+                    new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
             return RespBody.ok(data);
 
         } catch (Exception ex) {
@@ -153,15 +160,24 @@ public class ReportsController extends BaseController {
         }
     }
 
-    private String getReportName(String entity, ID report, File file) {
+    private String getReportName(String entity, ID reportId, ID recordId, File file) {
+        String name = null;
+
         for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
-            if (cb.getID("id").equals(report)) {
-                return String.format("%s-%s.%s",
-                        cb.getString("name"),
-                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
-                        file.getName().endsWith(".xlsx") ? "xlsx" : "xls");
+            if (cb.getID("id").equals(reportId)) {
+                name = cb.getString("name");
+                if (recordId == null || ContentWithFieldVars.matchsVars(name).isEmpty()) {
+                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+                } else {
+                    name = ContentWithFieldVars.replaceWithRecord(name, recordId);
+                }
+
+                // suffix
+                name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
+                break;
             }
         }
-        return null;
+
+        return StringUtils.defaultIfBlank(name, "UNDEFINED");
     }
 }

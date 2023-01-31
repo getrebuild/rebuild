@@ -3,13 +3,6 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('视图配置')}]]</title>
-    <style>
-      .dd-item.star .dd3-content::after {
-        content: '*';
-        margin-left: 4px;
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body class="dialog">
     <div class="main-content">
@@ -29,15 +22,29 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <span th:if="${param.type[0] == 'TAB'}" class="float-left pt-1">
-          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-            <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
-            <span class="custom-control-label">[[${bundle.L('自动展开记录')}]]</span>
-          </label>
-          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
-            <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
-            <span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
-          </label>
+        <span th:if="${param.type[0] == 'TAB'}" class="float-left">
+          <div class="J_extoption">
+            <a class="btn btn-link btn-sm w-auto ml-0 pl-0 text-left down-2" data-toggle="dropdown">
+              <i class="icon mdi mdi-cog up-1"></i>
+              [[${bundle.L('更多选项')}]]
+            </a>
+            <div class="dropdown-menu border p-0">
+              <div class="m-3">
+                <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                  <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
+                  <span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
+                </label>
+                <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                  <input class="custom-control-input" type="checkbox" id="relatedDefaultList" />
+                  <span class="custom-control-label">[[${bundle.L('默认数据列表视图')}]]</span>
+                </label>
+                <label class="custom-control custom-control-sm custom-checkbox mb-0">
+                  <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
+                  <span class="custom-control-label">[[${bundle.L('自动展开记录')}]] ([[${bundle.L('卡片视图')}]])</span>
+                </label>
+              </div>
+            </div>
+          </div>
         </span>
         <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>

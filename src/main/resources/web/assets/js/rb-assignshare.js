@@ -6,12 +6,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
 
-// ~~ 分派
+// ~~ 分配
 class DlgAssign extends RbModalHandler {
   constructor(props) {
     super(props)
     this.onView = !!window.RbViewPage
-    this._Props = ['assign', $L('分派'), 'A']
+    this._Props = ['assign', $L('分配'), 'A']
   }
 
   render() {
@@ -22,7 +22,7 @@ class DlgAssign extends RbModalHandler {
             <div className="form-group row pb-0">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('%s哪些记录', this._Props[1])}</label>
               <div className="col-sm-7">
-                <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d 条', this.state.ids.length)})`}</div>
+                <div className="form-control-plaintext">{`${$L('选中的记录')} (${$L('%d 条', this.state.ids.length)})`}</div>
               </div>
             </div>
           )}
@@ -61,7 +61,7 @@ class DlgAssign extends RbModalHandler {
               <div className="col-sm-7">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
-                  <span className="custom-control-label">{$L('允许修改 (不勾选则仅共享读取权限)')}</span>
+                  <span className="custom-control-label">{$L('允许编辑 (不勾选则仅共享读取权限)')}</span>
                 </label>
               </div>
             </div>
@@ -185,7 +185,7 @@ class DlgUnshare extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('取消共享哪些记录')}</label>
             <div className="col-sm-7">
-              <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d 条', this.state.ids.length)})`}</div>
+              <div className="form-control-plaintext">{`${$L('选中的记录')} (${$L('%d 条', this.state.ids.length)})`}</div>
             </div>
           </div>
           <div className="form-group row pt-0 pb-0">

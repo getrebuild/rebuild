@@ -146,14 +146,17 @@ class TaskForm extends React.Component {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
-        this.disabled(true)
+        this.disabled(true, true)
         $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success($L('任务已删除'))
             __TaskViewer.refreshTask('DELETE')
             __TaskViewer.hide()
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
     })
@@ -955,7 +958,7 @@ class TaskCommentsList extends React.Component {
                   <div className="user">
                     <a className="user-show">
                       <div className="avatar">
-                        <img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} />
+                        <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
                       </div>
                     </a>
                   </div>
@@ -1108,7 +1111,7 @@ class RichTextEditor extends React.Component {
             <ul className="list-unstyled list-inline m-0 p-0">
               <li className="list-inline-item use-dropdown">
                 <a title={$L('表情')} data-toggle="dropdown">
-                  <i className="zmdi zmdi-mood" />
+                  <i className="mdi mdi-emoticon-excited-outline" />
                 </a>
                 <div className="dropdown-menu">
                   <div className="emoji-wrapper">{this.__es}</div>
@@ -1123,8 +1126,8 @@ class RichTextEditor extends React.Component {
                   multiple={false}
                   ref={(c) => (this._UserSelector = c)}
                   compToggle={
-                    <a title={'@' + $L('用户')} data-toggle="dropdown">
-                      <i className="zmdi at-text">@</i>
+                    <a title={`@${$L('用户')}`} data-toggle="dropdown" className="at-user pt-0">
+                      <i className="mdi mdi-at" />
                     </a>
                   }
                   targetInput={this._$editor}
@@ -1133,7 +1136,7 @@ class RichTextEditor extends React.Component {
               </li>
               <li className="list-inline-item">
                 <a title={$L('附件')} onClick={() => this._$fileInput.click()}>
-                  <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
+                  <i className="mdi mdi-attachment mdi-rotate-315" />
                 </a>
               </li>
             </ul>

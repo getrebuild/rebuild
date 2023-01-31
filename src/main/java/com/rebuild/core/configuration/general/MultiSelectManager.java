@@ -21,14 +21,13 @@ import java.util.List;
  * 多选字段
  *
  * @author ZHAO
- * @see PickListManager
  * @since 2019/9/27
  */
 public class MultiSelectManager extends PickListManager {
 
     public static final MultiSelectManager instance = new MultiSelectManager();
 
-    protected MultiSelectManager() {
+    private MultiSelectManager() {
     }
 
     /**

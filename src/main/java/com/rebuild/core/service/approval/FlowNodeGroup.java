@@ -74,7 +74,7 @@ public class FlowNodeGroup {
         }
 
         if (selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId, Boolean.TRUE));
         }
         return users;
     }
@@ -100,9 +100,24 @@ public class FlowNodeGroup {
 
         // 因为 CC 会合并，此处以第一个 CC 节点的设置为准
         if (firstNode != null && selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId, Boolean.TRUE));
         }
         return users;
+    }
+
+    /**
+     * @param recordId
+     * @return
+     */
+    public Set<String> getCcAccounts(ID recordId) {
+        Set<String> mobileOrEmails = new HashSet<>();
+        // 一般就一个，但不排除多个 CC 节点
+        for (FlowNode node : nodes) {
+            if (FlowNode.TYPE_CC.equals(node.getType())) {
+                mobileOrEmails.addAll(node.getCcAccounts(recordId));
+            }
+        }
+        return mobileOrEmails;
     }
 
     /**
@@ -120,7 +135,7 @@ public class FlowNodeGroup {
         }
 
         if (selectUsers != null) {
-            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId));
+            users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId, Boolean.TRUE));
         }
         return users;
     }
@@ -165,15 +180,7 @@ public class FlowNodeGroup {
         FlowNode node = getApprovalNode();
         return node == null ? FlowNode.SIGN_OR : node.getSignMode();
     }
-
-    /**
-     * @return
-     */
-    public boolean getRejectStep() {
-        FlowNode node = getApprovalNode();
-        return node == null ? Boolean.FALSE : node.getRejectStep();
-    }
-
+    
     /**
      * @return
      */

@@ -28,13 +28,15 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 解析已知的个性化过滤条件
@@ -116,12 +118,16 @@ public class ProtocolFilterParser {
         }
         // via OTHERS
         else if (refField != null) {
+            // format: Entity.Field
             String[] entityAndField = refField.split("\\.");
             Assert.isTrue(entityAndField.length == 2, "Bad `via` filter defined");
 
+            Field field = MetadataHelper.getField(entityAndField[0], entityAndField[1]);
+            String useOp = field.getType() == FieldType.REFERENCE ? ParseHelper.EQ : ParseHelper.IN;
+
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "field", "op", "value" },
-                    new Object[] { entityAndField[1], ParseHelper.EQ, anyId });
+                    new Object[] { entityAndField[1], useOp, anyId });
 
             filterExp = JSONUtils.toJSONObject("entity", entityAndField[0]);
             filterExp.put("items", Collections.singletonList(item));
@@ -224,30 +230,19 @@ public class ProtocolFilterParser {
     public String parseRelated(String relatedExpr, ID mainid) {
         // format: Entity.Field
         String[] ef = relatedExpr.split("\\.");
-        Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
-
-        Set<String> relatedFields = new HashSet<>();
-
-        if (ef.length > 1) {
-            relatedFields.add(ef[1]);
-        } else {
-            // v1.9 之前会把所有相关的查出来
-            Entity mainEntity = MetadataHelper.getEntity(mainid.getEntityCode());
-            for (Field field : relatedEntity.getFields()) {
-                if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
-                        && ArrayUtils.contains(field.getReferenceEntities(), mainEntity)) {
-                    relatedFields.add(field.getName());
-                }
-            }
+        if (ef.length < 2) {
+            log.warn("Incompatible config : {}", relatedExpr);
+            return "(1=2)";
         }
 
-        if (relatedFields.isEmpty()) {
-            log.warn("No fields of related found : {}", relatedExpr);
-            return null;
-        }
+        String where = String.format("%s = '%s'", ef[1], mainid);
 
-        String where = MessageFormat.format(
-                "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')", mainid);
+        Field relatedField = MetadataHelper.getField(ef[0], ef[1]);
+        if (relatedField.getType() == FieldType.REFERENCE_LIST) {
+            where = String.format(
+                    "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                    relatedField.getOwnEntity().getPrimaryField().getName(), relatedField.getName(), mainid);
+        }
 
         // 附件过滤条件
 

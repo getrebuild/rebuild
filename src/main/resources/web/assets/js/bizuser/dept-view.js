@@ -12,14 +12,15 @@ RbForm.postAfter = function (data, next) {
   if (parent && parent.loadDeptTree) parent.loadDeptTree()
 }
 
-const deleteDept = function (alert) {
-  alert && alert.disabled(true)
+const deleteDept = function (_alert) {
+  _alert && _alert.disabled(true)
   $.post(`/admin/bizuser/dept-delete?transfer=&id=${dept_id}`, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'
       parent.location.reload()
     } else {
       RbHighbar.error(res.error_msg)
+      _alert && _alert.disabled()
     }
   })
 }

@@ -116,7 +116,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 分派权限
+     * 分配权限
      *
      * @param user
      * @param entity
@@ -171,7 +171,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 分派权限
+     * 分配权限
      *
      * @param user
      * @param target
@@ -232,13 +232,13 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
-        if (MetadataHelper.getEntity(entity).getMainEntity() != null) {
+        if (MetadataHelper.getEntityType(entity) == MetadataHelper.TYPE_DETAIL) {
             // 明细实体不能使用此方法检查创建权限
             // 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
             if (action == BizzPermission.CREATE) {
                 throw new PrivilegesException("Unsupported checks detail-entity : " + entity);
             }
-            // 明细无分派/共享
+            // 明细无分配/共享
             else if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
                 return false;
             }
@@ -304,7 +304,7 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
-        // 明细无 分派/共享
+        // 明细无 分配/共享
         if (entity.getMainEntity() != null) {
             if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
                 return false;
@@ -431,12 +431,12 @@ public class PrivilegesManager {
     /**
      * 获取真实的权限实体。如明细的权限依赖主实体
      *
-     * @param entity
+     * @param entityCode
      * @return
      */
-    private int convert2MainEntity(int entity) {
-        Entity em = MetadataHelper.getEntity(entity);
-        return em.getMainEntity() == null ? entity : em.getMainEntity().getEntityCode();
+    private int convert2MainEntity(int entityCode) {
+        Entity em = MetadataHelper.getEntity(entityCode);
+        return em.getMainEntity() == null ? entityCode : em.getMainEntity().getEntityCode();
     }
 
     /**

@@ -39,8 +39,15 @@ import java.util.*;
 public class MetadataHelper {
 
     // 通用分隔符
-    public static final String SPLITER = "$$$$";
-    public static final String SPLITER_RE = "\\$\\$\\$\\$";
+    public static final String SPLITER = CommonsUtils.COMM_SPLITER;
+    public static final String SPLITER_RE = CommonsUtils.COMM_SPLITER_RE;
+
+    // 实体类型 https://getrebuild.com/docs/admin/meta-entity#%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B
+    public static final int TYPE_BAD = -1;
+    public static final int TYPE_SYS = 0;
+    public static final int TYPE_NORMAL = 1;
+    public static final int TYPE_MAIN = 2;
+    public static final int TYPE_DETAIL = 3;
 
     /**
      * 元数据工厂
@@ -125,11 +132,11 @@ public class MetadataHelper {
     }
 
     /**
-     * @param record
+     * @param recordId
      * @return
      */
-    public static String getEntityName(ID record) {
-        return getEntity(record.getEntityCode()).getName();
+    public static String getEntityName(ID recordId) {
+        return getEntity(recordId.getEntityCode()).getName();
     }
 
     /**
@@ -150,17 +157,17 @@ public class MetadataHelper {
     /**
      * <tt>reference</tt> 的哪些字段引用了 <tt>source</tt>
      *
-     * @param source
-     * @param reference
+     * @param sourceEntity
+     * @param referenceEntity
      * @param includeN2N 包括多引用
      * @return
      */
-    public static Field[] getReferenceToFields(Entity source, Entity reference, boolean includeN2N) {
+    public static Field[] getReferenceToFields(Entity sourceEntity, Entity referenceEntity, boolean includeN2N) {
         List<Field> fields = new ArrayList<>();
-        for (Field field : reference.getFields()) {
+        for (Field field : referenceEntity.getFields()) {
             boolean isRef = field.getType() == FieldType.REFERENCE
                     || (includeN2N && field.getType() == FieldType.REFERENCE_LIST);
-            if (isRef && field.getReferenceEntity().equals(source)) {
+            if (isRef && field.getReferenceEntity().equals(sourceEntity)) {
                 fields.add(field);
             }
         }
@@ -168,27 +175,27 @@ public class MetadataHelper {
     }
 
     /**
-     * @param source
-     * @param reference
+     * @param sourceEntity
+     * @param referenceEntity
      * @return
      * @see #getReferenceToFields(Entity, Entity, boolean)
      */
-    public static Field[] getReferenceToFields(Entity source, Entity reference) {
-        return getReferenceToFields(source, reference, Boolean.FALSE);
+    public static Field[] getReferenceToFields(Entity sourceEntity, Entity referenceEntity) {
+        return getReferenceToFields(sourceEntity, referenceEntity, Boolean.FALSE);
     }
 
     /**
      * 哪些字段引用了 <tt>source</tt>
      *
-     * @param source
+     * @param sourceEntity
      * @param includeN2N
      * @return
      * @see #getReferenceToFields(Entity, Entity, boolean)
      */
-    public static Field[] getReferenceToFields(Entity source, boolean includeN2N) {
+    public static Field[] getReferenceToFields(Entity sourceEntity, boolean includeN2N) {
         List<Field> fields = new ArrayList<>();
         for (Entity entity : getEntities()) {
-            CollectionUtils.addAll(fields, getReferenceToFields(source, entity, includeN2N));
+            CollectionUtils.addAll(fields, getReferenceToFields(sourceEntity, entity, includeN2N));
         }
         return fields.toArray(new Field[0]);
     }
@@ -257,6 +264,7 @@ public class MetadataHelper {
                 || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalLastTime.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastRemark.equalsIgnoreCase(fieldName);
     }
 
@@ -317,17 +325,17 @@ public class MetadataHelper {
     /**
      * 获取明细实体哪个字段引用自主实体
      *
-     * @param detail
+     * @param detailEntity
      * @return
      */
-    public static Field getDetailToMainField(Entity detail) {
-        Entity main = detail.getMainEntity();
+    public static Field getDetailToMainField(Entity detailEntity) {
+        Entity main = detailEntity.getMainEntity();
         Assert.isTrue(main != null, "None detail-entity");
 
         String mainForeign = main.getName() + "Id";
-        if (detail.containsField(mainForeign)) return detail.getField(mainForeign);
+        if (detailEntity.containsField(mainForeign)) return detailEntity.getField(mainForeign);
 
-        for (Field field : detail.getFields()) {
+        for (Field field : detailEntity.getFields()) {
             if (field.getType() != FieldType.REFERENCE) continue;
 
             // 不可建的那个才是，因为明细字段也可能引用主实体
@@ -394,9 +402,7 @@ public class MetadataHelper {
      * @return
      */
     public static boolean checkAndWarnField(String entityName, String fieldName) {
-        if (!containsEntity(entityName)) {
-            return false;
-        }
+        if (!containsEntity(entityName)) return false;
         return checkAndWarnField(getEntity(entityName), fieldName);
     }
 
@@ -415,5 +421,36 @@ public class MetadataHelper {
             }
         }
         return set;
+    }
+
+    /**
+     * @param entityCode
+     * @return
+     */
+    public static int getEntityType(int entityCode) {
+        if (containsEntity(entityCode)) return getEntityType(getEntity(entityCode));
+        return TYPE_BAD;
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    public static int getEntityType(Entity entity) {
+        if (entity.getMainEntity() != null) return TYPE_DETAIL;
+        if (entity.getDetailEntity() != null) return TYPE_MAIN;
+        if (hasPrivilegesField(entity)) return TYPE_NORMAL;
+        return TYPE_SYS;
+    }
+
+    /**
+     * @param text
+     * @param entityCode
+     * @return
+     */
+    public static ID isSpecEntityId(String text, int entityCode) {
+        if (!ID.isId(text)) return null;
+        ID id = ID.valueOf(text);
+        return id.getEntityCode() == entityCode ? id : null;
     }
 }

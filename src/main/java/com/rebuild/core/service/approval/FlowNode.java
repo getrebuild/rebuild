@@ -7,12 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.utils.JSONUtils;
@@ -117,24 +120,32 @@ public class FlowNode {
      * @return
      */
     public boolean allowSelfSelecting() {
-        if (getDataMap().containsKey("selfSelecting")) {
-            return getDataMap().getBooleanValue("selfSelecting");
-        } else {
-            // 默认允许
-            return true;
-        }
+        Boolean b = getDataMap().getBoolean("selfSelecting");
+        return b == null || b;
     }
 
     /**
      * @return
      */
     public boolean allowCcAutoShare() {
-        if (getDataMap().containsKey("ccAutoShare")) {
-            return getDataMap().getBooleanValue("ccAutoShare");
-        } else {
-            // 默认允许
-            return true;
-        }
+        Boolean b = getDataMap().getBoolean("ccAutoShare");
+        return b != null && b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowReferral() {
+        Boolean b = getDataMap().getBoolean("allowReferral");
+        return b != null && b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowCountersign() {
+        Boolean b = getDataMap().getBoolean("allowCountersign");
+        return b != null && b;
     }
 
     /**
@@ -146,9 +157,7 @@ public class FlowNode {
      */
     public Set<ID> getSpecUsers(ID operator, ID record) {
         JSONArray userDefs = getDataMap().getJSONArray("users");
-        if (userDefs == null || userDefs.isEmpty()) {
-            return Collections.emptySet();
-        }
+        if (userDefs == null || userDefs.isEmpty()) return Collections.emptySet();
 
         String userType = userDefs.getString(0);
         if (USER_SELF.equalsIgnoreCase(userType)) {
@@ -214,6 +223,38 @@ public class FlowNode {
         users.removeIf(id -> !UserHelper.isActive(id));
 
         return users;
+    }
+
+    /**
+     * 获取外部抄送人（手机或邮箱）
+     *
+     * @param record
+     * @return
+     */
+    public Set<String> getCcAccounts(ID record) {
+        JSONArray accountFields = getDataMap().getJSONArray("accounts");
+        if (accountFields == null || accountFields.isEmpty()) return Collections.emptySet();
+
+        Entity useEntity = MetadataHelper.getEntity(record.getEntityCode());
+        List<String> useFields = new ArrayList<>();
+
+        for (Object o : accountFields) {
+            if (MetadataHelper.getLastJoinField(useEntity, (String) o) != null) {
+                useFields.add((String) o);
+            }
+        }
+        if (useFields.isEmpty()) return Collections.emptySet();
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(record, useFields.toArray(new String[0]));
+        if (o == null) return Collections.emptySet();
+
+        Set<String> mobileOrEmail = new HashSet<>();
+        for (Object me : o) {
+            if (RegexUtils.isCNMobile((String) me) || RegexUtils.isEMail((String) me)) {
+                mobileOrEmail.add((String) me);
+            }
+        }
+        return mobileOrEmail;
     }
 
     @Override

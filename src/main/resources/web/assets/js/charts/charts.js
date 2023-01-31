@@ -19,7 +19,7 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+          <a className="J_view-source" title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
@@ -63,8 +63,8 @@ class BaseChart extends React.Component {
     if (this._echarts) this._echarts.dispose()
   }
 
-  loadChartData() {
-    this.setState({ chartdata: null })
+  loadChartData(notClear) {
+    if (notClear !== true) this.setState({ chartdata: null })
     $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
       if (this._echarts) this._echarts.dispose()
 
@@ -119,8 +119,8 @@ class BaseChart extends React.Component {
     })
   }
 
-  renderError(msg) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> })
+  renderError(msg, cb) {
+    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> }, cb)
   }
 
   renderChart(data) {
@@ -174,7 +174,7 @@ class ChartIndex extends BaseChart {
   }
 }
 
-// 表格
+// 统计表
 class ChartTable extends BaseChart {
   renderChart(data) {
     if (!data.html) {
@@ -188,7 +188,6 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    let colLast = null
     this.setState({ chartdata: chartdata }, () => {
       const $tb = $(this._$body)
       $tb
@@ -196,14 +195,15 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      const $cols = $tb.find('tbody td').on('mousedown', function () {
-        if (colLast === this) {
-          $(this).toggleClass('active')
+      let tdActive = null
+      const $els = $tb.find('tbody td').on('mousedown', function () {
+        if (tdActive === this) {
+          $(this).toggleClass('highlight')
           return
         }
-        colLast = this
-        $cols.removeClass('active')
-        $(this).addClass('active')
+        tdActive = this
+        $els.removeClass('highlight')
+        $(this).addClass('highlight')
       })
 
       if (window.render_preview_chart) {
@@ -211,7 +211,7 @@ class ChartTable extends BaseChart {
       } else {
         $tb.find('tbody td>a').each(function () {
           const $a = $(this)
-          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}` })
+          $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
         })
       }
 
@@ -832,6 +832,7 @@ class FeedsSchedule extends BaseChart {
             that.loadChartData()
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },
@@ -1115,6 +1116,427 @@ class ProjectTasks extends BaseChart {
   }
 }
 
+// ~~ 通用数据列表
+class DataList extends BaseChart {
+  componentDidMount() {
+    super.componentDidMount()
+
+    const $op = $(this._$box).find('.chart-oper')
+    $op.find('.J_chart-edit').on('click', (e) => {
+      $stopEvent(e, true)
+
+      const config2 = this.state.config
+      renderRbcomp(
+        <DataListSettings
+          chart={config2.chart}
+          {...config2.extconfig}
+          onConfirm={(s) => {
+            if (typeof window.save_dashboard === 'function') {
+              config2.extconfig = s
+              this.setState({ config: config2 }, () => this.loadChartData())
+            } else {
+              console.log('No `save_dashboard` found :', s)
+            }
+          }}
+        />
+      )
+    })
+  }
+
+  renderChart(data) {
+    if (data.error === 'UNSET') {
+      super.renderError(
+        <RF>
+          <span>{$L('当前图表无数据')}</span>
+          {this.props.isManageable && <div>{WrapHtml($L('请先 [编辑图表](###)'))}</div>}
+        </RF>,
+        () => {
+          $(this._$body)
+            .find('a')
+            .on('click', (e) => {
+              $stopEvent(e, true)
+              $(this._$box).find('.chart-oper .J_chart-edit').trigger('click')
+            })
+        }
+      )
+      return
+    }
+
+    const extconfig = this.state.config.extconfig
+    extconfig && this.setState({ title: extconfig.title || $L('数据列表') })
+
+    const listFields = data.fields
+    const listData = data.data
+    const lastIndex = listFields.length
+
+    const table = (
+      <RF>
+        <table className="table table-hover">
+          <thead>
+            <tr ref={(c) => (this._$head = c)}>
+              {listFields.map((item) => {
+                let sortClazz = null
+                if (extconfig && extconfig.sort) {
+                  const s = extconfig.sort.split(':')
+                  if (s[0] === item.field && s[1] === 'asc') sortClazz = 'sort-asc'
+                  if (s[0] === item.field && s[1] === 'desc') sortClazz = 'sort-desc'
+                }
+
+                return (
+                  <th
+                    key={item.field}
+                    data-field={item.field}
+                    className={sortClazz}
+                    onClick={(e) => {
+                      // eslint-disable-next-line no-undef
+                      if (COLUMN_UNSORT.includes(item.type)) return
+
+                      const $th = $(e.target)
+                      const hasAsc = $th.hasClass('sort-asc'),
+                        hasDesc = $th.hasClass('sort-desc')
+
+                      $(this._$head).find('th').removeClass('sort-asc sort-desc')
+                      if (hasDesc) $th.addClass('sort-asc')
+                      else if (hasAsc) $th.addClass('sort-desc')
+                      else $th.addClass('sort-asc')
+
+                      // refresh
+                      const config2 = this.state.config
+                      config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
+                      this.setState({ config: config2 }, () => this.loadChartData(true))
+                    }}>
+                    {item.label}
+                  </th>
+                )
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {listData.map((row) => {
+              const lastCell = row[lastIndex]
+              const rkey = `tr-${lastCell.id}`
+              return (
+                <tr
+                  key={rkey}
+                  data-id={lastCell.id}
+                  onDoubleClick={(e) => {
+                    $stopEvent(e, true)
+                    window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
+                  }}>
+                  {row.map((c, idx) => {
+                    if (idx === lastIndex) return null // Last is ID
+                    return this.renderCell(c, listFields[idx])
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        {listData.length === 0 && <div className="chart-undata must-center">{$L('暂无数据')}</div>}
+      </RF>
+    )
+
+    this.setState({ chartdata: <div className="chart ctable">{table}</div> }, () => {
+      this._$tb = $(this._$body)
+      this._$tb
+        .find('.ctable')
+        .css('height', this._$tb.height() - 20)
+        .perfectScrollbar()
+
+      let trActive
+      const $els = this._$tb.find('tbody tr').on('mousedown', function () {
+        if (trActive === this) {
+          $(this).toggleClass('highlight')
+          return
+        }
+        trActive = this
+        $els.removeClass('highlight')
+        $(this).addClass('highlight')
+      })
+    })
+  }
+
+  renderCell(cellVal, field) {
+    const c = CellRenders.render(cellVal, field.type, 'auto', `cell-${field.field}`)
+    return c
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        if (this._$tb) this._$tb.find('.ctable').css('height', this._$tb.height() - 20)
+      },
+      400,
+      `resize-chart-${this.state.id}`
+    )
+  }
+}
+
+// ~~ 数据列表配置
+class DataListSettings extends RbModalHandler {
+  render() {
+    const state = this.state || {}
+    const filterLen = state.filterData ? (state.filterData.items || []).length : 0
+
+    return (
+      <RbModal title={$L('设置数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {(state.entities || []).map((item) => {
+                  return (
+                    <option key={item.name} value={item.name}>
+                      {item.entityLabel}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+          <div className="form-group row pb-0 DataList-showfields">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示字段')}</label>
+            <div className="col-sm-7">
+              <div className="sortable-box rb-scroller h200" ref={(c) => (this._$showfields = c)}>
+                <ol className="dd-list" _title={$L('无')}></ol>
+              </div>
+              <div>
+                <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
+                  <option value=""></option>
+                  {(state.fields || []).map((item) => {
+                    return (
+                      <option key={item.name} value={item.name}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row pb-1">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('附加过滤条件')}</label>
+            <div className="col-sm-7">
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this._showFilter()}>
+                {filterLen > 0 ? $L('已设置条件') + ` (${filterLen})` : $L('点击设置')}
+              </a>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('最大显示条数')}</label>
+            <div className="col-sm-7">
+              <input type="number" className="form-control form-control-sm" placeholder="20" ref={(c) => (this._$pageSize = c)} />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表名称')}</label>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" placeholder={$L('数据列表')} ref={(c) => (this._$chartTitle = c)} />
+            </div>
+          </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pb-2 pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$shareChart = c)} />
+                  <span className="custom-control-label">
+                    {$L('共享此图表')}
+                    <i className="zmdi zmdi-help zicon" title={$L('共享后其他用户也可以使用 (不能修改)')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
+
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+              <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+                {$L('保存')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    let $showfields = $(this._$showfields).perfectScrollbar()
+    $showfields = $showfields
+      .find('ol')
+      .sortable({
+        placeholder: 'dd-placeholder',
+        handle: '.dd3-handle',
+        axis: 'y',
+      })
+      .disableSelection()
+
+    const that = this
+    const props = this.props
+
+    let $field
+    function _loadFields() {
+      if (!that._entity) {
+        $(that._$field).select2({
+          placeholder: $L('无可用字段'),
+        })
+        return
+      }
+
+      $.get(`/commons/metadata/fields?entity=${that._entity}&deep=2`, (res) => {
+        // clear last
+        if ($field) {
+          $(that._$field).select2('destroy')
+          $showfields.empty()
+          that.setState({ filterData: null })
+        }
+
+        that._fields = res.data || []
+        that.setState({ fields: that._fields }, () => {
+          $field = $(that._$field)
+            .select2({
+              placeholder: $L('添加显示字段'),
+              allowClear: false,
+            })
+            .val('')
+            .on('change', (e) => {
+              let name = e.target.value
+              $showfields.find('li').each(function () {
+                if ($(this).data('key') === name) {
+                  name = null
+                }
+              })
+
+              const x = name ? that._fields.find((x) => x.name === name) : null
+              if (!x) return
+
+              const $item = $(
+                `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
+              ).appendTo($showfields)
+
+              // eslint-disable-next-line no-undef
+              if (!COLUMN_UNSORT.includes(x.type)) {
+                $(`<a title="${$L('默认排序')}"><i class="zmdi mdi mdi-sort-alphabetical-ascending sort"></i></a>`)
+                  .appendTo($item.find('.dd3-action'))
+                  .on('click', () => {
+                    const hasActive = $item.hasClass('active')
+                    $showfields.find('.dd-item').removeClass('active')
+                    $item.addClass('active')
+                    if (hasActive) $item.find('.sort').toggleClass('desc')
+                  })
+
+                // init
+                if (props.entity === that._entity && props.sort) {
+                  const s = props.sort.split(':')
+                  if (s[0] === name) {
+                    $item.addClass('active')
+                    if (s[1] === 'desc') $item.find('.sort').toggleClass('desc')
+                  }
+                }
+              }
+
+              $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
+                .appendTo($item.find('.dd3-action'))
+                .on('click', () => $item.remove())
+            })
+
+          // init
+          if (props.entity === that._entity && props.fields) {
+            props.fields.forEach((name) => {
+              $field.val(name).trigger('change')
+            })
+            $field.val('').trigger('change')
+          }
+        })
+      })
+    }
+
+    $.get('/commons/metadata/entities?detail=yes', (res) => {
+      this.setState({ entities: res.data || [] }, () => {
+        const $s = $(this._$entity).select2({
+          allowClear: false,
+        })
+
+        if (props.entity && props.entity !== 'User') $s.val(props.entity || null)
+        $s.on('change', (e) => {
+          this._entity = e.target.value
+          _loadFields()
+        }).trigger('change')
+      })
+    })
+
+    // init
+    $(this._$pageSize).val(props.pageSize || null)
+    $(this._$chartTitle).val(props.title || null)
+    if (props.filter) this.setState({ filterData: props.filter })
+    if ((props.option || {}).shareChart) $(this._$shareChart).attr('checked', true)
+  }
+
+  _showFilter() {
+    renderRbcomp(
+      <AdvFilter
+        entity={this._entity}
+        filter={this.state.filterData || null}
+        title={$L('附加过滤条件')}
+        inModal
+        canNoFilters
+        onConfirm={(s) => {
+          this.setState({ filterData: s })
+        }}
+      />
+    )
+  }
+
+  handleConfirm() {
+    const fields = []
+    let sort = null
+    $(this._$showfields)
+      .find('li')
+      .each(function () {
+        const $this = $(this)
+        fields.push($this.data('key'))
+
+        if ($this.hasClass('active')) {
+          sort = $this.data('key') + `:${$this.find('.desc')[0] ? 'desc' : 'asc'}`
+        }
+      })
+
+    const post = {
+      type: 'DataList',
+      entity: $(this._$entity).val(),
+      title: $(this._$chartTitle).val() || $L('数据列表'),
+      option: {
+        shareChart: $val(this._$shareChart) && rb.isAdminUser,
+      },
+      fields: fields,
+      pageSize: $(this._$pageSize).val(),
+      filter: this.state.filterData || null,
+      sort: sort,
+    }
+
+    if (!post.entity) return RbHighbar.create($L('请选择图表数据来源'))
+    if (post.fields.length === 0) return RbHighbar.create($L('请添加显示字段'))
+    if (post.pageSize && post.pageSize > 500) post.pageSize = 500
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(`/dashboard/builtin-chart-save?id=${this.props.chart}`, JSON.stringify(post), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        typeof this.props.onConfirm === 'function' && this.props.onConfirm(post)
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -1146,6 +1568,8 @@ const detectChart = function (cfg, id) {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin={true} />
+  } else if (cfg.type === 'DataList') {
+    return <DataList {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
@@ -1161,6 +1585,8 @@ class ChartSelect extends RbModalHandler {
   }
 
   render() {
+    const chartList = this.state.chartList || []
+
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')}>
         <div className="row chart-select-wrap">
@@ -1184,12 +1610,12 @@ class ChartSelect extends RbModalHandler {
           </div>
           <div className="col-9 pl-0">
             <div className="chart-list">
-              {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
-              {(this.state.chartList || []).map((item) => {
+              {chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
+              {chartList.map((item) => {
                 return (
-                  <div key={`chart-${item.id}`}>
+                  <div key={item.id}>
                     <span className="float-left chart-icon">
-                      <i className={item.type} />
+                      <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
                     </span>
                     <span className="float-left title">
                       <strong>{item.title}</strong>
@@ -1224,9 +1650,8 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount = () => this.__loadCharts()
-
-  __loadCharts() {
+  componentDidMount = () => this._loadCharts()
+  _loadCharts() {
     $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })
     })
@@ -1247,10 +1672,12 @@ class ChartSelect extends RbModalHandler {
       confirm: function () {
         this.disabled(true)
         $.post(`/dashboard/chart-delete?id=${id}`, (res) => {
-          if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else {
-            that.__loadCharts()
+          if (res.error_code === 0) {
             this.hide()
+            that._loadCharts()
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },
@@ -1258,8 +1685,8 @@ class ChartSelect extends RbModalHandler {
   }
 
   switchTab = (e) => {
-    e.preventDefault()
-    const t = $(e.target).attr('href')
-    this.setState({ tabActive: t }, () => this.__loadCharts())
+    $stopEvent(e, true)
+    const h = $(e.target).attr('href')
+    this.setState({ tabActive: h }, () => this._loadCharts())
   }
 }

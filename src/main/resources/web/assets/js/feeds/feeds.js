@@ -112,6 +112,12 @@ const execFilter = function () {
 
 $(document).ready(function () {
   const gs = $urlp('gs', location.hash)
+  if (gs) {
+    // eslint-disable-next-line no-undef
+    _showGlobalSearch(gs)
+    $('.J_search-key').val($decode(gs))
+  }
+
   if (gs) $('.search-input-gs, .J_search-key').val($decode(gs))
 
   renderRbcomp(<RbFeeds />, 'rb-feeds', function () {

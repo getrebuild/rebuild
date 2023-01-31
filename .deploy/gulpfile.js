@@ -17,10 +17,12 @@ const revHash = require('rev-hash')
 const replace = require('gulp-replace')
 const filter = require('gulp-filter')
 
+// https://babeljs.io/docs/en/options#primary-options
 const BABEL_OPTIONS = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-class-properties'],
   minified: true,
+  comments: false,
 }
 
 const WEB_ROOT = '../src/main/resources/web'
@@ -60,7 +62,7 @@ function _useAssetsHex(file) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
       } catch (err1) {
-        if (file.includes('frontjs-sdk.js')) console.log('No `@rbv` exists :', file)
+        if (file.includes('frontjs-sdk.js') || file.includes('syscfg-sync.js') || file.includes('rb-filterpane.js')) console.log('No `@rbv` exists :', file)
         else console.log('Cannot #revHash :', file, err1)
 
         // Use date

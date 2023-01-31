@@ -39,7 +39,7 @@ public class BulkOperatorTest extends TestSupport {
         // 测试记录
         ID recordNew = addRecordOfTestAllFields(SIMPLE_USER);
 
-        // 分派
+        // 分配
         BulkContext contextOfAssign = new BulkContext(
                 UserService.ADMIN_USER, BizzPermission.ASSIGN, SIMPLE_USER, null, new ID[]{recordNew});
         Application.getGeneralEntityService().bulk(contextOfAssign);

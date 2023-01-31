@@ -15,7 +15,7 @@ let refresh_timer = null
 let on_resizestart = false
 let rendered_charts = []
 
-$(document).ready(function () {
+$(document).ready(() => {
   const d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
 
@@ -32,23 +32,23 @@ $(document).ready(function () {
       return
     }
 
-    let d = dash_list[0] // default
+    let use = dash_list[0] // default
     if (dash_list.length > 1) {
-      const dset = $storage.get('DashDefault')
+      const dset = $.cookie('AppHome.Dash') || $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
           if (res.data[i][0] === dset) {
-            d = res.data[i]
+            use = res.data[i]
             break
           }
         }
       }
     }
 
-    dashid = d[0]
-    dash_editable = d[2]
-    render_dashboard(d[3])
-    $('.dash-list h4').text(d[4])
+    dashid = use[0]
+    dash_editable = use[2]
+    render_dashboard(use[3])
+    $('.dash-list h4').text(use[4])
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
@@ -71,7 +71,7 @@ $(document).ready(function () {
     }
 
     $('.J_dash-new').on('click', () => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
+    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: use[4], shareTo: use[1] }))
     $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
     $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
 
@@ -105,15 +105,33 @@ $(document).ready(function () {
         return
       }
 
-      const _select = function (chart) {
-        chart.w = chart.h = 4
-        add_widget(chart)
-      }
-      // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ChartSelect key="ChartSelect" select={_select} />, null, function () {
-        dlgChartSelect = this
-        this.setState({ appended: appended })
-      })
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ChartSelect
+          select={(c) => {
+            c.w = c.h = 4
+            if (c.id === '017-9000000000000004') {
+              const init = {
+                entity: 'User',
+                type: 'DataList',
+                title: $L('数据列表'),
+              }
+              $.post(`/dashboard/builtin-chart-save?source=${c.id}`, JSON.stringify(init), (res) => {
+                c.id = c.chart = res.data
+                c.isManageable = true
+                add_widget(c)
+              })
+            } else {
+              add_widget(c)
+            }
+          }}
+        />,
+        null,
+        function () {
+          dlgChartSelect = this
+          this.setState({ appended: appended })
+        }
+      )
     })
   })
 
@@ -126,7 +144,6 @@ $(document).ready(function () {
 
   $addResizeHandler(() => {
     if (on_resizestart === true) return
-    console.log('Resize dashboard ...')
 
     rendered_charts.forEach((x) => x.resize())
     // eslint-disable-next-line no-undef
@@ -201,7 +218,8 @@ const render_dashboard = function (init) {
     .data('gridstack')
 
   gridstack_serialize = init
-  $(init).each((idx, item) => add_widget(item))
+  init.forEach((item) => add_widget(item))
+
   if (rendered_charts.length === 0) {
     const gsi = `<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a></div></div>`
     const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
@@ -214,13 +232,13 @@ const render_dashboard = function (init) {
 
   // When resize/re-postion/remove
   $('.grid-stack')
-    .on('change', function () {
+    .on('change', () => {
       $setTimeout(save_dashboard, 500, 'save_dashboard')
     })
-    .on('resizestart', function () {
+    .on('resizestart', () => {
       on_resizestart = true
     })
-    .on('gsresizestop', function () {
+    .on('gsresizestop', () => {
       $(rendered_charts).each((idx, item) => item.resize())
       on_resizestart = false
     })
@@ -255,6 +273,7 @@ const add_widget = function (item) {
 
 const save_dashboard = function () {
   if (dash_editable !== true) return
+
   const s = []
   $('.chart-grid .grid-stack-item').each(function () {
     const $this = $(this)
@@ -269,6 +288,7 @@ const save_dashboard = function () {
       })
     }
   })
+
   gridstack_serialize = s
   $setTimeout(
     () => {
@@ -283,10 +303,6 @@ const save_dashboard = function () {
 
 // 添加图表
 class DlgAddChart extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal title={$L('添加图表')} ref="dlg">
@@ -334,10 +350,6 @@ class DlgAddChart extends RbFormHandler {
 
 // 仪表盘设置
 class DlgDashSettings extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal title={$L('设置')} ref="dlg">
@@ -414,10 +426,6 @@ class DlgDashSettings extends RbFormHandler {
 
 // 添加仪表盘
 class DlgDashAdd extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal title={$L('添加仪表盘')} ref="dlg">
@@ -468,10 +476,6 @@ class DlgDashAdd extends RbFormHandler {
 
 // 选择默认仪表盘
 class DashSelect extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
@@ -487,8 +491,8 @@ class DashSelect extends React.Component {
                 <ul className="list-unstyled">
                   {(this.props.dashList || []).map((item) => {
                     return (
-                      <li key={'dash-' + item[0]}>
-                        <a href={'?d=' + item[0]}>
+                      <li key={item[0]}>
+                        <a href={`?d=${item[0]}`}>
                           {item[4]}
                           <i className="icon zmdi zmdi-arrow-right" />
                         </a>

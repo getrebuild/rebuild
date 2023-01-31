@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,11 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class CommonsUtils {
+
+    // 通用分隔符
+    public static final String COMM_SPLITER = "$$$$";
+    // 通用分隔符 REGEX
+    public static final String COMM_SPLITER_RE = "\\$\\$\\$\\$";
 
     private static final Pattern PATT_PLAINTEXT = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 
@@ -87,7 +93,7 @@ public class CommonsUtils {
 
         // https://www.php.net/htmlspecialchars
         return text.toString()
-                .replace("&", "&amp;")
+//                .replace("&", "&amp;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;")
                 .replace(">", "&gt;")
@@ -213,5 +219,21 @@ public class CommonsUtils {
     public static boolean isExternalUrl(String str) {
         return str != null
                 && (str.startsWith("http://") || str.startsWith("https://"));
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isEmpty(Collection<?> c) {
+        return c == null || c.isEmpty();
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isEmpty(Object[] c) {
+        return c == null || c.length == 0;
     }
 }

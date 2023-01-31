@@ -89,7 +89,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         putCommonsFields(request, record);
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 
     @GetMapping("list-fields")

@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * 七牛云存储
@@ -142,7 +143,7 @@ public class QiniuCloud {
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 60 * 3);
+        return makeUrl(filePath, 3 * 60);
     }
 
     /**
@@ -160,9 +161,14 @@ public class QiniuCloud {
         }
 
         long deadline = System.currentTimeMillis() / 1000 + seconds;
-        // Use http cache
-        seconds /= 2;
-        deadline = deadline / seconds * seconds;
+        if (seconds > 60) {
+            Calendar c = CalendarUtils.getInstance();
+            c.add(Calendar.SECOND, seconds);
+            c.set(Calendar.SECOND, 59);  // full seconds
+            deadline = c.getTimeInMillis() / 1000;
+        }
+
+        // `e` "token out of date"
         return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
     }
 
@@ -172,7 +178,7 @@ public class QiniuCloud {
      * @throws IOException
      */
     public void download(String filePath, File dest) throws IOException {
-        String url = makeUrl(filePath, 60);
+        String url = makeUrl(filePath);
         OkHttpUtils.readBinary(url, dest, null);
     }
 

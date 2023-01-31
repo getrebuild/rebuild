@@ -16,6 +16,8 @@ class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
+
+    this._readonly = props.$$$main.props.readonly
   }
 
   render() {
@@ -69,10 +71,10 @@ class ProTable extends React.Component {
                   {FORM}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
-                    <button className="btn btn-light hide" title={$L('复制')} onClick={() => this.copyLine(key)}>
+                    <button className="btn btn-light hide" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._readonly}>
                       <i className="icon zmdi zmdi-copy fs-14" />
                     </button>
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)}>
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={this._readonly}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
                     </button>
                   </td>
@@ -230,6 +232,29 @@ class ProTable extends React.Component {
     }
 
     return datas
+  }
+
+  // --
+
+  /**
+   * 导入明细
+   * @param {*} transid
+   * @param {*} form
+   * @param {*} callback
+   * @returns
+   */
+  static detailImports(transid, form, callback) {
+    const formdata = form.getFormData()
+    const mainid = form.props.id || null
+
+    $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
+      if (res.error_code === 0) {
+        if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
+        else typeof callback === 'function' && callback(res.data)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 }
 

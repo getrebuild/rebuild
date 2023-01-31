@@ -106,13 +106,13 @@ class DataList extends React.Component {
 
         const c = $(this._dlg).find('input').prop('checked')
         $.post(`/admin/audit/recycle-bin/restore?cascade=${c}&ids=${ids.join(',')}`, (res) => {
-          this.hide()
-          this.disabled()
           if (res.error_code === 0 && res.data.restored > 0) {
+            this.hide()
             RbHighbar.success($L('成功恢复 %d 条记录', res.data.restored))
             that.queryList()
           } else {
             RbHighbar.error(res.error_code > 0 ? res.error_msg : $L('无法恢复选中记录'))
+            this.disabled()
           }
         })
       },

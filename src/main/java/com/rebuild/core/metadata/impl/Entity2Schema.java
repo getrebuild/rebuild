@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
@@ -48,26 +47,15 @@ public class Entity2Schema extends Field2Schema {
     }
 
     /**
+     * @param entityName [可空]
      * @param entityLabel
      * @param comments
      * @param mainEntity
      * @param haveNameField
-     * @return
-     * @see #createEntity(String, String, String, String, boolean)
+     * @param haveSeriesField
+     * @return Returns 实体名称
      */
-    public String createEntity(String entityLabel, String comments, String mainEntity, boolean haveNameField) {
-        return createEntity(null, entityLabel, comments, mainEntity, haveNameField);
-    }
-
-    /**
-     * @param entityName
-     * @param entityLabel
-     * @param comments
-     * @param mainEntity
-     * @param haveNameField
-     * @return returns 实体名称
-     */
-    public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField) {
+    public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
         if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
@@ -130,6 +118,10 @@ public class Entity2Schema extends Field2Schema {
             if (haveNameField) {
                 createUnsafeField(
                         tempEntity, nameFiled, Language.L("%s名称", entityLabel), DisplayType.TEXT, false, true, true, true, true, null, null, null, null, null);
+            }
+            if (haveSeriesField) {
+                createUnsafeField(
+                        tempEntity, entityName + "No", Language.L("%s编号", entityLabel), DisplayType.SERIES, false, false, false, false, true, null, null, null, null, null);
             }
 
             createBuiltinField(tempEntity, EntityHelper.CreatedBy, Language.L("创建人"), DisplayType.REFERENCE, null, "User", null);
@@ -195,7 +187,7 @@ public class Entity2Schema extends Field2Schema {
 
         if (entity.getDetailEntity() != null) {
             if (force) {
-                log.warn("Force drop detail-entity first : " + entity.getDetailEntity().getName());
+                log.warn("Force drop detail-entity first : {}", entity.getDetailEntity().getName());
                 boolean dropDetail = this.dropEntity(entity.getDetailEntity(), true);
                 if (dropDetail) {
                     entity = MetadataHelper.getEntity(entity.getEntityCode());
@@ -208,9 +200,8 @@ public class Entity2Schema extends Field2Schema {
             }
         }
 
-        for (Field whoRef : entity.getReferenceToFields(false)) {
+        for (Field whoRef : entity.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             if (whoRef.getOwnEntity().equals(entity)) continue;
-            if (whoRef.getType() == FieldType.ANY_REFERENCE) continue;
             throw new MetadataModificationException(
                     Language.L("实体已被其他实体引用 (引用实体 : %s)", Language.L(whoRef.getOwnEntity())));
         }
@@ -225,13 +216,13 @@ public class Entity2Schema extends Field2Schema {
 
         // 先删配置
 
-        final ID sessionUser = UserContextHolder.getUser(true);
-        if (sessionUser == null) UserContextHolder.setUser(getUser());
+        final ID threadUser = UserContextHolder.getUser(Boolean.TRUE);
+        if (threadUser == null) UserContextHolder.setUser(getUser());
 
         try {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);
         } finally {
-            if (sessionUser == null) UserContextHolder.clear();
+            if (threadUser == null) UserContextHolder.clearUser();
         }
 
         // 最后删表

@@ -102,6 +102,6 @@ public class FormDesignController extends BaseController {
             }
         }
 
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 }

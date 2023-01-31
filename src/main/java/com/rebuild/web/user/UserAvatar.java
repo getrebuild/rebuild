@@ -87,7 +87,8 @@ public class UserAvatar extends BaseController {
             return;
         }
 
-        ServletUtils.addCacheHead(response, 30);
+        final int cacheTime = 60;
+        ServletUtils.addCacheHead(response, cacheTime);
 
         String avatarUrl = realUser.getAvatarUrl();
 
@@ -104,7 +105,7 @@ public class UserAvatar extends BaseController {
             avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
 
             if (QiniuCloud.instance().available()) {
-                avatarUrl = QiniuCloud.instance().makeUrl(avatarUrl, 30 * 60);
+                avatarUrl = QiniuCloud.instance().makeUrl(avatarUrl, cacheTime * 60);
             } else {
                 avatarUrl = AppUtils.getContextPath("/filex/img/" + avatarUrl);
                 String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
@@ -120,7 +121,7 @@ public class UserAvatar extends BaseController {
                 fullName = "RB";
             }
 
-            File avatarFile = UserHelper.generateAvatar(fullName, false);
+            File avatarFile = UserHelper.generateAvatar(fullName, Boolean.FALSE);
             FileDownloader.writeLocalFile(avatarFile, response);
         }
     }

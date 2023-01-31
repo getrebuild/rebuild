@@ -414,25 +414,32 @@ var _showNotification = function () {
  * 全局搜索
  */
 var _initGlobalSearch = function () {
-  var $gs = $('.global-search .dropdown-menu').on('click', function (e) {
-    $stopEvent(e)
-    return false
+  $('.global-search2>a').on('click', function () {
+    _showGlobalSearch()
+    $('.search-container input')[0].focus()
+    setTimeout(function () {
+      $('.search-container .dropdown-toggle').dropdown('toggle')
+    }, 100)
   })
+
+  // $unhideDropdown('.global-search')
+  var $gs = $('.global-search .dropdown-menu')
+
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
     var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
-      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($gs)
+      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
-      $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($gs)
+      $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $escapeHtml($a.text()) + '</a>').appendTo($gs)
     }
   })
 
-  var $aa = $gs.find('a').on('click', function () {
+  var $es = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
-  if ($aa.length === 0) return
+  if ($es.length === 0) return
 
   var _tryActive = function ($active, $el) {
     if ($el.length === 1) {
@@ -441,7 +448,7 @@ var _initGlobalSearch = function () {
     }
   }
 
-  $aa.eq(0).addClass('active')
+  $es.eq(0).addClass('active')
   $('.global-search input').on('keydown', function (e) {
     var $active = $('.global-search a.active')
     if (e.keyCode === 37 || e.keyCode === 38) {
@@ -453,6 +460,11 @@ var _initGlobalSearch = function () {
       location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
     }
   })
+}
+var _showGlobalSearch = function (gs) {
+  $('.global-search2>a').hide()
+  $('.search-container').removeClass('hide')
+  gs && $('.search-container input').val($decode(gs))
 }
 /**
  * 全局新建
@@ -466,7 +478,7 @@ var _initGlobalCreate = function () {
   if (entities.length === 0) return
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
-    var $gc = $('.global-create .dropdown-menu')
+    var $gc = $('.global-create2 .dropdown-menu')
     $gc.perfectScrollbar()
     $(res.data || []).each(function () {
       var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
@@ -550,7 +562,7 @@ var $createUploader = function (input, next, complete, error) {
 
   function _qiniuUpload(file) {
     $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
-      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+      var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true })
       o.subscribe({
         next: function (res) {
           typeof next === 'function' && next({ percent: res.total.percent, file: file })

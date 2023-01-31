@@ -1,6 +1,26 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #49 (v3.2)
+alter table `robot_approval_step`
+  add column `CC_ACCOUNTS` varchar(500) comment '抄送外部人员',
+  add column `ATTR_MORE` varchar(700) comment '扩展属性 (JSON Map)';
+
+-- #48 (v3.2)
+-- ************ Entity [TagItem] DDL ************
+create table if not exists `tag_item` (
+  `ITEM_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '哪个实体',
+  `BELONG_FIELD`       varchar(100) not null comment '哪个字段',
+  `RECORD_ID`          char(20) not null comment '记录 ID',
+  `TAG_NAME`           varchar(100) not null comment '标签名称',
+  `SEQ`                bigint(20) not null auto_increment comment '前后顺序',
+  primary key  (`ITEM_ID`),
+  unique index AIX0_tag_item (`SEQ`),
+  index IX1_tag_item (`BELONG_ENTITY`),
+  unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
+)Engine=InnoDB;
+
 -- #47 (v3.1)
 alter table `robot_approval_step`
   add column `CC_USERS` varchar(420) comment '抄送人';
@@ -80,7 +100,7 @@ alter table `data_report_config`
 create table if not exists `external_user` (
   `USER_ID`            char(20) not null,
   `APP_USER`           varchar(100) not null,
-  `APP_ID`           varchar(100) not null,
+  `APP_ID`             varchar(100) not null,
   `BIND_USER`          char(20) not null,
   primary key  (`USER_ID`),
   unique index UIX0_external_user (`APP_USER`, `APP_ID`)

@@ -99,9 +99,7 @@ public class RobotApprovalManager implements ConfigManager {
         // 过滤可用的
         List<FlowDefinition> workable = new ArrayList<>();
         for (FlowDefinition def : defs) {
-            if (def.isDisabled() || !def.isWorkable()) {
-                continue;
-            }
+            if (def.isDisabled() || !def.isWorkable()) continue;
 
             FlowParser flowParser = def.createFlowParser();
             FlowNode root = flowParser.getNode("ROOT");  // 发起人节点
