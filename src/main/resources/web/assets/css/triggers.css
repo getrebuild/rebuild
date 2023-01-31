@@ -549,3 +549,9 @@ textarea.formula-code + .fields-vars {
 .textarea-wrap > .fields-vars:hover > .mdi {
   color: rgba(255, 255, 255, 1);
 }
+
+.textarea-wrap textarea {
+  min-height: 72px;
+  font-size: 1rem;
+  padding: 4px 10px;
+}
