@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * 七牛云存储
@@ -159,7 +160,16 @@ public class QiniuCloud {
             baseUrl = "https:" + baseUrl;
         }
 
-        return getAuth().privateDownloadUrl(baseUrl, seconds);
+        long deadline = System.currentTimeMillis() / 1000 + seconds;
+        if (seconds > 60) {
+            Calendar c = CalendarUtils.getInstance();
+            c.add(Calendar.SECOND, seconds);
+            c.set(Calendar.SECOND, 59);  // full seconds
+            deadline = c.getTimeInMillis() / 1000;
+        }
+
+        // `e` "token out of date"
+        return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
     }
 
     /**
