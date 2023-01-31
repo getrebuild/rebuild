@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
@@ -26,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -667,10 +667,10 @@ public class ApprovalStepService extends InternalPersistService {
                 Record dAfter = EntityHelper.forUpdate(did, UserService.SYSTEM_USER, false);
                 if (when == TriggerWhen.SUBMIT) {
                     triggerManual.onSubmit(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 } else if (when == TriggerWhen.REJECTED) {
                     triggerManual.onRejectedOrCancel(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 }
             }
         }
@@ -679,10 +679,10 @@ public class ApprovalStepService extends InternalPersistService {
 
         if (when == TriggerWhen.SUBMIT) {
             triggerManual.onSubmit(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, approvalRecord));
         } else if (when == TriggerWhen.REJECTED) {
             triggerManual.onRejectedOrCancel(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, approvalRecord));
         }
     }
 
