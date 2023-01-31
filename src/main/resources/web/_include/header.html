@@ -38,19 +38,4 @@
   <!--[if lt IE 10]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${T(com.rebuild.utils.AppUtils).isIE11(#request)}" th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
   <script th:if="${markWatermark == 'true'}" th:src="@{/assets/lib/watermark.js?v=310}"></script>
-  <style>
-    .logo-img,
-    .rb-top-header .rb-navbar-header .navbar-brand {
-      background-image: url('[[${baseUrl}]]/commons/theme/use-logo');
-    }
-    .logo-img.white,
-    .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
-      background-image: url('[[${baseUrl}]]/commons/theme/use-logo-white');
-    }
-  </style>
-  <style th:if="${commercial > 1}">
-    .rbv {
-      display: none !important;
-    }
-  </style>
 </th:block>
