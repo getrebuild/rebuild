@@ -87,7 +87,7 @@ public class UserAvatar extends BaseController {
             return;
         }
 
-        final int cacheTime = 30;
+        final int cacheTime = 60;
         ServletUtils.addCacheHead(response, cacheTime);
 
         String avatarUrl = realUser.getAvatarUrl();
@@ -121,7 +121,7 @@ public class UserAvatar extends BaseController {
                 fullName = "RB";
             }
 
-            File avatarFile = UserHelper.generateAvatar(fullName, false);
+            File avatarFile = UserHelper.generateAvatar(fullName, Boolean.FALSE);
             FileDownloader.writeLocalFile(avatarFile, response);
         }
     }
