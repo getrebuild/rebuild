@@ -162,14 +162,18 @@ public class KVStorage {
         THROTTLED_TIMER.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (THROTTLED_QUEUE.isEmpty()) return;
+                try {
+                    if (THROTTLED_QUEUE.isEmpty()) return;
 
-                final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
-                THROTTLED_QUEUE.clear();
+                    final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
+                    THROTTLED_QUEUE.clear();
 
-                log.info("Synchronize KV pairs ... {}", queue);
-                for (Map.Entry<String, Object> e : queue.entrySet()) {
-                    RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                    log.info("Synchronize KV pairs ... {}", queue);
+                    for (Map.Entry<String, Object> e : queue.entrySet()) {
+                        RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                    }
+                } catch (Throwable ex) {
+                    log.error(null, ex);
                 }
             }
         }, 1000, 1000);
