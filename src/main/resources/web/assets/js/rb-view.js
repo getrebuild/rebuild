@@ -807,27 +807,25 @@ const RbViewPage = {
   initVAdds(config) {
     const that = this
     $(config).each(function () {
-      const e = this
-      // const title = $L('新建%s', e.entityLabel)
-      const title = e.entityLabel
-      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>${title}</a>`)
+      const item = this
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.on('click', function () {
-        if (e.entity === 'Feeds.relatedRecord') {
+        if (item.entity === 'Feeds.relatedRecord') {
           const data = {
             type: 2,
             relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
-        } else if (e.entity === 'ProjectTask.relatedRecord') {
+        } else if (item.entity === 'ProjectTask.relatedRecord') {
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
         } else {
           const iv = {}
-          const entity = e.entity.split('.')
+          const entity = item.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
-          RbFormModal.create({ title: $L('新建%s', title), entity: entity[0], icon: e.icon, initialValue: iv })
+          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv })
         }
       })
 
