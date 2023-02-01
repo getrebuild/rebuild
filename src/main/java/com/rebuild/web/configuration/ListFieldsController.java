@@ -50,10 +50,11 @@ import java.util.Map;
  *
  * @author devezhao
  * @since 01/07/2019
+ * @see com.rebuild.web.admin.metadata.ListStatsController
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class ShowFieldsController extends BaseController implements ShareTo {
+public class ListFieldsController extends BaseController implements ShareTo {
 
     @PostMapping("list-fields")
     public void sets(@PathVariable String entity,
