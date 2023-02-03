@@ -42,7 +42,7 @@ public class MetadataHelper {
     public static final String SPLITER = CommonsUtils.COMM_SPLITER;
     public static final String SPLITER_RE = CommonsUtils.COMM_SPLITER_RE;
 
-    // 实体类型 https://getrebuild.com/docs/admin/meta-entity#%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B
+    // 实体类型 https://getrebuild.com/docs/admin/entity/#%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B
     public static final int TYPE_BAD = -1;
     public static final int TYPE_SYS = 0;
     public static final int TYPE_NORMAL = 1;

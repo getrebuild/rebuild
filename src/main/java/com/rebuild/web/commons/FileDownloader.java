@@ -115,7 +115,7 @@ public class FileDownloader extends BaseController {
                 filePath += "?" + imageView2;
             }
 
-            String privateUrl = QiniuCloud.instance().makeUrl(filePath, cacheTime * 60);
+            String privateUrl = QiniuCloud.instance().makeUrl(filePath, (int) (cacheTime * 60 * 1.2));
             response.sendRedirect(privateUrl);
         }
     }

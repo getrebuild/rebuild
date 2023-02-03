@@ -105,7 +105,7 @@ public class UserAvatar extends BaseController {
             avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
 
             if (QiniuCloud.instance().available()) {
-                avatarUrl = QiniuCloud.instance().makeUrl(avatarUrl, cacheTime * 60);
+                avatarUrl = QiniuCloud.instance().makeUrl(avatarUrl, (int) (cacheTime * 60 * 1.2));
             } else {
                 avatarUrl = AppUtils.getContextPath("/filex/img/" + avatarUrl);
                 String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
