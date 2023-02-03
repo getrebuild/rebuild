@@ -150,7 +150,7 @@ public class TransformConfigController extends BaseController {
         return RespBody.ok(res);
     }
 
-    private JSONObject buildEntity(Entity entity, boolean sourceTyp) {
+    private JSONObject buildEntity(Entity entity, boolean sourceType) {
         JSONObject entityData = JSONUtils.toJSONObject(
                 new String[] { "entity", "label" },
                 new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
@@ -160,17 +160,19 @@ public class TransformConfigController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-            if (!sourceTyp && easyField.getDisplayType() == DisplayType.SERIES) continue;
 
-            if (sourceTyp) {
+            if (sourceType) {
                 fields.add(easyField.toJSON());
             } else if (!MetadataHelper.isCommonsField(field)) {
+                if (easyField.getDisplayType() == DisplayType.SERIES) continue;
+                if (entity.getMainEntity() != null && MetadataHelper.getDetailToMainField(entity).equals(field)) continue;
+
                 // v2.10 非可创建字段也支持
                 fields.add(MetaFormatter.buildRichField(easyField));
             }
         }
 
-        if (sourceTyp) {
+        if (sourceType) {
             fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
 
             // 二级字段
