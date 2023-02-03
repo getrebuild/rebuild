@@ -33,8 +33,8 @@ public enum ActionType {
     AUTOUNSHARE("自动取消共享", "com.rebuild.rbv.trigger.AutoUnshare"),
     AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
     AUTODELETE("自动删除", "com.rebuild.rbv.trigger.AutoDelete"),
-    HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     CREATEFEED("新建动态", "com.rebuild.rbv.trigger.CreateFeed"),
+    HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     PROXYTRIGGERACTION("自定义触发器", "com.rebuild.rbv.trigger.ProxyTriggerAction"),
 
     ;
