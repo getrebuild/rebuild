@@ -58,33 +58,33 @@
     <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
-      $(document).ready(function () {
+      $(document).ready(() => {
         let email
-        $('.J_forgot-btn, .J_vcode-resend').click(function () {
+        $('.J_forgot-btn, .J_vcode-resend').on('click', function () {
           email = $val('#email')
           if (!email) return RbHighbar.create($L('请输入邮箱'))
 
           $('.J_email').text(email)
           const $btn = $(this).button('loading')
-          $.post('/user/user-forgot-passwd?email=' + $encode(email), function (res) {
-            $btn.button('reset')
+          $.post(`/user/user-forgot-passwd?email=${$encode(email)}`, (res) => {
             if (res.error_code === 0) {
               $('.J_step1').hide()
               $('.J_step2').removeClass('hide')
               resend_countdown(true)
             } else {
               RbHighbar.create(res.error_msg)
+              $btn.button('reset')
             }
           })
         })
 
-        $('.J_confirm-btn').click(function () {
+        $('.J_confirm-btn').on('click', function () {
           const vcode = $val('#vcode')
           const newpwd = $val('#newpwd')
           const newpwd2 = $val('#newpwd2')
           if (!vcode) return RbHighbar.create($L('请输入验证码'))
           if (!newpwd) return RbHighbar.create($L('请输入新密码'))
-          if (newpwd !== newpwd2) returnRbHighbar.create($L('两次输入的新密码不一致'))
+          if (newpwd !== newpwd2) return RbHighbar.create($L('两次输入的新密码不一致'))
 
           const _data = {
             email: email,
@@ -93,10 +93,10 @@
           }
 
           const $btn = $(this).button('loading')
-          $.post('/user/user-confirm-passwd', JSON.stringify(_data), function (res) {
+          $.post('/user/user-confirm-passwd', JSON.stringify(_data), (res) => {
             if (res.error_code === 0) {
               $btn.text('密码已重置')
-              setTimeout(() => (location.href = 'login'), 1000)
+              setTimeout(() => (location.href = 'login'), 2000)
             } else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')

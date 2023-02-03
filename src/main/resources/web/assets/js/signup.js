@@ -5,22 +5,23 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$(document).ready(function () {
-  $('.J_vcode-btn').click(function () {
+$(document).ready(() => {
+  $('.J_vcode-btn').on('click', function () {
     const email = $val('#sEmail')
     if (!email) return RbHighbar.create($L('请输入邮箱'))
 
     const $btn = $(this).button('loading')
-    $.post('/user/signup-email-vcode?email=' + $encode(email), function (res) {
-      if (res.error_code === 0) resend_countdown(true)
-      else {
+    $.post('/user/signup-email-vcode?email=' + $encode(email), (res) => {
+      if (res.error_code === 0) {
+        resend_countdown(true)
+      } else {
         RbHighbar.create(res.error_msg)
         $btn.button('reset')
       }
     })
   })
 
-  $('#sFullName').blur(function () {
+  $('#sFullName').on('blur', function () {
     const v = $(this).val()
     if (!v || $('#sName').val()) return
 
@@ -29,7 +30,7 @@ $(document).ready(function () {
     })
   })
 
-  $('.J_confirm-btn').click(function () {
+  $('.J_confirm-btn').on('click', function () {
     const fullName = $val('#sFullName'),
       name = $val('#sName'),
       email = $val('#sEmail'),
@@ -47,7 +48,7 @@ $(document).ready(function () {
     }
 
     const $btn = $(this).button('loading')
-    $.post('/user/signup-confirm', JSON.stringify(_data), function (res) {
+    $.post('/user/signup-confirm', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         $btn.text($L('注册成功'))
         $('.alert.hide').removeClass('hide')

@@ -440,6 +440,25 @@ public class UserService extends BaseService {
     }
 
     /**
+     * 修改密码
+     *
+     * @param user
+     * @param newPasswd
+     * @throws DataSpecificationException
+     */
+    public void txChangePasswd(ID user, String newPasswd) throws DataSpecificationException {
+        Record record = EntityHelper.forUpdate(user, SYSTEM_USER);
+        record.setString("password", newPasswd);
+
+        UserContextHolder.setUser(SYSTEM_USER);
+        try {
+            this.update(record);
+        } finally {
+            UserContextHolder.clearUser();
+        }
+    }
+
+    /**
      * 密码过期时间（剩余天数）
      *
      * @param user
