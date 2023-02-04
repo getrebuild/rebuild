@@ -21,6 +21,8 @@ import com.rebuild.core.support.KVStorage;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.commons.UsersGetting;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,14 +50,16 @@ public class FeedsGroupController extends BaseController {
         final ID user = getRequestUser(request);
         final String query = getParameter(request, "q");
 
-        JSONArray ret = new JSONArray();
+        JSONArray res = new JSONArray();
 
         Set<Member> stars = getStars(user, EntityHelper.Team);
+        stars = (Set<Member>) filterMembers32(stars, user);
+
         Set<Serializable> starsId = new HashSet<>();
         for (Member t : UserHelper.sortMembers(stars.toArray(new Member[0]))) {
             if (StringUtils.isEmpty(query)
                     || StringUtils.containsIgnoreCase(t.getName(), query)) {
-                ret.add(JSONUtils.toJSONObject(
+                res.add(JSONUtils.toJSONObject(
                         new String[]{"id", "name", "star"},
                         new Object[]{t.getIdentity(), t.getName(), true}));
                 starsId.add(t.getIdentity());
@@ -63,19 +67,19 @@ public class FeedsGroupController extends BaseController {
         }
 
         Team[] teams = Application.getUserStore().getAllTeams();
-        for (Member t : UserHelper.sortMembers(teams)) {
+        for (Member t : UserHelper.sortMembers((Member[]) filterMembers32(teams, user))) {
             if (StringUtils.isEmpty(query)
                     || StringUtils.containsIgnoreCase(t.getName(), query)) {
                 if (starsId.contains(t.getIdentity())) continue;
 
-                ret.add(JSONUtils.toJSONObject(
+                res.add(JSONUtils.toJSONObject(
                         new String[]{"id", "name"},
                         new Object[]{t.getIdentity(), t.getName()}));
-                if (ret.size() >= 20) break;
+                if (res.size() >= 20) break;
             }
         }
 
-        return ret;
+        return res;
     }
 
     @GetMapping("user-list")
@@ -83,34 +87,53 @@ public class FeedsGroupController extends BaseController {
         final ID user = getRequestUser(request);
         final String query = getParameter(request, "q");
 
-        JSONArray ret = new JSONArray();
+        JSONArray res = new JSONArray();
 
         Set<Member> stars = getStars(user, EntityHelper.User);
+        stars = (Set<Member>) filterMembers32(stars, user);
+
         Set<ID> starsId = new HashSet<>();
         for (Member m : UserHelper.sortMembers(stars.toArray(new Member[0]))) {
             User u = (User) m;
             if (StringUtils.isEmpty(query)
                     || CommonsUtils.containsIgnoreCase(new String[] { u.getName(), u.getFullName(), u.getEmail() }, query)) {
-                ret.add(JSONUtils.toJSONObject(
+                res.add(JSONUtils.toJSONObject(
                         new String[]{"id", "name", "star"},
                         new Object[]{u.getId(), u.getFullName(), true}));
                 starsId.add(u.getId());
             }
         }
 
-        for (User u : UserHelper.sortUsers()) {
+        User[] users = UserHelper.sortUsers();
+        Member[] users2 = (Member[]) filterMembers32(users, user);
+        for (Member m : users2) {
+            User u = (User) m;
             if (StringUtils.isBlank(query)
                     || CommonsUtils.containsIgnoreCase(new String[] { u.getName(), u.getFullName(), u.getEmail() }, query)) {
                 if (starsId.contains(u.getId())) continue;
 
-                ret.add(JSONUtils.toJSONObject(
+                res.add(JSONUtils.toJSONObject(
                         new String[]{"id", "name"},
                         new Object[]{u.getId(), u.getFullName()}));
-                if (ret.size() >= 20) break;
+                if (res.size() >= 20) break;
             }
         }
 
-        return ret;
+        return res;
+    }
+
+    private Object filterMembers32(Object members, ID currentUser) {
+        if (members instanceof Member[]) {
+            return UsersGetting.filterMembers32((Member[]) members, currentUser);
+        }
+
+        // Set
+        Member[] members2 = ((Set<Member>) members).toArray(new Member[0]);
+        members2 = UsersGetting.filterMembers32(members2, currentUser);
+
+        Set<Member> set2 = new HashSet<>();
+        CollectionUtils.addAll(set2, members2);
+        return set2;
     }
 
     private static final String FEED_STARS = "FeedUserStars.";
@@ -119,7 +142,7 @@ public class FeedsGroupController extends BaseController {
     public RespBody stars(HttpServletRequest request) {
         ID starUser = getIdParameterNotNull(request, "user");
 
-        String key = FEED_STARS + getRequestUser(request);
+        final String key = FEED_STARS + getRequestUser(request);
         String feedStars = KVStorage.getCustomValue(key);
 
         if (feedStars != null && feedStars.contains(starUser.toLiteral())) {
@@ -130,15 +153,20 @@ public class FeedsGroupController extends BaseController {
             if (feedStars == null) feedStars = "";
             feedStars += "," + starUser;
         }
-        KVStorage.setCustomValue(key, feedStars);
 
-        // FIXME 可能导致值越来越大，因为可能存在删除的 user
+        Set<String> clearStars = new HashSet<>();
+        for (String id : feedStars.split(",")) {
+            if (!ID.isId(id)) continue;
+            if (Application.getUserStore().existsUser(ID.valueOf(id))) clearStars.add(id);
+        }
+
+        KVStorage.setCustomValue(key, StringUtils.join(clearStars, ","));
 
         return RespBody.ok();
     }
 
     private Set<Member> getStars(ID user, int type) {
-        String key = FEED_STARS + user;
+        final String key = FEED_STARS + user;
         String feedStars = StringUtils.defaultString(KVStorage.getCustomValue(key), "");
 
         Set<Member> set = new HashSet<>();

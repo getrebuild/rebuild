@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.CommandArgs;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
@@ -102,7 +103,8 @@ public class AES {
      * @return
      */
     public static String getPassKey() {
-        String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
+        String key = StringUtils.defaultIfEmpty(
+                System.getenv(CommandArgs.rbpass), System.getProperty(CommandArgs.rbpass));
         return StringUtils.defaultIfEmpty(key, "REBUILD2018");
     }
 

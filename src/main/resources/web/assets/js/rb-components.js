@@ -441,7 +441,7 @@ class UserSelector extends React.Component {
     this._useTabs = []
     if (props.hideUser !== true) this._useTabs.push(['User', $L('用户')])
     if (props.hideDepartment !== true) this._useTabs.push(['Department', $L('部门')])
-    if (props.hideRole !== true) this._useTabs.push(['Role', $L('角色')])
+    if (props.hideRole !== true && rb.isAdminUser) this._useTabs.push(['Role', $L('角色')]) // v3.2 Only admin
     if (props.hideTeam !== true) this._useTabs.push(['Team', $L('团队')])
 
     // 默认显示
