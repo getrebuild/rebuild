@@ -198,7 +198,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
                         ? formatEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType)
                         : EasyMetaFactory.toJSON(addonEntity);
 
-                if (StringUtils.isNotBlank(label)) show.put("entityLabel", label);
+                if (StringUtils.isNotBlank(label)) {
+                    show.put("_entityLabel", show.getString("entityLabel"));
+                    show.put("entityLabel", label);
+                }
                 addons.add(show);
             }
         }

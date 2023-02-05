@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.2.0-beta1</version>
+    <version>3.2.0-beta2</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -490,6 +490,16 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.33</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>5.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.87.Final</version>
         </dependency>
     </dependencies>
 </project>

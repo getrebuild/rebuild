@@ -1302,11 +1302,11 @@ class DataListSettings extends RbModalHandler {
                 <ol className="dd-list" _title={$L('无')}></ol>
               </div>
               <div>
-                <select className="form-control form-control-sm" ref={(c) => (this._$field = c)}>
+                <select className="form-control form-control-sm" ref={(c) => (this._$afields = c)}>
                   <option value=""></option>
-                  {(state.fields || []).map((item) => {
+                  {(state.afields || []).map((item) => {
                     return (
-                      <option key={item.name} value={item.name}>
+                      <option key={item.field} value={item.field}>
                         {item.label}
                       </option>
                     )
@@ -1380,26 +1380,26 @@ class DataListSettings extends RbModalHandler {
     const that = this
     const props = this.props
 
-    let $field
+    let $afields2
     function _loadFields() {
       if (!that._entity) {
-        $(that._$field).select2({
+        $(that._$afields).select2({
           placeholder: $L('无可用字段'),
         })
         return
       }
 
-      $.get(`/commons/metadata/fields?entity=${that._entity}&deep=2`, (res) => {
+      $.get(`/app/${that._entity}/list-fields`, (res) => {
         // clear last
-        if ($field) {
-          $(that._$field).select2('destroy')
+        if ($afields2) {
+          $(that._$afields).select2('destroy')
           $showfields.empty()
           that.setState({ filterData: null })
         }
 
-        that._fields = res.data || []
-        that.setState({ fields: that._fields }, () => {
-          $field = $(that._$field)
+        that._afields = (res.data || {}).fieldList || []
+        that.setState({ afields: that._afields }, () => {
+          $afields2 = $(that._$afields)
             .select2({
               placeholder: $L('添加显示字段'),
               allowClear: false,
@@ -1413,11 +1413,11 @@ class DataListSettings extends RbModalHandler {
                 }
               })
 
-              const x = name ? that._fields.find((x) => x.name === name) : null
+              const x = name ? that._afields.find((x) => x.field === name) : null
               if (!x) return
 
               const $item = $(
-                `<li class="dd-item dd3-item" data-key="${x.name}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
+                `<li class="dd-item dd3-item" data-key="${x.field}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${x.label}</div><div class="dd3-action"></div></li>`
               ).appendTo($showfields)
 
               // eslint-disable-next-line no-undef
@@ -1449,9 +1449,9 @@ class DataListSettings extends RbModalHandler {
           // init
           if (props.entity === that._entity && props.fields) {
             props.fields.forEach((name) => {
-              $field.val(name).trigger('change')
+              $afields2.val(name).trigger('change')
             })
-            $field.val('').trigger('change')
+            $afields2.val('').trigger('change')
           }
         })
       })

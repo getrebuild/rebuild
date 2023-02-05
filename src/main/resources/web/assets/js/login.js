@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$(document).ready(function () {
+$(document).ready(() => {
   // eslint-disable-next-line eqeqeq
   if (top != self) {
     parent.location.reload()
@@ -51,7 +51,6 @@ $(document).ready(function () {
 
     const $btn = $('.login-submit button').button('loading')
     const url = `/user/user-login?user=${$encode(user)}&passwd=******&autoLogin=${$val('#autoLogin')}&vcode=${vcode || ''}`
-
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
         const nexturl = $decode($urlp('nexturl'))
@@ -72,6 +71,7 @@ $(document).ready(function () {
       } else {
         $('.vcode-row img').trigger('click')
         $('.vcode-row input').val('')
+
         RbHighbar.create(res.error_msg)
         $btn.button('reset')
       }

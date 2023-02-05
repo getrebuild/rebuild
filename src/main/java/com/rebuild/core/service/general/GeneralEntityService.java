@@ -47,6 +47,7 @@ import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -116,13 +117,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final boolean hasDetails = details != null && !details.isEmpty();
 
         boolean lazyAutoApprovalForDetails = false;
+        boolean lazyAutoTransformForDetails = false;
         if (hasDetails) {
             TriggerAction[] hasTriggers = getSpecTriggers(
                     record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
             lazyAutoApprovalForDetails = hasTriggers.length > 0;
-
             // 自动审批延迟执行，因为明细尚未保存好
             if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
+
+            TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
+                    record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
+            lazyAutoTransformForDetails = hasAutoTransformTriggers.length > 0;
+            // 记录转换延迟执行，因为明细尚未保存好
+            if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
         }
 
         try {
@@ -168,6 +175,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } finally {
             if (lazyAutoApprovalForDetails) {
                 AutoApproval.executeLazyAutoApproval();
+            }
+            if (lazyAutoTransformForDetails) {
+                CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazyAutoTransform");
             }
         }
     }

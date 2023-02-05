@@ -29,7 +29,10 @@ html.admin .admin-show.row {
   display: flex;
 }
 
-.rbv-hide,
+html.commercial .rbv {
+  display: none !important;
+}
+
 .dev-show {
   display: none;
 }
@@ -5153,4 +5156,14 @@ pre.unstyle {
 .rb-color-header .navbar-collapse,
 .rb-offcanvas-menu .navbar-collapse {
   display: none !important;
+}
+
+.logo-img,
+.rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url('../../commons/theme/use-logo');
+}
+
+.logo-img.white,
+.rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url('../../commons/theme/use-logo-white');
 }

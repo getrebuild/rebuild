@@ -372,7 +372,7 @@ class DlgImports extends RbModalHandler {
                     <div
                       className="form-text link"
                       dangerouslySetInnerHTML={{
-                        __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)'),
+                        __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/entity/field-classification#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE)'),
                       }}
                     />
                   </div>

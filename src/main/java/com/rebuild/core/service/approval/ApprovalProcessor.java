@@ -652,7 +652,7 @@ public class ApprovalProcessor extends SetUser {
      * @param shareTo
      */
     protected static void share2CcIfNeed(ID recordId, Set<ID> shareTo) {
-        if (CommonsUtils.isEmpty(shareTo)) return;
+        if (!CommonsUtils.hasLength(shareTo)) return;
 
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {

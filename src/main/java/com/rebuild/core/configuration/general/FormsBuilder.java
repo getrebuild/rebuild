@@ -440,7 +440,8 @@ public class FormsBuilder extends FormsManager {
 
                 // 默认值
                 if (el.get("value") == null) {
-                    if (dt == DisplayType.SERIES) {
+                    if (dt == DisplayType.SERIES
+                            /*|| EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)*/) {
                         el.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();

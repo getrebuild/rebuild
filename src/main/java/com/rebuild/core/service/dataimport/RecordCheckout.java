@@ -29,6 +29,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
@@ -159,7 +160,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        ID val2id = MetadataHelper.isSpecEntityId(val, EntityHelper.PickList);
+        ID val2id = MetadataHelper.checkSpecEntityId(val, EntityHelper.PickList);
         if (val2id != null) {
             if (PickListManager.instance.getLabel(val2id) != null) {
                 return val2id;
@@ -186,7 +187,7 @@ public class RecordCheckout {
         final String val = cell.asString();
 
         // 支持ID
-        ID vla2id = MetadataHelper.isSpecEntityId(val, EntityHelper.ClassificationData);
+        ID vla2id = MetadataHelper.checkSpecEntityId(val, EntityHelper.ClassificationData);
         if (vla2id != null) {
             if (ClassificationManager.instance.getName(vla2id) != null) {
                 return vla2id;
@@ -204,15 +205,12 @@ public class RecordCheckout {
         final Entity refEntity = field.getReferenceEntity();
 
         // 支持ID
-        ID vla2id = MetadataHelper.isSpecEntityId(val, refEntity.getEntityCode());
+        ID vla2id = MetadataHelper.checkSpecEntityId(val, refEntity.getEntityCode());
         if (vla2id != null) {
-            Object exists = Application.getQueryFactory().uniqueNoFilter(vla2id, refEntity.getPrimaryField().getName());
-            if (exists == null) {
-                log.warn("Reference ID `{}` not exists", vla2id);
-                return null;
-            } else {
-                return vla2id;
-            }
+            if (QueryHelper.exists(vla2id)) return vla2id;
+
+            log.warn("Reference ID `{}` not exists", vla2id);
+            return null;
         }
 
         Object val2Text = checkoutFieldValue(refEntity.getNameField(), cell, false);
@@ -229,16 +227,18 @@ public class RecordCheckout {
             // 查找引用实体的名称字段和自动编号字段
             Set<String> queryFields = new HashSet<>();
             queryFields.add(refEntity.getNameField().getName());
-            for (Field s : MetadataSorter.sortFields(refEntity, DisplayType.SERIES)) {
-                queryFields.add(s.getName());
+            // 名称字段又是引用字段
+            if (!(val2Text instanceof ID)) {
+                for (Field s : MetadataSorter.sortFields(refEntity, DisplayType.SERIES)) {
+                    queryFields.add(s.getName());
+                }
             }
 
             StringBuilder sql = new StringBuilder(
-                    String.format("select %s from %s where ",
-                            refEntity.getPrimaryField().getName(), refEntity.getName()));
+                    String.format("select %s from %s where ", refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
-                sql.append(String.format("%s = '%s' or ",
-                        qf, StringEscapeUtils.escapeSql(val2Text.toString())));
+                sql.append(
+                        String.format("%s = '%s' or ", qf, StringEscapeUtils.escapeSql(val2Text.toString())));
             }
             sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 

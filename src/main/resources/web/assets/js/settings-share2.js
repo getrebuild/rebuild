@@ -169,7 +169,7 @@ class Share2Switch extends _ChangeHandler {
   show = () => $(this._dlg).modal('show')
 }
 
-// ~~ 配置共享
+// ~~ 管理员配置共享
 class Share2Settings extends Share2Switch {
   renderContent() {
     return (

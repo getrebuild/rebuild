@@ -15,7 +15,7 @@ const RBV_TRIGGERS = {
   'HOOKURL': $L('回调 URL'),
   'AUTOTRANSFORM': $L('自动记录转换'),
   'DATAVALIDATE': $L('数据校验'),
-  'AUTOREVOKE': $L('自动撤销'),
+  'AUTOREVOKE': $L('自动撤销审批'),
   'AUTODELETE': $L('自动删除'),
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),

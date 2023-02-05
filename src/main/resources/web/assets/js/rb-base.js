@@ -110,7 +110,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 
   rb.commercial = ~~rb.commercial
-  if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
+  if (rb.commercial > 1) $('html').addClass('commercial')
   if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
 
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
