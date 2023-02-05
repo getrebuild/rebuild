@@ -95,7 +95,7 @@ public class NavBuilder extends NavManager {
         if (request != null) {
             String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
             ID useNavId;
-            if ((useNavId = MetadataHelper.isSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
+            if ((useNavId = MetadataHelper.checkSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
                 Object[][] cached = getAllConfig(null, TYPE_NAV);
                 config = findConfigBean(cached, useNavId);
             }

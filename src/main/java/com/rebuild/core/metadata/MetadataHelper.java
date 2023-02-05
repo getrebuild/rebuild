@@ -444,13 +444,13 @@ public class MetadataHelper {
     }
 
     /**
-     * @param text
+     * @param idtext
      * @param entityCode
      * @return
      */
-    public static ID isSpecEntityId(String text, int entityCode) {
-        if (!ID.isId(text)) return null;
-        ID id = ID.valueOf(text);
+    public static ID checkSpecEntityId(String idtext, int entityCode) {
+        if (!ID.isId(idtext)) return null;
+        ID id = ID.valueOf(idtext);
         return id.getEntityCode() == entityCode ? id : null;
     }
 }

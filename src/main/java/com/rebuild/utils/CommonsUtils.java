@@ -222,18 +222,15 @@ public class CommonsUtils {
     }
 
     /**
-     * @param c
+     * 判断任意对象是否不为空
+     *
+     * @param any
      * @return
      */
-    public static boolean isEmpty(Collection<?> c) {
-        return c == null || c.isEmpty();
-    }
-
-    /**
-     * @param c
-     * @return
-     */
-    public static boolean isEmpty(Object[] c) {
-        return c == null || c.length == 0;
+    public static boolean hasLength(Object any) {
+        if (any == null) return false;
+        if (any.getClass().isArray()) return ((Object[]) any).length > 0;
+        if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
+        return StringUtils.isNotBlank(any.toString());
     }
 }

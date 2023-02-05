@@ -210,7 +210,7 @@ public class ModelExtrasController extends BaseController {
         Object[] found;
 
         // ID
-        ID text2id = MetadataHelper.isSpecEntityId(text, refEntity.getEntityCode());
+        ID text2id = MetadataHelper.checkSpecEntityId(text, refEntity.getEntityCode());
         if (text2id != null) {
             found = new Object[] { text2id };
         } else {

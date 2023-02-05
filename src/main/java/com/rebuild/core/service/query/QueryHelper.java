@@ -156,4 +156,16 @@ public class QueryHelper {
         if (o == null) throw new NoRecordFoundException(detailId);
         else return (ID) o[0];
     }
+
+    /**
+     * 记录是否存在
+     *
+     * @param recordId
+     * @return
+     */
+    public static boolean exists(ID recordId) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, entity.getPrimaryField().getName());
+        return o != null;
+    }
 }

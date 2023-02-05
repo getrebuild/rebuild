@@ -191,7 +191,7 @@ public class FieldValueHelper {
         }
 
         Object nameLabel = wrapFieldValue(nameValue[0], nameField, true);
-        if (nameLabel == null || StringUtils.isBlank(nameLabel.toString())) {
+        if (!hasLength(nameLabel)) {
             if (defaultValue == null) {
                 defaultValue = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
@@ -334,13 +334,8 @@ public class FieldValueHelper {
         }
     }
 
-    /**
-     * 是否有值
-     *
-     * @param o
-     * @return
-     */
-    public static boolean hasLength(Object o) {
+    // 是否有值
+    private static boolean hasLength(Object o) {
         if (NullValue.isNull(o)) return false;
         if (o.getClass().isArray()) return ((Object[]) o).length > 0;
         else return o.toString().length() > 0;
