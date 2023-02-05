@@ -12,7 +12,6 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -35,6 +34,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -106,7 +106,7 @@ public class FieldValueHelper {
         }
 
         // 空值: 默认值
-        if (!hasLength(value)) {
+        if (!CommonsUtils.hasLength(value)) {
             if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
                 return ApprovalState.DRAFT.getState();
             } else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId)) {
@@ -191,7 +191,7 @@ public class FieldValueHelper {
         }
 
         Object nameLabel = wrapFieldValue(nameValue[0], nameField, true);
-        if (!hasLength(nameLabel)) {
+        if (!CommonsUtils.hasLength(nameLabel)) {
             if (defaultValue == null) {
                 defaultValue = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
@@ -332,12 +332,5 @@ public class FieldValueHelper {
         else if (mixValue instanceof JSONArray) {
             for (Object o : (JSONArray) mixValue) desensitizedMixValue(easyField, (JSON) o);
         }
-    }
-
-    // 是否有值
-    private static boolean hasLength(Object o) {
-        if (NullValue.isNull(o)) return false;
-        if (o.getClass().isArray()) return ((Object[]) o).length > 0;
-        else return o.toString().length() > 0;
     }
 }

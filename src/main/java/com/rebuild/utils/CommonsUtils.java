@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
@@ -231,6 +232,7 @@ public class CommonsUtils {
         if (any == null) return false;
         if (any.getClass().isArray()) return ((Object[]) any).length > 0;
         if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
-        return StringUtils.isNotBlank(any.toString());
+        if (NullValue.is(any)) return false;
+        return any.toString().length() > 0;
     }
 }
