@@ -2034,6 +2034,7 @@ th.column-fixed {
 
 .form-control-plaintext {
   word-wrap: break-word;
+  word-break: break-all;
 }
 
 .form-line {
