@@ -18,15 +18,12 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
-import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -34,7 +31,6 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -198,40 +194,5 @@ public class ModelExtrasController extends BaseController {
             }
         }
         return allowed;
-    }
-
-    @GetMapping("check-scan-result")
-    public RespBody checkScanResult(@EntityParam Entity entity, HttpServletRequest request) {
-        Field field = entity.getField(getParameterNotNull(request, "field"));
-        // TODO 提取扫码结果
-        String text = StringEscapeUtils.escapeSql(getParameterNotNull(request, "text"));
-
-        Entity refEntity = field.getReferenceEntity();
-        Object[] found;
-
-        // ID
-        ID text2id = MetadataHelper.checkSpecEntityId(text, refEntity.getEntityCode());
-        if (text2id != null) {
-            found = new Object[] { text2id };
-        } else {
-            // 查询名称字段
-            String sql = String.format("select %s from %s where %s = '%s'",
-                    refEntity.getPrimaryField().getName(), refEntity.getName(), refEntity.getNameField().getName(), text);
-            // 查询编号字段
-            Field[] hasSeries = MetadataSorter.sortFields(refEntity, DisplayType.SERIES);
-            if (hasSeries.length > 0) {
-                sql += String.format(" or %s = '%s'", hasSeries[0].getName(), text);
-            }
-
-            found = Application.createQuery(sql).unique();
-        }
-
-        if (found == null) {
-            return RespBody.ok();
-        } else {
-            ID idVal = (ID) found[0];
-            String nameVal = FieldValueHelper.getLabel(idVal);
-            return RespBody.ok(FieldValueHelper.wrapMixValue(idVal, nameVal));
-        }
     }
 }
