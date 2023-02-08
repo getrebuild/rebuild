@@ -153,7 +153,7 @@ $(document).ready(() => {
         renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
 
-          $(`<a class="dropdown-item bosskey-show">${$L('配置顶部菜单')}</a>`)
+          $(`<a class="dropdown-item bosskey-show">${$L('顶部菜单')}</a>`)
             .appendTo($(this._$switch).find('.dropdown-menu'))
             .on('click', () => {
               renderRbcomp(<TopNavSettings list={alist} />)
@@ -339,7 +339,7 @@ class TopNavSettings extends Share2Switch {
                     </div>
                     <div className="col-4 pl-0">
                       <select className="form-control form-control-sm" defaultValue={item[3] || ''}>
-                        <option value="">{$L('默认仪表盘')}</option>
+                        <option value="">{$L('仪表盘')}</option>
                         {(this.state.dashList || []).map((d) => {
                           return (
                             <option key={d[0]} value={d[0]}>

@@ -341,6 +341,12 @@ var _initNav = function () {
       if (!$parent.hasClass('open')) $parent.first().trigger('click')
     }
   }
+
+  // Active Top
+  var topnav = $.cookie('AppHome.Nav')
+  if (topnav) {
+    $('.navbar-collapse .nav-item[data-id="' + topnav + '"]').addClass('active')
+  }
 }
 
 var _checkMessage__state = 0

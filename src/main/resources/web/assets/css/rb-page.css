@@ -5159,6 +5159,21 @@ pre.unstyle {
   display: none !important;
 }
 
+.navbar-collapse .nav-item .nav-link {
+  position: relative;
+}
+
+.navbar-collapse .nav-item.active .nav-link::after {
+  content: '';
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--rb-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
 .logo-img,
 .rb-top-header .rb-navbar-header .navbar-brand {
   background-image: url('../../commons/theme/use-logo');
