@@ -26,6 +26,7 @@ public class CommandArgs {
     public static final String _ForceTour = "_ForceTour";
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _BizzReadDepth = "_BizzReadDepth";  // L,D,G
+    public static final String _TopNav = "_TopNav";  // L,D,G
 
     /**
      * @param name
@@ -41,5 +42,13 @@ public class CommandArgs {
      */
     public static int getInteger(String name) {
         return ObjectUtils.toInt(System.getProperty(name), -1);
+    }
+
+    /**
+     * @param name
+     * @return default -1
+     */
+    public static String getString(String name) {
+        return System.getProperty(name);
     }
 }

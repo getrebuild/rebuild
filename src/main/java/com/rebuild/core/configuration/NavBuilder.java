@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
@@ -276,6 +277,11 @@ public class NavBuilder extends NavManager {
         }
     }
 
+    @Override
+    protected String getConfigFields() {
+        return "configId,shareTo,createdBy,config,configName";
+    }
+
     // -- PORTAL RENDER
 
     /**
@@ -428,5 +434,36 @@ public class NavBuilder extends NavManager {
     private static void replaceLang(JSONObject item) {
         String text = item.getString("text");
         item.put("text", Language.L(text));
+    }
+
+    public static String renderTopNav(HttpServletRequest request) {
+        String topNav = CommandArgs.getString(CommandArgs._TopNav);
+        topNav = "013-0185aa6944370004";
+        if (topNav == null || topNav.length() < 20) return StringUtils.EMPTY;
+
+        final ID user = AppUtils.getRequestUser(request);
+        final Object[][] alls = instance.getAllConfig(null, TYPE_NAV);
+
+        StringBuilder topNavHtml = new StringBuilder();
+
+        for (String nd : topNav.split("[,;]")) {
+            String[] ndAnd = nd.split(CommonsUtils.COMM_SPLITER_RE);
+
+            ID useNav = ID.isId(ndAnd[0]) ? ID.valueOf(ndAnd[0]) : null;
+            if (useNav == null) continue;
+
+            for (Object[] d : alls) {
+                if (instance.isShareTo((String) d[1], user)) {
+                    String url = AppUtils.getContextPath("/app/home?n=" + useNav);
+                    ID useDash = ndAnd.length == 2 && ID.isId(ndAnd[1]) ? ID.valueOf(ndAnd[1]) : null;
+                    if (useDash != null) url += "&d=" + useDash;
+
+                    topNavHtml.append(
+                            String.format("<li class=\"nav-item\"><a class=\"nav-link\" href=\"%s\">%s</a></li>", url, d[4]));
+                    break;
+                }
+            }
+        }
+        return topNavHtml.toString();
     }
 }
