@@ -102,7 +102,7 @@ public class AutoAssign extends TriggerAction {
             Application.getEntityService(actionContext.getSourceEntity().getEntityCode())
                     .assign(recordId, toUser, cascades);
 
-            // 当前分派人
+            // 当前分配人
             if (orderedAssign) {
                 KVStorage.setCustomValue(orderedAssignKey, toUser);
             }

@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * 多引用字段支持
  *
@@ -63,14 +62,19 @@ public class N2NReferenceSupport {
      * @return
      */
     public static ID[] items(String fieldPath, ID recordId) {
+        Object[] last = getLastObject(fieldPath, recordId);
+        return items((Field) last[0], (ID) last[1]);
+    }
+
+    protected static Object[] getLastObject(String fieldPath, ID recordId) {
         Entity father = MetadataHelper.getEntity(recordId.getEntityCode());
         ID fatherRecordId = recordId;
 
         String[] paths = fieldPath.split("\\.");
         for (int i = 0; i < paths.length - 1; i++) {
             String field = paths[i];
-            Object[] o = Application.getPersistManagerFactory().createQuery(
-                    String.format("select %s from %s where %s = ?", field, father.getName(), father.getPrimaryField().getName()))
+            String sql = String.format("select %s from %s where %s = ?", field, father.getName(), father.getPrimaryField().getName());
+            Object[] o = Application.getPersistManagerFactory().createQuery(sql)
                     .setParameter(1, fatherRecordId)
                     .unique();
 
@@ -79,7 +83,7 @@ public class N2NReferenceSupport {
         }
 
         Field lastField = father.getField(paths[paths.length - 1]);
-        return items(lastField, fatherRecordId);
+        return new Object[] { lastField, fatherRecordId };
     }
 
     /**

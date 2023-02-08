@@ -154,9 +154,9 @@ public class TransformManager implements ConfigManager {
      * @param targetEntity
      * @return
      */
+    @SuppressWarnings("unchecked")
     public List<ConfigBean> getDetailImports(String targetEntity) {
         if (WEAK_CACHED.containsKey(targetEntity)) {
-            //noinspection unchecked
             return (List<ConfigBean>) WEAK_CACHED.get(targetEntity);
         }
 

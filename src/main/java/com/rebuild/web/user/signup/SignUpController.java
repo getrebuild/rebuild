@@ -15,22 +15,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CacheTemplate;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
+import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.BaseController;
-import com.wf.captcha.SpecCaptcha;
-import com.wf.captcha.utils.CaptchaUtil;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +39,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -53,6 +51,17 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/user/")
 public class SignUpController extends BaseController {
+
+    // 基于邮箱的限流
+    private static final RequestRateLimiter RRL_EMAIL = RateLimiters.createRateLimiter(
+            new int[] { 60, 600, 3600 },
+            new int[] { 3, 5, 10 });
+    // 基于IP的限流
+    private static final RequestRateLimiter RRL_IP = RateLimiters.createRateLimiter(
+            new int[] { 60, 600, 3600 },
+            new int[] { 15, 50, 100 });
+
+    // 注册
 
     @GetMapping("signup")
     public ModelAndView pageSignup(HttpServletResponse response) throws IOException {
@@ -77,11 +86,18 @@ public class SignUpController extends BaseController {
             return RespBody.errorl("邮箱已存在");
         }
 
+        if (RRL_EMAIL.overLimitWhenIncremented("email:" + email)) {
+            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+        }
+        String remoteIp = ServletUtils.getRemoteAddr(request);
+        if (RRL_IP.overLimitWhenIncremented("ip:" + remoteIp)) {
+            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+        }
+
         String vcode = VerfiyCode.generate(email, 1);
         String title = Language.L("注册验证码");
         String content = Language.L("你的注册验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, title, content);
-
 
         log.warn(email + " >>>>> " + content);
         if (sentid != null) {
@@ -132,6 +148,7 @@ public class SignUpController extends BaseController {
     public RespBody checkoutName(HttpServletRequest request) {
         String fullName = getParameterNotNull(request, "fullName");
 
+        //noinspection UnnecessaryUnicodeEscape
         fullName = fullName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5]", "");
         String loginName = HanLP.convertToPinyinString(fullName, "", false);
         if (loginName.length() > 20) {
@@ -153,38 +170,60 @@ public class SignUpController extends BaseController {
         return RespBody.ok(loginName);
     }
 
-    @GetMapping("captcha")
-    public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Font font = new Font(Font.SERIF, Font.BOLD & Font.ITALIC, 22 + RandomUtils.nextInt(8));
-        int codeLen = 4 + RandomUtils.nextInt(3);
-        SpecCaptcha captcha = new SpecCaptcha(160, 41, codeLen, font);
-        CaptchaUtil.out(captcha, request, response);
+    // 找回密码
 
-        // 兼容跨域
-        String mobKey = request.getParameter("k");
-        if (StringUtils.isNotBlank(mobKey)) {
-            Application.getCommonsCache().put("MobKey" + mobKey, captcha.text(), CacheTemplate.TS_HOUR / 60);
+    @GetMapping("forgot-passwd")
+    public ModelAndView forgotPasswd() {
+        return createModelAndView("/signup/forgot-passwd");
+    }
+
+    @PostMapping("user-forgot-passwd")
+    public RespBody userForgotPasswd(HttpServletRequest request) {
+        if (!SMSender.availableMail()) {
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
+        }
+
+        String email = getParameterNotNull(request, "email");
+        if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
+            return RespBody.errorl("无效邮箱地址");
+        }
+
+        if (RRL_EMAIL.overLimitWhenIncremented("email:" + email)) {
+            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+        }
+
+        String vcode = VerfiyCode.generate(email, 2);
+        String subject = Language.L("重置密码");
+        String content = Language.L("你的重置密码验证码是 : **%s**", vcode);
+        String sentid = SMSender.sendMail(email, subject, content);
+
+        log.warn(email + " >>>>> " + content);
+        if (sentid != null) {
+            return RespBody.ok();
+        } else {
+            return RespBody.errorl("操作失败，请稍后重试");
         }
     }
 
-    /**
-     * Captcha 验证
-     *
-     * @param vcode
-     * @param request
-     * @return
-     * @see #captcha(HttpServletRequest, HttpServletResponse)
-     */
-    public static boolean captchaVerify(String vcode, HttpServletRequest request) {
-        String code = vcode.contains("/") ? vcode.split("/")[1] : vcode;
-        boolean v = CaptchaUtil.ver(code, request);
+    @PostMapping("user-confirm-passwd")
+    public RespBody userConfirmPasswd(HttpServletRequest request) {
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 
-        // 兼容跨域
-        if (!v && vcode.contains("/") && AppUtils.isRbMobile(request)) {
-            String mobKey = vcode.split("/")[0];
-            String code2 = Application.getCommonsCache().get("MobKey" + mobKey);
-            return code.equalsIgnoreCase(code2);
+        String newpwd = data.getString("newpwd");
+        String email = data.getString("email");
+        String vcode = data.getString("vcode");
+
+        if (!VerfiyCode.verfiy(email, vcode, true)) {
+            return RespBody.errorl("无效验证码");
         }
-        return v;
+
+        User user = Application.getUserStore().getUserByEmail(email);
+        try {
+            Application.getBean(UserService.class).txChangePasswd(user.getId(), newpwd);
+            return RespBody.ok();
+
+        } catch (DataSpecificationException ex) {
+            return RespBody.error(ex.getLocalizedMessage());
+        }
     }
 }

@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -236,5 +237,19 @@ public class ApprovalAdminController extends BaseController {
 
         return JSONUtils.toJSONObjectArray(
                 new String[] {  "id", "text" }, shows.toArray(new String[0][]));
+    }
+
+    @RequestMapping("approval/use-stats")
+    public RespBody useStats(HttpServletRequest request) {
+        final String[] ids = getParameterNotNull(request, "ids").split(",");
+
+        Map<String, Object> res = new HashMap<>();
+        for (String id : ids) {
+            ID aid = ID.valueOf(id);
+            int state2 = ApprovalHelper.checkUsed(aid, ApprovalState.PROCESSING);
+            int state10 = ApprovalHelper.checkUsed(aid, ApprovalState.APPROVED);
+            res.put(id, new Object[] { state2, state10 });
+        }
+        return RespBody.ok(res);
     }
 }

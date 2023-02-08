@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.StopWatch;
 
@@ -44,7 +43,7 @@ public class HeavyStopWatcher {
      */
     public static StopWatch createWatcher(String watcherName, String taskName) {
         // 未启用
-        if (!BooleanUtils.toBoolean(System.getProperty("_HeavyStopWatcher"))) return null;
+        if (!CommandArgs.getBoolean(CommandArgs._HeavyStopWatcher)) return null;
 
         StopWatch sw = new StopWatch(watcherName);
         WATCHER.set(sw);

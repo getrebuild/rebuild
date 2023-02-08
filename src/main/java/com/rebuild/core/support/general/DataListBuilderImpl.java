@@ -89,7 +89,7 @@ public class DataListBuilderImpl implements DataListBuilder {
             Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
             totalRows = ObjectUtils.toInt(count[0]);
 
-            // 统计字段
+            // 统计列
             List<Map<String, Object>> countFields = queryParser.getCountFields();
             if (count.length > 1 && !countFields.isEmpty()) {
                 stats = new ArrayList<>();

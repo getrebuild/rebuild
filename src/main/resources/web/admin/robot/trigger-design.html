@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/triggers" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/trigger/" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
     <title>[[${bundle.L('触发器')}]]</title>
   </head>
@@ -48,7 +48,7 @@
                           <div class="mt-1">
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="16" />
-                              <span class="custom-control-label"> [[${bundle.L('分派时')}]]</span>
+                              <span class="custom-control-label"> [[${bundle.L('分配时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="32" />
@@ -151,7 +151,9 @@
                         <label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
                         <div class="col-12 col-lg-9">
                           <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
-                          <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more fs-18"></i></button>
+                          <button class="btn btn-light btn-space w-auto dropdown-toggle hide" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
+                            <i class="icon zmdi zmdi-more fs-18"></i>
+                          </button>
                           <div class="dropdown-menu">
                             <!-- ACTION IN HERE -->
                           </div>

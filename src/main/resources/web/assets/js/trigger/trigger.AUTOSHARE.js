@@ -15,21 +15,21 @@ class ContentAutoShare extends ActionContentSpec {
     return (
       <div className="auto-share">
         <form className="simple">
-          <div className="form-group row pt-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('共享给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._shareTo = c)} />
             </div>
           </div>
 
-          <div className="form-group row pb-1">
+          <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
                   {(this.state.cascadesEntity || []).map((item) => {
                     return (
-                      <option key={'option-' + item[0]} value={item[0]}>
+                      <option key={item[0]} value={item[0]}>
                         {item[1]}
                       </option>
                     )
@@ -44,7 +44,7 @@ class ContentAutoShare extends ActionContentSpec {
             <div className="col-12 col-lg-8">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
-                <span className="custom-control-label">{$L('允许修改 (不勾选则仅共享读取权限)')}</span>
+                <span className="custom-control-label">{$L('允许编辑 (不勾选则仅共享读取权限)')}</span>
               </label>
             </div>
           </div>

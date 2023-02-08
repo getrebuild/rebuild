@@ -321,6 +321,11 @@ public class UserService extends BaseService {
         if (beforeUnEnabled) {
             notifyEnableUser(Application.getUserStore().getUser(enUser.getId()));
         }
+
+        // Kill session
+        if (enableNew != null && !enableNew) {
+            Application.getSessionStore().killSession(user);
+        }
     }
 
     /**
@@ -417,7 +422,7 @@ public class UserService extends BaseService {
         try {
             record = this.create(record, false);
         } finally {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
 
         // 通知管理员
@@ -432,6 +437,25 @@ public class UserService extends BaseService {
         Application.getNotifications().send(message);
 
         return newUserId;
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param user
+     * @param newPasswd
+     * @throws DataSpecificationException
+     */
+    public void txChangePasswd(ID user, String newPasswd) throws DataSpecificationException {
+        Record record = EntityHelper.forUpdate(user, SYSTEM_USER);
+        record.setString("password", newPasswd);
+
+        UserContextHolder.setUser(SYSTEM_USER);
+        try {
+            this.update(record);
+        } finally {
+            UserContextHolder.clearUser();
+        }
     }
 
     /**

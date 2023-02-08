@@ -101,7 +101,7 @@ class RbViewForm extends React.Component {
           setTimeout(() => location.reload(), window.VIEW_LOAD_DELAY || 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
-        this.renderViewError($L('此记录已被删除'))
+        this.renderViewError($L('记录已经不存在，可能已被其他用户删除'))
         $('.view-operating').empty()
       }
     })
@@ -204,7 +204,9 @@ class RelatedList extends React.Component {
     // default:CARD
     if (props.showViewMode) {
       this.__viewModeKey = `RelatedListViewMode-${props.entity.split('.')[0]}`
-      this.state.viewMode = $storage.get(this.__viewModeKey) || 'CARD'
+      let vm = $storage.get(this.__viewModeKey)
+      if (!vm) vm = props.defaultList ? 'LIST' : null
+      this.state.viewMode = vm || 'CARD'
     }
   }
 
@@ -243,7 +245,7 @@ class RelatedList extends React.Component {
                     <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
-                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('表格视图')}>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('数据列表视图')}>
                     <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
@@ -429,7 +431,7 @@ class EntityRelatedList extends RelatedList {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
 
-    const pageSize = 5
+    const pageSize = 20
     const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
       this.__searchKey
     )}`
@@ -760,7 +762,16 @@ const RbViewPage = {
       const configThat = this
       $tabNav.find('a').on('click', function () {
         $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(<MixRelatedList entity={entity} entity2={[configThat.entityLabel, configThat.icon]} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+          renderRbcomp(
+            <MixRelatedList
+              entity={entity}
+              entity2={[configThat.entityLabel, configThat.icon]}
+              mainid={that.__id}
+              autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
+              defaultList={$isTrue(wpc.viewTabsDefaultList)}
+            />,
+            $tabPane
+          )
       })
     })
     this.updateVTabs()
@@ -796,27 +807,25 @@ const RbViewPage = {
   initVAdds(config) {
     const that = this
     $(config).each(function () {
-      const e = this
-      // const title = $L('新建%s', e.entityLabel)
-      const title = e.entityLabel
-      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>${title}</a>`)
+      const item = this
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.on('click', function () {
-        if (e.entity === 'Feeds.relatedRecord') {
+        if (item.entity === 'Feeds.relatedRecord') {
           const data = {
             type: 2,
             relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
-        } else if (e.entity === 'ProjectTask.relatedRecord') {
+        } else if (item.entity === 'ProjectTask.relatedRecord') {
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
         } else {
           const iv = {}
-          const entity = e.entity.split('.')
+          const entity = item.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
-          RbFormModal.create({ title: $L('新建%s', title), entity: entity[0], icon: e.icon, initialValue: iv })
+          RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv })
         }
       })
 
@@ -859,7 +868,7 @@ const RbViewPage = {
               const mainid = _TransformRich.getMainId()
               if (mainid === false) return
 
-              this.disabled(true)
+              this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide()

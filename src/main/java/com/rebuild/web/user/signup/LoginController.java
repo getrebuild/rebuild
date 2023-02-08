@@ -8,28 +8,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.CommonsCache;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.support.*;
-import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.utils.AppUtils;
+import com.wf.captcha.SpecCaptcha;
+import com.wf.captcha.utils.CaptchaUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +139,7 @@ public class LoginController extends LoginAction {
             if (StringUtils.isBlank(vcode)) {
                 ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
                 return RespBody.error("VCODE");
-            } else if (!SignUpController.captchaVerify(vcode, request)) {
+            } else if (!captchaVerify(vcode, request)) {
                 return RespBody.errorl("验证码错误");
             }
         }
@@ -220,64 +220,6 @@ public class LoginController extends LoginAction {
 
     // --
 
-    @GetMapping("forgot-passwd")
-    public ModelAndView forgotPasswd() {
-        return createModelAndView("/signup/forgot-passwd");
-    }
-
-    @PostMapping("user-forgot-passwd")
-    public RespBody userForgotPasswd(HttpServletRequest request) {
-        if (!SMSender.availableMail()) {
-            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
-        }
-
-        String email = getParameterNotNull(request, "email");
-        if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-            return RespBody.errorl("无效邮箱地址");
-        }
-
-        String vcode = VerfiyCode.generate(email, 2);
-        String subject = Language.L("重置密码");
-        String content = Language.L("你的重置密码验证码是 : **%s**", vcode);
-        String sentid = SMSender.sendMail(email, subject, content);
-
-        if (sentid != null) {
-            return RespBody.ok();
-        } else {
-            return RespBody.errorl("操作失败，请稍后重试");
-        }
-    }
-
-    @PostMapping("user-confirm-passwd")
-    public RespBody userConfirmPasswd(HttpServletRequest request) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-
-        String newpwd = data.getString("newpwd");
-        String email = data.getString("email");
-        String vcode = data.getString("vcode");
-
-        if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.errorl("无效验证码");
-        }
-
-        User user = Application.getUserStore().getUserByEmail(email);
-        Record record = EntityHelper.forUpdate(user.getId(), user.getId());
-        record.setString("password", newpwd);
-        try {
-            UserContextHolder.setUser(user.getId());
-
-            Application.getBean(UserService.class).update(record);
-            VerfiyCode.clean(email);
-
-            return RespBody.ok();
-
-        } catch (DataSpecificationException ex) {
-            return RespBody.error(ex.getLocalizedMessage());
-        } finally {
-            UserContextHolder.clear();
-        }
-    }
-
     @GetMapping("live-wallpaper")
     public RespBody getLiveWallpaper() {
         if (!RebuildConfiguration.getBool(ConfigurationItem.LiveWallpaper)) {
@@ -290,6 +232,41 @@ public class LoginController extends LoginAction {
         } else {
             return RespBody.ok(ret.getString("url"));
         }
+    }
+
+    @GetMapping("captcha")
+    public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Font font = new Font(Font.SERIF, Font.BOLD & Font.ITALIC, 22 + RandomUtils.nextInt(8));
+        int codeLen = 4 + RandomUtils.nextInt(3);
+        SpecCaptcha captcha = new SpecCaptcha(160, 41, codeLen, font);
+        CaptchaUtil.out(captcha, request, response);
+
+        // 兼容跨域
+        String mobKey = request.getParameter("k");
+        if (StringUtils.isNotBlank(mobKey)) {
+            Application.getCommonsCache().put("MobKey" + mobKey, captcha.text(), CacheTemplate.TS_HOUR / 60);
+        }
+    }
+
+    /**
+     * Captcha 验证
+     *
+     * @param vcode
+     * @param request
+     * @return
+     * @see #captcha(HttpServletRequest, HttpServletResponse)
+     */
+    public static boolean captchaVerify(String vcode, HttpServletRequest request) {
+        String code = vcode.contains("/") ? vcode.split("/")[1] : vcode;
+        boolean v = CaptchaUtil.ver(code, request);
+
+        // 兼容跨域
+        if (!v && vcode.contains("/") && AppUtils.isRbMobile(request)) {
+            String mobKey = vcode.split("/")[0];
+            String code2 = Application.getCommonsCache().get("MobKey" + mobKey);
+            return code.equalsIgnoreCase(code2);
+        }
+        return v;
     }
 
     @GetMapping("site-register")

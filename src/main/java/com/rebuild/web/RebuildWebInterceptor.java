@@ -145,7 +145,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 // Aside collapsed
                 if (!(requestUri.contains("/admin/") || requestUri.contains("/setup/"))) {
                     String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
-                    if (BooleanUtils.toBoolean(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
+                    if ("false".equals(asideCollapsed));
+                    else sideCollapsedClazz += " rb-aside-collapsed";
                 }
                 request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
 

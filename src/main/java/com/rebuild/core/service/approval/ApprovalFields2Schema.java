@@ -43,6 +43,9 @@ public class ApprovalFields2Schema extends Field2Schema {
             if (!approvalEntity.containsField(EntityHelper.ApprovalLastUser)) {
                 return schema2DatabaseInternal(approvalEntity, buildApporvalLastUser(approvalEntity));
             }
+            if (!approvalEntity.containsField(EntityHelper.ApprovalLastTime)) {
+                return schema2DatabaseInternal(approvalEntity, buildApporvalLastTime(approvalEntity));
+            }
             if (!approvalEntity.containsField(EntityHelper.ApprovalLastRemark)) {
                 return schema2DatabaseInternal(approvalEntity, buildApporvalLastRemark(approvalEntity));
             }
@@ -62,9 +65,12 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
 
         Field apporvalLastUser = buildApporvalLastUser(approvalEntity);
+        Field apporvalLastTime = buildApporvalLastTime(approvalEntity);
         Field apporvalLastRemark = buildApporvalLastRemark(approvalEntity);
 
-        schema2DatabaseInternal(approvalEntity, apporvalId, apporvalState, apporvalStepId, apporvalLastUser, apporvalLastRemark);
+        schema2DatabaseInternal(
+                approvalEntity, apporvalId, apporvalState, apporvalStepId,
+                apporvalLastUser, apporvalLastTime, apporvalLastRemark);
         return true;
     }
 
@@ -78,6 +84,12 @@ public class ApprovalFields2Schema extends Field2Schema {
     private Field buildApporvalLastRemark(Entity approvalEntity) {
         return createUnsafeField(approvalEntity, EntityHelper.ApprovalLastRemark, Language.L("最后审批批注"),
                 DisplayType.NTEXT, true, false, false, true, true, null, null, null, null, null);
+    }
+
+    // v3.2 最后审批时间
+    private Field buildApporvalLastTime(Entity approvalEntity) {
+        return createUnsafeField(approvalEntity, EntityHelper.ApprovalLastTime, Language.L("最后审批时间"),
+                DisplayType.DATETIME, true, false, false, true, true, null, null, null, null, null);
     }
 
     private boolean schema2DatabaseInternal(Entity approvalEntity, Field... fields) {

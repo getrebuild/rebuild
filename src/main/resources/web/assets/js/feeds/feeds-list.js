@@ -260,7 +260,7 @@ class FeedsList extends React.Component {
         $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
-            const _data = that.state.data
+            const _data = that.state.data || []
             _data.forEach((item) => {
               if (id === item.id) item.deleted = true
             })
@@ -302,7 +302,10 @@ class FeedsList extends React.Component {
             this.hide()
             RbHighbar.success($L('日程已完成'))
             that.fetchFeeds()
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
     })
@@ -476,7 +479,7 @@ class FeedsComments extends React.Component {
         $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
-            const _data = that.state.data
+            const _data = that.state.data || []
             _data.forEach((item) => {
               if (id === item.id) item.deleted = true
             })
@@ -637,9 +640,9 @@ function __renderRichContent(e) {
         <div className="img-field">
           {e.images.map((item, idx) => {
             return (
-              <span key={'img-' + item}>
+              <span key={`img-${item}`}>
                 <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} alt="Avatar" />
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/300/interlace/1/q/100`} />
                 </a>
               </span>
             )

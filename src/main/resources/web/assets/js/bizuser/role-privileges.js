@@ -16,7 +16,7 @@ let roleId = window.__PageConfig.recordId
 let advFilters = {}
 let advFilterSettings = {}
 
-$(document).ready(function () {
+$(document).ready(() => {
   $('.J_new-role').on('click', () => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
 
   loadRoles()
@@ -68,7 +68,7 @@ $(document).ready(function () {
     'R': $L('读取'),
     'U': $L('更新'),
     'D': $L('删除'),
-    'A': $L('分派'),
+    'A': $L('分配'),
     'S': $L('共享'),
   }
 
@@ -90,10 +90,10 @@ $(document).ready(function () {
           entity={entity}
           filter={advFilterSettings[filterKey]}
           title={
-            <React.Fragment>
+            <RF>
               {$L('自定义%s权限', ACTION_NAMES[action] || '')}
               <sup className="rbv" title={$L('增值功能')} />
-            </React.Fragment>
+            </RF>
           }
           inModal
           canNoFilters
@@ -116,7 +116,7 @@ $(document).ready(function () {
 
 const _clickPriv = function (elements, action) {
   if (action === 'C' || action === 'Z') {
-    if (elements.first().hasClass('R0')) elements.removeClass('R0').addClass('R4')
+    if (elements.hasClass('R0')) elements.removeClass('R0').addClass('R4')
     else elements.removeClass('R4').addClass('R0')
   } else {
     let clz = 'R0'
@@ -151,7 +151,7 @@ const loadRoles = function () {
         }}
         extrasAction={(item) => {
           return (
-            <React.Fragment>
+            <RF>
               <span
                 className="action"
                 onClick={() => {
@@ -172,7 +172,7 @@ const loadRoles = function () {
                 }}>
                 <i className="zmdi zmdi-delete" />
               </span>
-            </React.Fragment>
+            </RF>
           )
         }}
         hideCollapse
@@ -214,8 +214,6 @@ const loadPrivileges = function () {
           }
         }
       })
-
-      console.log(advFilterSettings)
     } else {
       $('.J_save').attr('disabled', true)
       $('.J_tips').removeClass('hide').find('.message p').text(res.error_msg)

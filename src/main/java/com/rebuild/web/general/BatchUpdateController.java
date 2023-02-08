@@ -88,6 +88,4 @@ public class BatchUpdateController extends BaseController {
         }
         return updatableFields;
     }
-
-
 }

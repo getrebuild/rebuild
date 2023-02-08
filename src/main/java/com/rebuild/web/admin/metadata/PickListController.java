@@ -51,6 +51,6 @@ public class PickListController extends BaseController {
 
         Field fieldMeta = MetadataHelper.getField(entity, field);
         Application.getBean(PickListService.class).updateBatch(fieldMeta, config);
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 }

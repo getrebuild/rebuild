@@ -142,11 +142,11 @@ class FormulaCalc extends RbAlert {
 class FormulaDate extends RbAlert {
   constructor(props) {
     super(props)
-    this.state = { calcNum: 1, calcUnit: 'D' }
+    this.state = { calcNum: 1, calcUnit: props.type === 'TIME' ? 'H' : 'D' }
   }
 
   renderContent() {
-    const base = this.props.base ? this.props.base : [['NOW', $L('当前日期')]]
+    const base = this.props.base ? this.props.base : [['NOW', $L('当前时间')]]
     return (
       <form className="ml-6 mr-6">
         <div className="form-group">
@@ -176,14 +176,18 @@ class FormulaDate extends RbAlert {
               onChange={(e) => this.setState({ calcNum: e.target.value })}
             />
             <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              <option value="D">{$L('日')}</option>
-              <option value="M">{$L('月')}</option>
-              <option value="Y">{$L('年')}</option>
-              {this.props.type === 'DATETIME' && (
-                <React.Fragment>
+              {this.props.type !== 'TIME' && (
+                <RF>
+                  <option value="D">{$L('日')}</option>
+                  <option value="M">{$L('月')}</option>
+                  <option value="Y">{$L('年')}</option>
+                </RF>
+              )}
+              {(this.props.type === 'DATETIME' || this.props.type === 'TIME') && (
+                <RF>
                   <option value="H">{$L('小时')}</option>
                   <option value="I">{$L('分钟')}</option>
-                </React.Fragment>
+                </RF>
               )}
             </select>
           </div>
@@ -220,14 +224,15 @@ class FormulaAggregation extends FormulaCalc {
     if (typeof v === 'object') {
       const that = this
       const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
-      const $menu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
+      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
       $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
-        $a.click(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
+        $a.on('click', function () {
           that._changeCalcMode(this)
         })
       })
       $field.appendTo(this._$formula)
+      $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
     } else {
       super.handleInput(v)
     }

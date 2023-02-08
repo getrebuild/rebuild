@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable quotes */
 /* eslint-disable no-unused-vars */
-;(function ($) {
+(function ($) {
   $.fn.html5Uploader = function (options) {
     var crlf = '\r\n'
     var boundary = 'iloveigloo'
@@ -185,17 +185,20 @@
 
 // 文件类型检查（扩展名）
 function html5Uploader_checkAccept(file, accept) {
+  // eg. *
   if (!accept || accept === '*') {
     return true
   }
+  // eg. image/*
   if (accept.split('/')[1] === '*' && accept.split('/')[0] === file.type.split('/')[0]) {
     return true
   }
+
   var fileExt = file.name.split('.')
-  fileExt = '.' + fileExt[fileExt.length - 1]
+  fileExt = ('.' + fileExt[fileExt.length - 1]).toLowerCase()
   var isAccept = false
   $(accept.split(',')).each(function () {
-    if (fileExt === $.trim(this)) {
+    if (fileExt === $.trim(this).toLowerCase()) {
       isAccept = true
       return false
     }

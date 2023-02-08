@@ -197,6 +197,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                         ID errTrigger = action.getActionContext().getConfigId();
                         errMsg = errMsg + " (" + FieldValueHelper.getLabelNotry(errTrigger) + ")";
 
+                        log.error(errMsg, ex);
                         throw new TriggerException(errMsg);
                     }
 

@@ -89,7 +89,7 @@ public class AutoFillinController extends BaseController {
         record.setString("extConfig", data.getString("extConfig"));
 
         Application.getBean(AutoFillinConfigService.class).createOrUpdate(record);
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 
     @RequestMapping("auto-fillin-list")

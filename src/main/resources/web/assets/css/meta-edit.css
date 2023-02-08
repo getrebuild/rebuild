@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .sortable-box {
   height: 208px;
-  max-width: 300px;
+  max-width: 325px;
 }
 
 .sortable-box .dd-list {
@@ -31,11 +31,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
-.sortable-box.autoh,
-.sortable-box.autoh .dd-list {
-  height: auto;
-}
-
 .sortable-box .default .dd-handle {
   background-color: #dedede !important;
 }
@@ -45,21 +40,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .dt-MULTISELECT .dd-handle,
-.dt-PICKLIST .dd-handle {
+.dt-PICKLIST .dd-handle,
+.dt-TAG .dd-handle {
   padding-left: 31px !important;
 }
 
 .dt-MULTISELECT .dd-handle::before,
-.dt-PICKLIST .dd-handle::before {
+.dt-PICKLIST .dd-handle::before,
+.dt-TAG .dd-handle::before {
   position: absolute;
-  font-family: 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 20px;
-  color: #bbb;
+  color: #ddd;
   left: 10px;
   content: '\f279';
 }
 
-.dt-MULTISELECT .default .dd-handle::before {
+.dt-MULTISELECT .default .dd-handle::before,
+.dt-TAG .default .dd-handle::before {
   content: '\f26a';
 }
 
@@ -71,6 +69,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dt-PICKLIST .default .dd-handle::before {
   content: '\f269';
+}
+
+.dt-TAG .dd-handle > a {
+  float: right;
+  color: #a1a1a1;
+  font-size: 1.23rem;
+  display: none;
+}
+
+.dt-TAG .dd-handle > a:hover {
+  color: gray;
+}
+
+.dt-TAG .dd-handle:hover > a {
+  display: inline-block;
 }
 
 .form-text.help b {
@@ -118,6 +131,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 9px 10px 8px;
   min-height: 37px !important;
   cursor: text;
+}
+
+.form-control-plaintext.formula:empty {
+  border: 1px dotted #bdc0c7 !important;
 }
 
 .form-control-plaintext.formula:empty::after {
@@ -219,26 +236,17 @@ a#entityIcon:hover {
   border-bottom-right-radius: 2px !important;
 }
 
-.common-patt,
-.common-suff {
-  padding: 15px;
-}
-
-.common-patt > h5,
-.common-suff > h5 {
-  margin: 0;
-  color: #777;
-}
-
-.common-patt .badge,
-.common-suff .badge {
-  margin: 6px 3px 0 0;
-  font-weight: normal;
+select.underline-sm {
+  width: 60px;
+  padding: 1px;
   border: 0 none;
-  background-color: rgb(245, 247, 249);
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  appearance: none;
+  outline: none;
+  background-color: #fff;
 }
 
-.common-patt .badge:hover,
-.common-suff .badge:hover {
-  color: #4285f4 !important;
+select.underline-sm:focus {
+  border-color: #4285f4;
 }

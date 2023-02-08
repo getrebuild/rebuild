@@ -15,16 +15,18 @@ const RBV_TRIGGERS = {
   'HOOKURL': $L('回调 URL'),
   'AUTOTRANSFORM': $L('自动记录转换'),
   'DATAVALIDATE': $L('数据校验'),
-  'AUTOREVOKE': $L('自动撤销'),
+  'AUTOREVOKE': $L('自动撤销审批'),
   'AUTODELETE': $L('自动删除'),
   'PROXYTRIGGERACTION': $L('自定义触发器'),
+  'AUTOUNSHARE': $L('自动取消共享'),
+  'CREATEFEED': $L('新建动态'),
 }
 
 const WHENS = {
   1: $L('新建'),
   4: $L('更新'),
   2: $L('删除'),
-  16: $L('分派'),
+  16: $L('分配'),
   32: $L('共享'),
   64: $L('取消共享'),
   128: $L('审批通过'),

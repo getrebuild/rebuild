@@ -110,7 +110,9 @@ $(document).ready(() => {
         if (res.error_code === 0) {
           wpc.chartConfig = cfg
           location.href = (dash ? 'home?d=' + dash : 'home') + '#' + res.data.id
-        } else RbHighbar.error(res.error_msg)
+        } else {
+          RbHighbar.error(res.error_msg)
+        }
       })
     })
     .tooltip({ placement: 'right' })

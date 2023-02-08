@@ -50,6 +50,7 @@ const loadRules = () => {
                 loadRules()
               } else {
                 RbHighbar.error(res.error_msg)
+                this.disabled()
               }
             })
           },
@@ -229,8 +230,8 @@ class DlgRuleEdit extends RbFormHandler {
         loadRules()
       } else {
         RbHighbar.create(res.error_msg)
+        this.disabled()
       }
-      this.disabled()
     })
   }
 }

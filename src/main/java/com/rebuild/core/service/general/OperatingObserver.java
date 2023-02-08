@@ -110,7 +110,7 @@ public abstract class OperatingObserver implements Observer {
     }
 
     /**
-     * 分派时
+     * 分配时
      *
      * @param context
      */

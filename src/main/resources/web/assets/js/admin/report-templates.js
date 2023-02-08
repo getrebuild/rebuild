@@ -19,7 +19,7 @@ class ReportList extends ConfigList {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {(this.state.data || []).map((item) => {
           return (
             <tr key={item[0]}>
@@ -49,7 +49,7 @@ class ReportList extends ConfigList {
             </tr>
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -79,9 +79,9 @@ class ReporEdit extends ConfigFormDlg {
 
   renderFrom() {
     return (
-      <React.Fragment>
+      <RF>
         {!this.props.id && (
-          <React.Fragment>
+          <RF>
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择应用实体')}</label>
               <div className="col-sm-7">
@@ -96,7 +96,19 @@ class ReporEdit extends ConfigFormDlg {
                 </select>
               </div>
             </div>
-            <div className="form-group row pb-1">
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
+                  <input className="custom-control-input" type="checkbox" />
+                  <span className="custom-control-label">
+                    {$L('这是一个列表模板')}
+                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
               <div className="col-sm-9">
                 <div className="float-left">
@@ -113,18 +125,6 @@ class ReporEdit extends ConfigFormDlg {
                 </div>
                 <div className="clearfix" />
                 <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
-              </div>
-            </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right" />
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
-                  <input className="custom-control-input" type="checkbox" />
-                  <span className="custom-control-label">
-                    {$L('这是一个列表模板')}
-                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在列表导出数据时使用')} />
-                  </span>
-                </label>
 
                 {(this.state.invalidVars || []).length > 0 && (
                   <div className="invalid-vars mt-3">
@@ -133,14 +133,16 @@ class ReporEdit extends ConfigFormDlg {
                 )}
               </div>
             </div>
-          </React.Fragment>
+          </RF>
         )}
+
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
+
         {this.props.id && (
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
@@ -151,7 +153,7 @@ class ReporEdit extends ConfigFormDlg {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -179,7 +181,7 @@ class ReporEdit extends ConfigFormDlg {
     if (e) {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }
-    
+
     $(this._$listType)
       .on('change', () => this.checkTemplate())
       .find('[data-toggle="tooltip"]')

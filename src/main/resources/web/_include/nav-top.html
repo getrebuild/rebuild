@@ -8,11 +8,12 @@
       <!--
       <div class="navbar-collapse collapse">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link">TOP-MENU</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/app/home}">TOP-MENU</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/app/home?n=&d=}">SPECIFIED</a></li>
         </ul>
       </div>
       -->
-      <div class="search-container">
+      <div class="search-container hide">
         <div class="global-search dropdown">
           <input
             class="form-control form-control-sm search-input-gs dropdown-toggle"
@@ -21,18 +22,9 @@
             maxlength="100"
             autocomplete="off"
             data-toggle="dropdown"
-            tabindex="1"
-            required
-            th:title="${bundle.L('搜索')}"
+            th:placeholder="${bundle.L('搜索')}"
           />
-          <i class="icon zmdi zmdi-search"></i>
-          <div class="dropdown-menu" th:_title="${bundle.L('无可搜索项')}"></div>
-        </div>
-        <div class="global-create">
-          <div class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" th:title="${bundle.L('新建')}"><i class="zmdi zmdi-plus icon"></i></a>
-            <div class="dropdown-menu auto-scroller" th:_title="${bundle.L('无可新建项')}"></div>
-          </div>
+          <div class="dropdown-menu dropdown-menu-right" th:_title="${bundle.L('无可搜索项')}"></div>
         </div>
       </div>
       <div class="rb-right-navbar">
@@ -40,11 +32,11 @@
           <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
               <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime ?:''}|" alt="Avatar" />
-              <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('姓名')}]]</span>
+              <span class="user-name" th:text="${user.getFullName()}">USER</span>
             </a>
             <div class="dropdown-menu">
               <div class="user-info">
-                <div class="user-name" th:text="${user.getFullName()}">[[${bundle.L('姓名')}]]</div>
+                <div class="user-name" th:text="${user.getFullName()}">NAME</div>
                 <div class="user-id" th:data-user="${user.getId()}">[[${user.getEmail() ?: bundle.L('邮箱未设置')}]]</div>
               </div>
               <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('个人设置')}]]</a>
@@ -72,6 +64,13 @@
         </ul>
         <div class="page-title hide"><span>REBUILD</span></div>
         <ul class="nav navbar-nav float-right rb-icons-nav">
+          <li class="nav-item dropdown global-search2" th:title="${bundle.L('搜索')}">
+            <a class="nav-link"><i class="icon zmdi zmdi-search down-1"></i></a>
+          </li>
+          <li class="nav-item dropdown global-create2" th:title="${bundle.L('新建')}">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-plus up-1"></i></a>
+            <div class="dropdown-menu dropdown-menu-right auto-scroller" th:_title="${bundle.L('无可新建项')}"></div>
+          </li>
           <li class="nav-item dropdown admin-danger hide">
             <a class="nav-link" href="javascript:;"><i class="icon zmdi zmdi-alert-octagon text-danger"></i></a>
           </li>

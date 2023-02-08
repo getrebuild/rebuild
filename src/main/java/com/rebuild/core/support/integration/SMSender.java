@@ -60,7 +60,7 @@ public class SMSender {
             try {
                 sendMail(to, subject, content);
             } catch (Exception ex) {
-                log.error("Mail failed to send : {} < {}", to, subject, ex);
+                log.error("Email failed to send!", ex);
             }
         });
     }
@@ -131,7 +131,7 @@ public class SMSender {
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP failed to send : {} > {}", to, subject, ex);
+                log.error("SMTP failed to send : {} | {} | {}", to, subject, content, ex);
                 return null;
             }
         }
@@ -157,7 +157,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail failed to send : {} > {}", to, subject, ex);
+            log.error("Submail failed to send : {} | {} | {}", to, subject, content, ex);
             return null;
         }
 
@@ -166,12 +166,11 @@ public class SMSender {
             String sendId = ((JSONObject) returns.get(0)).getString("send_id");
             createLog(to, logContent, TYPE_EMAIL, sendId, null);
             return sendId;
-
-        } else {
-            log.error("Mail failed to send : {} > {}\nError : {}", to, subject, rJson);
-            createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
-            return null;
         }
+
+        log.error("Submail failed to send : {} | {} | {}\nError : {}", to, subject, content, rJson);
+        createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
+        return null;
     }
 
     /**
@@ -229,7 +228,7 @@ public class SMSender {
             try {
                 sendSMS(to, content);
             } catch (Exception ex) {
-                log.error("SMS failed to send : {}", to, ex);
+                log.error("SMS failed to send!", ex);
             }
         });
     }
@@ -274,7 +273,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Subsms failed to send : {} > {}", to, content, ex);
+            log.error("Subsms failed to send : {} | {}", to, content, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
@@ -284,12 +283,11 @@ public class SMSender {
             String sendId = rJson.getString("send_id");
             createLog(to, content, TYPE_SMS, sendId, null);
             return sendId;
-
-        } else {
-            log.error("SMS failed to send : {} > {}\nError : {}", to, content, rJson);
-            createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
-            return null;
         }
+
+        log.error("Subsms failed to send : {} | {}\nError : {}", to, content, rJson);
+        createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
+        return null;
     }
 
     // @see com.rebuild.core.support.CommonsLog

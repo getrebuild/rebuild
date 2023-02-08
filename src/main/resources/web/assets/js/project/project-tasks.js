@@ -11,9 +11,12 @@ let __PlanBoxes
 let __AdvFilter
 
 $(document).ready(() => {
-  const gs = $decode($urlp('gs', location.hash))
+  let gs = $urlp('gs', location.hash)
   if (gs) {
-    $('.search-input-gs, .J_search .input-search input').val(gs)
+    // eslint-disable-next-line no-undef
+    _showGlobalSearch(gs)
+    gs = $decode(gs)
+    $('.J_search .input-search input').val(gs)
     $('.J_search .indicator-primary').removeClass('hide')
   }
 

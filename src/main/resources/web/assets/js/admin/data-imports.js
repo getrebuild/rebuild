@@ -157,7 +157,10 @@ const step3_import = () => {
           import_taskid = res.data.taskid
           location.hash = '#task=' + import_taskid
           step3_import_state(import_taskid)
-        } else RbHighbar.error(res.error_msg)
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
       })
     },
   })
@@ -194,9 +197,9 @@ const step3_import_state = (taskid, inLoad) => {
 
     if (_data.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
-      $('.J_import_state').text($L('导入完成。共成功导入 %d 条数据', _data.succeeded))
+      $('.J_import_state').text($L('导入完成。共成功导入 %d 条记录', _data.succeeded))
     } else if (_data.isInterrupted === true) {
-      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条数据', _data.succeeded))
+      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条记录', _data.succeeded))
     }
 
     if (_data.isCompleted === true || _data.isInterrupted === true) {
@@ -248,8 +251,8 @@ const _fieldsMapping = (columns, fields) => {
   const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
     let L = _LETTERS[idx]
-    if (idx > 25) L = `A${_LETTERS[idx - 26] || 'X'}`  // AA
-    if (idx > 51) L = `B${_LETTERS[idx - 52] || 'X'}`  // BA
+    if (idx > 25) L = `A${_LETTERS[idx - 26] || 'X'}` // AA
+    if (idx > 51) L = `B${_LETTERS[idx - 52] || 'X'}` // BA
 
     const $tr = $(`<tr data-col="${idx}"></tr>`).appendTo($tbody)
     $(`<td><em>${L}</em> ${item || $L('空')}<i class="zmdi zmdi-arrow-right"></i></td>`).appendTo($tr)

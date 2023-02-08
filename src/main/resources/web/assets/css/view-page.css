@@ -326,6 +326,7 @@ body {
 
 .sharing-list .table > tbody td {
   padding: 8px 10px;
+  border-width: 0;
 }
 
 .load-mores {
@@ -654,20 +655,20 @@ body {
 }
 
 .form-control-plaintext.multi-values {
-  padding-top: 6px;
-  padding-bottom: 4px;
+  padding-top: 4px;
+  padding-bottom: 3px;
 }
 
 .form-control-plaintext.multi-values > a,
 .form-control-plaintext.multi-values > span {
   border-radius: 3px;
   padding: 1px 6px;
-  margin-right: 3px;
+  margin-right: 4px;
   margin-bottom: 3px;
   display: inline-block;
   border: 1px solid #ccc;
   background-color: #fff;
-  line-height: 17px;
+  line-height: 21px;
 }
 
 .file-list.inview {
@@ -825,6 +826,17 @@ body {
   margin-left: 1px;
   margin-right: 4px;
   color: #8a8a8a;
+}
+
+.timeline.approved-steps .timeline-activity > .badge {
+  padding: 2px 6px;
+  line-height: 1;
+  font-size: 12px;
+  margin-left: 5px;
+  cursor: help;
+  border-radius: 99px;
+  border-bottom-left-radius: 0;
+  transform: translateY(-1px);
 }
 
 .timeline.approved-steps .timeline-item.last {

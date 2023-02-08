@@ -212,11 +212,14 @@ function useExecManual() {
       }
 
       RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.disabled(true, true)
+          $mp.start()
+
           // eslint-disable-next-line no-undef
           $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
-            this.hide(true)
+            $mp.end()
+            this.hide()
             RbHighbar.success($L('执行成功'))
           })
         },
@@ -302,4 +305,68 @@ function disableWhen() {
         }
       }
     })
+}
+
+// eslint-disable-next-line no-unused-vars
+class EditorWithFieldVars extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    let attrs = {
+      className: 'form-control',
+      maxLength: 2000,
+      placeholder: this.props.placeholder || null,
+    }
+
+    if (this.props.isCode) {
+      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, wrap: 'off', autoFocus: true }
+    }
+
+    return (
+      <div className="textarea-wrap">
+        <textarea {...attrs} ref={(c) => (this._$content = c)} />
+        <a className="fields-vars" title={$L('插入字段变量')} data-toggle="dropdown">
+          <i className="mdi mdi-code-braces" />
+        </a>
+        <div className="dropdown-menu auto-scroller dropdown-menu-right" ref={(c) => (this._$fieldVars = c)}>
+          {(this.state.fieldVars || []).map((item) => {
+            return (
+              <a
+                className="dropdown-item"
+                key={item.name}
+                onClick={() => {
+                  $(this._$content).insertAtCursor(`{${item.name}}`)
+                }}>
+                {item.label}
+              </a>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
+      this.setState({ fieldVars: res.data || [] }, () => {
+        $(this._$fieldVars).perfectScrollbar({})
+      })
+    })
+
+    // eslint-disable-next-line no-undef
+    autosize(this._$content)
+  }
+
+  val() {
+    if (arguments.length > 0) {
+      $(this._$content).val(arguments[0])
+      // eslint-disable-next-line no-undef
+      autosize.update(this._$content)
+    } else {
+      return $(this._$content).val()
+    }
+  }
 }

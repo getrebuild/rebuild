@@ -28,6 +28,7 @@ const SHARE_SELF = 'SELF'
 class Share2 extends _ChangeHandler {
   constructor(props) {
     super(props)
+    // defaultValue
     if (props.shareTo && props.shareTo !== SHARE_SELF) this.state.shared = true
   }
 
@@ -77,24 +78,26 @@ class Share2 extends _ChangeHandler {
   }
 
   showSwitch = () => {
-    const that = this
-    if (that.__switch) {
-      that.__switch.show()
+    if (this._Share2Switch) {
+      this._Share2Switch.show()
     } else {
+      const that = this
       renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} id={this.props.id} />, null, function () {
-        that.__switch = this
+        that._Share2Switch = this
       })
     }
   }
 
-  showSettings = () => {
-    event.preventDefault()
-    const that = this
-    if (that.__settings) {
-      that.__settings.show()
+  showSettings = (e) => {
+    $stopEvent(e, true)
+    if (this._Share2Settings) {
+      this._Share2Settings.show()
     } else {
-      renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={this.props.noSwitch} />, null, function () {
-        that.__settings = this
+      const that = this
+      let noName = this.props.noSwitch
+      if (this.props.hasName) noName = false
+      renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={noName} />, null, function () {
+        that._Share2Settings = this
       })
     }
     return false
@@ -166,7 +169,7 @@ class Share2Switch extends _ChangeHandler {
   show = () => $(this._dlg).modal('show')
 }
 
-// ~~ 配置共享
+// ~~ 管理员配置共享
 class Share2Settings extends Share2Switch {
   renderContent() {
     return (
@@ -178,7 +181,7 @@ class Share2Settings extends Share2Switch {
         </div>
         {this.props.noName !== true && (
           <div className="form-group">
-            <input type="text" className="form-control form-control-sm" placeholder={$L('未命名')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
+            <input type="text" className="form-control form-control-sm" placeholder={$L('输入名称')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
           </div>
         )}
 

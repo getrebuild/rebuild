@@ -337,17 +337,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .form-control-plaintext.formula.switch-code + .switch-code-btn {
   position: absolute;
-  right: 2px;
-  top: 2px;
+  right: 3px;
+  top: 3px;
   display: inline-block;
-  width: 33px;
-  height: 33px;
-  line-height: 33px;
+  width: 31px;
+  height: 31px;
+  line-height: 32px;
   text-align: center;
-  font-size: 1.35rem;
-  color: #777;
-  border-radius: 2px;
-  transition: background-color 0.2s;
+  font-size: 1.3rem;
+  color: #212121;
+  border-radius: 4px;
+  transition: all 0.4s;
 }
 
 .form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
@@ -368,6 +368,10 @@ textarea.formula-code {
   border-radius: 0;
   line-height: 1.6;
   padding: 4px 10px;
+}
+
+textarea.formula-code + .fields-vars {
+  bottom: 14px;
 }
 
 .auto-assign .select2-selection__rendered,
@@ -396,6 +400,7 @@ textarea.formula-code {
   text-align: center;
   appearance: none;
   outline: none;
+  background-color: #fff;
 }
 
 .on-timers input:focus,
@@ -513,4 +518,40 @@ textarea.formula-code {
 
 .alert-mb-0 > .alert {
   margin-bottom: 0;
+}
+
+.textarea-wrap {
+  position: relative;
+}
+
+.textarea-wrap > .fields-vars {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: inline-block;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 4px 3px 2px;
+  border-radius: 4px;
+  background-color: #212121;
+  opacity: 0.4;
+  transition: opacity 0.4s;
+}
+
+.textarea-wrap:hover > .fields-vars {
+  opacity: 1;
+}
+
+.textarea-wrap > .fields-vars > .mdi {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.textarea-wrap > .fields-vars:hover > .mdi {
+  color: rgba(255, 255, 255, 1);
+}
+
+.textarea-wrap textarea {
+  min-height: 72px;
+  font-size: 1rem;
+  padding: 4px 10px;
 }

@@ -82,11 +82,9 @@ public class UseThemeController extends BaseController {
         Etag etag = new Etag(themeHash, response);
         if (!etag.isNeedWrite(request)) return;
 
-        InputStream is = CommonsUtils.getStreamOfRes(theme);
-        try {
+        ServletUtils.setContentType(response, "text/css");
+        try (InputStream is = CommonsUtils.getStreamOfRes(theme)) {
             FileDownloader.writeStream(is, response);
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 
@@ -97,7 +95,7 @@ public class UseThemeController extends BaseController {
 
         KVStorage.setCustomValue("THEME." + user, theme);
         ServletUtils.setSessionAttribute(request, LoginController.SK_USER_THEME, theme);
-        writeSuccess(response);
+        writeSuccess(response, null);
     }
 
     // -- LOGO

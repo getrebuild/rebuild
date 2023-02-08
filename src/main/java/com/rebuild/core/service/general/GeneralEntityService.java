@@ -9,7 +9,12 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.*;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Filter;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -33,16 +38,29 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.service.trigger.RobotTriggerManual;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -99,13 +117,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final boolean hasDetails = details != null && !details.isEmpty();
 
         boolean lazyAutoApprovalForDetails = false;
+        boolean lazyAutoTransformForDetails = false;
         if (hasDetails) {
             TriggerAction[] hasTriggers = getSpecTriggers(
                     record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
             lazyAutoApprovalForDetails = hasTriggers.length > 0;
-
             // 自动审批延迟执行，因为明细尚未保存好
             if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
+
+            TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
+                    record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
+            lazyAutoTransformForDetails = hasAutoTransformTriggers.length > 0;
+            // 记录转换延迟执行，因为明细尚未保存好
+            if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
         }
 
         try {
@@ -151,6 +175,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } finally {
             if (lazyAutoApprovalForDetails) {
                 AutoApproval.executeLazyAutoApproval();
+            }
+            if (lazyAutoTransformForDetails) {
+                CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazyAutoTransform");
             }
         }
     }
@@ -717,10 +744,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (state == ApprovalState.REVOKED) {
                     triggerManual.onRevoked(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 } else {
                     triggerManual.onApproved(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 }
             }
         }
@@ -729,11 +756,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
             triggerManual.onRevoked(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         } else {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
             triggerManual.onApproved(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         }
 
         // 手动记录历史

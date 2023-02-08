@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.1.4</version>
+    <version>3.2.0-beta2</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -38,6 +38,19 @@
                     <!-- <includeSystemScope>true</includeSystemScope> -->
                 </configuration>
             </plugin>
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-g:lines</arg>
+                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -232,12 +245,14 @@
         </dependency>
         -->
         <!-- Use Live Reload: https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools.livereload -->
+        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+        -->
 
         <!-- Use SPEC -->
         <dependency>
@@ -278,7 +293,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.2</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -293,12 +308,12 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.9.9.1</version>
+            <version>1.9.19</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.14</version>
+            <version>1.2.15</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -317,7 +332,7 @@
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.12.0</version>
+            <version>7.12.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -327,7 +342,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.3.1</version>
+            <version>6.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -367,7 +382,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>3.1.2</version>
+            <version>3.1.5</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -403,7 +418,7 @@
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.18</version>
+            <version>0.4.19</version>
         </dependency>
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>
@@ -413,12 +428,12 @@
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
-            <version>3.5.0</version>
+            <version>3.5.1</version>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.17.7</version>
+            <version>3.18.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -449,8 +464,16 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.9</version>
+            <version>5.8.11</version>
         </dependency>
+        <!-- Need JDK11+ -->
+        <!--
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+            <version>15.4</version>
+        </dependency>
+        -->
 
         <!-- fix: CVEs -->
         <dependency>
@@ -464,19 +487,19 @@
             <version>1.22</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.14.0-rc3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.0-rc3</version>
-        </dependency>
-        <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.33</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>5.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.87.Final</version>
         </dependency>
     </dependencies>
 </project>

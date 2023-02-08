@@ -122,4 +122,34 @@ public class OnlineSessionStore implements HttpSessionListener {
 
         ONLINE_USERS.put((ID) loginUser, s);
     }
+
+    /**
+     * @param sessionOrUser
+     * @return
+     */
+    public boolean killSession(Object sessionOrUser) {
+        HttpSession found = null;
+        // User
+        if (sessionOrUser instanceof ID) {
+            found = getSession((ID) sessionOrUser);
+        }
+        // SessionID
+        else {
+            for (HttpSession s : getAllSession()) {
+                if (s.getId().equals(sessionOrUser)) {
+                    found = s;
+                    break;
+                }
+            }
+        }
+
+        try {
+            if (found != null) {
+                found.invalidate();
+                log.warn("Kill session with {}", sessionOrUser);
+            }
+        } catch (Exception ignored) {}
+
+        return found != null;
+    }
 }
