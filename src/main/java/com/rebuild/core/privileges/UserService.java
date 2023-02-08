@@ -427,7 +427,7 @@ public class UserService extends BaseService {
 
         // 通知管理员
         ID newUserId = record.getPrimary();
-        String viewUrl = AppUtils.getContextPath("/app/list-and-view?id=" + newUserId);
+        String viewUrl = AppUtils.getContextPath("/app/redirect?id=" + newUserId);
         String content = Language.L(
                 "用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。",
                 newUserId);

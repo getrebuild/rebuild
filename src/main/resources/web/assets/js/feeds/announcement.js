@@ -25,7 +25,7 @@ class AnnouncementModal extends React.Component {
               <div>
                 <span className="float-left text-muted">{$L('由 %s 发布于 %s', this.props.publishBy, this.props.publishOn)}</span>
                 <span className="float-right">
-                  <a href={`${rb.baseUrl}/app/list-and-view?id=${this.props.id}`}>{$L('前往动态查看')}</a>
+                  <a href={`${rb.baseUrl}/app/redirect?id=${this.props.id}`}>{$L('前往动态查看')}</a>
                 </span>
                 <span className="clearfix" />
               </div>

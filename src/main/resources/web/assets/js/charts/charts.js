@@ -668,7 +668,7 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}`}>{item[4]}</a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
@@ -776,7 +776,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -1043,7 +1043,7 @@ class ProjectTasks extends BaseChart {
                       </label>
                     </td>
                     <td>
-                      <a title={item.taskName} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content">
+                      <a title={item.taskName} href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content">
                         <p className="text-break">
                           [{item.taskNumber}] {item.taskName}
                         </p>
@@ -1221,7 +1221,7 @@ class DataList extends BaseChart {
                   data-id={lastCell.id}
                   onDoubleClick={(e) => {
                     $stopEvent(e, true)
-                    window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
+                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}`)
                   }}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID

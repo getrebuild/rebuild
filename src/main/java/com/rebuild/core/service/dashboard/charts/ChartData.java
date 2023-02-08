@@ -324,7 +324,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
 
             if (useRefLink && axisType == DisplayType.REFERENCE
                     && ID.valueOf(value.toString()).getEntityCode() > 100) {
-                label = String.format("<a href='/app/list-and-view?id=%s'>%s</a>", value, label);
+                label = String.format("<a href='/app/redirect?id=%s'>%s</a>", value, label);
             }
 
         } else {
