@@ -146,20 +146,27 @@ $(document).ready(() => {
 
     const _current = res.data || {}
     $.get('/app/settings/nav-settings/alist', (res) => {
-      const cc = res.data.find((x) => x[0] === _current.id)
+      const alist = res.data || []
+      const c = alist.find((x) => x[0] === _current.id)
+
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
+        renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
+
+          $(`<a class="dropdown-item bosskey-show">${$L('配置顶部菜单')}</a>`)
+            .appendTo($(this._$switch).find('.dropdown-menu'))
+            .on('click', () => {
+              renderRbcomp(<TopNavSettings list={alist} />)
+            })
         })
       } else {
-        // overSelf = cc && cc[3] !== rb.currentUser
         // eslint-disable-next-line no-undef
-        renderSwitchButton(res.data, $L('导航菜单'), cc ? cc[0] : null)
+        renderSwitchButton(alist, $L('导航菜单'), c ? c[0] : null)
       }
 
       // 有自有才提示覆盖
       if (overwriteMode) {
-        const haveSelf = res.data.find((x) => x[2] === 'SELF')
+        const haveSelf = alist.find((x) => x[2] === 'SELF')
         overwriteMode = !!haveSelf
       }
     })
@@ -306,4 +313,113 @@ const fix_parents = function () {
 
 const use_icon = function (icon) {
   return icon.startsWith('mdi-') ? `mdi zmdi ${icon}` : `zmdi zmdi-${icon}`
+}
+
+// eslint-disable-next-line no-undef
+class TopNavSettings extends Share2Switch {
+  renderContent() {
+    const tops = this.state.tops || []
+
+    return (
+      <RF>
+        <div className="rb-scroller" ref={(s) => (this._$scrollbar = s)}>
+          <div className="topnav-list">
+            {tops.map((item) => {
+              return (
+                <div key={item[0]}>
+                  <div className="row">
+                    <div className="col-6">
+                      <span className="name pt-2">{item[1] || $L('未命名')}</span>
+                    </div>
+                    <div className="col-2 pr-0 pl-0">
+                      <label className="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0 mt-2">
+                        <input className="custom-control-input" type="checkbox" defaultChecked={item[2]} data-id={item[0]} />
+                        <span className="custom-control-label">{$L('显示')}</span>
+                      </label>
+                    </div>
+                    <div className="col-4 pl-0">
+                      <select className="form-control form-control-sm" defaultValue={item[3] || ''}>
+                        <option value="">{$L('默认仪表盘')}</option>
+                        {(this.state.dashList || []).map((d) => {
+                          return (
+                            <option key={d[0]} value={d[0]}>
+                              {d[4]}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {tops.length === 0 && <p className="text-muted">{$L('暂无数据')}</p>}
+        </div>
+
+        {tops.length > 0 && (
+          <div style={{ margin: '5px 15px' }}>
+            <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+              {$L('确定')}
+            </button>
+          </div>
+        )}
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    $.get('/app/settings/nav-settings/topnav', (res) => {
+      const alist = this.props.list
+      const shows = res.data || []
+
+      const tops = []
+      shows.forEach((item) => {
+        const found = alist.find((x) => x[0] === item[0])
+        if (found) {
+          tops.push([found[0], found[1], true, item[1] || null])
+        }
+      })
+
+      alist.forEach((item) => {
+        const exists = tops.find((x) => x[0] === item[0])
+        if (!exists) {
+          tops.push([item[0], item[1], false, null])
+        }
+      })
+
+      $.get('/dashboard/dash-gets', (res2) => {
+        this.setState(
+          {
+            tops: tops,
+            dashList: res2.data || [],
+          },
+          () => {
+            $(this._$scrollbar)
+              .find('.topnav-list')
+              .sortable({
+                handle: '.name',
+                axis: 'y',
+              })
+              .disableSelection()
+          }
+        )
+      })
+    })
+  }
+
+  handleConfirm() {
+    const sets = []
+    $(this._$scrollbar)
+      .find('input:checked')
+      .each((idx, item) => {
+        const n = $(item).data('id')
+        const d = $(item).parents('.row').find('select').val()
+        sets.push([n, d || null])
+      })
+
+    $.post('/app/settings/nav-settings/topnav', JSON.stringify(sets), () => this.hide())
+  }
 }
