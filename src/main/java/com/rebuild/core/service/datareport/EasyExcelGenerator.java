@@ -16,6 +16,8 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -31,8 +33,11 @@ import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.ImageView2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.util.Assert;
@@ -44,9 +49,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import static com.rebuild.core.service.datareport.TemplateExtractor.*;
+import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
  * 报表生成 easyexcel
@@ -295,7 +310,8 @@ public class EasyExcelGenerator extends SetUser {
                 varName = varName.substring(1);
             }
 
-            if (!dt.isExportable()) {
+            // FIXME v3.2 图片仅支持导出第一张
+            if (!dt.isExportable() && dt != DisplayType.IMAGE) {
                 data.put(varName, unsupportFieldTip);
                 continue;
             }
@@ -310,6 +326,8 @@ public class EasyExcelGenerator extends SetUser {
 
                 if (dt == DisplayType.SIGN) {
                     fieldValue = buildSignData((String) fieldValue);
+                } else if (dt == DisplayType.IMAGE) {
+                    fieldValue = buildImageData((String) fieldValue);
                 } else {
 
                     if (dt == DisplayType.NUMBER) {
@@ -351,6 +369,33 @@ public class EasyExcelGenerator extends SetUser {
             }
         }
         return data;
+    }
+
+    private byte[] buildImageData(String fieldValue) {
+        JSONArray paths = JSON.parseArray(fieldValue);
+        if (paths == null || paths.isEmpty()) return null;
+
+        try {
+            for (Object path : paths) {
+                String name = QiniuCloud.parseFileName((String) path);
+                File temp = RebuildConfiguration.getFileOfTemp(System.currentTimeMillis() + "." + name);
+                QiniuCloud.instance().download((String) path, temp);
+
+                if (temp.exists()) {
+                    File img1000 = new ImageView2(1000).thumbQuietly(temp);
+
+                    byte[] b = FileUtils.readFileToByteArray(img1000);
+                    FileUtils.deleteQuietly(temp);
+
+                    String base64 = Base64.encodeBase64String(b);
+                    return buildSignData("base64," + base64);
+                }
+            }
+
+        } catch (IOException ex) {
+            log.error("Build image data error : {}", fieldValue, ex);
+        }
+        return null;
     }
 
     private byte[] buildSignData(String base64img) {

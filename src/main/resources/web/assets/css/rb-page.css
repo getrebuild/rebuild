@@ -5161,8 +5161,6 @@ pre.unstyle {
 
 .navbar-collapse .nav-item .nav-link {
   position: relative;
-  padding: 0 14px !important;
-  text-align: center;
 }
 
 .navbar-collapse .nav-item.active .nav-link::after {
