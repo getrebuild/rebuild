@@ -377,19 +377,14 @@ public class EasyExcelGenerator extends SetUser {
 
         try {
             for (Object path : paths) {
-                String name = QiniuCloud.parseFileName((String) path);
-                File temp = RebuildConfiguration.getFileOfTemp(System.currentTimeMillis() + "." + name);
-                QiniuCloud.instance().download((String) path, temp);
+                File temp = QiniuCloud.getStorageFile((String) path);
+                File img1000 = new ImageView2(1000).thumbQuietly(temp);
 
-                if (temp.exists()) {
-                    File img1000 = new ImageView2(1000).thumbQuietly(temp);
+                byte[] b = FileUtils.readFileToByteArray(img1000);
+                FileUtils.deleteQuietly(temp);
 
-                    byte[] b = FileUtils.readFileToByteArray(img1000);
-                    FileUtils.deleteQuietly(temp);
-
-                    String base64 = Base64.encodeBase64String(b);
-                    return buildSignData("base64," + base64);
-                }
+                String base64 = Base64.encodeBase64String(b);
+                return buildSignData("base64," + base64);
             }
 
         } catch (IOException ex) {
