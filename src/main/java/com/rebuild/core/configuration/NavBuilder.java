@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
@@ -280,7 +281,7 @@ public class NavBuilder extends NavManager {
 
     @Override
     protected String getConfigFields() {
-        return "configId,shareTo,createdBy,config,configName";
+        return "configId,shareTo,createdBy,config,configName,createdBy.roleId";
     }
 
     // -- PORTAL RENDER
@@ -453,6 +454,7 @@ public class NavBuilder extends NavManager {
         if (sets.isEmpty()) return StringUtils.EMPTY;
 
         final ID user = AppUtils.getRequestUser(request);
+        final boolean isAdmin = UserHelper.isAdmin(user);
         final Object[][] alls = instance.getAllConfig(null, TYPE_NAV);
 
         StringBuilder topNavHtml = new StringBuilder();
@@ -467,8 +469,8 @@ public class NavBuilder extends NavManager {
 
             for (Object[] d : alls) {
                 if (!useNav.equals(d[0])) continue;
-                // 有共享的
-                if (instance.isShareTo((String) d[1], user)) {
+                // 管理员、有共享的
+                if ((isAdmin && RoleService.ADMIN_ROLE.equals(d[5])) || instance.isShareTo((String) d[1], user)) {
                     String url = AppUtils.getContextPath("/app/home?n=" + useNav);
                     if (ID.isId(dash)) url += "&d=" + dash;
                     String name = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));

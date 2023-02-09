@@ -153,7 +153,7 @@ $(document).ready(() => {
         renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
 
-          $(`<a class="dropdown-item bosskey-show">${$L('顶部菜单')}</a>`)
+          $(`<a class="dropdown-item bosskey-show">${$L('配置顶部菜单')}</a>`)
             .appendTo($(this._$switch).find('.dropdown-menu'))
             .on('click', () => {
               renderRbcomp(<TopNavSettings list={alist} />)
