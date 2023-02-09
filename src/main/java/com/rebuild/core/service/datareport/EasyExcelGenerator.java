@@ -381,8 +381,6 @@ public class EasyExcelGenerator extends SetUser {
                 File img1000 = new ImageView2(1000).thumbQuietly(temp);
 
                 byte[] b = FileUtils.readFileToByteArray(img1000);
-                FileUtils.deleteQuietly(temp);
-
                 String base64 = Base64.encodeBase64String(b);
                 return buildSignData("base64," + base64);
             }

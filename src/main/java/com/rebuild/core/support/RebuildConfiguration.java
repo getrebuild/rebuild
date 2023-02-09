@@ -9,6 +9,7 @@ package com.rebuild.core.support;
 
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.service.PerHourJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -67,11 +68,12 @@ public class RebuildConfiguration extends KVStorage {
     }
 
     /**
-     * 获取临时文件（或目录）
+     * 获取临时文件（或目录）。注意临时文件会定时删除
      *
      * @param filepath
      * @return
      * @see #getFileOfData(String)
+     * @see PerHourJob#doCleanTempFiles()
      */
     public static File getFileOfTemp(String filepath) {
         if (filepath != null && filepath.contains("../")) {
