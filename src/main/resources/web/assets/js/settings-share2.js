@@ -190,7 +190,7 @@ class Share2Settings extends Share2Switch {
             {$L('确定')}
           </button>
           {this.props.id && (
-            <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.handleDelete()}>
+            <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.handleDelete()}>
               <i className="zmdi zmdi-delete icon" /> {$L('删除')}
             </button>
           )}
