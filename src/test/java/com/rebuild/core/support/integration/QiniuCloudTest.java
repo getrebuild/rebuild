@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -67,5 +68,11 @@ public class QiniuCloudTest extends TestSupport {
         if (!QiniuCloud.instance().available()) return;
 
         System.out.println(QiniuCloud.instance().stats());
+    }
+
+    @Test
+    void getStorageFile() throws IOException {
+        File file = QiniuCloud.getStorageFile("https://cn.bing.com/th?id=OHR.LowerAntelopeAZ_ZH-CN4758496750_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp");
+        System.out.println(file);
     }
 }

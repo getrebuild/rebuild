@@ -94,6 +94,7 @@ public final class ServerStatus {
     static Status checkDatabase() {
         String name = "Database";
         if (Installer.isUseH2()) name += "/H2";
+        else name += "/MYSQL";
 
         String url = BootEnvironmentPostProcessor.getProperty("db.url");
         try {
@@ -138,7 +139,8 @@ public final class ServerStatus {
     static Status checkCacheService() {
         CommonsCache cache = Application.getCommonsCache();
         String name = "Cache";
-        if (!Installer.isUseRedis()) name += "/EHCACHE";
+        if (Installer.isUseRedis()) name += "/REDIS";
+        else name += "/EHCACHE";
 
         try {
             cache.putx("ServerStatus.test", 1, 60);

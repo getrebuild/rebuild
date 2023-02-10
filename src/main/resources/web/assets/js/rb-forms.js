@@ -1082,6 +1082,14 @@ class RbFormNumber extends RbFormText {
             console.log('onFieldValueChange for calcFormula :', s)
           }
 
+          // fix: 3.2 字段相互使用导致死循环
+          this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
+          if (this.__fixUpdateDepth > 6) {
+            console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
+            setTimeout(() => (this.__fixUpdateDepth = 0), 222)
+            return false
+          }
+
           if (s.value) {
             calcFormulaValues[s.name] = this._removeComma(s.value)
           } else {
@@ -1093,6 +1101,7 @@ class RbFormNumber extends RbFormText {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
           }
 
+          // 还有变量无值
           if (formula.includes('{')) {
             this.setValue(null)
             return false

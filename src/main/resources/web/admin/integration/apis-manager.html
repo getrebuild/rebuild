@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis" />
-    <title>[[${bundle.L('API 秘钥')}]]</title>
+    <title>[[${bundle.L('API 密钥')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -11,7 +11,7 @@
       <th:block th:replace="~{/_include/nav-left-admin(active='apis-manager')}" />
       <div class="rb-content">
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.L('API 秘钥')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">[[${bundle.L('API 密钥')}]]</div></div>
           <div class="float-right pt-1">
             <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
           </div>
@@ -41,7 +41,7 @@
                       <th:block th:replace="~{/_include/spinner}" />
                       <div class="list-nodata hide">
                         <span class="mdi mdi-api"></span>
-                        <p>[[${bundle.L('暂无 API 秘钥')}]]</p>
+                        <p>[[${bundle.L('暂无 API 密钥')}]]</p>
                       </div>
                     </div>
                   </div>

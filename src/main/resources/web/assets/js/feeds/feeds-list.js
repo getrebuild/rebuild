@@ -616,7 +616,7 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('查看记录')}>
+            <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}`} title={$L('查看记录')}>
               {e.relatedRecord.text}
             </a>
           </div>

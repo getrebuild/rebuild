@@ -117,7 +117,7 @@ public class QiniuCloud {
     }
 
     /**
-     * 从 URL 上传文件
+     * 从 URL 上传
      *
      * @param url
      * @return
@@ -137,7 +137,7 @@ public class QiniuCloud {
     }
 
     /**
-     * 生成访问 URL
+     * 生成访问 URL（有效期 180s）
      *
      * @param filePath
      * @return
@@ -173,6 +173,8 @@ public class QiniuCloud {
     }
 
     /**
+     * 下载文件
+     *
      * @param filePath
      * @param dest
      * @throws IOException
@@ -188,7 +190,7 @@ public class QiniuCloud {
      * @param key
      * @return
      */
-    protected boolean delete(String key) {
+    public boolean delete(String key) {
         BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
         Response resp;
         try {
@@ -344,15 +346,26 @@ public class QiniuCloud {
     }
 
     /**
+     * 读取文件
+     *
      * @param filePath
      * @return
      * @throws IOException
+     * @throws RebuildException If cannot read/download
      */
-    public static File getStorageFile(String filePath) throws IOException {
+    public static File getStorageFile(String filePath) throws IOException, RebuildException {
         File file;
-        if (QiniuCloud.instance().available()) {
-            file = RebuildConfiguration.getFileOfTemp("tmp." + System.nanoTime());
-            QiniuCloud.instance().download(filePath, file);
+        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            String name = filePath.split("\\?")[0];
+            name = name.substring(name.lastIndexOf("/") + 1);
+            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            OkHttpUtils.readBinary(filePath, file, null);
+
+        } else if (QiniuCloud.instance().available()) {
+            String name = parseFileName(filePath);
+            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            instance().download(filePath, file);
+
         } else {
             file = RebuildConfiguration.getFileOfData(filePath);
         }

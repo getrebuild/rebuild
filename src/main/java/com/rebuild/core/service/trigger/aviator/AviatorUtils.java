@@ -94,7 +94,7 @@ public class AviatorUtils {
             getInstance().validate(expression);
             return true;
         } catch (ExpressionSyntaxErrorException ex) {
-            log.warn("Bad expression : `{}`", expression);
+            log.warn("Bad aviator expression : `{}`", expression);
             return false;
         }
     }

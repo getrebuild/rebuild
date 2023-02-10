@@ -446,7 +446,12 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
-                            el.put("value", easyField.wrapValue(defaultValue));
+                            if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                                // `wrapValue` 会添加格式符号
+                                el.put("value", defaultValue);
+                            } else {
+                                el.put("value", easyField.wrapValue(defaultValue));
+                            }
                         }
                     }
                 }

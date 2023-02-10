@@ -377,13 +377,13 @@ class ImportsTraceViewer extends RbAlert {
                   <th className="pr-0">{item[0] + 1}</th>
                   <td>
                     {item[1] === 'CREATED' && (
-                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/redirect?id=${item[2]}`}>
                         {$L('新建成功')}
                         <i className="icon zmdi zmdi-open-in-new ml-1" />
                       </a>
                     )}
                     {item[1] === 'UPDATED' && (
-                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/redirect?id=${item[2]}`}>
                         {$L('更新成功')}
                         <i className="icon zmdi zmdi-open-in-new ml-1" />
                       </a>

@@ -42,4 +42,12 @@ public class CommandArgs {
     public static int getInteger(String name) {
         return ObjectUtils.toInt(System.getProperty(name), -1);
     }
+
+    /**
+     * @param name
+     * @return
+     */
+    public static String getString(String name) {
+        return System.getProperty(name);
+    }
 }

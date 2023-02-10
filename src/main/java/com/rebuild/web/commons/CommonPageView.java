@@ -90,7 +90,7 @@ public class CommonPageView extends BaseController {
     @GetMapping("/app/home")
     public void home(@IdParam(name = "n", required = false) ID useNav, @IdParam(name = "d", required = false) ID useDash,
                      HttpServletResponse response) throws IOException {
-        // 设置默认
+        // 设置默认（本次会话有效）
         addCookie("AppHome.Nav", useNav, response);
         addCookie("AppHome.Dash", useDash, response);
 

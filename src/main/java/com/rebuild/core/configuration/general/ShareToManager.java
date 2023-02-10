@@ -178,7 +178,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @param user
      * @return
      */
-    private boolean isShareTo(String shareTo, ID user) {
+    protected boolean isShareTo(String shareTo, ID user) {
         if (SHARE_ALL.equals(shareTo)) {
             return true;
 
@@ -199,7 +199,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @return
      */
     final protected String formatCacheKey(String belongEntity, String applyType) {
-        return String.format("%s-%s-%s.V6", getConfigEntity(),
+        return String.format("%s-%s-%s.V7", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
     }

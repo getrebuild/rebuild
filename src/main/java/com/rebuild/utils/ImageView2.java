@@ -36,6 +36,10 @@ public class ImageView2 {
         this.imageView2 = imageView2;
     }
 
+    public ImageView2(int width) {
+        this("/w/" + width);
+    }
+
     /**
      * @return
      */

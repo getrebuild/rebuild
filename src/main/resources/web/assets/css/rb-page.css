@@ -2034,6 +2034,7 @@ th.column-fixed {
 
 .form-control-plaintext {
   word-wrap: break-word;
+  word-break: break-all;
 }
 
 .form-line {
@@ -5150,12 +5151,28 @@ pre.unstyle {
 /* TOP-MENU */
 
 .navbar-collapse .navbar-nav > li > a.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .rb-color-header .navbar-collapse,
 .rb-offcanvas-menu .navbar-collapse {
   display: none !important;
+}
+
+.navbar-collapse .nav-item .nav-link {
+  position: relative;
+}
+
+.navbar-collapse .nav-item.active .nav-link::after {
+  content: '';
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.15);
+  position: absolute;
+  bottom: 0;
+  border-radius: 99px;
+  width: 32px;
+  margin-left: -16px;
+  left: 50%;
 }
 
 .logo-img,

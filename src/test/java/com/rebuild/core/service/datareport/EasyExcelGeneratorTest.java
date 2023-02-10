@@ -26,10 +26,10 @@ import java.io.FileNotFoundException;
  * @author devezhao
  * @since 2019/8/16
  */
-public class DataReportGeneratorTest extends TestSupport {
+public class EasyExcelGeneratorTest extends TestSupport {
 
     @Test
-    public void testGeneratorV2Simple() throws FileNotFoundException {
+    void testGeneratorSimple() throws FileNotFoundException {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
         ID record = addRecordOfTestAllFields(SIMPLE_USER);
 
@@ -39,7 +39,7 @@ public class DataReportGeneratorTest extends TestSupport {
     }
 
     @Test
-    public void testGeneratorV2() throws FileNotFoundException {
+    void testGenerator() throws FileNotFoundException {
         UserContextHolder.setUser(UserService.ADMIN_USER);
 
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
@@ -50,6 +50,17 @@ public class DataReportGeneratorTest extends TestSupport {
 
         // 主记录+明细记录
         File file = ((EasyExcelGenerator) new EasyExcelGenerator(template, record.getPrimary()).setUser(UserService.ADMIN_USER))
+                .generate();
+        System.out.println("Report : " + file);
+    }
+
+    @Test
+    void testImage() throws FileNotFoundException {
+        ID record = addRecordOfTestAllFields(UserService.ADMIN_USER);
+//        record = ID.valueOf("");
+        File template = ResourceUtils.getFile("classpath:report-template-v3.xlsx");
+
+        File file = ((EasyExcelGenerator) new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER))
                 .generate();
         System.out.println("Report : " + file);
     }

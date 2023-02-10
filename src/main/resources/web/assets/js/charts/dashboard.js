@@ -375,7 +375,7 @@ class DlgDashSettings extends RbFormHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.save()}>
                 {$L('确定')}
               </button>
-              <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.delete()}>
+              <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
                 <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
             </div>

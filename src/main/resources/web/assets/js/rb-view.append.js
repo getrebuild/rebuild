@@ -135,7 +135,7 @@ class LightTaskList extends RelatedList {
               <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
+            <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} target="_blank" title={$L('打开')}>
               [{item.taskNumber}] {item.taskName}
             </a>
           </div>
