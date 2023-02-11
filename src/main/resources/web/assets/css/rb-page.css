@@ -1840,6 +1840,7 @@ th.column-fixed {
 
 .sortable-box-title {
   margin-top: 9px;
+  position: relative;
 }
 
 .sortable-swap {
