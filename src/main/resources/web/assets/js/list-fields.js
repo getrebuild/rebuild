@@ -107,7 +107,7 @@ $(document).ready(() => {
 
   // 搜索字段
   $('.sortable-box-title .search-btn').on('click', function () {
-    const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('搜索')}" /></div>`).appendTo($(this).parent())
+    const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('筛选字段')}" /></div>`).appendTo($(this).parent())
     const $input = $s.find('input').on('input', (e) => {
       $setTimeout(() => {
         const q = $.trim(e.target.value).toLowerCase()
