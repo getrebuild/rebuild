@@ -532,6 +532,11 @@ class RbForm extends React.Component {
     if (this._onFieldValueChange_calls) {
       this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
     }
+
+    if (window.FrontJS) {
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [`${this.props.entity}.${field}`, value, this.props.id || null])
+      if (ret === false) return false
+    }
   }
 
   // 获取字段组件
