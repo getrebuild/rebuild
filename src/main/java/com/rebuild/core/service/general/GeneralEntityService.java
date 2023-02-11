@@ -536,10 +536,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (action == BizzPermission.CREATE) {
             // 验证审批状态
             // 仅验证新建明细（相当于更新主记录）
-            if (mainEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
+            if (mainEntity != null && MetadataHelper.hasApprovalField(mainEntity)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
+                ID dtmFieldValue = record.getID(dtmField.getName());
+                if (dtmFieldValue == null) {
+                    throw new DataSpecificationException(Language.L("%s 不允许为空", EasyMetaFactory.getLabel(dtmField)));
+                }
 
+                ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")

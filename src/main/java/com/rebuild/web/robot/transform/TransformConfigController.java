@@ -165,9 +165,6 @@ public class TransformConfigController extends BaseController {
                 fields.add(easyField.toJSON());
             } else if (!MetadataHelper.isCommonsField(field)) {
                 if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-                // v3.2 明细的 DTF 字段过滤
-                // FIXME Any-明细时考虑自动转换，也可以设置此字段，以便完成自动转换无需人工介入
-                if (entity.getMainEntity() != null && MetadataHelper.getDetailToMainField(entity).equals(field)) continue;
 
                 // v2.10 非可创建字段也支持
                 fields.add(MetaFormatter.buildRichField(easyField));
