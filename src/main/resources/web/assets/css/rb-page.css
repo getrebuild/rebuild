@@ -1840,6 +1840,7 @@ th.column-fixed {
 
 .sortable-box-title {
   margin-top: 9px;
+  position: relative;
 }
 
 .sortable-swap {
@@ -2501,12 +2502,19 @@ div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
 
 .dataTables_wrapper .paging_sizes select {
   padding: 4px 6px;
-  width: 54px;
+  width: 50px;
 }
 
 .dataTables_wrapper .paging_sizes select,
 .dataTables_wrapper .paging_simple_numbers .page-link {
   height: 36px !important;
+}
+
+.dataTables_wrapper .paging_simple_numbers .page-link {
+  padding-left: 0.466rem;
+  padding-right: 0.466rem;
+  min-width: 32px;
+  text-align: center;
 }
 
 .must-center {

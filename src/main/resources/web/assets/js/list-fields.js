@@ -104,6 +104,26 @@ $(document).ready(() => {
       saveFn()
     }
   })
+
+  // 搜索字段
+  $('.sortable-box-title .search-btn').on('click', function () {
+    const $s = $(`<div class="search-input"><input type="text" placeholder="${$L('筛选字段')}" /></div>`).appendTo($(this).parent())
+    const $input = $s.find('input').on('input', (e) => {
+      $setTimeout(() => {
+        const q = $.trim(e.target.value).toLowerCase()
+        $('.unset-list .dd-item').each(function () {
+          const $item = $(this)
+          if (!q || $item.text().toLowerCase().includes(q)) {
+            $item.removeClass('hide')
+          } else {
+            $item.addClass('hide')
+          }
+        })
+      })
+    })
+
+    setTimeout(() => $input[0].focus(), 20)
+  })
 })
 
 const refreshConfigStar = function () {

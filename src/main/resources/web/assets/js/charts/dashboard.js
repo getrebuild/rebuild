@@ -34,7 +34,8 @@ $(document).ready(() => {
 
     let use = dash_list[0] // default
     if (dash_list.length > 1) {
-      const dset = $.cookie('AppHome.Dash') || $storage.get('DashDefault')
+      let dset = d
+      if (!d) $.cookie('AppHome.Dash') || $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
           if (res.data[i][0] === dset) {

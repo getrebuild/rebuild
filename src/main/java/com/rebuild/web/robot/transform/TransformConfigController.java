@@ -165,7 +165,6 @@ public class TransformConfigController extends BaseController {
                 fields.add(easyField.toJSON());
             } else if (!MetadataHelper.isCommonsField(field)) {
                 if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-                if (entity.getMainEntity() != null && MetadataHelper.getDetailToMainField(entity).equals(field)) continue;
 
                 // v2.10 非可创建字段也支持
                 fields.add(MetaFormatter.buildRichField(easyField));
