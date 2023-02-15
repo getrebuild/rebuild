@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.core.service.feeds.FeedsType;
@@ -37,7 +38,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 列表相关
@@ -186,6 +192,7 @@ public class FeedsListController extends BaseController {
         final ID user = getRequestUser(request);
         String sql = ITEM_SQL + "feedsId = ?";
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsId).unique();
+        if (o == null) throw new NoRecordFoundException(feedsId, Boolean.TRUE);
 
         JSONObject data = buildItem(o, user);
 

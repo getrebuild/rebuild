@@ -43,7 +43,7 @@ public class LiteFormBuilder {
     public JSONArray build(JSONArray fieldElements) {
         Record data = FormsBuilder.instance.findRecord(recordId, user, fieldElements);
         if (data == null) {
-            throw new NoRecordFoundException("无权读取此记录或记录已被删除");
+            throw new NoRecordFoundException(recordId, Boolean.TRUE);
         }
 
         FormsBuilder.instance.buildModelElements(fieldElements, data.getEntity(), data, user, Boolean.FALSE);
