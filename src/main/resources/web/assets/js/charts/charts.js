@@ -276,8 +276,8 @@ const ECHART_VALUE_LABEL = {
 const ECHART_TOOLTIP_FORMATTER = function (i) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
-  i.forEach((item) => {
-    tooltip.push(`${item.marker} ${item.seriesName} : ${formatThousands(item.value)}`)
+  i.forEach((a) => {
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value)}`)
   })
   return tooltip.join('<br>')
 }
@@ -304,17 +304,20 @@ const ECHART_LEGEND_VOPT = {
 // K=千 M=百万
 const shortNumber = function (num) {
   if (rb.locale === 'zh_CN' && (num > 10000 || num < -10000)) return (num / 10000).toFixed(0) + '万'
-
   if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'M'
   else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
   else return num
 }
 
-const formatThousands = function (num) {
+const formatThousands = function (num, flag) {
   if (Math.abs(~~num) < 1000) return num
   const nums = (num + '').split('.')
   nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
-  return nums.join('.')
+  let n = nums.join('.')
+  // v3.2.1
+  if (flag === '%') n += '%'
+  else if (flag) n = `${flag} ${n}`
+  return n
 }
 
 const cloneOption = function (opt) {
