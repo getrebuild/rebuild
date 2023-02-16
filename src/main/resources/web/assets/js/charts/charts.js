@@ -272,12 +272,20 @@ const ECHART_VALUE_LABEL = {
     return formatThousands(a.data)
   },
 }
+const ECHART_VALUE_LABEL2 = function (iFlags = []) {
+  return {
+    show: true,
+    formatter: function (a) {
+      return formatThousands(a.data, iFlags[a.seriesIndex])
+    },
+  }
+}
 
-const ECHART_TOOLTIP_FORMATTER = function (i) {
+const ECHART_TOOLTIP_FORMATTER = function (i, iFlags = []) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
-  i.forEach((a) => {
-    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value)}`)
+  i.forEach((a, idx) => {
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, iFlags[idx])}`)
   })
   return tooltip.join('<br>')
 }
@@ -310,10 +318,13 @@ const shortNumber = function (num) {
 }
 
 const formatThousands = function (num, flag) {
-  if (Math.abs(~~num) < 1000) return num
-  const nums = (num + '').split('.')
-  nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
-  let n = nums.join('.')
+  let n = num
+  if (Math.abs(~~n) > 1000) {
+    const nd = (n + '').split('.')
+    nd[0] = nd[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
+    n = nd.join('.')
+  }
+
   // v3.2.1
   if (flag === '%') n += '%'
   else if (flag) n = `${flag} ${n}`
@@ -346,6 +357,7 @@ class ChartLine extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const yyyAxisFlags = data._renderOption.yyyAxisFlags
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -356,7 +368,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 },
         }
-        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(yyyAxisFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -385,7 +397,7 @@ class ChartLine extends BaseChart {
         series: data.yyyAxis,
       }
       option.tooltip.trigger = 'axis'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      option.tooltip.formatter = (i) => ECHART_TOOLTIP_FORMATTER(i, yyyAxisFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
@@ -409,11 +421,12 @@ class ChartBar extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const yyyAxisFlags = data._renderOption.yyyAxisFlags
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
-        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(yyyAxisFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -442,7 +455,7 @@ class ChartBar extends BaseChart {
         series: data.yyyAxis,
       }
       option.tooltip.trigger = 'axis'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      option.tooltip.formatter = (i) => ECHART_TOOLTIP_FORMATTER(i, yyyAxisFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
@@ -465,12 +478,13 @@ class ChartPie extends BaseChart {
     this.setState({ chartdata: <div className="chart pie" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
         data.label = {
           formatter: function (a) {
-            return `${a.data.name} (${formatThousands(a.data.value)})`
+            return `${a.data.name} (${formatThousands(a.data.value, dataFlags[0])})`
           },
         }
       }
@@ -479,9 +493,9 @@ class ChartPie extends BaseChart {
         series: [data],
       }
       option.tooltip.trigger = 'item'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      // option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
       option.tooltip.formatter = function (i) {
-        return `<b>${i.data.name}</b> <br/> ${i.marker} ${i.seriesName} : ${formatThousands(i.data.value)} (${i.percent}%)`
+        return `<b>${i.data.name}</b> <br/> ${i.marker} ${i.seriesName} : ${formatThousands(i.data.value, dataFlags[0])} (${i.percent}%)`
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
