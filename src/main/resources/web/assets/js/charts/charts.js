@@ -533,7 +533,6 @@ class ChartFunnel extends BaseChart {
               show: true,
               position: 'inside',
               formatter: function (a) {
-                console.log(a)
                 return showNumerical ? `${a.data.name} (${formatThousands(a.data.value, dataFlags[a.dataIndex])})` : a.data.name
               },
             },
