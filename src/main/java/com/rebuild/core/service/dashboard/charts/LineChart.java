@@ -61,7 +61,7 @@ public class LineChart extends ChartData {
             map.put("name", axis.getLabel());
             map.put("data", data);
             yyyAxis.add(map);
-            dataFlags.add(getValueFlag(axis));
+            dataFlags.add(getNumericalFlag(axis));
         }
 
         JSONObject renderOption = config.getJSONObject("option");

@@ -273,20 +273,20 @@ const ECHART_VALUE_LABEL = {
     return formatThousands(a.data)
   },
 }
-const ECHART_VALUE_LABEL2 = function (iFlags = []) {
+const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
   return {
     show: true,
     formatter: function (a) {
-      return formatThousands(a.data, iFlags[a.seriesIndex])
+      return formatThousands(a.data, dataFlags[a.seriesIndex])
     },
   }
 }
 
-const ECHART_TOOLTIP_FORMATTER = function (i, iFlags = []) {
+const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
   i.forEach((a, idx) => {
-    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, iFlags[idx])}`)
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[idx])}`)
   })
   return tooltip.join('<br>')
 }

@@ -34,12 +34,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 图表数据
@@ -297,7 +292,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
     private String formatAxisValue(Numerical numerical, String value) {
-        String type = getValueFlag(numerical);
+        String type = getNumericalFlag(numerical);
         if (type == null) return value;
 
         if ("%".equals(type)) value += "%";
@@ -308,7 +303,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     /**
      * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
      */
-    protected String getValueFlag(Numerical numerical) {
+    protected String getNumericalFlag(Numerical numerical) {
         if (numerical.getField().getType() != FieldType.DECIMAL) return null;
 
         if (!(numerical.getFormatCalc() == FormatCalc.SUM

@@ -44,7 +44,7 @@ public class PieChart extends ChartData {
             data.add(d);
         }
 
-        List<String> dataFlags = Collections.singletonList(getValueFlag(num1));
+        List<String> dataFlags = Collections.singletonList(getNumericalFlag(num1));
 
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();

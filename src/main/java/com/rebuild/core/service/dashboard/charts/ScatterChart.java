@@ -47,6 +47,7 @@ public class ScatterChart extends ChartData {
                     new String[]{"data"},
                     new Object[]{dataRaw});
             series.add(item);
+
         } else {
             for (Dimension dim : dims) {
                 Object[][] dataRaw = createQuery(buildSql(dim, nums)).array();
@@ -68,7 +69,7 @@ public class ScatterChart extends ChartData {
         String[] dataLabel = new String[nums.length];
         for (int i = 0; i < nums.length; i++) {
             dataLabel[i] = nums[i].getLabel();
-            dataFlags.add(getValueFlag(nums[i]));
+            dataFlags.add(getNumericalFlag(nums[i]));
         }
 
         JSONObject renderOption = config.getJSONObject("option");

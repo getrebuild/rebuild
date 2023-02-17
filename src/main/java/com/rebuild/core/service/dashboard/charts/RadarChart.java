@@ -44,7 +44,7 @@ public class RadarChart extends ChartData {
         List<String> dataFlags = new ArrayList<>();
         for (Numerical n : nums) {
             seriesRotate.put(n, new Object[dataRaw.length]);
-            dataFlags.add(getValueFlag(n));
+            dataFlags.add(getNumericalFlag(n));
         }
 
         for (int i = 0; i < dataRaw.length; i++) {

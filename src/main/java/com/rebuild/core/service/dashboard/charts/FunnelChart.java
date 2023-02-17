@@ -42,12 +42,13 @@ public class FunnelChart extends ChartData {
                         new String[]{"name", "value"},
                         new Object[]{nums[i].getLabel(), wrapAxisValue(nums[i], dataRaw[i])});
                 dataJson.add(d);
-                dataFlags.add(getValueFlag(nums[i]));
+                dataFlags.add(getNumericalFlag(nums[i]));
             }
+
         } else if (nums.length == 1 && dims.length >= 1) {
             Dimension dim1 = dims[0];
             Object[][] dataRaw = createQuery(buildSql(dim1, nums[0])).array();
-            final String valueFlag = getValueFlag(nums[0]);
+            final String valueFlag = getNumericalFlag(nums[0]);
             for (Object[] o : dataRaw) {
                 JSONObject d = JSONUtils.toJSONObject(
                         new String[]{"name", "value"},
