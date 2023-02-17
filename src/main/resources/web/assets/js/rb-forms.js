@@ -1077,8 +1077,9 @@ class RbFormNumber extends RbFormText {
             calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
-
+        
         // 表单计算
+        // TODO 考虑异步延迟执行
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
             if (rb.env === 'dev') console.log('onFieldValueChange :', s)
