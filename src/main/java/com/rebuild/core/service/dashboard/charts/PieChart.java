@@ -33,16 +33,23 @@ public class PieChart extends ChartData {
         Numerical num1 = nums[0];
         Object[][] dataRaw = createQuery(buildSql(dim1, num1)).array();
 
-        JSONArray dataJson = new JSONArray();
+        JSONArray data = new JSONArray();
         for (Object[] o : dataRaw) {
             o[0] = wrapAxisValue(dim1, o[0]);
             o[1] = wrapAxisValue(num1, o[1]);
             JSON d = JSONUtils.toJSONObject(new String[]{"name", "value"}, o);
-            dataJson.add(d);
+            data.add(d);
         }
+
+        JSONArray dataFlags = new JSONArray();
+        dataFlags.add(getValueFlag(num1));
+
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+        renderOption.put("dataFlags", dataFlags);
 
         return JSONUtils.toJSONObject(
                 new String[]{"data", "name", "_renderOption"},
-                new Object[]{dataJson, num1.getLabel(), config.getJSONObject("option")});
+                new Object[]{data, num1.getLabel(), renderOption});
     }
 }
