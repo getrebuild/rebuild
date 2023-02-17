@@ -642,7 +642,7 @@ public class AdvFilterParser extends SetUser {
         Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
         if (field == null) {
             log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
-            return value;
+            return StringUtils.EMPTY;
         }
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
