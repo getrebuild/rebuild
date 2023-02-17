@@ -12,6 +12,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * 饼图
  *
@@ -41,8 +44,7 @@ public class PieChart extends ChartData {
             data.add(d);
         }
 
-        JSONArray dataFlags = new JSONArray();
-        dataFlags.add(getValueFlag(num1));
+        List<String> dataFlags = Collections.singletonList(getValueFlag(num1));
 
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();

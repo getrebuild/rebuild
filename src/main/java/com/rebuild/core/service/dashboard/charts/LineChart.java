@@ -52,7 +52,7 @@ public class LineChart extends ChartData {
         }
 
         JSONArray yyyAxis = new JSONArray();
-        JSONArray yyyAxisFlags = new JSONArray();
+        List<String> dataFlags = new ArrayList<>();
         for (int i = 0; i < nums.length; i++) {
             Numerical axis = nums[i];
             List<String> data = (List<String>) numsAxis[i];
@@ -61,12 +61,12 @@ public class LineChart extends ChartData {
             map.put("name", axis.getLabel());
             map.put("data", data);
             yyyAxis.add(map);
-            yyyAxisFlags.add(getValueFlag(axis));
+            dataFlags.add(getValueFlag(axis));
         }
 
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
-        renderOption.put("yyyAxisFlags", yyyAxisFlags);
+        renderOption.put("dataFlags", dataFlags);
 
         return JSONUtils.toJSONObject(
                 new String[]{"xAxis", "yyyAxis", "_renderOption"},

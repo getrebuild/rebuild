@@ -13,7 +13,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,8 +41,10 @@ public class RadarChart extends ChartData {
         JSONArray indicator = new JSONArray();
 
         Map<Numerical, Object[]> seriesRotate = new LinkedHashMap<>();
+        List<String> dataFlags = new ArrayList<>();
         for (Numerical n : nums) {
             seriesRotate.put(n, new Object[dataRaw.length]);
+            dataFlags.add(getValueFlag(n));
         }
 
         for (int i = 0; i < dataRaw.length; i++) {
@@ -63,9 +67,13 @@ public class RadarChart extends ChartData {
                     new Object[]{e.getKey().getLabel(), e.getValue()}));
         }
 
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+        renderOption.put("dataFlags", dataFlags);
+
         return JSONUtils.toJSONObject(
                 new String[]{"indicator", "series", "_renderOption"},
-                new Object[]{indicator, series, config.getJSONObject("option")});
+                new Object[]{indicator, series, renderOption});
     }
 
     private long calcMax(Object[] items) {
