@@ -127,7 +127,9 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         } else if (dt == DisplayType.CLASSIFICATION) {
             nameValue = ClassificationManager.instance.getFullName((ID) nameValue);
         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-            nameValue = CalendarUtils.getPlainDateTimeFormat().format(nameValue);
+            nameValue = CalendarUtils.getPlainDateFormat().format(nameValue);
+        } else if (dt == DisplayType.LOCATION) {
+            nameValue = nameValue.toString().split(CommonsUtils.COMM_SPLITER_RE)[0];
         } else {
             nameValue = null;
         }
