@@ -437,6 +437,14 @@ var $empty = function (a) {
 }
 
 /**
+ * 数字是否为空
+ */
+var $emptyNum = function (a) {
+  if (typeof a === 'number') return false
+  return a === null || a === '' || typeof a === 'undefined' || $.trim(a + '') === ''
+}
+
+/**
  * 停止事件传播
  */
 var $stopEvent = function (e, preventDefault) {

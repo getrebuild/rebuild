@@ -133,7 +133,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
 
         try {
-            record = super.createOrUpdate(record);
+            record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
 
             // 主记录+明细记录处理
@@ -182,6 +182,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record create(Record record) {
         appendDefaultValue(record);
@@ -190,6 +193,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return super.create(record);
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record update(Record record) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {

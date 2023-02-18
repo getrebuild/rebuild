@@ -376,7 +376,7 @@ public class FieldWriteback extends FieldAggregation {
                             } else {
                                 value = StringUtils.EMPTY;
                             }
-                        } else if (forceUseQuote) {
+                        } else if (value instanceof ID || forceUseQuote) {
                             value = value.toString();
                         }
 

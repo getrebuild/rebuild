@@ -187,7 +187,7 @@ public class FieldValueHelper {
         Field nameField = entity.getNameField();
         Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
         if (nameValue == null) {
-            throw new NoRecordFoundException("No record found by id : " + id);
+            throw new NoRecordFoundException(id);
         }
 
         Object nameLabel = wrapFieldValue(nameValue[0], nameField, true);

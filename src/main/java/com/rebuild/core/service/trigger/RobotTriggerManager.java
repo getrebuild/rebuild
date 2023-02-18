@@ -20,7 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 触发器管理
@@ -64,7 +69,9 @@ public class RobotTriggerManager implements ConfigManager {
     private TriggerAction[] filterActions(Entity entity, ID record, TriggerWhen... when) {
         List<TriggerAction> actions = new ArrayList<>();
         for (ConfigBean cb : getConfig(entity)) {
+            // 发生动作
             if (allowedWhen(cb, when)) {
+                // 附加过滤条件
                 if (record == null
                         || QueryHelper.isMatchAdvFilter(record, (JSONObject) cb.getJSON("whenFilter"), Boolean.TRUE)) {
 
@@ -101,9 +108,8 @@ public class RobotTriggerManager implements ConfigManager {
      * @return
      */
     private boolean allowedWhen(ConfigBean entry, TriggerWhen... when) {
-        if (when.length == 0) {
-            return true;
-        }
+        if (when.length == 0) return true;
+
         int whenMask = entry.getInteger("when");
         for (TriggerWhen w : when) {
             if ((whenMask & w.getMaskValue()) != 0) {

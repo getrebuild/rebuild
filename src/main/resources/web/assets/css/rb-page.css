@@ -3177,7 +3177,8 @@ form {
 
 .global-search > .dropdown-menu a.badge:hover,
 .global-search > .dropdown-menu a.badge.active {
-  background: #4285f4;
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
   color: #fff !important;
 }
 
@@ -5173,8 +5174,8 @@ pre.unstyle {
 
 .navbar-collapse .nav-item.active .nav-link::after {
   content: '';
-  height: 3px;
-  background-color: rgba(0, 0, 0, 0.15);
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   bottom: 0;
   border-radius: 99px;

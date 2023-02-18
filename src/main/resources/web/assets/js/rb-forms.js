@@ -1073,12 +1073,13 @@ class RbFormNumber extends RbFormText {
         watchFields.forEach((item) => {
           const name = item.substr(1, item.length - 2)
           const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
-          if (fieldComp && fieldComp.state.value) {
+          if (fieldComp && !$emptyNum(fieldComp.state.value)) {
             calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
-
+        
         // 表单计算
+        // TODO 考虑异步延迟执行
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
             if (rb.env === 'dev') console.log('onFieldValueChange :', s)
@@ -1089,16 +1090,16 @@ class RbFormNumber extends RbFormText {
 
           // fix: 3.2 字段相互使用导致死循环
           this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
-          if (this.__fixUpdateDepth > 6) {
+          if (this.__fixUpdateDepth > 9) {
             console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
-            setTimeout(() => (this.__fixUpdateDepth = 0), 222)
+            setTimeout(() => (this.__fixUpdateDepth = 0), 100)
             return false
           }
 
-          if (s.value) {
-            calcFormulaValues[s.name] = this._removeComma(s.value)
-          } else {
+          if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
+          } else {
+            calcFormulaValues[s.name] = this._removeComma(s.value)
           }
 
           let formula = calcFormula
