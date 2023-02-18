@@ -33,35 +33,44 @@ public class LineChart extends ChartData {
         Dimension[] dims = getDimensions();
         Numerical[] nums = getNumericals();
 
-        Dimension dim1 = dims[0];
-        Object[][] dataRaw = createQuery(buildSql(dim1, nums)).array();
-
         List<String> dimAxis = new ArrayList<>();
-        Object[] numsAxis = new Object[nums.length];
-        for (Object[] o : dataRaw) {
-            dimAxis.add(wrapAxisValue(dim1, o[0]));
-
-            for (int i = 0; i < nums.length; i++) {
-                List<String> numAxis = (List<String>) numsAxis[i];
-                if (numAxis == null) {
-                    numAxis = new ArrayList<>();
-                    numsAxis[i] = numAxis;
-                }
-                numAxis.add(wrapAxisValue(nums[i], o[i + 1]));
-            }
-        }
-
         JSONArray yyyAxis = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
-            Numerical axis = nums[i];
-            List<String> data = (List<String>) numsAxis[i];
 
-            JSONObject map = new JSONObject();
-            map.put("name", axis.getLabel());
-            map.put("data", data);
-            yyyAxis.add(map);
-            dataFlags.add(getNumericalFlag(axis));
+        if (dims.length > 1) {
+            Numerical num1 = nums[1];
+            Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
+
+            // TODO
+
+        } else {
+            Dimension dim1 = dims[0];
+            Object[][] dataRaw = createQuery(buildSql(dim1, nums)).array();
+
+            Object[] numsAxis = new Object[nums.length];
+            for (Object[] o : dataRaw) {
+                dimAxis.add(wrapAxisValue(dim1, o[0]));
+
+                for (int i = 0; i < nums.length; i++) {
+                    List<String> numAxis = (List<String>) numsAxis[i];
+                    if (numAxis == null) {
+                        numAxis = new ArrayList<>();
+                        numsAxis[i] = numAxis;
+                    }
+                    numAxis.add(wrapAxisValue(nums[i], o[i + 1]));
+                }
+            }
+
+            for (int i = 0; i < nums.length; i++) {
+                Numerical axis = nums[i];
+                List<String> data = (List<String>) numsAxis[i];
+
+                JSONObject map = new JSONObject();
+                map.put("name", axis.getLabel());
+                map.put("data", data);
+                yyyAxis.add(map);
+                dataFlags.add(getNumericalFlag(axis));
+            }
         }
 
         JSONObject renderOption = config.getJSONObject("option");
