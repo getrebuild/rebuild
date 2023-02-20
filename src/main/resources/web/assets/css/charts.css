@@ -498,6 +498,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #dee2e6;
 }
 
+.chart-box.DataList .table td,
+.chart-box.DataList .table td > div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  clear: both;
+  max-width: 400px;
+}
+
 .DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
   font-family: 'Material Design Icons', serif;
   content: '\f0415';
