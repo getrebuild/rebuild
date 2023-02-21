@@ -179,6 +179,9 @@ class UserResigntion extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._$btn = c)}>
                 {$L('开始转移')}
               </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
             </div>
           </div>
         </div>
