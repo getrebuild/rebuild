@@ -15,17 +15,30 @@ RbForm.postAfter = function (data, next) {
   else loadDeptTree()
 }
 
-$(document).ready(function () {
-  $('.J_new').click(() => {
+RbList.queryBefore = function (query) {
+  if (!$val('#showAllUsers')) {
+    query.filterAnd = {
+      items: [{ field: 'isDisabled', op: 'EQ', value: 'F' }],
+    }
+  }
+  return query
+}
+
+$(document).ready(() => {
+  $('.J_new').on('click', () => {
     formPostType = 1
   })
-  $('.J_new-dept').click(() => {
+  $('.J_new-dept').on('click', () => {
     formPostType = 2
     RbFormModal.create({ title: $L('新建部门'), entity: 'Department', icon: 'accounts' })
   })
 
-  $('.J_imports').click(() => renderRbcomp(<UserImport />))
-  $('.J_resign').click(() => renderRbcomp(<UserResigntion />))
+  $('.J_imports').on('click', () => renderRbcomp(<UserImport />))
+  $('.J_resign').on('click', () => renderRbcomp(<UserResigntion />))
+
+  $('#showAllUsers').on('change', () => {
+    RbListPage._RbList.reload()
+  })
 })
 
 // 用户导入
@@ -84,13 +97,12 @@ class UserImport extends RbModalHandler {
   }
 
   componentDidMount() {
-    const that = this
     $createUploader(
       this._$upload,
       () => $mp.start(),
       (res) => {
         $mp.end()
-        that.setState({ uploadFile: res.key })
+        this.setState({ uploadFile: res.key })
       }
     )
   }
@@ -98,7 +110,7 @@ class UserImport extends RbModalHandler {
   imports() {
     if (!this.state.uploadFile) return RbHighbar.create($L('请上传文件'))
 
-    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._$notify).prop('checked')}`, (res) => {
+    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$val(this._$notify)}`, (res) => {
       if (res.error_code === 0) {
         $(this._$btn).button('loading')
 

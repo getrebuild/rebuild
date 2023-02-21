@@ -204,6 +204,12 @@ public class QueryParser {
             String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
+        // v3.3
+        JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
+        if (quickFilterAnd != null) {
+            String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
+            if (StringUtils.isNotBlank(where)) wheres.add(where);
+        }
 
         final String sqlWhere = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
         fullSql.append(" where ").append(sqlWhere);

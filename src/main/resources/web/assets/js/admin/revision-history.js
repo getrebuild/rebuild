@@ -57,7 +57,7 @@ class DataList extends React.Component {
   }
 
   componentDidMount() {
-    const $s2 = $('#belongEntity')
+    const $be = $('#belongEntity')
       .select2({
         placeholder: $L('选择实体'),
         allowClear: false,
@@ -65,14 +65,14 @@ class DataList extends React.Component {
       .val('$ALL$')
       .trigger('change')
 
-    $s2.on('change', () => this.queryList())
+    $be.on('change', () => this.queryList())
 
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
     $btn.off('click').on('click', () => this.queryList())
     $input.off('keydown').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
 
-    this._$belongEntity = $s2
+    this._$belongEntity = $be
     this._$recordName = $input
 
     $('.J_details').on('click', () => this.showDetails())
