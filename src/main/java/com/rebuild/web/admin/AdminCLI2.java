@@ -67,7 +67,7 @@ public class AdminCLI2 {
                 result = " Usage : " +
                         " \ncache [clean|get] [KEY]" +
                         " \nsyscfg NAME [VALUE]" +
-                        " \nsyscfg clean-qiniu|clean-sms|clean-email" +
+                        " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk" +
                         " \nbackup [database|datafile]" +
                         " \naes [decrypt] VALUE";
                 break;
@@ -134,17 +134,19 @@ public class AdminCLI2 {
         String name = commands[1];
         try {
             if ("clean-qiniu".equals(name)) {
-                removeItems(ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret,
-                        ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
+                removeItems("Storage");
                 return SUCCESS;
             } else if ("clean-sms".equals(name)) {
-                removeItems(ConfigurationItem.SmsUser, ConfigurationItem.SmsPassword,
-                        ConfigurationItem.SmsSign);
+                removeItems("Sms");
                 return SUCCESS;
             } else if ("clean-email".equals(name)) {
-                removeItems(ConfigurationItem.MailUser, ConfigurationItem.MailPassword,
-                        ConfigurationItem.MailAddr, ConfigurationItem.MailName,
-                        ConfigurationItem.MailCc, ConfigurationItem.MailSmtpServer);
+                removeItems("Mail");
+                return SUCCESS;
+            } else if ("clean-wxwork".equals(name)) {
+                removeItems("Wxwork");
+                return SUCCESS;
+            } else if ("clean-dingtalk".equals(name)) {
+                removeItems("Dingtalk");
                 return SUCCESS;
             }
 
@@ -165,9 +167,9 @@ public class AdminCLI2 {
         }
     }
 
-    private void removeItems(ConfigurationItem ...items) {
-        for (ConfigurationItem i : items) {
-            RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
+    private void removeItems(String itemPrefix) {
+        for (ConfigurationItem i : ConfigurationItem.values()) {
+            if (i.name().startsWith(itemPrefix)) RebuildConfiguration.set(i, RebuildConfiguration.SETNULL);
         }
     }
 
