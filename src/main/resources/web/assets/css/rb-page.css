@@ -4672,6 +4672,11 @@ pre.unstyle {
   padding-bottom: 15px;
 }
 
+.protable.rb-scroller.ps-active-x {
+  overflow: auto !important;
+  overflow-x: hidden !important;
+}
+
 .protable .form-group {
   margin: 0;
   padding: 0;
@@ -5129,6 +5134,7 @@ pre.unstyle {
 
 .dropdown-menu.common-texts {
   padding: 15px;
+  z-index: 1051;
 }
 
 .dropdown-menu.common-texts.w-100 {
@@ -5145,6 +5151,7 @@ pre.unstyle {
   font-weight: normal;
   border: 0 none;
   background-color: rgb(245, 247, 249);
+  max-width: 100%;
 }
 
 .dropdown-menu.common-texts .badge:hover {
