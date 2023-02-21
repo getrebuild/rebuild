@@ -586,32 +586,27 @@ div.dataTables_wrapper div.dataTables_filter {
 div.dataTables_filter .filter-badge {
   float: left;
   margin-left: 5px;
-  background-color: #fff;
-  color: #a04100;
-  border: 1px solid #ddd;
   padding: 4px 10px;
   font-size: 1rem;
   font-weight: normal;
   margin-top: 3px;
   cursor: default;
-  border-radius: 99px;
-  border-bottom-left-radius: 0;
+  border-radius: 99px 99px 99px 0;
+  background-color: #f7b904;
+  color: #fff;
+  border: 0 none;
 }
 
 div.dataTables_filter .filter-badge .close {
   opacity: 1;
   text-shadow: none;
   font-weight: normal;
-  color: #bbb;
+  color: #fff;
   margin-left: 6px;
 }
 
-div.dataTables_filter .filter-badge:hover {
-  border-color: #fbbc05;
-}
-
 div.dataTables_filter .filter-badge:hover .close {
-  color: #fbbc05;
+  opacity: 0.8;
 }
 
 .adv-search,
