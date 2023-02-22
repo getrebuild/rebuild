@@ -5139,6 +5139,7 @@ pre.unstyle {
 .dropdown-menu.common-texts > h5 {
   margin: 0;
   color: #777;
+  font-size: 12px;
 }
 
 .dropdown-menu.common-texts .badge {
@@ -5147,6 +5148,7 @@ pre.unstyle {
   border: 0 none;
   background-color: rgb(245, 247, 249);
   max-width: 100%;
+  font-size: 13px;
 }
 
 .dropdown-menu.common-texts .badge:hover {
