@@ -27,7 +27,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -116,6 +118,18 @@ public class RolePrivilegesController extends EntityController {
         ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新角色
 
         Application.getBean(RoleService.class).deleteAndTransfer(roleId, transfer);
+        return RespBody.ok();
+    }
+
+    @PostMapping("role-copyto")
+    public RespBody roleCopyTo(@RequestBody JSONObject post) {
+        ID from  = ID.valueOf(post.getString("from"));
+        Set<ID> tos = new HashSet<>();
+        for (Object s : post.getJSONArray("copyTo")) {
+            if (ID.isId(s)) tos.add(ID.valueOf(s.toString()));
+        }
+
+        Application.getBean(RoleService.class).updateWithCopyTo(from, tos.toArray(new ID[0]));
         return RespBody.ok();
     }
 }

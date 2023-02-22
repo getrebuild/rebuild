@@ -704,7 +704,7 @@ class RbList extends React.Component {
     const lastIndex = this.state.fields.length
 
     return (
-      <React.Fragment>
+      <RF>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
@@ -775,7 +775,7 @@ class RbList extends React.Component {
 
         {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._Pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -851,7 +851,7 @@ class RbList extends React.Component {
   fetchList(filter) {
     const fields = []
     let fieldSort = null
-    this.state.fields.forEach(function (item) {
+    this.state.fields.forEach((item) => {
       fields.push(item.field)
       if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
@@ -878,7 +878,7 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
-    $.post(`/app/${this._entity}/data-list`, JSON.stringify(query), (res) => {
+    $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
@@ -1134,6 +1134,13 @@ class RbList extends React.Component {
    * 渲染完成后回调
    */
   static renderAfter() {}
+
+  /**
+   * 查询前回调，可以封装查询集
+   */
+  static queryBefore(query) {
+    return query
+  }
 }
 
 // 分页组件
@@ -1229,11 +1236,11 @@ class RbListPagination extends React.Component {
             onClick={() =>
               RbModal.create(
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
-                <React.Fragment>
+                <RF>
                   {$L('配置统计列')}
                   <sup className="rbv" title={$L('增值功能')} />
                   <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
-                </React.Fragment>
+                </RF>
               )
             }>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />

@@ -646,13 +646,17 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人转审')} <sup className="rbv" title={$L('增值功能')} /></span>
+              <span className="custom-control-label">
+                {$L('允许审批人转审')} <sup className="rbv" title={$L('增值功能')} />
+              </span>
             </label>
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人加签')} <sup className="rbv" title={$L('增值功能')} /></span>
+              <span className="custom-control-label">
+                {$L('允许审批人加签')} <sup className="rbv" title={$L('增值功能')} />
+              </span>
             </label>
           </div>
 
@@ -1050,7 +1054,7 @@ class DlgCopy extends ConfigFormDlg {
           <div className="col-sm-7 offset-sm-3">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('同时禁用当前流程')}</span>
+              <span className="custom-control-label">{$L('同时禁用当前审批流程')}</span>
             </label>
           </div>
         </div>

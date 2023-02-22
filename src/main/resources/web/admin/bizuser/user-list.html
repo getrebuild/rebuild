@@ -54,11 +54,17 @@
                 <div class="row rb-datatable-header">
                   <div class="col-12 col-lg-5">
                     <div class="dataTables_filter">
-                      <div class="input-group input-search">
+                      <div class="input-group input-search float-left">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
+                      </div>
+                      <div class="float-left ml-2 mt-1" style="padding-top: 2px">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="showAllUsers" />
+                          <span class="custom-control-label">[[${bundle.L('显示全部用户')}]]</span>
+                        </label>
                       </div>
                     </div>
                   </div>
