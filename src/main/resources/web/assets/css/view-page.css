@@ -834,8 +834,7 @@ body {
   font-size: 12px;
   margin-left: 5px;
   cursor: help;
-  border-radius: 99px;
-  border-bottom-left-radius: 0;
+  border-radius: 99px 99px 99px 0;
   transform: translateY(-1px);
 }
 
@@ -869,42 +868,48 @@ body {
   right: 15px;
 }
 
-.report-has-preview li {
+.report-list ul > li {
   position: relative;
 }
 
-.report-has-preview li a {
+.report-list ul > li.has-preview > a,
+.report-list ul > li.has-pdf > a {
   margin-right: 40px;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
-.modal.select-list .modal-body .report-has-preview li a:first-child {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+.report-list ul > li.has-preview.has-pdf > a {
+  margin-right: 80px;
 }
 
-.modal.select-list .modal-body .report-has-preview li a:last-child {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.report-has-preview li a.preview {
-  margin: 0;
+.report-list ul > li > span {
+  position: absolute;
   right: 0;
   top: 0;
-  display: inline-block !important;
-  position: absolute !important;
+}
+
+.report-list ul > li > span > a {
   width: 38px;
   height: 38px;
   text-align: center;
+  display: inline-block !important;
+  margin-left: 2px;
+  border-radius: 0 !important;
 }
 
-.report-has-preview li a.preview > .mdi {
+.report-list ul > li > span > a:last-child {
+  border-top-right-radius: 2px !important;
+  border-bottom-right-radius: 2px !important;
+}
+
+.report-list ul > li > span > a > .mdi {
   float: none !important;
   display: block !important;
   color: #555 !important;
 }
 
-.report-has-preview li a.preview:hover > .mdi {
+.report-list ul > li > span > a:hover > .mdi {
   color: #fff !important;
 }
 

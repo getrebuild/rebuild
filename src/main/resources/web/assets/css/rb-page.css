@@ -3518,13 +3518,13 @@ form {
 .modal.select-list .modal-body li a > .mdi,
 .modal.select-list .modal-body li a > .zmdi {
   float: right;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: #fff;
   display: none;
 }
 
-.modal.select-list .modal-body li a > .zmdi {
-  font-size: 1.4rem;
+.modal.select-list .modal-body li a > .mdi {
+  font-size: 1.231rem;
 }
 
 .modal.select-list .modal-body li a:hover > .mdi,

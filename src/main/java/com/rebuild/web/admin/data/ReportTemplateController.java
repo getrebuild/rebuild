@@ -10,6 +10,7 @@ package com.rebuild.web.admin.data;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -28,6 +29,7 @@ import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,11 +63,16 @@ public class ReportTemplateController extends BaseController {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType from DataReportConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] list = ConfigCommons.queryListOfConfig(sql, entity, q);
+        for (Object[] o : list) {
+            JSONObject extra = JSON.parseObject((String) o[7]);
+            if (extra != null) o[7] = extra.getString("outputType");
+        }
+
         return RespBody.ok(list);
     }
 
