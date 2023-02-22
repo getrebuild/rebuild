@@ -19,7 +19,7 @@ const FT_TYPE2TYPE = ['FILE', 'IMAGE', 'AVATAR', 'SIGN']
 
 /**
  * 字段兼容判断
- * see backend `FieldValueCompatibleConversion.java`
+ * see backend `Easyield#convertCompatibleValue`
  *
  * @param s 源字段
  * @param t 目标字段
@@ -39,6 +39,9 @@ function $fieldIsCompatible(s, t) {
   }
   if (t.type === 'STATE') {
     return t.stateClass && t.stateClass === s.stateClass
+  }
+  if (t.type === 'ANYREFERENCE') {
+    return s.type === 'REFERENCE' || s.type === 'ID'
   }
 
   if (t.type === s.type) return true

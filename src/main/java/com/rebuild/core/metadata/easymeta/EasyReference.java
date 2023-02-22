@@ -44,8 +44,10 @@ public class EasyReference extends EasyField implements MixValue {
         if (is2Text) {
             return FieldValueHelper.getLabelNotry((ID) value);
         }
-
-        if (targetType == DisplayType.N2NREFERENCE) {
+        
+        if (targetType == DisplayType.ANYREFERENCE) {
+            return value;  // ID
+        } else if (targetType == DisplayType.N2NREFERENCE) {
             return new ID[] {(ID) value};
         }
 

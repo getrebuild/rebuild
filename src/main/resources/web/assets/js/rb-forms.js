@@ -1077,7 +1077,7 @@ class RbFormNumber extends RbFormText {
             calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
-        
+
         // 表单计算
         // TODO 考虑异步延迟执行
         this.props.$$$parent.onFieldValueChange((s) => {
@@ -1999,12 +1999,8 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
-// TODO 任意引用
-class RbFormAnyReference extends RbFormReference {
-  renderElement() {
-    return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
-  }
-}
+// TODO 任意引用（不支持手动编辑）
+class RbFormAnyReference extends RbFormReference {}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {
