@@ -55,23 +55,24 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
                 "DataReportConfig", "TransformConfig", "ExtformConfig",
                 "NreferenceItem"
         };
+
         int del = 0;
         for (String conf : confEntities) {
             Entity confEntity = MetadataHelper.getEntity(conf);
 
-            String ql = String.format("select %s from %s where belongEntity = ",
+            String sql = String.format("select %s from %s where belongEntity = ",
                     confEntity.getPrimaryField().getName(), confEntity.getName());
             if (confEntity.getEntityCode() == EntityHelper.Attachment) {
-                ql += delEntity.getEntityCode();
+                sql += delEntity.getEntityCode();
             } else {
-                ql += String.format("'%s'", delEntity.getName());
+                sql += String.format("'%s'", delEntity.getName());
 
                 if (confEntity.getEntityCode() == EntityHelper.TransformConfig) {
-                    ql += String.format(" or targetEntity = '%s'", delEntity.getName());
+                    sql += String.format(" or targetEntity = '%s'", delEntity.getName());
                 }
             }
 
-            Object[][] usedArray = getPersistManagerFactory().createQuery(ql).array();
+            Object[][] usedArray = getPersistManagerFactory().createQuery(sql).array();
 
             ServiceSpec ss = Application.getService(confEntity.getEntityCode());
             for (Object[] used : usedArray) {
