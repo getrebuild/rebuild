@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -16,7 +17,11 @@ import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +47,8 @@ public class AutoAssign extends TriggerAction {
 
     @Override
     public boolean isUsableSourceEntity(int entityCode) {
-        return MetadataHelper.hasPrivilegesField(MetadataHelper.getEntity(entityCode));
+        Entity e = MetadataHelper.getEntity(entityCode);
+        return MetadataHelper.hasPrivilegesField(e) || e.getMainEntity() != null;
     }
 
     @Override
@@ -85,8 +91,8 @@ public class AutoAssign extends TriggerAction {
             }
 
         } else {
-            int rnd = RandomUtils.nextInt(toUsers.size());
-            toUser = toUsers.toArray(new ID[0])[rnd];
+            int r = RandomUtils.nextInt(toUsers.size());
+            toUser = toUsers.toArray(new ID[0])[r];
         }
 
         String hasCascades = ((JSONObject) actionContext.getActionContent()).getString("cascades");

@@ -302,7 +302,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int assign(ID record, ID to, String[] cascades) {
         final User toUser = Application.getUserStore().getUser(to);
-        final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), false);
+        final ID recordOrigin = record;
+        // v3.2.2 若为明细则转为主记录
+        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+            record = QueryHelper.getMainIdByDetail(record);
+        }
+
+        final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), Boolean.FALSE);
         assignAfter.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
         assignAfter.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 
@@ -321,7 +327,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             affected = 1;
         }
 
-        Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
+        Map<String, Set<ID>> cass = getCascadedRecords(recordOrigin, cascades, BizzPermission.ASSIGN);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
             log.info("Cascading assign - {} > {}", e.getKey(), e.getValue());
 
@@ -340,7 +346,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int share(ID record, ID to, String[] cascades, int rights) {
         final ID currentUser = UserContextHolder.getUser();
-        final String entityName = MetadataHelper.getEntityName(record);
+        final ID recordOrigin = record;
+        // v3.2.2 若为明细则转为主记录
+        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+            record = QueryHelper.getMainIdByDetail(record);
+        }
 
         boolean fromTriggerNoDowngrade = GeneralEntityServiceContextHolder.isFromTrigger(false);
         if (!fromTriggerNoDowngrade) {
@@ -354,6 +364,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
+        final String entityName = MetadataHelper.getEntityName(record);
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
         sharedAfter.setID("recordId", record);
         sharedAfter.setID("shareTo", to);
@@ -394,7 +405,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             shareChange = true;
         }
 
-        Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
+        Map<String, Set<ID>> cass = getCascadedRecords(recordOrigin, cascades, BizzPermission.SHARE);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
             log.info("Cascading share - {} > {}", e.getKey(), e.getValue());
 
