@@ -178,7 +178,7 @@ class DlgEnableUser extends RbModalHandler {
     super(props)
 
     if (props.enable) this._title = $L('激活用户')
-    else this._title = props.dept ? $L('修改部门') : $L('修改角色')
+    else this._title = props.deptSet ? $L('修改部门') : $L('修改角色')
   }
 
   render() {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.query.AjqlQuery;
@@ -29,9 +30,12 @@ public class QueryDecorator extends AjqlQuery {
 
     @Override
     public Result result() {
-        if (be == null) be = MetadataHelper.isBusinessEntity(getRootEntity());
+        if (be == null) {
+            Entity e = getRootEntity();
+            be = MetadataHelper.isBusinessEntity(e) || MetadataHelper.isBizzEntity(e);
+        }
 
-        // 仅业务实体用
+        // 仅业务实体或BIZZ
         if (be) {
             if (result == null) result = new ResultDecorator(this);
             return result;

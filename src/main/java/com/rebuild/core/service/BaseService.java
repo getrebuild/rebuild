@@ -92,6 +92,7 @@ public class BaseService extends InternalPersistService {
      * @param record
      * @param isNew
      * @return
+     * @see DisplayType#N2NREFERENCE
      */
     private Callable2<Integer, Record> processN2NReference(final Record record, boolean isNew) {
         final Entity entity = record.getEntity();
@@ -221,7 +222,7 @@ public class BaseService extends InternalPersistService {
      * @param record
      * @param isNew
      * @return
-     * @see #processN2NReference(Record, boolean)
+     * @see DisplayType#TAG
      */
     private Callable2<Integer, Record> processTag(final Record record, boolean isNew) {
         final Entity entity = record.getEntity();
