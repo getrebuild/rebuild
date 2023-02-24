@@ -328,6 +328,7 @@ const formatThousands = function (num, flag) {
 
   // v3.2.1
   if (flag === '%') n += '%'
+  else if (flag && flag.includes('%s')) n = flag.replace('%s', n)
   else if (flag) n = `${flag} ${n}`
   return n
 }

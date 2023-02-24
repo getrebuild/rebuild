@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -56,24 +57,22 @@ public class MetaFieldService extends InternalPersistService implements AdminGua
         // 删除此字段的相关配置记录
         // Field: belongEntity, belongField
         String[] whoUsed = field == null ? new String[0] : new String[]{
-                "PickList", "AutoFillinConfig", "NreferenceItem"
+                "PickList", "AutoFillinConfig", "NreferenceItem", "Attachment"
         };
+
         int del = 0;
         for (String who : whoUsed) {
             Entity whichEntity = MetadataHelper.getEntity(who);
 
-            String sql = String.format(
-                    "select %s from %s where belongEntity = '%s' and belongField = '%s'",
-                    whichEntity.getPrimaryField().getName(), whichEntity.getName(), field.getOwnEntity().getName(), field.getName());
+            Object belongEntity = "Attachment".equals(who) ? field.getOwnEntity().getEntityCode() : field.getOwnEntity().getName();
+            String dsql = String.format(
+                    "delete from `%s` where `BELONG_ENTITY` = '%s' and `BELONG_FIELD` = '%s'",
+                    whichEntity.getPhysicalName(), belongEntity.toString(), field.getName());
+            int d = Application.getSqlExecutor().execute(dsql);
 
-            Object[][] usedArray = getPersistManagerFactory().createQuery(sql).array();
-            for (Object[] used : usedArray) {
-                del += super.delete((ID) used[0]);
-            }
-
-            if (usedArray.length > 0) {
+            if (d > 0) {
                 log.warn("Deleted configuration of field [ {}.{} ] in [ {} ] : {}",
-                        field.getOwnEntity().getName(), field.getName(), who, usedArray.length);
+                        field.getOwnEntity().getName(), field.getName(), who, d);
 
                 if ("PickList".equals(who)) {
                     PickListManager.instance.clean(field);
