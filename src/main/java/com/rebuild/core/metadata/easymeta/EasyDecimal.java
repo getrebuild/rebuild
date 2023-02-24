@@ -59,6 +59,7 @@ public class EasyDecimal extends EasyField {
         String type = getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
         if (type != null && !"0".equals(type)) {
             if ("%".equals(type)) n += "%";
+            else if (type.contains("%s")) n = String.format(type, n); // %s万元
             else n = type + " " + n;
         }
         return n;
