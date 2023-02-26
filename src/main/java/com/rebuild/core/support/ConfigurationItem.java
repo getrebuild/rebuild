@@ -110,6 +110,9 @@ public enum ConfigurationItem {
     PortalOfficePreviewUrl,
     PortalUploadMaxSize(200),
 
+    // PDF
+    LIBREOFFICE_BIN,
+
     // !!! 命令行适用
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB

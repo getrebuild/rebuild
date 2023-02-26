@@ -485,7 +485,7 @@ class SelectReport extends React.Component {
                             </a>
                           )}
                           {rb._officePreviewUrl && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&preview=yes`} title={$L('在线查看')}>
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=preview`} title={$L('在线查看')}>
                               <i className="mdi mdi-open-in-new" />
                             </a>
                           )}

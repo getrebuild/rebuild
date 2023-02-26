@@ -26,7 +26,7 @@ class ReportList extends ConfigList {
             <tr key={item[0]}>
               <td>
                 {item[3]}
-                {item[6] === 2 && <span className="badge badge-secondary badge-sm ml-1">{$L('列表模板')}</span>}
+                {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
                 {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
               </td>
@@ -155,7 +155,9 @@ class ReporEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
-              <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('正确配置 PDF 功能后可用')} />
+              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin">
+                <i className="zmdi zmdi-help zicon" />
+              </a>
             </label>
           </div>
         </div>
