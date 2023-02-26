@@ -446,7 +446,7 @@ class SelectReport extends React.Component {
 
   render() {
     return (
-      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
+      <div className="modal select-list report-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -467,20 +467,29 @@ class SelectReport extends React.Component {
                 </p>
               )}
               <div>
-                <ul className={`list-unstyled ${rb._officePreviewUrl && 'report-has-preview'}`}>
+                <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
+                    rb._officePreviewUrl = 111
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
+                    const showPdf = item.outputType.includes('pdf') && item.outputType.includes('excel')
                     return (
-                      <li key={item.id}>
+                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
                           <i className="mdi mdi-download" />
                         </a>
-                        {rb._officePreviewUrl && (
-                          <a target="_blank" className="preview" href={`${reportUrl}&preview=yes`} title={$L('在线查看')}>
-                            <i className="mdi mdi-open-in-new" />
-                          </a>
-                        )}
+                        <span>
+                          {showPdf && (
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('下载 PDF')}>
+                              <i className="mdi mdi-file-pdf-box" />
+                            </a>
+                          )}
+                          {rb._officePreviewUrl && (
+                            <a target="_blank" className="preview" href={`${reportUrl}&preview=yes`} title={$L('在线查看')}>
+                              <i className="mdi mdi-open-in-new" />
+                            </a>
+                          )}
+                        </span>
                       </li>
                     )
                   })}

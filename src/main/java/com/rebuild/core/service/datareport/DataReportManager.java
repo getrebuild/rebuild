@@ -10,13 +10,16 @@ package com.rebuild.core.service.datareport;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ public class DataReportManager implements ConfigManager {
 
     public static final DataReportManager instance = new DataReportManager();
 
-    private DataReportManager() { }
+    private DataReportManager() {}
 
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
@@ -48,7 +51,7 @@ public class DataReportManager implements ConfigManager {
         JSONArray list = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
-                list.add(e.toJSON("id", "name"));
+                list.add(e.toJSON("id", "name", "outputType"));
             }
         }
         return list;
@@ -68,18 +71,22 @@ public class DataReportManager implements ConfigManager {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,templateFile,templateType from DataReportConfig where belongEntity = ?")
+                "select configId,name,isDisabled,templateFile,templateType,extraDefinition from DataReportConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
                 .array();
 
         List<ConfigBean> alist = new ArrayList<>();
         for (Object[] o : array) {
+            JSONObject extra = JSON.parseObject((String) o[5]);
+            String outputType = extra == null ? null : extra.getString("outputType");
+
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
                     .set("name", o[1])
                     .set("disabled", o[2])
                     .set("template", o[3])
-                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD));
+                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
+                    .set("outputType", StringUtils.defaultString(outputType, "excel"));
             alist.add(cb);
         }
 
