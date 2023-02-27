@@ -81,7 +81,7 @@ public class FileListController extends BaseController {
         // 从相关记录
         ID related = getIdParameter(request, "related");
 
-        // Entity or Folder
+        // Entity(code) or Folder(ID/ALL)
         String entry = getParameter(request, "entry");
 
         int useEntity = 0;
@@ -104,7 +104,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("filePath like '%%%s%%'", StringEscapeUtils.escapeSql(q)));
         }
 
-        // 附件还是文档
+        // 附件
         if (useEntity > 0) {
             if (useEntity == EntityHelper.Feeds) {
                 sqlWhere.add(String.format(
@@ -126,13 +126,14 @@ public class FileListController extends BaseController {
                 if (UserHelper.isAdmin(user)) {
                     sqlWhere.add("belongEntity > 0");
                 } else {
-                    String esql = "( belongEntity = " +
+                    String entityWhere = "( belongEntity = " +
                             StringUtils.join(getAllowEntities(user, true), " or belongEntity = ") + " )";
-                    sqlWhere.add(esql);
+                    sqlWhere.add(entityWhere);
                 }
             }
-
-        } else {
+        }
+        // 文档
+        else {
             sqlWhere.add("belongEntity = 0");
 
             Set<ID> ps = FilesHelper.getPrivateFolders(user);

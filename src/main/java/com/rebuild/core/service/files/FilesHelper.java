@@ -102,7 +102,7 @@ public class FilesHelper {
             o[3] = user.equals(o[3]);
             JSONObject folder = JSONUtils.toJSONObject(
                     new String[] { "id", "text", "private", "self", "parent" }, o);
-            
+
             JSONArray children = getFolders(user, (ID) o[0]);
             if (!children.isEmpty()) {
                 folder.put("children", children);
