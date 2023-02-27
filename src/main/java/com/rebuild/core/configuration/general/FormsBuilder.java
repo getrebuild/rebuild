@@ -483,14 +483,19 @@ public class FormsBuilder extends FormsManager {
                     }
                 }
 
-                // Clean
-                el.remove(EasyFieldConfigProps.ADV_PATTERN);
-                el.remove(EasyFieldConfigProps.ADV_DESENSITIZED);
-                el.remove("barcodeFormat");
-                el.remove("seriesFormat");
+            }
 
-            }  // end 新建记录
-        }  // end for
+            // Clean
+            el.remove(EasyFieldConfigProps.ADV_PATTERN);
+            el.remove(EasyFieldConfigProps.ADV_DESENSITIZED);
+            el.remove("barcodeFormat");
+            el.remove("seriesFormat");
+
+            String decimalType = el.getString("decimalType");
+            if (decimalType != null && decimalType.contains("%s")) {
+                el.put("decimalType", decimalType.replace("%s", ""));
+            }
+        }
     }
 
     /**

@@ -75,6 +75,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("configId", configId);
         mv.getModel().put("sourceEntity", sourceEntity.getName());
         mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
+        mv.getModel().put("sourceEntityType", MetadataHelper.getEntityType(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
         mv.getModel().put("actionTypeLabel", Language.L(actionType));
         mv.getModel().put("when", config[2]);

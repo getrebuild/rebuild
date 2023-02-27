@@ -118,23 +118,28 @@ public class UserService extends BaseService {
     }
 
     @Override
-    public int delete(ID record) {
+    public int delete(ID recordId) {
         checkAdminGuard(BizzPermission.DELETE, null);
 
-        if (ADMIN_USER.equals(record) || SYSTEM_USER.equals(record)) {
+        if (ADMIN_USER.equals(recordId) || SYSTEM_USER.equals(recordId)) {
             throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
 
         Object[] hasLogin = Application.createQueryNoFilter(
                 "select count(logId) from LoginLog where user = ?")
-                .setParameter(1, record)
+                .setParameter(1, recordId)
                 .unique();
         if (ObjectUtils.toInt(hasLogin[0]) > 0) {
             throw new OperationDeniedException(Language.L("已使用过的用户禁止删除"));
         }
 
-        super.delete(record);
-        Application.getUserStore().removeUser(record);
+        // 1.清理配置
+        String dsql = String.format("delete from `layout_config` where `CREATED_BY` = '%s'", recordId);
+        Application.getSqlExecutor().execute(dsql);
+
+        // 2.删除并刷新缓存
+        super.delete(recordId);
+        Application.getUserStore().removeUser(recordId);
         return 1;
     }
 
@@ -208,7 +213,7 @@ public class UserService extends BaseService {
      * @param password
      * @throws DataSpecificationException
      */
-    protected void checkPassword(String password) throws DataSpecificationException {
+    private void checkPassword(String password) throws DataSpecificationException {
         if (password.length() < 6) {
             throw new DataSpecificationException(Language.L("密码不能小于 6 位"));
         }

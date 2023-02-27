@@ -301,6 +301,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         if (type == null) return value;
 
         if ("%".equals(type)) value += "%";
+        else if (type.contains("%s")) value = String.format(type, value);
         else value = type + " " + value;
         return value;
     }

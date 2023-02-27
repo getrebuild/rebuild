@@ -927,6 +927,7 @@ class RbFormText extends RbFormElement {
     const comp = super.renderElement()
     if (this.props.readonly || !this.props.textCommon) return comp
 
+    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
     return (
       <RF>
         {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
@@ -936,7 +937,8 @@ class RbFormText extends RbFormElement {
             return (
               <a
                 key={item}
-                className="badge"
+                title={item}
+                className="badge text-ellipsis"
                 onClick={() => {
                   // $(this._fieldValue).val(item)
                   this.handleChange({ target: { value: item } }, true)

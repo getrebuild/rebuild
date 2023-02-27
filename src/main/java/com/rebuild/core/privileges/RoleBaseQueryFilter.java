@@ -101,16 +101,14 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         Entity useMainEntity = null;
         if (!MetadataHelper.hasPrivilegesField(entity)) {
-            // NOTE BIZZ 实体全部用户可见
+            // TODO BIZZ 实体全部用户可见???
             if (MetadataHelper.isBizzEntity(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
                 return ALLOWED.evaluate(null);
-
             } else if (entity.getMainEntity() != null) {
                 useMainEntity = entity.getMainEntity();
             } else {
                 log.warn("None privileges entity use `Application#createQueryNoFilter` please : {} \n\t{}",
                         entity, StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
-
                 return DENIED.evaluate(null);
             }
         }
@@ -159,7 +157,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         if (depth == BizzDepthEntry.LOCAL) {
             return joinFilters(deptFilter, customFilter, shareFilter);
-
         } else if (depth == BizzDepthEntry.DEEPDOWN) {
             Set<String> set = new HashSet<>();
             set.add(deptFilter);
