@@ -300,10 +300,15 @@ class DataExport extends BatchOperator {
           <option value="xls">Excel</option>
           <optgroup label={$L('使用报表模板')}>
             {reports.map((item) => {
+              const outputType = item.outputType || ''
               return (
-                <option value={item.id} key={item.id}>
-                  {item.name}
-                </option>
+                <RF key={item.id}>
+                  <option value={item.id}>
+                    {item.name}
+                    {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
+                  </option>
+                  {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                </RF>
               )
             })}
             {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}

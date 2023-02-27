@@ -594,8 +594,7 @@ div.dataTables_filter .filter-badge {
   font-weight: normal;
   margin-top: 3px;
   cursor: default;
-  border-radius: 99px;
-  border-bottom-left-radius: 0;
+  border-radius: 99px 99px 99px 0;
 }
 
 div.dataTables_filter .filter-badge .close {
@@ -1025,9 +1024,8 @@ select.form-control:not([disabled]) {
   content: '';
 }
 
-.type-MULTISELECT {
-  padding-bottom: 6px !important;
-  overflow: hidden;
+.rbform .type-MULTISELECT {
+  padding-bottom: 4px !important;
 }
 
 .type-MULTISELECT .mt-1 {
@@ -3518,13 +3516,13 @@ form {
 .modal.select-list .modal-body li a > .mdi,
 .modal.select-list .modal-body li a > .zmdi {
   float: right;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: #fff;
   display: none;
 }
 
-.modal.select-list .modal-body li a > .zmdi {
-  font-size: 1.4rem;
+.modal.select-list .modal-body li a > .mdi {
+  font-size: 1.231rem;
 }
 
 .modal.select-list .modal-body li a:hover > .mdi,
@@ -5192,4 +5190,8 @@ pre.unstyle {
 .logo-img.white,
 .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
   background-image: url('../../commons/theme/use-logo-white');
+}
+
+.badge-arrow3 {
+  border-radius: 99px 99px 99px 0;
 }

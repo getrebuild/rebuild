@@ -8,20 +8,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.util.ResourceUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  */
-class CompressUtilsTest {
+class PdfConverterTest {
 
     @Test
-    void zip() throws IOException {
-        CompressUtils.forceZip(
-                new File("D:\\GitHub\\rebuild\\rebuild"),
-                new File("D:\\GitHub\\rebuild.zip"),
-                pathname -> !pathname.getName().contains("node_modules")
-        );
+    void convert() throws IOException {
+        Path path = ResourceUtils.getFile("classpath:classification-demo.xlsx").toPath();
+        Path pdf = PdfConverter.convert(path, Boolean.TRUE);
+        System.out.println(path + " > " + pdf);
     }
 }

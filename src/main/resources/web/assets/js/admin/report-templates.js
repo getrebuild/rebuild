@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').on('click', () => renderRbcomp(<ReporEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<ReporEditor />))
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -21,11 +21,14 @@ class ReportList extends ConfigList {
     return (
       <RF>
         {(this.state.data || []).map((item) => {
+          const outputType = item[7] || 'excel'
           return (
             <tr key={item[0]}>
               <td>
                 {item[3]}
-                {item[6] === 2 && <span className="badge badge-secondary badge-sm ml-1">{$L('列表模板')}</span>}
+                {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
+                {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
+                {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{ShowEnable(item[4])}</td>
@@ -54,7 +57,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReporEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
+    renderRbcomp(<ReporEditor id={item[0]} name={item[3]} isDisabled={item[4]} outputType={item[7]} />)
   }
 
   handleDelete(id) {
@@ -70,7 +73,7 @@ class ReportList extends ConfigList {
   }
 }
 
-class ReporEdit extends ConfigFormDlg {
+class ReporEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('报表模板')
@@ -94,18 +97,6 @@ class ReporEdit extends ConfigFormDlg {
                     )
                   })}
                 </select>
-              </div>
-            </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right" />
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
-                  <input className="custom-control-input" type="checkbox" />
-                  <span className="custom-control-label">
-                    {$L('这是一个列表模板')}
-                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
-                  </span>
-                </label>
               </div>
             </div>
             <div className="form-group row">
@@ -133,6 +124,18 @@ class ReporEdit extends ConfigFormDlg {
                 )}
               </div>
             </div>
+            <div className="form-group row pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
+                  <input className="custom-control-input" type="checkbox" />
+                  <span className="custom-control-label">
+                    {$L('这是一个列表模板')}
+                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
+                  </span>
+                </label>
+              </div>
+            </div>
           </RF>
         )}
 
@@ -140,6 +143,22 @@ class ReporEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('报表导出格式')}</label>
+          <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input className="custom-control-input" type="checkbox" value="excel" />
+              <span className="custom-control-label">Excel</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input className="custom-control-input" type="checkbox" value="pdf" />
+              <span className="custom-control-label">PDF</span>
+              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin">
+                <i className="zmdi zmdi-help zicon" />
+              </a>
+            </label>
           </div>
         </div>
 
@@ -186,6 +205,12 @@ class ReporEdit extends ConfigFormDlg {
       .on('change', () => this.checkTemplate())
       .find('[data-toggle="tooltip"]')
       .tooltip()
+
+    $(this._$outputType).find('[data-toggle="tooltip"]').tooltip()
+
+    const outputType = this.props.outputType || 'excel'
+    if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
+    if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
   }
 
   // 检查模板
@@ -220,6 +245,15 @@ class ReporEdit extends ConfigFormDlg {
   confirm = () => {
     const post = { name: this.state['name'] }
     if (!post.name) return RbHighbar.create($L('请输入名称'))
+
+    const output = []
+    if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
+    if ($val($(this._$outputType).find('input:eq(0)'))) output.push('excel')
+
+    // v3.3
+    post.extraDefinition = {
+      outputType: output.length === 0 ? 'excel' : output.join(','),
+    }
 
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
