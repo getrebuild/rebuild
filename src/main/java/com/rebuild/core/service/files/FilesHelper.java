@@ -59,10 +59,12 @@ public class FilesHelper {
     public static Record createAttachment(String filePath, ID user) {
         Record attach = EntityHelper.forNew(EntityHelper.Attachment, user);
         attach.setString("filePath", filePath);
+
         String ext = FilenameUtils.getExtension(filePath);
         if (StringUtils.isNotBlank(ext)) {
             attach.setString("fileType", ext);
         }
+
         if (FILESIZES.containsKey(filePath)) {
             attach.setInt("fileSize", FILESIZES.remove(filePath));
         } else {
@@ -73,6 +75,7 @@ public class FilesHelper {
                 attach.setInt("fileSize", (Integer) db[0]);
             }
         }
+
         return attach;
     }
 
@@ -84,15 +87,14 @@ public class FilesHelper {
      * @return
      */
     public static JSONArray getFolders(ID user, ID parent) {
-        String sql = "select folderId,name,scope,createdBy,parent from AttachmentFolder" +
-                " where (scope = '" + SCOPE_ALL + "' or (createdBy = ? and scope = '" + SCOPE_SELF + "')) and ";
-        if (parent == null) {
-            sql += "parent is null";
-        } else {
-            sql += String.format("parent = '%s'", parent);
-        }
+        String sql = String.format(
+                "select folderId,name,scope,createdBy,parent from AttachmentFolder" +
+                " where (scope = '%s' or createdBy = '%s') and ", SCOPE_ALL, user);
+        if (parent == null) sql += "parent is null";
+        else sql += String.format("parent = '%s'", parent);
+
         sql += " order by name";
-        Object[][] array = Application.createQueryNoFilter(sql).setParameter(1, user).array();
+        Object[][] array = Application.createQueryNoFilter(sql).array();
 
         JSONArray folders = new JSONArray();
         for (Object[] o : array) {
@@ -100,7 +102,7 @@ public class FilesHelper {
             o[3] = user.equals(o[3]);
             JSONObject folder = JSONUtils.toJSONObject(
                     new String[] { "id", "text", "private", "self", "parent" }, o);
-
+            
             JSONArray children = getFolders(user, (ID) o[0]);
             if (!children.isEmpty()) {
                 folder.put("children", children);
@@ -121,6 +123,8 @@ public class FilesHelper {
                 "select folderId,createdBy from AttachmentFolder where scope = ?")
                 .setParameter(1, SCOPE_SELF)
                 .array();
+        if (array.length == 0) return Collections.emptySet();
+
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) {
             if (excludesUser == null || !excludesUser.equals(o[1])) {
@@ -142,9 +146,7 @@ public class FilesHelper {
                 "select folderId,createdBy from AttachmentFolder where parent = ?")
                 .setParameter(1, parent)
                 .array();
-        if (array.length == 0) {
-            return Collections.emptySet();
-        }
+        if (array.length == 0) return Collections.emptySet();
 
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) {
@@ -165,13 +167,10 @@ public class FilesHelper {
                 "select scope,parent from AttachmentFolder where folderId = ?")
                 .setParameter(1, folder)
                 .unique();
-        if (SCOPE_SELF.equals(o[0])) {
-            return true;
-        } else if (o[1] != null) {
-            return isPrivate((ID) o[1]);
-        } else {
-            return false;
-        }
+
+        if (SCOPE_SELF.equals(o[0])) return true;
+        else if (o[1] != null) return isPrivate((ID) o[1]);
+        else return false;
     }
 
     /**

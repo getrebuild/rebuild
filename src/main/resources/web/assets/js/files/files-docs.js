@@ -138,9 +138,17 @@ class FolderEditDlg extends RbFormHandler {
                 <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SPEC'} value="SPEC" onChange={this.handleChange} />
+                <span className="custom-control-label">{$L('指定用户')}</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
+
+              <div className={`mt-2 mb-1 ${this.state.scope !== 'SPEC' && 'hide'}`}>
+                <UserSelector ref={(c) => this._UserSelector = c} defaultValue={this.state.specUsers} />
+              </div>
               <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
@@ -169,13 +177,30 @@ class FolderEditDlg extends RbFormHandler {
     )
   }
 
+  componentDidMount() {
+    // super.componentDidMount()
+
+    const s = this.state.scope
+    if (s && s.length >= 20) {
+      this.setState({
+        scope: 'SPEC',
+        specUsers: s
+      })
+    }
+  }
+
   _post = () => {
-    let _data = {
+    const _data = {
       name: this.state.name,
       parent: this.state.parent,
       scope: this.state.scope,
     }
     if (!_data.name) return RbHighbar.create($L('请输入目录名称'))
+    if (_data.scope === 'SPEC') {
+      const s = this._UserSelector.val()
+      if (s.length === 0) return RbHighbar.create($L('请选择指定用户'))
+      _data.scope = s.join(',')
+    }
 
     _data.metadata = {
       entity: 'AttachmentFolder',

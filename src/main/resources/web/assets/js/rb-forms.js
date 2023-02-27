@@ -2001,8 +2001,9 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
-// TODO 任意引用（不支持手动编辑）
-class RbFormAnyReference extends RbFormReference {}
+// TODO 任意引用支持手动编辑
+class RbFormAnyReference extends RbFormReference {
+}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {
