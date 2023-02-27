@@ -259,14 +259,20 @@ public class AdvFilterParser extends SetUser {
         // exists ( in (...) )
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
+            boolean forceNot = false;
             if (hasNameFlag) {
                 Entity refEntity = fieldMeta.getReferenceEntity();
                 Field nameField = refEntity.getNameField();
 
                 JSONObject innerItem = (JSONObject) JSONUtils.clone(item);
                 innerItem.put("field", nameField.getName());
-                String innerWhereSql = parseItem(innerItem, null, refEntity);
 
+                // Not 转换
+                String opCheck = innerItem.getString("op");
+                forceNot = ParseHelper.NLK.equalsIgnoreCase(opCheck) || ParseHelper.NEQ.equalsIgnoreCase(opCheck);
+                if (forceNot) innerItem.put("op", opCheck.substring(1));  // Remove `N`
+
+                String innerWhereSql = parseItem(innerItem, null, refEntity);
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), innerWhereSql);
 
@@ -278,9 +284,10 @@ public class AdvFilterParser extends SetUser {
 
             if (inWhere != null) {
                 return String.format(
-                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
-                        specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+                        "%sexists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
+                        forceNot ? "not " : "", specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
             }
+            // else `NL` `NT`
 
         } else if (dt == DisplayType.TAG && (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op))) {
             String existsWhere = String.format(

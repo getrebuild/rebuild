@@ -586,9 +586,6 @@ div.dataTables_wrapper div.dataTables_filter {
 div.dataTables_filter .filter-badge {
   float: left;
   margin-left: 5px;
-  background-color: #fff;
-  color: #a04100;
-  border: 1px solid #ddd;
   padding: 4px 10px;
   font-size: 1rem;
   font-weight: normal;
@@ -601,16 +598,12 @@ div.dataTables_filter .filter-badge .close {
   opacity: 1;
   text-shadow: none;
   font-weight: normal;
-  color: #bbb;
+  color: #fff;
   margin-left: 6px;
 }
 
-div.dataTables_filter .filter-badge:hover {
-  border-color: #fbbc05;
-}
-
 div.dataTables_filter .filter-badge:hover .close {
-  color: #fbbc05;
+  opacity: 0.8;
 }
 
 .adv-search,
@@ -1064,6 +1057,7 @@ select.form-control:not([disabled]) {
   font-size: 12px;
   font-style: normal;
   color: #878787;
+  pointer-events: none;
 }
 
 .img-field {
@@ -4670,6 +4664,11 @@ pre.unstyle {
   padding-bottom: 15px;
 }
 
+.protable.rb-scroller.ps-active-x {
+  overflow: auto !important;
+  overflow-x: hidden !important;
+}
+
 .protable .form-group {
   margin: 0;
   padding: 0;
@@ -5126,7 +5125,8 @@ pre.unstyle {
 }
 
 .dropdown-menu.common-texts {
-  padding: 15px;
+  padding: 15px 15px 12px;
+  z-index: 1051;
 }
 
 .dropdown-menu.common-texts.w-100 {
@@ -5136,6 +5136,7 @@ pre.unstyle {
 .dropdown-menu.common-texts > h5 {
   margin: 0;
   color: #777;
+  font-size: 12px;
 }
 
 .dropdown-menu.common-texts .badge {
@@ -5143,6 +5144,8 @@ pre.unstyle {
   font-weight: normal;
   border: 0 none;
   background-color: rgb(245, 247, 249);
+  max-width: 100%;
+  font-size: 13px;
 }
 
 .dropdown-menu.common-texts .badge:hover {
