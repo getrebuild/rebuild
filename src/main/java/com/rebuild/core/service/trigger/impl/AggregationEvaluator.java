@@ -20,7 +20,13 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 聚合计算
@@ -124,7 +130,7 @@ public class AggregationEvaluator {
             return null;
         }
 
-        String clearFormual = formula
+        String clearFormula = formula
                 .replace("×", "*")
                 .replace("÷", "/");
 
@@ -138,12 +144,12 @@ public class AggregationEvaluator {
             String replaceWhitQuote = "\"" + replace + "\"";
             String replaceWhitQuoteSingle = "'" + replace + "'";
 
-            if (clearFormual.contains(replaceWhitQuote)) {
-                clearFormual = clearFormual.replace(replaceWhitQuote, fieldKey);
-            } else if (clearFormual.contains(replaceWhitQuoteSingle)) {
-                clearFormual = clearFormual.replace(replaceWhitQuoteSingle, fieldKey);
-            } else if (clearFormual.contains(replace)) {
-                clearFormual = clearFormual.replace(replace, fieldKey);
+            if (clearFormula.contains(replaceWhitQuote)) {
+                clearFormula = clearFormula.replace(replaceWhitQuote, fieldKey);
+            } else if (clearFormula.contains(replaceWhitQuoteSingle)) {
+                clearFormula = clearFormula.replace(replaceWhitQuoteSingle, fieldKey);
+            } else if (clearFormula.contains(replace)) {
+                clearFormula = clearFormula.replace(replace, fieldKey);
             } else {
                 continue;
             }
@@ -155,6 +161,6 @@ public class AggregationEvaluator {
             envMap.put(fieldKey, value);
         }
 
-        return AviatorUtils.eval(clearFormual, envMap, false);
+        return AviatorUtils.eval(clearFormula, envMap, false);
     }
 }

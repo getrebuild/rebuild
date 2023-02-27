@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -30,7 +31,6 @@ import eu.bitwalker.useragentutils.DeviceType;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -95,8 +95,7 @@ public class LoginAction extends BaseController {
                 "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
-        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10
-                || BooleanUtils.toBoolean(System.getProperty("_ForceTour"))) {
+        if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
             ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
         }
 

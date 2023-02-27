@@ -110,7 +110,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 
   rb.commercial = ~~rb.commercial
-  if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
+  if (rb.commercial > 1) $('html').addClass('commercial')
   if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
 
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
@@ -129,7 +129,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
-      watermark_alpha: 0.06,
+      watermark_alpha: 0.1,
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
       monitor: true,
@@ -434,6 +434,14 @@ var $empty = function (a) {
   if (atype === 'array' && a.length === 0) return true
   if (atype === 'object' && Object.keys(a).length === 0) return true
   return !$.trim(a + '')
+}
+
+/**
+ * 数字是否为空
+ */
+var $emptyNum = function (a) {
+  if (typeof a === 'number') return false
+  return a === null || a === '' || typeof a === 'undefined' || $.trim(a + '') === ''
 }
 
 /**

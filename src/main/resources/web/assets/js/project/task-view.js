@@ -146,14 +146,17 @@ class TaskForm extends React.Component {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
-        this.disabled(true)
+        this.disabled(true, true)
         $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success($L('任务已删除'))
             __TaskViewer.refreshTask('DELETE')
             __TaskViewer.hide()
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
     })
@@ -910,7 +913,7 @@ class ValueRelatedRecord extends ValueComp {
     if (data) {
       return (
         <div className={`form-control-plaintext ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
-          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('查看记录')} target="_blank" onClick={(e) => $stopEvent(e)}>
+          <a href={`${rb.baseUrl}/app/redirect?id=${data.id}`} title={$L('查看记录')} target="_blank" onClick={(e) => $stopEvent(e)}>
             {data.text}
           </a>
         </div>

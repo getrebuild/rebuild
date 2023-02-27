@@ -19,6 +19,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RateLimiters;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 
 /**
  * 获取登录 Token 可用于单点登录
@@ -28,12 +29,17 @@ import com.rebuild.utils.RateLimiters;
  */
 public class LoginToken extends BaseApi {
 
+    // 基于用户限流
+    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
+            new int[] { 30, 60, 3600 },
+            new int[] { 5, 10, 100 });
+
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final String user = context.getParameterNotBlank("user");
         final String password = context.getParameterNotBlank("password");
 
-        if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("user:" + user)) {
+        if (RRL.overLimitWhenIncremented("user:" + user)) {
             return formatFailure(Language.L("请求过于频繁，请稍后重试"), ApiInvokeException.ERR_FREQUENCY);
         }
 

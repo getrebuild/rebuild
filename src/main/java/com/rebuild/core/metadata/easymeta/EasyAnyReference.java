@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.support.general.FieldValueHelper;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
@@ -22,6 +25,13 @@ public class EasyAnyReference extends EasyReference {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        throw new UnsupportedOperationException();
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return FieldValueHelper.getLabelNotry((ID) value);
+        }
+
+        Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE, "type-by-type is must");
+        return value;
     }
 }

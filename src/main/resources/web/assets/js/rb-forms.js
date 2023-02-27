@@ -532,6 +532,11 @@ class RbForm extends React.Component {
     if (this._onFieldValueChange_calls) {
       this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
     }
+
+    if (window.FrontJS) {
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [`${this.props.entity}.${field}`, value, this.props.id || null])
+      if (ret === false) return false
+    }
   }
 
   // 获取字段组件
@@ -571,7 +576,7 @@ class RbForm extends React.Component {
     setTimeout(() => this._post(next), 40)
   }
 
-  _post(next) {
+  _post(next, weakMode) {
     let data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
@@ -613,7 +618,12 @@ class RbForm extends React.Component {
 
     const $btn = $(this._$formAction).find('.btn').button('loading')
     let url = '/app/entity/record-save'
-    if (previewid) url += '?previewid=' + previewid
+    if (previewid) url += `?previewid=${previewid}`
+    if (weakMode === true) {
+      if (url.includes('?')) url += '&weakMode=true'
+      else url += '?weakMode=true'
+    }
+
     $.post(url, JSON.stringify(data), (res) => {
       $btn.button('reset')
       if (res.error_code === 0) {
@@ -657,6 +667,14 @@ class RbForm extends React.Component {
         }, 200)
       } else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
+      } else if (res.error_code === 497) {
+        const that = this
+        RbAlert.create(res.error_msg, {
+          onConfirm: function () {
+            this.hide()
+            that._post(next, true)
+          },
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -1055,12 +1073,13 @@ class RbFormNumber extends RbFormText {
         watchFields.forEach((item) => {
           const name = item.substr(1, item.length - 2)
           const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
-          if (fieldComp && fieldComp.state.value) {
+          if (fieldComp && !$emptyNum(fieldComp.state.value)) {
             calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
 
         // 表单计算
+        // TODO 考虑异步延迟执行
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
             if (rb.env === 'dev') console.log('onFieldValueChange :', s)
@@ -1069,10 +1088,18 @@ class RbFormNumber extends RbFormText {
             console.log('onFieldValueChange for calcFormula :', s)
           }
 
-          if (s.value) {
-            calcFormulaValues[s.name] = this._removeComma(s.value)
-          } else {
+          // fix: 3.2 字段相互使用导致死循环
+          this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
+          if (this.__fixUpdateDepth > 9) {
+            console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
+            setTimeout(() => (this.__fixUpdateDepth = 0), 100)
+            return false
+          }
+
+          if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
+          } else {
+            calcFormulaValues[s.name] = this._removeComma(s.value)
           }
 
           let formula = calcFormula
@@ -1080,6 +1107,7 @@ class RbFormNumber extends RbFormText {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
           }
 
+          // 还有变量无值
           if (formula.includes('{')) {
             this.setValue(null)
             return false
@@ -1971,12 +1999,8 @@ class RbFormN2NReference extends RbFormReference {
   }
 }
 
-// TODO 任意引用
-class RbFormAnyReference extends RbFormReference {
-  renderElement() {
-    return <div className="form-control-plaintext text-danger">UNSUPPORTTED</div>
-  }
-}
+// TODO 任意引用（不支持手动编辑）
+class RbFormAnyReference extends RbFormReference {}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {

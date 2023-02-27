@@ -26,13 +26,6 @@ import java.util.Set;
 public class RateLimiters {
 
     /**
-     * for 登陆
-     */
-    public static final RequestRateLimiter RRL_LOGIN = createRateLimiter(
-            new int[] { 30, 60, 3600 },
-            new int[] { 5, 10, 100 });
-
-    /**
      * @param seconds
      * @param limit
      * @return

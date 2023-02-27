@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
@@ -222,18 +223,16 @@ public class CommonsUtils {
     }
 
     /**
-     * @param c
+     * 判断任意对象是否不为空
+     *
+     * @param any
      * @return
      */
-    public static boolean isEmpty(Collection<?> c) {
-        return c == null || c.isEmpty();
-    }
-
-    /**
-     * @param c
-     * @return
-     */
-    public static boolean isEmpty(Object[] c) {
-        return c == null || c.length == 0;
+    public static boolean hasLength(Object any) {
+        if (any == null) return false;
+        if (any.getClass().isArray()) return ((Object[]) any).length > 0;
+        if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
+        if (NullValue.is(any)) return false;
+        return any.toString().length() > 0;
     }
 }

@@ -79,6 +79,7 @@ const FolderTree = {
             FolderTree.load()
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },
@@ -326,6 +327,7 @@ class FileUploadDlg extends RbFormHandler {
         this.props.call && this.props.call()
       } else {
         RbHighbar.error(res.error_msg)
+        this.disabled()
       }
     })
   }
@@ -370,7 +372,10 @@ class FileMoveDlg extends RbFormHandler {
       if (res.error_code === 0) {
         this.hide()
         this.props.call && this.props.call()
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+        this.disabled()
+      }
     })
   }
 }

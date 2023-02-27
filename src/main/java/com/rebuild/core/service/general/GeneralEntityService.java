@@ -38,16 +38,29 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.service.trigger.RobotTriggerManual;
+import com.rebuild.core.service.trigger.RobotTriggerObserver;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerWhen;
 import com.rebuild.core.service.trigger.impl.AutoApproval;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -104,17 +117,23 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final boolean hasDetails = details != null && !details.isEmpty();
 
         boolean lazyAutoApprovalForDetails = false;
+        boolean lazyAutoTransformForDetails = false;
         if (hasDetails) {
             TriggerAction[] hasTriggers = getSpecTriggers(
                     record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
             lazyAutoApprovalForDetails = hasTriggers.length > 0;
-
             // 自动审批延迟执行，因为明细尚未保存好
             if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
+
+            TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
+                    record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
+            lazyAutoTransformForDetails = hasAutoTransformTriggers.length > 0;
+            // 记录转换延迟执行，因为明细尚未保存好
+            if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
         }
 
         try {
-            record = super.createOrUpdate(record);
+            record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
 
             // 主记录+明细记录处理
@@ -157,9 +176,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (lazyAutoApprovalForDetails) {
                 AutoApproval.executeLazyAutoApproval();
             }
+            if (lazyAutoTransformForDetails) {
+                CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazyAutoTransform");
+            }
         }
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record create(Record record) {
         appendDefaultValue(record);
@@ -168,6 +193,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return super.create(record);
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record update(Record record) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {
@@ -514,10 +542,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (action == BizzPermission.CREATE) {
             // 验证审批状态
             // 仅验证新建明细（相当于更新主记录）
-            if (mainEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
+            if (mainEntity != null && MetadataHelper.hasApprovalField(mainEntity)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
+                ID dtmFieldValue = record.getID(dtmField.getName());
+                if (dtmFieldValue == null) {
+                    throw new DataSpecificationException(Language.L("%s 不允许为空", EasyMetaFactory.getLabel(dtmField)));
+                }
 
+                ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")
@@ -722,10 +754,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (state == ApprovalState.REVOKED) {
                     triggerManual.onRevoked(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 } else {
                     triggerManual.onApproved(
-                            OperatingContext.create(approvalUser, BizzPermission.UPDATE, null, dAfter));
+                            OperatingContext.create(approvalUser, InternalPermission.APPROVAL, null, dAfter));
                 }
             }
         }
@@ -734,11 +766,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (state == ApprovalState.REVOKED) {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
             triggerManual.onRevoked(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         } else {
             before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
             triggerManual.onApproved(
-                    OperatingContext.create(approvalUser, BizzPermission.UPDATE, before, approvalRecord));
+                    OperatingContext.create(approvalUser, InternalPermission.APPROVAL, before, approvalRecord));
         }
 
         // 手动记录历史

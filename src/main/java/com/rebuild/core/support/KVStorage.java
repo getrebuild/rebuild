@@ -60,8 +60,13 @@ public class KVStorage {
      * @param throttled 是否节流
      */
     public static void setCustomValue(String key, Object value, boolean throttled) {
-        if (throttled) THROTTLED_QUEUE.put(key, value);
-        else setCustomValue(key, value);
+        if (throttled) {
+            synchronized (THROTTLED_QUEUE_LOCK) {
+                THROTTLED_QUEUE.put(key, value);
+            }
+        } else {
+            setCustomValue(key, value);
+        }
     }
 
     /**
@@ -155,21 +160,28 @@ public class KVStorage {
 
     // -- ASYNC
 
-    private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
+    private static final Object THROTTLED_QUEUE_LOCK = new Object();
     private static final Map<String, Object> THROTTLED_QUEUE = new ConcurrentHashMap<>();
+    private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
 
     static {
         THROTTLED_TIMER.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (THROTTLED_QUEUE.isEmpty()) return;
+                try {
+                    synchronized (THROTTLED_QUEUE_LOCK) {
+                        if (THROTTLED_QUEUE.isEmpty()) return;
 
-                final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
-                THROTTLED_QUEUE.clear();
+                        final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
+                        THROTTLED_QUEUE.clear();
 
-                log.info("Synchronize KV pairs ... {}", queue);
-                for (Map.Entry<String, Object> e : queue.entrySet()) {
-                    RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                        log.info("Synchronize KV pairs ... {}", queue);
+                        for (Map.Entry<String, Object> e : queue.entrySet()) {
+                            RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                        }
+                    }
+                } catch (Throwable ex) {
+                    log.error(null, ex);
                 }
             }
         }, 1000, 1000);

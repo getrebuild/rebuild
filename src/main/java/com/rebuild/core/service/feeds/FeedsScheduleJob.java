@@ -117,7 +117,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
     private String mergeContents(List<Object[]> msgs, boolean fullUrl) {
         Object[] first = msgs.get(0);
 
-        String clickUrl = "/app/list-and-view?id=" + first[1];
+        String clickUrl = "/app/redirect?id=" + first[1];
         if (fullUrl) clickUrl = RebuildConfiguration.getHomeUrl(clickUrl);
         else clickUrl = AppUtils.getContextPath(clickUrl);
 

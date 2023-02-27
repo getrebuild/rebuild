@@ -440,12 +440,18 @@ public class FormsBuilder extends FormsManager {
 
                 // 默认值
                 if (el.get("value") == null) {
-                    if (dt == DisplayType.SERIES) {
+                    if (dt == DisplayType.SERIES
+                            /*|| EntityHelper.ApprovalLastTime.equals(fieldName) || EntityHelper.ApprovalLastRemark.equals(fieldName)*/) {
                         el.put("readonlyw", READONLYW_RO);
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
-                            el.put("value", easyField.wrapValue(defaultValue));
+                            if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                                // `wrapValue` 会添加格式符号
+                                el.put("value", defaultValue);
+                            } else {
+                                el.put("value", easyField.wrapValue(defaultValue));
+                            }
                         }
                     }
                 }

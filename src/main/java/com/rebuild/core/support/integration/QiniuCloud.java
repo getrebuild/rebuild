@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * 七牛云存储
@@ -116,7 +117,7 @@ public class QiniuCloud {
     }
 
     /**
-     * 从 URL 上传文件
+     * 从 URL 上传
      *
      * @param url
      * @return
@@ -136,13 +137,13 @@ public class QiniuCloud {
     }
 
     /**
-     * 生成访问 URL
+     * 生成访问 URL（有效期 180s）
      *
      * @param filePath
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 60 * 3);
+        return makeUrl(filePath, 3 * 60);
     }
 
     /**
@@ -160,19 +161,26 @@ public class QiniuCloud {
         }
 
         long deadline = System.currentTimeMillis() / 1000 + seconds;
-        // Use http cache
-        seconds /= 2;
-        deadline = deadline / seconds * seconds;
+        if (seconds > 60) {
+            Calendar c = CalendarUtils.getInstance();
+            c.add(Calendar.SECOND, seconds);
+            c.set(Calendar.SECOND, 59);  // full seconds
+            deadline = c.getTimeInMillis() / 1000;
+        }
+
+        // `e` "token out of date"
         return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
     }
 
     /**
+     * 下载文件
+     *
      * @param filePath
      * @param dest
      * @throws IOException
      */
     public void download(String filePath, File dest) throws IOException {
-        String url = makeUrl(filePath, 60);
+        String url = makeUrl(filePath);
         OkHttpUtils.readBinary(url, dest, null);
     }
 
@@ -182,7 +190,7 @@ public class QiniuCloud {
      * @param key
      * @return
      */
-    protected boolean delete(String key) {
+    public boolean delete(String key) {
         BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
         Response resp;
         try {
@@ -338,15 +346,26 @@ public class QiniuCloud {
     }
 
     /**
+     * 读取文件
+     *
      * @param filePath
      * @return
      * @throws IOException
+     * @throws RebuildException If cannot read/download
      */
-    public static File getStorageFile(String filePath) throws IOException {
+    public static File getStorageFile(String filePath) throws IOException, RebuildException {
         File file;
-        if (QiniuCloud.instance().available()) {
-            file = RebuildConfiguration.getFileOfTemp("tmp." + System.nanoTime());
-            QiniuCloud.instance().download(filePath, file);
+        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            String name = filePath.split("\\?")[0];
+            name = name.substring(name.lastIndexOf("/") + 1);
+            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            OkHttpUtils.readBinary(filePath, file, null);
+
+        } else if (QiniuCloud.instance().available()) {
+            String name = parseFileName(filePath);
+            file = RebuildConfiguration.getFileOfTemp("down" + System.nanoTime() + "." + name);
+            instance().download(filePath, file);
+
         } else {
             file = RebuildConfiguration.getFileOfData(filePath);
         }

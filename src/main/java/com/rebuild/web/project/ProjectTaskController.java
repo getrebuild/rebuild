@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -271,6 +272,8 @@ public class ProjectTaskController extends BaseController {
                 String.format("select %s,description,attachments,relatedRecord from ProjectTask where taskId = ?", FMT_FIELDS11))
                 .setParameter(1, taskId)
                 .unique();
+        if (task == null) throw new NoRecordFoundException(taskId, Boolean.TRUE);
+
         JSONObject details = formatTask(task, user, true);
 
         details.put("description", task[12]);

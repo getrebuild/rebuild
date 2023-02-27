@@ -117,7 +117,13 @@
           </div>
           <div class="float-right">
             <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建角色')}]]</button>
-            <button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">[[${bundle.L('保存')}]]</button>
+            <div class="btn-group btn-space">
+              <button class="btn btn-primary J_save" type="button" disabled="disabled"><i class="icon mdi mdi-account-plus"></i> [[${bundle.L('保存')}]]</button>
+              <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled="disabled"><i class="icon zmdi zmdi-chevron-down"></i></button>
+              <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                <a class="dropdown-item J_copy-role"><i class="icon mdi mdi-account-multiple-plus"></i> [[${bundle.L('复制角色')}]]</a>
+              </div>
+            </div>
           </div>
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic">
@@ -207,7 +213,7 @@
                       <td colspan="5" class="text-muted text-left">[[${bundle.L('无')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('允许自定义字段显示')}]]</a></td>
+                      <td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('允许自定义列显示')}]]</a></td>
                       <td><i data-action="Z" class="priv R4"></i></td>
                       <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
                     </tr>

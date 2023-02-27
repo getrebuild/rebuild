@@ -24,7 +24,11 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
 /**
  * 可注入观察者的服务
@@ -53,7 +57,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
     @Override
     public synchronized void addObserver(Observer o) {
         super.addObserver(o);
-        log.info("Add observer : {}", o);
+        log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
     }
 
     @Override

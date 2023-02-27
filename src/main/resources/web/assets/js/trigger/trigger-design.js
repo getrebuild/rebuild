@@ -212,11 +212,14 @@ function useExecManual() {
       }
 
       RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.disabled(true, true)
+          $mp.start()
+
           // eslint-disable-next-line no-undef
           $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
-            this.hide(true)
+            $mp.end()
+            this.hide()
             RbHighbar.success($L('执行成功'))
           })
         },
@@ -313,13 +316,13 @@ class EditorWithFieldVars extends React.Component {
 
   render() {
     let attrs = {
-      className: 'form-control form-control-sm row3x',
-      maxLength: 600,
+      className: 'form-control',
+      maxLength: 2000,
       placeholder: this.props.placeholder || null,
     }
 
     if (this.props.isCode) {
-      attrs = { ...attrs, className: 'formula-code', maxLength: 4000, wrap: 'off', autoFocus: true }
+      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, wrap: 'off', autoFocus: true }
     }
 
     return (
@@ -347,19 +350,21 @@ class EditorWithFieldVars extends React.Component {
   }
 
   componentDidMount() {
-    // eslint-disable-next-line no-undef
-    autosize(this._$content)
-
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar({})
       })
     })
+
+    // eslint-disable-next-line no-undef
+    autosize(this._$content)
   }
 
   val() {
     if (arguments.length > 0) {
       $(this._$content).val(arguments[0])
+      // eslint-disable-next-line no-undef
+      autosize.update(this._$content)
     } else {
       return $(this._$content).val()
     }

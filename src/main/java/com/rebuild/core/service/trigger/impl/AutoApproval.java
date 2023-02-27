@@ -15,7 +15,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.service.general.OperatingContext;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -33,7 +37,6 @@ import java.util.List;
 public class AutoApproval extends TriggerAction {
 
     private static final ThreadLocal<List<AutoApproval>> LAZY_AUTOAPPROVAL = new NamedThreadLocal<>("Lazy AutoApproval");
-
     private OperatingContext operatingContext;
 
     public AutoApproval(ActionContext context) {
@@ -53,9 +56,8 @@ public class AutoApproval extends TriggerAction {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         this.operatingContext = operatingContext;
-
         List<AutoApproval> lazyed;
-        if ((lazyed = isLazyAutoApproval(false)) != null) {
+        if ((lazyed = isLazyAutoApproval(Boolean.FALSE)) != null) {
             lazyed.add(this);
             log.info("Lazy AutoApproval : {}", lazyed);
             return "lazy";
@@ -111,7 +113,7 @@ public class AutoApproval extends TriggerAction {
      * @return
      */
     public static int executeLazyAutoApproval() {
-        List<AutoApproval> lazyed = isLazyAutoApproval(true);
+        List<AutoApproval> lazyed = isLazyAutoApproval(Boolean.TRUE);
         if (lazyed != null) {
             for (AutoApproval a : lazyed) {
                 log.info("Lazy AutoApproval execute : {}", a);

@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.task.HeavyTask;
@@ -59,7 +60,9 @@ public class DataImporter extends HeavyTask<Integer> {
         this.setTotal(rows.size() - 1);
 
         final ID defaultOwning = ObjectUtils.defaultIfNull(rule.getDefaultOwningUser(), getUser());
+
         GeneralEntityServiceContextHolder.setSkipSeriesValue();
+        final EntityService ies = Application.getEntityService(rule.getToEntity().getEntityCode());
 
         for (final Cell[] row : rows) {
             if (isInterrupt()) {
@@ -76,7 +79,7 @@ public class DataImporter extends HeavyTask<Integer> {
                     traceLogs.add(new Object[] { fc.getRowNo(), "SKIP" });
                 } else {
                     boolean isNew = record.getPrimary() == null;
-                    record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
+                    record = ies.createOrUpdate(record);
                     this.addSucceeded();
 
                     traceLogs.add(new Object[] { fc.getRowNo(),
@@ -107,7 +110,7 @@ public class DataImporter extends HeavyTask<Integer> {
     @Override
     protected void completedAfter() {
         super.completedAfter();
-        GeneralEntityServiceContextHolder.isSkipSeriesValue(true);
+        GeneralEntityServiceContextHolder.isSkipSeriesValue(Boolean.TRUE);
     }
 
     /**

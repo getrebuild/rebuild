@@ -11,6 +11,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -133,10 +134,14 @@ public class ViewAddonsManager extends BaseLayoutManager {
         // 未配置则使用全部
         if (config == null) {
             JSONArray useRefs = new JSONArray();
-            for (Field field : entityMeta.getReferenceToFields(Boolean.TRUE, Boolean.TRUE)) {
+            for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
                 Entity e = field.getOwnEntity();
                 if (!MetadataHelper.isBusinessEntity(e)) continue;
                 if (e.equals(entityMeta.getDetailEntity())) continue;
+                // 新建项无明细、多引用
+                if (TYPE_ADD.equals(applyType)) {
+                    if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;
+                }
 
                 Entity eCheck = ObjectUtils.defaultIfNull(e.getMainEntity(), e);
                 if (Application.getPrivilegesManager().allow(user, eCheck.getEntityCode(), useAction)) {
@@ -193,7 +198,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
                         ? formatEntityShow(addonEntity.getField(ef[1]), mfRefs, applyType)
                         : EasyMetaFactory.toJSON(addonEntity);
 
-                if (StringUtils.isNotBlank(label)) show.put("entityLabel", label);
+                if (StringUtils.isNotBlank(label)) {
+                    show.put("_entityLabel", show.getString("entityLabel"));
+                    show.put("entityLabel", label);
+                }
                 addons.add(show);
             }
         }

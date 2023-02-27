@@ -54,11 +54,17 @@
                 <div class="row rb-datatable-header">
                   <div class="col-12 col-lg-5">
                     <div class="dataTables_filter">
-                      <div class="input-group input-search">
+                      <div class="input-group input-search float-left">
                         <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
+                      </div>
+                      <div class="float-left ml-2 mt-1" style="padding-top: 2px">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="showAllUsers" />
+                          <span class="custom-control-label">[[${bundle.L('显示全部用户')}]]</span>
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -78,7 +84,7 @@
                           <a class="dropdown-item J_imports"><i class="icon mdi mdi-account-arrow-left"></i> [[${bundle.L('导入用户')}]]</a>
                           <a class="dropdown-item J_resign"><i class="icon mdi mdi-account-switch-outline"></i> [[${bundle.L('离职继任')}]]</a>
                           <div class="dropdown-divider"></div>
-                          <a class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('字段显示')}]]</a>
+                          <a class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
                     </div>

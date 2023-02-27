@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-$(document).ready(function () {
+$(document).ready(() => {
   // eslint-disable-next-line eqeqeq
   if (top != self) {
     parent.location.reload()
@@ -15,11 +15,11 @@ $(document).ready(function () {
   $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?t=${$encode($('.h5-mobile a').attr('href'))}`)
 
   if ($.browser.mobile) {
-    setTimeout(() => {
-      $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
-        .appendTo('.announcement-wrapper')
-        .on('click', () => (location.href = $('.h5-mobile>a').attr('href')))
-    }, 500)
+    setTimeout(function () {
+      // $('.h5-mobile').dropdown('dispose') ???
+      const $a = $('.h5-mobile>a')
+      $a.parent().html('<a href="' + $a.attr('href') + '">' + $a.html() + '</a>')
+    }, 200)
   }
 
   $.get('/user/live-wallpaper', (res) => {
@@ -51,7 +51,6 @@ $(document).ready(function () {
 
     const $btn = $('.login-submit button').button('loading')
     const url = `/user/user-login?user=${$encode(user)}&passwd=******&autoLogin=${$val('#autoLogin')}&vcode=${vcode || ''}`
-
     $.post(url, passwd, (res) => {
       if (res.error_code === 0) {
         const nexturl = $decode($urlp('nexturl'))
@@ -72,6 +71,7 @@ $(document).ready(function () {
       } else {
         $('.vcode-row img').trigger('click')
         $('.vcode-row input').val('')
+
         RbHighbar.create(res.error_msg)
         $btn.button('reset')
       }

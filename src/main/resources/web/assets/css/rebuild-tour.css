@@ -101,6 +101,7 @@ body.rebuild-guide-body .main-content {
 
 body.rebuild-guide-body .rebuild-guide-screen {
   display: block;
+  background: #fff url(../img/bg-guide.png) no-repeat left bottom;
 }
 
 body.rebuild-guide-body .rebuild-guide-progress {

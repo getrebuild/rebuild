@@ -103,6 +103,7 @@ const AdvFilters = {
                     }
                   } else {
                     RbHighbar.error(res.error_msg)
+                    this.disabled()
                   }
                 })
               },
@@ -299,10 +300,15 @@ class DataExport extends BatchOperator {
           <option value="xls">Excel</option>
           <optgroup label={$L('使用报表模板')}>
             {reports.map((item) => {
+              const outputType = item.outputType || ''
               return (
-                <option value={item.id} key={item.id}>
-                  {item.name}
-                </option>
+                <RF key={item.id}>
+                  <option value={item.id}>
+                    {item.name}
+                    {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
+                  </option>
+                  {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                </RF>
               )
             })}
             {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}
@@ -320,8 +326,8 @@ class DataExport extends BatchOperator {
         this.hide()
         window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
-        this.disabled(false)
         RbHighbar.error(res.error_msg)
+        this.disabled(false)
       }
     })
   }
@@ -703,7 +709,7 @@ class RbList extends React.Component {
     const lastIndex = this.state.fields.length
 
     return (
-      <React.Fragment>
+      <RF>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
@@ -774,7 +780,7 @@ class RbList extends React.Component {
 
         {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._Pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -850,7 +856,7 @@ class RbList extends React.Component {
   fetchList(filter) {
     const fields = []
     let fieldSort = null
-    this.state.fields.forEach(function (item) {
+    this.state.fields.forEach((item) => {
       fields.push(item.field)
       if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
@@ -877,7 +883,7 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
-    $.post(`/app/${this._entity}/data-list`, JSON.stringify(query), (res) => {
+    $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
@@ -1133,6 +1139,13 @@ class RbList extends React.Component {
    * 渲染完成后回调
    */
   static renderAfter() {}
+
+  /**
+   * 查询前回调，可以封装查询集
+   */
+  static queryBefore(query) {
+    return query
+  }
 }
 
 // 分页组件
@@ -1151,12 +1164,12 @@ class RbListPagination extends React.Component {
 
     return (
       <div className="row rb-datatable-footer">
-        <div className="col-12 col-lg-6 col-xl-7">
+        <div className="col-12 col-lg-6">
           <div className="dataTables_info" key="page-rowsTotal">
             {this.renderStats()}
           </div>
         </div>
-        <div className="col-12 col-lg-6 col-xl-5">
+        <div className="col-12 col-lg-6">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
@@ -1228,14 +1241,14 @@ class RbListPagination extends React.Component {
             onClick={() =>
               RbModal.create(
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
-                <React.Fragment>
-                  {$L('配置统计字段')}
+                <RF>
+                  {$L('配置统计列')}
                   <sup className="rbv" title={$L('增值功能')} />
                   <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
-                </React.Fragment>
+                </RF>
               )
             }>
-            <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
+            <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}
       </div>
@@ -1275,7 +1288,7 @@ const CellRenders = {
     } else if (parent && parent.RbViewModal) {
       parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else {
-      window.open(`${rb.baseUrl}/app/list-and-view?id=${v.id}`)
+      window.open(`${rb.baseUrl}/app/redirect?id=${v.id}`)
     }
     e && $stopEvent(e, true)
     return false

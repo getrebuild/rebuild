@@ -29,7 +29,10 @@ html.admin .admin-show.row {
   display: flex;
 }
 
-.rbv-hide,
+html.commercial .rbv {
+  display: none !important;
+}
+
 .dev-show {
   display: none;
 }
@@ -589,9 +592,9 @@ div.dataTables_filter .filter-badge {
   padding: 4px 10px;
   font-size: 1rem;
   font-weight: normal;
-  border-radius: 99px;
   margin-top: 3px;
   cursor: default;
+  border-radius: 99px 99px 99px 0;
 }
 
 div.dataTables_filter .filter-badge .close {
@@ -1021,9 +1024,8 @@ select.form-control:not([disabled]) {
   content: '';
 }
 
-.type-MULTISELECT {
-  padding-bottom: 6px !important;
-  overflow: hidden;
+.rbform .type-MULTISELECT {
+  padding-bottom: 4px !important;
 }
 
 .type-MULTISELECT .mt-1 {
@@ -1836,6 +1838,7 @@ th.column-fixed {
 
 .sortable-box-title {
   margin-top: 9px;
+  position: relative;
 }
 
 .sortable-swap {
@@ -2030,6 +2033,7 @@ th.column-fixed {
 
 .form-control-plaintext {
   word-wrap: break-word;
+  word-break: break-all;
 }
 
 .form-line {
@@ -2496,12 +2500,19 @@ div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
 
 .dataTables_wrapper .paging_sizes select {
   padding: 4px 6px;
-  width: 54px;
+  width: 50px;
 }
 
 .dataTables_wrapper .paging_sizes select,
 .dataTables_wrapper .paging_simple_numbers .page-link {
   height: 36px !important;
+}
+
+.dataTables_wrapper .paging_simple_numbers .page-link {
+  padding-left: 0.466rem;
+  padding-right: 0.466rem;
+  min-width: 32px;
+  text-align: center;
 }
 
 .must-center {
@@ -3164,7 +3175,8 @@ form {
 
 .global-search > .dropdown-menu a.badge:hover,
 .global-search > .dropdown-menu a.badge.active {
-  background: #4285f4;
+  background-color: #4285f4;
+  background-color: var(--rb-theme-color);
   color: #fff !important;
 }
 
@@ -3504,13 +3516,13 @@ form {
 .modal.select-list .modal-body li a > .mdi,
 .modal.select-list .modal-body li a > .zmdi {
   float: right;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: #fff;
   display: none;
 }
 
-.modal.select-list .modal-body li a > .zmdi {
-  font-size: 1.4rem;
+.modal.select-list .modal-body li a > .mdi {
+  font-size: 1.231rem;
 }
 
 .modal.select-list .modal-body li a:hover > .mdi,
@@ -5146,10 +5158,40 @@ pre.unstyle {
 /* TOP-MENU */
 
 .navbar-collapse .navbar-nav > li > a.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .rb-color-header .navbar-collapse,
 .rb-offcanvas-menu .navbar-collapse {
   display: none !important;
+}
+
+.navbar-collapse .nav-item .nav-link {
+  position: relative;
+}
+
+.navbar-collapse .nav-item.active .nav-link::after {
+  content: '';
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  bottom: 0;
+  border-radius: 99px;
+  width: 32px;
+  margin-left: -16px;
+  left: 50%;
+}
+
+.logo-img,
+.rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url('../../commons/theme/use-logo');
+}
+
+.logo-img.white,
+.rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url('../../commons/theme/use-logo-white');
+}
+
+.badge-arrow3 {
+  border-radius: 99px 99px 99px 0;
 }

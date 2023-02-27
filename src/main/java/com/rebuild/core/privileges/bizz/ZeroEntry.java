@@ -54,7 +54,7 @@ public enum ZeroEntry {
 
     ;
 
-    private boolean defaultVal;
+    private final boolean defaultVal;
 
     ZeroEntry(boolean defaultVal) {
         this.defaultVal = defaultVal;

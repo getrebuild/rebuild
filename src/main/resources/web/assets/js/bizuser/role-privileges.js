@@ -10,23 +10,26 @@ RbForm.postAfter = function (data) {
   location.href = `${rb.baseUrl}/admin/bizuser/role/${data.id}`
 }
 
-let roleId = window.__PageConfig.recordId
+const roleId = window.__PageConfig.recordId
 
 // 自定义
 let advFilters = {}
 let advFilterSettings = {}
 
-$(document).ready(function () {
-  $('.J_new-role').on('click', () => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
-
+$(document).ready(() => {
   loadRoles()
+
+  $('.J_new-role').on('click', () => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
 
   if (roleId) {
     $('.J_save').attr('disabled', false)
-    loadPrivileges()
-  }
+    $('.J_save').next().attr('disabled', false)
 
-  $('.J_save').on('click', updatePrivileges)
+    loadPrivileges()
+
+    $('.J_save').on('click', updatePrivileges)
+    $('.J_copy-role').on('click', () => renderRbcomp(<CopyRoleTo roleId={roleId} />))
+  }
 
   // ENTITY
 
@@ -90,10 +93,10 @@ $(document).ready(function () {
           entity={entity}
           filter={advFilterSettings[filterKey]}
           title={
-            <React.Fragment>
+            <RF>
               {$L('自定义%s权限', ACTION_NAMES[action] || '')}
               <sup className="rbv" title={$L('增值功能')} />
-            </React.Fragment>
+            </RF>
           }
           inModal
           canNoFilters
@@ -116,7 +119,7 @@ $(document).ready(function () {
 
 const _clickPriv = function (elements, action) {
   if (action === 'C' || action === 'Z') {
-    if (elements.first().hasClass('R0')) elements.removeClass('R0').addClass('R4')
+    if (elements.hasClass('R0')) elements.removeClass('R0').addClass('R4')
     else elements.removeClass('R4').addClass('R0')
   } else {
     let clz = 'R0'
@@ -151,7 +154,7 @@ const loadRoles = function () {
         }}
         extrasAction={(item) => {
           return (
-            <React.Fragment>
+            <RF>
               <span
                 className="action"
                 onClick={() => {
@@ -172,7 +175,7 @@ const loadRoles = function () {
                 }}>
                 <i className="zmdi zmdi-delete" />
               </span>
-            </React.Fragment>
+            </RF>
           )
         }}
         hideCollapse
@@ -214,10 +217,9 @@ const loadPrivileges = function () {
           }
         }
       })
-
-      console.log(advFilterSettings)
     } else {
       $('.J_save').attr('disabled', true)
+      $('.J_save').next().attr('disabled', true)
       $('.J_tips').removeClass('hide').find('.message p').text(res.error_msg)
     }
   })
@@ -264,4 +266,59 @@ const updatePrivileges = function () {
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
+}
+
+// 复制角色
+class CopyRoleTo extends RbModalHandler {
+  render() {
+    return (
+      <RbModal title={$L('复制角色')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('复制给哪些角色')}</label>
+            <div className="col-sm-7">
+              <UserSelector hideDepartment hideUser hideTeam ref={(c) => (this._UserSelector = c)} />
+              <p className="form-text">{$L('将当前角色权限复制给选择的角色，选择角色的原有权限会被完全覆盖')}</p>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3">
+            <button className="btn btn-primary" type="button" onClick={() => this.submit()} ref={(c) => (this._$btn = c)}>
+              {$L('复制')}
+            </button>
+            <a className="btn btn-link" onClick={this.hide}>
+              {$L('取消')}
+            </a>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  submit() {
+    const post = {
+      from: this.props.roleId,
+      copyTo: this._UserSelector.val(),
+    }
+    if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制给哪些角色'))
+
+    const that = this
+    RbAlert.create($L('确定将当前角色权限复制给选择的角色吗？'), {
+      onConfirm: function () {
+        this.hide()
+
+        const $btn = $(that._$btn).button('loading')
+        $.post('/admin/bizuser/role-copyto', JSON.stringify(post), (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success($L('复制完成'))
+            setTimeout(() => that.hide(), 1500)
+          } else {
+            RbHighbar.error(res.error_msg)
+            $btn.button('reset')
+          }
+        })
+      },
+    })
+  }
 }

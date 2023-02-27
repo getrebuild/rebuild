@@ -42,6 +42,7 @@ $(document).ready(function () {
             setTimeout(() => location.replace('../../entities'), 1500)
           } else {
             RbHighbar.error(res.error_msg)
+            this.disabled()
           }
         })
       },

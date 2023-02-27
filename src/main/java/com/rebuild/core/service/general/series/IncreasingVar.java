@@ -15,6 +15,7 @@ import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class IncreasingVar extends SeriesVar {
 
-    private static final Object LOCK = new Object();
+    private static final Object INCREASINGS_LOCK = new Object();
     private static final Map<String, AtomicInteger> INCREASINGS = new ConcurrentHashMap<>();
 
     private Field field;
@@ -63,7 +64,7 @@ public class IncreasingVar extends SeriesVar {
 
         final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 
-        synchronized (LOCK) {
+        synchronized (INCREASINGS_LOCK) {
             AtomicInteger incr = INCREASINGS.get(nameKey);
             if (incr == null) {
                 String val = KVStorage.getCustomValue(nameKey);
@@ -84,11 +85,11 @@ public class IncreasingVar extends SeriesVar {
      * 清空序号缓存
      */
     protected void clean() {
-        if (this.field == null) return;
+        Assert.notNull(this.field, "[this.field] cannot be null");
 
         final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 
-        synchronized (LOCK) {
+        synchronized (INCREASINGS_LOCK) {
             INCREASINGS.remove(nameKey);
             RebuildConfiguration.setCustomValue(nameKey, 0, Boolean.TRUE);
         }

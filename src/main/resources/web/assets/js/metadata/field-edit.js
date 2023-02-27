@@ -10,7 +10,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATETIME', 'DATE', 'TIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 const SHOW_ADVDESENSITIZED = ['TEXT', 'PHONE', 'EMAIL', 'NUMBER', 'DECIMAL']
 const SHOW_ADVPATTERN = ['TEXT']
 const SHOW_SCANCODE = ['TEXT', 'REFERENCE']
@@ -229,8 +229,8 @@ $(document).ready(function () {
     _handlePicklist(dt)
   } else if (dt === 'SERIES') {
     _handleSeries()
-  } else if (dt === 'DATE' || dt === 'DATETIME') {
-    _handleDate(dt)
+  } else if (dt === 'DATE' || dt === 'DATETIME' || dt === 'TIME') {
+    _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
     _handleFile(extConfig.uploadNumber)
   } else if (dt === 'CLASSIFICATION') {
@@ -283,7 +283,10 @@ $(document).ready(function () {
             setTimeout(function () {
               location.replace('../fields')
             }, 1500)
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
       call: function () {
@@ -364,12 +367,19 @@ const _handleSeries = function () {
     })
 }
 
-const _handleDate = function (dt) {
-  $('.J_defaultValue').datetimepicker({
+const _handleDatetime = function (dt) {
+  const dpOption = {
+    clearBtn: true,
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
-    clearBtn: true,
-  })
+  }
+  if (dt === 'TIME') {
+    dpOption.format = 'hh:ii:ss'
+    dpOption.minView = 0
+    dpOption.maxView = 1
+    dpOption.startView = 1
+  }
+  $('.J_defaultValue').datetimepicker(dpOption)
 
   $(`<button class="btn btn-secondary" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')

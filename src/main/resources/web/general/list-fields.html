@@ -3,7 +3,7 @@
   <head>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('字段显示')}]]</title>
+    <title>[[${bundle.L('列显示')}]]</title>
     <style>
       .slider.slider-horizontal {
         width: 100%;
@@ -20,6 +20,22 @@
       .mdi.mdi-sort-alphabetical-ascending.desc::before {
         content: '\F05BF';
       }
+      .sortable-box-title .search-input {
+        position: absolute;
+        left: 0;
+        top: -5px;
+        width: 100%;
+        background-color: #fff;
+      }
+      .sortable-box-title .search-input > input {
+        border: 0 none;
+        border-bottom: 1px solid #d5d8de;
+        width: 100%;
+        padding: 4px;
+        appearance: none;
+        outline: 0 none;
+        background-color: transparent;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -33,7 +49,10 @@
           <i class="zmdi zmdi-swap"></i>
         </div>
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
+          <h5 class="sortable-box-title">
+            [[${bundle.L('未显示')}]]
+            <a class="search-btn" th:title="${bundle.L('筛选字段')}"><i class="zmdi zmdi-search"></i></a>
+          </h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>

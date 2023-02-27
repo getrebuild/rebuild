@@ -446,7 +446,7 @@ class FormulaCalcWithCode extends FormulaCalc {
               DATESUB
             </a>
             <div className="dropdown-divider" />
-            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E5%85%AC%E5%BC%8F%E7%BC%96%E8%BE%91%E5%99%A8">
+            <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E4%BD%BF%E7%94%A8%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0">
               <i className="zmdi zmdi-help icon" />
               {$L('如何使用函数')}
             </a>
@@ -512,7 +512,7 @@ class FormulaCode extends React.Component {
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
-              <a href="https://getrebuild.com/docs/admin/triggers#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
+              <a href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
                 {$L('如何使用高级计算公式')}
               </a>
               <i className="zmdi zmdi-help zicon" />

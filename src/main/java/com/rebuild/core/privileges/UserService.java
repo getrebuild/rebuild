@@ -427,7 +427,7 @@ public class UserService extends BaseService {
 
         // 通知管理员
         ID newUserId = record.getPrimary();
-        String viewUrl = AppUtils.getContextPath("/app/list-and-view?id=" + newUserId);
+        String viewUrl = AppUtils.getContextPath("/app/redirect?id=" + newUserId);
         String content = Language.L(
                 "用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。",
                 newUserId);
@@ -437,6 +437,25 @@ public class UserService extends BaseService {
         Application.getNotifications().send(message);
 
         return newUserId;
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param user
+     * @param newPasswd
+     * @throws DataSpecificationException
+     */
+    public void txChangePasswd(ID user, String newPasswd) throws DataSpecificationException {
+        Record record = EntityHelper.forUpdate(user, SYSTEM_USER);
+        record.setString("password", newPasswd);
+
+        UserContextHolder.setUser(SYSTEM_USER);
+        try {
+            this.update(record);
+        } finally {
+            UserContextHolder.clearUser();
+        }
     }
 
     /**

@@ -29,11 +29,17 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.general.*;
+import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.service.general.GeneralEntityService;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview;
+import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -49,7 +55,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 业务实体操作（增/改/删/分配/共享）
@@ -114,6 +128,13 @@ public class GeneralOperatingController extends BaseController {
         }
 
         boolean isNew = record.getPrimary() == null;
+
+        // v3.2 弱校验
+        if (getBoolParameter(request, "weakMode")) {
+            ID recordId = isNew ? EntityHelper.UNSAVED_ID : record.getPrimary();
+            CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakOnce", recordId);
+        }
+
         try {
             record = ies.createOrUpdate(record);
 
@@ -123,7 +144,12 @@ public class GeneralOperatingController extends BaseController {
 
         } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
-            return RespBody.error(known.getLocalizedMessage());
+
+            if (known instanceof DataValidateException && ((DataValidateException) known).isWeakMode()) {
+                return RespBody.error(known.getLocalizedMessage(), DefinedException.CODE_WEAK_VALIDATE);
+            } else {
+                return RespBody.error(known.getLocalizedMessage());
+            }
 
         } catch (JdbcException ex) {
             String known = KnownExceptionConverter.convert2ErrorMsg(ex);
@@ -147,8 +173,8 @@ public class GeneralOperatingController extends BaseController {
             new TransformerPreview(previewid, user).fillback(record.getPrimary());
         }
 
-        JSONObject ret = new JSONObject();
-        ret.put("id", record.getPrimary());
+        JSONObject res = new JSONObject();
+        res.put("id", record.getPrimary());
 
         // 单字段修改立即返回新值
         // FIXME 是否整个返回 ??? 因为可能其他字段也更新了
@@ -162,11 +188,11 @@ public class GeneralOperatingController extends BaseController {
 
                 Object newValue = FormsBuilder.instance.wrapFieldValue(
                         record, EasyMetaFactory.valueOf(fieldMeta), null);
-                ret.put(field, newValue);
+                res.put(field, newValue);
             }
         }
 
-        return ret;
+        return res;
     }
 
     @PostMapping("record-delete")
@@ -201,6 +227,7 @@ public class GeneralOperatingController extends BaseController {
         } catch (AccessDeniedException | DataSpecificationException known) {
             log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
+
         } catch (UnexpectedRollbackException rolledback) {
             log.error("ROLLEDBACK", rolledback);
             return RespBody.error("ROLLEDBACK OCCURED");

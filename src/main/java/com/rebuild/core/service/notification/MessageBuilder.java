@@ -117,7 +117,7 @@ public class MessageBuilder {
         }
 
         String idLabel = FieldValueHelper.getLabelNotry(id);
-        String viewUrl = AppUtils.getContextPath("/app/list-and-view?id=" + id);
+        String viewUrl = AppUtils.getContextPath("/app/redirect?id=" + id);
         return String.format("[%s](%s)", idLabel, viewUrl);
     }
 }

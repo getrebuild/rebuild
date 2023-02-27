@@ -46,9 +46,13 @@ public class TreemapChart extends ChartData {
 
         TreeBuilder builder = new TreeBuilder(dataRaw, this);
 
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+        renderOption.put("dataFlags", new String[] { getNumericalFlag(num1) });
+
         return JSONUtils.toJSONObject(
                 new String[]{"data", "xLabel", "xAmount", "_renderOption"},
-                new Object[]{builder.toJSON(), num1.getLabel(), xAmount, config.getJSONObject("option")});
+                new Object[]{builder.toJSON(), num1.getLabel(), xAmount, renderOption});
     }
 
     @Override

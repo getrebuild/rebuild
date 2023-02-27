@@ -36,9 +36,9 @@ class Share2 extends _ChangeHandler {
     if (!rb.isAdminUser) return null
 
     return (
-      <React.Fragment>
+      <RF>
         {this.props.noSwitch !== true && (
-          <div className="float-left">
+          <div className="float-left" ref={(c) => (this._$switch = c)}>
             <div className="btn-group">
               <button type="button" className="btn btn-link" data-toggle="dropdown">
                 <i className="zmdi zmdi-settings icon" />
@@ -55,7 +55,7 @@ class Share2 extends _ChangeHandler {
           </div>
         )}
 
-        <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
+        <label className="custom-control custom-checkbox custom-control-inline custom-control-sm" ref={(c) => (this._$share = c)}>
           <input className="custom-control-input" type="checkbox" checked={this.state.shared === true} name="shared" onChange={this.handleChange} />
           {this.state.shareTo && this.state.shareTo.length >= 20 ? (
             <span className="custom-control-label">
@@ -73,7 +73,7 @@ class Share2 extends _ChangeHandler {
             </span>
           )}
         </label>
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -169,7 +169,7 @@ class Share2Switch extends _ChangeHandler {
   show = () => $(this._dlg).modal('show')
 }
 
-// ~~ 配置共享
+// ~~ 管理员配置共享
 class Share2Settings extends Share2Switch {
   renderContent() {
     return (
@@ -190,7 +190,7 @@ class Share2Settings extends Share2Switch {
             {$L('确定')}
           </button>
           {this.props.id && (
-            <button className="btn btn-danger btn-outline ml-1" type="button" onClick={() => this.handleDelete()}>
+            <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.handleDelete()}>
               <i className="zmdi zmdi-delete icon" /> {$L('删除')}
             </button>
           )}

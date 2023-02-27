@@ -100,7 +100,7 @@ class DlgAssign extends RbModalHandler {
   }
 
   _useUserSelector() {
-    return <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => (this._UserSelector = c)} />
+    return <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} />
   }
 
   post() {

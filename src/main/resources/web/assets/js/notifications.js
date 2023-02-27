@@ -90,7 +90,7 @@ class MessageList extends React.Component {
             </div>
           </div>
           {append && (
-            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>
+            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}`}>
               {$L('查看')}
             </a>
           )}

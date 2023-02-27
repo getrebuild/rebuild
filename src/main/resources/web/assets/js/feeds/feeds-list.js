@@ -260,7 +260,7 @@ class FeedsList extends React.Component {
         $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
-            const _data = that.state.data
+            const _data = that.state.data || []
             _data.forEach((item) => {
               if (id === item.id) item.deleted = true
             })
@@ -302,7 +302,10 @@ class FeedsList extends React.Component {
             this.hide()
             RbHighbar.success($L('日程已完成'))
             that.fetchFeeds()
-          } else RbHighbar.error(res.error_msg)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
         })
       },
     })
@@ -476,7 +479,7 @@ class FeedsComments extends React.Component {
         $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
-            const _data = that.state.data
+            const _data = that.state.data || []
             _data.forEach((item) => {
               if (id === item.id) item.deleted = true
             })
@@ -613,7 +616,7 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('查看记录')}>
+            <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}`} title={$L('查看记录')}>
               {e.relatedRecord.text}
             </a>
           </div>

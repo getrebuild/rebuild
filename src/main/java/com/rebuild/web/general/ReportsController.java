@@ -33,13 +33,13 @@ import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,28 +82,33 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File file;
+        File file = null;
         try {
             file = new EasyExcelGenerator(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
-            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    Language.L("无法输出报表，请检查报表模板是否有误"));
-            return;
         }
 
         RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String fileName = getReportName(entity, reportId, recordId, file);
+        final String output = getParameter(request, "output");
+        // PDF
+        if ("pdf".equals(output) || isOnlyPdf(entity, reportId)) {
+            file = PdfConverter.convert(file.toPath()).toFile();
+        }
+
+        final String fileName = getReportName(entity, reportId, recordId, file);
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
             writeSuccess(response, data);
 
-        } else if (getBoolParameter(request, "preview")) {
-            String fileUrl = RebuildConfiguration.getHomeUrl(String.format("/filex/download/%s?temp=yes&_onceToken=%s",
-                    CodecUtils.urlEncode(file.getName()), AuthTokenManager.generateOnceToken(null)));
+        } else if ("preview".equalsIgnoreCase(output)) {
+            String fileUrl = String.format(
+                    "/filex/download/%s?temp=yes&_onceToken=%s",
+                    CodecUtils.urlEncode(file.getName()), AuthTokenManager.generateOnceToken(null));
+            fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
             String previewUrl = StringUtils.defaultIfBlank(
                     RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
@@ -137,14 +142,24 @@ public class ReportsController extends BaseController {
         try {
             DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
             File output;
-            if (useReport != null) output = exporter.export(useReport);
-            else output = exporter.export(reportType);
-
-            String fileName = useReport == null ? null : getReportName(entity, useReport, null, output);
-            if (fileName == null) {
-                fileName = String.format("%s-%s." + FileUtil.getSuffix(output),
+            if (useReport != null) {
+                output = exporter.export(useReport);
+                // PDF
+                if ("pdf".equals(getParameter(request, "output")) || isOnlyPdf(entity, useReport)) {
+                    output = PdfConverter.convert(output.toPath()).toFile();
+                }
+            } else {
+                output = exporter.export(reportType);
+            }
+            
+            String fileName;
+            if (useReport == null) {
+                fileName = String.format("%s-%s.%s",
                         EasyMetaFactory.getLabel(entity),
-                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+                        CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
+                        FileUtil.getSuffix(output));
+            } else {
+                fileName = getReportName(entity, useReport, null, output);
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
@@ -162,7 +177,6 @@ public class ReportsController extends BaseController {
 
     private String getReportName(String entity, ID reportId, ID recordId, File file) {
         String name = null;
-
         for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
             if (cb.getID("id").equals(reportId)) {
                 name = cb.getString("name");
@@ -173,11 +187,21 @@ public class ReportsController extends BaseController {
                 }
 
                 // suffix
-                name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
+                if (file.getName().endsWith(".pdf")) name += ".pdf";
+                else name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
                 break;
             }
         }
 
-        return StringUtils.defaultIfBlank(name, "UNDEFINED");
+        return StringUtils.defaultIfBlank(name, "UNTITLE");
+    }
+
+    private boolean isOnlyPdf(String entity, ID reportId) {
+        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
+            if (cb.getID("id").equals(reportId)) {
+                return "pdf".equalsIgnoreCase(cb.getString("outputType"));
+            }
+        }
+        return false;
     }
 }
