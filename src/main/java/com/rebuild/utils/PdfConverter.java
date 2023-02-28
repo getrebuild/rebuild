@@ -8,10 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 import java.io.BufferedReader;
@@ -58,7 +60,8 @@ public class PdfConverter {
         }
 
         // alias
-        String soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
+        String soffice = RebuildConfiguration.get(ConfigurationItem.LibreofficeBin);
+        if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
         String cmd = String.format("%s --headless --convert-to pdf \"%s\" --outdir \"%s\"", soffice, path, outdir);
 
         ProcessBuilder builder = new ProcessBuilder();

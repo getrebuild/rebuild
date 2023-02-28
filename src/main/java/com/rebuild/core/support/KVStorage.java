@@ -54,7 +54,7 @@ public class KVStorage {
     }
 
     /**
-     * 存
+     * 存（异步）
      * @param key
      * @param value
      * @param throttled 是否节流
