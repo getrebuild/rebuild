@@ -167,17 +167,8 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
      */
     public static String getProperty(String name, String defaultValue) {
         String value = null;
-        // in CLI
-        if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)
-                || ConfigurationItem.RedisDatabase.name().equalsIgnoreCase(name)
-                || ConfigurationItem.MobileUrl.name().equalsIgnoreCase(name)
-                || ConfigurationItem.RbStoreUrl.name().equalsIgnoreCase(name)
-                || ConfigurationItem.TriggerMaxDepth.name().equalsIgnoreCase(name)
-                || ConfigurationItem.SecurityEnhanced.name().equalsIgnoreCase(name)
-                || ConfigurationItem.TrustedAllUrl.name().equalsIgnoreCase(name)
-                || ConfigurationItem.SN.name().equalsIgnoreCase(name)) {
+        if (ConfigurationItem.inCli(name)) {
             value = StringUtils.defaultIfBlank(System.getProperty(name), System.getProperty(V2_PREFIX + name));
-
         } else if (ENV_HOLD != null) {
             if (!(name.startsWith(V2_PREFIX) || name.contains("."))) {
                 name = V2_PREFIX + name;

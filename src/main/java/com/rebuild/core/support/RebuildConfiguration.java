@@ -262,7 +262,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static void set(ConfigurationItem name, Object value) {
-        if (ConfigurationItem.DataDirectory == name || ConfigurationItem.RedisDatabase == name) {
+        if (ConfigurationItem.inCli(name.name())) {
             throw new SecurityException("Attack configuration detected : " + name + "=" + value);
         }
         setValue(name.name(), value);

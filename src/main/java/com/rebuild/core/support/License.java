@@ -50,7 +50,7 @@ public final class License {
         JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER);
         SN = newsn.getString("sn");
         if (SN != null) {
-            RebuildConfiguration.set(ConfigurationItem.SN, SN);
+            RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
         }
 
         if (SN == null) {
@@ -59,7 +59,7 @@ public final class License {
                     Locale.getDefault().getCountry().substring(0, 2),
                     ComputerIdentifier.generateIdentifierKey(),
                     CodecUtils.randomCode(9)).toUpperCase();
-            RebuildConfiguration.set(ConfigurationItem.SN, SN);
+            RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
         }
 
         USE_SN = SN;
