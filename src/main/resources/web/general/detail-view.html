@@ -9,7 +9,7 @@
   <body class="view-body">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="|zmdi-${entityIcon}|"></i>
-      <h3 class="title" th:text="${bundle.L('%s视图', entityLabel)}"></h3>
+      <h3 class="title" th:text="${bundle.L('%s详情', entityLabel)}"></h3>
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
