@@ -73,10 +73,9 @@ public abstract class ShareToManager implements ConfigManager {
      * @param belongEntity
      * @param applyType
      * @return
-     * @see #detectUseConfig(ID, String, String, boolean)
      */
     public ID detectUseConfig(ID user, String belongEntity, String applyType) {
-        return detectUseConfig(user, belongEntity, applyType, Boolean.TRUE);
+        return detectUseConfig(user, belongEntity, applyType, Boolean.TRUE, null);
     }
 
     /**
@@ -84,9 +83,10 @@ public abstract class ShareToManager implements ConfigManager {
      * @param belongEntity
      * @param applyType
      * @param firstUseSelf
+     * @param useSysFlag
      * @return
      */
-    protected ID detectUseConfig(ID user, String belongEntity, String applyType, boolean firstUseSelf) {
+    protected ID detectUseConfig(ID user, String belongEntity, String applyType, boolean firstUseSelf, String useSysFlag) {
         final Object[][] alls = getAllConfig(belongEntity, applyType);
         if (alls.length == 0) return null;
 
@@ -95,7 +95,11 @@ public abstract class ShareToManager implements ConfigManager {
             for (Object[] d : alls) {
                 ID createdBy = (ID) d[2];
                 if (UserHelper.isSelf(user, createdBy)) {
-                    return (ID) d[0];
+                    if (useSysFlag != null) {
+                        if (useSysFlag.equals(d[4])) return (ID) d[0];
+                    } else {
+                        return (ID) d[0];
+                    }
                 }
             }
         }
@@ -103,7 +107,11 @@ public abstract class ShareToManager implements ConfigManager {
         // 2.其次使用共享的
         for (Object[] d : alls) {
             if (isShareTo((String) d[1], user)) {
-                return (ID) d[0];
+                if (useSysFlag != null) {
+                    if (useSysFlag.equals(d[4])) return (ID) d[0];
+                } else {
+                    return (ID) d[0];
+                }
             }
         }
 
@@ -199,7 +207,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @return
      */
     final protected String formatCacheKey(String belongEntity, String applyType) {
-        return String.format("%s-%s-%s32", getConfigEntity(),
+        return String.format("%s-%s-%s33-1", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
     }

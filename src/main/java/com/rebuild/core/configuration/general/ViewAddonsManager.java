@@ -27,7 +27,11 @@ import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 视图-相关项/新建相关
@@ -47,6 +51,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * 在 v1.9 之前上述场景存在问题
      */
     public static final String EF_SPLIT = ".";
+
+    /**
+     * @param entity
+     * @param user
+     * @param addonsType
+     * @return
+     */
+    public ConfigBean getLayoutOfViewAddons(String entity, ID user, String addonsType) {
+        return getLayout(user, entity, addonsType, null);
+    }
 
     /**
      * 显示项
@@ -79,7 +93,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     public Map<String, JSONObject> getViewTabFilters(String entity) {
-        final ConfigBean config = getLayout(UserService.SYSTEM_USER, entity, TYPE_TAB);
+        final ConfigBean config = getLayout(UserService.SYSTEM_USER, entity, TYPE_TAB, null);
         if (config == null) return Collections.emptyMap();
 
         // compatible: v2.2
@@ -125,7 +139,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     private JSONObject getViewAddons(String entity, ID user, String applyType) {
-        final ConfigBean config = getLayout(user, entity, applyType);
+        final ConfigBean config = getLayout(user, entity, applyType, null);
         final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);

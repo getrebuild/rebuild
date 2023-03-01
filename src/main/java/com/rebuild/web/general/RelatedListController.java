@@ -37,7 +37,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 相关项列表
@@ -169,8 +174,8 @@ public class RelatedListController extends BaseController {
 
     @GetMapping("related-list-config")
     public RespBody getDataListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
-        final ID user = getRequestUser(req);
-        JSON config = DataListManager.instance.getListFields(listEntity.getName(), user);
+        JSON config = DataListManager.instance.getListFields(
+                listEntity.getName(), getRequestUser(req), DataListManager.SYS_RELATED);
         return RespBody.ok(config);
     }
 }

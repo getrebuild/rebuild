@@ -49,13 +49,9 @@ public class BaseLayoutManager extends ShareToManager {
         return "LayoutConfig";
     }
 
-    /**
-     * @param user
-     * @param entity
-     * @return
-     */
-    public ConfigBean getLayoutOfForm(ID user, String entity) {
-        return getLayout(user, entity, TYPE_FORM);
+    @Override
+    protected String getConfigFields() {
+        return "configId,shareTo,createdBy,config,configName";
     }
 
     /**
@@ -63,8 +59,17 @@ public class BaseLayoutManager extends ShareToManager {
      * @param entity
      * @return
      */
-    public ConfigBean getLayoutOfDatalist(ID user, String entity) {
-        return getLayout(user, entity, TYPE_DATALIST);
+    public ConfigBean getLayoutOfForm(ID user, String entity) {
+        return getLayout(user, entity, TYPE_FORM, null);
+    }
+
+    /**
+     * @param user
+     * @param entity
+     * @return
+     */
+    public ConfigBean getLayoutOfDatalist(ID user, String entity, String useSysFlag) {
+        return getLayout(user, entity, TYPE_DATALIST, useSysFlag);
     }
 
     /**
@@ -72,16 +77,17 @@ public class BaseLayoutManager extends ShareToManager {
      * @return
      */
     public ConfigBean getLayoutOfNav(ID user) {
-        return getLayout(user, null, TYPE_NAV);
+        return getLayout(user, null, TYPE_NAV, null);
     }
 
     /**
      * @param user
      * @param belongEntity
      * @param applyType
+     * @param useSysFlag
      * @return
      */
-    public ConfigBean getLayout(ID user, String belongEntity, String applyType) {
+    protected ConfigBean getLayout(ID user, String belongEntity, String applyType, String useSysFlag) {
         // 221125 无权限不允许使用自有配置
         boolean firstUseSelf = true;
         if (TYPE_NAV.equals(applyType)) {
@@ -90,7 +96,11 @@ public class BaseLayoutManager extends ShareToManager {
             firstUseSelf = Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList);
         }
 
-        ID detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf);
+        ID detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf, useSysFlag);
+        // 无指定则使用默认
+        if (detected == null && useSysFlag != null) {
+            detected = detectUseConfig(user, belongEntity, applyType, firstUseSelf, null);
+        }
         if (detected == null) return null;
 
         Object[][] cached = getAllConfig(belongEntity, applyType);
@@ -102,10 +112,7 @@ public class BaseLayoutManager extends ShareToManager {
      * @return
      */
     public ConfigBean getLayoutById(ID cfgid) {
-        Object[] o = Application.createQueryNoFilter(
-                "select belongEntity,applyType from LayoutConfig where configId = ?")
-                .setParameter(1, cfgid)
-                .unique();
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(cfgid, "belongEntity,applyType");
         if (o == null) throw new ConfigurationException("No config found : " + cfgid);
 
         Object[][] cached = getAllConfig((String) o[0], (String) o[1]);
