@@ -421,29 +421,23 @@ const _handleClassification = function (useClassification) {
     $dvClear.addClass('hide')
   })
 
-  let _ClassificationSelector
-  function _showSelector(data) {
-    if (_ClassificationSelector) {
-      _ClassificationSelector.show()
-    } else {
-      renderRbcomp(
-        // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector
-          entity={wpc.entityName}
-          field={wpc.fieldName}
-          label={$L('默认值')}
-          openLevel={data.openLevel}
-          onSelect={(s) => {
-            $dv.attr('data-value-id', s.id).val(s.text)
-            $dvClear.removeClass('hide')
-          }}
-        />,
-        null,
-        function () {
-          _ClassificationSelector = this
-        }
-      )
-    }
+  // 修改等级需要重新设置默认值
+  $('#classificationLevel').on('change', () => $dvClear.trigger('click'))
+
+  function _showSelector(openLevel) {
+    renderRbcomp(
+      // eslint-disable-next-line react/jsx-no-undef
+      <ClassificationSelector
+        entity={wpc.entityName}
+        field={wpc.fieldName}
+        label={$L('默认值')}
+        openLevel={openLevel}
+        onSelect={(s) => {
+          $dv.attr('data-value-id', s.id).val(s.text)
+          $dvClear.removeClass('hide')
+        }}
+      />
+    )
   }
 
   const $append = $(`<button class="btn btn-secondary" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
@@ -454,7 +448,10 @@ const _handleClassification = function (useClassification) {
       .text(res.data.name)
 
     $dv.attr('readonly', true)
-    $append.on('click', () => _showSelector(res.data))
+    $append.on('click', () => {
+      const openLevel = ~~$val('#classificationLevel')
+      _showSelector(openLevel > -1 ? openLevel : res.data.openLevel)
+    })
   })
 
   _loadRefsLabel($dv, $dvClear)

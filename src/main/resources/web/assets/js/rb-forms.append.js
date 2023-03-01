@@ -93,12 +93,15 @@ class ClassificationSelector extends React.Component {
   }
 
   componentDidMount() {
-    const $m = this.show()
-    if (this.props.keepModalOpen) {
-      $m.on('hidden.bs.modal', () => {
-        $(document.body).addClass('modal-open') // keep scroll
-      })
-    }
+    const $root = this.show()
+    $root.on('hidden.bs.modal', () => {
+      if (this.props.disposeOnHide === true) {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      } else if (this.props.keepModalOpen === true) {
+        $(document.body).addClass('modal-open') // Keep scroll
+      }
+    })
 
     const that = this
     $(this._select).each(function (idx) {
