@@ -218,7 +218,7 @@ const StepDataList = () => {
     {
       element: '.J_view',
       title: $L('打开记录'),
-      intro: $L('在列表中选中一条记录，点击打开视图详情'),
+      intro: $L('在列表中选中一条记录，点击打开记录详情'),
       rbLeft: 5,
     },
     {
@@ -261,7 +261,7 @@ const StepDataList2 = () => {
     {
       element: '.datalist-scroll',
       title: $L('数据列表'),
-      intro: $L('数据列表快速查看记录基本信息，或点击列表项打开视图详情'),
+      intro: $L('数据列表用于快速查看记录基本信息，点击列表项可打开记录详情'),
       rbTop: 20,
       rbLeft: -5,
     },

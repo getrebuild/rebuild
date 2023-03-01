@@ -137,10 +137,10 @@ public class ListFieldsController extends BaseController implements ShareTo {
         } else if (ID.isId(cfgid)) {
             raw = DataListManager.instance.getLayoutById(ID.valueOf(cfgid));
         } else {
-            raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
+            raw = DataListManager.instance.getLayoutOfDatalist(user, entity, null);
         }
 
-        JSONObject config = (JSONObject) DataListManager.instance.formatListFields(entity, user, false, raw);
+        JSONObject config = (JSONObject) DataListManager.instance.formatListFields(entity, user, Boolean.FALSE, raw);
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("fieldList", fieldList);

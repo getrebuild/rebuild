@@ -215,8 +215,8 @@ class RelatedList extends React.Component {
     const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
 
     return (
-      <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
-        {!this.state.dataList && <RbSpinner />}
+      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`}>
+        {!(this.state.dataList || isListView) && <RbSpinner />}
 
         <div className="related-toolbar">
           <div className="row">
@@ -408,7 +408,7 @@ class EntityRelatedList extends RelatedList {
 
   renderData() {
     if (this.state.viewMode === 'LIST') {
-      if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
+      // if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
       return <EntityRelatedList2 $$$parent={this} ref={(c) => (this._EntityRelatedList2 = c)} />
     } else {
       return super.renderData()
