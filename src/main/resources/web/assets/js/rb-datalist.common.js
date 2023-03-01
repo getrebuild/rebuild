@@ -311,7 +311,7 @@ class DataExport extends BatchOperator {
                 </RF>
               )
             })}
-            {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}
+            {reports.length === 0 && <option disabled>{$L('暂无')}</option>}
           </optgroup>
         </select>
       </div>

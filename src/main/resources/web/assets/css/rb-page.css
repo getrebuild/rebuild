@@ -707,13 +707,6 @@ div.dataTables_filter .filter-badge:hover .close {
   transition: max-width 0.2s;
 }
 
-@media (max-width: 767px) {
-  .rbalert.modal {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
-}
-
 .rbmodal.show,
 .rbview.show {
   display: block !important;
@@ -2272,7 +2265,7 @@ th.column-fixed {
   text-align: center;
   font-size: 1.2rem;
   border-radius: 2px;
-  width: 22px;
+  width: 24px;
   display: none;
 }
 

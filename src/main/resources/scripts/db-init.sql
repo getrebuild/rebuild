@@ -354,7 +354,7 @@ create table if not exists `attachment_folder` (
   `FOLDER_ID`          char(20) not null,
   `NAME`               varchar(100) not null comment '目录名称',
   `PARENT`             char(20) comment '父级',
-  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见 (可选值: ALL/SELF/$TeamID)',
+  `SCOPE`              varchar(420) default 'ALL' comment '哪些人可见 (可选值: ALL/SELF/$MemberID)',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -870,4 +870,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 50);
+  values ('021-9000000000000001', 'DBVer', 51);

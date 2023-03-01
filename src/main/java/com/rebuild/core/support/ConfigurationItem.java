@@ -118,8 +118,27 @@ public enum ConfigurationItem {
     TriggerMaxDepth,                // 触发器最大执行深度
     SecurityEnhanced(false), // 安全增强
     TrustedAllUrl(false), // 可信外部地址
+    LibreofficeBin,                 // Libreoffice 命令
 
     ;
+
+    /**
+     * 仅可通过 CLI 配置
+     *
+     * @param name
+     * @return
+     */
+    public static boolean inCli(String name) {
+        return DataDirectory.name().equalsIgnoreCase(name)
+                || RedisDatabase.name().equalsIgnoreCase(name)
+                || MobileUrl.name().equalsIgnoreCase(name)
+                || RbStoreUrl.name().equalsIgnoreCase(name)
+                || TriggerMaxDepth.name().equalsIgnoreCase(name)
+                || SecurityEnhanced.name().equalsIgnoreCase(name)
+                || TrustedAllUrl.name().equalsIgnoreCase(name)
+                || LibreofficeBin.name().equalsIgnoreCase(name)
+                || SN.name().equalsIgnoreCase(name);
+    }
 
     private Object defaultVal;
 

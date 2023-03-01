@@ -44,14 +44,14 @@ const FolderTree = {
           }}
           extrasAction={(item) => {
             return item.self ? (
-              <React.Fragment>
-                <span className="action" onClick={() => FolderTree._edit(item)}>
+              <RF>
+                <span className="action" onClick={() => FolderTree.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </span>
-                <span className="action" onClick={() => FolderTree._delete(item)}>
+                <span className="action" onClick={() => FolderTree.handleDelete(item)}>
                   <i className="zmdi zmdi-delete" />
                 </span>
-              </React.Fragment>
+              </RF>
             ) : null
           }}
         />,
@@ -63,11 +63,24 @@ const FolderTree = {
     })
   },
 
-  _edit: function (item) {
-    renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
+  handleEdit: function (item) {
+    let scope = item.private ? 'SELF' : 'ALL'
+    if (item.specUsers) scope = item.specUsers
+    renderRbcomp(
+      <FolderEditDlg
+        call={() => {
+          FolderTree.load()
+          filesList && filesList.loadData(__DEFAULT_ALL)
+        }}
+        id={item.id}
+        name={item.text}
+        scope={scope}
+        parent={item.parent}
+      />
+    )
   },
 
-  _delete: function (item) {
+  handleDelete: function (item) {
     RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
       type: 'danger',
       confirmText: $L('删除'),
@@ -118,7 +131,15 @@ const _renderOption = function (item, idx, disabledItem) {
 
 // ~ 目录
 class FolderEditDlg extends RbFormHandler {
-  state = { scope: 'ALL', ...this.props }
+  constructor(props) {
+    super(props)
+    this.state = { scope: 'ALL', ...props }
+
+    if (props.scope && props.scope.length >= 20) {
+      this.state.scope = 'SPEC'
+      this.state.specUsers = props.scope.split(',')
+    }
+  }
 
   render() {
     return (
@@ -132,15 +153,23 @@ class FolderEditDlg extends RbFormHandler {
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
-            <div className="col-sm-7 pt-1 down-1">
+            <div className="col-sm-7 pt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SPEC'} value="SPEC" onChange={this.handleChange} />
+                <span className="custom-control-label">{$L('指定用户')}</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
+
+              <div className={`mt-1 mb-2 ${this.state.scope !== 'SPEC' && 'hide'}`}>
+                <UserSelector ref={(c) => (this._UserSelector = c)} defaultValue={this.state.specUsers} />
+              </div>
               <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
@@ -170,12 +199,17 @@ class FolderEditDlg extends RbFormHandler {
   }
 
   _post = () => {
-    let _data = {
+    const _data = {
       name: this.state.name,
       parent: this.state.parent,
       scope: this.state.scope,
     }
     if (!_data.name) return RbHighbar.create($L('请输入目录名称'))
+    if (_data.scope === 'SPEC') {
+      const s = this._UserSelector.val()
+      if (s.length === 0) return RbHighbar.create($L('请选择指定用户'))
+      _data.scope = s.join(',')
+    }
 
     _data.metadata = {
       entity: 'AttachmentFolder',
@@ -339,7 +373,7 @@ class FileMoveDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('修改文件目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('移动文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
@@ -387,22 +421,22 @@ class FilesList4Docs extends FilesList {
 
   renderExtras(item) {
     return (
-      <React.Fragment>
+      <RF>
         <span className="fop">
           <a title={$L('下载')} className="fs-15" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
             <i className="icon zmdi zmdi-download" />
           </a>
           {rb.fileSharable && (
-            <a title={$L('分享')} onClick={(e) => this._share(item, e)}>
+            <a title={$L('分享')} onClick={(e) => this.handleShare(item, e)}>
               <i className="icon zmdi zmdi-share" />
             </a>
           )}
         </span>
-      </React.Fragment>
+      </RF>
     )
   }
 
-  _share(item, e) {
+  handleShare(item, e) {
     $stopEvent(e)
     // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<FileShare file={item.filePath} />)
@@ -417,10 +451,10 @@ $(document).ready(() => {
     filesList = this
   })
 
-  $('.J_add-folder').click(() => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} />))
-  $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
+  $('.J_add-folder').on('click', () => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} />))
+  $('.J_upload-file').on('click', () => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
 
-  $('.J_delete').click(() => {
+  $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
     RbAlert.create($L('确认删除此文件？'), {
@@ -441,7 +475,7 @@ $(document).ready(() => {
     })
   })
 
-  $('.J_move').click(() => {
+  $('.J_move').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
     renderRbcomp(<FileMoveDlg files={[s]} call={() => filesList && filesList.loadData()} />)

@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #51 (v3.3)
+alter table `attachment_folder`
+  change column `SCOPE` `SCOPE` varchar(420) default 'ALL' comment '哪些人可见 (可选值: ALL/SELF/$MemberID)';
+
 -- #50 (v3.3)
 alter table `data_report_config`
   add column `EXTRA_DEFINITION` text(65535) comment '扩展配置(JSON Map)';

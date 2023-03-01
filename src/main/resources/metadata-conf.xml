@@ -239,7 +239,7 @@
         <field name="folderId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="目录名称"/>
         <field name="parent" type="reference" ref-entity="AttachmentFolder" description="父级"/>
-        <field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见 (可选值: ALL/SELF/$TeamID)"/>
+        <field name="scope" type="string" max-length="420" default-value="ALL" description="哪些人可见 (可选值: ALL/SELF/$MemberID)"/>
         <index field-list="scope,createdBy"/>
     </entity>
 
