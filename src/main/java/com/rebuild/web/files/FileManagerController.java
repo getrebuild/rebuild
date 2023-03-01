@@ -31,7 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -70,7 +74,7 @@ public class FileManagerController extends BaseController {
             if (!ID.isId(file)) continue;
 
             ID fileId = ID.valueOf(file);
-            if (!FilesHelper.isManageable(user, fileId)) {
+            if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权删除他人文件");
             }
 
@@ -92,7 +96,7 @@ public class FileManagerController extends BaseController {
             if (!ID.isId(file)) continue;
 
             ID fileId = ID.valueOf(file);
-            if (!FilesHelper.isManageable(user, fileId)) {
+            if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权修改他人文件");
             }
 
@@ -109,18 +113,25 @@ public class FileManagerController extends BaseController {
         return RespBody.ok();
     }
 
+    // TODO 更严格的文件访问权限检查
     @RequestMapping("check-readable")
-    public RespBody checkReadable(@IdParam ID recordId, HttpServletRequest request) {
+    public RespBody checkReadable(@IdParam ID recordOrFileId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final int entityCode = recordOrFileId.getEntityCode();
 
-        int entityCode = recordId.getEntityCode();
         boolean readable;
-        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-            readable = FeedsHelper.checkReadable(recordId, user);
-        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-            readable = ProjectHelper.checkReadable(recordId, user);
+        // 文件
+        if (entityCode == EntityHelper.Attachment) {
+            readable = FilesHelper.isFileAccessable(user, recordOrFileId);
         } else {
-            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+            // 附件
+            if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
+                readable = FeedsHelper.checkReadable(recordOrFileId, user);
+            } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
+                readable = ProjectHelper.checkReadable(recordOrFileId, user);
+            } else {
+                readable = Application.getPrivilegesManager().allowRead(user, recordOrFileId);
+            }
         }
 
         return RespBody.ok(readable);

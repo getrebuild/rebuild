@@ -27,7 +27,6 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +38,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -132,24 +135,33 @@ public class FileListController extends BaseController {
                 }
             }
         }
-        // 文档
+        // 文件
         else {
             sqlWhere.add("belongEntity = 0");
 
-            Set<ID> ps = FilesHelper.getPrivateFolders(user);
+            // 可访问目录
+            Set<ID> accessable = FilesHelper.getAccessableFolders(user);
 
             if (useFolder != null) {
-                Set<ID> fs = new HashSet<>();
-                fs.add(useFolder);
-                fs.addAll(FilesHelper.getChildFolders(useFolder));
-                Collection<ID> fs2 = CollectionUtils.removeAll(fs, ps);
+                if (accessable.contains(useFolder)) {
+                    Set<ID> fs = new HashSet<>();
+                    fs.add(useFolder);
+                    fs.addAll(FilesHelper.getChildFolders(useFolder));
+                    // 移除不可访问的
+                    fs.removeIf(id -> !accessable.contains(id));
+                    sqlWhere.add(String.format(
+                            "inFolder in ('%s')", StringUtils.join(fs, "','")));
+                } else {
+                    sqlWhere.add("(1=2)");
+                }
 
-                sqlWhere.add(String.format(
-                        "inFolder in ('%s')", StringUtils.join(fs2, "','")));
-
-            } else if (!ps.isEmpty()) {
-                sqlWhere.add(String.format(
-                        "(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps, "','")));
+            } else {
+                if (accessable.isEmpty()) {
+                    sqlWhere.add("inFolder is null");
+                } else {
+                    sqlWhere.add(String.format(
+                            "(inFolder is null or inFolder in ('%s'))", StringUtils.join(accessable, "','")));
+                }
             }
         }
 
@@ -157,8 +169,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord" +
-                " from Attachment where (1=1) and (isDeleted = ?)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("older".equals(sort)) {
             sql += " order by createdOn asc";
@@ -196,7 +207,7 @@ public class FileListController extends BaseController {
     // 文档树（目录）
     @GetMapping("tree-folder")
     public JSON listFolder(HttpServletRequest request) {
-        return FilesHelper.getFolders(getRequestUser(request), null);
+        return FilesHelper.getAccessableFolders(getRequestUser(request), null);
     }
 
     // 实体树

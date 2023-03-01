@@ -15,10 +15,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,10 +88,9 @@ public class FilesHelper {
      * @param parent
      * @return
      */
-    public static JSONArray getFolders(ID user, ID parent) {
-        String sql = String.format(
-                "select folderId,name,scope,createdBy,parent from AttachmentFolder" +
-                " where (scope = '%s' or createdBy = '%s') and ", SCOPE_ALL, user);
+    public static JSONArray getAccessableFolders(ID user, ID parent) {
+        // NOTE 缓存加速
+        String sql = "select folderId,name,scope,createdBy,parent,scope from AttachmentFolder where ";
         if (parent == null) sql += "parent is null";
         else sql += String.format("parent = '%s'", parent);
 
@@ -98,12 +99,26 @@ public class FilesHelper {
 
         JSONArray folders = new JSONArray();
         for (Object[] o : array) {
-            o[2] = SCOPE_SELF.equalsIgnoreCase((String) o[2]);
-            o[3] = user.equals(o[3]);
-            JSONObject folder = JSONUtils.toJSONObject(
-                    new String[] { "id", "text", "private", "self", "parent" }, o);
+            boolean access = SCOPE_ALL.equals(o[2]) || user.equals(o[3]);
+            final String scopeSpecUsers = o[2] != null && o[2].toString().length() >= 20 ? o[2].toString() : null;
+            // v3.3 ID
+            if (!access && scopeSpecUsers != null) {
+                Collection<String> c = new HashSet<>();
+                CollectionUtils.addAll(c, scopeSpecUsers.split(","));
+                Set<ID> inUsers = UserHelper.parseUsers(c, null);
+                access = inUsers.contains(user);
+            }
 
-            JSONArray children = getFolders(user, (ID) o[0]);
+            // 如果不可访问，子级目录即使公开也不可访问
+            if (!access) continue;
+
+            o[2] = SCOPE_SELF.equals(o[2]);
+            o[3] = user.equals(o[3]);
+            o[5] = scopeSpecUsers;
+            JSONObject folder = JSONUtils.toJSONObject(
+                    new String[] { "id", "text", "private", "self", "parent", "specUsers" }, o);
+
+            JSONArray children = getAccessableFolders(user, (ID) o[0]);
             if (!children.isEmpty()) {
                 folder.put("children", children);
             }
@@ -113,30 +128,30 @@ public class FilesHelper {
     }
 
     /**
-     * 获取所有私有目录 ID
+     * 获取可用目录
      *
-     * @param excludesUser 排除指定用户
+     * @param user 指定用户
      * @return
      */
-    public static Set<ID> getPrivateFolders(ID excludesUser) {
-        Object[][] array = Application.createQueryNoFilter(
-                "select folderId,createdBy from AttachmentFolder where scope = ?")
-                .setParameter(1, SCOPE_SELF)
-                .array();
-        if (array.length == 0) return Collections.emptySet();
-
+    public static Set<ID> getAccessableFolders(ID user) {
+        JSONArray accessable = getAccessableFolders(user, null);
         Set<ID> set = new HashSet<>();
-        for (Object[] o : array) {
-            if (excludesUser == null || !excludesUser.equals(o[1])) {
-                set.add((ID) o[0]);
-                set.addAll(getChildFolders((ID) o[0]));
-            }
-        }
+        intoAccessableFolders(accessable, set);
         return set;
     }
 
+    private static void intoAccessableFolders(JSONArray folders, Set<ID> into) {
+        for (Object o : folders) {
+            JSONObject folder = (JSONObject) o;
+            into.add(ID.valueOf(folder.getString("id")));
+
+            JSONArray c = folder.getJSONArray("children");
+            if (c != null) intoAccessableFolders(c, into);
+        }
+    }
+
     /**
-     * 获取子目录
+     * 获取所有子级目录（注意无权限控制）
      *
      * @param parent
      * @return
@@ -157,30 +172,26 @@ public class FilesHelper {
     }
 
     /**
-     * 是否私有目录。如果父级是私有，那么子目录也是私有
-     *
-     * @param folder
-     * @return
-     */
-    public static boolean isPrivate(ID folder) {
-        Object[] o = Application.createQueryNoFilter(
-                "select scope,parent from AttachmentFolder where folderId = ?")
-                .setParameter(1, folder)
-                .unique();
-
-        if (SCOPE_SELF.equals(o[0])) return true;
-        else if (o[1] != null) return isPrivate((ID) o[1]);
-        else return false;
-    }
-
-    /**
      * 是否允许操作文件（管理员与创建人允许）
      *
      * @param user
      * @param fileId
      * @return
      */
-    public static boolean isManageable(ID user, ID fileId) {
+    public static boolean isFileManageable(ID user, ID fileId) {
         return UserHelper.isAdmin(user) || UserHelper.isSelf(user, fileId);
+    }
+
+    /**
+     * 是否允许访问文件
+     *
+     * @param user
+     * @param fileId
+     * @return
+     */
+    public static boolean isFileAccessable(ID user, ID fileId) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "folderId");
+        if (o == null) return true;
+        return getAccessableFolders(user).contains((ID) o[0]);
     }
 }

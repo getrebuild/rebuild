@@ -28,23 +28,12 @@ public class FilesHelperTest extends TestSupport {
     }
 
     @Test
-    public void getFolders() {
+    void getFolders() {
         Record folder = EntityHelper.forNew(EntityHelper.AttachmentFolder, SIMPLE_USER);
         folder.setString("name", "123456");
         folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
-        System.out.println(FilesHelper.getFolders(SIMPLE_USER, null));
-        Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
-    }
-
-    @Test
-    public void getPrivateFolders() {
-        Record folder = EntityHelper.forNew(EntityHelper.AttachmentFolder, SIMPLE_USER);
-        folder.setString("name", "abcdef");
-        folder.setString("scope", FilesHelper.SCOPE_SELF);
-        folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
-
-        System.out.println(FilesHelper.getPrivateFolders(SIMPLE_USER));
+        System.out.println(FilesHelper.getAccessableFolders(SIMPLE_USER, null));
         Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 }

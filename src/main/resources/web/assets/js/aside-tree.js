@@ -64,6 +64,7 @@ class AsideTree extends React.Component {
           }}>
           {item.text || item.name}
           {item.private === true && <i className="icon zmdi zmdi-lock" title={$L('私有')} />}
+          {!!item.specUsers && <i className="icon zmdi zmdi-account" title={$L('指定用户')} />}
         </a>
         {typeof this.props.extrasAction === 'function' && this.props.extrasAction(item)}
       </li>
