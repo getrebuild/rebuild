@@ -10,11 +10,20 @@ package com.rebuild.api.sdk;
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Map;
@@ -34,7 +43,7 @@ public class OpenApiSDK {
 
     private static final JSON ERROR_REQ = JSON.parseObject("{ error_code:600, error_msg:'Http request failed' }");
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenApiSDK.class);
+    private static final Log LOG = LogFactory.getLog(OpenApiSDK.class);
 
     final private String appId;
     final private String appSecret;
@@ -208,8 +217,8 @@ public class OpenApiSDK {
     /**
      * 文件下载
      *
-     * @param filePath
-     * @param dest
+     * @param filePath 文件（相对）路径
+     * @param dest 存储到指定文件
      * @throws IOException
      */
     public boolean fileDownload(String filePath, File dest) throws IOException {
@@ -239,14 +248,16 @@ public class OpenApiSDK {
     /**
      * 文件上传
      *
-     * @param file
-     * @return
+     * @param file 要上传的文件
+     * @return 上传文件的（相对）路径
      * @throws IOException
      */
     public String fileUpload(File file) throws IOException {
+        // 1.获取上传参数
         JSONObject res = (JSONObject) get("file/upload", Collections.singletonMap("file", file.getName()));
         JSONObject data = Objects.requireNonNull(res.getJSONObject("data"), "Bad result : " + res);
 
+        // 2.1.七牛存储
         String uploadKey = data.getString("upload_key");
         String uploadToken = data.getString("upload_token");
         if (uploadToken != null) {
@@ -255,6 +266,7 @@ public class OpenApiSDK {
             }
         }
 
+        // 2.2.本地存储
         String uploadUrl = data.getString("upload_url");
 
         MediaType mediaType = MediaType.parse("multipart/form-data");

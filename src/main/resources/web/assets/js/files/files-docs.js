@@ -153,7 +153,7 @@ class FolderEditDlg extends RbFormHandler {
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
-            <div className="col-sm-7 pt-1 down-1">
+            <div className="col-sm-7 pt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('公开')}</span>
@@ -167,7 +167,7 @@ class FolderEditDlg extends RbFormHandler {
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
 
-              <div className={`mt-2 mb-1 ${this.state.scope !== 'SPEC' && 'hide'}`}>
+              <div className={`mt-1 mb-2 ${this.state.scope !== 'SPEC' && 'hide'}`}>
                 <UserSelector ref={(c) => (this._UserSelector = c)} defaultValue={this.state.specUsers} />
               </div>
               <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
