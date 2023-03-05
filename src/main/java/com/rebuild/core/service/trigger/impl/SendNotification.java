@@ -62,7 +62,6 @@ public class SendNotification extends TriggerAction {
         }
 
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-
         final int msgType = content.getIntValue("type");
         final int userType = content.getIntValue("userType");
 
@@ -74,29 +73,20 @@ public class SendNotification extends TriggerAction {
             // default
         }
 
-        ThreadPool.exec(() -> {
-            try {
-                // 等待事物完成
-                ThreadPool.waitFor(3000);
+        int s;
+        if (userType == UTYPE_ACCOUNT) {
+            s = sendToAccounts(operatingContext);
+        } else {  // UTYPE_USER
+            s = sendToUsers(operatingContext);
+        }
+        log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
 
-                int s;
-                if (userType == UTYPE_ACCOUNT) {
-                    s = sendToAccounts(operatingContext);
-                } else {  // UTYPE_USER
-                    s = sendToUsers(operatingContext);
-                }
-                log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
-
-            } catch (Exception ex) {
-                log.error(null, ex);
-            }
-        });
-        return TriggerResult.success("async");
+        return TriggerResult.success(String.valueOf(s));
     }
 
     private int sendToUsers(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-        final int type = content.getIntValue("type");
+        final int msgType = content.getIntValue("type");
 
         Set<ID> toUsers = UserHelper.parseUsers(
                 content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
@@ -106,17 +96,17 @@ public class SendNotification extends TriggerAction {
         int send = 0;
 
         for (ID user : toUsers) {
-            if (type == MTYPE_MAIL) {
+            if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (emailAddr != null) {
-                    SMSender.sendMail(emailAddr, message[1], message[0]);
+                if (RegexUtils.isEMail(emailAddr)) {
+                    SMSender.sendMailAsync(emailAddr, message[1], message[0]);
                     send++;
                 }
 
-            } else if (type == MTYPE_SMS) {
-                String mobile = Application.getUserStore().getUser(user).getWorkphone();
-                if (RegexUtils.isCNMobile(mobile)) {
-                    SMSender.sendSMS(mobile, message[0]);
+            } else if (msgType == MTYPE_SMS) {
+                String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
+                if (RegexUtils.isCNMobile(mobileAddr)) {
+                    SMSender.sendSMSAsync(mobileAddr, message[0]);
                     send++;
                 }
 
@@ -131,7 +121,7 @@ public class SendNotification extends TriggerAction {
 
     private int sendToAccounts(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-        final int type = content.getIntValue("type");
+        final int msgType = content.getIntValue("type");
 
         JSONArray fieldsDef = content.getJSONArray("sendTo");
         if (fieldsDef == null || fieldsDef.isEmpty()) return -1;
@@ -155,11 +145,12 @@ public class SendNotification extends TriggerAction {
             if (item == null) continue;
 
             String mobileOrEmail = item.toString();
-            if (type == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
-                SMSender.sendSMS(mobileOrEmail, message[0]);
+            if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
+                SMSender.sendSMSAsync(mobileOrEmail, message[0]);
                 send++;
-            } else if (type == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
-                SMSender.sendMail(mobileOrEmail, message[1], message[0]);
+            }
+            if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
+                SMSender.sendMailAsync(mobileOrEmail, message[1], message[0]);
                 send++;
             }
         }
