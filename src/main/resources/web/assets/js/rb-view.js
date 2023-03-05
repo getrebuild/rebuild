@@ -595,10 +595,12 @@ const RbViewPage = {
         <DeleteConfirm
           id={that.__id}
           entity={needEntity}
-          deleteAfter={() => {
-            // 刷新主视图
-            parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
-            that.hide(true)
+          deleteAfter={(deleted) => {
+            if (deleted > 0) {
+              // 刷新主视图
+              parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+              that.hide(true)
+            }
           }}
         />
       )
