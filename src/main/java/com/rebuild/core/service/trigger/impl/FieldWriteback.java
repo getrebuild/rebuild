@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -237,6 +238,7 @@ public class FieldWriteback extends FieldAggregation {
         final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
+        final Set<String> fieldVarsN2N = new HashSet<>();
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -254,10 +256,16 @@ public class FieldWriteback extends FieldAggregation {
                 } else {
                     Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
                     for (String field : matchsVars) {
-                        if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
-                            throw new MissingMetaExcetion(field, sourceEntity.getName());
+                        // v3.3
+                        if (isN2NFieldPath(sourceEntity, field)) {
+                            fieldVarsN2N.add(field);
+                        } else {
+                            if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
+                                throw new MissingMetaExcetion(field, sourceEntity.getName());
+                            }
+                            fieldVars.add(field);
                         }
-                        fieldVars.add(field);
+
                     }
                 }
             }
@@ -271,6 +279,15 @@ public class FieldWriteback extends FieldAggregation {
                     sourceEntity.getPrimaryField().getName(),
                     sourceEntity.getName());
             useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
+        }
+        if (!fieldVarsN2N.isEmpty()) {
+            if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
+            fieldVars.addAll(fieldVarsN2N);
+
+            for (String field : fieldVarsN2N) {
+                Object[] n2nVal = N2NReferenceSupport.getN2NValueByAnyPath(field, actionContext.getSourceRecord());
+                useSourceData.setObjectValue(field, n2nVal);
+            }
         }
 
         for (Object o : items) {
@@ -383,7 +400,7 @@ public class FieldWriteback extends FieldAggregation {
                         envMap.put(fieldName, value);
                     }
 
-                    Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
+                    Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
 
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
@@ -464,5 +481,17 @@ public class FieldWriteback extends FieldAggregation {
             log.warn("Value `{}` cannot be convert to field (value) : {}", value, field.getRawMeta());
         }
         return newValue;
+    }
+
+    private boolean isN2NFieldPath(Entity entity, String fieldPath) {
+        String[] fields = fieldPath.split("\\.");
+        if (fields.length < 2) return false;
+
+        try {
+            return entity.getField(fields[0]).getType() == FieldType.REFERENCE_LIST
+                    || entity.getField(fields[1]).getType() == FieldType.REFERENCE_LIST;
+        } catch (MissingMetaExcetion ex) {
+            throw new MissingMetaExcetion(fieldPath, entity.getName());
+        }
     }
 }

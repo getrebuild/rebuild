@@ -11,7 +11,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -115,37 +117,40 @@ public class N2NReferenceSupport {
     }
 
     /**
-     * @param fieldPath N2N.F, F.N2N, F.N2N.F
+     * @param fieldPath N2N.F, F.N2N, F.N2N.F, N2N
      * @param recordId
      * @return
      */
     public static Object[] getN2NValueByAnyPath(String fieldPath, ID recordId) {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        String[] fields = fieldPath.split("\\.");
-        Field firstField = entity.getField(fields[0]);
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        final String primaryName = entity.getPrimaryField().getName();
+        final String[] fields = fieldPath.split("\\.");
+        final Field firstField = entity.getField(fields[0]);
 
+        // N2N
         if (fields.length == 1) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
-                    firstField.getName(), entity.getPrimaryField().getName());
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
             return (ID[]) o[0];
         }
 
-        List<Object> olist = new ArrayList<>();
-
         // N2N.F
         if (firstField.getType() == FieldType.REFERENCE_LIST) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
-                    firstField.getName(), entity.getPrimaryField().getName());
-            ID[] firstValue = (ID[]) o[0];
-            String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
+            ID[] n2nValue = (ID[]) o[0];
+            if (NullValue.isNull(n2nValue)) return new Object[0];
 
-            for (ID id2 : firstValue) {
+            List<Object> nvList = new ArrayList<>();
+            String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+            for (ID id2 : n2nValue) {
                 Object[] o2 = Application.getQueryFactory().uniqueNoFilter(id2, path2);
-                if (o2 != null) olist.add(o2[0]);
+                if (o2 != null) nvList.add(o2[0]);
             }
+
+            return nvList.toArray(new Object[0]);
         }
+
         // F.N2N
-        else if (firstField.getType() == FieldType.REFERENCE) {
+        if (firstField.getType() == FieldType.REFERENCE) {
             Field secondField = entity.getField(fields[1]);
             // F.N2N.F
             if (fields.length > 2 && secondField.getType() == FieldType.REFERENCE_LIST) {
@@ -153,14 +158,15 @@ public class N2NReferenceSupport {
                 ID firstValue = (ID) o[0];
                 if (firstValue == null) return new Object[0];
 
+                // use N2N.F
                 String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
                 return getN2NValueByAnyPath(path2, firstValue);
             }
 
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
             return (ID[]) o[0];
         }
 
-        return olist.toArray(new Object[0]);
+        throw new RebuildException("Invalid N2N path : " + fieldPath);
     }
 }
