@@ -9,12 +9,15 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +69,11 @@ public class N2NReferenceSupport {
         return items((Field) last[0], (ID) last[1]);
     }
 
+    /**
+     * @param fieldPath
+     * @param recordId
+     * @return
+     */
     protected static Object[] getLastObject(String fieldPath, ID recordId) {
         Entity father = MetadataHelper.getEntity(recordId.getEntityCode());
         ID fatherRecordId = recordId;
@@ -104,5 +112,55 @@ public class N2NReferenceSupport {
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) set.add((ID) o[0]);
         return set;
+    }
+
+    /**
+     * @param fieldPath N2N.F, F.N2N, F.N2N.F
+     * @param recordId
+     * @return
+     */
+    public static Object[] getN2NValueByAnyPath(String fieldPath, ID recordId) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String[] fields = fieldPath.split("\\.");
+        Field firstField = entity.getField(fields[0]);
+
+        if (fields.length == 1) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
+                    firstField.getName(), entity.getPrimaryField().getName());
+            return (ID[]) o[0];
+        }
+
+        List<Object> olist = new ArrayList<>();
+
+        // N2N.F
+        if (firstField.getType() == FieldType.REFERENCE_LIST) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
+                    firstField.getName(), entity.getPrimaryField().getName());
+            ID[] firstValue = (ID[]) o[0];
+            String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+
+            for (ID id2 : firstValue) {
+                Object[] o2 = Application.getQueryFactory().uniqueNoFilter(id2, path2);
+                if (o2 != null) olist.add(o2[0]);
+            }
+        }
+        // F.N2N
+        else if (firstField.getType() == FieldType.REFERENCE) {
+            Field secondField = entity.getField(fields[1]);
+            // F.N2N.F
+            if (fields.length > 2 && secondField.getType() == FieldType.REFERENCE_LIST) {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName());
+                ID firstValue = (ID) o[0];
+                if (firstValue == null) return new Object[0];
+
+                String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+                return getN2NValueByAnyPath(path2, firstValue);
+            }
+
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath);
+            return (ID[]) o[0];
+        }
+
+        return olist.toArray(new Object[0]);
     }
 }
