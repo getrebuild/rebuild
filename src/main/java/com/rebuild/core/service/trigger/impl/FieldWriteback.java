@@ -238,7 +238,7 @@ public class FieldWriteback extends FieldAggregation {
         final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
-        final Set<String> fieldVarsN2N = new HashSet<>();
+        final Set<String> fieldVarsN2NPath = new HashSet<>();
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -258,14 +258,13 @@ public class FieldWriteback extends FieldAggregation {
                     for (String field : matchsVars) {
                         // v3.3
                         if (isN2NFieldPath(sourceEntity, field)) {
-                            fieldVarsN2N.add(field);
+                            fieldVarsN2NPath.add(field);
                         } else {
                             if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
                                 throw new MissingMetaExcetion(field, sourceEntity.getName());
                             }
                             fieldVars.add(field);
                         }
-
                     }
                 }
             }
@@ -280,11 +279,11 @@ public class FieldWriteback extends FieldAggregation {
                     sourceEntity.getName());
             useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
         }
-        if (!fieldVarsN2N.isEmpty()) {
+        if (!fieldVarsN2NPath.isEmpty()) {
             if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
-            fieldVars.addAll(fieldVarsN2N);
+            fieldVars.addAll(fieldVarsN2NPath);
 
-            for (String field : fieldVarsN2N) {
+            for (String field : fieldVarsN2NPath) {
                 Object[] n2nVal = N2NReferenceSupport.getN2NValueByAnyPath(field, actionContext.getSourceRecord());
                 useSourceData.setObjectValue(field, n2nVal);
             }
@@ -387,9 +386,14 @@ public class FieldWriteback extends FieldAggregation {
                         } else if (value == null) {
                             // 数字字段置 `0`
                             Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                            // N2N 保持 `NULL`
+                            Field isN2NField = sourceEntity.containsField(fieldName) ? sourceEntity.getField(fieldName) : null;
                             if (isNumberField != null
                                     && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
                                 value = 0;
+                            } else if (fieldVarsN2NPath.contains(fieldName)
+                                    || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
+                                // Keep NULL
                             } else {
                                 value = StringUtils.EMPTY;
                             }
