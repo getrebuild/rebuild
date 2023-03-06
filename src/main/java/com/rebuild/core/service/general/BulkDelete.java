@@ -35,8 +35,9 @@ public class BulkDelete extends BulkOperator {
         for (ID id : records) {
             if (Application.getPrivilegesManager().allowDelete(context.getOpUser(), id)) {
                 try {
-                    ges.delete(id, context.getCascades());
-                    this.addSucceeded();
+                    int d = ges.delete(id, context.getCascades());
+                    if (d > 0) this.addSucceeded();
+
                 } catch (DataSpecificationException ex) {
                     lastError = ex.getLocalizedMessage();
                     log.warn("Cannot delete `{}` because : {}", id, lastError);

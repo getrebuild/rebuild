@@ -124,7 +124,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // for `watermark`
   if (window.watermark && self === top) {
     window.watermark.init({
-      watermark_txt: [(rb.currentUser || '001-').substr(4), rb.appName],
+      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName],
       watermark_angle: 30,
       watermark_width: 200,
       watermark_font: 'arial',

@@ -245,7 +245,7 @@ class RelatedList extends React.Component {
                     <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
-                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('数据列表视图')}>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('列表视图')}>
                     <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
@@ -595,10 +595,12 @@ const RbViewPage = {
         <DeleteConfirm
           id={that.__id}
           entity={needEntity}
-          deleteAfter={() => {
-            // 刷新主视图
-            parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
-            that.hide(true)
+          deleteAfter={(deleted) => {
+            if (deleted > 0) {
+              // 刷新主视图
+              parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+              that.hide(true)
+            }
           }}
         />
       )

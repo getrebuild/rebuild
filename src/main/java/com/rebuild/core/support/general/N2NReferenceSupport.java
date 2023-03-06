@@ -9,12 +9,17 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +71,11 @@ public class N2NReferenceSupport {
         return items((Field) last[0], (ID) last[1]);
     }
 
+    /**
+     * @param fieldPath
+     * @param recordId
+     * @return
+     */
     protected static Object[] getLastObject(String fieldPath, ID recordId) {
         Entity father = MetadataHelper.getEntity(recordId.getEntityCode());
         ID fatherRecordId = recordId;
@@ -104,5 +114,59 @@ public class N2NReferenceSupport {
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) set.add((ID) o[0]);
         return set;
+    }
+
+    /**
+     * @param fieldPath N2N.F, F.N2N, F.N2N.F, N2N
+     * @param recordId
+     * @return
+     */
+    public static Object[] getN2NValueByAnyPath(String fieldPath, ID recordId) {
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        final String primaryName = entity.getPrimaryField().getName();
+        final String[] fields = fieldPath.split("\\.");
+        final Field firstField = entity.getField(fields[0]);
+
+        // N2N
+        if (fields.length == 1) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
+            return (ID[]) o[0];
+        }
+
+        // N2N.F
+        if (firstField.getType() == FieldType.REFERENCE_LIST) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
+            ID[] n2nValue = (ID[]) o[0];
+            if (NullValue.isNull(n2nValue)) return new Object[0];
+
+            List<Object> nvList = new ArrayList<>();
+            String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+            for (ID id2 : n2nValue) {
+                Object[] o2 = Application.getQueryFactory().uniqueNoFilter(id2, path2);
+                if (o2 != null) nvList.add(o2[0]);
+            }
+
+            return nvList.toArray(new Object[0]);
+        }
+
+        // F.N2N
+        if (firstField.getType() == FieldType.REFERENCE) {
+            Field secondField = entity.getField(fields[1]);
+            // F.N2N.F
+            if (fields.length > 2 && secondField.getType() == FieldType.REFERENCE_LIST) {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName());
+                ID firstValue = (ID) o[0];
+                if (firstValue == null) return new Object[0];
+
+                // use N2N.F
+                String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
+                return getN2NValueByAnyPath(path2, firstValue);
+            }
+
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
+            return (ID[]) o[0];
+        }
+
+        throw new RebuildException("Invalid N2N path : " + fieldPath);
     }
 }
