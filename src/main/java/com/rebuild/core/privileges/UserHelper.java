@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +40,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 /**
  * 用户帮助类
@@ -250,7 +258,8 @@ public class UserHelper {
             } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
                 useFields.add(def);
             } else {
-                log.warn("Invalid field or id : {}", def);
+                if (FlowNode.USER_OWNS.equals(def));  // No warn
+                else log.warn("Invalid field or id : {}", def);
             }
         }
 
