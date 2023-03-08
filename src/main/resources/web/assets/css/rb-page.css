@@ -5228,3 +5228,13 @@ pre.unstyle {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+.col-right-compact {
+  padding-left: 0;
+}
+
+@media (max-width: 768px) {
+  .col-right-compact {
+    padding-left: 15px;
+  }
+}
