@@ -7,7 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .tools-bar {
   height: 44px;
-  padding: 7px 25px 0;
+  padding: 7px 20px 0;
+  padding-right: 15px;
 }
 
 .tools-bar h4 {
@@ -75,7 +76,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   white-space: nowrap;
   overflow: auto;
   margin: 0;
-  padding-left: 25px;
+  padding-left: 20px;
   padding-bottom: 15px;
   display: flex;
   cursor: default;
@@ -87,7 +88,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 #plan-boxes .plan-box-wrapper .plan-box {
-  width: 295px;
+  width: 300px;
 }
 
 .plan-box .plan-header .plan-title {

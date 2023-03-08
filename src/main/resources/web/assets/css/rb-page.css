@@ -5191,3 +5191,40 @@ pre.unstyle {
 .badge-arrow3 {
   border-radius: 99px 99px 99px 0;
 }
+
+/* v3.3 compact */
+
+.main-content {
+  padding: 20px;
+}
+
+.rb-icons-nav > li.dropdown > a .icon {
+  min-width: 22px;
+  text-align: center;
+}
+
+.modal.rbmodal .modal-dialog .modal-body {
+  padding: 15px;
+  padding-bottom: 18px;
+}
+
+.page-head {
+  padding: 20px;
+  padding-bottom: 10px;
+  padding-top: 12px;
+}
+
+.rb-left-sidebar .sidebar-elements .divider {
+  padding-top: 15px;
+  font-size: 13px;
+}
+
+.aside-tree .config-title {
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+.card-list {
+  margin-top: 0;
+  margin-bottom: 0;
+}
