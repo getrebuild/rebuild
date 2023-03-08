@@ -376,14 +376,17 @@ public class NavBuilder extends NavManager {
             }
         }
 
+        // v3.3
+        final boolean showDivider = item.getBooleanValue("divider");
+
         String navItemHtml;
         if (NAV_DIVIDER.equals(navType)) {
             navItemHtml = "<li class=\"divider\">" + navText;
         } else {
             String parentClass = " parent";
-            if (BooleanUtils.toBoolean(item.getString("open"))) parentClass += " open";
+            if (item.getBooleanValue("open")) parentClass += " open";
 
-            navItemHtml = String.format(
+            navItemHtml = showDivider ? "" : String.format(
                     "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
                     navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
                     navEntity == null ? StringUtils.EMPTY : navEntity,
@@ -392,19 +395,24 @@ public class NavBuilder extends NavManager {
                     iconClazz,
                     navText);
         }
+
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
         if (subNavs != null) {
-            StringBuilder subHtml = new StringBuilder()
+            StringBuilder subHtml = new StringBuilder();
+            if (!showDivider) {
+                subHtml
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")
                     .append(navText)
                     .append("</li><li class=\"nav-items\"><div class=\"content\"><ul class=\"sub-menu-ul\">");
+            }
 
             for (Object o : subNavs) {
                 JSONObject subNav = (JSONObject) o;
                 subHtml.append(renderNavItem(subNav, null));
             }
-            subHtml.append("</ul></div></li></ul>");
+            if (!showDivider) subHtml.append("</ul></div></li></ul>");
+
             navHtml.append(subHtml);
         }
         navHtml.append("</li>");
