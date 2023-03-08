@@ -743,14 +743,14 @@ class RbFormElement extends React.Component {
           {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && state.tip && <p className={`form-text ${state.tipForce && 'form-text-force'}`}>{state.tip}</p>}
 
-          {editable && !state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
+          {editable && !state.editMode && <a className="edit" onClick={() => this.toggleEditMode(true)} title={$L('编辑')} />}
           {editable && state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
-                <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
+                <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()} title={$L('确定')}>
                   <i className="icon zmdi zmdi-check" />
                 </button>
-                <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}>
+                <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)} title={$L('取消')}>
                   <i className="icon zmdi zmdi-close" />
                 </button>
               </div>
