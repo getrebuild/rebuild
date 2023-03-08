@@ -5204,29 +5204,37 @@ pre.unstyle {
 }
 
 .modal.rbmodal .modal-dialog .modal-body {
-  padding: 15px;
-  padding-bottom: 18px;
+  padding: 15px 15px 18px;
 }
 
 .page-head {
-  padding: 20px;
-  padding-bottom: 10px;
-  padding-top: 12px;
+  padding: 12px 20px 10px;
 }
 
 .rb-left-sidebar .sidebar-elements .divider {
-  padding-top: 15px;
+  padding-top: 14px;
   font-size: 13px;
 }
 
 .aside-tree .config-title {
-  margin-top: 6px;
+  margin-top: 10px;
   margin-bottom: 14px;
 }
 
 .card-list {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.aside-header .title {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.page-aside-tree,
+.aside-tree {
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .col-right-compact {
