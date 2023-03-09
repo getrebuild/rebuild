@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -101,8 +102,9 @@ public class ListAndViewRedirection extends BaseController {
 
     @GetMapping("/app/entity/form")
     public ModelAndView dockForm(HttpServletRequest request) {
-        final String idOrEntity = getParameterNotNull(request, "e");
-        
+        final String idOrEntity = StringUtils.defaultString(
+                getParameter(request, "id"), getParameter(request, "e"));
+
         Entity entity;
         ID id = null;
         if (ID.isId(idOrEntity)) {

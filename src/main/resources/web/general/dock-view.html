@@ -43,6 +43,21 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
     <script type="text/babel">
+      const RbViewModal = {
+        hideClose: true,
+        create: function (props, subView) {
+          location.href = `${rb.baseUrl}/app/entity/view?id=${props.id}`
+        },
+        holder: function (id, action) {
+          return {
+            hideLoading: function () {},
+          }
+        },
+        currentHolder() {
+          return RbViewModal.holder()
+        },
+      }
+
       $(document).ready(() => {
         $addResizeHandler(() => {
           const mh = $(window).height() - 61 - 40
