@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-datalist2.css}" />
+    <title th:text="${entityLabel}"></title>
+    <style>
+      .iframe-wrap iframe {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 300px;
+        padding: 0;
+        font-size: 0;
+        line-height: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-loading rb-loading-active must-center J_dash-load">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="iframe-wrap">
+            <iframe frameborder="0" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        viewUrl: '[[${viewUrl}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
+    <script type="text/babel">
+      const RbViewModal = {
+        hideClose: true,
+        create: function (props, subView) {
+          location.href = `${rb.baseUrl}/app/entity/view?id=${props.id}`
+        },
+        holder: function (id, action) {
+          return {
+            hideLoading: function () {},
+          }
+        },
+        currentHolder() {
+          return RbViewModal.holder()
+        },
+      }
+
+      $(document).ready(() => {
+        $addResizeHandler(() => {
+          const mh = $(window).height() - 61 - 40
+          $('.iframe-wrap').css({ height: mh })
+        })()
+
+        const wpc = window.__PageConfig
+        setTimeout(() => {
+          $('.iframe-wrap iframe').attr('src', wpc.viewUrl)
+        }, 40)
+      })
+    </script>
+  </body>
+</html>

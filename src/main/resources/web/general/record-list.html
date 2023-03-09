@@ -3,6 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/list-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
     <title th:text="${entityLabel}"></title>
   </head>
@@ -40,6 +41,11 @@
           </div>
         </aside>
         <div class="main-content container-fluid">
+          <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
+            <div class="ph-item rb"></div>
+            <span></span>
+          </div>
+
           <ul th:if="${detailEntity != null}" class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item">
               <a class="nav-link active"><span class="icon zmdi" th:classappend="${'zmdi-' + mainEntityIcon}"></span> [[${mainEntityLabel}]]</a>
@@ -48,21 +54,16 @@
               <a th:href="|../${detailEntity}/list|" class="nav-link"><span class="icon zmdi" th:classappend="${'zmdi-' + detailEntityIcon}"></span> [[${detailEntityLabel}]]</a>
             </li>
           </ul>
+
           <div class="card card-table card-topcolor">
             <div class="card-body">
               <div class="dataTables_wrapper container-fluid">
                 <div class="row rb-datatable-header">
-                  <div class="col-12" th:if="${advListFilterPane == 'true'}">
-                    <div class="quick-filter-pane v2">
-                      <div class="ph-item-mt"></div>
-                      <div class="ph-item rb"></div>
-                    </div>
-                  </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="adv-search float-left">
                         <div class="btn-group btn-space">
-                          <button class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
+                          <button th:title="${bundle.L('常用查询')}" class="btn btn-secondary dropdown-toggle J_filterlist" type="button" data-toggle="dropdown">
                             <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
                           </button>
                           <div class="dropdown-menu rb-scroller">

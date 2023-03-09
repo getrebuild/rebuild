@@ -803,7 +803,7 @@ class RbList extends React.Component {
       $addResizeHandler(() => {
         let mh = $(window).height() - 210 + 5
         if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 38 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
+        if ($('.main-content .quick-filter-pane').length > 0) mh -= 75 // Has query-pane
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
