@@ -35,6 +35,8 @@ body {
   z-index: 1001;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(230, 230, 230, 0.6);
+  border-bottom-color: rgba(230, 230, 230, 1);
 }
 
 .view-header .header-icon {

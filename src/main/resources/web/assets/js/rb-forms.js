@@ -612,6 +612,10 @@ class RbForm extends React.Component {
       console.log('FrontJS prevented save')
       return
     }
+    if (typeof this._postBefore === 'function' && this._postBefore(data) === false) {
+      console.log('_postBefore prevented save')
+      return
+    }
 
     const $$$parent = this.props.$$$parent
     const previewid = $$$parent.state.previewid
@@ -2002,8 +2006,7 @@ class RbFormN2NReference extends RbFormReference {
 }
 
 // TODO 任意引用支持手动编辑
-class RbFormAnyReference extends RbFormReference {
-}
+class RbFormAnyReference extends RbFormReference {}
 
 class RbFormClassification extends RbFormElement {
   renderElement() {

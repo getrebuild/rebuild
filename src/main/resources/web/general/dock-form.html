@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-datalist2.css}" />
+    <title th:text="${entityLabel}"></title>
+    <style>
+      .form-wrap .modal {
+        position: relative;
+        display: block;
+        z-index: 1;
+      }
+      .form-wrap .modal .modal-dialog,
+      .form-wrap .modal .modal-dialog .modal-content {
+        margin: 0;
+      }
+      .form-wrap .modal .modal-header button.md-close,
+      .form-wrap .modal .dialog-footer .btn-secondary {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="form-wrap"></div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        entity: '[[${entityName}]]',
+        entityLabel: '[[${entityLabel}]]',
+        entityIcon: '[[${entityIcon}]]',
+        id: '[[${id}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
+    <script type="text/babel">
+      class RbFormModal2 extends RbFormModal {
+        constructor(props) {
+          super(props)
+          this.state._maximize = true
+        }
+
+        componentDidMount() {
+          // super.componentDidMount()
+          this.getFormModel()
+        }
+      }
+
+      $(document).ready(() => {
+        const wpc = window.__PageConfig
+        setTimeout(() => {
+          const props = {
+            id: wpc.id || null,
+            title: wpc.id ? $L('编辑%s', wpc.entityLabel) : $L('新建%s', wpc.entityLabel),
+            entity: wpc.entity,
+            icon: wpc.entityIcon,
+            maximize: true,
+            postAfter: function () {
+              setTimeout(() => location.reload(), 500)
+            },
+          }
+
+          let modelComp
+          renderRbcomp(<RbFormModal2 {...props} />, $('.form-wrap')[0], function () {
+            modelComp = this
+          })
+        }, 40)
+      })
+    </script>
+  </body>
+</html>

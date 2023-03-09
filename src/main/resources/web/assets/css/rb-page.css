@@ -5092,6 +5092,10 @@ pre.unstyle {
   margin-bottom: 0;
 }
 
+.dialog-footer .btn-space {
+  margin-bottom: 0;
+}
+
 .col-right-compact {
   padding-left: 0;
 }

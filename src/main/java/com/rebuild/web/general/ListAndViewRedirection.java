@@ -12,12 +12,16 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -82,5 +86,38 @@ public class ListAndViewRedirection extends BaseController {
         Object[] feeds = Application.getQueryFactory().uniqueNoFilter(
                 commentId, "feedsId");
         return feeds == null ? null : (ID) feeds[0];
+    }
+
+    @GetMapping("/app/entity/view")
+    public ModelAndView dockView(@IdParam ID recordId) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String viewUrl = String.format("../%s/view/%s", entity.getName(), recordId);
+        ModelAndView mv = createModelAndView("/general/dock-view");
+
+        mv.getModel().put("entityLabel", EasyMetaFactory.getLabel(entity));
+        mv.getModel().put("viewUrl", viewUrl);
+        return mv;
+    }
+
+    @GetMapping("/app/entity/form")
+    public ModelAndView dockForm(HttpServletRequest request) {
+        final String idOrEntity = getParameterNotNull(request, "e");
+        
+        Entity entity;
+        ID id = null;
+        if (ID.isId(idOrEntity)) {
+            id = ID.valueOf(idOrEntity);
+            entity = MetadataHelper.getEntity(id.getEntityCode());
+        } else {
+            entity = MetadataHelper.getEntity(idOrEntity);
+        }
+
+        ModelAndView mv = createModelAndView("/general/dock-form");
+        EasyEntity easyMeta = EasyMetaFactory.valueOf(entity);
+        mv.getModel().put("entityName", easyMeta.getName());
+        mv.getModel().put("entityLabel", easyMeta.getLabel());
+        mv.getModel().put("entityIcon", easyMeta.getIcon());
+        mv.getModel().put("id", id);
+        return mv;
     }
 }
