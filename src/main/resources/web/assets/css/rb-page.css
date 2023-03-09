@@ -583,6 +583,10 @@ div.dataTables_wrapper div.dataTables_filter {
   content: '\f2fb';
 }
 
+.datetimepicker th.clear {
+  font-weight: normal;
+}
+
 div.dataTables_filter .filter-badge {
   float: left;
   padding: 4px 10px;
@@ -5015,6 +5019,7 @@ pre.unstyle {
 
 .navbar-collapse .nav-item .nav-link {
   position: relative;
+  padding: 0 20px;
 }
 
 .navbar-collapse .nav-item.active .nav-link::after {

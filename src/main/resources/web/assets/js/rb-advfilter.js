@@ -720,6 +720,8 @@ class FilterItem extends React.Component {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
+      // todayBtn: true,
+      clearBtn: this.props.allowClear || false,
     }
 
     // 仅时间
