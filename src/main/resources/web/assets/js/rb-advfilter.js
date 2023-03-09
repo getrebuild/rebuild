@@ -632,6 +632,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
+        placeholder: this.props.select2Placeholder,
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val().join('|') })
@@ -667,6 +668,7 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
+        placeholder: this.props.select2Placeholder,
         minimumInputLength: 1,
         ajax: {
           url: '/commons/search/search',
@@ -765,8 +767,8 @@ class FilterItem extends React.Component {
     const $s2val = $(this._filterVal)
       .select2({
         width: this.props.select2Width,
+        placeholder: this.props.select2Placeholder,
         allowClear: this.props.allowClear === true,
-        placeholder: this.props.allowClear === true ? $L('全部') : null,
       })
       .on('change.select2', function () {
         that.setState({ value: $s2val.val() })
@@ -886,7 +888,7 @@ class ListAdvFilter extends AdvFilter {
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={() => this.handleNew()}>
-                  {$L('保存')}
+                  {$L('保存常用查询')}
                 </a>
               </div>
             </div>

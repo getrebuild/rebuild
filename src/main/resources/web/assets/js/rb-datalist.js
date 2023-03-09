@@ -96,6 +96,7 @@ const RbListPage = {
     if ($('.quick-filter-pane')[0]) {
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $('.quick-filter-pane')[0])
+      // $('.dataTables_filter .input-search').hide()
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)

@@ -1,0 +1,95 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+/* filter pane */
+
+.quick-filter-pane {
+  background-color: #fff;
+  padding: 3px 18px 12px;
+  margin-bottom: 15px;
+  border-radius: 3px;
+}
+
+.quick-filter-pane .ph-item {
+  background-color: #e6e6e6;
+  min-height: 38px;
+  border-radius: 2px;
+  margin: 10px 0 0;
+}
+
+.quick-filter-pane .col-item {
+  margin-top: 10px;
+  margin-right: 10px;
+  display: inline-block;
+  min-width: 227px;
+  position: relative;
+}
+
+.quick-filter-pane .col-item > div .filter-items > .row {
+  margin: 0;
+  padding: 0;
+}
+
+.quick-filter-pane .col-item > div .filter-items .col-sm-5.field,
+.quick-filter-pane .col-item > div .filter-items .col-sm-2.op {
+  display: none;
+}
+
+.quick-filter-pane .col-item > div .filter-items .col-sm-5.val {
+  -ms-flex: 0 0 100%;
+  flex: 0 0 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.quick-filter-pane .col-item.operating a {
+  display: inline-block;
+  padding: 8px 8px 8px 0;
+  opacity: 0.8;
+  color: #616161;
+  line-height: 1;
+}
+
+.quick-filter-pane .col-item.operating .btn,
+.quick-filter-pane .col-item.operating a {
+  min-height: 37px;
+  max-height: 37px;
+}
+
+.quick-filter-pane .col-item.operating a .icon {
+  font-size: 1.231rem;
+  display: inline-block;
+}
+
+.quick-filter-pane .col-item.operating a:hover {
+  opacity: 1;
+}
+
+.quick-filter-pane .col-item.operating a.admin-show {
+  visibility: hidden;
+}
+
+.quick-filter-pane .col-item.operating:hover a.admin-show {
+  visibility: visible;
+}
+
+.quick-filter-pane .col-item.operating .dropdown-menu {
+  padding: 15px 0;
+  min-width: 200px;
+  text-align: center;
+  align-items: center;
+}
+
+.quick-filter-pane .form-control:focus {
+  border-color: #bababa;
+}
+
+.quick-filter-pane .select2-container,
+.quick-filter-pane .col-item.operating {
+  transform: translateY(-1px);
+}
