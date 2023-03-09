@@ -83,7 +83,6 @@ $(document).ready(() => {
       value: value,
       icon: icon,
       open: $val($('#defaultOpen')),
-      divider: $val($('#showDivider')),
     })
 
     item_currentid = null
@@ -91,7 +90,6 @@ $(document).ready(() => {
     $('.J_edit-tips').removeClass('hide')
     $('.J_edit-menu').addClass('hide')
     $('#defaultOpen').attr('checked', false)
-    $('#showDivider').attr('checked', false)
   })
 
   let overwriteMode = false
@@ -195,7 +193,9 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
-  if (data.value === TYPE_PARENT) data.open = item.attr('attr-open') === 'true'
+  if (data.value === TYPE_PARENT) {
+    data.open = item.attr('attr-open') === 'true'
+  }
 
   const $subNavs = item.find('ul>li')
   if ($subNavs.length > 0) {
@@ -283,7 +283,6 @@ const render_item = function (data, isNew, append2) {
         $me.attr('disabled', true)
         $('.J_parentOption').show()
         $('#defaultOpen')[0].checked = data.open === true
-        $('#showDivider')[0].checked = data.divider === true
       } else {
         $me.attr('disabled', false)
         $('.J_parentOption').hide()

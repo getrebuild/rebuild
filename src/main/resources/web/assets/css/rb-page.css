@@ -5237,6 +5237,10 @@ pre.unstyle {
   padding-bottom: 20px;
 }
 
+.dialog-footer {
+  margin-bottom: 0;
+}
+
 .col-right-compact {
   padding-left: 0;
 }

@@ -35,7 +35,6 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -305,10 +304,11 @@ public class NavBuilder extends NavManager {
 
     static String renderNav2(HttpServletRequest request, String activeNav) {
         if (activeNav == null) activeNav = "dashboard-home";
-        
+
+        ID user = AppUtils.getRequestUser(request);
         JSONArray navs = License.isCommercial()
-                ? NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request), request)
-                : NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
+                ? NavBuilder.instance.getUserNav(user, request)
+                : NavBuilder.instance.getUserNav(user);
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {
@@ -376,9 +376,6 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        // v3.3
-        final boolean showDivider = item.getBooleanValue("divider");
-
         String navItemHtml;
         if (NAV_DIVIDER.equals(navType)) {
             navItemHtml = "<li class=\"divider\">" + navText;
@@ -386,7 +383,7 @@ public class NavBuilder extends NavManager {
             String parentClass = " parent";
             if (item.getBooleanValue("open")) parentClass += " open";
 
-            navItemHtml = showDivider ? "" : String.format(
+            navItemHtml = String.format(
                     "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
                     navName + (subNavs == null ? StringUtils.EMPTY : parentClass),
                     navEntity == null ? StringUtils.EMPTY : navEntity,
@@ -399,20 +396,17 @@ public class NavBuilder extends NavManager {
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
         if (subNavs != null) {
-            StringBuilder subHtml = new StringBuilder();
-            if (!showDivider) {
-                subHtml
+            StringBuilder subHtml = new StringBuilder()
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")
                     .append(navText)
                     .append("</li><li class=\"nav-items\"><div class=\"content\"><ul class=\"sub-menu-ul\">");
-            }
 
             for (Object o : subNavs) {
                 JSONObject subNav = (JSONObject) o;
                 subHtml.append(renderNavItem(subNav, null));
             }
-            if (!showDivider) subHtml.append("</ul></div></li></ul>");
 
+            subHtml.append("</ul></div></li></ul>");
             navHtml.append(subHtml);
         }
         navHtml.append("</li>");
