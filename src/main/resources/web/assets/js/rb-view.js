@@ -152,6 +152,8 @@ class RbViewForm extends React.Component {
 
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
+        // v3.3 刷新本页
+        setTimeout(() => location.reload(), 200)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef

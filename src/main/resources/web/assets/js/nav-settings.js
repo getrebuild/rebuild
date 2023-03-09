@@ -43,8 +43,8 @@ $(document).ready(() => {
           }
         }
 
-        if ($ref.val() === TYPE_PARENT) $('.J_defaultOpen').show()
-        else $('.J_defaultOpen').hide()
+        if ($ref.val() === TYPE_PARENT) $('.J_parentOption').show()
+        else $('.J_parentOption').hide()
       })
   })
 
@@ -193,7 +193,9 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
-  if (data.value === TYPE_PARENT) data.open = item.attr('attr-open') === 'true'
+  if (data.value === TYPE_PARENT) {
+    data.open = item.attr('attr-open') === 'true'
+  }
 
   const $subNavs = item.find('ul>li')
   if ($subNavs.length > 0) {
@@ -279,11 +281,11 @@ const render_item = function (data, isNew, append2) {
 
       if (data.value === TYPE_PARENT) {
         $me.attr('disabled', true)
-        $('.J_defaultOpen').show()
+        $('.J_parentOption').show()
         $('#defaultOpen')[0].checked = data.open === true
       } else {
         $me.attr('disabled', false)
-        $('.J_defaultOpen').hide()
+        $('.J_parentOption').hide()
       }
 
       // 实体已经不存在

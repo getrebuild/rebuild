@@ -225,6 +225,13 @@ body {
 
 .view-operating {
   padding-top: 3px;
+  padding-left: 5px;
+}
+
+@media (max-width: 768px) {
+  .view-operating {
+    padding-left: 15px;
+  }
 }
 
 .view-operating > div {

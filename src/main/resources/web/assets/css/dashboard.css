@@ -58,7 +58,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .tools-bar {
   height: 44px;
-  padding: 7px 25px 0;
+  padding: 7px 20px 0;
+  padding-right: 15px;
 }
 
 .tools-bar h4 {
@@ -71,7 +72,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-grid {
-  padding: 2px 20px 25px 20px;
+  padding: 0 15px 20px 15px;
   margin-top: 8px;
   min-height: 300px;
   height: auto;

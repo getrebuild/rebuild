@@ -35,7 +35,6 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -305,10 +304,11 @@ public class NavBuilder extends NavManager {
 
     static String renderNav2(HttpServletRequest request, String activeNav) {
         if (activeNav == null) activeNav = "dashboard-home";
-        
+
+        ID user = AppUtils.getRequestUser(request);
         JSONArray navs = License.isCommercial()
-                ? NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request), request)
-                : NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
+                ? NavBuilder.instance.getUserNav(user, request)
+                : NavBuilder.instance.getUserNav(user);
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {
@@ -381,7 +381,7 @@ public class NavBuilder extends NavManager {
             navItemHtml = "<li class=\"divider\">" + navText;
         } else {
             String parentClass = " parent";
-            if (BooleanUtils.toBoolean(item.getString("open"))) parentClass += " open";
+            if (item.getBooleanValue("open")) parentClass += " open";
 
             navItemHtml = String.format(
                     "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon %s\"></i><span>%s</span></a>",
@@ -392,6 +392,7 @@ public class NavBuilder extends NavManager {
                     iconClazz,
                     navText);
         }
+
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
         if (subNavs != null) {
@@ -404,6 +405,7 @@ public class NavBuilder extends NavManager {
                 JSONObject subNav = (JSONObject) o;
                 subHtml.append(renderNavItem(subNav, null));
             }
+
             subHtml.append("</ul></div></li></ul>");
             navHtml.append(subHtml);
         }
