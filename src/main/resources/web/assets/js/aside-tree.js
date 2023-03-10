@@ -29,10 +29,10 @@ class AsideTree extends React.Component {
           }
           const $item = this.renderItem(item, $children !== null)
           return (
-            <React.Fragment key={item.id}>
+            <RF key={item.id}>
               {$item}
               {$children}
-            </React.Fragment>
+            </RF>
           )
         })}
       </ul>
