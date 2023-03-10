@@ -28,7 +28,7 @@ class FilesList extends React.Component {
                 </div>
               </div>
               <div className="type">
-                <i className="file-icon" data-type={item.fileType} />
+                <i className="file-icon" data-type={item.fileType || '?'} />
               </div>
               <div className="detail">
                 <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)} title={$L('预览')}>
