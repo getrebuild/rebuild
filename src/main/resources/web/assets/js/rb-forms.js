@@ -931,11 +931,10 @@ class RbFormText extends RbFormElement {
     const comp = super.renderElement()
     if (this.props.readonly || !this.props.textCommon) return comp
 
-    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
     return (
       <RF>
         {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
-        <div className="dropdown-menu common-texts">
+        <div className="dropdown-menu common-texts" ref={(c) => (this._$dropdown = c)}>
           <h5>{$L('常用')}</h5>
           {this.props.textCommon.split(',').map((item) => {
             return (
@@ -954,6 +953,31 @@ class RbFormText extends RbFormElement {
         </div>
       </RF>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
+    // v3.2.2 in protable
+    const $d = $(this._$dropdown)
+    if ($d[0]) {
+      const $protable = $d.parents('.protable')
+      if ($protable[0]) {
+        setTimeout(() => {
+          $d.parent().on('show.bs.dropdown', () => {
+            const dh = ~~($d.attr('origin-height') || $d.height())
+            const ph = ~~($protable.height() - 25)
+            if (dh >= ph) {
+              $d.height(ph)
+              if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
+            } else {
+              $d.height('auto')
+            }
+          })
+        }, 60)
+      }
+    }
   }
 }
 
