@@ -36,12 +36,12 @@
             <div class="col-lg-9 col-12">
               <div class="card">
                 <div class="card-header pb-1">
-                  [[${bundle.L('赛邮 SUBMAIL')}]]
+                  [[${bundle.L('短信与邮件')}]]
                   <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                   <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('邮件服务')}]]</h5>
+                  <h5>[[${bundle.L('邮件服务')}]] (SUBMAIL/SMTP)</h5>
                   <table class="table email-set">
                     <tbody>
                       <tr class="smtp-show">
@@ -84,9 +84,9 @@
                       <tr class="show-on-edit">
                         <td></td>
                         <td>
-                          <button class="btn btn-primary btn-outline J_test-email" type="button">[[${bundle.L('测试发送')}]]</button>
-                          <button class="btn btn-link J_switch-email-set smtp-hide" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用 SMTP')}]]</button>
-                          <button class="btn btn-link J_switch-email-set smtp-show" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用赛邮')}]]</button>
+                          <button class="btn btn-primary btn-outline J_test-email" type="button">[[${bundle.L('发送测试')}]]</button>
+                          <button class="btn btn-link J_switch-email-set smtp-hide" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用')}]] SMTP</button>
+                          <button class="btn btn-link J_switch-email-set smtp-show" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用')}]] SUBMAIL</button>
                         </td>
                       </tr>
                     </tbody>
@@ -95,7 +95,7 @@
                     <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
                     <div class="message">[[${bundle.L('邮件服务未配置，相关功能不可用')}]]</div>
                   </div>
-                  <h5>[[${bundle.L('短信服务')}]]</h5>
+                  <h5>[[${bundle.L('短信服务')}]] (SUBMAIL)</h5>
                   <table class="table">
                     <tbody>
                       <tr>
