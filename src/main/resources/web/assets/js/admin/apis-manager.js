@@ -64,7 +64,7 @@ class AppList extends ConfigList {
 
   handleDelete(app) {
     const handle = super.handleDelete
-    RbAlert.create($L('删除后，使用此 API 秘钥的第三方应用功能将会失败'), {
+    RbAlert.create($L('删除后，使用此 API 密钥的第三方应用功能将会失败'), {
       type: 'danger',
       confirmText: $L('删除'),
       onConfirm: function () {
@@ -99,7 +99,7 @@ class AppList extends ConfigList {
 class AppEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.title = props.id ? $L('修改 API 秘钥') : $L('添加 API 秘钥')
+    this.title = props.id ? $L('修改 API 密钥') : $L('添加 API 密钥')
   }
 
   renderFrom() {
@@ -109,14 +109,14 @@ class AppEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('绑定用户 (权限)')}</label>
           <div className="col-sm-7">
             <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} defaultValue={this.props.bindUser} />
-            <p className="form-text">{$L('强烈建议为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
+            <p className="form-text">{$L('强烈建议为 API 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
           </div>
         </div>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('IP 白名单')}</label>
           <div className="col-sm-7">
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$bindIps = c)} defaultValue={this.props.bindIps} placeholder={$L('(可选)')} />
-            <p className="form-text">{$L('白名单内的 IP 才可以通过此 API 秘钥调用接口，如有多个 IP 请使用逗号或空格分开，留空则不限制')}</p>
+            <p className="form-text">{$L('白名单内的 IP 才可以通过此 API 密钥调用接口，如有多个 IP 请使用逗号或空格分开，留空则不限制')}</p>
           </div>
         </div>
       </React.Fragment>

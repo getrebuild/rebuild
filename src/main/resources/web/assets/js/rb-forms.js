@@ -532,6 +532,11 @@ class RbForm extends React.Component {
     if (this._onFieldValueChange_calls) {
       this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
     }
+
+    if (window.FrontJS) {
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [`${this.props.entity}.${field}`, value, this.props.id || null])
+      if (ret === false) return false
+    }
   }
 
   // 获取字段组件
@@ -925,13 +930,14 @@ class RbFormText extends RbFormElement {
     return (
       <RF>
         {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
-        <div className="dropdown-menu common-texts">
+        <div className="dropdown-menu common-texts" ref={(c) => (this._$dropdown = c)}>
           <h5>{$L('常用')}</h5>
           {this.props.textCommon.split(',').map((item) => {
             return (
               <a
                 key={item}
-                className="badge"
+                title={item}
+                className="badge text-ellipsis"
                 onClick={() => {
                   // $(this._fieldValue).val(item)
                   this.handleChange({ target: { value: item } }, true)
@@ -943,6 +949,31 @@ class RbFormText extends RbFormElement {
         </div>
       </RF>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
+    // v3.2.2 in protable
+    const $d = $(this._$dropdown)
+    if ($d[0]) {
+      const $protable = $d.parents('.protable')
+      if ($protable[0]) {
+        setTimeout(() => {
+          $d.parent().on('show.bs.dropdown', () => {
+            const dh = ~~($d.attr('origin-height') || $d.height())
+            const ph = ~~($protable.height() - 25)
+            if (dh >= ph) {
+              $d.height(ph)
+              if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
+            } else {
+              $d.height('auto')
+            }
+          })
+        }, 60)
+      }
+    }
   }
 }
 
@@ -1068,12 +1099,13 @@ class RbFormNumber extends RbFormText {
         watchFields.forEach((item) => {
           const name = item.substr(1, item.length - 2)
           const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
-          if (fieldComp && fieldComp.state.value) {
+          if (fieldComp && !$emptyNum(fieldComp.state.value)) {
             calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
           }
         })
 
         // 表单计算
+        // TODO 考虑异步延迟执行
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
             if (rb.env === 'dev') console.log('onFieldValueChange :', s)
@@ -1082,10 +1114,18 @@ class RbFormNumber extends RbFormText {
             console.log('onFieldValueChange for calcFormula :', s)
           }
 
-          if (s.value) {
-            calcFormulaValues[s.name] = this._removeComma(s.value)
-          } else {
+          // fix: 3.2 字段相互使用导致死循环
+          this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
+          if (this.__fixUpdateDepth > 9) {
+            console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
+            setTimeout(() => (this.__fixUpdateDepth = 0), 100)
+            return false
+          }
+
+          if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
+          } else {
+            calcFormulaValues[s.name] = this._removeComma(s.value)
           }
 
           let formula = calcFormula
@@ -1093,6 +1133,7 @@ class RbFormNumber extends RbFormText {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
           }
 
+          // 还有变量无值
           if (formula.includes('{')) {
             this.setValue(null)
             return false

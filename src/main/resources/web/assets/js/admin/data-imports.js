@@ -354,6 +354,7 @@ function _renderRepeatFields(entity) {
   })
 }
 
+const _MAX_SHOWS = 10000
 // ~ 导入详情
 class ImportsTraceViewer extends RbAlert {
   renderContent() {
@@ -377,13 +378,13 @@ class ImportsTraceViewer extends RbAlert {
                   <th className="pr-0">{item[0] + 1}</th>
                   <td>
                     {item[1] === 'CREATED' && (
-                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/redirect?id=${item[2]}`}>
                         {$L('新建成功')}
                         <i className="icon zmdi zmdi-open-in-new ml-1" />
                       </a>
                     )}
                     {item[1] === 'UPDATED' && (
-                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/list-and-view?id=${item[2]}`}>
+                      <a target="_blank" title={$L('查看')} href={`${rb.baseUrl}/app/redirect?id=${item[2]}`}>
                         {$L('更新成功')}
                         <i className="icon zmdi zmdi-open-in-new ml-1" />
                       </a>
@@ -436,7 +437,9 @@ class ImportsTraceViewer extends RbAlert {
         this.showData()
 
         // refresh
-        if (import_inprogress === true && res.data.length < 2000) this._timer = setTimeout(() => this.load(), 1500)
+        if (import_inprogress === true && res.data.length < _MAX_SHOWS) {
+          this._timer = setTimeout(() => this.load(), 2000)
+        }
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -445,7 +448,7 @@ class ImportsTraceViewer extends RbAlert {
 
   showData() {
     this._showPage = (this._showPage || 0) + 1
-    const p = this._datas.slice(0, this._showPage * 200)
+    const p = this._datas.slice(0, this._showPage * 500)
     this.setState({ data: p, hasMore: this._datas.length > p.length })
   }
 }

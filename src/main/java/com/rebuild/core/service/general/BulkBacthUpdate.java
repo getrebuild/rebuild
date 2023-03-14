@@ -72,19 +72,24 @@ public class BulkBacthUpdate extends BulkOperator {
             log.debug("Conversion to : {}", formJson);
         }
 
+        GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
         for (ID id : willUpdates) {
             if (Application.getPrivilegesManager().allowUpdate(context.getOpUser(), id)) {
                 // 更新记录
                 formJson.getJSONObject(JsonRecordCreator.META_FIELD).put("id", id.toLiteral());
 
+                GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_MAIN);
                 try {
                     Record record = EntityHelper.parse(formJson, context.getOpUser());
-                    ges.update(record);
+                    ges.createOrUpdate(record);
                     this.addSucceeded();
+
                 } catch (DataSpecificationException ex) {
                     log.warn("Cannot update `{}` because : {}", id, ex.getLocalizedMessage());
 
                 } finally {
+                    GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
+
                     // 可能有级联触发器
                     Object ts = FieldAggregation.cleanTriggerChain();
                     if (ts != null) log.info("Clean current-loop : {}", ts);

@@ -31,11 +31,11 @@ import java.text.MessageFormat;
 @Controller
 public class ListAndViewRedirection extends BaseController {
 
-    // H5: "/app/redirect"
+    // compatible: v3.1 "/app/list-and-view"
     @GetMapping({ "/app/list-and-view", "/app/redirect" })
     public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
         String url = null;
-        
+
         if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 

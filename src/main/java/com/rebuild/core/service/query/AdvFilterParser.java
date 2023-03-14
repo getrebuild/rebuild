@@ -36,7 +36,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
 import static cn.devezhao.commons.CalendarUtils.addMonth;
@@ -99,7 +105,7 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * @param filterExpr
-     * @param varRecord
+     * @param varRecord 条件中包含字段变量，将从此记录中提取实际值。注意如果包括字段变量但是字段无值，则过滤项会被忽略，应在配置条件时考虑此问题（设置不允许为空）
      */
     public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
         this.filterExpr = filterExpr;
@@ -253,14 +259,20 @@ public class AdvFilterParser extends SetUser {
         // exists ( in (...) )
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
+            boolean forceNot = false;
             if (hasNameFlag) {
                 Entity refEntity = fieldMeta.getReferenceEntity();
                 Field nameField = refEntity.getNameField();
 
                 JSONObject innerItem = (JSONObject) JSONUtils.clone(item);
                 innerItem.put("field", nameField.getName());
-                String innerWhereSql = parseItem(innerItem, null, refEntity);
 
+                // Not 转换
+                String opCheck = innerItem.getString("op");
+                forceNot = ParseHelper.NLK.equalsIgnoreCase(opCheck) || ParseHelper.NEQ.equalsIgnoreCase(opCheck);
+                if (forceNot) innerItem.put("op", opCheck.substring(1));  // Remove `N`
+
+                String innerWhereSql = parseItem(innerItem, null, refEntity);
                 inWhere = String.format("select %s from %s where %s",
                         refEntity.getPrimaryField().getName(), refEntity.getName(), innerWhereSql);
 
@@ -272,9 +284,10 @@ public class AdvFilterParser extends SetUser {
 
             if (inWhere != null) {
                 return String.format(
-                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
-                        specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+                        "%sexists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
+                        forceNot ? "not " : "", specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
             }
+            // else `NL` `NT`
 
         } else if (dt == DisplayType.TAG && (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op))) {
             String existsWhere = String.format(
@@ -625,6 +638,33 @@ public class AdvFilterParser extends SetUser {
         return items;
     }
 
+    // 字段变量 {@FIELD}
+    private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
+
+    private String useValueOfVarRecord(String value) {
+        if (varRecord == null || StringUtils.isBlank(value)) return value;
+        if (!value.matches(PATT_FIELDVAR)) return value;
+
+        String fieldName = value.substring(2, value.length() - 1);
+        Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
+        if (field == null) {
+            log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
+            return StringUtils.EMPTY;
+        }
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
+        if (o == null || o[0] == null) return StringUtils.EMPTY;
+
+        Object v = o[0];
+
+        if (v instanceof Date) {
+            v = CalendarUtils.getUTCDateFormat().format(v);
+        } else {
+            v = String.valueOf(v);
+        }
+        return (String) v;
+    }
+
     /**
      * 测试高级表达式
      *
@@ -685,30 +725,21 @@ public class AdvFilterParser extends SetUser {
         return null;
     }
 
-    // {@FIELD}
-    private static final String VAR_PATT = "\\{@([\\w.]+)}";
-
-    private String useValueOfVarRecord(String value) {
-        if (varRecord == null || StringUtils.isBlank(value)) return value;
-        if (!value.matches(VAR_PATT)) return value;
-
-        String fieldName = value.substring(2, value.length() - 1);
-        Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
-        if (field == null) {
-            log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
-            return value;
+    /**
+     * 是否含有字段变量 `{@FIELD}`
+     *
+     * @param filterExpr
+     * @return
+     * @see #useValueOfVarRecord(String)
+     */
+    public static boolean hasFieldVars(JSONObject filterExpr) {
+        for (Object o : filterExpr.getJSONArray("items")) {
+            JSONObject item = (JSONObject) o;
+            String value = item.getString("value");
+            if (value != null && value.matches(PATT_FIELDVAR)) return true;
+            String value2 = item.getString("value2");
+            if (value2 != null && value2.matches(PATT_FIELDVAR)) return true;
         }
-
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
-        if (o == null || o[0] == null) return StringUtils.EMPTY;
-
-        Object v = o[0];
-
-        if (v instanceof Date) {
-            v = CalendarUtils.getUTCDateFormat().format(v);
-        } else {
-            v = String.valueOf(v);
-        }
-        return (String) v;
+        return false;
     }
 }

@@ -12,6 +12,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 散点图
  *
@@ -30,6 +33,7 @@ public class ScatterChart extends ChartData {
         Numerical[] nums = getNumericals();
 
         JSONArray series = new JSONArray();
+        List<String> dataFlags = new ArrayList<>();
 
         if (dims.length == 0) {
             Object[][] dataRaw = createQuery(buildSql(nums)).array();
@@ -43,6 +47,7 @@ public class ScatterChart extends ChartData {
                     new String[]{"data"},
                     new Object[]{dataRaw});
             series.add(item);
+
         } else {
             for (Dimension dim : dims) {
                 Object[][] dataRaw = createQuery(buildSql(dim, nums)).array();
@@ -64,10 +69,15 @@ public class ScatterChart extends ChartData {
         String[] dataLabel = new String[nums.length];
         for (int i = 0; i < nums.length; i++) {
             dataLabel[i] = nums[i].getLabel();
+            dataFlags.add(getNumericalFlag(nums[i]));
         }
+
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+        renderOption.put("dataFlags", dataFlags);
 
         return JSONUtils.toJSONObject(
                 new String[]{"series", "dataLabel", "_renderOption"},
-                new Object[]{series, dataLabel, config.getJSONObject("option")});
+                new Object[]{series, dataLabel, renderOption});
     }
 }

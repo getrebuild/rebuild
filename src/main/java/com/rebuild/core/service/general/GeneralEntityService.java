@@ -119,9 +119,16 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         boolean lazyAutoApprovalForDetails = false;
         boolean lazyAutoTransformForDetails = false;
         if (hasDetails) {
-            TriggerAction[] hasTriggers = getSpecTriggers(
-                    record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
-            lazyAutoApprovalForDetails = hasTriggers.length > 0;
+            // fix: v3.2.2
+            TriggerAction[] hasAutoApprovalTriggers = getSpecTriggers(
+                    record.getEntity(), ActionType.AUTOAPPROVAL, TriggerWhen.CREATE, TriggerWhen.UPDATE);
+            lazyAutoApprovalForDetails = hasAutoApprovalTriggers.length > 0;
+            // FIXME 此判断可能无意义，待进一步测试后确定是否保留
+            if (!lazyAutoApprovalForDetails) {
+                TriggerAction[] hasOnApprovedTriggers = getSpecTriggers(
+                        record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
+                lazyAutoApprovalForDetails = hasOnApprovedTriggers.length > 0;
+            }
             // 自动审批延迟执行，因为明细尚未保存好
             if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
 
@@ -133,12 +140,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
 
         try {
-            record = super.createOrUpdate(record);
+            record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
 
             // 主记录+明细记录处理
 
-            final String dtf = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+            final String dtfField = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
             final ID mainid = record.getPrimary();
 
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
@@ -154,7 +161,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (d instanceof DeleteRecord) continue;
 
                 if (checkDetailsRepeated) {
-                    d.setID(dtf, mainid);  // for check
+                    d.setID(dtfField, mainid);  // for check
 
                     List<Record> repeated = getAndCheckRepeated(d, 20);
                     if (!repeated.isEmpty()) {
@@ -163,7 +170,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 if (d.getPrimary() == null) {
-                    d.setID(dtf, mainid);
+                    d.setID(dtfField, mainid);
                     create(d);
                 } else {
                     update(d);
@@ -182,6 +189,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record create(Record record) {
         appendDefaultValue(record);
@@ -190,6 +200,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return super.create(record);
     }
 
+    /**
+     * 优先使用 `#createOrUpdate(Record) `
+     */
     @Override
     public Record update(Record record) {
         if (!checkModifications(record, BizzPermission.UPDATE)) {
@@ -289,7 +302,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int assign(ID record, ID to, String[] cascades) {
         final User toUser = Application.getUserStore().getUser(to);
-        final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), false);
+        final ID recordOrigin = record;
+        // v3.2.2 若为明细则转为主记录
+        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+            record = QueryHelper.getMainIdByDetail(record);
+        }
+
+        final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), Boolean.FALSE);
         assignAfter.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
         assignAfter.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 
@@ -308,7 +327,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             affected = 1;
         }
 
-        Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
+        Map<String, Set<ID>> cass = getCascadedRecords(recordOrigin, cascades, BizzPermission.ASSIGN);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
             log.info("Cascading assign - {} > {}", e.getKey(), e.getValue());
 
@@ -327,7 +346,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int share(ID record, ID to, String[] cascades, int rights) {
         final ID currentUser = UserContextHolder.getUser();
-        final String entityName = MetadataHelper.getEntityName(record);
+        final ID recordOrigin = record;
+        // v3.2.2 若为明细则转为主记录
+        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+            record = QueryHelper.getMainIdByDetail(record);
+        }
 
         boolean fromTriggerNoDowngrade = GeneralEntityServiceContextHolder.isFromTrigger(false);
         if (!fromTriggerNoDowngrade) {
@@ -341,6 +364,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
+        final String entityName = MetadataHelper.getEntityName(record);
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
         sharedAfter.setID("recordId", record);
         sharedAfter.setID("shareTo", to);
@@ -381,7 +405,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             shareChange = true;
         }
 
-        Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
+        Map<String, Set<ID>> cass = getCascadedRecords(recordOrigin, cascades, BizzPermission.SHARE);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
             log.info("Cascading share - {} > {}", e.getKey(), e.getValue());
 
@@ -536,10 +560,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (action == BizzPermission.CREATE) {
             // 验证审批状态
             // 仅验证新建明细（相当于更新主记录）
-            if (mainEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
+            if (mainEntity != null && MetadataHelper.hasApprovalField(mainEntity)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
+                ID dtmFieldValue = record.getID(dtmField.getName());
+                if (dtmFieldValue == null) {
+                    throw new DataSpecificationException(Language.L("%s 不允许为空", EasyMetaFactory.getLabel(dtmField)));
+                }
 
+                ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     throw new DataSpecificationException(state == ApprovalState.APPROVED
                             ? Language.L("主记录已完成审批，不能添加明细")

@@ -266,18 +266,27 @@ const ECHART_AXIS_LABEL = {
   },
 }
 
+// eslint-disable-next-line no-unused-vars
 const ECHART_VALUE_LABEL = {
   show: true,
   formatter: function (a) {
     return formatThousands(a.data)
   },
 }
+const ECHART_VALUE_LABEL2 = function (dataFlags = []) {
+  return {
+    show: true,
+    formatter: function (a) {
+      return formatThousands(a.data, dataFlags[a.seriesIndex])
+    },
+  }
+}
 
-const ECHART_TOOLTIP_FORMATTER = function (i) {
+const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   if (!Array.isArray(i)) i = [i] // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
-  i.forEach((item) => {
-    tooltip.push(`${item.marker} ${item.seriesName} : ${formatThousands(item.value)}`)
+  i.forEach((a, idx) => {
+    tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[idx])}`)
   })
   return tooltip.join('<br>')
 }
@@ -304,17 +313,24 @@ const ECHART_LEGEND_VOPT = {
 // K=千 M=百万
 const shortNumber = function (num) {
   if (rb.locale === 'zh_CN' && (num > 10000 || num < -10000)) return (num / 10000).toFixed(0) + '万'
-
   if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'M'
   else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
   else return num
 }
 
-const formatThousands = function (num) {
-  if (Math.abs(~~num) < 1000) return num
-  const nums = (num + '').split('.')
-  nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
-  return nums.join('.')
+const formatThousands = function (num, flag) {
+  let n = num
+  if (Math.abs(~~n) > 1000) {
+    const nd = (n + '').split('.')
+    nd[0] = nd[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
+    n = nd.join('.')
+  }
+
+  // v3.2.1
+  if (flag === '%') n += '%'
+  else if (flag && flag.includes('%s')) n = flag.replace('%s', n)
+  else if (flag) n = `${flag} ${n}`
+  return n
 }
 
 const cloneOption = function (opt) {
@@ -343,6 +359,7 @@ class ChartLine extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -353,7 +370,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 },
         }
-        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -382,7 +399,7 @@ class ChartLine extends BaseChart {
         series: data.yyyAxis,
       }
       option.tooltip.trigger = 'axis'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
@@ -406,11 +423,12 @@ class ChartBar extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
-        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL2(dataFlags)
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -439,7 +457,7 @@ class ChartBar extends BaseChart {
         series: data.yyyAxis,
       }
       option.tooltip.trigger = 'axis'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      option.tooltip.formatter = (a) => ECHART_TOOLTIP_FORMATTER(a, dataFlags)
       if (showLegend) {
         option.legend = ECHART_LEGEND_HOPT
         option.grid.top = 40
@@ -462,12 +480,13 @@ class ChartPie extends BaseChart {
     this.setState({ chartdata: <div className="chart pie" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
         data.label = {
           formatter: function (a) {
-            return `${a.data.name} (${formatThousands(a.data.value)})`
+            return `${a.data.name} (${formatThousands(a.data.value, dataFlags[0])})`
           },
         }
       }
@@ -476,9 +495,8 @@ class ChartPie extends BaseChart {
         series: [data],
       }
       option.tooltip.trigger = 'item'
-      option.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
-      option.tooltip.formatter = function (i) {
-        return `<b>${i.data.name}</b> <br/> ${i.marker} ${i.seriesName} : ${formatThousands(i.data.value)} (${i.percent}%)`
+      option.tooltip.formatter = function (a) {
+        return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
@@ -499,6 +517,7 @@ class ChartFunnel extends BaseChart {
     this.setState({ chartdata: <div className="chart funnel" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
         ...cloneOption(ECHART_BASE),
@@ -515,16 +534,16 @@ class ChartFunnel extends BaseChart {
               show: true,
               position: 'inside',
               formatter: function (a) {
-                return showNumerical ? `${a.data.name} (${formatThousands(a.data.value)})` : a.data.name
+                return showNumerical ? `${a.data.name} (${formatThousands(a.data.value, dataFlags[a.dataIndex])})` : a.data.name
               },
             },
           },
         ],
       }
       option.tooltip.trigger = 'item'
-      option.tooltip.formatter = function (i) {
-        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)}`
-        else return `<b>${i.name}</b> <br/> ${i.marker} ${formatThousands(i.value)}`
+      option.tooltip.formatter = function (a) {
+        if (data.xLabel) return `<b>${a.name}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[a.dataIndex])}`
+        else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
       if (showLegend) option.legend = ECHART_LEGEND_VOPT
 
@@ -545,6 +564,7 @@ class ChartTreemap extends BaseChart {
     const elid = `echarts-treemap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
         ...cloneOption(ECHART_BASE),
@@ -578,14 +598,14 @@ class ChartTreemap extends BaseChart {
         ],
       }
       option.tooltip.trigger = 'item'
-      option.tooltip.formatter = function (i) {
-        const p = i.value > 0 ? ((i.value * 100) / data.xAmount).toFixed(2) : 0
-        return `<b>${i.name.split(LEVELS_SPLIT).join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)} (${p}%)`
+      option.tooltip.formatter = function (a) {
+        const p = a.value > 0 ? ((a.value * 100) / data.xAmount).toFixed(2) : 0
+        return `<b>${a.name.split(LEVELS_SPLIT).join('<br/>')}</b> <br/> ${a.marker} ${data.xLabel} : ${formatThousands(a.value, dataFlags[0])} (${p}%)`
       }
       option.label = {
         formatter: function (a) {
           const ns = a.name.split(LEVELS_SPLIT)
-          return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value)})` : '')
+          return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value, dataFlags[0])})` : '')
         },
       }
 
@@ -668,7 +688,7 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}`}>{item[4]}</a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
@@ -776,7 +796,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -852,6 +872,7 @@ class ChartRadar extends BaseChart {
     this.setState({ chartdata: <div className="chart radar" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       const option = {
         ...cloneOption(ECHART_BASE),
@@ -888,7 +909,7 @@ class ChartRadar extends BaseChart {
             label: {
               show: showNumerical,
               formatter: function (a) {
-                return formatThousands(a.value)
+                return formatThousands(a.value, dataFlags[a.dataIndex])
               },
             },
             lineStyle: {
@@ -905,7 +926,7 @@ class ChartRadar extends BaseChart {
       option.tooltip.formatter = function (a) {
         const tooltip = [`<b>${a.name}</b>`]
         a.value.forEach((item, idx) => {
-          tooltip.push(`${data.indicator[idx].name} : ${formatThousands(item)}`)
+          tooltip.push(`${data.indicator[idx].name} : ${formatThousands(item, dataFlags[a.dataIndex])}`)
         })
         return tooltip.join('<br/>')
       }
@@ -929,6 +950,7 @@ class ChartScatter extends BaseChart {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
+      const dataFlags = data._renderOption.dataFlags || []
 
       const axisOption = {
         splitLine: {
@@ -949,23 +971,10 @@ class ChartScatter extends BaseChart {
         seriesData.push({
           ...item,
           type: 'scatter',
-          // symbolSize: 20,
           symbolSize: function (data) {
             const s = Math.sqrt(~~data[0])
             return Math.max(Math.min(s, 120), 8)
           },
-          // itemStyle: {
-          //   shadowBlur: 10,
-          //   shadowColor: 'rgba(120, 36, 50, 0.5)',
-          //   shadowOffsetY: 5,
-          //   color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
-          //     offset: 0,
-          //     color: 'rgb(251, 118, 123)'
-          //   }, {
-          //     offset: 1,
-          //     color: 'rgb(204, 46, 72)'
-          //   }])
-          // },
           cursor: 'default',
           label: {
             show: showNumerical,
@@ -989,8 +998,8 @@ class ChartScatter extends BaseChart {
         if (a.value.length === 3) {
           tooltip.push(`<b>${a.value[2]}</b>`)
         }
-        tooltip.push(`${data.dataLabel[1]} : ${formatThousands(a.value[1])}`)
-        tooltip.push(`${data.dataLabel[0]} : ${formatThousands(a.value[0])}`)
+        tooltip.push(`${data.dataLabel[0]} : ${formatThousands(a.value[0], dataFlags[0])}`)
+        tooltip.push(`${data.dataLabel[1]} : ${formatThousands(a.value[1], dataFlags[1])}`)
         return tooltip.join('<br>')
       }
       if (showLegend) {
@@ -1043,7 +1052,7 @@ class ProjectTasks extends BaseChart {
                       </label>
                     </td>
                     <td>
-                      <a title={item.taskName} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content">
+                      <a title={item.taskName} href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content">
                         <p className="text-break">
                           [{item.taskNumber}] {item.taskName}
                         </p>
@@ -1221,7 +1230,7 @@ class DataList extends BaseChart {
                   data-id={lastCell.id}
                   onDoubleClick={(e) => {
                     $stopEvent(e, true)
-                    window.open(`${rb.baseUrl}/app/list-and-view?id=${lastCell.id}`)
+                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}`)
                   }}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID

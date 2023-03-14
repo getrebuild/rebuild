@@ -23,6 +23,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.core.support.state.StateSpec;
 import com.rebuild.core.support.task.HeavyTask;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -56,7 +57,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         }
 
         Field nameFiled = entity.getNameField();
-        String sql = String.format("select %s,%s,quickCode from %s",
+        String sql = String.format("select %s,%s,quickCode from %s order by createdOn",
                 entity.getPrimaryField().getName(), nameFiled.getName(), entity.getName());
 
         int pageNo = 1;
@@ -75,20 +76,16 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 
                 try {
                     String quickCodeNew = generateQuickCode(o);
-                    if (quickCodeNew == null) {
-                        continue;
-                    }
-                    if (quickCodeNew.equals(o.getString(EntityHelper.QuickCode))) {
-                        continue;
-                    }
+                    if (quickCodeNew == null) continue;
+                    if (quickCodeNew.equals(o.getString(EntityHelper.QuickCode))) continue;
 
-                    Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER, false);
+                    Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER, Boolean.FALSE);
                     if (StringUtils.isBlank(quickCodeNew)) {
                         record.setNull(EntityHelper.QuickCode);
                     } else {
                         record.setString(EntityHelper.QuickCode, quickCodeNew);
                     }
-                    Application.getCommonsService().update(record, false);
+                    Application.getCommonsService().update(record, Boolean.FALSE);
                     this.addSucceeded();
 
                 } finally {
@@ -96,9 +93,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
                 }
             }
 
-            if (records.size() < PAGE_SIZE || this.isInterrupted()) {
-                break;
-            }
+            if (records.size() < PAGE_SIZE || this.isInterrupted()) break;
         }
 
         this.setTotal(this.getTotal() - 1);
@@ -113,14 +108,10 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
      */
     public static String generateQuickCode(Record record) {
         Entity entity = record.getEntity();
-        if (!entity.containsField(EntityHelper.QuickCode)) {
-            return null;
-        }
+        if (!entity.containsField(EntityHelper.QuickCode)) return null;
 
         Field nameField = entity.getNameField();
-        if (!record.hasValue(nameField.getName(), false)) {
-            return null;
-        }
+        if (!record.hasValue(nameField.getName(), false)) return null;
 
         Object nameValue = record.getObjectValue(nameField.getName());
         DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
@@ -136,16 +127,15 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         } else if (dt == DisplayType.CLASSIFICATION) {
             nameValue = ClassificationManager.instance.getFullName((ID) nameValue);
         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-            nameValue = CalendarUtils.getPlainDateTimeFormat().format(nameValue);
+            nameValue = CalendarUtils.getPlainDateFormat().format(nameValue);
+        } else if (dt == DisplayType.LOCATION) {
+            nameValue = nameValue.toString().split(CommonsUtils.COMM_SPLITER_RE)[0];
         } else {
             nameValue = null;
         }
 
-        if (nameValue != null) {
-            return generateQuickCode((String) nameValue);
-        } else {
-            return null;
-        }
+        if (nameValue == null) return null;
+        return generateQuickCode((String) nameValue);
     }
 
     /**
@@ -197,7 +187,6 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
             }
         }
 
-        if (quickCode.length() > 50) quickCode = quickCode.substring(0, 50);
-        return quickCode.toUpperCase();
+        return CommonsUtils.maxstr(quickCode, 50).toUpperCase();
     }
 }

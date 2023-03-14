@@ -9,6 +9,7 @@ package com.rebuild.core.service;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.i18n.Language;
 
 /**
  * 无效记录
@@ -24,7 +25,13 @@ public class NoRecordFoundException extends RebuildException {
     }
 
     public NoRecordFoundException(ID record) {
-        super("No record : " + record.toLiteral());
+        this(record, Boolean.FALSE);
+    }
+
+    public NoRecordFoundException(ID record, boolean i18n) {
+        this(i18n
+                ? Language.L("无权读取此记录或记录已被删除")
+                : ("No Record found : " + record.toLiteral()));
     }
 
     public NoRecordFoundException(String msg, Throwable cause) {

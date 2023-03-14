@@ -17,6 +17,7 @@ import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.general.RecordAccessor;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,9 @@ public class ProjectCommentService extends BaseTaskService {
     private int checkAtUserAndNotification(Record record, String content) {
         if (StringUtils.isBlank(content)) return 0;
 
-        final String msg = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
+        final String msgContent = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
+        ID related = record.getID("taskId");
+        if (related == null) related = (ID) new RecordAccessor(record.getPrimary()).getValue("taskId");
 
         ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;
@@ -85,7 +88,7 @@ public class ProjectCommentService extends BaseTaskService {
             if (sent != null) continue;
 
             Application.getNotifications().send(
-                    MessageBuilder.createMessage(to, msg, Message.TYPE_PROJECT, record.getPrimary()));
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_PROJECT, related));
             send++;
         }
         return send;

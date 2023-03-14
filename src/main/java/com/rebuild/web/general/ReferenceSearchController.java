@@ -9,7 +9,6 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.RespBody;
@@ -44,7 +43,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 引用字段搜索
@@ -62,15 +65,8 @@ public class ReferenceSearchController extends EntityController {
     @GetMapping({"reference", "quick"})
     public JSON referenceSearch(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String field = getParameterNotNull(request, "field");
 
-        Field referenceField = entity.getField(field);
-        if (!(referenceField.getType() == FieldType.REFERENCE || referenceField.getType() == FieldType.REFERENCE_LIST)) {
-            log.warn("Unsupportted type of field : {}", referenceField);
-            return JSONUtils.EMPTY_ARRAY;
-        }
-
-        // 查询引用字段的实体
+        Field referenceField = entity.getField(getParameterNotNull(request, "field"));
         Entity searchEntity = referenceField.getReferenceEntity();
 
         // 引用字段数据过滤
@@ -78,7 +74,7 @@ public class ReferenceSearchController extends EntityController {
         if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
 
         String protocolFilter = new ProtocolFilterParser(null)
-                .parseRef(field + "." + entity.getName(), cascadingValue);
+                .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
         String q = getParameter(request, "q");
 
@@ -155,8 +151,8 @@ public class ReferenceSearchController extends EntityController {
         return (JSON) JSON.toJSON(result);
     }
 
-    // 搜索分类字段
     /**
+     * 搜索分类字段
      * @see PicklistDataController#fetchClassification(HttpServletRequest)
      */
     @GetMapping("classification")

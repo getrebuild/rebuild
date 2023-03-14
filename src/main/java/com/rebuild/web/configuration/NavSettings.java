@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -108,5 +109,18 @@ public class NavSettings extends BaseController implements ShareTo {
 
         Object[][] alist = Application.createQueryNoFilter(sql).array();
         return RespBody.ok(alist);
+    }
+
+    @GetMapping("nav-settings/topnav")
+    public RespBody getsTopNav() {
+        String s = KVStorage.getCustomValue("TopNav32");
+        return RespBody.ok(s == null ? null : JSON.parseArray(s));
+    }
+
+    @PostMapping("nav-settings/topnav")
+    public RespBody setsTopNav(HttpServletRequest request) {
+        String s = ServletUtils.getRequestString(request);
+        KVStorage.setCustomValue("TopNav32", s);
+        return RespBody.ok();
     }
 }

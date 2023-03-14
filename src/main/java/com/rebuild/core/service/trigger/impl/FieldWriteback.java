@@ -45,7 +45,15 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * 字段更新，场景 1>1 1>N
@@ -328,7 +336,7 @@ public class FieldWriteback extends FieldAggregation {
                 // 高级公式（会涉及各种类型的运算）
                 // @see AggregationEvaluator#evalFormula
                 else {
-                    String clearFormual = useCode
+                    String clearFormula = useCode
                             ? sourceAny.substring(4, sourceAny.length() - 4)
                             : sourceAny
                                 .replace("×", "*")
@@ -343,14 +351,14 @@ public class FieldWriteback extends FieldAggregation {
                         String replaceWhitQuoteSingle = "'" + replace + "'";
                         boolean forceUseQuote = false;
 
-                        if (clearFormual.contains(replaceWhitQuote)) {
-                            clearFormual = clearFormual.replace(replaceWhitQuote, fieldName);
+                        if (clearFormula.contains(replaceWhitQuote)) {
+                            clearFormula = clearFormula.replace(replaceWhitQuote, fieldName);
                             forceUseQuote = true;
-                        } else if (clearFormual.contains(replaceWhitQuoteSingle)) {
-                            clearFormual = clearFormual.replace(replaceWhitQuoteSingle, fieldName);
+                        } else if (clearFormula.contains(replaceWhitQuoteSingle)) {
+                            clearFormula = clearFormula.replace(replaceWhitQuoteSingle, fieldName);
                             forceUseQuote = true;
-                        } else if (clearFormual.contains(replace)) {
-                            clearFormual = clearFormual.replace(replace, fieldName);
+                        } else if (clearFormula.contains(replace)) {
+                            clearFormula = clearFormula.replace(replace, fieldName);
                         } else {
                             continue;
                         }
@@ -368,14 +376,14 @@ public class FieldWriteback extends FieldAggregation {
                             } else {
                                 value = StringUtils.EMPTY;
                             }
-                        } else if (forceUseQuote) {
+                        } else if (value instanceof ID || forceUseQuote) {
                             value = value.toString();
                         }
 
                         envMap.put(fieldName, value);
                     }
 
-                    Object newValue = AviatorUtils.eval(clearFormual, envMap, false);
+                    Object newValue = AviatorUtils.eval(clearFormula, envMap, false);
 
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();

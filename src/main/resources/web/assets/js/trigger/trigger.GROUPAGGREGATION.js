@@ -299,6 +299,7 @@ class ContentGroupAggregation extends ActionContentSpec {
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => {
               let stf = $s2tgf.val()
+              if (!stf) return
               stf = this.state.targetGroupFields.find((x) => x[0] === stf)
 
               // 仅同类型的字段

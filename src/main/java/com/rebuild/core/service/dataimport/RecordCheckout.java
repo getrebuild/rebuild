@@ -26,7 +26,11 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEmail;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyPhone;
+import com.rebuild.core.metadata.easymeta.EasyUrl;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.query.QueryHelper;
@@ -38,7 +42,13 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 从 Cell[] 中解析结果 Record
@@ -288,21 +298,17 @@ public class RecordCheckout {
     }
 
     protected Long checkoutMultiSelectValue(Field field, Cell cell) {
-        final String val = cell.asString();
-
         long mVal = 0;
-        for (String s : val.split(MVAL_SPLIT)) {
+        for (String s : cell.asString().split(MVAL_SPLIT)) {
             mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
         }
         return mVal == 0 ? null : mVal;
     }
 
     protected String checkoutFileOrImage(Cell cell) {
-        final String val = cell.asString();
-
         List<String> urls = new ArrayList<>();
-        for (String s : val.split(MVAL_SPLIT)) {
-            if (EasyUrl.isUrl(s)) urls.add(s);
+        for (String s : cell.asString().split(MVAL_SPLIT)) {
+            if (EasyUrl.isUrl(s) || s.startsWith("rb/")) urls.add(s);
         }
         return urls.isEmpty() ? null : JSON.toJSON(urls).toString();
     }

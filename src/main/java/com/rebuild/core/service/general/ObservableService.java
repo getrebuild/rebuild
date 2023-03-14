@@ -33,7 +33,6 @@ import java.util.*;
  * @see OperatingObserver
  * @since 12/28/2018
  */
-@SuppressWarnings("deprecation")
 @Slf4j
 public abstract class ObservableService extends Observable implements ServiceSpec {
 

@@ -9,17 +9,23 @@ package com.rebuild.web.admin.metadata;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityOverview;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
@@ -29,6 +35,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -45,8 +52,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Zixin (RB)
@@ -288,5 +297,59 @@ public class MetaEntityController extends BaseController {
     @GetMapping("entity/entity-tags")
     public RespBody entityTags() {
         return RespBody.ok(MetadataHelper.getEntityTags());
+    }
+
+    @GetMapping("entities/sheet")
+    public ModelAndView pageSheet(HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entities-sheet");
+
+        String spec = getParameter(request, "e");
+        Set<String> specList = null;
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(spec)) {
+            specList = new HashSet<>();
+            for (String s : spec.split(",")) specList.add(s.trim().toUpperCase());
+        }
+
+        List<Object[]> entities = new ArrayList<>();
+        for (Entity e : MetadataHelper.getEntities()) {
+            if (specList != null && !specList.contains(e.getName().toUpperCase())) continue;
+
+            final EasyEntity ee = EasyMetaFactory.valueOf(e);
+            if (ee.isBuiltin() && !MetadataHelper.isBizzEntity(e)) continue;
+
+            List<Object[]> fields = new ArrayList<>();
+            fields.add(new Object[]
+                    { "ID", e.getName() + "Id", DisplayType.ID.getDisplayName(), "-", "-", "N/N/N/N" });
+
+            for (Field f : MetadataSorter.sortFields(e)) {
+                final EasyField ef = EasyMetaFactory.valueOf(f);
+                final DisplayType dt = ef.getDisplayType();
+
+                String ref = "-";
+                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+                    ref = "e:" + f.getReferenceEntity().getName();
+                } else if (dt == DisplayType.CLASSIFICATION) {
+                    ID cid = ClassificationManager.instance.getUseClassification(f, Boolean.FALSE);
+                    ref = "c:" + FieldValueHelper.getLabelNotry(cid);
+                }
+
+                String opt = "-";
+                if (dt == DisplayType.PICKLIST) {
+                    ConfigBean[] cbs = PickListManager.instance.getPickListRaw(f, Boolean.TRUE);
+                    List<String> texts = new ArrayList<>();
+                    for (ConfigBean cb : cbs) texts.add(cb.getID("id") + ":" + cb.getString("text"));
+                    opt = org.apache.commons.lang3.StringUtils.join(texts, "//");
+                }
+
+                fields.add(new Object[] {
+                        ef.getLabel(), f.getName(), ef.getDisplayType().getDisplayName(), ref, opt,
+                        (ef.isCreatable() ? "Y" : "N") + (ef.isUpdatable() ? "/Y" : "/N") + (ef.isNullable() ? "/Y" : "/N") + (ef.isRepeatable() ? "/Y" : "/N") });
+            }
+
+            entities.add(new Object[] { e.getName(), e.getEntityCode(), ee.getLabel(), fields });
+        }
+
+        mv.getModel().put("entities", entities);
+        return mv;
     }
 }

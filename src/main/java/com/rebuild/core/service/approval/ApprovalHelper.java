@@ -64,7 +64,7 @@ public class ApprovalHelper {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
                 EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
         if (o == null) {
-            throw new NoRecordFoundException(Language.L("无权读取此记录或记录已被删除"));
+            throw new NoRecordFoundException(recordId, Boolean.TRUE);
         }
         return new ApprovalStatus((ID) o[0], (String) o[1], (Integer) o[2], (String) o[3], recordId);
     }

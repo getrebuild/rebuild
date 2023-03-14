@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -22,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -277,14 +279,44 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             format = StringUtils.rightPad(format, format.length() + numerical.getScale(), "0");
         }
 
-        if (useThousands) {
-            format = "#," + format;
+        if (useThousands) format = "#," + format;
+
+        if (ID.isId(value)) value = 1;
+
+        String n = new DecimalFormat(format).format(value);
+        if (useThousands) n = formatAxisValue(numerical, n);
+        return n;
+    }
+
+    /**
+     * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
+     */
+    private String formatAxisValue(Numerical numerical, String value) {
+        String type = getNumericalFlag(numerical);
+        if (type == null) return value;
+
+        if ("%".equals(type)) value += "%";
+        else if (type.contains("%s")) value = String.format(type, value);
+        else value = type + " " + value;
+        return value;
+    }
+
+    /**
+     * @see com.rebuild.core.metadata.easymeta.EasyDecimal#wrapValue(Object)
+     */
+    protected String getNumericalFlag(Numerical numerical) {
+        if (numerical.getField().getType() != FieldType.DECIMAL) return null;
+
+        if (!(numerical.getFormatCalc() == FormatCalc.SUM
+                || numerical.getFormatCalc() == FormatCalc.AVG
+                || numerical.getFormatCalc() == FormatCalc.MIN
+                || numerical.getFormatCalc() == FormatCalc.MAX)) {
+            return null;
         }
 
-        if (ID.isId(value)) {
-            value = 1;
-        }
-        return new DecimalFormat(format).format(value);
+        String type = EasyMetaFactory.valueOf(numerical.getField()).getExtraAttr(EasyFieldConfigProps.DECIMAL_TYPE);
+        if (type == null || "0".equalsIgnoreCase(type)) return null;
+        else return type;
     }
 
     /**
@@ -324,7 +356,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
 
             if (useRefLink && axisType == DisplayType.REFERENCE
                     && ID.valueOf(value.toString()).getEntityCode() > 100) {
-                label = String.format("<a href='/app/list-and-view?id=%s'>%s</a>", value, label);
+                label = String.format("<a href='/app/redirect?id=%s'>%s</a>", value, label);
             }
 
         } else {

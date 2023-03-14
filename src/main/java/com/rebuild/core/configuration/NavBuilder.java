@@ -8,9 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.PageTokenVerify;
@@ -22,9 +24,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
@@ -276,14 +280,30 @@ public class NavBuilder extends NavManager {
         }
     }
 
+    @Override
+    protected String getConfigFields() {
+        return "configId,shareTo,createdBy,config,configName,createdBy.roleId";
+    }
+
     // -- PORTAL RENDER
 
     /**
+     * 左侧菜单
+     *
      * @param request
      * @param activeNav
      * @return
      */
     public static String renderNav(HttpServletRequest request, String activeNav) {
+        try {
+            return renderNav2(request, activeNav);
+        } catch (Exception ex) {
+            log.error("Error on `renderNav`", ex);
+            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+        }
+    }
+
+    static String renderNav2(HttpServletRequest request, String activeNav) {
         if (activeNav == null) activeNav = "dashboard-home";
         
         JSONArray navs = License.isCommercial()
@@ -297,14 +317,7 @@ public class NavBuilder extends NavManager {
         return navsHtml.toString();
     }
 
-    /**
-     * 渲染导航菜單
-     *
-     * @param item
-     * @param activeNav
-     * @return
-     */
-    protected static String renderNavItem(JSONObject item, String activeNav) {
+    static String renderNavItem(JSONObject item, String activeNav) {
         final String navType = item.getString("type");
         final boolean isUrlType = "URL".equals(navType);
         String navName = item.getString("value");
@@ -414,19 +427,70 @@ public class NavBuilder extends NavManager {
         return navHtml.toString();
     }
 
-    // TODO 目前仅处理了默认导航
-
-    @SuppressWarnings("SameParameterValue")
-    private static JSONArray replaceLang(JSONArray resource) {
-        JSONArray clone = (JSONArray) resource.clone();
+    private static JSONArray replaceLang(JSONArray items) {
+        JSONArray clone = (JSONArray) items.clone();
         for (Object o : clone) {
             replaceLang((JSONObject) o);
         }
         return clone;
     }
 
+    // TODO 目前仅处理了默认导航
     private static void replaceLang(JSONObject item) {
         String text = item.getString("text");
         item.put("text", Language.L(text));
+    }
+
+    /**
+     * 顶部菜单
+     *
+     * @param request
+     * @return
+     */
+    public static String renderTopNav(HttpServletRequest request) {
+        try {
+            return renderTopNav2(request);
+        } catch (Exception ex) {
+            log.error("Error on `renderTopNav`", ex);
+            return "<!-- ERROR : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage() + " -->";
+        }
+    }
+
+    static String renderTopNav2(HttpServletRequest request) {
+        String topNav = KVStorage.getCustomValue("TopNav32");
+        if (!JSONUtils.wellFormat(topNav)) return StringUtils.EMPTY;
+
+        JSONArray sets = JSON.parseArray(topNav);
+        if (sets.isEmpty()) return StringUtils.EMPTY;
+
+        final ID user = AppUtils.getRequestUser(request);
+        final boolean isAdmin = UserHelper.isAdmin(user);
+        final Object[][] alls = instance.getAllConfig(null, TYPE_NAV);
+
+        StringBuilder topNavHtml = new StringBuilder();
+
+        for (Object nd : sets) {
+            JSONArray ndAnd = (JSONArray) nd;
+            String nav = ndAnd.getString(0);
+            String dash = ndAnd.getString(1);
+
+            ID useNav = ID.isId(nav) ? ID.valueOf(nav) : null;
+            if (useNav == null) continue;
+
+            for (Object[] d : alls) {
+                if (!useNav.equals(d[0])) continue;
+                // 管理员、有共享的
+                if ((isAdmin && RoleService.ADMIN_ROLE.equals(d[5])) || instance.isShareTo((String) d[1], user)) {
+                    String url = AppUtils.getContextPath("/app/home?n=" + useNav);
+                    if (ID.isId(dash)) url += "&d=" + dash;
+                    String name = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));
+
+                    topNavHtml.append(
+                            String.format("<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link\" href=\"%s\">%s</a></li>", useNav, url, name));
+                    break;
+                }
+            }
+        }
+        return topNavHtml.toString();
     }
 }
