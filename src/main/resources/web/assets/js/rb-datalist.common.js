@@ -634,7 +634,9 @@ const RbListCommon = {
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
-    $('.J_new').on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    $('.J_new')
+      .attr('disabled', false)
+      .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
