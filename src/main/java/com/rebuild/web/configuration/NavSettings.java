@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.NavManager;
@@ -27,6 +28,7 @@ import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -119,8 +121,30 @@ public class NavSettings extends BaseController implements ShareTo {
 
     @PostMapping("nav-settings/topnav")
     public RespBody setsTopNav(HttpServletRequest request) {
+        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error();
+
         String s = ServletUtils.getRequestString(request);
         KVStorage.setCustomValue("TopNav32", s);
+        return RespBody.ok();
+    }
+
+    @PostMapping("nav-settings/nav-copyto")
+    public RespBody navCopyTo(@RequestBody JSONObject post, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        if (!UserHelper.isAdmin(user)) return RespBody.error();
+
+        final ID from  = ID.valueOf(post.getString("from"));
+        final JSON config = NavManager.instance.getLayoutById(from).getJSON("config");
+
+        for (Object s : post.getJSONArray("copyTo")) {
+            ID to = ID.isId(s) ? ID.valueOf(s.toString()) : null;
+            if (to == null || from.equals(to)) continue;
+
+            Record record = EntityHelper.forUpdate(to, user);
+            record.setString("config", config.toJSONString());
+            Application.getBean(LayoutConfigService.class).createOrUpdate(record);
+        }
+
         return RespBody.ok();
     }
 }

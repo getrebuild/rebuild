@@ -890,7 +890,7 @@ class ListAdvFilter extends AdvFilter {
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={() => this.handleNew()}>
-                  {$L('保存常用查询')}
+                  {$L('保存到常用查询')}
                 </a>
               </div>
             </div>
