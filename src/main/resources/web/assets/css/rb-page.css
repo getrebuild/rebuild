@@ -298,7 +298,7 @@ a.link.inline {
 
 .btn-group.w-auto > .btn,
 .btn.w-auto {
-  min-width: 36px !important;
+  min-width: 34px !important;
 }
 
 a.btn {
@@ -779,7 +779,6 @@ body.dialog .main-content {
 
 .dialog-footer .btn {
   margin-left: 5px;
-  min-width: 98px;
 }
 
 .dialog-footer > .float-left > .custom-control {
@@ -3938,7 +3937,7 @@ a.icon-link > .zmdi {
   }
 
   .btn {
-    min-width: 88px;
+    min-width: 78px;
   }
 
   /* .page-aside {
@@ -4748,8 +4747,6 @@ pre.unstyle {
 }
 
 .protable .table .col-action {
-  width: 88px;
-  min-width: 88px;
   padding-right: 0;
   text-align: right;
   width: 48px;
