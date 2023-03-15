@@ -172,6 +172,17 @@ class DlgMode1Option extends RbFormHandler {
               </div>
             </div>
           </div>
+          <div className="form-group row bosskey-show">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部“常用查询”')}</label>
+            <div className="col-sm-9">
+              <div className="switch-button switch-button-xs">
+                <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
+                <span>
+                  <label htmlFor="advListFilterTabs" />
+                </span>
+              </div>
+            </div>
+          </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部“查询面板”')}</label>
             <div className="col-sm-9">
@@ -281,6 +292,7 @@ class DlgMode1Option extends RbFormHandler {
       advListHideFilters: !$val('#advListHideFilters'),
       advListHideCharts: !$val('#advListHideCharts'),
       advListFilterPane: $val('#advListFilterPane'),
+      advListFilterTabs: $val('#advListFilterTabs'),
     }
 
     if (this.state.advListShowCategory) {

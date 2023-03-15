@@ -41,6 +41,11 @@
           </div>
         </aside>
         <div class="main-content container-fluid">
+          <div class="quick-filter-tabs" th:if="${advListFilterTabs == 'true'}">
+            <div>
+              <div class="dropdown-item"><a>[[${bundle.L('全部数据')}]]</a></div>
+            </div>
+          </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
             <div class="ph-item rb"></div>
             <span></span>

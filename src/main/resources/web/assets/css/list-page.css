@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
   padding: 3px 18px 12px;
   margin-bottom: 12px;
-  border-radius: 3px;
+  border-radius: 2px;
   min-height: 63px;
 }
 
@@ -110,4 +110,40 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-pane .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   min-width: 114px;
+}
+
+/* filter tabs */
+
+.quick-filter-tabs {
+  background-color: #fff;
+  padding: 0 18px;
+  margin-bottom: 12px;
+  border-radius: 2px;
+}
+
+.quick-filter-tabs > div {
+  font-size: 0;
+}
+
+.quick-filter-tabs > div .dropdown-item {
+  display: inline-block;
+  width: auto;
+  line-height: 1;
+  padding: 15px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.quick-filter-tabs > div .dropdown-item:active {
+  background-color: #f5f5f5;
+  color: unset;
+}
+
+.quick-filter-tabs > div .dropdown-item.active {
+  background-color: var(--rb-theme-color);
+  border-radius: 2px;
+}
+
+.quick-filter-tabs > div .dropdown-item.active:active {
+  color: #fff;
 }

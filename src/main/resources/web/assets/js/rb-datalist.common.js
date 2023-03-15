@@ -114,18 +114,20 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('#asideFilters').length > 0) {
+      if ($('#asideFilters, .quick-filter-tabs').length > 0) {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
         $ghost.removeAttr('data-ps-id')
-        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail, .action').remove()
         $ghost.find('.dropdown-item').on('click', function () {
           $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
           that._effectFilter($(this), 'aside')
         })
-        $ghost.appendTo($('#asideFilters').empty())
+
+        $ghost.clone(true).appendTo($('#asideFilters').empty())
+        $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -139,6 +141,14 @@ const AdvFilters = {
     if (rel === 'aside') {
       const current = this.current
       $('#asideFilters .dropdown-item')
+        .removeClass('active')
+        .each(function () {
+          if ($(this).data('id') === current) {
+            $(this).addClass('active')
+            return false
+          }
+        })
+      $('.quick-filter-tabs .dropdown-item')
         .removeClass('active')
         .each(function () {
           if ($(this).data('id') === current) {
@@ -804,8 +814,9 @@ class RbList extends React.Component {
 
       $addResizeHandler(() => {
         let mh = $(window).height() - 210 + 5
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 38 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 75 // Has query-pane
+        if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
+        if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 55 // Has query-tabs
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
