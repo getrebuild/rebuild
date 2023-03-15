@@ -2291,6 +2291,16 @@ th.column-fixed {
   padding-right: 10px;
 }
 
+.aside-2tree li > a > .icon {
+  color: #54aeff;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.aside-2tree li.active > a > .icon {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
 /* AdvFilter */
 
 .adv-search .dropdown-item div.action a {

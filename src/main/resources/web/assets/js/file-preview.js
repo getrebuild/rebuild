@@ -307,20 +307,15 @@ class RbPreview extends React.Component {
 
 // ~ 共享
 const EXPIRES_TIME = [
-  [5, 5 + $L('分钟')],
-  [30, 30 + $L('分钟')],
   [60, 1 + $L('小时')],
   [360, 6 + $L('小时')],
   [720, 12 + $L('小时')],
   [1440, 1 + $L('天')],
   [4320, 3 + $L('天')],
+  [10080, 7 + $L('天')],
 ]
 
 class FileShare extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide={true}>
@@ -375,7 +370,7 @@ class FileShare extends RbModalHandler {
   }
 
   _changeTime = (e) => {
-    const t = e ? ~~e.target.dataset.time : 5
+    const t = e ? ~~e.target.dataset.time : EXPIRES_TIME[0][0]
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
       $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {

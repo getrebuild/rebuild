@@ -16,7 +16,7 @@ class AsideTree extends React.Component {
   }
 
   render() {
-    return <div className={`aside-2tree ${this.props.hideCollapse && 'hide-collapse'}`}>{this.renderTree(this.props.data || [])}</div>
+    return <div className={`aside-2tree ${this.props.hideCollapse ? 'hide-collapse' : ''}`}>{this.renderTree(this.props.data || [])}</div>
   }
 
   renderTree(items, item) {
@@ -43,7 +43,7 @@ class AsideTree extends React.Component {
     return (
       <li className={this.state.activeItem === item.id ? 'active' : ''}>
         <span
-          className={`collapse-icon ${!hasChild && 'no-child'}`}
+          className={`collapse-icon ${hasChild ? '' : 'no-child'}`}
           onClick={() => {
             if (hasChild) {
               const expandItemsNew = this.state.expandItems
@@ -51,20 +51,22 @@ class AsideTree extends React.Component {
               this.setState({ expandItems: expandItemsNew })
             }
           }}>
-          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) && 'open'} `} />
+          <i className={`zmdi zmdi-chevron-right ${this.state.expandItems.contains(item.id) ? 'open' : ''} `} />
         </span>
         <a
           data-id={item.id}
-          className={`text-ellipsis ${item.disabled && 'text-disabled'}`}
+          className={`text-ellipsis ${item.disabled ? 'text-disabled' : ''}`}
           title={item.disabled ? $L('已禁用') : null}
           onClick={() => {
             this.setState({ activeItem: item.id }, () => {
               typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
             })
           }}>
+          {this.props.icon && <i className={`icon ${this.props.icon}`} />}
           {item.text || item.name}
-          {item.private === true && <i className="icon zmdi zmdi-lock" title={$L('私有')} />}
-          {!!item.specUsers && <i className="icon zmdi zmdi-account" title={$L('指定用户')} />}
+
+          {item.private === true && <i className="icon flag zmdi zmdi-lock" title={$L('私有')} />}
+          {!!item.specUsers && <i className="icon flag zmdi zmdi-account" title={$L('指定用户')} />}
         </a>
         {typeof this.props.extrasAction === 'function' && this.props.extrasAction(item)}
       </li>

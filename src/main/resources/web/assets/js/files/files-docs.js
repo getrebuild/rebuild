@@ -27,6 +27,7 @@ const FolderTree = {
 
       renderRbcomp(
         <AsideTree
+          icon="mdi mdi-folder"
           data={__FolderData}
           activeItem={__DEFAULT_ALL}
           onItemClick={(item) => {
@@ -423,7 +424,7 @@ class FilesList4Docs extends FilesList {
     return (
       <RF>
         <span className="fop">
-          <a title={$L('下载')} className="fs-15" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+          <a title={$L('下载')} className="fs-16" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
             <i className="icon zmdi zmdi-download" />
           </a>
           {rb.fileSharable && (
