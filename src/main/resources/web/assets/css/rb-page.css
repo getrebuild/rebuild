@@ -2056,6 +2056,32 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.form-line.hover fieldset legend::before {
+  font: normal normal normal 18px/1 'Material-Design-Iconic-Font';
+  content: '\f2f9';
+  width: 9px;
+  display: inline-block;
+  float: left;
+  margin-right: 3px;
+  text-align: center;
+}
+
+.form-line.hover.collapsed fieldset legend::before {
+  content: '\f2fb';
+}
+
+.form-line.v33 {
+  background-color: #ebebeb;
+  border-radius: 2px;
+  height: 34px;
+  margin-bottom: 11px;
+  margin-top: 11px;
+}
+
+.form-line.v33 fieldset legend {
+  background-color: transparent;
+}
+
 .form-line-breaked {
   height: 0;
   font-size: 0;
