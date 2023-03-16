@@ -129,7 +129,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: inline-block;
   width: auto;
   line-height: 1;
-  padding: 15px 16px;
+  padding: 15px 18px;
   font-size: 1rem;
   cursor: pointer;
 }
@@ -141,7 +141,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-tabs > div .dropdown-item.active {
   background-color: var(--rb-theme-color);
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .quick-filter-tabs > div .dropdown-item.active:active {
