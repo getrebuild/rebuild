@@ -3543,11 +3543,6 @@ form {
   overflow: hidden;
 }
 
-.page-aside.widgets .nav-tabs > li.nav-item a.nav-link {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
 .page-aside.widgets .tab-container {
   margin-top: 2px;
   min-width: 279px;
@@ -5023,7 +5018,8 @@ pre.unstyle {
 
 .navbar-collapse .nav-item .nav-link {
   position: relative;
-  padding: 0 20px;
+  padding: 0 20px !important;
+  max-width: 200px;
 }
 
 .navbar-collapse .nav-item.active .nav-link::after {

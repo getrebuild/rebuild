@@ -488,7 +488,7 @@ public class NavBuilder extends NavManager {
                     String name = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));
 
                     topNavHtml.append(
-                            String.format("<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link\" href=\"%s\">%s</a></li>", useNav, url, name));
+                            String.format("<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>", useNav, url, name));
                     break;
                 }
             }
