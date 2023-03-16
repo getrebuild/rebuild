@@ -2391,7 +2391,7 @@ class RbFormLocation extends RbFormElement {
           lnglat={lnglat}
           title={$L('选取位置')}
           onConfirm={(lnglat) => {
-            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng},${lnglat.lat}` : null
+            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng || 0},${lnglat.lat || 0}` : null
             that.handleChange({ target: { value: val } }, true)
           }}
         />,

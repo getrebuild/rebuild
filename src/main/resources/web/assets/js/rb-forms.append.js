@@ -443,7 +443,7 @@ class BaiduMapModal extends RbModal {
                                 $stopEvent(e, true)
                                 this._suggestUpDown(e.which)
                               } else if (e.which === 13) {
-                                let $active = $(this._$suggestion).find('.active')
+                                const $active = $(this._$suggestion).find('.active')
                                 if ($active[0] && $active.text()) {
                                   this._suggestSelect({ address: $active.text(), location: $active.data('location') })
                                 }
@@ -564,6 +564,12 @@ class BaiduMapModal extends RbModal {
     $(this._$searchValue).val(item.address)
     this._BaiduMap.center(item.location)
     this.setState({ suggestion: [] })
+
+    this._latlngValue = {
+      lat: item.location.lat,
+      lng: item.location.lng,
+      text: item.address,
+    }
   }
 
   _suggestUpDown(key) {

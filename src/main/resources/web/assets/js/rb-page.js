@@ -548,7 +548,6 @@ var $fileCutName = function (fileName) {
  * 获取附件文件扩展名
  */
 var $fileExtName = function (fileName) {
-  debugger
   fileName = (fileName || '').toLowerCase()
   fileName = fileName.split('?')[0]
   fileName = fileName.split('.')
