@@ -903,7 +903,7 @@ class RbList extends React.Component {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
           this._clearSelected()
-          $(this._$scroller).scrollTop(0)
+          $(this._$scroller).scrollTop(0) //.perfectScrollbar('update')
         })
 
         if (reload && this._Pagination) {
@@ -1198,6 +1198,9 @@ class RbListPagination extends React.Component {
               <option value="500">500</option>
             </select>
           </div>
+          <div className="float-right paging_sizes">
+            <input className="form-control form-control-sm text-center" title={$L('页码')} placeholder={$L('页码')} onKeyDown={this.setPageNo} />
+          </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
             <ul className="pagination mb-0">
               {this.state.pageNo > 1 && (
@@ -1286,10 +1289,17 @@ class RbListPagination extends React.Component {
     })
   }
 
+  setPageNo = (e) => {
+    const pn = ~~e.target.value
+    if (e.keyCode === 13 && pn && pn > 0) {
+      this.goto(Math.min(pn, this.__pageTotal))
+    }
+  }
+
   setPageSize = (e) => {
-    const s = e.target.value
-    this.setState({ pageSize: s, pageNo: 1 }, () => {
-      this.props.$$$parent.setPage(1, s)
+    const ps = ~~e.target.value
+    this.setState({ pageSize: ps, pageNo: 1 }, () => {
+      this.props.$$$parent.setPage(1, ps)
     })
   }
 }

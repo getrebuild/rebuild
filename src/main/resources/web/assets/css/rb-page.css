@@ -2495,15 +2495,15 @@ div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
 
 .dataTables_wrapper .paging_sizes {
   padding-top: 2px;
-  padding-left: 9px;
+  padding-left: 8px;
 }
 
-.dataTables_wrapper .paging_sizes select {
+.dataTables_wrapper .paging_sizes .form-control {
   padding: 4px 6px;
-  width: 50px;
+  width: 45px;
 }
 
-.dataTables_wrapper .paging_sizes select,
+.dataTables_wrapper .paging_sizes .form-control,
 .dataTables_wrapper .paging_simple_numbers .page-link {
   height: 36px !important;
 }
