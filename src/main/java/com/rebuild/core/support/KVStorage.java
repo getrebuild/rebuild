@@ -165,7 +165,7 @@ public class KVStorage {
     private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
 
     static {
-        THROTTLED_TIMER.scheduleAtFixedRate(new TimerTask() {
+        final TimerTask localTimerTask = new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -184,6 +184,13 @@ public class KVStorage {
                     log.error(null, ex);
                 }
             }
-        }, 1000, 1000);
+        };
+
+        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 2000, 2000);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("The KVStorage shutdown hook is enabled");
+            localTimerTask.run();
+        }));
     }
 }
