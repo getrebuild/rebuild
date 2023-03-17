@@ -2057,13 +2057,16 @@ th.column-fixed {
 }
 
 .form-line.hover fieldset legend::before {
-  font: normal normal normal 18px/1 'Material-Design-Iconic-Font';
+  font-family: 'Material-Design-Iconic-Font', serif;
+  font-size: 1.4rem;
   content: '\f2f9';
-  width: 9px;
+  width: 10px;
   display: inline-block;
   float: left;
   margin-right: 3px;
   text-align: center;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 .form-line.hover.collapsed fieldset legend::before {
@@ -2073,9 +2076,10 @@ th.column-fixed {
 .form-line.v33 {
   background-color: #ebebeb;
   border-radius: 2px;
-  height: 34px;
+  height: 38px;
   margin-bottom: 11px;
   margin-top: 11px;
+  padding-top: 2px;
 }
 
 .form-line.v33 fieldset legend {
