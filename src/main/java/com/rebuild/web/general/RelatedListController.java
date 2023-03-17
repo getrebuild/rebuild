@@ -25,11 +25,11 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -146,7 +146,7 @@ public class RelatedListController extends BaseController {
             Set<String> searchFields = ParseHelper.buildQuickFields(relatedEntity, null);
 
             if (!searchFields.isEmpty()) {
-                String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
+                String like = " like '%" + CommonsUtils.escapeSql(q) + "%'";
                 String searchWhere = " and ( " + StringUtils.join(searchFields.iterator(), like + " or ") + like + " )";
                 where += searchWhere;
             }

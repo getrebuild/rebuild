@@ -25,10 +25,10 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -103,7 +103,7 @@ public class FileListController extends BaseController {
 
         List<String> sqlWhere = new ArrayList<>();
         if (StringUtils.isNotBlank(q)) {
-            sqlWhere.add(String.format("filePath like '%%%s%%'", StringEscapeUtils.escapeSql(q)));
+            sqlWhere.add(String.format("filePath like '%%%s%%'", CommonsUtils.escapeSql(q)));
         }
 
         // 附件
