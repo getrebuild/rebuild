@@ -50,4 +50,8 @@ public class EasyEntityConfigProps {
      * 列表查询面板
      */
     public static final String ADV_LIST_FILTERPANE = "advListFilterPane";
+    /**
+     * 列表查询页签
+     */
+    public static final String ADV_LIST_FILTERTABS = "advListFilterTabs";
 }

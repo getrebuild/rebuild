@@ -13,6 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
@@ -85,7 +86,7 @@ public class CommonsUtils {
     /**
      * @param text
      * @return
-     * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
+     * @see StringEscapeUtils#escapeHtml(String)
      */
     public static String escapeHtml(Object text) {
         if (text == null || StringUtils.isBlank(text.toString())) {
@@ -99,6 +100,17 @@ public class CommonsUtils {
                 .replace("'", "&apos;")
                 .replace(">", "&gt;")
                 .replace("<", "&lt;");
+    }
+
+    /**
+     * @param text
+     * @return
+     * @see StringEscapeUtils#escapeSql(String)
+     */
+    public static String escapeSql(String text) {
+        // https://github.com/getrebuild/rebuild/issues/594
+        text = text.replace("\\'", "'");
+        return StringEscapeUtils.escapeSql(text);
     }
 
     /**

@@ -275,10 +275,10 @@ class CopyRoleTo extends RbModalHandler {
       <RbModal title={$L('复制角色')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('复制给哪些角色')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('复制到哪些角色')}</label>
             <div className="col-sm-7">
               <UserSelector hideDepartment hideUser hideTeam ref={(c) => (this._UserSelector = c)} />
-              <p className="form-text">{$L('将当前角色权限复制给选择的角色，选择角色的原有权限会被完全覆盖')}</p>
+              <p className="form-text">{$L('将当前角色权限复制到选择的角色中，选择角色的原有权限会被完全覆盖')}</p>
             </div>
           </div>
         </div>

@@ -41,6 +41,11 @@
           </div>
         </aside>
         <div class="main-content container-fluid">
+          <div class="quick-filter-tabs" th:if="${advListFilterTabs == 'true'}">
+            <div>
+              <div class="dropdown-item"><a>[[${bundle.L('全部数据')}]]</a></div>
+            </div>
+          </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
             <div class="ph-item rb"></div>
             <span></span>
@@ -88,7 +93,7 @@
                     <div class="dataTables_oper">
                       <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
                       <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('编辑')}]]</button>
-                      <button class="btn btn-space btn-primary J_new" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]</button>
+                      <button class="btn btn-space btn-primary J_new" type="button" disabled="disabled"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]</button>
                       <div class="btn-group btn-space J_action">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">

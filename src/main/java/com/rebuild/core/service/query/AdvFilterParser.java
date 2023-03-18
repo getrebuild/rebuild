@@ -29,9 +29,9 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
@@ -587,7 +587,7 @@ public class AdvFilterParser extends SetUser {
         if (NumberUtils.isNumber(val) && isNumberType(type)) {
             return val;
         } else if (StringUtils.isNotBlank(val)) {
-            return String.format("'%s'", StringEscapeUtils.escapeSql(val));
+            return String.format("'%s'", CommonsUtils.escapeSql(val));
         }
         return "''";
     }

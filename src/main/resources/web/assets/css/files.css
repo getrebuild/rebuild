@@ -44,7 +44,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .file-list .file-list-item {
   background-color: #fff;
   border-bottom: 1px solid #e6e6e6;
-  padding: 10px 20px;
+  padding: 9px 20px;
   display: table;
   width: 100%;
   cursor: default;
@@ -199,15 +199,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: bold;
 }
 
-.aside-2tree li > a > .icon {
+.aside-2tree li > a > .icon.flag {
   font-size: 12px;
   color: #aaa;
+  margin: 0;
   margin-left: 6px;
   cursor: help;
-}
-
-.aside-2tree li.active > a > .icon {
-  color: #fff;
 }
 
 .file-list-striped .file-list-item:nth-of-type(odd) > div.type .file-icon::before {

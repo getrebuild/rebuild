@@ -11,7 +11,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.I18nUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -31,10 +31,10 @@ public class ConfigCommons {
      */
     public static Object[][] queryListOfConfig(String sql, String belongEntity, String q) {
         if (StringUtils.isNotBlank(belongEntity) && !"$ALL$".equalsIgnoreCase(belongEntity)) {
-            sql = sql.replace("(1=1)", "belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'");
+            sql = sql.replace("(1=1)", "belongEntity = '" + CommonsUtils.escapeSql(belongEntity) + "'");
         }
         if (StringUtils.isNotBlank(q)) {
-            sql = sql.replace("(2=2)", "name like '%" + StringEscapeUtils.escapeSql(q) + "%'");
+            sql = sql.replace("(2=2)", "name like '%" + CommonsUtils.escapeSql(q) + "%'");
         }
 
         Object[][] array = Application.createQuery(sql).setLimit(500).array();

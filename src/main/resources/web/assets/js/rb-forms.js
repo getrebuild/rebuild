@@ -2391,7 +2391,7 @@ class RbFormLocation extends RbFormElement {
           lnglat={lnglat}
           title={$L('选取位置')}
           onConfirm={(lnglat) => {
-            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng},${lnglat.lat}` : null
+            const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng || 0},${lnglat.lat || 0}` : null
             that.handleChange({ target: { value: val } }, true)
           }}
         />,
@@ -2578,31 +2578,34 @@ class RbFormUnsupportted extends RbFormElement {
 class RbFormDivider extends React.Component {
   constructor(props) {
     super(props)
+    this.state = { collapsed: false }
   }
 
   render() {
     if (this.props.breaked === true) {
       return <div className="form-line-breaked"></div>
     }
+
     return (
-      <div className="form-line hover" ref={(c) => (this._$formLine = c)}>
+      <div className={`form-line hover -v33 ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
         <fieldset>
-          {this.props.label && (
-            <legend onClick={() => this.toggle()} className="text-bold" title={$L('展开/收起')}>
-              {this.props.label}
-            </legend>
-          )}
+          <legend onClick={() => this.toggle()} title={$L('展开/收起')}>
+            {this.props.label || ''}
+          </legend>
         </fieldset>
       </div>
     )
   }
 
   toggle() {
+    let collapsed = null
     let $next = $(this._$formLine)
     while (($next = $next.next()).length > 0) {
       if ($next.hasClass('form-line') || $next.hasClass('footer')) break
       $next.toggleClass('hide')
+      if (collapsed === null) collapsed = $next.hasClass('hide')
     }
+    this.setState({ collapsed })
   }
 }
 

@@ -293,12 +293,12 @@ a.link.inline {
 
 .btn {
   min-height: 2.8rem;
-  min-width: 98px;
+  min-width: 88px;
 }
 
 .btn-group.w-auto > .btn,
 .btn.w-auto {
-  min-width: 36px !important;
+  min-width: 34px !important;
 }
 
 a.btn {
@@ -779,7 +779,6 @@ body.dialog .main-content {
 
 .dialog-footer .btn {
   margin-left: 5px;
-  min-width: 98px;
 }
 
 .dialog-footer > .float-left > .custom-control {
@@ -2057,6 +2056,36 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.form-line.hover fieldset legend::before {
+  font-family: 'Material-Design-Iconic-Font', serif;
+  font-size: 1.4rem;
+  content: '\f2f9';
+  width: 10px;
+  display: inline-block;
+  float: left;
+  margin-right: 3px;
+  text-align: center;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.form-line.hover.collapsed fieldset legend::before {
+  content: '\f2fb';
+}
+
+.form-line.v33 {
+  background-color: #ebebeb;
+  border-radius: 2px;
+  height: 38px;
+  margin-bottom: 11px;
+  margin-top: 11px;
+  padding-top: 2px;
+}
+
+.form-line.v33 fieldset legend {
+  background-color: transparent;
+}
+
 .form-line-breaked {
   height: 0;
   font-size: 0;
@@ -2269,7 +2298,7 @@ th.column-fixed {
   text-align: center;
   font-size: 1.2rem;
   border-radius: 2px;
-  width: 24px;
+  width: 22px;
   display: none;
 }
 
@@ -2289,6 +2318,16 @@ th.column-fixed {
 .aside-2tree.hide-collapse ul li > a {
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.aside-2tree li > a > .icon {
+  color: #54aeff;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.aside-2tree li.active > a > .icon {
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 /* AdvFilter */
@@ -2486,15 +2525,15 @@ div.dataTables_wrapper div.dataTables_filter .dropdown-menu-advfilter input {
 
 .dataTables_wrapper .paging_sizes {
   padding-top: 2px;
-  padding-left: 9px;
+  padding-left: 8px;
 }
 
-.dataTables_wrapper .paging_sizes select {
+.dataTables_wrapper .paging_sizes .form-control {
   padding: 4px 6px;
-  width: 50px;
+  width: 45px;
 }
 
-.dataTables_wrapper .paging_sizes select,
+.dataTables_wrapper .paging_sizes .form-control,
 .dataTables_wrapper .paging_simple_numbers .page-link {
   height: 36px !important;
 }
@@ -3534,11 +3573,6 @@ form {
   overflow: hidden;
 }
 
-.page-aside.widgets .nav-tabs > li.nav-item a.nav-link {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
 .page-aside.widgets .tab-container {
   margin-top: 2px;
   min-width: 279px;
@@ -3925,10 +3959,6 @@ a.icon-link > .zmdi {
   .input-search,
   .input-search input {
     width: 212px;
-  }
-
-  .btn {
-    min-width: 88px;
   }
 
   /* .page-aside {
@@ -4738,8 +4768,6 @@ pre.unstyle {
 }
 
 .protable .table .col-action {
-  width: 88px;
-  min-width: 88px;
   padding-right: 0;
   text-align: right;
   width: 48px;
@@ -5020,7 +5048,8 @@ pre.unstyle {
 
 .navbar-collapse .nav-item .nav-link {
   position: relative;
-  padding: 0 20px;
+  padding: 0 20px !important;
+  max-width: 200px;
 }
 
 .navbar-collapse .nav-item.active .nav-link::after {

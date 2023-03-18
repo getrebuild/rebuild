@@ -17,7 +17,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEmail;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyPhone;
+import com.rebuild.core.metadata.easymeta.EasyUrl;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -103,6 +107,8 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
     // --
 
     /**
+     * 生成助记码
+     *
      * @param record
      * @return
      */
@@ -111,7 +117,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         if (!entity.containsField(EntityHelper.QuickCode)) return null;
 
         Field nameField = entity.getNameField();
-        if (!record.hasValue(nameField.getName(), false)) return null;
+        if (!record.hasValue(nameField.getName(), Boolean.FALSE)) return null;
 
         Object nameValue = record.getObjectValue(nameField.getName());
         DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
@@ -139,10 +145,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
     }
 
     /**
-     * 你好世界 - NHSJ
-     * HelloWorld - HW
-     * hello world - HW
-     * 43284327432 - ""
+     * 生成助记码
      *
      * @param nameVal
      * @return
@@ -159,34 +162,22 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         // 忽略数字或小字母
         if (nameVal.matches("[a-z0-9]+")) return StringUtils.EMPTY;
 
-        String quickCode = StringUtils.EMPTY;
+        String quickCode = nameVal;
 
-        // 仅包含字母数字或空格
         if (nameVal.matches("[a-zA-Z0-9\\s]+")) {
-            // 提取英文单词的首字母
-            String[] asplit = nameVal.split("(?=[A-Z\\s])");
-            if (asplit.length == 1) {
-                quickCode = nameVal;
-            } else {
-                StringBuilder sb = new StringBuilder();
-                for (String a : asplit) {
-                    if (a.trim().length() > 0) {
-                        sb.append(a.trim(), 0, 1);
-                    }
-                }
-                quickCode = sb.toString();
-            }
-
+            // 仅包含字母数字或空格
         } else {
-            // 拼音首字母
-            nameVal = nameVal.replaceAll(" ", "");
+            // v3.3 拼音全拼
             try {
-                quickCode = HanLP.convertToPinyinFirstCharString(nameVal, "", false);
+                quickCode = HanLP.convertToPinyinString(nameVal, "", Boolean.FALSE);
             } catch (Exception e) {
                 log.error("QuickCode shorting error : " + nameVal, e);
+                quickCode = StringUtils.EMPTY;
             }
         }
 
+        // 去除空格
+        quickCode = quickCode.replaceAll(" ", "");
         return CommonsUtils.maxstr(quickCode, 50).toUpperCase();
     }
 }

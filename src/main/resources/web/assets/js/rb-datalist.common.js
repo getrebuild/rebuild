@@ -114,18 +114,20 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('#asideFilters').length > 0) {
+      if ($('#asideFilters, .quick-filter-tabs').length > 0) {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
         $ghost.removeAttr('data-ps-id')
-        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail, .action').remove()
         $ghost.find('.dropdown-item').on('click', function () {
           $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
           that._effectFilter($(this), 'aside')
         })
-        $ghost.appendTo($('#asideFilters').empty())
+
+        $ghost.clone(true).appendTo($('#asideFilters').empty())
+        $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -139,6 +141,14 @@ const AdvFilters = {
     if (rel === 'aside') {
       const current = this.current
       $('#asideFilters .dropdown-item')
+        .removeClass('active')
+        .each(function () {
+          if ($(this).data('id') === current) {
+            $(this).addClass('active')
+            return false
+          }
+        })
+      $('.quick-filter-tabs .dropdown-item')
         .removeClass('active')
         .each(function () {
           if ($(this).data('id') === current) {
@@ -634,7 +644,9 @@ const RbListCommon = {
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
-    $('.J_new').on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    $('.J_new')
+      .attr('disabled', false)
+      .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
@@ -802,8 +814,9 @@ class RbList extends React.Component {
 
       $addResizeHandler(() => {
         let mh = $(window).height() - 210 + 5
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 38 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 75 // Has query-pane
+        if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
+        if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 55 // Has query-tabs
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
@@ -890,7 +903,7 @@ class RbList extends React.Component {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
           this._clearSelected()
-          $(this._$scroller).scrollTop(0)
+          $(this._$scroller).scrollTop(0) //.perfectScrollbar('update')
         })
 
         if (reload && this._Pagination) {
@@ -1185,6 +1198,9 @@ class RbListPagination extends React.Component {
               <option value="500">500</option>
             </select>
           </div>
+          <div className="float-right paging_sizes">
+            <input className="form-control form-control-sm text-center" title={$L('页码')} placeholder={$L('页码')} onKeyDown={this.setPageNo} />
+          </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
             <ul className="pagination mb-0">
               {this.state.pageNo > 1 && (
@@ -1273,10 +1289,17 @@ class RbListPagination extends React.Component {
     })
   }
 
+  setPageNo = (e) => {
+    const pn = ~~e.target.value
+    if (e.keyCode === 13 && pn && pn > 0) {
+      this.goto(Math.min(pn, this.__pageTotal))
+    }
+  }
+
   setPageSize = (e) => {
-    const s = e.target.value
-    this.setState({ pageSize: s, pageNo: 1 }, () => {
-      this.props.$$$parent.setPage(1, s)
+    const ps = ~~e.target.value
+    this.setState({ pageSize: ps, pageNo: 1 }, () => {
+      this.props.$$$parent.setPage(1, ps)
     })
   }
 }
