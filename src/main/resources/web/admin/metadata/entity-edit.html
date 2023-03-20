@@ -75,17 +75,8 @@
                   </div>
                 </div>
                 <th:block th:if="${currentEntity == mainEntity}">
-                  <div class="form-group row bosskey-show">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">Not Co-Editing</label>
-                    <div class="col-md-12 col-xl-6 col-lg-8">
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                        <input class="custom-control-input" type="checkbox" id="notCoEditing" />
-                        <span class="custom-control-label"> [[${bundle.L('是')}]]</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="form-group row bosskey-show">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">Details Not Allow Empty</label>
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('明细不允许为空')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                         <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />

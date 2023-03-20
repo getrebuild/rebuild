@@ -596,7 +596,7 @@ class RbForm extends React.Component {
       const details = this._ProTable.buildFormData()
       if (!details) return
 
-      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty === true) {
+      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty) {
         RbHighbar.create($L('请添加明细'))
         return
       }
