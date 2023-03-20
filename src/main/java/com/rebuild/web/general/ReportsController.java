@@ -82,32 +82,32 @@ public class ReportsController extends BaseController {
                                @IdParam(name = "report") ID reportId,
                                @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File file = null;
+        File output = null;
         try {
-            file = new EasyExcelGenerator(reportId, recordId).generate();
+            output = new EasyExcelGenerator(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }
 
-        RbAssert.is(file != null, Language.L("无法输出报表，请检查报表模板是否有误"));
+        RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        final String output = getParameter(request, "output");
+        final String outputType = getParameter(request, "output");
         // PDF
-        if ("pdf".equals(output) || isOnlyPdf(entity, reportId)) {
-            file = PdfConverter.convert(file.toPath()).toFile();
+        if ("pdf".equals(outputType) || isOnlyPdf(entity, reportId)) {
+            output = PdfConverter.convert(output.toPath()).toFile();
         }
 
-        final String fileName = getReportName(entity, reportId, recordId, file);
+        final String fileName = getReportName(entity, reportId, recordId, output);
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
-                    new String[] { "fileKey", "fileName" }, new Object[] { file.getName(), fileName });
+                    new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
             writeSuccess(response, data);
 
-        } else if ("preview".equalsIgnoreCase(output)) {
+        } else if ("preview".equalsIgnoreCase(outputType)) {
             String fileUrl = String.format(
                     "/filex/download/%s?temp=yes&_onceToken=%s",
-                    CodecUtils.urlEncode(file.getName()), AuthTokenManager.generateOnceToken(null));
+                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
             String previewUrl = StringUtils.defaultIfBlank(
@@ -118,7 +118,7 @@ public class ReportsController extends BaseController {
             response.sendRedirect(previewUrl);
 
         } else {
-            FileDownloader.downloadTempFile(response, file, fileName);
+            FileDownloader.downloadTempFile(response, output, fileName);
         }
     }
 
@@ -151,6 +151,8 @@ public class ReportsController extends BaseController {
             } else {
                 output = exporter.export(reportType);
             }
+
+            RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
             
             String fileName;
             if (useReport == null) {

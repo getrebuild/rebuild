@@ -118,13 +118,13 @@ class ReporEditor extends ConfigFormDlg {
                 <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
 
                 {(this.state.invalidVars || []).length > 0 && (
-                  <div className="invalid-vars mt-3">
+                  <div className="invalid-vars mt-2 mr-3">
                     <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
                   </div>
                 )}
               </div>
             </div>
-            <div className="form-group row pt-1">
+            <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right" />
               <div className="col-sm-7">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
@@ -134,6 +134,12 @@ class ReporEditor extends ConfigFormDlg {
                     <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
                   </span>
                 </label>
+
+                {this.state.invalidMsg && (
+                  <div className="invalid-vars mt-2 mr-3">
+                    <RbAlertBox message={this.state.invalidMsg} />
+                  </div>
+                )}
               </div>
             </div>
           </RF>
@@ -211,35 +217,57 @@ class ReporEditor extends ConfigFormDlg {
     const outputType = this.props.outputType || 'excel'
     if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
     if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
+
+    if (!this.props.id) {
+      const $pw = $(`<a class="btn btn-secondary ml-2">${$L('预览')}</a>`)
+      $(this._btns).find('.btn-primary').after($pw)
+      $pw.on('click', () => {
+        if (this.props.id) {
+          window.open(`./report-templates/preview?id=${this.props.id}`)
+        } else {
+          const ps = this._buildParams()
+          if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
+          window.open(`./report-templates/preview?${ps}`)
+        }
+      })
+    }
   }
 
   // 检查模板
   checkTemplate() {
-    const entity = this.__select2.val()
-    const list = $(this._$listType).find('input').prop('checked')
-    const file = this.__lastFile
-    if (!file || !entity) return
+    const ps = this._buildParams()
+    if (ps === false) return
 
-    $.get(`/admin/data/report-templates/check-template?file=${file}&entity=${entity}&list=${list}`, (res) => {
-      $mp.end()
+    $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
       if (res.error_code === 0) {
-        const fileName = $fileCutName(file)
+        const fileName = $fileCutName(this.__lastFile)
         this.setState({
-          templateFile: file,
+          templateFile: this.__lastFile,
           uploadFileName: fileName,
           name: this.state.name || fileName,
           invalidVars: res.data.invalidVars,
+          invalidMsg: res.data.invalidMsg,
         })
       } else {
         this.setState({
           templateFile: null,
           uploadFileName: null,
           invalidVars: null,
+          invalidMsg: null,
         })
         this.__lastFile = null
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+
+  _buildParams() {
+    const entity = this.__select2.val()
+    const file = this.__lastFile
+    if (!file || !entity) return false
+
+    const list = $(this._$listType).find('input').prop('checked')
+    return `file=${$encode(file)}&entity=${entity}&list=${list}`
   }
 
   confirm = () => {

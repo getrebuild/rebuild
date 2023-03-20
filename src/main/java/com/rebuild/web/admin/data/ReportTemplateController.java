@@ -24,12 +24,12 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -87,6 +87,17 @@ public class ReportTemplateController extends BaseController {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
+        String invalidMsg = null;
+        if (isList) {
+            invalidMsg = Language.L("这可能不是一个有效的列表模板");
+            for (String varName : vars.keySet()) {
+                if (varName.startsWith(TemplateExtractor.NROW_PREFIX)) {
+                    invalidMsg = null;
+                    break;
+                }
+            }
+        }
+
         Set<String> invalidVars = new HashSet<>();
         for (Map.Entry<String, String> e : vars.entrySet()) {
             String varName = e.getKey();
@@ -102,35 +113,51 @@ public class ReportTemplateController extends BaseController {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
-        return RespBody.ok(JSONUtils.toJSONObject("invalidVars", invalidVars));
+        JSON res = JSONUtils.toJSONObject(
+                new String[] { "invalidVars", "invalidMsg" },
+                new Object[] { invalidVars, invalidMsg });
+        return RespBody.ok(res);
     }
 
     @GetMapping("/report-templates/preview")
-    public void preview(@IdParam ID reportId, HttpServletResponse response) throws IOException {
-        Object[] report = Application.createQueryNoFilter(
-                "select belongEntity,templateType from DataReportConfig where configId = ?")
-                .setParameter(1, reportId)
-                .unique();
-        Entity entity = MetadataHelper.getEntity((String) report[0]);
+    public void preview(@IdParam(required = false) ID reportId,
+                        HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String entity = getParameter(request, "entity");
+        String template = getParameter(request, "file");
+        boolean isList = getBoolParameter(request, "list");
+
+        // 使用配置
+        if (reportId != null) {
+            Object[] report = Application.createQueryNoFilter(
+                    "select belongEntity,templateType,template from DataReportConfig where configId = ?")
+                    .setParameter(1, reportId)
+                    .unique();
+            entity = (String) report[0];
+            template = (String) report[2];
+            isList = ObjectUtils.toInt(report[1]) == DataReportManager.TYPE_LIST;
+        }
+
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+        File templateFile = RebuildConfiguration.getFileOfData(template);
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
-                entity.getPrimaryField().getName(), entity.getName());
+                entityMeta.getPrimaryField().getName(), entityMeta.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, Language.L("未找到可供预览的记录"));
             return;
         }
 
-        File file;
+        File output;
         try {
             // 列表报表
-            if (ObjectUtils.toInt(report[1]) == DataReportManager.TYPE_LIST) {
+            if (isList) {
                 JSONObject queryData = JSONUtils.toJSONObject(
                         new String[] { "pageSize", "entity" },
-                        new Object[] { 2, report[0] });
-                file = new EasyExcelListGenerator(reportId, queryData).generate();
+                        new Object[] { 2, entity });
+                output = new EasyExcelListGenerator(templateFile, queryData).generate();
             } else {
-                file = new EasyExcelGenerator(reportId, (ID) random[0]).generate();
+                output = new EasyExcelGenerator(templateFile, (ID) random[0]).generate();
             }
 
         } catch (ConfigurationException ex) {
@@ -138,7 +165,8 @@ public class ReportTemplateController extends BaseController {
             return;
         }
 
-        FileDownloader.downloadTempFile(response, file, null);
+        RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
+        FileDownloader.downloadTempFile(response, output, null);
     }
 
     @GetMapping("/report-templates/download")
