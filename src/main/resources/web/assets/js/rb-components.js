@@ -254,7 +254,7 @@ class RbAlert extends React.Component {
     const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
-      <div className="text-center ml-6 mr-6" ref={(c) => (this._element = c)}>
+      <div className="text-center ml-6 mr-6">
         <div className={`text-${type}`}>
           <i className={`modal-main-icon zmdi zmdi-${icon}`} />
         </div>
