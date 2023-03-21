@@ -95,7 +95,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         } else if (ec == EntityHelper.Feeds || ec == EntityHelper.FeedsComment
                 || ec == EntityHelper.ProjectTask || ec == EntityHelper.ProjectTaskComment
                 || ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role || ec == EntityHelper.Team) {
-            removeFieldIfUnSafe(record);
+            removeFieldIfSafeCheck(record);
         }
         
         EntityHelper.bindCommonsFieldsValue(record, record.getPrimary() == null);
@@ -177,7 +177,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     Language.L("%s 格式不正确", StringUtils.join(notWells, " / ")));
         }
 
-        if (safeCheck) removeFieldIfUnSafe(record);
+        removeFieldIfSafeCheck(record);
 
         // TODO 检查引用字段的ID是否正确（是否是其他实体的ID）
 
@@ -214,7 +214,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 字段值安全检查
-    private void removeFieldIfUnSafe(Record record) {
+    private void removeFieldIfSafeCheck(Record record) {
+        if (!safeCheck) return;
+
         for (String fieldName : record.getAvailableFields()) {
             EasyField field = EasyMetaFactory.valueOf(entity.getField(fieldName));
             Object value = record.getObjectValue(fieldName);
