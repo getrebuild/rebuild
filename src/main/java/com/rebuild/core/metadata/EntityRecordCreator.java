@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -41,13 +42,26 @@ import java.util.regex.Pattern;
 @Slf4j
 public class EntityRecordCreator extends JsonRecordCreator {
 
+    private boolean safeCheck;
+
     /**
      * @param entity
      * @param source
      * @param editor
      */
     public EntityRecordCreator(Entity entity, JSONObject source, ID editor) {
+        this(entity, source, editor, Boolean.TRUE);
+    }
+
+    /**
+     * @param entity
+     * @param source
+     * @param editor
+     * @param safeCheck
+     */
+    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safeCheck) {
         super(entity, source, editor);
+        this.safeCheck = safeCheck;
     }
 
     @Override
@@ -74,8 +88,16 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     protected void afterCreate(Record record) {
-        // 业务实体才验证
-        if (MetadataHelper.isBusinessEntity(entity)) verify(record);
+        int ec = entity.getEntityCode();
+        // 记录验证
+        if (MetadataHelper.isBusinessEntity(entity)) {
+            verify(record);
+        } else if (ec == EntityHelper.Feeds || ec == EntityHelper.FeedsComment
+                || ec == EntityHelper.ProjectTask || ec == EntityHelper.ProjectTaskComment
+                || ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role || ec == EntityHelper.Team) {
+            removeFieldIfSafeCheck(record);
+        }
+        
         EntityHelper.bindCommonsFieldsValue(record, record.getPrimary() == null);
     }
 
@@ -112,7 +134,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                         }
                     } else {
                         if (!isForceCreateable(field)) {
-                            log.warn("Remove non-creatable field : " + field);
+                            log.warn("Remove non-creatable field : {}", field);
                             record.removeValue(field.getName());
                         }
                     }
@@ -139,7 +161,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
-                        log.warn("Remove non-updatable field : " + field);
+                        log.warn("Remove non-updatable field : {}", field);
                         record.removeValue(fieldName);
                     }
                 }
@@ -155,6 +177,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     Language.L("%s 格式不正确", StringUtils.join(notWells, " / ")));
         }
 
+        removeFieldIfSafeCheck(record);
+
         // TODO 检查引用字段的ID是否正确（是否是其他实体的ID）
 
     }
@@ -169,9 +193,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     // 强制可新建
     private boolean isForceCreateable(Field field) {
+        // DTF 字段
         if (isDtmField(field)) return true;
 
-        // 自定定位
+        // 自动定位的
         EasyField easyField = EasyMetaFactory.valueOf(field);
         if (easyField.getDisplayType() == DisplayType.LOCATION) {
             return BooleanUtils.toBoolean(easyField.getExtraAttr(EasyFieldConfigProps.LOCATION_AUTOLOCATION));
@@ -181,11 +206,40 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 正则匹配
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean patternMatches(EasyField easyField, Object val) {
         if (!(easyField instanceof EasyText)) return true;
 
         Pattern patt = ((EasyText) easyField).getPattern();
         return patt == null || patt.matcher((CharSequence) val).matches();
+    }
+
+    // 字段值安全检查
+    private void removeFieldIfSafeCheck(Record record) {
+        if (!safeCheck) return;
+
+        for (String fieldName : record.getAvailableFields()) {
+            EasyField field = EasyMetaFactory.valueOf(entity.getField(fieldName));
+            Object value = record.getObjectValue(fieldName);
+            if (NullValue.isNull(value)) continue;
+
+            // 不能外链
+            // https://github.com/getrebuild/rebuild/issues/596
+            if (field.getDisplayType() == DisplayType.IMAGE
+                    || field.getDisplayType() == DisplayType.FILE
+                    || field.getDisplayType() == DisplayType.AVATAR) {
+
+                String s = value.toString().toLowerCase();
+                boolean unsafe = s.contains("http://") || s.contains("https://");
+                if (!unsafe) {
+                    s = CodecUtils.urlDecode(s);
+                    unsafe = s.contains("http://") || s.contains("https://");
+                }
+
+                if (unsafe) {
+                    log.warn("Remove not-safe field : {} < {}", field.getRawMeta(), value);
+                    record.removeValue(fieldName);
+                }
+            }
+        }
     }
 }

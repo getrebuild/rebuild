@@ -30,7 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据导入
@@ -155,7 +159,7 @@ public class DataImporter extends HeavyTask<Integer> {
         // Verify new record
         // Throws DataSpecificationException
         if (checkout.getPrimary() == null) {
-            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null)
+            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null, Boolean.FALSE)
                     .verify(checkout);
         }
 
