@@ -376,15 +376,17 @@ class BatchUpdate extends BatchOperator {
                 <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
+                      <span className="badge badge-warning">{field.label}</span>
+                    </div>
+                    <div className="col-2 pl-0 pr-0">
+                      <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                    </div>
+                    <div className="col-6">
+                      {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
                       <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close" />
                       </a>
-                      <span className="badge badge-light">{field.label}</span>
                     </div>
-                    <div className="col-2 pl-0 pr-0">
-                      <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
-                    </div>
-                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, field)}</span>}</div>
                   </div>
                 </div>
               )

@@ -44,7 +44,9 @@
         <div class="main-content container-fluid pt-1">
           <ul th:if="${fieldType == 'REFERENCE'} and ${!fieldBuildin}" class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('字段信息')}]]</a></li>
-            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('表单回填')}]]</a></li>
+            <li class="nav-item">
+              <a th:href="|${fieldName}/auto-fillin|" class="nav-link"><span th:classappend="${hasAutoFillin ? 'indicator' : ''}">[[${bundle.L('表单回填')}]]</span></a>
+            </li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
