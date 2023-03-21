@@ -115,10 +115,10 @@ $(document).ready(() => {
 
         const tip = $this.find('.J_tip').attr('title')
         if (tip) item.tip = tip
-        item.__newLabel = $this.find('span').text()
-        if (item.__newLabel === $this.data('label')) delete item.__newLabel
         const height = $this.attr('data-height')
         if (height) item.height = height
+        item.__newLabel = $this.find('span').text() || null
+        item.__newNullable = !$this.hasClass('not-nullable')
 
         AdvControl.cfgAppend(item)
       }
@@ -209,10 +209,6 @@ const render_item = function (data) {
       .appendTo($action)
       .on('click', function () {
         const _onConfirm = function (nv) {
-          // 字段名
-          if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
-          else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
-
           // 填写提示
           let $tip = $item.find('.dd-handle>span>i')
           if (!nv.fieldTips) {
@@ -224,6 +220,14 @@ const render_item = function (data) {
 
           // NTEXT 高度
           if (data.displayTypeName === 'NTEXT') $item.find('.dd-handle').attr('data-height', nv.fieldHeight || '')
+
+          // 字段名称
+          if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
+          else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
+
+          // 允许为空
+          if (nv.fieldNullable) $item.find('.dd-handle').removeClass('not-nullable')
+          else $item.find('.dd-handle').addClass('not-nullable')
         }
 
         const ov = {
@@ -231,6 +235,8 @@ const render_item = function (data) {
           fieldLabel: $item.find('.dd-handle>span').text(),
           fieldLabelOld: $item.find('.dd-handle').data('label'),
           fieldHeight: $item.find('.dd-handle').attr('data-height') || null,
+          fieldNullable: !$item.find('.dd-handle').hasClass('not-nullable'),
+          field: $item.find('.dd-handle').data('field'),
         }
         // if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
@@ -305,6 +311,8 @@ class DlgEditField extends RbAlert {
   constructor(props) {
     super(props)
     this.state = { ...props }
+
+    console.log(props)
   }
 
   renderContent() {
@@ -329,9 +337,7 @@ class DlgEditField extends RbAlert {
           </div>
         )}
         <div className="form-group">
-          <label>
-            {$L('字段名称')} <span>({$L('部分内置字段不能修改')})</span>
-          </label>
+          <label>{$L('字段名称')}</label>
           <input
             type="text"
             className="form-control form-control-sm"
@@ -342,10 +348,19 @@ class DlgEditField extends RbAlert {
             maxLength="100"
           />
         </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked={this.props.fieldNullable} name="fieldNullable" onChange={this.handleChange} />
+            <span className="custom-control-label">{$L('允许为空')}</span>
+          </label>
+        </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
           </button>
+          <a className="btn btn-link" href={`./field/${this.props.field}`} target="_blank">
+            {$L('更多配置')}
+          </a>
         </div>
       </form>
     )

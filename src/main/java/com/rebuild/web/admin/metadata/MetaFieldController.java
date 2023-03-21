@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.metadata;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -35,7 +36,11 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -123,7 +128,6 @@ public class MetaFieldController extends BaseController {
         mv.getModel().put("fieldQueryable", fieldMeta.isQueryable());
         mv.getModel().put("fieldBuildin", easyField.isBuiltin());
         mv.getModel().put("fieldDefaultValue", fieldMeta.getDefaultValue());
-        mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
         // 明细实体
         if (easyEntity.getRawMeta().getMainEntity() != null) {
@@ -141,6 +145,15 @@ public class MetaFieldController extends BaseController {
             mv.getModel().put("fieldRefentityLabel", EasyMetaFactory.getLabel(refEntity));
         }
 
+        if (ft == FieldType.REFERENCE && !easyField.isBuiltin()) {
+            Object[] hasAutoFillin = Application.createQueryNoFilter(
+                    "select count(configId) from AutoFillinConfig where belongEntity = ? and belongField = ?")
+                    .setParameter(1, entity)
+                    .setParameter(2, field)
+                    .unique();
+            mv.getModel().put("hasAutoFillin", ObjectUtils.toInt(hasAutoFillin[0]) > 0);
+        }
+
         // 扩展配置
         JSONObject extraAttrs = new JSONObject();
         for (Map.Entry<String, Object> e : easyField.getExtraAttrs(true).entrySet()) {
@@ -149,6 +162,8 @@ public class MetaFieldController extends BaseController {
             if (!name.startsWith("_")) extraAttrs.put(name, e.getValue());
         }
         mv.getModel().put("fieldExtConfig", extraAttrs);
+
+        mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
         return mv;
     }
@@ -176,7 +191,7 @@ public class MetaFieldController extends BaseController {
 
         } else if (dt == DisplayType.STATE) {
             if (!StateHelper.isStateClass(stateClass)) {
-                return RespBody.errorl("无效状态类 (Enum)");
+                return RespBody.errorl("无效状态类 (StateSpec)");
             }
 
             extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_CLASS, stateClass);

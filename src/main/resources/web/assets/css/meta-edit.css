@@ -250,3 +250,18 @@ select.underline-sm {
 select.underline-sm:focus {
   border-color: #4285f4;
 }
+
+.main-content > .nav-tabs-classic > li.nav-item a.nav-link > span.indicator {
+  display: inline-block;
+  width: auto;
+}
+
+.main-content > .nav-tabs-classic > li.nav-item a.nav-link > span.indicator::after {
+  content: '';
+  background-color: #fbbc05;
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+  float: right;
+  margin-left: 3px;
+}

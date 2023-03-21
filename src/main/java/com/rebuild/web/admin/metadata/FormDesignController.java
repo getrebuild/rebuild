@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.FormsManager;
@@ -25,24 +26,21 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Zixin (RB)
  * @since 08/19/2018
  */
-@Controller
+@RestController
 @RequestMapping("/admin/entity/{entity}/")
 public class FormDesignController extends BaseController {
 
@@ -60,22 +58,36 @@ public class FormDesignController extends BaseController {
     }
 
     @RequestMapping({"form-update"})
-    public void sets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
+    public RespBody sets(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
 
-        // 修改字段名称
-        Map<String, String> newLabels = new HashMap<>();
         JSONArray config = ((JSONObject) formJson).getJSONArray("config");
+
+        // 修改字段属性
+        List<Record> willUpdates = new ArrayList<>();
+        Entity entityMeta = MetadataHelper.getEntity(entity);
         for (Object o : config) {
             JSONObject item = (JSONObject) o;
             String newLabel = item.getString("__newLabel");
-            if (StringUtils.isNotBlank(newLabel)) {
-                newLabels.put(item.getString("field"), newLabel);
-            }
+            Boolean newNullable = item.getBoolean("__newNullable");
             item.remove("__newLabel");
+            item.remove("__newNullable");
+
+            EasyField fieldEasy = EasyMetaFactory.valueOf(entityMeta.getField(item.getString("field")));
+            if (fieldEasy.getMetaId() == null) continue;
+
+            Record fieldRecord = EntityHelper.forUpdate(fieldEasy.getMetaId(), user, Boolean.FALSE);
+            if (StringUtils.isNotBlank(newLabel) && !newLabel.equals(fieldEasy.getLabel())) {
+                fieldRecord.setString("fieldLabel", newLabel);
+            }
+            if (newNullable != null && newNullable != fieldEasy.isNullable()) {
+                fieldRecord.setBoolean("nullable", newNullable);
+            }
+
+            if (!fieldRecord.isEmpty()) willUpdates.add(fieldRecord);
         }
+
         ((JSONObject) formJson).put("config", config);
 
         Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
@@ -84,24 +96,11 @@ public class FormDesignController extends BaseController {
         }
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        if (!newLabels.isEmpty()) {
-            List<Record> willUpdate = new ArrayList<>();
-            Entity entityMeta = MetadataHelper.getEntity(entity);
-            for (Map.Entry<String, String> e : newLabels.entrySet()) {
-                EasyField fieldEasy = EasyMetaFactory.valueOf(entityMeta.getField(e.getKey()));
-                if (fieldEasy.getMetaId() == null) continue;
-
-                Record fieldRecord = EntityHelper.forUpdate(fieldEasy.getMetaId(), user, false);
-                fieldRecord.setString("fieldLabel", e.getValue());
-                willUpdate.add(fieldRecord);
-            }
-
-            if (!willUpdate.isEmpty()) {
-                Application.getCommonsService().createOrUpdate(willUpdate.toArray(new Record[0]), false);
-                MetadataHelper.getMetadataFactory().refresh();
-            }
+        if (!willUpdates.isEmpty()) {
+            Application.getCommonsService().createOrUpdate(willUpdates.toArray(new Record[0]), Boolean.FALSE);
+            MetadataHelper.getMetadataFactory().refresh();
         }
 
-        writeSuccess(response, null);
+        return RespBody.ok();
     }
 }

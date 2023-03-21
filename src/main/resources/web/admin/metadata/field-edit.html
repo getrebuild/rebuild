@@ -44,7 +44,9 @@
         <div class="main-content container-fluid pt-1">
           <ul th:if="${fieldType == 'REFERENCE'} and ${!fieldBuildin}" class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('字段信息')}]]</a></li>
-            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('表单回填')}]]</a></li>
+            <li class="nav-item">
+              <a th:href="|${fieldName}/auto-fillin|" class="nav-link"><span th:classappend="${hasAutoFillin ? 'indicator' : ''}">[[${bundle.L('表单回填')}]]</span></a>
+            </li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
@@ -295,7 +297,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'STATE'}" class="form-group row J_for-STATE pt-0 pb-0">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('状态类 (Enum)')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('状态类 (StateSpec)')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext code text-danger" id="stateClass"></div>
                   </div>

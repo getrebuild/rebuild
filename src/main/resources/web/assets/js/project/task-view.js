@@ -456,11 +456,13 @@ class ValueDescription extends ValueComp {
   }
 
   _destroyMde() {
-    if (this._simplemde) {
+    if (this._SimpleMDE) {
       try {
-        this._simplemde.toTextArea()
-      } catch (err) {}
-      this._simplemde = null
+        this._SimpleMDE.toTextArea()
+      } catch (err) {
+        // Nothings
+      }
+      this._SimpleMDE = null
       $('.CodeMirror-wrap').remove()
     }
   }
@@ -478,7 +480,7 @@ class ValueDescription extends ValueComp {
           // eslint-disable-next-line no-undef
           toolbar: DEFAULT_MDE_TOOLBAR(this),
         })
-        this._simplemde = mde
+        this._SimpleMDE = mde
 
         $createUploader(this._fieldValue__upload, null, (res) => {
           const pos = mde.codemirror.getCursor()
@@ -492,7 +494,7 @@ class ValueDescription extends ValueComp {
   }
 
   handleChange() {
-    const value = this._simplemde.value()
+    const value = this._SimpleMDE.value()
     super.handleChange({ target: { name: 'description', value: value } }, () => {
       this.setState({ description: value, editMode: false })
       this._destroyMde()

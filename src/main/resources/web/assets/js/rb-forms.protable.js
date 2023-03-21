@@ -108,7 +108,7 @@ class ProTable extends React.Component {
         $(this._$scroller).perfectScrollbar({
           suppressScrollY: true,
         })
-        // $(this._$scroller).find('thead .tipping').tooltip({})
+        $(this._$scroller).find('thead .tipping').tooltip({})
       })
 
       // 正常编辑

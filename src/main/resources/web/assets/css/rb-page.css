@@ -1737,23 +1737,23 @@ th.column-fixed {
   cursor: default;
 }
 
-.form.batch-form .batch-contents > div .badge.badge-warning {
-  border: 1px solid #fbbc05;
-}
-
 .form.batch-form .batch-contents > div a.del {
   position: absolute;
   font-size: 1.2rem;
-  padding: 1px 5px;
-  left: -6px;
-  top: 2px;
+  padding: 3px 6px;
   color: #999;
   font-weight: bold;
+  top: 1px;
+  margin-right: -9px;
   display: none;
 }
 
+.form.batch-form .batch-contents > div a.del:hover {
+  color: #222;
+}
+
 .form.batch-form .batch-contents > div:hover a.del {
-  display: block;
+  display: inline-block;
 }
 
 .form.batch-form .batch-editor .text-muted {
@@ -3272,7 +3272,7 @@ form {
   background: rgba(0, 0, 0, 0.9);
   color: #fff;
   padding: 0 25px;
-  height: 60px;
+  height: 61px;
 }
 
 .preview-modal .preview-body {

@@ -266,7 +266,7 @@ public class QiniuCloud {
                 fileName = fileName.replace("__", "_");
             }
             // 去除特殊符号
-            fileName = fileName.replaceAll("[&+#?%=/()\\s]", "");
+            fileName = fileName.replaceAll("[&+#?%=/\\s]", "");
 
             if (fileName.length() > 41) {
                 fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
@@ -274,7 +274,7 @@ public class QiniuCloud {
 
         } else {
             String fileExt = FileUtil.getSuffix(fileName);
-            fileName = CommonsUtils.randomHex(true);
+            fileName = CommonsUtils.randomHex(true).substring(0, 20);
             if (StringUtils.isNotBlank(fileExt)) fileName += "." + fileExt;
         }
 

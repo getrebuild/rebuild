@@ -27,8 +27,9 @@ public class QiniuUploadController extends BaseController {
     @GetMapping("/filex/qiniu/upload-keys")
     public JSON getUploadKeys(HttpServletRequest request) {
         String fileName = getParameterNotNull(request, "file");
+        boolean noname = getBoolParameter(request, "noname", Boolean.FALSE);
 
-        String fileKey = QiniuCloud.formatFileKey(fileName);
+        String fileKey = QiniuCloud.formatFileKey(fileName, !noname);
         String token = QiniuCloud.instance().getUploadToken(fileKey);
 
         return JSONUtils.toJSONObject(

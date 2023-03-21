@@ -129,9 +129,7 @@ public class TemplateExtractor {
         Set<String> vars = new HashSet<>();
         for (Cell[] row : rows) {
             for (Cell cell : row) {
-                if (cell.isEmpty()) {
-                    continue;
-                }
+                if (cell.isEmpty()) continue;
 
                 String cellText = cell.asString();
                 Matcher matcher = PATT_V2.matcher(cellText);
