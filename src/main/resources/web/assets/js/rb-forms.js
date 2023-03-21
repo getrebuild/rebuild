@@ -739,7 +739,7 @@ class RbFormElement extends React.Component {
     const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
     return (
-      <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
+      <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''} ${state.hidden ? 'hide' : ''}`} data-field={props.field}>
         <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !props.nullable ? 'required' : ''}`}>
           {props.label}
         </label>
@@ -923,6 +923,11 @@ class RbFormElement extends React.Component {
   // @return string or object
   getValue() {
     return this.state.value
+  }
+
+  // With FrontJS
+  setHidden(hidden) {
+    this.setState({ hidden: hidden === true })
   }
 }
 
