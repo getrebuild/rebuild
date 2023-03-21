@@ -561,13 +561,14 @@ var $createUploader = function (input, next, complete, error) {
   var $input = $(input).off('change')
   var imageType = $input.attr('accept') === 'image/*' // 仅图片
   var upLocal = $input.data('local') // 上传本地
+  var noname = $input.data('noname') || false // 不保持名称
   if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1048576 * (rb._uploadMaxSize || 200)) // default 200MB
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
   var putExtra = imageType ? { mimeType: ['image/*'] } : null
 
   function _qiniuUpload(file) {
-    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
+    $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + '&noname=' + noname + useToken, function (res) {
       var o = qiniu.upload(file, res.data.key, res.data.token, putExtra, { forceDirect: true })
       o.subscribe({
         next: function (res) {
@@ -587,7 +588,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         },
         complete: function (res) {
-          if (file.size > 0) {
+          if (file.size > 0 && upLocal !== 'temp') {
             $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
           }
           typeof complete === 'function' && complete({ key: res.key, file: file })
@@ -616,7 +617,7 @@ var $createUploader = function (input, next, complete, error) {
     var idname = $input.attr('id') || $input.attr('name') || $random('H5UP-')
     $input.html5Uploader({
       name: idname,
-      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + useToken,
+      postUrl: rb.baseUrl + '/filex/upload?temp=' + (upLocal === 'temp') + '&noname=' + noname + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create(imageType ? $L('请上传图片') : $L('上传文件类型错误'))

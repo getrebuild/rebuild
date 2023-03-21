@@ -443,12 +443,12 @@ class RbForm extends React.Component {
               {$L('保存')}
             </button>
             {moreActions.length > 0 && (
-              <React.Fragment>
+              <RF>
                 <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
                   <i className="icon zmdi zmdi-chevron-up" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
-              </React.Fragment>
+              </RF>
             )}
           </div>
         )}
@@ -1201,7 +1201,7 @@ class RbFormTextarea extends RbFormElement {
 
   renderElement() {
     return (
-      <React.Fragment>
+      <RF>
         <textarea
           ref={(c) => {
             this._fieldValue = c
@@ -1216,8 +1216,8 @@ class RbFormTextarea extends RbFormElement {
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           maxLength="6000"
         />
-        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />}
-      </React.Fragment>
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+      </RF>
     )
   }
 
@@ -1252,9 +1252,9 @@ class RbFormTextarea extends RbFormElement {
   UNSAFE_componentWillUpdate(nextProps, nextState) {
     // destroy
     if (this.state.editMode && !nextState.editMode) {
-      if (this._simplemde) {
-        this._simplemde.toTextArea()
-        this._simplemde = null
+      if (this._SimpleMDE) {
+        this._SimpleMDE.toTextArea()
+        this._SimpleMDE = null
       }
     }
   }
@@ -1273,7 +1273,7 @@ class RbFormTextarea extends RbFormElement {
 
   setValue(val) {
     super.setValue(val)
-    if (this.props.useMdedit) this._simplemde.value(val)
+    if (this.props.useMdedit) this._SimpleMDE.value(val)
   }
 
   _initMde() {
@@ -1285,7 +1285,7 @@ class RbFormTextarea extends RbFormElement {
       // eslint-disable-next-line no-undef
       toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR(this),
     })
-    this._simplemde = mde
+    this._SimpleMDE = mde
 
     if (this.props.readonly) {
       mde.codemirror.setOption('readOnly', true)

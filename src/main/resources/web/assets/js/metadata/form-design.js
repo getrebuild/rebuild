@@ -236,6 +236,7 @@ const render_item = function (data) {
           fieldLabelOld: $item.find('.dd-handle').data('label'),
           fieldHeight: $item.find('.dd-handle').attr('data-height') || null,
           fieldNullable: !$item.find('.dd-handle').hasClass('not-nullable'),
+          field: $item.find('.dd-handle').data('field'),
         }
         // if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
@@ -357,6 +358,9 @@ class DlgEditField extends RbAlert {
           <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
           </button>
+          <a className="btn btn-link" href={`./field/${this.props.field}`} target="_blank">
+            {$L('更多配置')}
+          </a>
         </div>
       </form>
     )
