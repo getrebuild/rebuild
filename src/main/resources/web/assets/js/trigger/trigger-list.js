@@ -6,6 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global dlgActionAfter ShowEnable */
 
+let bosskeyShow = false
+window.bosskeyTrigger = function () {
+  bosskeyShow = true
+}
+
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
@@ -58,7 +63,7 @@ class TriggerList extends ConfigList {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {(this.state.data || []).map((item) => {
           const locked = item[8]
           const disabled = locked && locked[0] !== rb.currentUser
@@ -105,7 +110,7 @@ class TriggerList extends ConfigList {
             </tr>
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -155,9 +160,9 @@ class TriggerEdit extends ConfigFormDlg {
 
   renderFrom() {
     return (
-      <React.Fragment>
+      <RF>
         {!this.props.id && (
-          <React.Fragment>
+          <RF>
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('选择触发器')}</label>
               <div className="col-sm-7">
@@ -186,7 +191,7 @@ class TriggerEdit extends ConfigFormDlg {
                 </select>
               </div>
             </div>
-          </React.Fragment>
+          </RF>
         )}
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
@@ -204,7 +209,7 @@ class TriggerEdit extends ConfigFormDlg {
             </div>
           </div>
         )}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -215,7 +220,7 @@ class TriggerEdit extends ConfigFormDlg {
     // #1
     $.get('/admin/robot/trigger/available-actions', (res) => {
       let actions = res.data || []
-      if (!$urlp('bosskey-show')) {
+      if (!bosskeyShow) {
         actions = actions.filter((item) => item[0] !== 'PROXYTRIGGERACTION')
       }
 
