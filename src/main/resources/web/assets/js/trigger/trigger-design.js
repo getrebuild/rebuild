@@ -213,18 +213,28 @@ function useExecManual() {
 
       RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
         onConfirm: function () {
-          this.disabled(true, true)
+          const that = this
+          that.disabled(true, true)
           $mp.start()
 
-          // eslint-disable-next-line no-undef
-          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
-            $mp.end()
-            this.hide()
-            RbHighbar.success($L('执行成功'))
+          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+            useExecManual_checkState(res.data, that)
           })
         },
       })
     })
+}
+// 检查状态
+function useExecManual_checkState(taskid, _dlg) {
+  $.get('/commons/task/state?taskid=' + taskid, (res) => {
+    if ((res.data || {}).isCompleted) {
+      $mp.end()
+      RbHighbar.success($L('执行成功'))
+      _dlg && _dlg.hide()
+    } else {
+      setTimeout(() => useExecManual_checkState(taskid, _dlg), 1000)
+    }
+  })
 }
 
 // ~ 指定字段
