@@ -358,12 +358,12 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.15.3</version>
+            <version>1.15.4</version>
         </dependency>
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
-            <version>portable-1.8.3</version>
+            <version>portable-1.8.4</version>
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
@@ -475,7 +475,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.11</version>
+            <version>5.8.15</version>
         </dependency>
         <!-- Need JDK11+ -->
         <!--
@@ -510,7 +510,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.87.Final</version>
+            <version>4.1.90.Final</version>
         </dependency>
     </dependencies>
 </project>
