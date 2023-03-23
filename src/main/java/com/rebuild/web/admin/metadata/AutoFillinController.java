@@ -111,10 +111,8 @@ public class AutoFillinController extends BaseController {
             String sourceField = (String) o[1];
             String targetField = (String) o[2];
 
-            String sourceFieldLabel = EasyMetaFactory.getLabel(sourceEntity, sourceField);;
-            String targetFieldLabel = targetEntity.containsField(targetField)
-                    ? EasyMetaFactory.getLabel(targetEntity.getField(targetField))
-                    : String.format("[%s]", targetField.toUpperCase());
+            String sourceFieldLabel = EasyMetaFactory.getLabel(sourceEntity, sourceField);
+            String targetFieldLabel = EasyMetaFactory.getLabel(targetEntity, targetField);
 
             JSON rule = JSONUtils.toJSONObject(
                     new String[]{ "id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig" },

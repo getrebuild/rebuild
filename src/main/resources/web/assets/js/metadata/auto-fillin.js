@@ -34,12 +34,12 @@ const loadRules = () => {
       }
 
       const $btns = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo($tr)
-      $btns.find('a:eq(0)').click(() => {
+      $btns.find('a:eq(0)').on('click', () => {
         renderRbcomp(<DlgRuleEdit {...bProps} {...this.extConfig} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
       })
 
       const cfgid = this.id
-      $btns.find('a:eq(1)').click(() => {
+      $btns.find('a:eq(1)').on('click', () => {
         RbAlert.create($L('确认删除此回填规则？'), {
           type: 'danger',
           confirm: function () {
