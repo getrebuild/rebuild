@@ -441,11 +441,11 @@ class CopyNavTo extends Share2Switch {
     return (
       <div style={{ margin: '0 15px' }}>
         <div className="form-group">
-          <label className="text-bold">{$L('复制到哪些导航菜单')}</label>
+          <label className="text-bold mb-2">{$L('复制到哪些导航菜单')}</label>
           <div ref={(c) => (this._$selected = c)}>
             {this.props.list.map((item) => {
               return (
-                <label className="custom-control custom-checkbox custom-control-inline" key={item[0]}>
+                <label className="custom-control custom-checkbox custom-control-inline mb-2" key={item[0]}>
                   <input className="custom-control-input" type="checkbox" data-id={item[0]} disabled={item[0] === this.props.current} />
                   <span className="custom-control-label">
                     {item[1] || $L('未命名')}
@@ -455,7 +455,7 @@ class CopyNavTo extends Share2Switch {
               )
             })}
           </div>
-          <div className="form-text mt-0">{$L('将当前导航菜单配置复制到选择的导航菜单中')}</div>
+          <div className="form-text mt-1">{$L('将当前导航菜单配置复制到选择的导航菜单中')}</div>
         </div>
         <div className="mb-1">
           <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
