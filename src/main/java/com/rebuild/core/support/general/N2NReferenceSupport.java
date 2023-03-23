@@ -117,11 +117,11 @@ public class N2NReferenceSupport {
     }
 
     /**
-     * @param fieldPath N2N.F, F.N2N, F.N2N.F, N2N
+     * @param fieldPath N2N, N2N.F, F.N2N, F.N2N.F
      * @param recordId
      * @return
      */
-    public static Object[] getN2NValueByAnyPath(String fieldPath, ID recordId) {
+    public static Object[] getN2NValueByMixPath(String fieldPath, ID recordId) {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         final String primaryName = entity.getPrimaryField().getName();
         final String[] fields = fieldPath.split("\\.");
@@ -137,7 +137,7 @@ public class N2NReferenceSupport {
         if (firstField.getType() == FieldType.REFERENCE_LIST) {
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
             ID[] n2nValue = (ID[]) o[0];
-            if (NullValue.isNull(n2nValue)) return new Object[0];
+            if (NullValue.isNull(n2nValue) || n2nValue.length == 0) return new Object[0];
 
             List<Object> nvList = new ArrayList<>();
             String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
@@ -151,7 +151,7 @@ public class N2NReferenceSupport {
 
         // F.N2N
         if (firstField.getType() == FieldType.REFERENCE) {
-            Field secondField = entity.getField(fields[1]);
+            Field secondField = firstField.getReferenceEntity().getField(fields[1]);
             // F.N2N.F
             if (fields.length > 2 && secondField.getType() == FieldType.REFERENCE_LIST) {
                 Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName());
@@ -160,9 +160,9 @@ public class N2NReferenceSupport {
 
                 // use N2N.F
                 String path2 = fieldPath.substring(fieldPath.indexOf(".") + 1);
-                return getN2NValueByAnyPath(path2, firstValue);
+                return getN2NValueByMixPath(path2, firstValue);
             }
-
+            
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
             return (ID[]) o[0];
         }

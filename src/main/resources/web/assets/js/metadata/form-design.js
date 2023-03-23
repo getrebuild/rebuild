@@ -17,6 +17,9 @@ const COLSPANS = {
   8: 'w-66',
 }
 
+const _FieldLabelChanged = {}
+const _FieldNullableChanged = {}
+
 $(document).ready(() => {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     const validFields = {},
@@ -117,8 +120,9 @@ $(document).ready(() => {
         if (tip) item.tip = tip
         const height = $this.attr('data-height')
         if (height) item.height = height
-        item.__newLabel = $this.find('span').text() || null
-        item.__newNullable = !$this.hasClass('not-nullable')
+
+        if (_FieldLabelChanged[item.field]) item.__newLabel = _FieldLabelChanged[item.field]
+        if (_FieldNullableChanged[item.field] !== undefined) item.__newNullable = _FieldNullableChanged[item.field]
 
         AdvControl.cfgAppend(item)
       }
@@ -222,10 +226,12 @@ const render_item = function (data) {
           if (data.displayTypeName === 'NTEXT') $item.find('.dd-handle').attr('data-height', nv.fieldHeight || '')
 
           // 字段名称
+          _FieldLabelChanged[nv.field] = nv.fieldLabel || null
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
           else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
 
           // 允许为空
+          _FieldNullableChanged[nv.field] = nv.fieldNullable ? true : false
           if (nv.fieldNullable) $item.find('.dd-handle').removeClass('not-nullable')
           else $item.find('.dd-handle').addClass('not-nullable')
         }
