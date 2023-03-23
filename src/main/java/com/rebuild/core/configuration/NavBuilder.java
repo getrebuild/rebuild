@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
@@ -180,7 +179,7 @@ public class NavBuilder extends NavManager {
                 String ptoken = Application.getCommonsCache().get(key);
                 if (ptoken == null) {
                     ptoken = PageTokenVerify.generate(user);
-                    Application.getCommonsCache().put(key, ptoken, CommonsCache.TS_HOUR / 2);
+                    Application.getCommonsCache().put(key, ptoken, PageTokenVerify.TOKEN_EXPIRES);
                 }
 
                 if (value.contains("$RBTOKEN$")) value = value.replace("$RBTOKEN$", ptoken);
