@@ -9,13 +9,14 @@ const wpc = window.__PageConfig
 const bProps = { sourceEntity: wpc.referenceEntity, targetEntity: wpc.entityName, field: wpc.fieldName }
 
 $(document).ready(() => {
-  $('.J_add-rule').click(() => renderRbcomp(<DlgRuleEdit {...bProps} />))
+  $('.J_add-rule').on('click', () => renderRbcomp(<DlgRuleEdit {...bProps} />))
   loadRules()
 })
 
 const loadRules = () => {
   $.get(`../auto-fillin-list?field=${wpc.fieldName}`, (res) => {
     const $tbody = $('#dataList tbody').empty()
+
     $(res.data).each(function () {
       const $tr = $('<tr></tr>').appendTo($tbody)
       $(`<td><div>${this.targetFieldLabel}</div></td>`).appendTo($tr)
@@ -73,7 +74,7 @@ class DlgRuleEdit extends RbFormHandler {
   render() {
     return (
       <RbModal title={$L('回填规则')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
-        <div className="form" ref={(c) => (this._form = c)}>
+        <div className="form" ref={(c) => (this._$form = c)}>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('源字段')}</label>
             <div className="col-sm-7">
@@ -156,40 +157,40 @@ class DlgRuleEdit extends RbFormHandler {
     // #1
     $.get(`/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
-      const s2target = $(this._targetField).select2({
+      const $s2target = $(this._targetField).select2({
         placeholder: $L('选择字段'),
         allowClear: false,
       })
-      this.__select2.push(s2target)
+      this.__select2.push($s2target)
 
       // #2
-      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}&deep=2`, (res) => {
         this.__sourceFieldsCache = res.data
         this.setState({ sourceFields: res.data }, () => {
-          const s2source = $(this._sourceField)
+          const $s2source = $(this._sourceField)
             .select2({
               placeholder: $L('选择字段'),
               allowClear: false,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
-          this.__select2.push(s2source)
+          this.__select2.push($s2source)
 
           if (this.props.sourceField) {
-            s2source.val(this.props.sourceField).trigger('change')
-            setTimeout(() => s2target.val(this.props.targetField).trigger('change'), 100)
+            $s2source.val(this.props.sourceField).trigger('change')
+            setTimeout(() => $s2target.val(this.props.targetField).trigger('change'), 100)
           } else {
-            s2source.trigger('change')
+            $s2source.trigger('change')
           }
 
           if (this.props.id && rb.env !== 'dev') {
-            s2target.prop('disabled', true)
-            s2source.prop('disabled', true)
+            $s2target.prop('disabled', true)
+            $s2source.prop('disabled', true)
           }
         })
       })
     })
 
-    $(this._form).find('[data-toggle="tooltip"]').tooltip()
+    $(this._$form).find('[data-toggle="tooltip"]').tooltip()
   }
 
   _renderTargetFields(s) {
