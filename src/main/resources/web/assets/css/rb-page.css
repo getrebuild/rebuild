@@ -2056,6 +2056,10 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.form-line.hover fieldset legend:active {
+  opacity: 0.8;
+}
+
 .form-line.hover fieldset legend::before {
   font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 1.4rem;

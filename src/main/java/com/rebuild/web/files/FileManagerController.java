@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.files;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -23,6 +24,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -139,7 +141,7 @@ public class FileManagerController extends BaseController {
 
     @PostMapping("batch-download")
     public void batchDownload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String files = req.getParameter("files");
+        final String files = req.getParameter("files");
 
         List<String> filePaths = new ArrayList<>();
         Collections.addAll(filePaths, files.split(","));
@@ -151,7 +153,7 @@ public class FileManagerController extends BaseController {
         if (zipName != null && zipName.exists()) {
             FileDownloader.downloadTempFile(resp, zipName, null);
         } else {
-            resp.sendError(500, Language.L("无法下载文件"));
+            resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), Language.L("无法下载文件"));
         }
     }
 }
