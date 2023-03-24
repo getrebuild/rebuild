@@ -12,13 +12,17 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -62,6 +66,10 @@ public class AggregationEvaluator {
         String calcMode = item.getString("calcMode");
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
             return evalFormula();
+        }
+        // ONLY FieldAggregation
+        else if ("RBJOIN".equalsIgnoreCase(calcMode)) {
+            return evalRbJoin();
         }
 
         String sourceField = item.getString("sourceField");
@@ -178,5 +186,40 @@ public class AggregationEvaluator {
         }
 
         return AviatorUtils.eval(clearFormula, envMap, false);
+    }
+
+    /**
+     * 智能连接
+     *
+     * @return
+     */
+    private Object evalRbJoin() {
+        String sourceField = item.getString("sourceField");
+        Field field;
+        if ((field = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) == null) {
+            throw new MissingMetaExcetion(sourceField, sourceEntity.getName());
+        }
+
+        String ql = String.format("select %s,%s from %s where %s",
+                sourceField, sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
+        Object[][] array = Application.createQueryNoFilter(ql).array();
+
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+        List<Object> nvList = new ArrayList<>();
+        for (Object[] o : array) {
+            Object n = o[0];
+            if (n == null) continue;
+
+            if (n.getClass().isArray()) {  // ID[]
+                CollectionUtils.addAll(nvList, (ID[]) n);
+            } else if (n instanceof ID) {
+                nvList.add(n);
+            } else {
+                nvList.add(easyField.wrapValue(n));
+            }
+        }
+
+        // Use array
+        return nvList.toArray(new Object[0]);
     }
 }

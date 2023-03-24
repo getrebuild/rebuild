@@ -131,7 +131,7 @@ public class N2NReferenceSupport {
         // N2N
         if (fields.length == 1) {
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
-            return (ID[]) o[0];
+            return (Object[]) o[0];
         }
 
         // N2N.F
@@ -165,7 +165,7 @@ public class N2NReferenceSupport {
             }
             
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
-            return (ID[]) o[0];
+            return (Object[]) o[0];
         }
 
         throw new RebuildException("Invalid N2N path : " + fieldPath);

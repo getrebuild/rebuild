@@ -6,6 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FormulaAggregation, ActionContentSpec */
 
+const CALC_MODES2 = {
+  ...FormulaAggregation.CALC_MODES,
+  RBJOIN: $L('连接'),
+}
+
 // ~~ 字段聚合
 class ContentFieldAggregation extends ActionContentSpec {
   render() {
@@ -52,7 +57,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
-                            <span className="badge badge-warning">{FormulaAggregation.CALC_MODES[item.calcMode]}</span>
+                            <span className="badge badge-warning">{CALC_MODES2[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
@@ -86,7 +91,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     {(this.state.calcModes || []).map((item) => {
                       return (
                         <option key={item} value={item}>
-                          {FormulaAggregation.CALC_MODES[item]}
+                          {CALC_MODES2[item]}
                         </option>
                       )
                     })}
@@ -210,11 +215,11 @@ class ContentFieldAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
               if (!sf) return
 
-              let cm = Object.keys(FormulaAggregation.CALC_MODES)
+              let cm = Object.keys(CALC_MODES2)
               if (['DATE', 'DATETIME'].includes(sf[2])) {
-                cm = ['MAX', 'MIN', 'COUNT', 'COUNT2'] // in FormulaAggregation.CALC_MODES
+                cm = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf[2])) {
-                cm = ['COUNT', 'COUNT2'] // in FormulaAggregation.CALC_MODES
+                cm = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               }
 
               this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
@@ -231,7 +236,12 @@ class ContentFieldAggregation extends ActionContentSpec {
               if (!sf) return
 
               let fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
-              if (['DATE', 'DATETIME'].includes(sf[2]) && !['COUNT', 'COUNT2'].includes(cm)) {
+              if ('RBJOIN' === cm) {
+                fs = this.__targetFieldsCache.filter((x) => {
+                  if ('NTEXT' === x[2]) return true
+                  else return 'N2NREFERENCE' === x[2] && x[3] === sf[3]
+                })
+              } else if (['DATE', 'DATETIME'].includes(sf[2]) && !['COUNT', 'COUNT2'].includes(cm)) {
                 fs = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x[2]))
               }
 
