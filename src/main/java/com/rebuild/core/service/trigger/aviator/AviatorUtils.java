@@ -31,10 +31,10 @@ public class AviatorUtils {
 
     static {
         // https://www.yuque.com/boyan-avfmj/aviatorscript/yr1oau
-        AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
-        AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, false);
-        AVIATOR.setOption(Options.MAX_LOOP_COUNT, 32767);
+        AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, Boolean.TRUE);
+        AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, Boolean.FALSE);
         AVIATOR.setOption(Options.ALLOWED_CLASS_SET, Collections.emptySet());
+        AVIATOR.setOption(Options.TRACE_EVAL, Boolean.FALSE);
 
         try {
             // https://commons.apache.org/proper/commons-lang/javadocs/api-release/index.html
@@ -53,6 +53,7 @@ public class AviatorUtils {
         addCustomFunction(new TextFunction());
         addCustomFunction(new RequestFunctuin());
         addCustomFunction(new SqlQueryFunction());
+        addCustomFunction(new LogFunction());
     }
 
     /**
