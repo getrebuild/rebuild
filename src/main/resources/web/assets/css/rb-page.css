@@ -774,7 +774,7 @@ body.dialog .main-content {
   border-top: 1px solid #eee;
   padding: 17px 30px 0;
   text-align: right;
-  margin: 15px -15px -5px;
+  margin: 15px -20px -5px;
 }
 
 .dialog-footer .btn {
@@ -956,7 +956,7 @@ select.form-control:not([disabled]) {
 }
 
 .rbform-alert {
-  margin: -20px -20px 20px;
+  margin: -20px -15px 20px;
   text-align: center;
   padding: 0.5rem;
   border-radius: 0;
@@ -2056,6 +2056,10 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.form-line.hover fieldset legend:active {
+  opacity: 0.8;
+}
+
 .form-line.hover fieldset legend::before {
   font-family: 'Material-Design-Iconic-Font', serif;
   font-size: 1.4rem;
@@ -2356,7 +2360,7 @@ th.column-fixed {
 
 .adv-filter-wrap.in-modal {
   max-width: 1000px;
-  padding: 10px;
+  padding: 10px 15px;
 }
 
 .adv-filter {

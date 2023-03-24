@@ -218,7 +218,7 @@ $(document).ready(() => {
 
   $addResizeHandler(() => {
     const wh = $(window).height()
-    $mc.css('height', wh - 88)
+    $mc.css('height', wh - 80)
   })()
 
   const $c = $('.rebuild-guide-progress').on('click', () => {

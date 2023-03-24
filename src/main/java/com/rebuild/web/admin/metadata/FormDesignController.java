@@ -69,12 +69,15 @@ public class FormDesignController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         for (Object o : config) {
             JSONObject item = (JSONObject) o;
+            String fieldName = item.getString("field");
+            if (!entityMeta.containsField(fieldName)) continue;
+
             String newLabel = item.getString("__newLabel");
             Boolean newNullable = item.getBoolean("__newNullable");
             item.remove("__newLabel");
             item.remove("__newNullable");
 
-            EasyField fieldEasy = EasyMetaFactory.valueOf(entityMeta.getField(item.getString("field")));
+            EasyField fieldEasy = EasyMetaFactory.valueOf(entityMeta.getField(fieldName));
             if (fieldEasy.getMetaId() == null) continue;
 
             Record fieldRecord = EntityHelper.forUpdate(fieldEasy.getMetaId(), user, Boolean.FALSE);

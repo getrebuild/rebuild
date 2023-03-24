@@ -168,20 +168,23 @@ public class KVStorage {
         final TimerTask localTimerTask = new TimerTask() {
             @Override
             public void run() {
-                try {
-                    synchronized (THROTTLED_QUEUE_LOCK) {
-                        if (THROTTLED_QUEUE.isEmpty()) return;
+                if (THROTTLED_QUEUE.isEmpty()) return;
 
-                        final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
-                        THROTTLED_QUEUE.clear();
+                synchronized (THROTTLED_QUEUE_LOCK) {
+                    final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
+                    THROTTLED_QUEUE.clear();
 
-                        log.info("Synchronize KV pairs ... {}", queue);
-                        for (Map.Entry<String, Object> e : queue.entrySet()) {
+                    log.info("Synchronize KV pairs ... {}", queue);
+                    for (Map.Entry<String, Object> e : queue.entrySet()) {
+                        try {
                             RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                        } catch (Throwable ex) {
+                            log.error("Synchronize KV error : {}", e, ex);
+
+                            // Retry next-time
+                            THROTTLED_QUEUE.put(e.getKey(), e.getValue());
                         }
                     }
-                } catch (Throwable ex) {
-                    log.error(null, ex);
                 }
             }
         };

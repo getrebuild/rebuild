@@ -312,9 +312,9 @@ const ECHART_LEGEND_VOPT = {
 
 // K=千 M=百万
 const shortNumber = function (num) {
-  if (rb.locale === 'zh_CN' && (num > 10000 || num < -10000)) return (num / 10000).toFixed(0) + '万'
-  if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'M'
-  else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
+  if (rb.locale === 'zh_CN' && (num > 10000 || num < -10000)) return (num / 10000).toFixed(1) + '万'
+  if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(1) + 'M'
+  else if (num > 10000 || num < -10000) return (num / 1000).toFixed(1) + 'K'
   else return num
 }
 

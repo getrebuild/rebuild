@@ -701,8 +701,13 @@ body {
   font-weight: normal;
   color: #fff;
   border-radius: 99px;
-  padding: 1px 6px;
-  margin-top: -1px;
+  padding: 3px 6px;
+}
+
+.type-PICKLIST .form-control-plaintext,
+.type-STATE .form-control-plaintext {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 /* approved-steps */

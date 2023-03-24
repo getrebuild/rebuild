@@ -257,7 +257,7 @@ public class FieldWriteback extends FieldAggregation {
                     Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
                     for (String field : matchsVars) {
                         // v3.3
-                        if (isN2NFieldPath(sourceEntity, field)) {
+                        if (isN2NField2Path(sourceEntity, field)) {
                             fieldVarsN2NPath.add(field);
                         } else {
                             if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
@@ -284,7 +284,7 @@ public class FieldWriteback extends FieldAggregation {
             fieldVars.addAll(fieldVarsN2NPath);
 
             for (String field : fieldVarsN2NPath) {
-                Object[] n2nVal = N2NReferenceSupport.getN2NValueByAnyPath(field, actionContext.getSourceRecord());
+                Object[] n2nVal = N2NReferenceSupport.getN2NValueByMixPath(field, actionContext.getSourceRecord());
                 useSourceData.setObjectValue(field, n2nVal);
             }
         }
@@ -487,13 +487,16 @@ public class FieldWriteback extends FieldAggregation {
         return newValue;
     }
 
-    private boolean isN2NFieldPath(Entity entity, String fieldPath) {
+    private boolean isN2NField2Path(Entity entity, String fieldPath) {
         String[] fields = fieldPath.split("\\.");
         if (fields.length < 2) return false;
 
         try {
-            return entity.getField(fields[0]).getType() == FieldType.REFERENCE_LIST
-                    || entity.getField(fields[1]).getType() == FieldType.REFERENCE_LIST;
+            // N2N.F
+            Field firstField = entity.getField(fields[0]);
+            if (firstField.getType() == FieldType.REFERENCE_LIST) return true;
+            // F.N2N
+            return firstField.getReferenceEntity().getField(fields[1]).getType() == FieldType.REFERENCE_LIST;
         } catch (MissingMetaExcetion ex) {
             throw new MissingMetaExcetion(fieldPath, entity.getName());
         }

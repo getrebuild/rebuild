@@ -24,7 +24,7 @@
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
     <script th:src="@{/commons/frontjs/use-frontjs}"></script>
   </th:block>
-  <th:block th:if="${user != null && session.needStartTour != null}">
+  <th:block th:if="${user != null && session.showStartTour != null}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/introjs.min.css}" />
     <script th:src="@{/assets/lib/intro.min.js}"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />

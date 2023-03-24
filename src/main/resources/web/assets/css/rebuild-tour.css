@@ -111,8 +111,8 @@ body.rebuild-guide-body .rebuild-guide-progress {
 
 .rebuild-guide-progress {
   position: fixed;
-  right: 25px;
-  bottom: 25px;
+  right: 20px;
+  bottom: 20px;
   z-index: 11;
   border-radius: 50%;
   overflow: hidden;
@@ -142,8 +142,8 @@ body.rebuild-guide-body .rebuild-guide-progress {
   position: absolute;
   background-color: #fff;
   top: 15px;
-  left: 25px;
-  right: 25px;
+  left: 20px;
+  right: 20px;
   bottom: 0;
   display: none;
   border-radius: 6px;

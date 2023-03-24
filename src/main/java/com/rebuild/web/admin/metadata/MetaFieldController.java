@@ -36,6 +36,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -173,8 +174,8 @@ public class MetaFieldController extends BaseController {
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
 
         String entityName = reqJson.getString("entity");
-        String label = reqJson.getString("label");
-        String name = reqJson.getString("name");
+        String label = StringUtils.trim(reqJson.getString("label"));
+        String name = StringUtils.trim(reqJson.getString("name"));
         String type = reqJson.getString("type");
         String comments = reqJson.getString("comments");
         String refEntity = reqJson.getString("refEntity");

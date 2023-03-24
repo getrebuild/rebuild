@@ -99,10 +99,11 @@ public class Field2Schema extends SetUser {
      */
     public String createField(Entity entity, String fieldLabel, String fieldName, DisplayType type, String comments, String refEntity, JSON extConfig) {
         if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
+        else fieldName = toPinyinName(fieldName);
 
         for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
-                fieldName += RandomUtils.nextInt(0, 9);
+                fieldName += RandomUtils.nextInt(1, 99);
             } else {
                 break;
             }

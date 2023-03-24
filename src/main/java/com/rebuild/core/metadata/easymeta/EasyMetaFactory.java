@@ -13,7 +13,9 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -25,7 +27,19 @@ import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.rebuild.core.metadata.easymeta.DisplayType.*;
+import static com.rebuild.core.metadata.easymeta.DisplayType.ANYREFERENCE;
+import static com.rebuild.core.metadata.easymeta.DisplayType.BOOL;
+import static com.rebuild.core.metadata.easymeta.DisplayType.CLASSIFICATION;
+import static com.rebuild.core.metadata.easymeta.DisplayType.DATE;
+import static com.rebuild.core.metadata.easymeta.DisplayType.DATETIME;
+import static com.rebuild.core.metadata.easymeta.DisplayType.DECIMAL;
+import static com.rebuild.core.metadata.easymeta.DisplayType.ID;
+import static com.rebuild.core.metadata.easymeta.DisplayType.N2NREFERENCE;
+import static com.rebuild.core.metadata.easymeta.DisplayType.NTEXT;
+import static com.rebuild.core.metadata.easymeta.DisplayType.NUMBER;
+import static com.rebuild.core.metadata.easymeta.DisplayType.PICKLIST;
+import static com.rebuild.core.metadata.easymeta.DisplayType.REFERENCE;
+import static com.rebuild.core.metadata.easymeta.DisplayType.TEXT;
 
 /**
  * @author devezhao
@@ -154,15 +168,20 @@ public class EasyMetaFactory {
      * @return
      */
     public static String getLabel(Entity entity, String fieldPath) {
-        String[] fieldPathSplit = fieldPath.split("\\.");
-        Field firstField = entity.getField(fieldPathSplit[0]);
-        if (fieldPathSplit.length == 1) {
-            return getLabel(firstField);
-        }
+        try {
+            String[] fieldPathSplit = fieldPath.split("\\.");
+            Field firstField = entity.getField(fieldPathSplit[0]);
+            if (fieldPathSplit.length == 1) {
+                return getLabel(firstField);
+            }
 
-        Entity refEntity = firstField.getReferenceEntity();
-        Field secondField = refEntity.getField(fieldPathSplit[1]);
-        return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
+            Entity refEntity = firstField.getReferenceEntity();
+            Field secondField = refEntity.getField(fieldPathSplit[1]);
+            return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
+        } catch (MissingMetaExcetion ex) {
+            Log.error(ex.getLocalizedMessage());
+            return String.format("[%s]", fieldPath.toUpperCase());
+        }
     }
 
     /**
