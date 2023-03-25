@@ -31,6 +31,12 @@ public class LogFunction extends AbstractFunction {
     }
 
     @Override
+    public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+        log.info("\n[AVIATOR LOG] : {}, {}", arg1.getValue(env), arg2.getValue(env));
+        return AviatorNil.NIL;
+    }
+
+    @Override
     public String getName() {
         return "LOG";
     }
