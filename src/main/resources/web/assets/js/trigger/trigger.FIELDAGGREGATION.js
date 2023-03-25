@@ -196,10 +196,10 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.setState({ items: [] })
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
+
       this.__sourceFieldsCache = res.data.source
       this.__targetFieldsCache = res.data.target
-
-      this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
       if (this.state.sourceFields) {
         this.setState({ sourceFields: res.data.source }, () => $(this._$sourceField).trigger('change'))
