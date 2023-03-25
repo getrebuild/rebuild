@@ -215,7 +215,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
               if (!sf) return
 
-              let cm = Object.keys(CALC_MODES2)
+              let cm = Object.keys(FormulaAggregation.CALC_MODES)
               if (['DATE', 'DATETIME'].includes(sf[2])) {
                 cm = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf[2])) {
