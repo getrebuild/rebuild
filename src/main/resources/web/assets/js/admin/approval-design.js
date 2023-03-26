@@ -959,7 +959,7 @@ class RbFlowCanvas extends NodeGroupSpec {
             </RF>
           )
           RbAlert.create(msg, {
-            icon: 'alert-circle-o',
+            icon: 'info-outline',
             cancelText: $L('返回列表'),
             cancel: () => location.replace('../approvals'),
             confirmText: $L('继续编辑'),

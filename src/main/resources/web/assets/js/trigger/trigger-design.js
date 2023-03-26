@@ -111,7 +111,7 @@ $(document).ready(() => {
           </RF>
         )
         RbAlert.create(msg, {
-          icon: 'alert-circle-o',
+          icon: 'info-outline',
           cancelText: $L('返回列表'),
           cancel: () => location.replace('../triggers'),
           confirmText: $L('继续编辑'),

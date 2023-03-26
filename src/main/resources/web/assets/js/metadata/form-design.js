@@ -403,7 +403,7 @@ class DlgEditDivider extends DlgEditField {
             <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.collapsed)} name="collapsed" onChange={this.handleChange} />
             <span className="custom-control-label">{$L('默认收起')}</span>
           </label>
-          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0 bosskey-show">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
             <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.breaked)} name="breaked" onChange={this.handleChange} />
             <span className="custom-control-label">{$L('仅用于断行')}</span>
           </label>
