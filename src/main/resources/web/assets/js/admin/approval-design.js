@@ -952,7 +952,14 @@ class RbFlowCanvas extends NodeGroupSpec {
       $btns.button('loading')
       $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
-          RbAlert.create($L('保存并发布成功') + (noApproverNode ? `(${$L('由于未添加审批节点，此流程暂不可用')})` : ''), {
+          const msg = (
+            <RF>
+              <strong>{$L('保存成功')}</strong>
+              {noApproverNode && <p className="text-warning m-0 mt-1">{$L('由于未添加任何审批节点，因此此流程暂不可用')}</p>}
+            </RF>
+          )
+          RbAlert.create(msg, {
+            icon: 'alert-circle-o',
             cancelText: $L('返回列表'),
             cancel: () => location.replace('../approvals'),
             confirmText: $L('继续编辑'),
