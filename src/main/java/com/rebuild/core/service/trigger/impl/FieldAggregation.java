@@ -28,7 +28,11 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -173,11 +177,26 @@ public class FieldAggregation extends TriggerAction {
             DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
                 targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
+
             } else if (dt == DisplayType.DECIMAL) {
                 targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
+
             } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 if (evalValue instanceof Date) targetRecord.setDate(targetField, (Date) evalValue);
                 else targetRecord.setNull(targetField);
+
+            } else if (dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
+                if (((Object[]) evalValue).length == 0) {
+                    targetRecord.setNull(targetField);
+                } else if (dt == DisplayType.NTEXT) {
+                    String join = StringUtils.join((Object[]) evalValue, ", ");
+                    targetRecord.setString(targetField, join);
+                } else {
+                    List<ID> join = new ArrayList<>();
+                    for (Object id : (Object[]) evalValue) join.add((ID) id);
+                    targetRecord.setIDArray(targetField, join.toArray(new ID[0]));
+                }
+
             } else {
                 log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
             }

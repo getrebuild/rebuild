@@ -165,7 +165,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('源字段')}</p>
+                    <p>{$L('聚合字段')}</p>
                   </div>
                 </div>
               </div>
@@ -320,7 +320,7 @@ class ContentGroupAggregation extends ActionContentSpec {
 
           // 聚合规则
 
-          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择聚合字段') })
           const $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
@@ -407,7 +407,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     if (calc === 'FORMULA') {
       if (!formula) return RbHighbar.create($L('请输入计算公式'))
     } else if (!sf) {
-      return RbHighbar.create($L('请选择源字段'))
+      return RbHighbar.create($L('请选择聚合字段'))
     }
 
     const items = this.state.items || []

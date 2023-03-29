@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -256,8 +255,7 @@ public class FieldWriteback extends FieldAggregation {
                 } else {
                     Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
                     for (String field : matchsVars) {
-                        // v3.3
-                        if (isN2NField2Path(sourceEntity, field)) {
+                        if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
                             fieldVarsN2NPath.add(field);
                         } else {
                             if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
@@ -485,20 +483,5 @@ public class FieldWriteback extends FieldAggregation {
             log.warn("Value `{}` cannot be convert to field (value) : {}", value, field.getRawMeta());
         }
         return newValue;
-    }
-
-    private boolean isN2NField2Path(Entity entity, String fieldPath) {
-        String[] fields = fieldPath.split("\\.");
-        if (fields.length < 2) return false;
-
-        try {
-            // N2N.F
-            Field firstField = entity.getField(fields[0]);
-            if (firstField.getType() == FieldType.REFERENCE_LIST) return true;
-            // F.N2N
-            return firstField.getReferenceEntity().getField(fields[1]).getType() == FieldType.REFERENCE_LIST;
-        } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(fieldPath, entity.getName());
-        }
     }
 }

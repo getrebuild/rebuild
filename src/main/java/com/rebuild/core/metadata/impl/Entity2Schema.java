@@ -60,6 +60,9 @@ public class Entity2Schema extends Field2Schema {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
 
+        entityName = StringUtils.trim(entityName);
+        entityLabel = StringUtils.trim(entityLabel);
+
         if (entityName != null) {
             if (MetadataHelper.containsEntity(entityName)) {
                 throw new MetadataModificationException(Language.L("实体已存在 : %s", entityName));

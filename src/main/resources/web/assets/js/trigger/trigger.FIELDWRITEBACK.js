@@ -206,9 +206,9 @@ class ContentFieldWriteback extends ActionContentSpec {
     this.setState({ targetEntity: te, items: [] })
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
-      this.__sourceFieldsCache = res.data.source
-
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
+
+      this.__sourceFieldsCache = res.data.source
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {

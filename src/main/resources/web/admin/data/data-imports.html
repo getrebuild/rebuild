@@ -78,13 +78,16 @@
                         <div class="form-group row">
                           <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('上传数据文件')}]]</label>
                           <div class="col-md-12 col-xl-6 col-lg-8">
-                            <div class="file-select">
-                              <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" />
-                              <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>[[${bundle.L('上传文件')}]]</span></label>
+                            <div class="float-left">
+                              <div class="file-select">
+                                <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" />
+                                <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>[[${bundle.L('上传文件')}]]</span></label>
+                              </div>
                             </div>
-                            <div>
+                            <div class="float-left ml-2" style="padding-top: 8px">
                               <u class="text-bold J_upload-input"></u>
                             </div>
+                            <div class="clearfix"></div>
                             <div class="form-text mb-0">
                               <ul class="mb-0 pl-4">
                                 <li>[[${bundle.L('有合并单元格的数据请处理过后再上传，否则可能出现表头识别有误')}]]</li>
@@ -164,7 +167,13 @@
                       <form class="simple" style="margin: 30px auto">
                         <div class="row mb-2">
                           <div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">[[${bundle.L('正在准备数据 ...')}]]</h5></div>
-                          <div class="col-6 text-right text-muted">[[${bundle.L('耗时')}]] <span class="J_import_time">00:00:00</span></div>
+                          <div class="col-6 text-right text-muted">
+                            <span>[[${bundle.L('耗时')}]] <span class="J_import_time">00:00:00</span></span>
+                            <span class="ml-1 mr-1 text-bold">·</span>
+                            <span>[[${bundle.L('速度')}]] <span class="J_import_speed"></span></span>
+                            <span class="ml-1 mr-1 text-bold">·</span>
+                            <span>[[${bundle.L('剩余时间')}]] <span class="J_remain_time">00:00:00</span></span>
+                          </div>
                         </div>
                         <div class="progress">
                           <div class="progress-bar J_import-bar"></div>

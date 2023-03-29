@@ -104,7 +104,7 @@ public class AdminVerfiyController extends BaseController {
             return RespBody.error();
         }
 
-        String result = new AdminCLI2(command).exec();
+        String result = new AdminCli3(command).exec();
         return RespBody.ok(result);
     }
 }

@@ -355,3 +355,7 @@ form.field-attr label > span {
 .form-fields .dd-handle {
   padding-left: 23px !important;
 }
+
+.dd-list .dd-item .dd-handle[data-breaked='true'] {
+  border-style: dashed;
+}

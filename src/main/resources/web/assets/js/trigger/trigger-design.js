@@ -104,8 +104,19 @@ $(document).ready(() => {
     $btn.button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        if (rb.env === 'dev') location.reload()
-        else location.href = '../triggers'
+        const msg = (
+          <RF>
+            <strong>{$L('保存成功')}</strong>
+            {when <= 0 && <p className="text-warning m-0 mt-1">{$L('由于未启用任何触发动作，此触发器不会被自动执行')}</p>}
+          </RF>
+        )
+        RbAlert.create(msg, {
+          icon: 'info-outline',
+          cancelText: $L('返回列表'),
+          cancel: () => location.replace('../triggers'),
+          confirmText: $L('继续编辑'),
+          confirm: () => location.reload(),
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }

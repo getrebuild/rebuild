@@ -41,10 +41,18 @@ $(document).ready(() => {
     $toe.trigger('change')
   })
 
-  $createUploader('#upload-input', null, (res) => {
-    _Config.file = res.key
-    $('.J_upload-input').text($fileCutName(_Config.file))
-  })
+  const $fss = $('.file-select span')
+  $createUploader(
+    '#upload-input',
+    (res) => {
+      $fss.text(`${$L('上传中')} ... ${res.percent.toFixed(0)}%`)
+    },
+    (res) => {
+      _Config.file = res.key
+      $('.J_upload-input').text($fileCutName(_Config.file))
+      $fss.text($L('上传文件'))
+    }
+  )
 
   $('input[name=repeatOpt]').click(function () {
     _Config.repeat_opt = ~~$(this).val()
@@ -192,26 +200,30 @@ const step3_import_state = (taskid, inLoad) => {
       return
     }
 
-    const _data = res.data
-    $('.J_import_time').text(_secToTime(~~_data.elapsedTime / 1000))
+    const _state = res.data
+    const elapsedTime = ~~_state.elapsedTime / 1000
+    $('.J_import_time').text(_secToTime(elapsedTime))
+    const sspeed = _state.completed / elapsedTime
+    $('.J_import_speed').text($L('%s条/秒', ~~sspeed))
+    $('.J_remain_time').text(_secToTime((_state.total - _state.completed) / sspeed))
 
-    if (_data.isCompleted === true) {
+    if (_state.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
-      $('.J_import_state').text($L('导入完成。共成功导入 %d 条记录', _data.succeeded))
-    } else if (_data.isInterrupted === true) {
-      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条记录', _data.succeeded))
+      $('.J_import_state').text($L('导入完成。共成功导入 %d 条记录', _state.succeeded))
+    } else if (_state.isInterrupted === true) {
+      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条记录', _state.succeeded))
     }
 
-    if (_data.isCompleted === true || _data.isInterrupted === true) {
+    if (_state.isCompleted === true || _state.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true).text($L('导入完成'))
       $('.J_step3-next').removeClass('hide')
       import_inprogress = false
       return
     }
 
-    if (_data.progress > 0) {
-      $('.J_import_state').text(`${$L('正在导入 ...')} ${_data.completed}/${_data.total}`)
-      $('.J_import-bar').css('width', _data.progress * 100 + '%')
+    if (_state.progress > 0) {
+      $('.J_import_state').text(`${$L('正在导入 ...')} ${_state.completed}/${_state.total}`)
+      $('.J_import-bar').css('width', _state.progress * 100 + '%')
     }
 
     setTimeout(() => {

@@ -68,16 +68,16 @@ $(document).ready(() => {
   })
 
   const $btn = $('.J_save').on('click', function () {
+    const importsMode = $('#importsMode').prop('checked')
+    if (importsMode && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     const fm = _FieldsMapping.buildMapping()
     if (fm === false) return
     if (!fm) {
       RbHighbar.create($L('请至少添加 1 个字段映射'))
-      return
-    }
-
-    const importsMode = $('#importsMode').prop('checked')
-    if (importsMode && rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 
@@ -91,7 +91,7 @@ $(document).ready(() => {
 
     let importsFilter
 
-    function _save() {
+    function _save(_tips) {
       const config = {
         fieldsMapping: fm,
         fieldsMappingDetail: fmd,
@@ -113,8 +113,19 @@ $(document).ready(() => {
       $btn.button('loading')
       $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
         if (res.error_code === 0) {
-          if (rb.env === 'dev') location.reload()
-          else location.href = '../transforms'
+          const msg = (
+            <RF>
+              <strong>{$L('保存成功')}</strong>
+              {_tips.length > 0 && <p className="text-warning m-0 mt-1">{_tips.join(' / ')}</p>}
+            </RF>
+          )
+          RbAlert.create(msg, {
+            icon: 'info-outline',
+            cancelText: $L('返回列表'),
+            cancel: () => location.replace('../transforms'),
+            confirmText: $L('继续编辑'),
+            confirm: () => location.reload(),
+          })
         } else {
           RbHighbar.error(res.error_msg)
         }
@@ -138,22 +149,7 @@ $(document).ready(() => {
       }
     }
 
-    if (tips.length > 0) {
-      RbAlert.create(
-        <React.Fragment>
-          <strong>{$L('配置存在以下问题，请确认是否继续保存？')}</strong>
-          <div className="mt-1">{tips.join(' / ')}</div>
-        </React.Fragment>,
-        {
-          onConfirm: function () {
-            this.disabled(true)
-            _save()
-          },
-        }
-      )
-    } else {
-      _save()
-    }
+    _save(tips)
   })
 
   // Load

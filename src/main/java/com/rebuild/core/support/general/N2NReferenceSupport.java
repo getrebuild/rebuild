@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -130,7 +131,7 @@ public class N2NReferenceSupport {
         // N2N
         if (fields.length == 1) {
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, firstField.getName(), primaryName);
-            return (ID[]) o[0];
+            return (Object[]) o[0];
         }
 
         // N2N.F
@@ -164,9 +165,35 @@ public class N2NReferenceSupport {
             }
             
             Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldPath, primaryName);
-            return (ID[]) o[0];
+            return (Object[]) o[0];
         }
 
         throw new RebuildException("Invalid N2N path : " + fieldPath);
+    }
+
+    /**
+     * v3.3
+     *
+     * @param fieldPath
+     * @param entity
+     * @return
+     * @see #getN2NValueByMixPath(String, ID)
+     */
+    public static boolean isN2NMixPath(String fieldPath, Entity entity) {
+        String[] fields = fieldPath.split("\\.");
+        if (fields.length < 2) return false;
+        
+        try {
+            // N2N.F
+            Field firstField = entity.getField(fields[0]);
+            if (firstField.getType() == FieldType.REFERENCE_LIST) return true;
+
+            // F.N2N
+            Field secondField = firstField.getReferenceEntity().getField(fields[1]);
+            return secondField.getType() == FieldType.REFERENCE_LIST;
+
+        } catch (MissingMetaExcetion ex) {
+            throw new MissingMetaExcetion(fieldPath, entity.getName());
+        }
     }
 }

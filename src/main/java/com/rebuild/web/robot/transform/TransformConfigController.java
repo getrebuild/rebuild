@@ -71,7 +71,7 @@ public class TransformConfigController extends BaseController {
             return null;
         }
 
-        ModelAndView mv = createModelAndView("/admin/robot/transform-editor");
+        ModelAndView mv = createModelAndView("/admin/robot/transform-design");
         mv.getModelMap().put("configId", configId);
         mv.getModelMap().put("config", config.getJSON("config"));
 
