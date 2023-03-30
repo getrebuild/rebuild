@@ -5082,6 +5082,12 @@ pre.unstyle {
   border-radius: 99px 99px 99px 0;
 }
 
+@media (max-width: 767.98px) {
+  .rb-top-header .navbar-collapse {
+    display: none !important;
+  }
+}
+
 /* v3.3 compact */
 
 .main-content {
