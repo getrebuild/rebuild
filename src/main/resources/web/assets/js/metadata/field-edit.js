@@ -90,6 +90,8 @@ $(document).ready(function () {
     }
 
     const extConfigNew = { ...extConfig, ...__gExtConfig }
+    console.log(extConfigNew)
+
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
@@ -141,7 +143,7 @@ $(document).ready(function () {
       })
       extConfigNew['tagList'] = items
     }
-    // 小数
+    // 小数-货币
     if (dt === 'DECIMAL' && extConfigNew['decimalType'] === '¥') {
       extConfigNew['decimalType'] = $val('.J_decimalTypeFlag') || '¥'
     }
@@ -248,10 +250,8 @@ $(document).ready(function () {
     _handleNumber(extConfig.calcFormula)
 
     if (dt === 'DECIMAL') {
-      if (extConfig.decimalType === '%') {
-        // 百分比
-      } else if (!extConfig.decimalType || extConfig.decimalType === 0) {
-        // 数字
+      if (!extConfig.decimalType || extConfig.decimalType === 0 || extConfig.decimalType === '0' || extConfig.decimalType === '%') {
+        // 数字、百分比
       } else {
         $('input[name="decimalType"]:eq(2)').attr('checked', true)
         $('.J_decimalTypeFlag').val(extConfig.decimalType)
