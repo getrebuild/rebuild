@@ -817,7 +817,7 @@ class LiteForm extends RbForm {
 class LiteFormModal extends RbModalHandler {
   render() {
     const props = this.props
-    const entity = props.entity
+    const entity = props.entityMeta
 
     const title = props.id ? $L('编辑%s', entity.entityLabel) : $L('新建%s', entity.entityLabel)
     const fake = {
@@ -855,7 +855,7 @@ class LiteFormModal extends RbModalHandler {
     const data2 = {
       ...data,
       metadata: {
-        entity: props.entity.entity,
+        entity: props.entityMeta.entity,
         id: props.id || null,
       },
     }
