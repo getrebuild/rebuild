@@ -56,6 +56,9 @@ public class Entity2Schema extends Field2Schema {
      * @return Returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
+        entityName = StringUtils.trim(entityName);
+        entityLabel = StringUtils.trim(entityLabel);
+
         if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
