@@ -776,3 +776,129 @@ class RepeatedViewer extends RbModalHandler {
     else window.open(`${rb.baseUrl}/app/redirect?id=${id}`)
   }
 }
+
+// -- LiteForm
+
+// eslint-disable-next-line no-unused-vars
+class LiteForm extends RbForm {
+  renderCustomizedFormArea() {
+    return null
+  }
+
+  renderDetailForm() {
+    return null
+  }
+
+  renderFormAction() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // TODO init...
+  }
+
+  buildFormData() {
+    const s = {}
+    const data = this.__FormData || {}
+    for (let k in data) {
+      const error = data[k].error
+      if (error) {
+        RbHighbar.create(error)
+        return false
+      }
+      s[k] = data[k].value
+    }
+    s.metadata = { id: this.props.id || '' }
+    return s
+  }
+}
+
+class LiteFormModal extends RbModalHandler {
+  render() {
+    const props = this.props
+    const entity = props.entity
+
+    const title = props.id ? $L('编辑%s', entity.entityLabel) : $L('新建%s', entity.entityLabel)
+    const fake = {
+      state: { id: props.id },
+    }
+
+    return (
+      <RbModal title={props.title || title} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="liteform-wrap">
+          <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
+            {this.props.elements.map((item) => {
+              // eslint-disable-next-line no-undef
+              return detectElement(item)
+            })}
+          </LiteForm>
+
+          <div className="footer" ref={(c) => (this._$formAction = c)}>
+            <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
+              {$L('保存')}
+            </button>
+            <a className="btn btn-link" onClick={this.hide}>
+              {$L('取消')}
+            </a>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  _handleSave() {
+    const data = this._LiteForm.buildFormData()
+    if (data === false) return
+
+    const props = this.props
+    const data2 = {
+      ...data,
+      metadata: {
+        entity: props.entity.entity,
+        id: props.id || null,
+      },
+    }
+
+    const $btn = $(this._$formAction).find('.btn').button('loading')
+    $.post('/app/entity/liteform/record-save', JSON.stringify(data2), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        RbHighbar.success($L('保存成功'))
+
+        // 刷新列表
+        const rlp = window.RbListPage || parent.RbListPage
+        if (rlp) rlp.reload(data.id)
+        // 刷新视图
+        if (window.RbViewPage) window.RbViewPage.reload()
+        // 关闭
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} entityOrId
+   * @param {*} fields
+   * @param {*} title
+   * @param {*} _callback
+   */
+  static create(entityOrId, fields, title, _callback) {
+    const post = {
+      id: entityOrId,
+      fields: fields,
+    }
+
+    $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
+      if (res.error_code === 0) {
+        renderRbcomp(<LiteFormModal title={title} {...res.data} />, null, _callback)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}

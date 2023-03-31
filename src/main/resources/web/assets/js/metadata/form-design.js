@@ -213,18 +213,6 @@ const render_item = function (data) {
       .appendTo($action)
       .on('click', function () {
         const _onConfirm = function (nv) {
-          // 填写提示
-          let $tip = $item.find('.dd-handle>span>i')
-          if (!nv.fieldTips) {
-            $tip.remove()
-          } else {
-            if ($tip.length === 0) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle span'))
-            $tip.attr('title', nv.fieldTips)
-          }
-
-          // NTEXT 高度
-          if (data.displayTypeName === 'NTEXT') $item.find('.dd-handle').attr('data-height', nv.fieldHeight || '')
-
           // 字段名称
           _FieldLabelChanged[nv.field] = nv.fieldLabel || null
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
@@ -234,6 +222,18 @@ const render_item = function (data) {
           _FieldNullableChanged[nv.field] = nv.fieldNullable ? true : false
           if (nv.fieldNullable) $item.find('.dd-handle').removeClass('not-nullable')
           else $item.find('.dd-handle').addClass('not-nullable')
+
+          // 填写提示
+          let $tip = $item.find('.dd-handle>span>i')
+          if (!nv.fieldTips) {
+            $tip.remove()
+          } else {
+            if (!$tip[0]) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle>span'))
+            $tip.attr('title', nv.fieldTips)
+          }
+
+          // NTEXT 高度
+          if (data.displayTypeName === 'NTEXT') $item.find('.dd-handle').attr('data-height', nv.fieldHeight || '')
         }
 
         const ov = {

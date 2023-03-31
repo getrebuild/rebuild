@@ -509,10 +509,12 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       state: { id: this.props.id },
     }
 
+    // @see rb-forms.append.js LiteFormModal#create
+
     return (
       <div className="form-group">
         <label>{$L('信息完善 (驳回时无需填写)')}</label>
-        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._rbform = c)}>
+        <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
             // eslint-disable-next-line no-undef
@@ -575,7 +577,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   post2(state, rejectNode, _alert) {
     let aformData = {}
     if (this.state.aform && state === 10) {
-      aformData = this._rbform.buildFormData()
+      aformData = this._LiteForm.buildFormData()
       if (aformData === false) return
     }
 

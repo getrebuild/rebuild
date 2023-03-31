@@ -5150,3 +5150,13 @@ pre.unstyle {
     padding-left: 15px;
   }
 }
+
+/* LiteForm */
+
+.liteform-wrap > .rbform {
+  width: 85%;
+}
+
+.liteform-wrap > .footer {
+  padding: 10px 0 10px 165px;
+}

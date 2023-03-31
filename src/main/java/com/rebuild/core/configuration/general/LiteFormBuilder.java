@@ -25,14 +25,30 @@ import com.rebuild.utils.JSONUtils;
 public class LiteFormBuilder {
 
     final private ID recordId;
+    final private Entity entity;
     final private ID user;
 
     /**
+     * 编辑
+     *
      * @param recordId
      * @param user
      */
     public LiteFormBuilder(ID recordId, ID user) {
         this.recordId = recordId;
+        this.entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        this.user = user;
+    }
+
+    /**
+     * 新建
+     *
+     * @param entity
+     * @param user
+     */
+    public LiteFormBuilder(Entity entity, ID user) {
+        this.recordId = null;
+        this.entity = entity;
         this.user = user;
     }
 
@@ -41,12 +57,15 @@ public class LiteFormBuilder {
      * @return
      */
     public JSONArray build(JSONArray fieldElements) {
-        Record data = FormsBuilder.instance.findRecord(recordId, user, fieldElements);
-        if (data == null) {
-            throw new NoRecordFoundException(recordId, Boolean.TRUE);
+        Record recordData = null;
+        if (recordId != null) {
+            recordData = FormsBuilder.instance.findRecord(recordId, user, fieldElements);
+            if (recordData == null) {
+                throw new NoRecordFoundException(recordId, Boolean.TRUE);
+            }
         }
 
-        FormsBuilder.instance.buildModelElements(fieldElements, data.getEntity(), data, user, Boolean.FALSE);
+        FormsBuilder.instance.buildModelElements(fieldElements, entity, recordData, user, Boolean.FALSE);
         return fieldElements;
     }
 
@@ -55,7 +74,6 @@ public class LiteFormBuilder {
      * @return
      */
     public JSONArray build(String[] fields) {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         JSONArray fieldElements = new JSONArray();
         for (String field : fields) {
             if (entity.containsField(field)) {

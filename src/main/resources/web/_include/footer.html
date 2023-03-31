@@ -22,7 +22,7 @@
   <script th:src="@{/assets/js/file-preview.js}" type="text/babel"></script>
   <th:block th:if="${user != null && commercial > 1}">
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
-    <script th:src="@{/commons/frontjs/use-frontjs}"></script>
+    <script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
   </th:block>
   <th:block th:if="${user != null && session.showStartTour != null}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/introjs.min.css}" />
