@@ -203,6 +203,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
+.form-preview .divider .dd-handle[data-breaked='true'] > span:empty::after {
+  content: attr(_title2);
+}
+
 .form-preview .divider .dd-handle:hover > span:empty::after {
   color: #fff;
 }

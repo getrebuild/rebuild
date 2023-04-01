@@ -179,7 +179,9 @@ const render_item = function (data) {
   const isDivider = data.fieldName === DIVIDER_LINE
 
   const $handle = $(
-    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : 'FIELD'}">${data.fieldLabel}</span></div>`
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : ''}" _title2="${isDivider ? $L('断行') : ''}">${
+      data.fieldLabel
+    }</span></div>`
   ).appendTo($item)
 
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
