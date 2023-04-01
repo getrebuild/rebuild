@@ -712,9 +712,9 @@ class RbForm extends React.Component {
     if (window.RbViewPage && next !== RbForm.NEXT_ADDDETAIL) window.RbViewPage.reload()
   }
 
-  // 渲染后调用
+  // 组件渲染后调用
   static renderAfter(form) {
-    console.log('renderAfter ...', form)
+    console.log('RbForm#renderAfter ...', form)
   }
 }
 

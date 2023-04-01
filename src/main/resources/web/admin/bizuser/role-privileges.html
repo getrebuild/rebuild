@@ -116,7 +116,7 @@
             </div>
           </div>
           <div class="float-right">
-            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建角色')}]]</button>
+            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
             <div class="btn-group btn-space">
               <button class="btn btn-primary J_save" type="button" disabled="disabled">[[${bundle.L('保存')}]]</button>
               <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled="disabled"><i class="icon zmdi zmdi-chevron-down"></i></button>
@@ -266,11 +266,9 @@
         recordId: '[[${id}]]',
       }
     </script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/bizuser/role-view.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/role-privileges.js}" type="text/babel"></script>
   </body>
 </html>

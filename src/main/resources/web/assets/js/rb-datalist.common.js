@@ -903,7 +903,6 @@ class RbList extends React.Component {
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
-          RbList.renderAfter()
           this._clearSelected()
           $(this._$scroller).scrollTop(0) //.perfectScrollbar('update')
         })
@@ -1060,11 +1059,9 @@ class RbList extends React.Component {
     CellRenders.clickView({ id: id, entity: this._entity })
   }
 
-  // 外部接口
+  // -- 外部接口
 
-  /**
-   * 分页设置
-   */
+  // 分页设置
   setPage(pageNo, pageSize) {
     this.pageNo = pageNo || this.pageNo
     if (pageSize) {
@@ -1074,9 +1071,7 @@ class RbList extends React.Component {
     this.fetchList()
   }
 
-  /**
-   * 设置高级过滤器 ID
-   */
+  // 设置高级过滤器 ID
   setAdvFilter(id) {
     this.advFilterId = id
     this.pageNo = 1
@@ -1085,17 +1080,13 @@ class RbList extends React.Component {
     else $storage.remove(this.__defaultFilterKey)
   }
 
-  /**
-   * 重新加载
-   */
+  // 重新加载
   reload() {
     this._forceReload = true
     this.fetchList()
   }
 
-  /**
-   * 搜索
-   */
+  // 搜索
   search(filter, fromAdv) {
     this.pageNo = 1
     this.fetchList(filter)
@@ -1123,9 +1114,7 @@ class RbList extends React.Component {
     }
   }
 
-  /**
-   * 获取选中 ID[]
-   */
+  // 取选中 ID[]
   getSelectedIds(noWarn) {
     const selected = []
     $(this._$tbody)
@@ -1138,30 +1127,26 @@ class RbList extends React.Component {
     return selected
   }
 
-  /**
-   * 获取最后查询记录总数
-   */
+  // 获取最后查询记录总数
   getLastQueryTotal() {
     return this._Pagination ? this._Pagination.state.rowsTotal : 0
   }
 
-  /**
-   * 获取最后查询条件
-   */
+  // 获取最后查询条件
   getLastQueryEntry() {
     return $clone(this.__lastQueryEntry)
   }
 
-  /**
-   * 渲染完成后回调
-   */
-  static renderAfter() {}
+  // -- HOOK
 
-  /**
-   * 查询前回调，可以封装查询集
-   */
+  // 查询前回调，可以对查询机进行二次封装
   static queryBefore(query) {
     return query
+  }
+
+  // 组件渲染后调用
+  static renderAfter(list) {
+    console.log('RbList#renderAfter ...', list)
   }
 }
 
@@ -1335,6 +1320,12 @@ const CellRenders = {
 
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
+
+    if (window._CustomizedDataList) {
+      const fn = window._CustomizedDataList.useCellRender(wpc.entity, key)
+      if (fn) return fn(value, style, key)
+    }
+
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__RENDERS[type] || this.renderSimple)(value, style, key)
   },

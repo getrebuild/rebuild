@@ -74,14 +74,8 @@
     <script th:src="@{/assets/lib/charts/gridstack.all.js}"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
     <th:block th:if="${session.showStartGuide}">
       <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />
