@@ -209,6 +209,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 24px;
 }
 
+.task-content .task-extras > .avatar + .avatar {
+  margin-left: -10px;
+}
+
 .task-content .task-extras > .icon {
   font-size: 1.3rem;
   color: #999;
