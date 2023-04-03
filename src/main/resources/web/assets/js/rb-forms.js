@@ -266,7 +266,7 @@ class RbForm extends React.Component {
           {this.renderCustomizedFormArea()}
         </div>
 
-        {this.renderDetailForm()}
+        {this.renderDetailsForm()}
         {this.renderFormAction()}
       </div>
     )
@@ -274,11 +274,14 @@ class RbForm extends React.Component {
 
   renderCustomizedFormArea() {
     let _FormArea
-    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    if (window._CustomizedForms) {
+      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+      if (_FormArea) _FormArea = React.cloneElement(_FormArea, { $$$parent: this })
+    }
     return _FormArea || null
   }
 
-  renderDetailForm() {
+  renderDetailsForm() {
     const detailMeta = this.props.rawModel.detailMeta
     if (!detailMeta || !window.ProTable) return null
 
@@ -582,14 +585,6 @@ class RbForm extends React.Component {
       const err = this.__FormData[k].error
       if (err) return RbHighbar.create(err)
       else data[k] = this.__FormData[k].value
-    }
-
-    if (this._FormArea) {
-      const data2 = this._FormArea.buildFormData(data)
-      if (data2 === false) return
-      if (typeof data2 === 'object') {
-        data = { ...data, ...data2 }
-      }
     }
 
     if (this._ProTable) {

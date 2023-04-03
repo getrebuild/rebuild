@@ -210,7 +210,8 @@ public class AggregationEvaluator {
             Object n = o[0];
             if (n == null) continue;
 
-            if (n.getClass().isArray()) {  // ID[]
+            // 多引用
+            if (n instanceof ID[]) {
                 CollectionUtils.addAll(nvList, (ID[]) n);
             } else if (n instanceof ID) {
                 nvList.add(n);

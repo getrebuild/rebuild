@@ -49,19 +49,23 @@ class RbViewForm extends React.Component {
         hadApproval = null
       }
 
-      const viewData = {}
+      this.__ViewData = {}
+      this.__lastModified = res.data.lastModified || 0
+
       const VFORM = (
-        <React.Fragment>
+        <RF>
           {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
-              if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
+              if (item.field !== TYPE_DIVIDER) this.__ViewData[item.field] = item.value
               item.$$$parent = this
               return detectViewElement(item, this.props.entity)
             })}
           </div>
-        </React.Fragment>
+
+          {this.renderCustomizedFormArea()}
+        </RF>
       )
 
       this.setState({ formComponent: VFORM }, () => {
@@ -70,15 +74,21 @@ class RbViewForm extends React.Component {
           window.FrontJS.View._trigger('open', [res.data])
         }
       })
-
-      this.__ViewData = viewData
-      this.__lastModified = res.data.lastModified || 0
     })
   }
 
   renderViewError(message) {
     this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) {
+      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+      if (_FormArea) _FormArea = <div className="row">{React.cloneElement(_FormArea, { $$$parent: this })}</div>
+    }
+    return _FormArea || null
   }
 
   hideLoading() {

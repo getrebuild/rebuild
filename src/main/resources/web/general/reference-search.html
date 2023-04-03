@@ -61,9 +61,8 @@
         protocolFilter: '[[${referenceFilter}]]',
       }
     </script>
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script type="text/babel">
       CellRenders.clickView = function (v, e) {
         if (parent && parent.RbViewModal && parent.RbViewModal.mode === 1) {

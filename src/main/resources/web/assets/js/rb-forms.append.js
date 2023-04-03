@@ -785,7 +785,7 @@ class LiteForm extends RbForm {
     return null
   }
 
-  renderDetailForm() {
+  renderDetailsForm() {
     return null
   }
 
@@ -900,5 +900,114 @@ class LiteFormModal extends RbModalHandler {
         RbHighbar.error(res.error_msg)
       }
     })
+  }
+}
+
+/**
+ * 表单区域
+ */
+class LiteFormArea extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const _data = this.state.data
+    return _data ? (
+      <RF>
+        {this.props.divider ? (
+          <div className="form-line">
+            <fieldset>
+              <legend>{this.props.divider}</legend>
+            </fieldset>
+          </div>
+        ) : (
+          <div className="col-12"></div>
+        )}
+
+        {_data.map((item, idx) => {
+          return (
+            <div className="col-sm-6 form-group pt-0 pb-1" key={idx}>
+              <label className="col-form-label">{item.label}</label>
+              <div className="col-form-control">
+                <div className="form-control-plaintext">{this._text(item.value)}</div>
+              </div>
+            </div>
+          )
+        })}
+      </RF>
+    ) : null
+  }
+
+  componentDidMount() {
+    const $$$parent = this.props.$$$parent
+
+    // 视图
+    if ($$$parent.__ViewData) {
+      this.initOnView($$$parent.__ViewData)
+    } else {
+      // 新建
+      if ($$$parent.isNew) {
+        this.initOnFormNew()
+      }
+      // 编辑
+      else {
+        const data = {}
+        $$$parent.props.rawModel.elements.forEach((item) => (data[item.field] = item.value))
+        this.initOnFormEdit(data)
+      }
+    }
+  }
+
+  initOnFormEdit(data) {
+    this.initOnView(data)
+    this.initOnFormNew()
+  }
+
+  initOnFormNew() {
+    const $$$parent = this.props.$$$parent
+    $$$parent.onFieldValueChange((s) => {
+      if (s.name === this.props.triggerField) {
+        if (s.value) this._fetch(s.value)
+        else this.setState({ data: null })
+      }
+    })
+  }
+
+  initOnView(data) {
+    const val = data[this.props.triggerField]
+    if (val) this._fetch(typeof val === 'object' ? val.id : val)
+  }
+
+  _fetch(id) {
+    const post = {
+      id: id,
+      fields: this.props.showFields || this.props.fields,
+    }
+
+    $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
+      if (res.data && res.data.elements) {
+        this.setState({ data: res.data.elements })
+      } else {
+        this.setState({ data: null })
+      }
+    })
+  }
+
+  _text(v) {
+    if ($empty(v)) {
+      return <span className="text-muted">{$L('无')}</span>
+    }
+
+    if (typeof v === 'object') {
+      v = v.text
+      if (typeof v === 'object') v = v.join(' / ')
+      return v
+    }
+
+    if (v === 'F') return $L('否')
+    else if (v === 'T') return $L('是')
+    else return v
   }
 }
