@@ -74,10 +74,9 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 public class EasyExcelGenerator extends SetUser {
 
     protected File template;
-    private ID recordId;
+    protected ID recordId;
 
-    private boolean hasMain = false;
-
+    protected boolean hasMain = false;
     protected int phNumber = 1;
 
     /**
