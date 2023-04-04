@@ -208,6 +208,8 @@ public class FormsBuilder extends FormsManager {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
         }
 
+        model.set("entityMeta", EasyMetaFactory.toJSON(entityMeta));
+
         // 主/明细实体处理
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
@@ -216,6 +218,7 @@ public class FormsBuilder extends FormsManager {
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
         }
 
+        // 最后修改时间
         if (recordData != null && recordData.hasValue(EntityHelper.ModifiedOn)) {
             model.set("lastModified", recordData.getDate(EntityHelper.ModifiedOn).getTime());
         }

@@ -21,9 +21,12 @@ const RbListPage = {
   init: function (config, entity, ep) {
     renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () {
       RbListPage._RbList = this
+
       if (window.FrontJS) {
         window.FrontJS.DataList._trigger('open', [])
       }
+
+      setTimeout(() => RbList.renderAfter(this), 0)
     })
 
     const that = this

@@ -87,7 +87,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .dd-list .dd-item .dd-action a.colspan + .dropdown-menu {
-  padding: 6px 0;
+  padding: 10px 5px;
   margin: 0;
   width: 200px;
   min-width: 200px;
@@ -201,6 +201,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   content: attr(_title);
   font-style: italic;
   color: #999;
+}
+
+.form-preview .divider .dd-handle[data-breaked='true'] > span:empty::after {
+  content: attr(_title2);
 }
 
 .form-preview .divider .dd-handle:hover > span:empty::after {

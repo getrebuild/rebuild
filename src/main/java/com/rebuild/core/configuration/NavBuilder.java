@@ -40,9 +40,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * 导航渲染
@@ -88,14 +90,13 @@ public class NavBuilder extends NavManager {
 
     /**
      * @param user
-     * @param request
+     * @param useNav
      * @return
      */
-    public JSONArray getUserNav(ID user, HttpServletRequest request) {
+    public JSONArray getUserNav(ID user, String useNav) {
         ConfigBean config = null;
 
-        if (request != null) {
-            String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
+        if (useNav != null) {
             ID useNavId;
             if ((useNavId = MetadataHelper.checkSpecEntityId(useNav, EntityHelper.LayoutConfig)) != null) {
                 Object[][] cached = getAllConfig(null, TYPE_NAV);
@@ -278,6 +279,47 @@ public class NavBuilder extends NavManager {
         }
     }
 
+    /**
+     * 获取顶部菜单
+     *
+     * @param user
+     * @return
+     */
+    public List<Object[]> getAllowTopNav(ID user) {
+        String topNav = KVStorage.getCustomValue("TopNav32");
+        if (!JSONUtils.wellFormat(topNav)) return null;
+
+        JSONArray sets = JSON.parseArray(topNav);
+        if (sets.isEmpty()) return null;
+
+        final boolean isAdmin = UserHelper.isAdmin(user);
+        final Object[][] alls = getAllConfig(null, TYPE_NAV);
+
+        List<Object[]> allow = new ArrayList<>();
+        for (Object nd : sets) {
+            JSONArray ndAnd = (JSONArray) nd;
+            String nav = ndAnd.getString(0);
+            String dash = ndAnd.getString(1);
+
+            ID useNav = ID.isId(nav) ? ID.valueOf(nav) : null;
+            if (useNav == null) continue;
+
+            for (Object[] d : alls) {
+                if (!useNav.equals(d[0])) continue;
+
+                // 管理员、有共享的
+                if ((isAdmin && RoleService.ADMIN_ROLE.equals(d[5])) || isShareTo((String) d[1], user)) {
+                    ID useDash = ID.isId(dash) ? ID.valueOf(dash) : null;
+                    String useLabel = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));
+                    allow.add(new Object[] { useNav, useDash, useLabel });
+                    break;
+                }
+            }
+        }
+
+        return allow;
+    }
+
     @Override
     protected String getConfigFields() {
         return "configId,shareTo,createdBy,config,configName,createdBy.roleId";
@@ -305,8 +347,9 @@ public class NavBuilder extends NavManager {
         if (activeNav == null) activeNav = "dashboard-home";
 
         ID user = AppUtils.getRequestUser(request);
+        String useNav = ServletUtils.readCookie(request, "AppHome.Nav");
         JSONArray navs = License.isCommercial()
-                ? NavBuilder.instance.getUserNav(user, request)
+                ? NavBuilder.instance.getUserNav(user, useNav)
                 : NavBuilder.instance.getUserNav(user);
 
         StringBuilder navsHtml = new StringBuilder();
@@ -433,6 +476,9 @@ public class NavBuilder extends NavManager {
         for (Object o : clone) {
             replaceLang((JSONObject) o);
         }
+
+        // TODO 导航条
+
         return clone;
     }
 
@@ -458,39 +504,16 @@ public class NavBuilder extends NavManager {
     }
 
     static String renderTopNav2(HttpServletRequest request) {
-        String topNav = KVStorage.getCustomValue("TopNav32");
-        if (!JSONUtils.wellFormat(topNav)) return StringUtils.EMPTY;
-
-        JSONArray sets = JSON.parseArray(topNav);
-        if (sets.isEmpty()) return StringUtils.EMPTY;
-
-        final ID user = AppUtils.getRequestUser(request);
-        final boolean isAdmin = UserHelper.isAdmin(user);
-        final Object[][] alls = instance.getAllConfig(null, TYPE_NAV);
+        List<Object[]> topNav = instance.getAllowTopNav(AppUtils.getRequestUser(request));
+        if (topNav == null || topNav.isEmpty()) return StringUtils.EMPTY;
 
         StringBuilder topNavHtml = new StringBuilder();
 
-        for (Object nd : sets) {
-            JSONArray ndAnd = (JSONArray) nd;
-            String nav = ndAnd.getString(0);
-            String dash = ndAnd.getString(1);
-
-            ID useNav = ID.isId(nav) ? ID.valueOf(nav) : null;
-            if (useNav == null) continue;
-
-            for (Object[] d : alls) {
-                if (!useNav.equals(d[0])) continue;
-                // 管理员、有共享的
-                if ((isAdmin && RoleService.ADMIN_ROLE.equals(d[5])) || instance.isShareTo((String) d[1], user)) {
-                    String url = AppUtils.getContextPath("/app/home?n=" + useNav);
-                    if (ID.isId(dash)) url += "&d=" + dash;
-                    String name = StringUtils.defaultIfBlank((String) d[4], Language.L("未命名"));
-
-                    topNavHtml.append(
-                            String.format("<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>", useNav, url, name));
-                    break;
-                }
-            }
+        for (Object[] nd : topNav) {
+            String url = AppUtils.getContextPath("/app/home?n=" + nd[0]);
+            if (nd[1] != null) url += "&d=" + nd[1];
+            topNavHtml.append(String.format(
+                    "<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>", nd[0], url, nd[2]));
         }
         return topNavHtml.toString();
     }

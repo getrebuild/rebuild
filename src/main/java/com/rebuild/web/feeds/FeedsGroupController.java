@@ -41,6 +41,7 @@ import java.util.Set;
  * @see Team
  * @since 2019/11/8
  */
+@SuppressWarnings("unchecked")
 @RestController
 @RequestMapping("/feeds/group/")
 public class FeedsGroupController extends BaseController {

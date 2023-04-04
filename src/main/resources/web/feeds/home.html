@@ -108,8 +108,6 @@
     <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds-list.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
   </body>
 </html>

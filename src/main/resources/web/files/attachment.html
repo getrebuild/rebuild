@@ -77,8 +77,6 @@
     <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/files/files.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/files/files-attachment.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
   </body>
 </html>

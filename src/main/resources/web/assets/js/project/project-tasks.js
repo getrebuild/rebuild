@@ -515,18 +515,18 @@ class Task extends React.Component {
 
               <div className="task-extras">
                 {this.state.createdBy && (
-                  <a className="avatar mr-1" title={`${$L('创建人')} ${this.state.createdBy[1]}`}>
+                  <a className="avatar mr-3" title={`${$L('创建人')} ${this.state.createdBy[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${this.state.createdBy[0]}`} alt="Avatar" />
                   </a>
                 )}
                 {this.state.executor && (
-                  <a className="avatar mr-1" title={`${$L('执行人')} ${this.state.executor[1]}`}>
+                  <a className="avatar mr-3" title={`${$L('执行人')} ${this.state.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} alt="Avatar" />
                   </a>
                 )}
 
-                {this.state.description && <i className="ml-2 icon zmdi zmdi-comment-more" title={$L('详情')} />}
-                {this.state.attachments && <i className="ml-3 icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45" title={$L('附件')} />}
+                {this.state.description && <i className="icon zmdi zmdi-comment-more mr-3" title={$L('详情')} />}
+                {this.state.attachments && <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mr-3" title={$L('附件')} />}
 
                 <span className="badge float-right">{this.state.taskNumber}</span>
                 <div className="clearfix" />

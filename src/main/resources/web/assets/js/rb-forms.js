@@ -266,7 +266,7 @@ class RbForm extends React.Component {
           {this.renderCustomizedFormArea()}
         </div>
 
-        {this.renderDetailForm()}
+        {this.renderDetailsForm()}
         {this.renderFormAction()}
       </div>
     )
@@ -274,11 +274,14 @@ class RbForm extends React.Component {
 
   renderCustomizedFormArea() {
     let _FormArea
-    if (window._CustomizedForms) _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+    if (window._CustomizedForms) {
+      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+      if (_FormArea) _FormArea = React.cloneElement(_FormArea, { $$$parent: this })
+    }
     return _FormArea || null
   }
 
-  renderDetailForm() {
+  renderDetailsForm() {
     const detailMeta = this.props.rawModel.detailMeta
     if (!detailMeta || !window.ProTable) return null
 
@@ -584,14 +587,6 @@ class RbForm extends React.Component {
       else data[k] = this.__FormData[k].value
     }
 
-    if (this._FormArea) {
-      const data2 = this._FormArea.buildFormData(data)
-      if (data2 === false) return
-      if (typeof data2 === 'object') {
-        data = { ...data, ...data2 }
-      }
-    }
-
     if (this._ProTable) {
       const details = this._ProTable.buildFormData()
       if (!details) return
@@ -712,9 +707,9 @@ class RbForm extends React.Component {
     if (window.RbViewPage && next !== RbForm.NEXT_ADDDETAIL) window.RbViewPage.reload()
   }
 
-  // 渲染后调用
+  // 组件渲染后调用
   static renderAfter(form) {
-    console.log('renderAfter ...', form)
+    console.log('RbForm#renderAfter ...', form)
   }
 }
 
@@ -740,12 +735,12 @@ class RbFormElement extends React.Component {
 
     return (
       <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''} ${state.hidden ? 'hide' : ''}`} data-field={props.field}>
-        <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !props.nullable ? 'required' : ''}`}>
+        <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !state.nullable ? 'required' : ''}`}>
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
           {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
-          {!props.onView && state.tip && <p className={`form-text ${state.tipForce && 'form-text-force'}`}>{state.tip}</p>}
+          {!props.onView && state.tip && <p className="form-text">{state.tip}</p>}
 
           {editable && !state.editMode && <a className="edit" onClick={() => this.toggleEditMode(true)} title={$L('编辑')} />}
           {editable && state.editMode && (
@@ -769,7 +764,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!props.nullable && $empty(props.value) && props.readonlyw !== 2) {
+      if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       }
       // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
@@ -858,7 +853,7 @@ class RbFormElement extends React.Component {
    * 无效值检查
    */
   isValueError() {
-    if (this.props.nullable === false) {
+    if (this.state.nullable === false) {
       return $empty(this.state.value) ? $L('不能为空') : null
     }
   }
@@ -925,9 +920,17 @@ class RbFormElement extends React.Component {
     return this.state.value
   }
 
-  // With FrontJS
+  // 隐藏/显示
   setHidden(hidden) {
     this.setState({ hidden: hidden === true })
+  }
+  // 可空/非空
+  setNullable(nullable) {
+    this.setState({ nullable: nullable === true })
+  }
+  // TIP 仅表单有效
+  setTip(tip) {
+    this.setState({ tip: tip || null })
   }
 }
 
@@ -2737,42 +2740,5 @@ const __findTagTexts = function (options, value) {
 const __addRecentlyUse = function (id) {
   if (id && typeof id === 'string') {
     $.post(`/commons/search/recently-add?id=${id}`)
-  }
-}
-
-// -- Lite
-
-// eslint-disable-next-line no-unused-vars
-class LiteForm extends RbForm {
-  renderCustomizedFormArea() {
-    return null
-  }
-
-  renderDetailForm() {
-    return null
-  }
-
-  renderFormAction() {
-    return null
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    // TODO init...
-  }
-
-  buildFormData() {
-    const s = {}
-    const data = this.__FormData || {}
-    for (let k in data) {
-      const error = data[k].error
-      if (error) {
-        RbHighbar.create(error)
-        return false
-      }
-      s[k] = data[k].value
-    }
-    s.metadata = { id: this.props.id || '' }
-    return s
   }
 }
