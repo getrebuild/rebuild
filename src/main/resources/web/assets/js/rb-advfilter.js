@@ -846,7 +846,7 @@ class ListAdvFilter extends AdvFilter {
       <div className="item dialog-footer">
         {this.props.inModal ? (
           <RF>
-            <div className="float-left">
+            <div className="float-left" style={{ marginTop: -1 }}>
               {rb.isAdminUser ? (
                 <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} noSwitch hasName configName={this.props.filterName} />
               ) : (

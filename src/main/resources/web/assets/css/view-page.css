@@ -324,6 +324,10 @@ body {
   line-height: 1;
 }
 
+.sharing-list {
+  min-height: 60px;
+}
+
 .sharing-list .user-avatar {
   line-height: 30px;
   color: #444;

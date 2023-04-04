@@ -266,10 +266,10 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <a className="btn btn-secondary btn-space" onClick={this.hide}>
+          <a className="btn btn-secondary btn-spacem mr-2" onClick={this.hide}>
             {$L('取消')}
           </a>
-          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+          <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
             {this._confirmText || $L('确定')}
           </button>
         </div>

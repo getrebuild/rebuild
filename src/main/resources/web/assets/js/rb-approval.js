@@ -405,14 +405,14 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
             </div>
           </div>
           {approvals.length > 0 && this.renderUsers()}
-          <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>
-              {$L('取消')}
-            </button>
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>
-              {$L('提交')}
-            </button>
-          </div>
+        </div>
+        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          <button type="button" className="btn btn-secondary btn-space mr-2" onClick={this.hide}>
+            {$L('取消')}
+          </button>
+          <button type="button" className="btn btn-primary btn-space mr-1" onClick={() => this.post()}>
+            {$L('提交')}
+          </button>
         </div>
       </RbModal>
     )
@@ -493,7 +493,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+          <button type="button" className="btn btn-primary btn-space mr-2" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
             {$L('同意')}
           </button>
           <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
