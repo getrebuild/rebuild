@@ -470,35 +470,35 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           </div>
 
           {this.renderUsers()}
+        </div>
 
-          <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-            {(this.state.allowReferral || this.state.allowCountersign) && (
-              <div className="btn-group btn-space">
-                <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
-                  <i className="icon zmdi zmdi-more-vert" />
-                </button>
-                <div className="dropdown-menu dropdown-menu-right">
-                  {this.state.allowReferral && (
-                    <a className="dropdown-item" onClick={() => this._handleReferral()}>
-                      <i className="icon mdi mdi-account-arrow-right-outline" /> {$L('转审')}
-                    </a>
-                  )}
-                  {this.state.allowCountersign && (
-                    <a className="dropdown-item" onClick={() => this._handleCountersign()}>
-                      <i className="icon mdi mdi-account-multiple-plus-outline" /> {$L('加签')}
-                    </a>
-                  )}
-                </div>
+        <div className="dialog-footer" ref={(c) => (this._btns = c)}>
+          {(this.state.allowReferral || this.state.allowCountersign) && (
+            <div className="btn-group btn-space">
+              <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
+                <i className="icon zmdi zmdi-more-vert" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                {this.state.allowReferral && (
+                  <a className="dropdown-item" onClick={() => this._handleReferral()}>
+                    <i className="icon mdi mdi-account-arrow-right-outline" /> {$L('转审')}
+                  </a>
+                )}
+                {this.state.allowCountersign && (
+                  <a className="dropdown-item" onClick={() => this._handleCountersign()}>
+                    <i className="icon mdi mdi-account-multiple-plus-outline" /> {$L('加签')}
+                  </a>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-            <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
-              {$L('同意')}
-            </button>
-            <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
-              {$L('驳回')}
-            </button>
-          </div>
+          <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+            {$L('同意')}
+          </button>
+          <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
+            {$L('驳回')}
+          </button>
         </div>
       </RbModal>
     )
