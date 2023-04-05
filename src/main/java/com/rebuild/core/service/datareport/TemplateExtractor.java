@@ -52,8 +52,8 @@ public class TemplateExtractor {
     // v2:{xxx} v1:${xxx}
     private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
-    protected File template;
-    private boolean isList;
+    final protected File template;
+    final private boolean isList;
 
     /**
      * @param template

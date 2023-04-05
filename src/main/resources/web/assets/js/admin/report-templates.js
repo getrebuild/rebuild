@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable */
 
 $(document).ready(function () {
-  $('.J_add').on('click', () => renderRbcomp(<ReporEditor />))
+  $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -21,7 +21,7 @@ class ReportList extends ConfigList {
     return (
       <RF>
         {(this.state.data || []).map((item) => {
-          const outputType = item[7] || 'excel'
+          const outputType = (item[7] || {}).outputType || 'excel'
           return (
             <tr key={item[0]}>
               <td>
@@ -57,7 +57,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReporEditor id={item[0]} name={item[3]} isDisabled={item[4]} outputType={item[7]} />)
+    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} />)
   }
 
   handleDelete(id) {
@@ -73,7 +73,7 @@ class ReportList extends ConfigList {
   }
 }
 
-class ReporEditor extends ConfigFormDlg {
+class ReportEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('报表模板')
@@ -216,11 +216,11 @@ class ReporEditor extends ConfigFormDlg {
 
     $(this._$outputType).find('[data-toggle="tooltip"]').tooltip()
 
-    const outputType = this.props.outputType || 'excel'
-    if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
-    if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
-
-    if (!this.props.id) {
+    if (this.props.id) {
+      const outputType = (this.props.extraDefinition || {}).outputType || 'excel'
+      if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
+      if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
+    } else {
       const $pw = $(`<a class="btn btn-secondary ml-2">${$L('预览')}</a>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {
@@ -283,6 +283,7 @@ class ReporEditor extends ConfigFormDlg {
     // v3.3
     post.extraDefinition = {
       outputType: output.length === 0 ? 'excel' : output.join(','),
+      templateVersion: (this.props.extraDefinition || {}).templateVersion || 2
     }
 
     if (this.props.id) {
@@ -293,6 +294,7 @@ class ReporEditor extends ConfigFormDlg {
       post.templateType = $(this._$listType).find('input').prop('checked') ? 2 : 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
       if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
+      post.extraDefinition.templateVersion = 3
     }
 
     post.metadata = {

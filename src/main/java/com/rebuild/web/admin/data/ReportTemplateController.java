@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -21,6 +20,7 @@ import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.service.datareport.TemplateExtractor33;
+import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -73,8 +73,7 @@ public class ReportTemplateController extends BaseController {
 
         Object[][] list = ConfigCommons.queryListOfConfig(sql, entity, q);
         for (Object[] o : list) {
-            JSONObject extra = JSON.parseObject((String) o[7]);
-            if (extra != null) o[7] = extra.getString("outputType");
+            o[7] = o[7] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[7]);
         }
 
         return RespBody.ok(list);
@@ -127,28 +126,22 @@ public class ReportTemplateController extends BaseController {
     @GetMapping("/report-templates/preview")
     public void preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String entity = getParameter(request, "entity");
-        String template = getParameter(request, "file");
-        boolean isList = getBoolParameter(request, "list");
-        boolean isV33 = true;
 
-        // 使用配置
-        if (reportId != null) {
-            Object[] report = Application.createQueryNoFilter(
-                    "select belongEntity,templateType,template from DataReportConfig where configId = ?")
-                    .setParameter(1, reportId)
-                    .unique();
-            entity = (String) report[0];
-            template = (String) report[2];
-            isList = ObjectUtils.toInt(report[1]) == DataReportManager.TYPE_LIST;
-            isV33 = false;
+        TemplateFile tt;
+
+        // 新建时
+        if (reportId == null) {
+            String entity = getParameter(request, "entity");
+            String template = getParameter(request, "file");
+            boolean isList = getBoolParameter(request, "list");
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), isList, true);
+        } else {
+            // 使用配置
+            tt = DataReportManager.instance.getTemplateFile(reportId);
         }
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        File templateFile = RebuildConfiguration.getFileOfData(template);
-
         String sql = String.format("select %s from %s order by modifiedOn desc",
-                entityMeta.getPrimaryField().getName(), entityMeta.getName());
+                tt.entity.getPrimaryField().getName(), tt.entity.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, Language.L("未找到可供预览的记录"));
@@ -158,13 +151,13 @@ public class ReportTemplateController extends BaseController {
         File output;
         try {
             // 列表报表
-            if (isList) {
+            if (tt.isList) {
                 JSONObject queryData = JSONUtils.toJSONObject(
                         new String[] { "pageSize", "entity" },
-                        new Object[] { 2, entity });
-                output = new EasyExcelListGenerator(templateFile, queryData).generate();
+                        new Object[] { 2, tt.entity.getName() });
+                output = EasyExcelListGenerator.create(tt.templateFile, queryData).generate();
             } else {
-                output = EasyExcelGenerator.create(templateFile, (ID) random[0], isV33).generate();
+                output = EasyExcelGenerator.create(tt.templateFile, (ID) random[0], tt.isV33).generate();
             }
 
         } catch (ConfigurationException ex) {
@@ -178,8 +171,7 @@ public class ReportTemplateController extends BaseController {
 
     @GetMapping("/report-templates/download")
     public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        @SuppressWarnings("deprecation")
-        File template = DataReportManager.instance.getTemplateFile(reportId);
+        File template = DataReportManager.instance.getTemplateFile(reportId).templateFile;
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);

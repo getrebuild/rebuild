@@ -19,7 +19,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyMultiSelect;
+import com.rebuild.core.metadata.easymeta.EasyN2NReference;
+import com.rebuild.core.metadata.easymeta.EasyTag;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -33,7 +39,11 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,11 +86,11 @@ public class DataExporter extends SetUser {
      * @see com.rebuild.core.service.datareport.EasyExcelListGenerator
      */
     public File export(ID useReport) {
-        EasyExcelListGenerator generator = new EasyExcelListGenerator(useReport, this.queryData);
-        generator.setUser(getUser());
-        File file = generator.generate();
+        EasyExcelListGenerator g = EasyExcelListGenerator.create(useReport, this.queryData);
+        g.setUser(getUser());
+        File file = g.generate();
 
-        count = generator.getExportCount();
+        count = g.getExportCount();
         return file;
     }
 

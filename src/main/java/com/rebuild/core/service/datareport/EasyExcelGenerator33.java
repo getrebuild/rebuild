@@ -68,7 +68,6 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     String[] split = varName.substring(1).split("\\.");
                     String refName2 = split[0] + split[1];
                     refName = varName.substring(0, refName2.length() + 2 /* dots */);
-                    System.out.println(refName);
                 }
 
                 Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refName, new HashMap<>());
@@ -141,7 +140,6 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
             }
-            System.out.println(querySql);
 
             List<Record> list = Application.createQuery(querySql, getUser())
                     .setParameter(1, recordId)

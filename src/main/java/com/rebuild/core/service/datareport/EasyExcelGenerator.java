@@ -408,8 +408,8 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     public static EasyExcelGenerator create(ID reportId, ID recordId) {
-        File template = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
-        return create(template, recordId, Boolean.FALSE);
+        TemplateFile tb = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+        return create(tb.templateFile, recordId, tb.isV33);
     }
 
     /**
