@@ -89,6 +89,9 @@ class UserImport extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.imports()} ref={(c) => (this._$btn = c)}>
                 {$L('开始导入')}
               </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
             </div>
           </div>
         </div>

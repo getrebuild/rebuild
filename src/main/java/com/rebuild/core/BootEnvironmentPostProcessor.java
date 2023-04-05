@@ -167,7 +167,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
      */
     public static String getProperty(String name, String defaultValue) {
         String value = null;
-        if (ConfigurationItem.inCli(name)) {
+        if (ConfigurationItem.inJvmArgs(name)) {
             value = StringUtils.defaultIfBlank(System.getProperty(name), System.getProperty(V2_PREFIX + name));
         } else if (ENV_HOLD != null) {
             if (!(name.startsWith(V2_PREFIX) || name.contains("."))) {

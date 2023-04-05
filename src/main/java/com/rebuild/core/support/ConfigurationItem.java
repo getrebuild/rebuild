@@ -123,12 +123,12 @@ public enum ConfigurationItem {
     ;
 
     /**
-     * 仅可通过 CLI 配置
+     * 仅可通过启动参数配置
      *
      * @param name
      * @return
      */
-    public static boolean inCli(String name) {
+    public static boolean inJvmArgs(String name) {
         return DataDirectory.name().equalsIgnoreCase(name)
                 || RedisDatabase.name().equalsIgnoreCase(name)
                 || MobileUrl.name().equalsIgnoreCase(name)
