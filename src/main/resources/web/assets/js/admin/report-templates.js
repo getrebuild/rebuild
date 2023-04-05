@@ -131,7 +131,9 @@ class ReporEditor extends ConfigFormDlg {
                   <input className="custom-control-input" type="checkbox" />
                   <span className="custom-control-label">
                     {$L('这是一个列表模板')}
-                    <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('列表模板可在数据列表页面的“数据导出”使用')} />
+                    <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E5%9C%A8%E5%88%97%E8%A1%A8%E4%B8%AD%E4%BD%BF%E7%94%A8">
+                      <i className="zmdi zmdi-help zicon down-1" />
+                    </a>
                   </span>
                 </label>
 
@@ -162,7 +164,7 @@ class ReporEditor extends ConfigFormDlg {
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
               <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin">
-                <i className="zmdi zmdi-help zicon" />
+                <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
           </div>

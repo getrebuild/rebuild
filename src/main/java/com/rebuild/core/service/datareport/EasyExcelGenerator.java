@@ -80,19 +80,10 @@ public class EasyExcelGenerator extends SetUser {
     protected int phNumber = 1;
 
     /**
-     * @param reportId
-     * @param recordId
-     */
-    public EasyExcelGenerator(ID reportId, ID recordId) {
-        this(DataReportManager.instance.getTemplateFile(
-                MetadataHelper.getEntity(recordId.getEntityCode()), reportId), recordId);
-    }
-
-    /**
      * @param template
      * @param recordId
      */
-    public EasyExcelGenerator(File template, ID recordId) {
+    protected EasyExcelGenerator(File template, ID recordId) {
         this.template = template;
         this.recordId = recordId;
     }
@@ -292,7 +283,6 @@ public class EasyExcelGenerator extends SetUser {
         for (final String fieldName : varsMap.values()) {
             if (fieldName == null) continue;
 
-            @SuppressWarnings("DataFlowIssue")
             EasyField easyField = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
             DisplayType dt = easyField.getDisplayType();
 
@@ -408,5 +398,29 @@ public class EasyExcelGenerator extends SetUser {
             log.error("Cannot encode image of barcode : {}", recordId, e);
         }
         return null;
+    }
+
+    // --
+
+    /**
+     * @param reportId
+     * @param recordId
+     * @return
+     */
+    public static EasyExcelGenerator create(ID reportId, ID recordId) {
+        File template = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+        return create(template, recordId, Boolean.FALSE);
+    }
+
+    /**
+     * @param template
+     * @param recordId
+     * @param isV33
+     * @return
+     */
+    public static EasyExcelGenerator create(File template, ID recordId, boolean isV33) {
+        return isV33
+                ? new EasyExcelGenerator33(template, recordId)
+                : new EasyExcelGenerator(template, recordId);
     }
 }

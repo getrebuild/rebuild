@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.datareport;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -37,11 +38,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PRE
 @Slf4j
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
-    public EasyExcelGenerator33(ID reportId, ID recordId) {
-        super(reportId, recordId);
-    }
-
-    public EasyExcelGenerator33(File template, ID recordId) {
+    protected EasyExcelGenerator33(File template, ID recordId) {
         super(template, recordId);
     }
 
@@ -67,7 +64,11 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 } else if (varName.startsWith(DETAIL_PREFIX)) {
                     refName = DETAIL_PREFIX;
                 } else {
-                    refName = varName.substring(varName.indexOf("."));
+                    // .AccountId.SalesOrder.SalesOrderName
+                    String[] split = varName.substring(1).split("\\.");
+                    String refName2 = split[0] + split[1];
+                    refName = varName.substring(0, refName2.length() + 2 /* dots */);
+                    System.out.println(refName);
                 }
 
                 Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refName, new HashMap<>());
@@ -130,13 +131,17 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 Entity de = entity.getDetailEntity();
                 querySql += " order by autoId asc";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de));
+                        de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
             } else {
-                Entity qe = entity.getField(refName).getReferenceEntity();
+                String[] split = refName.substring(1).split("\\.");
+                Field ref2Field = MetadataHelper.getField(split[1], split[0]);
+                Entity ref2Entity = ref2Field.getOwnEntity();
+
                 querySql += " order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        qe.getPrimaryField().getName(), qe.getName(), refName);
+                        ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
             }
+            System.out.println(querySql);
 
             List<Record> list = Application.createQuery(querySql, getUser())
                     .setParameter(1, recordId)

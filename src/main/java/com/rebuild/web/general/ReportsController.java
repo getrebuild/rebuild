@@ -84,7 +84,7 @@ public class ReportsController extends BaseController {
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         File output = null;
         try {
-            output = new EasyExcelGenerator(reportId, recordId).generate();
+            output = EasyExcelGenerator.create(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }

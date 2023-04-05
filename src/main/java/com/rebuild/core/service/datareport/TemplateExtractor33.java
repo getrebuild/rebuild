@@ -11,8 +11,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -76,10 +74,14 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 }
                 // REF
                 else {
-                    String refField = listField.split("\\.")[0];
-                    Field refField2 = entity.containsField(refField) ? entity.getField(refField) : null;
-                    if (EasyMetaFactory.getDisplayType(refField2) == DisplayType.REFERENCE) {
-                        map.put(varName, listField.substring(refField.length()));
+                    String[] split = listField.split("\\.");
+                    String ref2Field = split[0];
+                    String ref2Entity = split[1];
+                    Field ref2FieldMeta = MetadataHelper.containsField(ref2Entity, ref2Field)
+                            ? MetadataHelper.getField(ref2Entity, ref2Field) : null;
+
+                    if (ref2FieldMeta != null && entity.equals(ref2FieldMeta.getReferenceEntity())) {
+                        map.put(varName, listField.substring(ref2Field.length() + ref2Entity.length() + 2));
                     } else {
                         map.put(varName, null);
                     }
