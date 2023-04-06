@@ -904,9 +904,10 @@ class RbList extends React.Component {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           this._clearSelected()
-          $(this._$scroller).scrollTop(0) //.perfectScrollbar('update')
+          $(this._$scroller).scrollTop(0)
+          setTimeout(() => RbList.renderAfterEvery(this), 0)
         })
-
+        
         if (reload && this._Pagination) {
           this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
         }
@@ -1144,9 +1145,14 @@ class RbList extends React.Component {
     return query
   }
 
-  // 组件渲染后调用
+  // 组件渲染后调用（首次）
   static renderAfter(list) {
     console.log('RbList#renderAfter ...', list)
+  }
+
+  // 组件渲染后调用
+  static renderAfterEvery(list) {
+    console.log('RbList#renderAfterEvery ...', list)
   }
 }
 
