@@ -115,7 +115,7 @@ public class DataExporter extends SetUser {
             EasyExcel.write(file)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .registerWriteHandler(this.buildExcelStyle())
-                    .sheet(EasyMetaFactory.getLabel(builder.getEntity()))
+                    .sheet("Sheet1")
                     .head(head4Excel)
                     .doWrite(this.buildData(builder, Boolean.FALSE));
             return file;
