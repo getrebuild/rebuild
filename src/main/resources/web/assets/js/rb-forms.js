@@ -708,9 +708,8 @@ class RbForm extends React.Component {
   }
 
   // 组件渲染后调用
-  static renderAfter(form) {
-    console.log('RbForm#renderAfter ...', form)
-  }
+  // eslint-disable-next-line no-unused-vars
+  static renderAfter(form) {}
 }
 
 // 表单元素基础类
