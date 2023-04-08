@@ -90,7 +90,6 @@ $(document).ready(function () {
     }
 
     const extConfigNew = { ...extConfig, ...__gExtConfig }
-    console.log(extConfigNew)
 
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
