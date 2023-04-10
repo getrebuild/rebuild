@@ -13,7 +13,14 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 
 /**
@@ -99,17 +106,10 @@ public class CompressUtils {
      * @param source
      * @param dest
      * @throws IOException
+     * @see FileUtils#copyFile(File, File) Bad on unix!
      * @see IOUtils#copyLarge(Reader, Writer)
      */
     public static void copy(File source, File dest) throws IOException {
-        FileReader fr = new FileReader(source);
-        FileWriter fw = new FileWriter(dest);
-
-        try {
-            IOUtils.copyLarge(fr, fw);
-        } finally {
-            IOUtils.closeQuietly(fr);
-            IOUtils.closeQuietly(fw);
-        }
+        FileUtils.copyFile(source, dest);
     }
 }
