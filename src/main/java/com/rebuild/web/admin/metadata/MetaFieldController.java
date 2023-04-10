@@ -35,7 +35,6 @@ import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -217,12 +216,20 @@ public class MetaFieldController extends BaseController {
     }
 
     @RequestMapping("field-drop")
-    public RespBody fieldDrop(@IdParam ID fieldId) {
-        Object[] fieldRecord = Application.createQueryNoFilter(
-                "select belongEntity,fieldName from MetaField where fieldId = ?")
-                .setParameter(1, fieldId)
-                .unique();
-        Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
+    public RespBody fieldDrop(HttpServletRequest request) {
+        String fieldId = getParameterNotNull(request, "id");
+        Object[] fieldRecord;
+        if (ID.isId(fieldId)) {
+            fieldRecord = Application.createQueryNoFilter(
+                    "select belongEntity,fieldName from MetaField where fieldId = ?")
+                    .setParameter(1, ID.valueOf(fieldId))
+                    .unique();
+        } else {
+            // Entity.Field
+            fieldRecord = fieldId.split("\\.");
+        }
+
+        Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
 
         boolean drop = new Field2Schema().dropField(field, false);
         return drop ? RespBody.ok() : RespBody.error();
