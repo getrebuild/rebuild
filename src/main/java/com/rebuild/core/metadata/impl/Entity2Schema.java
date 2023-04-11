@@ -232,7 +232,7 @@ public class Entity2Schema extends Field2Schema {
 
         String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
         try {
-            Application.getSqlExecutor().execute(ddl, 10 * 60);
+            Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
             log.error("DDL ERROR : \n" + ddl, ex);
             return false;
@@ -266,8 +266,9 @@ public class Entity2Schema extends Field2Schema {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         Table table = new Table(entity, dialect);
         String[] ddls = table.generateDDL(false, false, false);
+
         try {
-            Application.getSqlExecutor().executeBatch(ddls);
+            Application.getSqlExecutor().executeBatch(ddls, DDL_TIMEOUT);
         } catch (Throwable ex) {
             log.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
             return false;

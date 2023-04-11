@@ -34,6 +34,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
+import com.rebuild.utils.PdfConverterException;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -84,7 +85,7 @@ public class ReportsController extends BaseController {
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
         File output = null;
         try {
-            output = new EasyExcelGenerator(reportId, recordId).generate();
+            output = EasyExcelGenerator.create(reportId, recordId).generate();
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }
@@ -144,10 +145,17 @@ public class ReportsController extends BaseController {
             File output;
             if (useReport != null) {
                 output = exporter.export(useReport);
+
                 // PDF
-                if ("pdf".equals(getParameter(request, "output")) || isOnlyPdf(entity, useReport)) {
-                    output = PdfConverter.convert(output.toPath()).toFile();
+                if ("PDF".equalsIgnoreCase(getParameter(request, "output")) || isOnlyPdf(entity, useReport)) {
+                    try {
+                        output = PdfConverter.convert(output.toPath()).toFile();
+                    } catch (PdfConverterException ex) {
+                        log.error(null, ex);
+                        return RespBody.errorl("无法输出 PDF 文件");
+                    }
                 }
+
             } else {
                 output = exporter.export(reportType);
             }

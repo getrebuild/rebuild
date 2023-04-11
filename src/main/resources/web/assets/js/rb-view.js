@@ -163,7 +163,8 @@ class RbViewForm extends React.Component {
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
         // v3.3 刷新本页
-        setTimeout(() => location.reload(), 200)
+        // setTimeout(() => location.reload(), 200)
+        setTimeout(() => RbViewPage.reload(), 200)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -885,10 +886,10 @@ const RbViewPage = {
               this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
-                  this.hide()
+                  this.hide(true)
                   setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
                 } else {
-                  this.disabled(false)
+                  this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
                 }
               })

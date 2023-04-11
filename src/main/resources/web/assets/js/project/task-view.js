@@ -149,7 +149,7 @@ class TaskForm extends React.Component {
         this.disabled(true, true)
         $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
-            this.hide()
+            this.hide(true)
             RbHighbar.success($L('任务已删除'))
             __TaskViewer.refreshTask('DELETE')
             __TaskViewer.hide()

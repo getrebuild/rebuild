@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,7 @@ public class PdfConverter {
         try {
             return convert(path, Boolean.FALSE);
         } catch (IOException e) {
-            throw new RebuildException(e);
+            throw new PdfConverterException(e);
         }
     }
 
@@ -96,6 +95,6 @@ public class PdfConverter {
         if (echo.length() > 0) log.info(echo.toString());
 
         if (dest.exists()) return dest.toPath();
-        throw new RebuildException("Cannot convert to PDF : " + echo);
+        throw new PdfConverterException("Cannot convert to PDF : " + echo);
     }
 }

@@ -168,6 +168,35 @@ $(document).ready(() => {
       else $tr.addClass('hide')
     })
   })
+
+  $('.J_resize-fields').on('click', () => {
+    $('.form-preview .dd-item').removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass('w-50')
+  })
+  $('.J_del-unlayout-fields').on('click', () => {
+    RbAlert.create($L('是否删除所有未布局字段？'), {
+      type: 'danger',
+      onConfirm: function () {
+        this.disabled(true, true)
+        const that = this
+
+        let del = 0
+        $('#FIELDLIST .dd-handle').each(function () {
+          const $item = $(this)
+          if ($item.hasClass('readonly')) return
+
+          del++
+          $.post(`/admin/entity/field-drop?id=${wpc.entityName}.${$item.data('field')}`, (res) => {
+            if (res.error_code === 0) $item.parent().remove()
+            
+            if (--del <= 0) {
+              RbHighbar.success($L('删除完成'))
+              that.hide(true)
+            }
+          })
+        })
+      },
+    })
+  })
 })
 
 const render_item = function (data) {
@@ -292,7 +321,7 @@ const render_item = function (data) {
 }
 
 const render_unset = function (data) {
-  const $item = $(`<li class="dd-item"><div class="dd-handle">${data.fieldLabel}</div></li>`).appendTo('.field-list')
+  const $item = $(`<li class="dd-item"><div class="dd-handle" data-field="${data.fieldName}">${data.fieldLabel}</div></li>`).appendTo('.field-list')
   $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
   if (data.creatable === false) $item.find('.dd-handle').addClass('readonly')
   else if (data.nullable === false) $item.find('.dd-handle').addClass('not-nullable')

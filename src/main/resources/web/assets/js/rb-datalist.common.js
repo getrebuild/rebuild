@@ -904,7 +904,9 @@ class RbList extends React.Component {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           this._clearSelected()
-          $(this._$scroller).scrollTop(0) //.perfectScrollbar('update')
+          $(this._$scroller).scrollTop(0)
+
+          setTimeout(() => RbList.renderAfter(this), 0)
         })
 
         if (reload && this._Pagination) {
@@ -1145,9 +1147,8 @@ class RbList extends React.Component {
   }
 
   // 组件渲染后调用
-  static renderAfter(list) {
-    console.log('RbList#renderAfter ...', list)
-  }
+  // eslint-disable-next-line no-unused-vars
+  static renderAfter(list) {}
 }
 
 // 分页组件

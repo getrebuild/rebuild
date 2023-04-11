@@ -114,9 +114,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_BEFORE_HOLD.get(primaryId)
                 : RobotTriggerManager.instance.getActions(getRealRecordId(context), when);
-        if (beExecuted == null || beExecuted.length == 0) {
-            return;
-        }
+        if (beExecuted == null || beExecuted.length == 0) return;
 
         TriggerSource triggerSource = getTriggerSource();
         final boolean originTriggerSource = triggerSource == null;

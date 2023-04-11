@@ -25,8 +25,6 @@ const RbListPage = {
       if (window.FrontJS) {
         window.FrontJS.DataList._trigger('open', [])
       }
-
-      setTimeout(() => RbList.renderAfter(this), 0)
     })
 
     const that = this
