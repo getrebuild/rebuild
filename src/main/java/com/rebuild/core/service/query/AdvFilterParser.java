@@ -36,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -401,7 +402,7 @@ public class AdvFilterParser extends SetUser {
                 for (String s : value.split("\\|")) {
                     maskValue += ObjectUtils.toLong(s);
                 }
-                value = maskValue + "";
+                value = String.valueOf(maskValue);
             }
         }
 
@@ -659,6 +660,8 @@ public class AdvFilterParser extends SetUser {
 
         if (v instanceof Date) {
             v = CalendarUtils.getUTCDateFormat().format(v);
+        } else if (v instanceof BigDecimal) {
+            v = String.valueOf(((BigDecimal) v).doubleValue());
         } else {
             v = String.valueOf(v);
         }

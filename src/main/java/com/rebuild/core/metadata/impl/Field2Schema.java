@@ -98,6 +98,9 @@ public class Field2Schema extends SetUser {
      * @return
      */
     public String createField(Entity entity, String fieldLabel, String fieldName, DisplayType type, String comments, String refEntity, JSON extConfig) {
+        fieldLabel = StringUtils.trim(fieldLabel);
+        fieldName = StringUtils.trim(fieldName);
+
         if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
 
         for (int i = 0; i < 6; i++) {

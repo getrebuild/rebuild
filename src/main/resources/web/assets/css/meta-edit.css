@@ -250,3 +250,13 @@ select.underline-sm {
 select.underline-sm:focus {
   border-color: #4285f4;
 }
+
+.bslider.form-control {
+  border: 0 none;
+  padding: 0;
+  max-height: 24px;
+}
+
+.form-text.J_minmax > b {
+  color: #222;
+}
