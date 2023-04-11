@@ -30,6 +30,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -177,7 +178,6 @@ public class FieldWriteback extends FieldAggregation {
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             // 自己更新自己
             targetRecordIds.add(actionContext.getSourceRecord());
-
         }
         // 1>1
         else if (isOne2One) {
@@ -228,11 +228,15 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         if (!targetRecordIds.isEmpty()) {
-            targetRecordData = buildTargetRecordData();
+            targetRecordData = buildTargetRecordData(operatingContext);
         }
     }
 
-    private Record buildTargetRecordData() {
+    private Record buildTargetRecordData(OperatingContext operatingContext) {
+        // v3.3 源字段为空时置空目标字段
+        final boolean clearFields = ((JSONObject) actionContext.getActionContent()).getBooleanValue("clearFields");
+        final boolean forceVNull = clearFields && operatingContext.getAction() == InternalPermission.DELETE_BEFORE;
+
         final Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
         final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
@@ -300,7 +304,7 @@ public class FieldWriteback extends FieldAggregation {
             String sourceAny = item.getString("sourceField");
 
             // 置空
-            if ("VNULL".equalsIgnoreCase(updateMode)) {
+            if ("VNULL".equalsIgnoreCase(updateMode) || forceVNull) {
                 targetRecord.setNull(targetField);
             }
 
@@ -315,11 +319,12 @@ public class FieldWriteback extends FieldAggregation {
                 if (sourceFieldMeta == null) continue;
 
                 Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceAny);
-
-                if (value != null) {
-                    Object newValue = EasyMetaFactory.valueOf(sourceFieldMeta)
-                            .convertCompatibleValue(value, targetFieldEasy);
+                Object newValue = value == null ? null
+                        : EasyMetaFactory.valueOf(sourceFieldMeta).convertCompatibleValue(value, targetFieldEasy);
+                if (newValue != null) {
                     targetRecord.setObjectValue(targetField, newValue);
+                } else if (clearFields) {
+                    targetRecord.setNull(targetField);
                 }
             }
 
@@ -333,15 +338,15 @@ public class FieldWriteback extends FieldAggregation {
                 // 高级公式代码
                 final boolean useCode = sourceAny.startsWith(CODE_PREFIX);
 
-                // 日期兼容 fix: v2.2
+                // 日期兼容 v2.2
                 if (sourceAny.contains(DATE_EXPR) && !useCode) {
                     String fieldName = sourceAny.split(DATE_EXPR)[0];
                     Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
                     if (sourceField2 == null) continue;
 
                     Object value = useSourceData.getObjectValue(fieldName);
-                    Object newValue = value == null ? null : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2))
-                            .convertCompatibleValue(value, targetFieldEasy, sourceAny);
+                    Object newValue = value == null ? null
+                            : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2)).convertCompatibleValue(value, targetFieldEasy, sourceAny);
                     if (newValue != null) {
                         targetRecord.setObjectValue(targetField, newValue);
                     }

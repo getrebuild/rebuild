@@ -166,6 +166,14 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$clearFields = c)} />
+                  <span className="custom-control-label">
+                    {$L('源字段为空时置空目标字段')}
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </form>
@@ -196,6 +204,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
+      $(this._$clearFields).attr('checked', content.clearFields === true)
     }
   }
 
@@ -314,6 +323,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       items: this.state.items,
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
+      clearFields: $(this._$clearFields).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
