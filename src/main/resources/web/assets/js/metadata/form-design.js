@@ -187,9 +187,9 @@ $(document).ready(() => {
           del++
           $.post(`/admin/entity/field-drop?id=${wpc.entityName}.${$item.data('field')}`, (res) => {
             if (res.error_code === 0) $item.parent().remove()
-
+            
             if (--del <= 0) {
-              RbHighbar.success('删除完成')
+              RbHighbar.success($L('删除完成'))
               that.hide(true)
             }
           })
