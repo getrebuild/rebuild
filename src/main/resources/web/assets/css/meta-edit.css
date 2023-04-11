@@ -265,3 +265,13 @@ select.underline-sm:focus {
   float: right;
   margin-left: 3px;
 }
+
+.bslider.form-control {
+  border: 0 none;
+  padding: 0;
+  max-height: 24px;
+}
+
+.form-text.J_minmax > b {
+  color: #222;
+}
