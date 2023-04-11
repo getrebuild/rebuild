@@ -19,6 +19,8 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,13 +78,18 @@ public class DataReportManager implements ConfigManager {
 
         List<ConfigBean> alist = new ArrayList<>();
         for (Object[] o : array) {
+            JSONObject extra = o[5] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[5]);
+            String outputType = StringUtils.defaultIfBlank(extra.getString("outputType"), "excel");
+            int templateVersion = extra.containsKey("templateVersion") ? extra.getInteger("templateVersion") : 2;
+
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
                     .set("name", o[1])
                     .set("disabled", o[2])
                     .set("template", o[3])
                     .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
-                    .set("extraDefinition", o[5] == null ? null : JSON.parseObject((String) o[5]));
+                    .set("outputType", outputType)
+                    .set("templateVersion", templateVersion);
             alist.add(cb);
         }
 
@@ -105,8 +112,7 @@ public class DataReportManager implements ConfigManager {
             if (e.getID("id").equals(reportId)) {
                 template = e.getString("template");
                 isList = e.getInteger("type") == TYPE_LIST;
-                JSONObject extra = (JSONObject) e.getJSON("extraDefinition");
-                isV33 = extra != null && extra.getIntValue("templateVersion") == 3;
+                isV33 = e.getInteger("templateVersion") == 3;
                 break;
             }
         }
@@ -142,7 +148,7 @@ public class DataReportManager implements ConfigManager {
 
     @Override
     public void clean(Object entity) {
-        final String cKey = "DataReportManager2-" + ((Entity) entity).getName();
+        final String cKey = "DataReportManager33-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
 }
