@@ -293,11 +293,11 @@ class DeleteConfirm extends RbAlert {
         else if (res.data.deleted === 0) RbHighbar.error($L('无法删除记录'))
         else RbHighbar.success($L('成功删除 %d 条记录', res.data.deleted))
 
-        this.hide()
+        this.hide(true)
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter(res.data.deleted)
       } else {
         RbHighbar.error(res.error_msg)
-        this.disabled(false)
+        this.disabled()
       }
     })
   }

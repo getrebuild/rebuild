@@ -532,7 +532,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     if (state === 11 && this.state.isRejectStep) {
       this.disabled(true, true)
       $.get(`/app/entity/approval/fetch-backsteps?record=${this.props.id}`, (res) => {
-        this.disabled(false)
+        this.disabled()
 
         const ss = res.data || []
         RbAlert.create(

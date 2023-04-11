@@ -190,7 +190,7 @@ $(document).ready(() => {
 
             if (--del <= 0) {
               RbHighbar.success('删除完成')
-              that.hide()
+              that.hide(true)
             }
           })
         })

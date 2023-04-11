@@ -886,10 +886,10 @@ const RbViewPage = {
               this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
-                  this.hide()
+                  this.hide(true)
                   setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
                 } else {
-                  this.disabled(false)
+                  this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
                 }
               })
