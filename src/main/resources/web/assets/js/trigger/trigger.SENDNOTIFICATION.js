@@ -122,11 +122,8 @@ class ContentSendNotification extends ActionContentSpec {
         }
       )
 
-      if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
-        window.whenUpdateFields = content.whenUpdateFields
-        const $s = $('.when-update .custom-control-label')
-        $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
-      }
+      // eslint-disable-next-line no-undef
+      DlgSpecFields.render(content)
     }
   }
 
@@ -154,7 +151,6 @@ class ContentSendNotification extends ActionContentSpec {
     }
 
     if (window.whenUpdateFields) _data.whenUpdateFields = window.whenUpdateFields
-
     return _data
   }
 }

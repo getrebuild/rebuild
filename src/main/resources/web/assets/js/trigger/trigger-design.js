@@ -310,6 +310,14 @@ class DlgSpecFields extends RbModalHandler {
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${wpc.sourceEntity}`, (res) => this.setState({ fields: res.data }))
   }
+
+  static render(content) {
+    if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
+      window.whenUpdateFields = content.whenUpdateFields
+      const $s = $('.when-update .custom-control-label')
+      $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
+    }
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
