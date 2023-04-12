@@ -12,8 +12,6 @@ $(document).ready(() => {
     return
   }
 
-  $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?t=${$encode($('.h5-mobile a').attr('href'))}`)
-
   if ($.browser.mobile) {
     setTimeout(function () {
       // $('.h5-mobile').dropdown('dispose') ???
@@ -21,6 +19,8 @@ $(document).ready(() => {
       $a.parent().html('<a href="' + $a.attr('href') + '">' + $a.html() + '</a>')
     }, 200)
   }
+
+  $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?t=${$encode($('.h5-mobile a').attr('href'))}`)
 
   $.get('/user/live-wallpaper', (res) => {
     if (res.error_code !== 0 || !res.data) return
@@ -39,8 +39,9 @@ $(document).ready(() => {
     $(this).attr('src', `captcha?${$random()}`)
   })
 
+  $('#login-form .btn').attr('disabled', false)
   $('#login-form').on('submit', function (e) {
-    e.preventDefault()
+    $stopEvent(e, true)
 
     const user = $val('#user'),
       passwd = $val('#passwd'),
