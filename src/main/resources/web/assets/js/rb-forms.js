@@ -967,24 +967,24 @@ class RbFormText extends RbFormElement {
 
     // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
     // v3.2.2 in protable
-    const $d = $(this._$dropdown)
-    if ($d[0]) {
-      const $protable = $d.parents('.protable')
-      if ($protable[0]) {
-        setTimeout(() => {
-          $d.parent().on('show.bs.dropdown', () => {
-            const dh = ~~($d.attr('origin-height') || $d.height())
-            const ph = ~~($protable.height() - 25)
-            if (dh >= ph) {
-              $d.height(ph)
-              if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
-            } else {
-              $d.height('auto')
-            }
-          })
-        }, 60)
-      }
-    }
+    // const $d = $(this._$dropdown)
+    // if ($d[0]) {
+    //   const $protable = $d.parents('.protable')
+    //   if ($protable[0]) {
+    //     setTimeout(() => {
+    //       $d.parent().on('show.bs.dropdown', () => {
+    //         const dh = ~~($d.attr('origin-height') || $d.height())
+    //         const ph = ~~($protable.height() - 25)
+    //         if (dh >= ph) {
+    //           $d.height(ph)
+    //           if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
+    //         } else {
+    //           $d.height('auto')
+    //         }
+    //       })
+    //     }, 60)
+    //   }
+    // }
   }
 }
 

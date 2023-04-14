@@ -170,7 +170,12 @@ $(document).ready(() => {
   })
 
   $('.J_resize-fields').on('click', () => {
-    $('.form-preview .dd-item').removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass('w-50')
+    $('.form-preview .dd-item').each(function () {
+      const $field = $(this).find('.J_field')
+      if ($field.data('field') !== '$DIVIDER$') {
+        $field.removeAttr('data-height').parent().removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass('w-50')
+      }
+    })
   })
   $('.J_del-unlayout-fields').on('click', () => {
     RbAlert.create($L('是否删除所有未布局字段？'), {
@@ -187,7 +192,7 @@ $(document).ready(() => {
           del++
           $.post(`/admin/entity/field-drop?id=${wpc.entityName}.${$item.data('field')}`, (res) => {
             if (res.error_code === 0) $item.parent().remove()
-            
+
             if (--del <= 0) {
               RbHighbar.success($L('删除完成'))
               that.hide(true)

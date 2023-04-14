@@ -4691,10 +4691,12 @@ pre.unstyle {
   padding-bottom: 15px;
 }
 
+/*
 .protable.rb-scroller.ps-active-x {
   overflow: auto !important;
   overflow-x: hidden !important;
 }
+*/
 
 .protable .form-group {
   margin: 0;
@@ -5163,11 +5165,11 @@ div.dataTables_wrapper div.dataTables_oper {
   font-size: 0;
 }
 
-div.dataTables_wrapper div.dataTables_oper .btn.btn-space {
+div.dataTables_wrapper div.dataTables_oper .btn-space {
   margin-right: 10px;
 }
 
-div.dataTables_wrapper div.dataTables_oper .btn.btn-space:last-child {
+div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
   margin-right: 5px;
 }
 
@@ -5175,6 +5177,6 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn {
   min-width: 68px;
 }
 
-div.dataTables_wrapper.compact div.dataTables_oper .btn.btn-space {
+div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
   margin-right: 5px;
 }
