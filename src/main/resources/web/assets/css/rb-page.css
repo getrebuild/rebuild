@@ -4999,6 +4999,7 @@ pre.unstyle {
   padding: 15px 15px 12px;
   z-index: 1051;
   overflow: auto;
+  max-width: 337px;
 }
 
 .dropdown-menu.common-texts.w-100 {
