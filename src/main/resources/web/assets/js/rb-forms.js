@@ -734,9 +734,7 @@ class RbFormElement extends React.Component {
 
     return (
       <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''} ${state.hidden ? 'hide' : ''}`} data-field={props.field}>
-        <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !state.nullable ? 'required' : ''}`}>
-          {props.label}
-        </label>
+        <label className={`col-form-label ${!props.onView && !state.nullable ? 'required' : ''}`}>{props.label}</label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
           {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && state.tip && <p className="form-text">{state.tip}</p>}
@@ -766,7 +764,6 @@ class RbFormElement extends React.Component {
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       }
-      // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
 
       this.onEditModeChanged()
     }
@@ -934,57 +931,53 @@ class RbFormElement extends React.Component {
 }
 
 class RbFormText extends RbFormElement {
+  constructor(props) {
+    super(props)
+
+    this._textCommonMenuId = this.props.readonly || !this.props.textCommon ? null : $random('tcddm-')
+  }
+
   renderElement() {
     const comp = super.renderElement()
-    if (this.props.readonly || !this.props.textCommon) return comp
-
-    return (
-      <RF>
-        {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
-        <div className="dropdown-menu common-texts" ref={(c) => (this._$dropdown = c)}>
-          <h5>{$L('常用')}</h5>
-          {this.props.textCommon.split(',').map((item) => {
-            return (
-              <a
-                key={item}
-                title={item}
-                className="badge text-ellipsis"
-                onClick={() => {
-                  // $(this._fieldValue).val(item)
-                  this.handleChange({ target: { value: item } }, true)
-                }}>
-                {item}
-              </a>
-            )
-          })}
-        </div>
-      </RF>
-    )
+    return this._textCommonMenuId ? React.cloneElement(comp, { 'data-toggle': 'dropdown', 'data-target': `#${this._textCommonMenuId}` }) : comp
   }
 
   componentDidMount() {
     super.componentDidMount()
 
-    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
-    // v3.2.2 in protable
-    // const $d = $(this._$dropdown)
-    // if ($d[0]) {
-    //   const $protable = $d.parents('.protable')
-    //   if ($protable[0]) {
-    //     setTimeout(() => {
-    //       $d.parent().on('show.bs.dropdown', () => {
-    //         const dh = ~~($d.attr('origin-height') || $d.height())
-    //         const ph = ~~($protable.height() - 25)
-    //         if (dh >= ph) {
-    //           $d.height(ph)
-    //           if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
-    //         } else {
-    //           $d.height('auto')
-    //         }
-    //       })
-    //     }, 60)
-    //   }
-    // }
+    if (this._textCommonMenuId) {
+      const that = this
+      console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      renderRbcomp(
+        <div id={this._textCommonMenuId}>
+          <div className="dropdown-menu common-texts">
+            <h5>{$L('常用')}</h5>
+            {this.props.textCommon.split(',').map((item) => {
+              return (
+                <a
+                  key={item}
+                  title={item}
+                  className="badge text-ellipsis"
+                  onClick={() => {
+                    that.handleChange({ target: { value: item } }, true)
+                  }}>
+                  {item}
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+
+    if (this._textCommonMenuId) {
+      console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      $unmount($(`#${this._textCommonMenuId}`).parent())
+    }
   }
 }
 

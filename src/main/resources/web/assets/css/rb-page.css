@@ -4691,13 +4691,6 @@ pre.unstyle {
   padding-bottom: 15px;
 }
 
-/*
-.protable.rb-scroller.ps-active-x {
-  overflow: auto !important;
-  overflow-x: hidden !important;
-}
-*/
-
 .protable .form-group {
   margin: 0;
   padding: 0;
