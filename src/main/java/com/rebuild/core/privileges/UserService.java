@@ -152,7 +152,7 @@ public class UserService extends BaseService {
         }
 
         if (record.hasValue("password")) {
-            String password = record.getString("password");
+            String password = CommonsUtils.maxstr(record.getString("password"), 32);
             checkPassword(password);
             record.setString("password", EncryptUtils.toSHA256Hex(password));
         }
