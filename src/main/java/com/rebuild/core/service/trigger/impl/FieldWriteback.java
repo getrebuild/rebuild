@@ -349,6 +349,8 @@ public class FieldWriteback extends FieldAggregation {
                             : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2)).convertCompatibleValue(value, targetFieldEasy, sourceAny);
                     if (newValue != null) {
                         targetRecord.setObjectValue(targetField, newValue);
+                    } else if (clearFields) {
+                        targetRecord.setNull(targetField);
                     }
                 }
 
@@ -421,6 +423,8 @@ public class FieldWriteback extends FieldAggregation {
                             newValue = checkoutFieldValue(newValue, targetFieldEasy);
                             if (newValue != null) {
                                 targetRecord.setObjectValue(targetField, newValue);
+                            } else if (clearFields) {
+                                targetRecord.setNull(targetField);
                             }
                         }
                     }

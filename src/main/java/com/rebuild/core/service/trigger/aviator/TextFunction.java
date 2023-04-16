@@ -40,19 +40,19 @@ public class TextFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-        Object o = arg1.getValue(env);
+        final Object $id = arg1.getValue(env);
 
         // 引用
-        if (ID.isId(o)) {
-            ID anyid = o instanceof ID ? (ID) o : ID.valueOf(o.toString());
+        if (ID.isId($id)) {
+            ID anyid = $id instanceof ID ? (ID) $id : ID.valueOf($id.toString());
             String text = FieldValueHelper.getLabel(anyid, null);
             return text == null ? arg2 : new AviatorString(text);
         }
 
         // 多引用
-        if (o instanceof ID[]) {
+        if ($id instanceof ID[]) {
             List<String> texts = new ArrayList<>();
-            for (ID anyid : (ID[]) o) {
+            for (ID anyid : (ID[]) $id) {
                 String t = FieldValueHelper.getLabel(anyid, null);
                 if (t != null) texts.add(t);
             }
@@ -60,9 +60,9 @@ public class TextFunction extends AbstractFunction {
         }
 
         if (arg1 instanceof AviatorJavaType) {
-            log.warn("Invalid value with type : {}={}", ((AviatorJavaType) arg1).getName(), o);
+            log.warn("Invalid value with type : {}={}", ((AviatorJavaType) arg1).getName(), $id);
         } else {
-            log.warn("Invalid value with type : {}", o);
+            log.warn("Invalid value with type : {}", $id);
         }
 
         // TODO 更多字段类型支持

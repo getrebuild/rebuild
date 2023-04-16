@@ -51,6 +51,7 @@ public class AviatorUtils {
         addCustomFunction(new LocationDistanceFunction());
         addCustomFunction(new ChineseYuanFunction());
         addCustomFunction(new TextFunction());
+        addCustomFunction(new IdFunction());
         addCustomFunction(new RequestFunctuin());
         addCustomFunction(new SqlQueryFunction());
         addCustomFunction(new LogFunction());

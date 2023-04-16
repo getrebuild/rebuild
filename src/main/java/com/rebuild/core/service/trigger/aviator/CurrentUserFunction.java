@@ -10,7 +10,6 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorObject;
-import com.googlecode.aviator.runtime.type.AviatorString;
 import com.rebuild.core.UserContextHolder;
 
 import java.util.Map;
@@ -28,7 +27,7 @@ public class CurrentUserFunction extends AbstractFunction {
     @Override
     public AviatorObject call(Map<String, Object> env) {
         ID user = UserContextHolder.getUser();
-        return new AviatorString(user.toLiteral());
+        return new AviatorId(user);
     }
 
     @Override

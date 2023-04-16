@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
@@ -167,5 +168,25 @@ public class QueryHelper {
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, entity.getPrimaryField().getName());
         return o != null;
+    }
+
+    /**
+     * @param queryFields
+     * @param queryValue
+     * @return
+     */
+    public static ID queryId(Field[] queryFields, String queryValue) {
+        Entity entity = queryFields[0].getOwnEntity();
+
+        StringBuilder sql = new StringBuilder(
+                String.format("select %s from %s where ", entity.getPrimaryField().getName(), entity.getName()));
+        for (Field qf : queryFields) {
+            sql.append(
+                    String.format("%s = '%s' or ", qf.getName(), CommonsUtils.escapeSql(queryValue)));
+        }
+        sql = new StringBuilder(sql.substring(0, sql.length() - 4));
+
+        Object[] found = Application.createQueryNoFilter(sql.toString()).unique();
+        return found == null ? null : (ID) found[0];
     }
 }
