@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
@@ -67,6 +66,8 @@ import java.util.Set;
 @Slf4j
 public class FieldWriteback extends FieldAggregation {
 
+    private FieldWritebackRefresh fieldWritebackRefresh;
+
     /**
      * 设：线索1、客户N（即 1 <:> N）
      * 当线索作为目标，客户作为源时，更新客户时只会更新 1 个线索（one2one）
@@ -77,8 +78,8 @@ public class FieldWriteback extends FieldAggregation {
     private static final String DATE_EXPR = "#";
     private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
 
-    private Set<ID> targetRecordIds;
-    private Record targetRecordData;
+    protected Set<ID> targetRecordIds;
+    protected Record targetRecordData;
 
     public FieldWriteback(ActionContext context) {
         super(context, Boolean.TRUE);
@@ -87,6 +88,17 @@ public class FieldWriteback extends FieldAggregation {
     @Override
     public ActionType getType() {
         return ActionType.FIELDWRITEBACK;
+    }
+
+    @Override
+    public void clean() {
+        super.clean();
+
+        if (fieldWritebackRefresh != null) {
+            log.info("Clear after refresh : {}", fieldWritebackRefresh);
+            fieldWritebackRefresh.refresh();
+            fieldWritebackRefresh = null;
+        }
     }
 
     @Override
@@ -186,14 +198,24 @@ public class FieldWriteback extends FieldAggregation {
 
             if (afterRecord.hasValue(targetFieldEntity[0])) {
                 Object o = afterRecord.getObjectValue(targetFieldEntity[0]);
-                if (!NullValue.isNull(o)) {
-                    // N2N
-                    if (o instanceof ID[]) {
-                        Collections.addAll(targetRecordIds, (ID[]) o);
-                    } else {
-                        targetRecordIds.add((ID) o);
+                // N2N
+                if (o instanceof ID[]) {
+                    Collections.addAll(targetRecordIds, (ID[]) o);
+                } else if (o instanceof ID) {
+                    targetRecordIds.add((ID) o);
+                }
+
+                // v3.3 修改/清空时修改前值
+                // TODO N2N 是否也需要???
+                boolean clearFields = ((JSONObject) actionContext.getActionContent()).getBooleanValue("clearFields");
+                if (clearFields) {
+                    Record beforeRecord = operatingContext.getBeforeRecord();
+                    Object beforeValue = beforeRecord == null ? null : beforeRecord.getObjectValue(targetFieldEntity[0]);
+                    if (beforeValue != null && !beforeValue.equals(o)) {
+                        fieldWritebackRefresh = new FieldWritebackRefresh(this, (ID) beforeValue);
                     }
                 }
+
             } else {
                 Object[] o = Application.getQueryFactory().uniqueNoFilter(afterRecord.getPrimary(),
                         targetFieldEntity[0], afterRecord.getEntity().getPrimaryField().getName());
@@ -228,75 +250,83 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         if (!targetRecordIds.isEmpty()) {
-            targetRecordData = buildTargetRecordData(operatingContext);
+            targetRecordData = buildTargetRecordData(operatingContext, false);
         }
     }
 
-    private Record buildTargetRecordData(OperatingContext operatingContext) {
+    /**
+     * 构建目标记录
+     *
+     * @param operatingContext
+     * @param fromRefresh
+     * @return
+     */
+    protected Record buildTargetRecordData(OperatingContext operatingContext, Boolean fromRefresh) {
         // v3.3 源字段为空时置空目标字段
         final boolean clearFields = ((JSONObject) actionContext.getActionContent()).getBooleanValue("clearFields");
-        final boolean forceVNull = clearFields && operatingContext.getAction() == InternalPermission.DELETE_BEFORE;
+        final boolean forceVNull = fromRefresh || (clearFields && operatingContext.getAction() == InternalPermission.DELETE_BEFORE);
 
         final Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
         final JSONArray items = ((JSONObject) actionContext.getActionContent()).getJSONArray("items");
 
         final Set<String> fieldVars = new HashSet<>();
         final Set<String> fieldVarsN2NPath = new HashSet<>();
-        for (Object o : items) {
-            JSONObject item = (JSONObject) o;
-            String sourceField = item.getString("sourceField");
-            String updateMode = item.getString("updateMode");
-            // fix: v2.2
-            if (updateMode == null) {
-                updateMode = sourceField.contains(DATE_EXPR) ? "FORMULA" : "FIELD";
-            }
+        // 变量值
+        Record useSourceData = null;
 
-            if ("FIELD".equalsIgnoreCase(updateMode)) {
-                fieldVars.add(sourceField);
-            } else if ("FORMULA".equalsIgnoreCase(updateMode)) {
-                if (sourceField.contains(DATE_EXPR) && !sourceField.startsWith(CODE_PREFIX)) {
-                    fieldVars.add(sourceField.split(DATE_EXPR)[0]);
-                } else {
-                    Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
-                    for (String field : matchsVars) {
-                        if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
-                            fieldVarsN2NPath.add(field);
-                        } else {
-                            if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
-                                throw new MissingMetaExcetion(field, sourceEntity.getName());
+        if (!forceVNull) {
+            for (Object o : items) {
+                JSONObject item = (JSONObject) o;
+                String sourceField = item.getString("sourceField");
+                String updateMode = item.getString("updateMode");
+                // fix: v2.2
+                if (updateMode == null) {
+                    updateMode = sourceField.contains(DATE_EXPR) ? "FORMULA" : "FIELD";
+                }
+
+                if ("FIELD".equalsIgnoreCase(updateMode)) {
+                    fieldVars.add(sourceField);
+                } else if ("FORMULA".equalsIgnoreCase(updateMode)) {
+                    if (sourceField.contains(DATE_EXPR) && !sourceField.startsWith(CODE_PREFIX)) {
+                        fieldVars.add(sourceField.split(DATE_EXPR)[0]);
+                    } else {
+                        Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
+                        for (String field : matchsVars) {
+                            if (N2NReferenceSupport.isN2NMixPath(field, sourceEntity)) {
+                                fieldVarsN2NPath.add(field);
+                            } else {
+                                if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
+                                    throw new MissingMetaExcetion(field, sourceEntity.getName());
+                                }
+                                fieldVars.add(field);
                             }
-                            fieldVars.add(field);
                         }
                     }
                 }
             }
-        }
 
-        // 变量值
-        Record useSourceData = null;
-        if (!fieldVars.isEmpty()) {
-            String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
-                    StringUtils.join(fieldVars, ","),
-                    sourceEntity.getPrimaryField().getName(),
-                    sourceEntity.getName());
-            useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
-        }
-        if (!fieldVarsN2NPath.isEmpty()) {
-            if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
-            fieldVars.addAll(fieldVarsN2NPath);
+            if (!fieldVars.isEmpty()) {
+                String sql = MessageFormat.format("select {0},{1} from {2} where {1} = ?",
+                        StringUtils.join(fieldVars, ","),
+                        sourceEntity.getPrimaryField().getName(),
+                        sourceEntity.getName());
+                useSourceData = Application.createQueryNoFilter(sql).setParameter(1, actionContext.getSourceRecord()).record();
+            }
+            if (!fieldVarsN2NPath.isEmpty()) {
+                if (useSourceData == null) useSourceData = new StandardRecord(sourceEntity, null);
+                fieldVars.addAll(fieldVarsN2NPath);
 
-            for (String field : fieldVarsN2NPath) {
-                Object[] n2nVal = N2NReferenceSupport.getN2NValueByMixPath(field, actionContext.getSourceRecord());
-                useSourceData.setObjectValue(field, n2nVal);
+                for (String field : fieldVarsN2NPath) {
+                    Object[] n2nVal = N2NReferenceSupport.getN2NValueByMixPath(field, actionContext.getSourceRecord());
+                    useSourceData.setObjectValue(field, n2nVal);
+                }
             }
         }
 
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
-            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                continue;
-            }
+            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) continue;
 
             EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
