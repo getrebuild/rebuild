@@ -49,6 +49,8 @@ public class AviatorUtils {
         addCustomFunction(new CurrentUserFunction());
         addCustomFunction(new CurrentBizunitFunction());
         addCustomFunction(new CurrentDateFunction());
+        addCustomFunction(new ChineseYuanFunction());
+        addCustomFunction(new TextFunction());
     }
 
     /**
