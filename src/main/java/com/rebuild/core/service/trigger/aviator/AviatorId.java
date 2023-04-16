@@ -24,7 +24,7 @@ public class AviatorId extends AviatorObject {
 
     final private ID idValue;
 
-    protected AviatorId(ID value) {
+    public AviatorId(ID value) {
         super();
         this.idValue = value;
     }

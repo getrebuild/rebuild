@@ -30,7 +30,7 @@ public class AviatorDate extends AviatorObject {
 
     final private Date dateValue;
 
-    protected AviatorDate(Date value) {
+    public AviatorDate(Date value) {
         super();
         this.dateValue = value;
     }
