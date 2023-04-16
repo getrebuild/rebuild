@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.trigger.aviator.AssertFailedException;
 import com.rebuild.core.service.trigger.impl.AggregationEvaluator;
 import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
@@ -167,6 +168,8 @@ public class FieldWritebackController extends BaseController {
             return RespBody.ok(evalValue);
 
         } catch (Exception ex) {
+            if (ex instanceof AssertFailedException) return RespBody.ok();
+
             String errMsg = ex.getLocalizedMessage();
             log.warn("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
             return RespBody.error(errMsg);
