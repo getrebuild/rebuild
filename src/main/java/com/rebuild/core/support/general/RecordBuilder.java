@@ -5,13 +5,15 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.metadata;
+package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.EntityRecordCreator;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.utils.JSONable;
 
 /**

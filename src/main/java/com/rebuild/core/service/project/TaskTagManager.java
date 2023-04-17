@@ -14,7 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
