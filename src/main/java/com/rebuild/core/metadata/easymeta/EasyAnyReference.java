@@ -9,6 +9,9 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.impl.AnyEntity;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.springframework.util.Assert;
 
@@ -33,5 +36,13 @@ public class EasyAnyReference extends EasyReference {
 
         Assert.isTrue(targetField.getDisplayType() == DisplayType.ANYREFERENCE, "type-by-type is must");
         return value;
+    }
+
+    @Override
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+
+        map.put("ref", new String[] { AnyEntity.FLAG, AnyEntity.FLAG });
+        return map;
     }
 }

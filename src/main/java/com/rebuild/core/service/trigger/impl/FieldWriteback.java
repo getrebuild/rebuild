@@ -478,13 +478,13 @@ public class FieldWriteback extends FieldAggregation {
 
             ID id = ID.isId(value) ? ID.valueOf(value.toString()) : null;
             if (id != null) {
-                int idCode = id.getEntityCode();
+                int entityCode = id.getEntityCode();
                 if (dt == DisplayType.PICKLIST) {
-                    if (idCode == EntityHelper.PickList) newValue = id;
+                    if (entityCode == EntityHelper.PickList) newValue = id;
                 } else if (dt == DisplayType.CLASSIFICATION) {
-                    if (idCode == EntityHelper.ClassificationData) newValue = id;
+                    if (entityCode == EntityHelper.ClassificationData) newValue = id;
                 } else if (dt == DisplayType.REFERENCE) {
-                    if (field.getRawMeta().getReferenceEntity().getEntityCode() == idCode) newValue = id;
+                    if (field.getRawMeta().getReferenceEntity().getEntityCode() == entityCode) newValue = id;
                 } else {
                     newValue = id;
                 }
