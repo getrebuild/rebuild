@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 
 /**
  * 时间系列
+ * w, W, SSS
  *
  * @author devezhao
  * @since 12/24/2018
@@ -31,6 +32,7 @@ public class TimeVar extends SeriesVar {
         s = s.replace("D", "d");
         s = s.replace("I", "m");
         s = s.replace("S", "s");
+        s = s.replace("sss", "SSS");
         return CalendarUtils.format(s, CalendarUtils.now());
     }
 }
