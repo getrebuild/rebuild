@@ -353,8 +353,6 @@ class DlgEditField extends RbAlert {
   constructor(props) {
     super(props)
     this.state = { ...props }
-
-    console.log(props)
   }
 
   renderContent() {

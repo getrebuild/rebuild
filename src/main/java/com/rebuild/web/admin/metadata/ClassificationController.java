@@ -92,26 +92,25 @@ public class ClassificationController extends BaseController {
 
             item = EntityHelper.forNew(EntityHelper.ClassificationData, user);
             item.setID("dataId", dataId);
-            if (parent != null) {
-                item.setID("parent", parent);
-            }
+            if (parent != null) item.setID("parent", parent);
             item.setInt("level", level);
+
         } else {
             return RespBody.errorl("无效请求参数");
         }
 
-        String code = getParameter(request, "code");
-        String name = getParameter(request, "name");
         String hide = getParameter(request, "hide");
-        if (StringUtils.isNotBlank(code)) {
-            item.setString("code", code);
+        String hide2 = getParameter(request, "hide2");  // 禁用
+        if (hide2 != null) {
+            hide = hide2;
+        } else {
+            String name = getParameter(request, "name");
+            if (StringUtils.isNotBlank(name)) item.setString("name", name);
+            String code = getParameter(request, "code");
+            item.setString("code", StringUtils.defaultString(code, StringUtils.EMPTY));
         }
-        if (StringUtils.isNotBlank(name)) {
-            item.setString("name", name);
-        }
-        if (StringUtils.isNotBlank(hide)) {
-            item.setBoolean("isHide", BooleanUtils.toBooleanObject(hide));
-        }
+
+        item.setBoolean("isHide", BooleanUtils.toBooleanObject(hide));
 
         item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
         return RespBody.ok(item.getPrimary());

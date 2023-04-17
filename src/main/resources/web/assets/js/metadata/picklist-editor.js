@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-undef */
 
 const isMulti = ['MULTISELECT'].includes($urlp('type'))
-const maxOptions = isMulti ? 20 : 100
+const maxOptions = 100
 
 $(document).ready(() => {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
@@ -87,6 +87,7 @@ $(document).ready(() => {
     $('.J_text').val('').removeAttr('data-key')
     $('.J_confirm').text($L('添加'))
     $('.colors>a>i').remove()
+    $('.J_config').parent().scrollTop(9999)
 
     return false
   })
