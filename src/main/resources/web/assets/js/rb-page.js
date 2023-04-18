@@ -405,11 +405,13 @@ var _showNotification = function () {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
+      var n = new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
         tag: 'rbNotification',
         icon: rb.baseUrl + '/assets/img/favicon.png',
       })
-      $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
+      n.onshow = function () {
+        $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
+      }
     } else {
       _Notification.requestPermission()
     }

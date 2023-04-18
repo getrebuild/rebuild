@@ -11,6 +11,8 @@ server:
       force: true
     session:
       tracking-modes: cookie
+      cookie:
+        same-site: lax
   error:
     whitelabel.enabled: false
   tomcat:
@@ -39,4 +41,3 @@ spring:
         size: 5
   main:
     banner-mode: off
-
