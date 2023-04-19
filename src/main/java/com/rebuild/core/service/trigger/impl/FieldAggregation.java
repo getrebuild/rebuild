@@ -28,6 +28,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -144,8 +145,13 @@ public class FieldAggregation extends TriggerAction {
         this.prepare(operatingContext);
 
         if (targetRecordId == null) {
-            log.info("No target record(s) found");
+            log.info("No target record found");
             return TriggerResult.noMatching();
+        }
+
+        if (!QueryHelper.exists(targetRecordId)) {
+            log.warn("Target record dose not exists: {} (On {})", targetRecordId, actionContext.getConfigId());
+            return TriggerResult.targetNotExists();
         }
 
         // 聚合数据过滤

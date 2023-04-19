@@ -32,6 +32,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
@@ -126,9 +127,15 @@ public class FieldWriteback extends FieldAggregation {
         boolean targetSame = false;
 
         for (ID targetRecordId : targetRecordIds) {
+            // 删除时无需更新自己
             if (operatingContext.getAction() == BizzPermission.DELETE
                     && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
-                // 删除时无需更新自己
+                continue;
+            }
+
+            // 目标实体不存在 [DELETED]
+            if (!QueryHelper.exists(targetRecordId)) {
+                log.warn("Target record dose not exists: {} (On {})", targetRecordId, actionContext.getConfigId());
                 continue;
             }
 
