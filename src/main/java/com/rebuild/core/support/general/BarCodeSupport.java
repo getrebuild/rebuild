@@ -15,6 +15,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -49,6 +50,8 @@ public class BarCodeSupport {
 
     private static final String CONTENT_UNSET = "UNSET";
     private static final String CONTENT_ERROR = "ERROR";
+
+    private static final int BARCODE_BASE = 64;
 
     /**
      * @param field
@@ -100,7 +103,7 @@ public class BarCodeSupport {
      * @return
      */
     public static BufferedImage createBarCode(String content, int h, boolean showText) {
-        h = h <= 0 ? 64 : h;
+        h = h <= 0 ? BARCODE_BASE : h;
         BitMatrix bitMatrix;
         try {
             bitMatrix = createCode(content, BarcodeFormat.CODE_128, h);
@@ -138,6 +141,11 @@ public class BarCodeSupport {
 
         // 条形码宽度为自适应
         int width = format == BarcodeFormat.QR_CODE ? height : 0;
+        if (width == 0 && height != BARCODE_BASE) {
+            // 非整数倍数两边有白边
+            width = (int) (((height + 0d) / BARCODE_BASE) * new Code128Writer().encode(content).length);
+        }
+
         try {
             return new MultiFormatWriter().encode(content, format, width, height, hints);
 
