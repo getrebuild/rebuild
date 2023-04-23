@@ -5174,3 +5174,7 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn {
 div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
   margin-right: 5px;
 }
+
+.alert.alert-dismissible .message {
+  padding-right: 42px;
+}
