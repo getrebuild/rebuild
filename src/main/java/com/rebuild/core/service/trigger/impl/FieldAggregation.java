@@ -35,6 +35,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -192,15 +193,26 @@ public class FieldAggregation extends TriggerAction {
                 else targetRecord.setNull(targetField);
 
             } else if (dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
-                if (((Object[]) evalValue).length == 0) {
+                Object[] oArray = (Object[]) evalValue;
+
+                if (oArray.length == 0) {
                     targetRecord.setNull(targetField);
                 } else if (dt == DisplayType.NTEXT) {
-                    String join = StringUtils.join((Object[]) evalValue, ", ");
+                    // 使用文本
+                    if (oArray[0] instanceof ID) {
+                        List<String> labelList = new ArrayList<>();
+                        for (Object id : oArray) {
+                            labelList.add(FieldValueHelper.getLabelNotry((ID) id));
+                        }
+                        oArray = labelList.toArray(new String[0]);
+                    }
+
+                    String join = StringUtils.join(oArray, ", ");
                     targetRecord.setString(targetField, join);
                 } else {
-                    List<ID> join = new ArrayList<>();
-                    for (Object id : (Object[]) evalValue) join.add((ID) id);
-                    targetRecord.setIDArray(targetField, join.toArray(new ID[0]));
+                    List<ID> idList = new ArrayList<>();
+                    for (Object id : oArray) idList.add((ID) id);
+                    targetRecord.setIDArray(targetField, idList.toArray(new ID[0]));
                 }
 
             } else {
