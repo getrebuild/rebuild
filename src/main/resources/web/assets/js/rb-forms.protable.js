@@ -126,8 +126,15 @@ class ProTable extends React.Component {
     })
   }
 
-  addNew() {
-    this.addLine(this._initModel)
+  addNew(specFieldValues) {
+    const model = $clone(this._initModel)
+    if (specFieldValues) {
+      model.elements.forEach((item) => {
+        if (specFieldValues[item.field]) item.value = specFieldValues[item.field]
+      })
+    }
+
+    this.addLine(model)
   }
 
   addLine(model) {

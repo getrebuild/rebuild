@@ -1918,8 +1918,28 @@ class RbFormReference extends RbFormElement {
       that.__select2.val(id).trigger('change')
     } else {
       $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
-        const o = new Option(res.data[id], id, true, true)
+        const _data = res.data || {}
+        const o = new Option(_data[id], id, true, true)
         that.__select2.append(o).trigger('change')
+      })
+    }
+
+    // v3.3 多个则添加明细行
+    const $$$parent = this.props.$$$parent
+    if (selected.length > 1 && $$$parent._InlineForm) {
+      const _ProTable = $$$parent.props.$$$parent
+      $.get(`/commons/search/read-labels?ids=${selected.join(',')}`, (res) => {
+        const _data = res.data || {}
+        for (let i = 1; i < selected.length; i++) {
+          const id = selected[i]
+          const v = {
+            [this.props.field]: {
+              id: id,
+              text: _data[id],
+            },
+          }
+          setTimeout(() => _ProTable.addNew(v), 20 * i)
+        }
       })
     }
   }

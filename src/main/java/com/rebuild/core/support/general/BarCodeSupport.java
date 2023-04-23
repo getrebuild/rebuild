@@ -141,12 +141,13 @@ public class BarCodeSupport {
 
         // 条形码宽度为自适应
         int width = format == BarcodeFormat.QR_CODE ? height : 0;
-        if (width == 0 && height != BARCODE_BASE) {
-            // 非整数倍数两边有白边
-            width = (int) (((height + 0d) / BARCODE_BASE) * new Code128Writer().encode(content).length);
-        }
 
         try {
+            if (width == 0 && height != BARCODE_BASE) {
+                // 非整数倍数两边有白边
+                width = (int) (((height + 0d) / BARCODE_BASE) * new Code128Writer().encode(content).length);
+            }
+
             return new MultiFormatWriter().encode(content, format, width, height, hints);
 
         } catch (WriterException ex) {
