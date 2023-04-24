@@ -79,10 +79,10 @@ public class GeneralListController extends EntityController {
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
         // v3.3
         if (Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport)) {
-            int checkEntity = listEntity.getMainEntity() == null
-                    ? listEntity.getEntityCode() : listEntity.getMainEntity().getEntityCode();
-            mv.getModel().put(ZeroEntry.AllowDataImport.name(),
-                    Application.getPrivilegesManager().allowCreate(user, checkEntity));
+            boolean allow = listEntity.getMainEntity() == null
+                    ? Application.getPrivilegesManager().allowCreate(user, listEntity.getEntityCode())
+                    : Application.getPrivilegesManager().allowUpdate(user, listEntity.getMainEntity().getEntityCode());
+            mv.getModel().put(ZeroEntry.AllowDataImport.name(), allow);
         }
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));

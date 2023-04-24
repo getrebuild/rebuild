@@ -32,6 +32,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,12 @@ public class DataImportController extends BaseController {
             return null;
         }
 
-        return createModelAndView(viaAdmin ? "/admin/data/data-imports" : "/admin/data/data-imports2");
+        if (!viaAdmin) {
+            RbAssert.isCommercial(
+                    Language.L("免费版不支持非管理员用户数据导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+        }
+
+        return createModelAndView(viaAdmin ? "/admin/data/data-imports" : "/general/data-imports");
     }
 
     // 检查导入文件
