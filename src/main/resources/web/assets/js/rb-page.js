@@ -664,7 +664,8 @@ var $initUploader = $createUploader
  */
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
-  var $c = container[0] ? container : $(container)
+  var $c = container
+  console.log($c)
   setTimeout(function () {
     ReactDOM.unmountComponentAtNode($c[0])
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()

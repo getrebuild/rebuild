@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
@@ -41,7 +42,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,12 +56,19 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/data/")
+@RequestMapping({ "/admin/data/", "/app/entity/" })
 public class DataImportController extends BaseController {
 
     @GetMapping("/data-imports")
-    public ModelAndView page() {
-        return createModelAndView("/admin/data/data-imports");
+    public ModelAndView page(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        boolean isAdmin = UserHelper.isAdmin(getRequestUser(request));
+        boolean viaAdmin = request.getRequestURI().contains("/admin/");
+        if (isAdmin && !viaAdmin) {
+            response.sendRedirect("../../admin/data/data-imports?entity=" + getParameter(request, "entity", ""));
+            return null;
+        }
+
+        return createModelAndView(viaAdmin ? "/admin/data/data-imports" : "/admin/data/data-imports2");
     }
 
     // 检查导入文件
@@ -89,8 +99,13 @@ public class DataImportController extends BaseController {
     @RequestMapping("/data-imports/check-user")
     public JSON checkUserPrivileges(@EntityParam Entity entity, HttpServletRequest request) {
         ID user = getIdParameterNotNull(request, "user");
-        boolean canCreated = Application.getPrivilegesManager().allowCreate(user, entity.getEntityCode());
         boolean canUpdated = Application.getPrivilegesManager().allowUpdate(user, entity.getEntityCode());
+        boolean canCreated;
+        if (entity.getMainEntity() == null) {
+            canCreated = Application.getPrivilegesManager().allowCreate(user, entity.getEntityCode());
+        } else {
+            canCreated = Application.getPrivilegesManager().allowUpdate(user, entity.getMainEntity().getEntityCode());
+        }
 
         return JSONUtils.toJSONObject(
                 new String[]{"canCreate", "canUpdate"}, new Object[]{canCreated, canUpdated});

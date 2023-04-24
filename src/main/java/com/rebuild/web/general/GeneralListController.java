@@ -30,7 +30,11 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +77,13 @@ public class GeneralListController extends EntityController {
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList));
         mv.getModel().put(ZeroEntry.AllowDataExport.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
+        // v3.3
+        if (Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport)) {
+            int checkEntity = listEntity.getMainEntity() == null
+                    ? listEntity.getEntityCode() : listEntity.getMainEntity().getEntityCode();
+            mv.getModel().put(ZeroEntry.AllowDataImport.name(),
+                    Application.getPrivilegesManager().allowCreate(user, checkEntity));
+        }
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
 
