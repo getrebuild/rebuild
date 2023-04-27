@@ -52,14 +52,14 @@ public class BarCodeGeneratorController extends BaseController {
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameter(request, "t", "UNSET");
         int w = getIntParameter(request, "w", 0);
+        int h = getIntParameter(request, "h", 0);
 
         BufferedImage bi;
         if (request.getRequestURI().endsWith("render-qr")) {
             bi = BarCodeSupport.createQRCode(content, w);
         } else {
-            // 条形码文字
             boolean showText = getBoolParameter(request, "b", true);
-            bi = BarCodeSupport.createBarCode(content, w, showText);
+            bi = BarCodeSupport.createBarCode(content, w, h, showText);
         }
 
         // 4小时缓存
