@@ -2700,13 +2700,21 @@ const __findOptionText = function (options, value, useColor) {
   const o = options.find((x) => x.id == value)
 
   let text = (o || {}).text || `[${value.toUpperCase()}]`
-  if (useColor && o && o.color) {
-    const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
-    text = (
-      <span className="badge" style={style2}>
-        {text}
-      </span>
-    )
+  if (useColor) {
+    if (o && o.color) {
+      const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+      text = (
+        <span className="badge" style={style2}>
+          {text}
+        </span>
+      )
+    } else {
+      text = (
+        <span className="badge text-dark pl-0">
+          {text}
+        </span>
+      )
+    }
   }
   return text
 }
