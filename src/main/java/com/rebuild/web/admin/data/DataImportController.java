@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
@@ -62,7 +63,12 @@ public class DataImportController extends BaseController {
 
     @GetMapping("/data-imports")
     public ModelAndView page(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        boolean isAdmin = UserHelper.isAdmin(getRequestUser(request));
+        final ID user = getRequestUser(request);
+        RbAssert.isAllow(
+                Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport),
+                Language.L("无操作权限"));
+
+        boolean isAdmin = UserHelper.isAdmin(user);
         boolean viaAdmin = request.getRequestURI().contains("/admin/");
         if (isAdmin && !viaAdmin) {
             response.sendRedirect("../../admin/data/data-imports?entity=" + getParameter(request, "entity", ""));
@@ -104,7 +110,7 @@ public class DataImportController extends BaseController {
     // 检查所属用户权限
     @RequestMapping("/data-imports/check-user")
     public JSON checkUserPrivileges(@EntityParam Entity entity, HttpServletRequest request) {
-        ID user = getIdParameterNotNull(request, "user");
+        final ID user = getIdParameterNotNull(request, "user");
         boolean canUpdated = Application.getPrivilegesManager().allowUpdate(user, entity.getEntityCode());
         boolean canCreated;
         if (entity.getMainEntity() == null) {
@@ -165,6 +171,11 @@ public class DataImportController extends BaseController {
     // 开始导入
     @PostMapping("/data-imports/import-submit")
     public RespBody importSubmit(HttpServletRequest request) {
+        final ID user = getIdParameterNotNull(request, "user");
+        RbAssert.isAllow(
+                Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport),
+                Language.L("无操作权限"));
+
         ImportRule irule;
         try {
             irule = ImportRule.parse((JSONObject) ServletUtils.getRequestJson(request));
