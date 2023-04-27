@@ -194,6 +194,39 @@ public class BarCodeSupport {
     // --
     // https://github.com/zxing/zxing/issues/1099
 
+    private static BufferedImage drawTextOnImage(String text, BufferedImage image, int space) {
+        BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight() + space, BufferedImage.TRANSLUCENT);
+        Graphics2D g2d = bi.createGraphics();
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
+
+        g2d.drawImage(image, 0, 0, null);
+
+        final Font font = new Font(Font.SANS_SERIF, Font.PLAIN, space);
+        final int w = bi.getWidth();
+        final int h = space;
+
+        final FontMetrics fm = feetFontSizeToRegion(text, font, g2d, w, h);
+        final Rectangle2D stringBounds = fm.getStringBounds(text, g2d);
+
+        final double x = (w - stringBounds.getWidth()) / 2d;
+        final double y = (bi.getHeight() - space) + (h - stringBounds.getHeight()) / 2d;
+
+        if (CONTENT_UNSET.equals(text) || CONTENT_ERROR.equals(text)) {
+            g2d.setColor(Color.RED);
+        } else {
+            g2d.setColor(Color.WHITE);
+        }
+        g2d.fillRect(0, image.getHeight(), w, h);
+
+        // center text at bottom of image in the new space
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(text, (int) x, (int) (y + fm.getAscent()));
+        g2d.dispose();
+        return bi;
+    }
+
     private static FontMetrics feetFontSizeToRegion(String text, Font font, Graphics2D g2d, int regionWidth, int regionHeight) {
         // Get the fonts metrics
         FontMetrics fm = g2d.getFontMetrics(font);
@@ -214,38 +247,5 @@ public class BarCodeSupport {
         fm = g2d.getFontMetrics();
 
         return fm;
-    }
-
-    private static BufferedImage drawTextOnImage(String text, BufferedImage image, int space) {
-        BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight() + space, BufferedImage.TRANSLUCENT);
-        Graphics2D g2d = bi.createGraphics();
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
-
-        g2d.drawImage(image, 0, 0, null);
-
-        final Font font = new Font(Font.SERIF, Font.PLAIN, space);
-        final int w = bi.getWidth();
-        final int h = space;
-
-        FontMetrics fm = feetFontSizeToRegion(text, font, g2d, w, h);
-        final Rectangle2D stringBounds = fm.getStringBounds(text, g2d);
-
-        final double x = (w - stringBounds.getWidth()) / 2d;
-        final double y = (bi.getHeight() - space) + (h - stringBounds.getHeight()) / 2d;
-
-        if (CONTENT_UNSET.equals(text) || CONTENT_ERROR.equals(text)) {
-            g2d.setColor(Color.RED);
-        } else {
-            g2d.setColor(Color.WHITE);
-        }
-        g2d.fillRect(0, image.getHeight(), w, h);
-
-        // center text at bottom of image in the new space
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(text, (int) x, (int) (y + fm.getAscent()));
-        g2d.dispose();
-        return bi;
     }
 }
