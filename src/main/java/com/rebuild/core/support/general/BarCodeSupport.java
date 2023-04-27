@@ -51,8 +51,6 @@ public class BarCodeSupport {
     private static final String CONTENT_UNSET = "UNSET";
     private static final String CONTENT_ERROR = "ERROR";
 
-    private static final int BARCODE_BASE = 64;
-
     /**
      * @param field
      * @param record
@@ -154,15 +152,16 @@ public class BarCodeSupport {
         try {
             if (format == BarcodeFormat.QR_CODE) {
                 width = height = Math.max(width, height);
-                if (width <= 0) width = height = BARCODE_BASE * 5;  // 320
+                if (width <= 0) width = height = 80;
 
             } else {
-                if (height < BARCODE_BASE) height = BARCODE_BASE;  // 64
+                final int base = 64;
+                if (height < base) height = base;
 
                 // 条形码宽度为自适应
-                if (width == 0 && height > BARCODE_BASE) {
+                if (width == 0 && height > base) {
                     // 非整数倍数两边有白边
-                    width = (int) (((height + 0d) / BARCODE_BASE) * new Code128Writer().encode(content).length);
+                    width = (int) (((height + 0d) / base) * new Code128Writer().encode(content).length);
                 }
             }
 

@@ -2253,7 +2253,20 @@ class RbFormBarcode extends RbFormElement {
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
-        <a className={`img-thumbnail ${isbar && 'w-auto'}`} title={this.state.value}>
+        <a
+          className={`img-thumbnail pointer ${isbar && 'w-auto'}`}
+          title={this.state.value}
+          onClick={() => {
+            RbAlert.create(
+              <div className="mb-4">
+                <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 2.5}`} alt={this.state.value} />
+                {!isbar && <div className="text-muted mt-3 mb-1 text-break">{this.state.value}</div>}
+              </div>,
+              {
+                type: 'clear',
+              }
+            )
+          }}>
           <img src={codeUrl} alt={this.state.value} />
         </a>
       </div>
@@ -2709,11 +2722,7 @@ const __findOptionText = function (options, value, useColor) {
         </span>
       )
     } else {
-      text = (
-        <span className="badge text-dark pl-0">
-          {text}
-        </span>
-      )
+      text = <span className="badge text-dark pl-0">{text}</span>
     }
   }
   return text
