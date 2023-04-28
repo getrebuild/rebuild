@@ -307,16 +307,20 @@ class RbAlert extends React.Component {
     this.setState({ disable: d }, () => {
       if (d && preventHide) {
         $(this._dlg).find('.close').attr('disabled', true)
-        $(this._dlg).on('hide.bs.modal', function () {
-          RbHighbar.create($L('请等待请求执行完毕'))
-          return false
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            RbHighbar.create($L('请等待请求执行完毕'))
+            return false
+          })
       }
       if (!d) {
         $(this._dlg).find('.close').attr('disabled', false)
-        $(this._dlg).on('hide.bs.modal', function () {
-          return true
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            return true
+          })
       }
     })
   }
