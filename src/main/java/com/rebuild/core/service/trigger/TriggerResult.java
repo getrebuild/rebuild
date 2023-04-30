@@ -126,4 +126,13 @@ public class TriggerResult implements JSONAware {
     public static TriggerResult targetSame() {
         return wran("Target are same");
     }
+
+    /**
+     * 目标记录不存在 [DELETED]
+     *
+     * @return
+     */
+    public static TriggerResult targetNotExists() {
+        return wran("Target not exists");
+    }
 }

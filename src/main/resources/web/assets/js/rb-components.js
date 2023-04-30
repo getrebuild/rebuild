@@ -255,21 +255,27 @@ class RbAlert extends React.Component {
 
     return (
       <div className="text-center ml-6 mr-6">
-        <div className={`text-${type}`}>
-          <i className={`modal-main-icon zmdi zmdi-${icon}`} />
-        </div>
+        {type !== 'clear' && (
+          <div className={`text-${type}`}>
+            <i className={`modal-main-icon zmdi zmdi-${icon}`} />
+          </div>
+        )}
+
         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
         <div className={this.props.title ? '' : 'mt-3'}>
           <div>{this.props.message}</div>
         </div>
-        <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
-            {this.props.cancelText || $L('取消')}
-          </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
-            {this.props.confirmText || $L('确定')}
-          </button>
-        </div>
+
+        {type !== 'clear' && (
+          <div className="mt-4 mb-3">
+            <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
+              {this.props.cancelText || $L('取消')}
+            </button>
+            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
+              {this.props.confirmText || $L('确定')}
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -301,16 +307,20 @@ class RbAlert extends React.Component {
     this.setState({ disable: d }, () => {
       if (d && preventHide) {
         $(this._dlg).find('.close').attr('disabled', true)
-        $(this._dlg).on('hide.bs.modal', function () {
-          RbHighbar.create($L('请等待请求执行完毕'))
-          return false
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            RbHighbar.create($L('请等待请求执行完毕'))
+            return false
+          })
       }
       if (!d) {
         $(this._dlg).find('.close').attr('disabled', false)
-        $(this._dlg).on('hide.bs.modal', function () {
-          return true
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            return true
+          })
       }
     })
   }

@@ -1242,18 +1242,7 @@ class RbListPagination extends React.Component {
           )
         })}
         {rb.isAdminUser && wpc.statsField && (
-          <a
-            className="list-stats-settings"
-            onClick={() =>
-              RbModal.create(
-                `/p/admin/metadata/list-stats?entity=${this._entity}`,
-                <RF>
-                  {$L('配置统计列')}
-                  <sup className="rbv" title={$L('增值功能')} />
-                  <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
-                </RF>
-              )
-            }>
+          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计列'))}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}

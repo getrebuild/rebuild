@@ -7,31 +7,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorType;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
- * Wrap {@link java.util.Collection} or Array
+ * Wrap {@link ID}
  *
  * @author devezhao
- * @since 2021/4/12
+ * @since 2023/4/16
  */
-public class AviatorArray extends AviatorObject {
-    private static final long serialVersionUID = 5226071138800445209L;
+public class AviatorId extends AviatorObject {
+    private static final long serialVersionUID = 7227725706972057446L;
 
-    final private Object arrayValue;
+    final private ID idValue;
 
-    public AviatorArray(Collection<?> value) {
+    public AviatorId(ID value) {
         super();
-        this.arrayValue = value;
-    }
-
-    public AviatorArray(Object[] value) {
-        super();
-        this.arrayValue = value;
+        this.idValue = value;
     }
 
     @Override
@@ -46,6 +41,6 @@ public class AviatorArray extends AviatorObject {
 
     @Override
     public Object getValue(Map<String, Object> env) {
-        return this.arrayValue;
+        return this.idValue;
     }
 }

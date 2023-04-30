@@ -16,8 +16,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.general.RecordBuilder;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

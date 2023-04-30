@@ -11,6 +11,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
+import com.googlecode.aviator.runtime.function.system.AssertFunction;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,12 +49,8 @@ public class AviatorUtils {
         addCustomFunction(new CurrentUserFunction());
         addCustomFunction(new CurrentBizunitFunction());
         addCustomFunction(new CurrentDateFunction());
-        addCustomFunction(new LocationDistanceFunction());
         addCustomFunction(new ChineseYuanFunction());
         addCustomFunction(new TextFunction());
-        addCustomFunction(new RequestFunctuin());
-        addCustomFunction(new SqlQueryFunction());
-        addCustomFunction(new LogFunction());
     }
 
     /**
@@ -78,6 +75,10 @@ public class AviatorUtils {
         try {
             return AVIATOR.execute(expression, env);
         } catch (Exception ex) {
+            if (ex instanceof AssertFunction.AssertFailed) {
+                throw new AssertFailedException((AssertFunction.AssertFailed) ex);
+            }
+
             log.error("Bad aviator expression : \n{}\n<< {}", expression, env, ex);
             if (!quietly) throw ex;
         }
@@ -116,5 +117,4 @@ public class AviatorUtils {
     public static AviatorEvaluatorInstance getInstance() {
         return AVIATOR;
     }
-
 }

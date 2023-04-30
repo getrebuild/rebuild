@@ -323,7 +323,7 @@ var _initNav = function () {
   }
 
   setTimeout(function () {
-    $('.rbv').attr('title', $L('增值功能'))
+    $('sup.rbv').attr('title', $L('增值功能'))
   }, 400)
 
   // Active Outer-URL Nav
@@ -405,11 +405,13 @@ var _showNotification = function () {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
+      var n = new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
         tag: 'rbNotification',
         icon: rb.baseUrl + '/assets/img/favicon.png',
       })
-      $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
+      n.onshow = function () {
+        $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
+      }
     } else {
       _Notification.requestPermission()
     }
@@ -662,7 +664,8 @@ var $initUploader = $createUploader
  */
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
-  var $c = container[0] ? container : $(container)
+  var $c = container
+  console.log($c)
   setTimeout(function () {
     ReactDOM.unmountComponentAtNode($c[0])
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()

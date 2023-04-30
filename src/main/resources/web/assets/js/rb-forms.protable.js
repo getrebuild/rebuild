@@ -108,7 +108,7 @@ class ProTable extends React.Component {
         $(this._$scroller).perfectScrollbar({
           suppressScrollY: true,
         })
-        $(this._$scroller).find('thead .tipping').tooltip({})
+        $(this._$scroller).find('thead .tipping').tooltip()
       })
 
       // 正常编辑
@@ -126,8 +126,15 @@ class ProTable extends React.Component {
     })
   }
 
-  addNew() {
-    this.addLine(this._initModel)
+  addNew(specFieldValues) {
+    const model = $clone(this._initModel)
+    if (specFieldValues) {
+      model.elements.forEach((item) => {
+        if (specFieldValues[item.field]) item.value = specFieldValues[item.field]
+      })
+    }
+
+    this.addLine(model)
   }
 
   addLine(model) {

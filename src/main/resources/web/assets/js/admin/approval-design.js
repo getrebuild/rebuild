@@ -647,7 +647,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('允许审批人转审')} <sup className="rbv" title={$L('增值功能')} />
+                {$L('允许审批人转审')} <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -655,7 +655,7 @@ class ApproverNodeConfig extends StartNodeConfig {
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('允许审批人加签')} <sup className="rbv" title={$L('增值功能')} />
+                {$L('允许审批人加签')} <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -819,7 +819,7 @@ class CCNodeConfig extends StartNodeConfig {
 
           <div className="form-group mt-3">
             <label className="text-bold">
-              {$L('抄送给外部人员')} <sup className="rbv" title={$L('增值功能')} />
+              {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
             <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
             <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>

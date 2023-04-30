@@ -52,6 +52,11 @@ public enum ZeroEntry {
      */
     AllowAtAllUsers(false),
 
+    /**
+     * 启用后仅能查看本部门及子部门用户/部门/团队
+     */
+    EnableBizzPart(false),
+
     ;
 
     private final boolean defaultVal;

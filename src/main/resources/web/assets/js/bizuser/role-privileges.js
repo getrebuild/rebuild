@@ -95,7 +95,7 @@ $(document).ready(() => {
           title={
             <RF>
               {$L('自定义%s权限', ACTION_NAMES[action] || '')}
-              <sup className="rbv" title={$L('增值功能')} />
+              <sup className="rbv" />
             </RF>
           }
           inModal

@@ -4691,11 +4691,6 @@ pre.unstyle {
   padding-bottom: 15px;
 }
 
-.protable.rb-scroller.ps-active-x {
-  overflow: auto !important;
-  overflow-x: hidden !important;
-}
-
 .protable .form-group {
   margin: 0;
   padding: 0;
@@ -5004,6 +4999,7 @@ pre.unstyle {
   padding: 15px 15px 12px;
   z-index: 1051;
   overflow: auto;
+  max-width: 337px;
 }
 
 .dropdown-menu.common-texts.w-100 {
@@ -5031,7 +5027,7 @@ pre.unstyle {
 
 .rbalert-form-sm {
   width: 500px;
-  max-width: 400px;
+  max-width: 420px;
   margin: 0 auto;
 }
 
@@ -5155,4 +5151,30 @@ pre.unstyle {
 
 .liteform-wrap > .footer {
   padding: 10px 0 10px 165px;
+}
+
+/* fix btn-space compact */
+
+div.dataTables_wrapper div.dataTables_oper {
+  font-size: 0;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space {
+  margin-right: 10px;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
+  margin-right: 5px;
+}
+
+div.dataTables_wrapper.compact div.dataTables_oper .btn {
+  min-width: 68px;
+}
+
+div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
+  margin-right: 5px;
+}
+
+.alert.alert-dismissible .message {
+  padding-right: 42px;
 }

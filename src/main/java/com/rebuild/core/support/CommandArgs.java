@@ -25,7 +25,6 @@ public class CommandArgs {
 
     public static final String _ForceTour = "_ForceTour";
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
-    public static final String _BizzReadDepth = "_BizzReadDepth";  // L,D,G
 
     /**
      * @param name

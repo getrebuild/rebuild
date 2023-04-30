@@ -191,7 +191,7 @@ class ApprovalReferral extends RbModalHandler {
     const title = (
       <RF>
         {$L('批量转审')}
-        <sup className="rbv" title={$L('增值功能')} />
+        <sup className="rbv" />
       </RF>
     )
 

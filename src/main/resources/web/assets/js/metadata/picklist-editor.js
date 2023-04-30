@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-undef */
 
 const isMulti = ['MULTISELECT'].includes($urlp('type'))
-const maxOptions = isMulti ? 20 : 100
+const maxOptions = 100
 
 $(document).ready(() => {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
@@ -86,7 +86,8 @@ $(document).ready(() => {
     // Reset
     $('.J_text').val('').removeAttr('data-key')
     $('.J_confirm').text($L('添加'))
-    $('.colors>a>i').remove()
+    $('.rbcolors>a>i').remove()
+    $('.J_config').parent().scrollTop(9999)
 
     return false
   })
@@ -164,7 +165,7 @@ render_item_after = function (item, data) {
     $('.J_text').val($edit.parent().prev().text()).attr('attr-id', data[0]).focus()
 
     data[3] = item.attr('data-color')
-    if (data[3]) $(`.colors>a[data-color="${data[3]}"]`).trigger('click')
+    if (data[3]) $(`.rbcolors>a[data-color="${data[3]}"]`).trigger('click')
   })
 
   const $def = $(`<a title="${$L('设为默认')}" class="J_def mr-1"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)

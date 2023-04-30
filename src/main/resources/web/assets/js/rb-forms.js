@@ -734,9 +734,7 @@ class RbFormElement extends React.Component {
 
     return (
       <div className={`col-12 col-sm-${colspan} form-group type-${props.type} ${editable ? 'editable' : ''} ${state.hidden ? 'hide' : ''}`} data-field={props.field}>
-        <label ref={(c) => (this._fieldLabel = c)} className={`col-form-label ${!props.onView && !state.nullable ? 'required' : ''}`}>
-          {props.label}
-        </label>
+        <label className={`col-form-label ${!props.onView && !state.nullable ? 'required' : ''}`}>{props.label}</label>
         <div ref={(c) => (this._fieldText = c)} className="col-form-control">
           {!props.onView || (editable && state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && state.tip && <p className="form-text">{state.tip}</p>}
@@ -766,7 +764,6 @@ class RbFormElement extends React.Component {
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
         props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       }
-      // props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
 
       this.onEditModeChanged()
     }
@@ -934,56 +931,52 @@ class RbFormElement extends React.Component {
 }
 
 class RbFormText extends RbFormElement {
+  constructor(props) {
+    super(props)
+
+    this._textCommonMenuId = this.props.readonly || !this.props.textCommon ? null : $random('tcddm-')
+  }
+
   renderElement() {
     const comp = super.renderElement()
-    if (this.props.readonly || !this.props.textCommon) return comp
-
-    return (
-      <RF>
-        {React.cloneElement(comp, { 'data-toggle': 'dropdown' })}
-        <div className="dropdown-menu common-texts" ref={(c) => (this._$dropdown = c)}>
-          <h5>{$L('常用')}</h5>
-          {this.props.textCommon.split(',').map((item) => {
-            return (
-              <a
-                key={item}
-                title={item}
-                className="badge text-ellipsis"
-                onClick={() => {
-                  // $(this._fieldValue).val(item)
-                  this.handleChange({ target: { value: item } }, true)
-                }}>
-                {item}
-              </a>
-            )
-          })}
-        </div>
-      </RF>
-    )
+    return this._textCommonMenuId ? React.cloneElement(comp, { 'data-toggle': 'dropdown', 'data-target': `#${this._textCommonMenuId}` }) : comp
   }
 
   componentDidMount() {
     super.componentDidMount()
 
-    // FIXME `常用`有明细遮挡问题，dropdown-menu 需要脱离到 body 中
-    // v3.2.2 in protable
-    const $d = $(this._$dropdown)
-    if ($d[0]) {
-      const $protable = $d.parents('.protable')
-      if ($protable[0]) {
-        setTimeout(() => {
-          $d.parent().on('show.bs.dropdown', () => {
-            const dh = ~~($d.attr('origin-height') || $d.height())
-            const ph = ~~($protable.height() - 25)
-            if (dh >= ph) {
-              $d.height(ph)
-              if (!$d.attr('origin-height')) $d.attr('origin-height', dh)
-            } else {
-              $d.height('auto')
-            }
-          })
-        }, 60)
-      }
+    if (this._textCommonMenuId) {
+      const that = this
+      console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
+      renderRbcomp(
+        <div id={this._textCommonMenuId}>
+          <div className="dropdown-menu common-texts">
+            <h5>{$L('常用')}</h5>
+            {this.props.textCommon.split(',').map((item) => {
+              return (
+                <a
+                  key={item}
+                  title={item}
+                  className="badge text-ellipsis"
+                  onClick={() => {
+                    that.handleChange({ target: { value: item } }, true)
+                  }}>
+                  {item}
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+
+    if (this._textCommonMenuId) {
+      console.log('[dev] unmount dropdown-menu with text-common:', this._textCommonMenuId)
+      $unmount($(`#${this._textCommonMenuId}`).parent())
     }
   }
 }
@@ -1925,8 +1918,28 @@ class RbFormReference extends RbFormElement {
       that.__select2.val(id).trigger('change')
     } else {
       $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
-        const o = new Option(res.data[id], id, true, true)
+        const _data = res.data || {}
+        const o = new Option(_data[id], id, true, true)
         that.__select2.append(o).trigger('change')
+      })
+    }
+
+    // v3.3 多个则添加明细行
+    const $$$parent = this.props.$$$parent
+    if (selected.length > 1 && $$$parent._InlineForm) {
+      const _ProTable = $$$parent.props.$$$parent
+      $.get(`/commons/search/read-labels?ids=${selected.join(',')}`, (res) => {
+        const _data = res.data || {}
+        for (let i = 1; i < selected.length; i++) {
+          const id = selected[i]
+          const v = {
+            [this.props.field]: {
+              id: id,
+              text: _data[id],
+            },
+          }
+          setTimeout(() => _ProTable.addNew(v), 20 * i)
+        }
       })
     }
   }
@@ -2240,7 +2253,20 @@ class RbFormBarcode extends RbFormElement {
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${isbar ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
-        <a className={`img-thumbnail ${isbar && 'w-auto'}`} title={this.state.value}>
+        <a
+          className={`img-thumbnail pointer ${isbar && 'w-auto'}`}
+          title={this.state.value}
+          onClick={() => {
+            RbAlert.create(
+              <div className="mb-4">
+                <img src={`${codeUrl}&w=${isbar ? 64 * 2 : 80 * 2.5}`} alt={this.state.value} />
+                {!isbar && <div className="text-muted mt-3 mb-1 text-break">{this.state.value}</div>}
+              </div>,
+              {
+                type: 'clear',
+              }
+            )
+          }}>
           <img src={codeUrl} alt={this.state.value} />
         </a>
       </div>
@@ -2687,13 +2713,17 @@ const __findOptionText = function (options, value, useColor) {
   const o = options.find((x) => x.id == value)
 
   let text = (o || {}).text || `[${value.toUpperCase()}]`
-  if (useColor && o && o.color) {
-    const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
-    text = (
-      <span className="badge" style={style2}>
-        {text}
-      </span>
-    )
+  if (useColor) {
+    if (o && o.color) {
+      const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+      text = (
+        <span className="badge" style={style2}>
+          {text}
+        </span>
+      )
+    } else {
+      text = <span className="badge text-dark pl-0">{text}</span>
+    }
   }
   return text
 }

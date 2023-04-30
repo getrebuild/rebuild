@@ -22,7 +22,6 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
-import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -118,13 +117,16 @@ public class UsersGetting extends BaseController {
      * @param currentUser
      * @return
      */
+    @SuppressWarnings("ConstantValue")
     public static Member[] filterMembers32(Member[] members, ID currentUser) {
         if (members == null || members.length == 0) return members;
         if (UserHelper.isAdmin(currentUser)) return members;
 
-        final String depth = System.getProperty(CommandArgs._BizzReadDepth);
-        if (!("L".equals(depth) || "D".equals(depth))) return members;
-        
+        // v3.3
+        if (!Application.getPrivilegesManager().allow(currentUser, ZeroEntry.EnableBizzPart)) return members;
+
+        final String depth = "D";  // support: L,D,G
+
         final User user = Application.getUserStore().getUser(currentUser);
         final Department dept = user.getOwningDept();
         final Set<ID> deptChildren = "D".equals(depth) ? UserHelper.getAllChildren(dept) : Collections.emptySet();

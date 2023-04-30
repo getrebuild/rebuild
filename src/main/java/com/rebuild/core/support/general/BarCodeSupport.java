@@ -15,6 +15,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -83,11 +84,11 @@ public class BarCodeSupport {
      * QR_CODE
      *
      * @param content
-     * @param w
+     * @param width
      * @return
      */
-    public static BufferedImage createQRCode(String content, int w) {
-        BitMatrix bitMatrix = createCode(content, BarcodeFormat.QR_CODE, w <= 0 ? 320 : w);
+    public static BufferedImage createQRCode(String content, int width) {
+        BitMatrix bitMatrix = createBarCodeImage(content, BarcodeFormat.QR_CODE, width, 0);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
@@ -95,20 +96,32 @@ public class BarCodeSupport {
      * CODE_128
      *
      * @param content
-     * @param h
+     * @param height
      * @param showText 显示底部文字
      * @return
      */
-    public static BufferedImage createBarCode(String content, int h, boolean showText) {
-        h = h <= 0 ? 64 : h;
+    public static BufferedImage createBarCode(String content, int height, boolean showText) {
+        return createBarCode(content, 0, height, showText);
+    }
+
+    /**
+     * CODE_128
+     *
+     * @param content
+     * @param width 通常无需指定，自适应
+     * @param height
+     * @param showText 显示底部文字
+     * @return
+     */
+    public static BufferedImage createBarCode(String content, int width, int height, boolean showText) {
         BitMatrix bitMatrix;
         try {
-            bitMatrix = createCode(content, BarcodeFormat.CODE_128, h);
+            bitMatrix = createBarCodeImage(content, BarcodeFormat.CODE_128, width, height);
         } catch (IllegalArgumentException ex) {
             log.error("Cannot encode `{}` to CODE_128", content);
 
             content = CONTENT_ERROR;
-            bitMatrix = createCode(content, BarcodeFormat.CODE_128, h);
+            bitMatrix = createBarCodeImage(content, BarcodeFormat.CODE_128, width, height);
         }
 
         BufferedImage bi = MatrixToImageWriter.toBufferedImage(bitMatrix);
@@ -130,17 +143,29 @@ public class BarCodeSupport {
      * @param height
      * @return
      */
-    protected static BitMatrix createCode(String content, BarcodeFormat format, int height) {
+    protected static BitMatrix createBarCodeImage(String content, BarcodeFormat format, int width, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, AppUtils.UTF8);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.MARGIN, 0);
 
-        // 条形码宽度为自适应
-        int width = format == BarcodeFormat.QR_CODE ? height : 0;
         try {
-            return new MultiFormatWriter().encode(content, format, width, height, hints);
+            if (format == BarcodeFormat.QR_CODE) {
+                width = height = Math.max(width, height);
+                if (width <= 0) width = height = 80;
 
+            } else {
+                final int base = 64;
+                if (height < base) height = base;
+
+                // 条形码宽度为自适应
+                if (width == 0 && height > base) {
+                    // 非整数倍数两边有白边
+                    width = (int) (((height + 0d) / base) * new Code128Writer().encode(content).length);
+                }
+            }
+
+            return new MultiFormatWriter().encode(content, format, width, height, hints);
         } catch (WriterException ex) {
             throw new RebuildException("Encode BarCode error : " + content, ex);
         }
@@ -149,28 +174,57 @@ public class BarCodeSupport {
     /**
      * 保存文件
      *
-     * @param content
-     * @param format
-     * @param height
+     * @param image
      * @return
      */
-    public static File saveCode(String content, BarcodeFormat format, int height) {
-        BitMatrix bitMatrix = createCode(content, format, height);
-
+    public static File saveCode(BitMatrix image) {
         String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
         File dest = RebuildConfiguration.getFileOfTemp(fileName);
 
         try {
-            MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
+            MatrixToImageWriter.writeToPath(image, "png", dest.toPath());
             return dest;
 
         } catch (IOException ex) {
-            throw new RebuildException("Write BarCode error : " + content, ex);
+            throw new RebuildException("Write BarCode error", ex);
         }
     }
 
     // --
     // https://github.com/zxing/zxing/issues/1099
+
+    private static BufferedImage drawTextOnImage(String text, BufferedImage image, int space) {
+        BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight() + space, BufferedImage.TRANSLUCENT);
+        Graphics2D g2d = bi.createGraphics();
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
+
+        g2d.drawImage(image, 0, 0, null);
+
+        final Font font = new Font(Font.SANS_SERIF, Font.PLAIN, space);
+        final int w = bi.getWidth();
+        final int h = space;
+
+        final FontMetrics fm = feetFontSizeToRegion(text, font, g2d, w, h);
+        final Rectangle2D stringBounds = fm.getStringBounds(text, g2d);
+
+        final double x = (w - stringBounds.getWidth()) / 2d;
+        final double y = (bi.getHeight() - space) + (h - stringBounds.getHeight()) / 2d;
+
+        if (CONTENT_UNSET.equals(text) || CONTENT_ERROR.equals(text)) {
+            g2d.setColor(Color.RED);
+        } else {
+            g2d.setColor(Color.WHITE);
+        }
+        g2d.fillRect(0, image.getHeight(), w, h);
+
+        // center text at bottom of image in the new space
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(text, (int) x, (int) (y + fm.getAscent()));
+        g2d.dispose();
+        return bi;
+    }
 
     private static FontMetrics feetFontSizeToRegion(String text, Font font, Graphics2D g2d, int regionWidth, int regionHeight) {
         // Get the fonts metrics
@@ -192,38 +246,5 @@ public class BarCodeSupport {
         fm = g2d.getFontMetrics();
 
         return fm;
-    }
-
-    private static BufferedImage drawTextOnImage(String text, BufferedImage image, int space) {
-        BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight() + space, BufferedImage.TRANSLUCENT);
-        Graphics2D g2d = bi.createGraphics();
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
-        g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
-
-        g2d.drawImage(image, 0, 0, null);
-
-        final Font font = new Font(Font.SERIF, Font.PLAIN, space);
-        final int w = bi.getWidth();
-        final int h = space;
-
-        FontMetrics fm = feetFontSizeToRegion(text, font, g2d, w, h);
-        final Rectangle2D stringBounds = fm.getStringBounds(text, g2d);
-
-        final double x = (w - stringBounds.getWidth()) / 2d;
-        final double y = (bi.getHeight() - space) + (h - stringBounds.getHeight()) / 2d;
-
-        if (CONTENT_UNSET.equals(text) || CONTENT_ERROR.equals(text)) {
-            g2d.setColor(Color.RED);
-        } else {
-            g2d.setColor(Color.WHITE);
-        }
-        g2d.fillRect(0, image.getHeight(), w, h);
-
-        // center text at bottom of image in the new space
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(text, (int) x, (int) (y + fm.getAscent()));
-        g2d.dispose();
-        return bi;
     }
 }
