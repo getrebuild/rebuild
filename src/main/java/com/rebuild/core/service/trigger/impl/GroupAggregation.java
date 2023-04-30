@@ -253,7 +253,7 @@ public class GroupAggregation extends FieldAggregation {
         }
 
         // 是否自动创建记录
-        if (!actionContent.getBoolean("autoCreate")) {
+        if (!actionContent.getBooleanValue("autoCreate")) {
             this.groupAggregationRefresh = null;  // 无更新也就无需刷新
             return;
         }
