@@ -162,7 +162,7 @@ $(document).ready(() => {
             })
 
           $('<div class="dropdown-divider"></div>').prependTo($menu)
-          $(`<a class="dropdown-item"><sup class="rbv"></sup> ${$L('配置顶部菜单')}</a>`)
+          $(`<a class="dropdown-item">${$L('配置顶部菜单')} <sup class="rbv"></sup></a>`)
             .prependTo($menu)
             .on('click', () => {
               if (rb.commercial < 1) {

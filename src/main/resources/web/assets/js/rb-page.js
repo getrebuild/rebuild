@@ -323,7 +323,7 @@ var _initNav = function () {
   }
 
   setTimeout(function () {
-    $('.rbv').attr('title', $L('增值功能'))
+    $('sup.rbv').attr('title', $L('增值功能'))
   }, 400)
 
   // Active Outer-URL Nav

@@ -214,7 +214,7 @@ function _handle512Change() {
 // eslint-disable-next-line no-unused-vars
 function useExecManual() {
   $('.footer .btn-light').removeClass('hide')
-  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv" title="${$L('增值功能')}"></sup></a>`)
+  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv"></sup></a>`)
     .appendTo('.footer .dropdown-menu')
     .on('click', () => {
       if (rb.commercial < 10) {

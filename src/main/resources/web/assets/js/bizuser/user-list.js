@@ -145,7 +145,7 @@ class UserResigntion extends RbModalHandler {
     const title = (
       <RF>
         {$L('离职继任')}
-        <sup className="rbv" title={$L('增值功能')} />
+        <sup className="rbv" />
       </RF>
     )
 
