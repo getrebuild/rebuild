@@ -1186,7 +1186,7 @@ class RbListPagination extends React.Component {
               <option value="500">500</option>
             </select>
           </div>
-          <div className="float-right paging_sizes">
+          <div className="float-right paging_sizes paging_sizes-no">
             <input className="form-control form-control-sm text-center" title={$L('页码')} placeholder={$L('页码')} onKeyDown={this.setPageNo} />
           </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
