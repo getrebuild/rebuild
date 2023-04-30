@@ -155,17 +155,21 @@ $(document).ready(() => {
 
           const $menu = $(this._$switch).find('.dropdown-menu')
 
-          $(`<a class="dropdown-item" ${c ? '' : 'disabled'}>${$L('复制导航菜单')}</a>`)
+          $(`<a class="dropdown-item bosskey-show" ${c ? '' : 'disabled'}>${$L('复制导航菜单')}</a>`)
             .prependTo($menu)
             .on('click', () => {
               if (c) renderRbcomp(<CopyNavTo list={alist} current={c[0]} />)
             })
 
-          $('<div class="dropdown-divider bosskey-show"></div>').prependTo($menu)
-          $(`<a class="dropdown-item bosskey-show">${$L('配置顶部菜单')}</a>`)
+          $('<div class="dropdown-divider"></div>').prependTo($menu)
+          $(`<a class="dropdown-item"><sup class="rbv"></sup> ${$L('配置顶部菜单')}</a>`)
             .prependTo($menu)
             .on('click', () => {
-              renderRbcomp(<TopNavSettings list={alist} />)
+              if (rb.commercial < 1) {
+                RbHighbar.error(WrapHtml($L('免费版不支持顶部菜单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+              } else {
+                renderRbcomp(<TopNavSettings list={alist} />)
+              }
             })
         })
       } else {
