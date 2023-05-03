@@ -68,7 +68,7 @@ const loadRules = () => {
 class DlgRuleEdit extends RbFormHandler {
   constructor(props) {
     super(props)
-    if (!props.id) this.state = { ...this.state, whenCreate: true }
+    if (!props.id) this.state = { ...this.state, whenCreate: true, whenUpdate: true, fillinForce: true }
   }
 
   render() {
@@ -81,7 +81,7 @@ class DlgRuleEdit extends RbFormHandler {
               <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                 {(this.state.sourceFields || []).map((item) => {
                   return (
-                    <option key={'sf-' + item.name} value={item.name}>
+                    <option key={`sf-${item.name}`} value={item.name}>
                       {item.label}
                     </option>
                   )
@@ -95,7 +95,7 @@ class DlgRuleEdit extends RbFormHandler {
               <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
                 {(this.state.targetFields || []).map((item) => {
                   return (
-                    <option key={'tf-' + item.name} value={item.name}>
+                    <option key={`tf-${item.name}`} value={item.name}>
                       {item.label}
                     </option>
                   )
