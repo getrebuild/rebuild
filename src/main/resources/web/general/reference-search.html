@@ -17,6 +17,17 @@
         margin-top: 60px;
         margin-bottom: 0;
       }
+      .rb-datatable-body,
+      .rb-datatable-body .rb-scroller,
+      .rb-datatable-body .rb-loading {
+        min-height: 437px;
+      }
+      .list-nodata {
+        padding-top: 155px;
+      }
+      .dataTables_wrapper .paging_sizes-no {
+        display: none;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -38,7 +49,7 @@
               <div class="col-6">
                 <div class="dataTables_oper">
                   <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('选择')}]]</button>
-                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/${entityName}/list#!/New|">
+                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/entity/form?e=${entityName}&after=close|">
                     <i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]
                   </a>
                 </div>

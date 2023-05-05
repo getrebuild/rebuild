@@ -163,7 +163,7 @@ class ReportEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
-              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin">
+              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F">
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
@@ -221,6 +221,8 @@ class ReportEditor extends ConfigFormDlg {
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
     } else {
+      $(this._$outputType).find('input:eq(0)').attr('checked', true)
+
       const $pw = $(`<a class="btn btn-secondary ml-2">${$L('预览')}</a>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {

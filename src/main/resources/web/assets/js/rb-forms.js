@@ -628,13 +628,9 @@ class RbForm extends React.Component {
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
-        if (location.hash === '#!/New') {
-          // location.hash = '!/'
-          try {
-            localStorage.setItem('referenceSearch__reload', $random())
-          } catch (err) {
-            // Nothings
-          }
+        // for `reference-search.html`
+        if (location.href.includes('/app/entity/form')) {
+          localStorage.setItem('referenceSearch__reload', $random())
         }
 
         setTimeout(() => {

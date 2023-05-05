@@ -41,7 +41,7 @@ function $fieldIsCompatible(s, t) {
     return t.stateClass && t.stateClass === s.stateClass
   }
   if (t.type === 'ANYREFERENCE') {
-    return s.type === 'REFERENCE' || s.type === 'ID'
+    return s.type === 'REFERENCE' || s.type === 'ID' || s.type === 'ANYREFERENCE'
   }
 
   if (t.type === s.type) return true

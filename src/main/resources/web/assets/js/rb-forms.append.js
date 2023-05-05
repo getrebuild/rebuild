@@ -181,7 +181,7 @@ class ReferenceSearcher extends RbModal {
               </button>
             </div>
             <div className="modal-body iframe" style={{ borderTop: '1px solid #dee2e6' }}>
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 360 }} />
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 497 }} />
             </div>
           </div>
         </div>
