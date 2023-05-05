@@ -665,7 +665,6 @@ var $initUploader = $createUploader
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
   var $c = container
-  console.log($c)
   setTimeout(function () {
     ReactDOM.unmountComponentAtNode($c[0])
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
@@ -759,7 +758,7 @@ var $mp = {
   // 开始
   start: function (parent) {
     if ($mp._timer || $mp._mp) {
-      // console.log('Element `$mp._mp` exists')
+      console.log('Element `$mp._mp` exists')
       return
     }
     $mp._timer = setTimeout(function () {
