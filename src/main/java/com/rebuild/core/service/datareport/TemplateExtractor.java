@@ -18,7 +18,12 @@ import com.rebuild.utils.ExcelUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,8 +52,8 @@ public class TemplateExtractor {
     // v2:{xxx} v1:${xxx}
     private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
-    private File template;
-    private boolean isList;
+    final protected File template;
+    final private boolean isList;
 
     /**
      * @param template
@@ -129,9 +134,7 @@ public class TemplateExtractor {
         Set<String> vars = new HashSet<>();
         for (Cell[] row : rows) {
             for (Cell cell : row) {
-                if (cell.isEmpty()) {
-                    continue;
-                }
+                if (cell.isEmpty()) continue;
 
                 String cellText = cell.asString();
                 Matcher matcher = PATT_V2.matcher(cellText);

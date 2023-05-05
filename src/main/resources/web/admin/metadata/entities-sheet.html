@@ -8,6 +8,9 @@
       body {
         background-color: #fff;
       }
+      body {
+        padding: 5px;
+      }
       a {
         color: #404040;
       }
@@ -54,13 +57,13 @@
       <h5 id="index" class="text-bold m-0 mt-3">INDEX</h5>
       <div class="index">
         <th:block th:each="e : ${entities}">
-          <a th:text="${e[2]}" th:href="|#${e[0]}|" class=""></a>
+          <a th:text="${e[2]}" th:href="|#${e[0]}|"></a>
         </th:block>
       </div>
 
       <div class="entities" th:each="e : ${entities}">
         <div th:id="${e[0]}" class="bg-warning">
-          <a th:text="${e[2]}" th:href="|#${e[0]}|"></a>
+          <a th:text="${e[2]}" th:href="|../entity/${e[0]}/base|" target="_blank"></a>
           <span th:text="${e[0]}" class="badge ml-1" title="Internal Name"></span>
           <span th:text="${e[1]}" class="badge ml-1" title="Entity Code"></span>
           <a class="float-right font-weight-normal fs-12" href="#index">top</a>
@@ -78,8 +81,8 @@
           </thead>
           <tbody>
             <tr th:each="f : ${e[3]}">
-              <td th:text="${f[0]}"></td>
-              <td><code th:text="${f[1]}"></code></td>
+              <td><a th:text="${f[0]}" th:href="|../entity/${e[0]}/field/${f[1]}|" target="_blank"></a></td>
+              <td><code th:text="${f[1]}" title="Copy"></code></td>
               <td th:text="${f[2]}"></td>
               <td th:text="${f[3]}" class="ref"></td>
               <td th:text="${f[4]}" class="opt"></td>

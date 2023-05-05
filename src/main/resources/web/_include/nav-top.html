@@ -27,7 +27,7 @@
       <div class="rb-right-navbar">
         <ul class="nav navbar-nav float-right rb-user-nav">
           <li class="nav-item dropdown J_top-user">
-            <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
+            <a class="nav-link dropdown-toggle pr-0" th:href="@{/settings/user}" data-toggle="dropdown">
               <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime ?:''}|" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">USER</span>
             </a>

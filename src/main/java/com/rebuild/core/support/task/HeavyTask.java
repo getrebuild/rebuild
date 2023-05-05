@@ -19,9 +19,11 @@ import java.util.Date;
  * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比等。
  * 继承此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止。
  * 使用此类应该总是使用 TaskExecutors 调用。
+ * 前端使用可通过 HeavyTaskController 进行一些公共操作。
  *
  * @author devezhao
  * @see TaskExecutors
+ * @see com.rebuild.web.commons.HeavyTaskController
  * @since 09/29/2018
  */
 @Slf4j

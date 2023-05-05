@@ -26,9 +26,9 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -199,7 +199,7 @@ public class ProtocolFilterParser {
         if (categoryField == null || StringUtils.isBlank(value)) return "(9=9)";
 
         DisplayType dt = EasyMetaFactory.getDisplayType(categoryField);
-        value = StringEscapeUtils.escapeSql(value);
+        value = CommonsUtils.escapeSql(value);
 
         if (dt == DisplayType.MULTISELECT) {
             return String.format("%s && %d", categoryField.getName(), ObjectUtils.toInt(value));

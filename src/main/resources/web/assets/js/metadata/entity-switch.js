@@ -14,14 +14,14 @@ $(document).ready(() => {
     href = href.split('/field/')[0] + '/fields'
   }
 
-  const $ul = $('<ul class="dropdown-menu auto-scroller entity-switch"></ul>').appendTo('.aside-header')
+  const $switch = $('<ul class="dropdown-menu auto-scroller entity-switch"></ul>').appendTo('.aside-header')
 
   function _render(item) {
     const $item = $(`<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`)
     if (entity === item.entityName) {
       $item.addClass('current')
     }
-    $item.appendTo($ul)
+    $item.appendTo($switch)
   }
 
   $.get('/admin/entity/entity-list?detail=true&bizz=true', (res) => {
@@ -32,14 +32,14 @@ $(document).ready(() => {
       if (item.builtin === false) _render(item)
     })
 
-    $ul.perfectScrollbar()
+    $switch.perfectScrollbar()
   })
 
-  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted"></i>').appendTo('.aside-header .title')
-  $('.aside-header .title')
-    .addClass('dropdown-toggle')
-    .attr({
-      'data-toggle': 'dropdown',
-      'title': $L('切换'),
-    })
+  const $toggle = $('.aside-header .title')
+
+  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted"></i>').appendTo($toggle)
+  $toggle.addClass('dropdown-toggle').attr({
+    'data-toggle': 'dropdown',
+    'title': $L('切换'),
+  })
 })

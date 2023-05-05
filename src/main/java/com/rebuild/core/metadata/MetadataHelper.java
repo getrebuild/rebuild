@@ -26,7 +26,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 实体元数据
@@ -347,30 +351,42 @@ public class MetadataHelper {
     }
 
     /**
-     * 点连接字段（如 owningUser.loginName），获取最后一个字段。
-     * 此方法也可以用来判断点连接字段是否是有效的字段
-     *
      * @param entity
      * @param fieldPath
      * @return
+     * @see #getLastJoinField(Entity, String, boolean)
      */
     public static Field getLastJoinField(Entity entity, String fieldPath) {
-        String[] paths = fieldPath.split("\\.");
+        return getLastJoinField(entity, fieldPath, Boolean.FALSE);
+    }
+
+    /**
+     * 点连接字段（如 owningUser.loginName），获取最后一个字段。
+     * 此方法也可以用来判断点连接字段是否是有效的字段（无效返回空）
+     *
+     * @param entity
+     * @param fieldPath
+     * @param compatibleN2N 兼容多引用
+     * @return
+     */
+    public static Field getLastJoinField(Entity entity, String fieldPath, boolean compatibleN2N) {
+        final String[] ps = fieldPath.split("\\.");
+
         if (fieldPath.charAt(0) == QueryCompiler.NAME_FIELD_PREFIX) {
-            paths[0] = paths[0].substring(1);
-            if (!entity.containsField(paths[0])) {
-                return null;
-            }
+            ps[0] = ps[0].substring(1);
+            if (!entity.containsField(ps[0])) return null;
         }
 
         Field lastField = null;
         Entity father = entity;
-        for (String field : paths) {
+        for (String field : ps) {
             if (father != null && father.containsField(field)) {
                 lastField = father.getField(field);
                 if (lastField.getType() == FieldType.REFERENCE) {
                     father = lastField.getReferenceEntity();
-                } else {
+                } else if (compatibleN2N && lastField.getType() == FieldType.REFERENCE_LIST) {
+                    father = lastField.getReferenceEntity();
+                }  else {
                     father = null;
                 }
             } else {

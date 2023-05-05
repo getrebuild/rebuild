@@ -9,6 +9,7 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -72,6 +73,7 @@ public class FieldAggregationController extends BaseController {
         // 源字段
 
         // 本实体
+        sourceFields.add(buildField(sourceEntity.getPrimaryField()));
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
             if (isAllowSourceField(field)) {
                 sourceFields.add(buildField(field));
@@ -99,7 +101,8 @@ public class FieldAggregationController extends BaseController {
 
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity,
-                    DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME)) {
+                    DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
+                    DisplayType.N2NREFERENCE, DisplayType.NTEXT)) {
                 if (EasyMetaFactory.valueOf(field).isBuiltin()) continue;
                 targetFields.add(buildField(field));
             }
@@ -153,8 +156,15 @@ public class FieldAggregationController extends BaseController {
      * @return
      */
     protected static String[] buildField(Field field) {
+        String refEntity = null;
+        if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
+            refEntity = field.getReferenceEntity().getName();
+        } else if (field.getType() == FieldType.PRIMARY) {
+            refEntity = field.getOwnEntity().getName();
+        }
+
         EasyField easyField = EasyMetaFactory.valueOf(field);
         return new String[] {
-                field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
+                field.getName(), easyField.getLabel(), easyField.getDisplayType().name(), refEntity };
     }
 }

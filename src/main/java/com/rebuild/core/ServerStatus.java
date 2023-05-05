@@ -15,6 +15,7 @@ import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -182,7 +183,7 @@ public final class ServerStatus {
         }
 
         private static Status error(String name, String error) {
-            return new Status(name, false, error);
+            return new Status(name, false, StringUtils.defaultIfBlank(error, "ERROR"));
         }
     }
 }

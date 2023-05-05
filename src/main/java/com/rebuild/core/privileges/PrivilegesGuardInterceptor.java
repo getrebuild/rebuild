@@ -192,7 +192,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         } else if (action.startsWith("unshare")) {
             return EntityService.UNSHARE;
         }
-        throw new PrivilegesException("No matchs Permission found : " + action);
+        throw new PrivilegesException("No such Permission found : " + action);
     }
 
     /**

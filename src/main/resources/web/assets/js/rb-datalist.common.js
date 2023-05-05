@@ -114,18 +114,20 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('#asideFilters').length > 0) {
+      if ($('#asideFilters, .quick-filter-tabs').length > 0) {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
         $ghost.removeAttr('data-ps-id')
-        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail, .action').remove()
         $ghost.find('.dropdown-item').on('click', function () {
           $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
           that._effectFilter($(this), 'aside')
         })
-        $ghost.appendTo($('#asideFilters').empty())
+
+        $ghost.clone(true).appendTo($('#asideFilters').empty())
+        $ghost.clone(true).appendTo($('.quick-filter-tabs').empty())
       }
 
       if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
@@ -139,6 +141,14 @@ const AdvFilters = {
     if (rel === 'aside') {
       const current = this.current
       $('#asideFilters .dropdown-item')
+        .removeClass('active')
+        .each(function () {
+          if ($(this).data('id') === current) {
+            $(this).addClass('active')
+            return false
+          }
+        })
+      $('.quick-filter-tabs .dropdown-item')
         .removeClass('active')
         .each(function () {
           if ($(this).data('id') === current) {
@@ -256,10 +266,10 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <a className="btn btn-secondary btn-space" onClick={this.hide}>
+          <a className="btn btn-secondary btn-spacem mr-2" onClick={this.hide}>
             {$L('取消')}
           </a>
-          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+          <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
             {this._confirmText || $L('确定')}
           </button>
         </div>
@@ -300,13 +310,18 @@ class DataExport extends BatchOperator {
           <option value="xls">Excel</option>
           <optgroup label={$L('使用报表模板')}>
             {reports.map((item) => {
+              const outputType = item.outputType || ''
               return (
-                <option value={item.id} key={item.id}>
-                  {item.name}
-                </option>
+                <RF key={item.id}>
+                  <option value={item.id}>
+                    {item.name}
+                    {`${outputType === 'pdf' ? ' (PDF)' : ''}`}
+                  </option>
+                  {outputType.includes('pdf,excel') && <option value={`${item.id}&output=pdf`}>{item.name} (PDF)</option>}
+                </RF>
               )
             })}
-            {reports.length === 0 && <option disabled>{$L('暂无报表模板')}</option>}
+            {reports.length === 0 && <option disabled>{$L('暂无')}</option>}
           </optgroup>
         </select>
       </div>
@@ -361,15 +376,17 @@ class BatchUpdate extends BatchOperator {
                 <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
+                      <span className="badge badge-warning">{field.label}</span>
+                    </div>
+                    <div className="col-2 pl-0 pr-0">
+                      <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                    </div>
+                    <div className="col-6">
+                      {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
                       <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close" />
                       </a>
-                      <span className="badge badge-light">{field.label}</span>
                     </div>
-                    <div className="col-2 pl-0 pr-0">
-                      <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
-                    </div>
-                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, field)}</span>}</div>
                   </div>
                 </div>
               )
@@ -612,7 +629,9 @@ const RbListCommon = {
     const via = $urlp('via') || $urlp('via', location.hash)
     if (via) {
       wpc.protocolFilter = `via:${via}`
-      const $cleanVia = $(`<div class="badge filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
+      const $cleanVia = $(`<div class="badge badge-warning filter-badge J_via-filter">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
+        '.dataTables_filter'
+      )
       $cleanVia.find('a').on('click', () => {
         wpc.protocolFilter = null
         RbListPage.reload()
@@ -627,7 +646,9 @@ const RbListCommon = {
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
     // 新建
-    $('.J_new').on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
+    $('.J_new')
+      .attr('disabled', false)
+      .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
     // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
@@ -704,7 +725,7 @@ class RbList extends React.Component {
     const lastIndex = this.state.fields.length
 
     return (
-      <React.Fragment>
+      <RF>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
@@ -775,7 +796,7 @@ class RbList extends React.Component {
 
         {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._Pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -794,9 +815,10 @@ class RbList extends React.Component {
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
-        let mh = $(window).height() - 210
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 38 // Has tab
-        if ($('.main-content .quick-filter-pane').length > 0) mh -= 84 // Has query-pane
+        let mh = $(window).height() - 210 + 5
+        if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
+        if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 55 // Has query-tabs
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
@@ -851,7 +873,7 @@ class RbList extends React.Component {
   fetchList(filter) {
     const fields = []
     let fieldSort = null
-    this.state.fields.forEach(function (item) {
+    this.state.fields.forEach((item) => {
       fields.push(item.field)
       if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
@@ -878,12 +900,13 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
-    $.post(`/app/${this._entity}/data-list`, JSON.stringify(query), (res) => {
+    $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
-          RbList.renderAfter()
           this._clearSelected()
           $(this._$scroller).scrollTop(0)
+
+          setTimeout(() => RbList.renderAfter(this), 0)
         })
 
         if (reload && this._Pagination) {
@@ -1038,11 +1061,9 @@ class RbList extends React.Component {
     CellRenders.clickView({ id: id, entity: this._entity })
   }
 
-  // 外部接口
+  // -- 外部接口
 
-  /**
-   * 分页设置
-   */
+  // 分页设置
   setPage(pageNo, pageSize) {
     this.pageNo = pageNo || this.pageNo
     if (pageSize) {
@@ -1052,9 +1073,7 @@ class RbList extends React.Component {
     this.fetchList()
   }
 
-  /**
-   * 设置高级过滤器 ID
-   */
+  // 设置高级过滤器 ID
   setAdvFilter(id) {
     this.advFilterId = id
     this.pageNo = 1
@@ -1063,17 +1082,13 @@ class RbList extends React.Component {
     else $storage.remove(this.__defaultFilterKey)
   }
 
-  /**
-   * 重新加载
-   */
+  // 重新加载
   reload() {
     this._forceReload = true
     this.fetchList()
   }
 
-  /**
-   * 搜索
-   */
+  // 搜索
   search(filter, fromAdv) {
     this.pageNo = 1
     this.fetchList(filter)
@@ -1101,9 +1116,7 @@ class RbList extends React.Component {
     }
   }
 
-  /**
-   * 获取选中 ID[]
-   */
+  // 取选中 ID[]
   getSelectedIds(noWarn) {
     const selected = []
     $(this._$tbody)
@@ -1116,24 +1129,26 @@ class RbList extends React.Component {
     return selected
   }
 
-  /**
-   * 获取最后查询记录总数
-   */
+  // 获取最后查询记录总数
   getLastQueryTotal() {
     return this._Pagination ? this._Pagination.state.rowsTotal : 0
   }
 
-  /**
-   * 获取最后查询条件
-   */
+  // 获取最后查询条件
   getLastQueryEntry() {
     return $clone(this.__lastQueryEntry)
   }
 
-  /**
-   * 渲染完成后回调
-   */
-  static renderAfter() {}
+  // -- HOOK
+
+  // 查询前回调，可以对查询机进行二次封装
+  static queryBefore(query) {
+    return query
+  }
+
+  // 组件渲染后调用
+  // eslint-disable-next-line no-unused-vars
+  static renderAfter(list) {}
 }
 
 // 分页组件
@@ -1170,6 +1185,9 @@ class RbListPagination extends React.Component {
               <option value="400">400</option>
               <option value="500">500</option>
             </select>
+          </div>
+          <div className="float-right paging_sizes paging_sizes-no">
+            <input className="form-control form-control-sm text-center" title={$L('页码')} placeholder={$L('页码')} onKeyDown={this.setPageNo} />
           </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
             <ul className="pagination mb-0">
@@ -1224,18 +1242,7 @@ class RbListPagination extends React.Component {
           )
         })}
         {rb.isAdminUser && wpc.statsField && (
-          <a
-            className="list-stats-settings"
-            onClick={() =>
-              RbModal.create(
-                `/p/admin/metadata/list-stats?entity=${this._entity}`,
-                <React.Fragment>
-                  {$L('配置统计列')}
-                  <sup className="rbv" title={$L('增值功能')} />
-                  <i className="support-plat2 mdi mdi-monitor" title={$L('支持 PC')} />
-                </React.Fragment>
-              )
-            }>
+          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计列'))}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}
@@ -1259,10 +1266,17 @@ class RbListPagination extends React.Component {
     })
   }
 
+  setPageNo = (e) => {
+    const pn = ~~e.target.value
+    if (e.keyCode === 13 && pn && pn > 0) {
+      this.goto(Math.min(pn, this.__pageTotal))
+    }
+  }
+
   setPageSize = (e) => {
-    const s = e.target.value
-    this.setState({ pageSize: s, pageNo: 1 }, () => {
-      this.props.$$$parent.setPage(1, s)
+    const ps = ~~e.target.value
+    this.setState({ pageSize: ps, pageNo: 1 }, () => {
+      this.props.$$$parent.setPage(1, ps)
     })
   }
 }
@@ -1296,6 +1310,14 @@ const CellRenders = {
 
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
+
+    if (window._CustomizedDataList) {
+      let fieldKey = key.split('.').slice(1)
+      fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
+      const fn = window._CustomizedDataList.useCellRender(fieldKey)
+      if (fn) return fn(value, style, key)
+    }
+
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__RENDERS[type] || this.renderSimple)(value, style, key)
   },

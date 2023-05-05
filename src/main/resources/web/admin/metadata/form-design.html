@@ -61,10 +61,17 @@
             <div class="float-right">
               <a class="btn btn-link J_add-divider">+ [[${bundle.L('添加分栏')}]]</a>
               <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+              <button class="btn btn-light w-auto dropdown-toggle bosskey-show ml-1" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
+                <i class="icon zmdi zmdi-more fs-18"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item J_resize-fields">[[${bundle.L('重置布局')}]]</a>
+                <a class="dropdown-item J_del-unlayout-fields">[[${bundle.L('删除未布局字段')}]]</a>
+              </div>
             </div>
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">
-                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('表单/视图布局')}]]</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('表单布局')}]]</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('高级控制')}]] <sup class="rbv"></sup></a>
                 </li>
@@ -115,7 +122,7 @@
                 </div>
               </div>
             </div>
-            <p class="protips">[[${bundle.L('手机版/明细编辑列表将自动适配此布局')}]]</p>
+            <p class="protips">[[${bundle.L('详情页/手机版/明细编辑列表将自动适配此布局')}]]</p>
           </div>
         </div>
       </div>

@@ -22,7 +22,7 @@ $(document).ready(function () {
     }
   })
 
-  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 310))()
+  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 290))()
 })
 
 class LevelBoxes extends React.Component {
@@ -105,16 +105,10 @@ class LevelBox extends React.Component {
         <div className="clearfix" />
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
-            {this.state.itemId && this.state.itemHide && (
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
-                <span className="custom-control-label">{$L('启用')}</span>
-              </label>
-            )}
+            <input className="form-control" type="text" maxLength="50" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
             <div className="input-group-append">
               <button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>
-                {this.state.itemId ? $L('保存') : $L('添加')}
+                {$L('添加')}
               </button>
             </div>
           </div>
@@ -189,41 +183,42 @@ class LevelBox extends React.Component {
     this.setState(s)
   }
 
-  saveItem = (e) => {
-    e.preventDefault()
-    const name = $.trim(this.state.itemName)
+  saveItem = (e, _data) => {
+    $stopEvent(e, true)
+    _data = _data || this.state
+
+    const name = $.trim(_data.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) return RbHighbar.create($L('请先选择上级分类项'))
 
     const repeated = this.state.items.find((x) => {
-      return x[1] === name && x[0] !== this.state.itemId
+      return x[1] === name && x[0] !== _data.itemId
     })
     if (repeated) return RbHighbar.create($L('分类项重复'))
 
-    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${$encode(name)}`
-    if (this.state.itemId) url += `&item_id=${this.state.itemId}`
-    else url += `&parent=${this.parentId}&level=${this.props.level}`
+    let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${$encode(name)}&hide=${!!_data.itemHide}`
+    if (_data.itemId) url += `&item_id=${_data.itemId}`
+    else url += `&parent=${this.parentId || ''}&level=${this.props.level}`
 
-    let isUnhide = null
-    if (this.state.itemHide && this.state.itemUnhide) {
-      url += '&hide=false'
-      isUnhide = true
-    }
+    // 修改时
+    if (typeof _data.itemCode !== 'undefined') url += `&code=${$encode(_data.itemCode || '')}`
 
     this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
         const items = this.state.items || []
-        if (this.state.itemId) {
-          items.forEach((i) => {
-            if (i[0] === this.state.itemId) {
-              i[1] = name
-              if (isUnhide === true) i[3] = false
+        if (_data.itemId) {
+          items.forEach((x) => {
+            if (x[0] === _data.itemId) {
+              x[1] = name
+              if (typeof _data.itemCode !== 'undefined') x[2] = _data.itemCode
+              x[3] = _data.itemHide || false
             }
           })
         } else {
           items.insert(0, [res.data, name, null, false])
         }
+
         this.setState({ items: items, itemName: null, itemId: null, inSave: false })
       } else {
         RbHighbar.error(res.error_msg)
@@ -232,8 +227,18 @@ class LevelBox extends React.Component {
   }
 
   editItem(item, e) {
-    e.stopPropagation()
-    this.setState({ itemName: item[1], itemId: item[0], itemHide: item[3] })
+    $stopEvent(e, true)
+    renderRbcomp(
+      <DlgEditItem
+        id={item[0]}
+        name={item[1]}
+        code={item[2]}
+        hide={item[3]}
+        onConfirm={(s) => {
+          this.saveItem(null, s)
+        }}
+      />
+    )
   }
 
   delItem(item, e) {
@@ -270,7 +275,7 @@ class LevelBox extends React.Component {
       alertExt.cancelText = $L('禁用')
       alertExt.cancel = function () {
         this.disabled()
-        $.post(`/admin/metadata/classification/save-data-item?item_id=${item[0]}&hide=true`, (res) => {
+        $.post(`/admin/metadata/classification/save-data-item?item_id=${item[0]}&hide2=true`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -503,5 +508,52 @@ class DlgImports extends RbModalHandler {
         }
       }
     })
+  }
+}
+
+// 编辑分类项
+class DlgEditItem extends RbAlert {
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group">
+          <label className="text-bold">{$L('分类项名称')}</label>
+          <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} maxLength="50" />
+        </div>
+        <div className="form-group">
+          <label className="text-bold">{$L('编码')}</label>
+          <input type="text" className="form-control form-control-sm" name="code" value={this.state.code || ''} onChange={this.handleChange} maxLength="50" placeholder={$L('无')} />
+        </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+            <input className="custom-control-input" type="checkbox" name="hide" defaultChecked={this.props.hide} onChange={this.handleChange} />
+            <span className="custom-control-label">{$L('是否禁用')}</span>
+          </label>
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  handleChange = (e) => {
+    const target = e.target
+    const s = {}
+    s[target.name] = target.type === 'checkbox' ? target.checked : target.value
+    this.setState(s)
+  }
+
+  _onConfirm = () => {
+    const _data = {
+      itemId: this.props.id,
+      itemName: this.state.name,
+      itemCode: this.state.code,
+      itemHide: this.state.hide,
+    }
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(_data)
+    this.hide()
   }
 }

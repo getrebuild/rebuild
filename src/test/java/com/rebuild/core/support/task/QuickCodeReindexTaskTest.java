@@ -20,16 +20,16 @@ import org.junit.jupiter.api.Test;
 public class QuickCodeReindexTaskTest extends TestSupport {
 
     @Test
-    public void testGenerateQuickCode() {
-        Assertions.assertFalse("NHHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好     hello      世 界")));
-        Assertions.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("hello     world     ........")));
-        Assertions.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
-        Assertions.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));
-        Assertions.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好           世 界")));
+    void testGenerateQuickCode() {
+        Assertions.assertFalse("NIHAOHELLOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好     hello      世 界")));
+        Assertions.assertTrue("HELLOWORLD".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("hello     world     ........")));
+        Assertions.assertTrue("HELLOWORLD".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
+        Assertions.assertTrue("NIHAOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));
+        Assertions.assertTrue("NIHAOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好           世 界")));
     }
 
     @Test
-    public void testGenerateQuickCodeEmpty() {
+    void testGenerateQuickCodeEmpty() {
         // Phone, contains `-`
         Assertions.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("021-123-123")));
         // EMail, contains `@` and `.`
@@ -43,7 +43,7 @@ public class QuickCodeReindexTaskTest extends TestSupport {
     }
 
     @Test
-    public void testReindex() {
+    void testReindex() {
         new QuickCodeReindexTask(MetadataHelper.getEntity("User")).run();
     }
 }

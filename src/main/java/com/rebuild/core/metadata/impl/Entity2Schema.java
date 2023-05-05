@@ -63,6 +63,9 @@ public class Entity2Schema extends Field2Schema {
             throw new NeedRbvException("实体数量超出免费版限制");
         }
 
+        entityName = StringUtils.trim(entityName);
+        entityLabel = StringUtils.trim(entityLabel);
+
         if (entityName != null) {
             if (MetadataHelper.containsEntity(entityName)) {
                 throw new MetadataModificationException(Language.L("实体已存在 : %s", entityName));
@@ -232,7 +235,7 @@ public class Entity2Schema extends Field2Schema {
 
         String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
         try {
-            Application.getSqlExecutor().execute(ddl, 10 * 60);
+            Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
             log.error("DDL ERROR : \n" + ddl, ex);
             return false;
@@ -266,8 +269,9 @@ public class Entity2Schema extends Field2Schema {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         Table table = new Table(entity, dialect);
         String[] ddls = table.generateDDL(false, false, false);
+
         try {
-            Application.getSqlExecutor().executeBatch(ddls);
+            Application.getSqlExecutor().executeBatch(ddls, DDL_TIMEOUT);
         } catch (Throwable ex) {
             log.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
             return false;

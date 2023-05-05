@@ -60,6 +60,8 @@ public class FieldValueHelperTest extends TestSupport {
             } else if (easyField.getDisplayType() == DisplayType.BARCODE
                     || easyField.getDisplayType() == DisplayType.ID) {
                 value = ID.newId(useEntity.getEntityCode());
+            } else if (easyField.getDisplayType() == DisplayType.TAG) {
+                value = new String[] { "TAG1" };
             }
 
             System.out.println("Wrap ... " + easyField);

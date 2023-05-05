@@ -57,13 +57,12 @@ public class BarCodeGeneratorController extends BaseController {
         if (request.getRequestURI().endsWith("render-qr")) {
             bi = BarCodeSupport.createQRCode(content, w);
         } else {
-            // 条形码文字
             boolean showText = getBoolParameter(request, "b", true);
             bi = BarCodeSupport.createBarCode(content, w, showText);
         }
 
-        // 4小时缓存
-        ServletUtils.addCacheHead(response, 240);
+        // 6小时缓存
+        ServletUtils.addCacheHead(response, 360);
         writeTo(bi, response);
     }
 

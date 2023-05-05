@@ -155,7 +155,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart.ctable .table td,
 .chart.ctable .table th {
-  padding: 9px 10px;
+  padding: 10px 10px;
   cursor: default;
   font-size: 1rem;
 }
@@ -473,7 +473,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.DataList .chart.ctable .td-sm {
-  padding: 3px 10px;
+  padding: 4px 10px;
 }
 
 .chart-box.DataList .chart.ctable thead th.sort-asc::after,
@@ -496,6 +496,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.DataList .chart.ctable thead th:active {
   cursor: pointer;
   background-color: #dee2e6;
+}
+
+.chart-box.DataList .table td,
+.chart-box.DataList .table td > div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  clear: both;
+  max-width: 400px;
 }
 
 .DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {

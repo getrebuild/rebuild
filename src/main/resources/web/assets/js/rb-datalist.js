@@ -21,6 +21,7 @@ const RbListPage = {
   init: function (config, entity, ep) {
     renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () {
       RbListPage._RbList = this
+
       if (window.FrontJS) {
         window.FrontJS.DataList._trigger('open', [])
       }
@@ -93,9 +94,11 @@ const RbListPage = {
     }
 
     // Filter Pane
-    if ($('.quick-filter-pane')[0]) {
+    const $fp = $('.quick-filter-pane>span')
+    if ($fp[0]) {
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $('.quick-filter-pane')[0])
+      renderRbcomp(<AdvFilterPane entity={entity[0]} fields={wpc.paneFields} onSearch={(s) => RbListPage._RbList.search(s)} />, $fp[0])
+      // $('.dataTables_filter .input-search').hide()
     }
 
     typeof window.startTour === 'function' && window.startTour(1000)

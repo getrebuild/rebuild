@@ -20,6 +20,7 @@ let import_inprogress = false
 let import_taskid
 
 const entity = $urlp('entity')
+_Config.entity = entity || null
 
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
@@ -31,20 +32,31 @@ $(document).ready(() => {
       .select2({
         placeholder: $L('选择实体'),
         allowClear: false,
+        disabled: !location.href.includes('/admin/'),
       })
       .on('change', function () {
-        _renderRepeatFields($(this).val())
+        _Config.entity = $(this).val()
+        _renderRepeatFields()
         _checkUserPrivileges()
       })
 
     if (entity) $toe.val(entity)
     $toe.trigger('change')
+    _Config.entity = $toe.val()
   })
 
-  $createUploader('#upload-input', null, (res) => {
-    _Config.file = res.key
-    $('.J_upload-input').text($fileCutName(_Config.file))
-  })
+  const $fss = $('.file-select span')
+  $createUploader(
+    '#upload-input',
+    (res) => {
+      $fss.text(`${$L('上传中')} ... ${res.percent.toFixed(0)}%`)
+    },
+    (res) => {
+      _Config.file = res.key
+      $('.J_upload-input').text($fileCutName(_Config.file))
+      $fss.text($L('上传文件'))
+    }
+  )
 
   $('input[name=repeatOpt]').click(function () {
     _Config.repeat_opt = ~~$(this).val()
@@ -52,14 +64,27 @@ $(document).ready(() => {
     else $('.J_repeatFields').show()
   })
 
-  const _onSelectUser = function (s, isRemove) {
-    if (isRemove || !s) _Config.owning_user = null
-    else _Config.owning_user = s.id
+  if ($('#toUser')[0]) {
+    const _onSelectUser = function (s, isRemove) {
+      if (isRemove || !s) _Config.owning_user = null
+      else _Config.owning_user = s.id
+      _checkUserPrivileges()
+    }
+    renderRbcomp(
+      <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} onSelectItem={(s, isRemove) => _onSelectUser(s, isRemove)} onClearSelection={() => _onSelectUser()} />,
+      'toUser'
+    )
+  } else {
+    $.get(`/app/entity/data-imports/check-user?user=${rb.currentUser}&entity=${_Config.entity}`, (res) => {
+      let hasError = []
+      if (res.data.canCreate !== true) hasError.push($L('新建'))
+      if (res.data.canUpdate !== true) hasError.push($L('编辑'))
+      if (hasError.length > 0) {
+        $('#user-warn').removeClass('hide')
+        renderRbcomp(<RbAlertBox message={$L('你没有 %s 权限，部分数据可能会导入失败', hasError.join('/'))} />, 'user-warn')
+      }
+    })
   }
-  renderRbcomp(
-    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} onSelectItem={(s, isRemove) => _onSelectUser(s, isRemove)} onClearSelection={() => _onSelectUser()} />,
-    'toUser'
-  )
 
   $('.J_step1-btn').click(step2_mapping)
   $('.J_step2-btn').click(step3_import)
@@ -104,7 +129,7 @@ const step2_mapping = () => {
   }
 
   const $btn = $('.J_step1-btn').button('loading')
-  $.get(`/admin/data/data-imports/check-file?file=${$encode(_Config.file)}`, (res) => {
+  $.get(`/app/entity/data-imports/check-file?file=${$encode(_Config.file)}`, (res) => {
     $btn.button('reset')
     if (res.error_code > 0) {
       RbHighbar.create(res.error_msg)
@@ -149,7 +174,7 @@ const step3_import = () => {
   RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
     confirm: function () {
       this.disabled(true)
-      $.post('/admin/data/data-imports/import-submit', JSON.stringify(_Config), (res) => {
+      $.post('/app/entity/data-imports/import-submit', JSON.stringify(_Config), (res) => {
         if (res.error_code === 0) {
           this.hide()
           step3_import_show()
@@ -173,8 +198,8 @@ const step3_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 
   // Next
-  if (_Config.entity || entity) {
-    $('.J_step3-next').attr('href', `${$('.J_step3-next').attr('href')}?entity=${_Config.entity || entity}`)
+  if (_Config.entity) {
+    $('.J_step3-next').attr('href', `${$('.J_step3-next').attr('href')}?entity=${_Config.entity}`)
   }
 }
 
@@ -192,26 +217,30 @@ const step3_import_state = (taskid, inLoad) => {
       return
     }
 
-    const _data = res.data
-    $('.J_import_time').text(_secToTime(~~_data.elapsedTime / 1000))
+    const _state = res.data
+    const elapsedTime = ~~_state.elapsedTime / 1000
+    $('.J_import_time').text(_secToTime(elapsedTime))
+    const sspeed = _state.completed / elapsedTime
+    $('.J_import_speed').text($L('%s条/秒', ~~sspeed))
+    $('.J_remain_time').text(_secToTime((_state.total - _state.completed) / sspeed))
 
-    if (_data.isCompleted === true) {
+    if (_state.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
-      $('.J_import_state').text($L('导入完成。共成功导入 %d 条记录', _data.succeeded))
-    } else if (_data.isInterrupted === true) {
-      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条记录', _data.succeeded))
+      $('.J_import_state').text($L('导入完成。共成功导入 %d 条记录', _state.succeeded))
+    } else if (_state.isInterrupted === true) {
+      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条记录', _state.succeeded))
     }
 
-    if (_data.isCompleted === true || _data.isInterrupted === true) {
+    if (_state.isCompleted === true || _state.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true).text($L('导入完成'))
       $('.J_step3-next').removeClass('hide')
       import_inprogress = false
       return
     }
 
-    if (_data.progress > 0) {
-      $('.J_import_state').text(`${$L('正在导入 ...')} ${_data.completed}/${_data.total}`)
-      $('.J_import-bar').css('width', _data.progress * 100 + '%')
+    if (_state.progress > 0) {
+      $('.J_import_state').text(`${$L('正在导入 ...')} ${_state.completed}/${_state.total}`)
+      $('.J_import-bar').css('width', _state.progress * 100 + '%')
     }
 
     setTimeout(() => {
@@ -295,7 +324,7 @@ const _fieldsMapping = (columns, fields) => {
 
 // 格式化秒显示
 function _secToTime(s) {
-  if (!s || s <= 0) return '00:00:00'
+  if (!s || ~~s <= 0) return '00:00:00'
   let hh = Math.floor(s / 3600)
   let mm = Math.floor(s / 60) % 60
   let ss = ~~(s % 60)
@@ -307,24 +336,29 @@ function _secToTime(s) {
 
 // 检查所属用户权限
 function _checkUserPrivileges() {
-  if (!_Config.entity || !_Config.owning_user) return
-  $.get(`/admin/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
-    let hasError = []
-    if (res.data.canCreate !== true) hasError.push($L('新建'))
-    if (res.data.canUpdate !== true) hasError.push($L('编辑'))
+  if (!_Config.entity || !_Config.owning_user) {
+    $('#user-warn').addClass('hide')
+    return
+  }
+
+  $.get(`/app/entity/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
+    const hasError = []
+    if (!res.data.canCreate) hasError.push($L('新建'))
+    if (!res.data.canUpdate) hasError.push($L('编辑'))
     if (hasError.length > 0) {
+      $('#user-warn').removeClass('hide')
       renderRbcomp(<RbAlertBox message={$L('选择的用户无 %s 权限。但作为管理员，你可以强制导入', hasError.join('/'))} />, 'user-warn')
     } else {
-      $('#user-warn').empty()
+      $('#user-warn').addClass('hide')
     }
   })
 }
 
 // 渲染重复判断字段
-function _renderRepeatFields(entity) {
+function _renderRepeatFields() {
   const $el = $('#repeatFields').empty()
 
-  if (!entity) {
+  if (!_Config.entity) {
     $el.select2({
       placeholder: $L('选择字段'),
     })
@@ -334,7 +368,7 @@ function _renderRepeatFields(entity) {
   const excludeNames = ['createdBy', 'createdOn', 'modifiedOn', 'modifiedBy']
   const excludeTypes = ['AVATAR', 'FILE', 'IMAGE', 'MULTISELECT', 'N2NREFERENCE', 'LOCATION']
 
-  $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
+  $.get(`/app/entity/data-imports/import-fields?entity=${_Config.entity}`, (res) => {
     $(res.data).each(function () {
       if (excludeNames.includes(this.name) || excludeTypes.includes(this.type)) return
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
@@ -350,7 +384,6 @@ function _renderRepeatFields(entity) {
       })
 
     fields_cached = res.data
-    _Config.entity = entity
   })
 }
 
@@ -431,7 +464,7 @@ class ImportsTraceViewer extends RbAlert {
   }
 
   load() {
-    $.get(`/admin/data/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
+    $.get(`/app/entity/data-imports/import-trace?taskid=${this.props.taskid}`, (res) => {
       if (res.error_code === 0) {
         this._datas = res.data || []
         this.showData()

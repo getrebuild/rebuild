@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.files;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -23,6 +24,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +33,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -70,7 +76,7 @@ public class FileManagerController extends BaseController {
             if (!ID.isId(file)) continue;
 
             ID fileId = ID.valueOf(file);
-            if (!FilesHelper.isManageable(user, fileId)) {
+            if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权删除他人文件");
             }
 
@@ -92,7 +98,7 @@ public class FileManagerController extends BaseController {
             if (!ID.isId(file)) continue;
 
             ID fileId = ID.valueOf(file);
-            if (!FilesHelper.isManageable(user, fileId)) {
+            if (!FilesHelper.isFileManageable(user, fileId)) {
                 return RespBody.errorl("无权修改他人文件");
             }
 
@@ -109,18 +115,25 @@ public class FileManagerController extends BaseController {
         return RespBody.ok();
     }
 
+    // TODO 更严格的文件访问权限检查
     @RequestMapping("check-readable")
-    public RespBody checkReadable(@IdParam ID recordId, HttpServletRequest request) {
+    public RespBody checkReadable(@IdParam ID recordOrFileId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final int entityCode = recordOrFileId.getEntityCode();
 
-        int entityCode = recordId.getEntityCode();
         boolean readable;
-        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-            readable = FeedsHelper.checkReadable(recordId, user);
-        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-            readable = ProjectHelper.checkReadable(recordId, user);
+        // 文件
+        if (entityCode == EntityHelper.Attachment) {
+            readable = FilesHelper.isFileAccessable(user, recordOrFileId);
         } else {
-            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+            // 附件
+            if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
+                readable = FeedsHelper.checkReadable(recordOrFileId, user);
+            } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
+                readable = ProjectHelper.checkReadable(recordOrFileId, user);
+            } else {
+                readable = Application.getPrivilegesManager().allowRead(user, recordOrFileId);
+            }
         }
 
         return RespBody.ok(readable);
@@ -128,7 +141,7 @@ public class FileManagerController extends BaseController {
 
     @PostMapping("batch-download")
     public void batchDownload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String files = req.getParameter("files");
+        final String files = req.getParameter("files");
 
         List<String> filePaths = new ArrayList<>();
         Collections.addAll(filePaths, files.split(","));
@@ -140,7 +153,7 @@ public class FileManagerController extends BaseController {
         if (zipName != null && zipName.exists()) {
             FileDownloader.downloadTempFile(resp, zipName, null);
         } else {
-            resp.sendError(500, Language.L("无法下载文件"));
+            resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), Language.L("无法下载文件"));
         }
     }
 }

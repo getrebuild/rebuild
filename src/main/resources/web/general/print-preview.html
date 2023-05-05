@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('打印视图')}]]</title>
+    <title>[[${bundle.L('打印')}]]</title>
     <style>
       html,
       body {
@@ -82,7 +82,11 @@
     </div>
     <div class="preview-content">
       <div id="preview-table"></div>
-      <div class="font-italic text-muted hide">[[${printTime}]] &nbsp;·&nbsp; [[${printUser}]]</div>
+      <div class="text-muted J_print-meta hide">
+        <span>[[${bundle.L('打印时间')}]] : [[${printTime}]]</span>
+        &nbsp;<b>·</b>&nbsp;
+        <span>[[${bundle.L('打印人')}]] : [[${printUser}]]</span>
+      </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script>

@@ -7,14 +7,14 @@
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
-        <div class="col-6 sortable-swap">
+        <div class="col-6 sortable-swap pl-2">
           <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
-        <div class="col-6">
+        <div class="col-6 pr-2">
           <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list unset-list"></ol>
@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <span th:if="${param.type[0] == 'TAB'}" class="float-left">
+        <span th:if="${param.type[0] == 'TAB'}" class="float-left ml-1">
           <div class="J_extoption">
             <a class="btn btn-link btn-sm w-auto ml-0 pl-0 text-left down-2" data-toggle="dropdown">
               <i class="icon mdi mdi-cog up-1"></i>
@@ -36,7 +36,7 @@
                 </label>
                 <label class="custom-control custom-control-sm custom-checkbox mb-2">
                   <input class="custom-control-input" type="checkbox" id="relatedDefaultList" />
-                  <span class="custom-control-label">[[${bundle.L('默认数据列表视图')}]]</span>
+                  <span class="custom-control-label">[[${bundle.L('默认列表视图')}]]</span>
                 </label>
                 <label class="custom-control custom-control-sm custom-checkbox mb-0">
                   <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
@@ -46,8 +46,8 @@
             </div>
           </div>
         </span>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+        <button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

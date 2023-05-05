@@ -27,8 +27,10 @@ public class SeriesGeneratorTest extends TestSupport {
 
     @Test
     void testTimeVar() {
-        String r = new TimeVar("YYMMDD").generate();
-        System.out.println(r);
+        for (int i = 0; i < 100; i++) {
+            String r = new TimeVar("YYMMDD,SSS,ww,WW").generate();
+            System.out.println(r);
+        }
     }
 
     @Test

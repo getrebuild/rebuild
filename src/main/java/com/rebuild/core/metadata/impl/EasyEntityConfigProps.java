@@ -22,10 +22,6 @@ public class EasyEntityConfigProps {
      */
     public static final String TAGS = "tags";
     /**
-     * 关闭共同编辑
-     */
-    public static final String NOT_COEDITING = "notCoEditing";
-    /**
      * 明细不允许为空
      */
     public static final String DETAILS_NOTEMPTY = "detailsNotEmpty";
@@ -50,4 +46,8 @@ public class EasyEntityConfigProps {
      * 列表查询面板
      */
     public static final String ADV_LIST_FILTERPANE = "advListFilterPane";
+    /**
+     * 列表查询页签
+     */
+    public static final String ADV_LIST_FILTERTABS = "advListFilterTabs";
 }

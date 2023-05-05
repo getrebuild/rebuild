@@ -25,7 +25,7 @@
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
-        <div class="col-6">
+        <div class="col-6 pl-2">
           <h5 class="sortable-box-title">[[${bundle.L('选项列表')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list J_config"></ol>
@@ -42,7 +42,7 @@
             </div>
           </form>
         </div>
-        <div class="col-6">
+        <div class="col-6 pr-2">
           <h5 class="sortable-box-title">[[${bundle.L('已禁用')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list unset-list"></ol>
@@ -50,8 +50,8 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+        <button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

@@ -49,7 +49,7 @@ class ContentSendNotification extends ActionContentSpec {
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(2)} checked={this.state.userType === 2} />
                 <span className="custom-control-label">
-                  {$L('外部人员')} <sup className="rbv" title={$L('增值功能')} />
+                  {$L('外部人员')} <sup className="rbv" />
                 </span>
               </label>
             </div>
@@ -122,11 +122,8 @@ class ContentSendNotification extends ActionContentSpec {
         }
       )
 
-      if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
-        window.whenUpdateFields = content.whenUpdateFields
-        const $s = $('.when-update .custom-control-label')
-        $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
-      }
+      // eslint-disable-next-line no-undef
+      DlgSpecFields.render(content)
     }
   }
 
@@ -154,7 +151,6 @@ class ContentSendNotification extends ActionContentSpec {
     }
 
     if (window.whenUpdateFields) _data.whenUpdateFields = window.whenUpdateFields
-
     return _data
   }
 }

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
     <style>
       .support-plat2 {
-        margin-left: -18px;
+        margin-left: -22px;
       }
     </style>
   </head>
@@ -44,7 +44,9 @@
         <div class="main-content container-fluid pt-1">
           <ul th:if="${fieldType == 'REFERENCE'} and ${!fieldBuildin}" class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('字段信息')}]]</a></li>
-            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('表单回填')}]]</a></li>
+            <li class="nav-item">
+              <a th:href="|${fieldName}/auto-fillin|" class="nav-link"><span th:classappend="${hasAutoFillin ? 'indicator' : ''}">[[${bundle.L('表单回填')}]]</span></a>
+            </li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
@@ -86,20 +88,15 @@
                       <span>
                         <select class="underline-sm J_decimalTypeFlag">
                           <option value="¥">¥</option>
-                          <option value="JP¥">JP¥</option>
                           <option value="$">$</option>
+                          <option value="JP¥">JP¥</option>
                           <option value="US$">US$</option>
                           <option value="HK$">HK$</option>
-                          <option value="A$">A$</option>
-                          <option value="C$">C$</option>
                           <option value="€">€</option>
                           <option value="£">£</option>
                           <option value="₽">₽</option>
                           <option value="₩">₩</option>
-                          <option value="₣">₣</option>
-                          <option value="₤">₤</option>
-                          <option value="฿">฿</option>
-                          <option value="₫">₫</option>
+                          <option value="%s元">元</option>
                           <option value="%s万元">万元</option>
                         </select>
                       </span>
@@ -146,7 +143,7 @@
                   </div>
                   <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                      <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
+                      <i class="support-plat2 mdi mdi-monitor"></i>
                       [[${bundle.L('启用快速新建')}]]
                     </label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
@@ -295,7 +292,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'STATE'}" class="form-group row J_for-STATE pt-0 pb-0">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('状态类 (Enum)')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('状态类 (StateSpec)')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext code text-danger" id="stateClass"></div>
                   </div>
@@ -379,7 +376,7 @@
                     </div>
                   </div>
                   <div class="form-group row J_for-LOCATION">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('视图页直接显示地图')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('详情页显示地图')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                         <input class="custom-control-input" type="checkbox" id="locationMapOnView" />
@@ -388,7 +385,7 @@
                     </div>
                   </div>
                 </th:block>
-                <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT bosskey-show">
+                <div th:if="${fieldType == 'TEXT'}" class="form-group row J_for-TEXT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">
                     <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i>
                     [[${bundle.L('常用值')}]]

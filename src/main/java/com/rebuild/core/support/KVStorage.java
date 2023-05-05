@@ -54,7 +54,7 @@ public class KVStorage {
     }
 
     /**
-     * 存
+     * 存（异步）
      * @param key
      * @param value
      * @param throttled 是否节流
@@ -165,25 +165,35 @@ public class KVStorage {
     private static final Timer THROTTLED_TIMER = new Timer("KVStorage-Timer");
 
     static {
-        THROTTLED_TIMER.scheduleAtFixedRate(new TimerTask() {
+        final TimerTask localTimerTask = new TimerTask() {
             @Override
             public void run() {
-                try {
-                    synchronized (THROTTLED_QUEUE_LOCK) {
-                        if (THROTTLED_QUEUE.isEmpty()) return;
+                if (THROTTLED_QUEUE.isEmpty()) return;
 
-                        final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
-                        THROTTLED_QUEUE.clear();
+                synchronized (THROTTLED_QUEUE_LOCK) {
+                    final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
+                    THROTTLED_QUEUE.clear();
 
-                        log.info("Synchronize KV pairs ... {}", queue);
-                        for (Map.Entry<String, Object> e : queue.entrySet()) {
+                    log.info("Synchronize KV pairs ... {}", queue);
+                    for (Map.Entry<String, Object> e : queue.entrySet()) {
+                        try {
                             RebuildConfiguration.setCustomValue(e.getKey(), e.getValue());
+                        } catch (Throwable ex) {
+                            log.error("Synchronize KV error : {}", e, ex);
+
+                            // Retry next-time
+                            THROTTLED_QUEUE.put(e.getKey(), e.getValue());
                         }
                     }
-                } catch (Throwable ex) {
-                    log.error(null, ex);
                 }
             }
-        }, 1000, 1000);
+        };
+
+        THROTTLED_TIMER.scheduleAtFixedRate(localTimerTask, 2000, 2000);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("The KVStorage shutdown hook is enabled");
+            localTimerTask.run();
+        }));
     }
 }

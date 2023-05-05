@@ -54,6 +54,9 @@ import java.util.Set;
 @Slf4j
 public class Field2Schema extends SetUser {
 
+    // 15m
+    protected static final int DDL_TIMEOUT = 60 * 15;
+
     // 小数位真实长度
     private static final int DECIMAL_SCALE = 8;
 
@@ -102,10 +105,11 @@ public class Field2Schema extends SetUser {
         fieldName = StringUtils.trim(fieldName);
 
         if (StringUtils.length(fieldName) < 4) fieldName = toPinyinName(fieldLabel);
+        else fieldName = toPinyinName(fieldName);
 
         for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
-                fieldName += RandomUtils.nextInt(0, 9);
+                fieldName += RandomUtils.nextInt(1, 99);
             } else {
                 break;
             }
@@ -153,8 +157,9 @@ public class Field2Schema extends SetUser {
 
         String ddl = String.format("alter table `%s` drop column `%s`", entity.getPhysicalName(), field.getPhysicalName());
         try {
-            Application.getSqlExecutor().execute(ddl, 10 * 60);
+            Application.getSqlExecutor().execute(ddl, DDL_TIMEOUT);
         } catch (Throwable ex) {
+            // ?
             if (ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("exists")) {
                 log.warn("Column not exists? " + ex.getLocalizedMessage());
             } else {
@@ -206,7 +211,7 @@ public class Field2Schema extends SetUser {
                 table.generateFieldDDL(field, ddl);
 
                 try {
-                    Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, 10 * 60);
+                    Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, DDL_TIMEOUT);
                 } catch (Throwable ex) {
                     log.error("DDL ERROR : \n" + ddl, ex);
                     return false;
@@ -232,10 +237,16 @@ public class Field2Schema extends SetUser {
         ddl.deleteCharAt(ddl.length() - 1);
 
         try {
-            Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, 10 * 60);
+            Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, DDL_TIMEOUT);
         } catch (Throwable ex) {
-            log.error("DDL ERROR : \n" + ddl, ex);
-            return false;
+            // Duplicate column name: 'xxx'
+            if (fields.length == 1
+                    && ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("Duplicate column")) {
+                log.warn("Duplicate column exists? " + ex.getLocalizedMessage());
+            } else {
+                log.error("DDL ERROR : \n" + ddl, ex);
+                return false;
+            }
         }
         return true;
     }

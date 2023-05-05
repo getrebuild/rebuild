@@ -26,7 +26,11 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 数据列表
@@ -38,30 +42,45 @@ import java.util.*;
 @Slf4j
 public class DataListManager extends BaseLayoutManager {
 
+    // for 引用字段搜索
+    public static final String SYS_REFERENCE = "SYS REFERENCE";
+    // for 相关项
+    public static final String SYS_RELATED = "SYS RELATED";
+
     public static final DataListManager instance = new DataListManager();
 
-    private DataListManager() {
-    }
+    private DataListManager() {}
 
     /**
      * @param entity
      * @param user
      * @return
-     * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
     public JSON getListFields(String entity, ID user) {
-        return getListFields(entity, user, Boolean.TRUE);
+        return getListFields(entity, user, Boolean.TRUE, null);
     }
 
     /**
      * @param entity
      * @param user
-     * @param filter
+     * @param useSysFlag
+     * @return
+     */
+    public JSON getListFields(String entity, ID user, String useSysFlag) {
+        return getListFields(entity, user, Boolean.TRUE, useSysFlag);
+    }
+
+    /**
+     * @param entity
+     * @param user
+     * @param filterNoPriviFields 过滤无读取权限的字段
+     * @param useSysFlag
      * @return
      * @see #formatListFields(String, ID, boolean, ConfigBean)
      */
-    public JSON getListFields(String entity, ID user, boolean filter) {
-        JSONObject config = (JSONObject) formatListFields(entity, user, filter, getLayoutOfDatalist(user, entity));
+    protected JSON getListFields(String entity, ID user, boolean filterNoPriviFields, String useSysFlag) {
+        ConfigBean cb = getLayoutOfDatalist(user, entity, useSysFlag);
+        JSONObject config = (JSONObject) formatListFields(entity, user, filterNoPriviFields, cb);
         JSONArray fields = config.getJSONArray("fields");
 
         for (Object o : fields) {
@@ -75,11 +94,11 @@ public class DataListManager extends BaseLayoutManager {
     /**
      * @param entity
      * @param user
-     * @param filter 过滤无读取权限的字段
+     * @param filterNoPriviFields
      * @param config
      * @return
      */
-    public JSON formatListFields(String entity, ID user, boolean filter, ConfigBean config) {
+    public JSON formatListFields(String entity, ID user, boolean filterNoPriviFields, ConfigBean config) {
         List<Map<String, Object>> columnList = new ArrayList<>();
         Entity entityMeta = MetadataHelper.getEntity(entity);
         Field namedField = entityMeta.getNameField();
@@ -116,7 +135,7 @@ public class DataListManager extends BaseLayoutManager {
                     // 如果没有引用实体的读权限，则直接过滤掉字段
 
                     Field parentField = entityMeta.getField(fieldPath[0]);
-                    if (!filter) {
+                    if (!filterNoPriviFields) {
                         formatted = formatField(lastField, parentField);
                     } else if (Application.getPrivilegesManager().allowRead(user, lastField.getOwnEntity().getEntityCode())) {
                         formatted = formatField(lastField, parentField);
@@ -189,10 +208,8 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getWidgetCharts(ID user, String entity) {
-        ConfigBean e = getLayout(user, entity, TYPE_WCHARTS);
-        if (e == null) {
-            return null;
-        }
+        ConfigBean e = getLayout(user, entity, TYPE_WCHARTS, null);
+        if (e == null) return null;
 
         // 补充图表信息
         JSONArray charts = (JSONArray) e.getJSON("config");
@@ -209,7 +226,7 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getListStats(ID user, String entity) {
-        ConfigBean e = getLayout(user, entity, TYPE_LISTSTATS);
+        ConfigBean e = getLayout(user, entity, TYPE_LISTSTATS, null);
         if (e == null) return null;
         return e.clone();
     }
@@ -222,7 +239,7 @@ public class DataListManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getListFilterPane(ID user, String entity) {
-        ConfigBean e = getLayout(user, entity, TYPE_LISTFILTERPANE);
+        ConfigBean e = getLayout(user, entity, TYPE_LISTFILTERPANE, null);
         if (e == null) return null;
         return e.clone();
     }

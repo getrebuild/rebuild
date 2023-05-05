@@ -19,4 +19,11 @@ public class EasyNText extends EasyField {
     protected EasyNText(Field field, DisplayType displayType) {
         super(field, displayType);
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        Object d = super.exprDefaultValue();
+        if (d != null) d = d.toString().replace("\\n", "\n");  // 换行符
+        return d;
+    }
 }

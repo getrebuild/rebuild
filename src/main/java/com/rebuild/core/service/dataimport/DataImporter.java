@@ -20,9 +20,11 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.KnownExceptionConverter;
@@ -30,7 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据导入
@@ -61,6 +67,10 @@ public class DataImporter extends HeavyTask<Integer> {
 
         final ID defaultOwning = ObjectUtils.defaultIfNull(rule.getDefaultOwningUser(), getUser());
 
+        final boolean isViaAdmin = UserHelper.isAdmin(getUser());
+        final boolean isAllowCreate = isViaAdmin
+                || Application.getPrivilegesManager().allowCreate(getUser(), rule.getToEntity().getEntityCode());
+
         GeneralEntityServiceContextHolder.setSkipSeriesValue();
         final EntityService ies = Application.getEntityService(rule.getToEntity().getEntityCode());
 
@@ -78,7 +88,26 @@ public class DataImporter extends HeavyTask<Integer> {
                 if (record == null) {
                     traceLogs.add(new Object[] { fc.getRowNo(), "SKIP" });
                 } else {
+
                     boolean isNew = record.getPrimary() == null;
+                    if (!isViaAdmin) {
+                        String error = null;
+                        if (isNew) {
+                            if (!isAllowCreate) {
+                                error = Language.L("无新建权限");
+                            }
+                        } else {
+                            if (!Application.getPrivilegesManager().allowUpdate(getUser(), record.getPrimary())) {
+                                error = Language.L("无编辑权限");
+                            }
+                        }
+
+                        if (error != null) {
+                            traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", error });
+                            continue;
+                        }
+                    }
+
                     record = ies.createOrUpdate(record);
                     this.addSucceeded();
 
@@ -95,22 +124,24 @@ public class DataImporter extends HeavyTask<Integer> {
                     if (know != null) error = know;
                 }
                 traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", error });
+
             } finally {
 
                 // 可能有级联触发器
                 Object ts = FieldAggregation.cleanTriggerChain();
                 if (ts != null) log.info("Clean current-loop : {}", ts);
-            }
 
-            this.addCompleted();
+                this.addCompleted();
+            }
         }
+
         return this.getSucceeded();
     }
 
     @Override
     protected void completedAfter() {
         super.completedAfter();
-        GeneralEntityServiceContextHolder.isSkipSeriesValue(Boolean.TRUE);
+        GeneralEntityServiceContextHolder.isSkipSeriesValue(true);
     }
 
     /**
@@ -155,7 +186,7 @@ public class DataImporter extends HeavyTask<Integer> {
         // Verify new record
         // Throws DataSpecificationException
         if (checkout.getPrimary() == null) {
-            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null)
+            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null, Boolean.FALSE)
                     .verify(checkout);
         }
 

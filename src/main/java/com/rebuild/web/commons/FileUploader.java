@@ -63,7 +63,8 @@ public class FileUploader extends BaseController {
 
         String uploadName;
         try {
-            uploadName = QiniuCloud.formatFileKey(file.getOriginalFilename());
+            boolean noname = getBoolParameter(request, "noname", Boolean.FALSE);
+            uploadName = QiniuCloud.formatFileKey(file.getOriginalFilename(), !noname);
 
             File dest;
             // 上传临时文件

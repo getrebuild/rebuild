@@ -191,7 +191,7 @@ class ApprovalReferral extends RbModalHandler {
     const title = (
       <RF>
         {$L('批量转审')}
-        <sup className="rbv" title={$L('增值功能')} />
+        <sup className="rbv" />
       </RF>
     )
 
@@ -222,6 +222,9 @@ class ApprovalReferral extends RbModalHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._$btn = c)}>
                 {$L('开始转审')}
               </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
             </div>
           </div>
         </div>
@@ -243,7 +246,7 @@ class ApprovalReferral extends RbModalHandler {
 
   start() {
     if (rb.commercial < 10) {
-      RbHighbar.error(WrapHtml($L('免费版不支持离职继任功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbHighbar.error(WrapHtml($L('免费版不支持批量转审功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 
@@ -270,7 +273,7 @@ class ApprovalReferral extends RbModalHandler {
 
           if (res.error_code === 0) {
             RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录') : $L('批量转审完成'))
-            setTimeout(() => that.hide(), 500)
+            setTimeout(() => that.hide(), 1500)
           } else {
             RbHighbar.error(res.error_msg)
             $btn.button('reset')

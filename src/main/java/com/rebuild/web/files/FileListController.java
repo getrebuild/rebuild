@@ -25,11 +25,10 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +38,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -60,10 +63,9 @@ public class FileListController extends BaseController {
             path = "attachment";
         } else {
             path = ServletUtils.readCookie(request, CK_LASTPATH);
-            if (path == null) {
-                path = "attachment";
-            }
+            if (path == null) path = "docs";
         }
+
         // 记住最后一次访问的文件类型
         ServletUtils.addCookie(response, CK_LASTPATH, path);
 
@@ -81,7 +83,7 @@ public class FileListController extends BaseController {
         // 从相关记录
         ID related = getIdParameter(request, "related");
 
-        // Entity or Folder
+        // Entity(code) or Folder(ID/ALL)
         String entry = getParameter(request, "entry");
 
         int useEntity = 0;
@@ -101,10 +103,10 @@ public class FileListController extends BaseController {
 
         List<String> sqlWhere = new ArrayList<>();
         if (StringUtils.isNotBlank(q)) {
-            sqlWhere.add(String.format("filePath like '%%%s%%'", StringEscapeUtils.escapeSql(q)));
+            sqlWhere.add(String.format("filePath like '%%%s%%'", CommonsUtils.escapeSql(q)));
         }
 
-        // 附件还是文档
+        // 附件
         if (useEntity > 0) {
             if (useEntity == EntityHelper.Feeds) {
                 sqlWhere.add(String.format(
@@ -126,29 +128,39 @@ public class FileListController extends BaseController {
                 if (UserHelper.isAdmin(user)) {
                     sqlWhere.add("belongEntity > 0");
                 } else {
-                    String esql = "( belongEntity = " +
+                    String entityWhere = "( belongEntity = " +
                             StringUtils.join(getAllowEntities(user, true), " or belongEntity = ") + " )";
-                    sqlWhere.add(esql);
+                    sqlWhere.add(entityWhere);
                 }
             }
-
-        } else {
+        }
+        // 文件
+        else {
             sqlWhere.add("belongEntity = 0");
 
-            Set<ID> ps = FilesHelper.getPrivateFolders(user);
+            // 可访问目录
+            Set<ID> accessable = FilesHelper.getAccessableFolders(user);
 
             if (useFolder != null) {
-                Set<ID> fs = new HashSet<>();
-                fs.add(useFolder);
-                fs.addAll(FilesHelper.getChildFolders(useFolder));
-                Collection<ID> fs2 = CollectionUtils.removeAll(fs, ps);
+                if (accessable.contains(useFolder)) {
+                    Set<ID> fs = new HashSet<>();
+                    fs.add(useFolder);
+                    fs.addAll(FilesHelper.getChildFolders(useFolder));
+                    // 移除不可访问的
+                    fs.removeIf(id -> !accessable.contains(id));
+                    sqlWhere.add(String.format(
+                            "inFolder in ('%s')", StringUtils.join(fs, "','")));
+                } else {
+                    sqlWhere.add("(1=2)");
+                }
 
-                sqlWhere.add(String.format(
-                        "inFolder in ('%s')", StringUtils.join(fs2, "','")));
-
-            } else if (!ps.isEmpty()) {
-                sqlWhere.add(String.format(
-                        "(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps, "','")));
+            } else {
+                if (accessable.isEmpty()) {
+                    sqlWhere.add("inFolder is null");
+                } else {
+                    sqlWhere.add(String.format(
+                            "(inFolder is null or inFolder in ('%s'))", StringUtils.join(accessable, "','")));
+                }
             }
         }
 
@@ -156,8 +168,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord" +
-                " from Attachment where (1=1) and (isDeleted = ?)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("older".equals(sort)) {
             sql += " order by createdOn asc";
@@ -195,7 +206,7 @@ public class FileListController extends BaseController {
     // 文档树（目录）
     @GetMapping("tree-folder")
     public JSON listFolder(HttpServletRequest request) {
-        return FilesHelper.getFolders(getRequestUser(request), null);
+        return FilesHelper.getAccessableFolders(getRequestUser(request), null);
     }
 
     // 实体树

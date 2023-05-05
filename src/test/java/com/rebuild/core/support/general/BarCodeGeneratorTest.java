@@ -20,14 +20,14 @@ import org.junit.jupiter.api.Test;
 public class BarCodeGeneratorTest extends TestSupport {
 
     @Test
-    public void getBarCodeContent() {
+    void getBarCodeContent() {
         Field barcodeField = MetadataHelper.getEntity(TestAllFields).getField("barcode");
         System.out.println(BarCodeSupport.getBarCodeContent(barcodeField, null));
     }
 
     @Test
-    public void saveBarCode() {
-        System.out.println(BarCodeSupport.saveCode("CODE128", BarcodeFormat.CODE_128, 80));
-        System.out.println(BarCodeSupport.saveCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
+    void saveBarCode() {
+        System.out.println(BarCodeSupport.saveCode(BarCodeSupport.createBarCodeImage("123ABC支持中文", BarcodeFormat.QR_CODE, 0, 0)));
+        System.out.println(BarCodeSupport.saveCode(BarCodeSupport.createBarCodeImage("CODE128", BarcodeFormat.CODE_128, 0, 0)));
     }
 }

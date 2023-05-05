@@ -33,7 +33,7 @@ public class EasyID extends EasyField {
         }
 
         ID idValue = (ID) value;
-        if (targetType == DisplayType.REFERENCE) {
+        if (targetType == DisplayType.REFERENCE || targetType == DisplayType.ANYREFERENCE) {
             return idValue;
         }
         if (targetType == DisplayType.N2NREFERENCE) {

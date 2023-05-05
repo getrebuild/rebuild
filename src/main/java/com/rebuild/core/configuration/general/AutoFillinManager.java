@@ -20,13 +20,25 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyFile;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单自动回填
@@ -34,6 +46,7 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
  */
+@Slf4j
 public class AutoFillinManager implements ConfigManager {
 
     public static final AutoFillinManager instance = new AutoFillinManager();
@@ -84,21 +97,22 @@ public class AutoFillinManager implements ConfigManager {
 
         if (config.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-        Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
-        Entity targetEntity = field.getOwnEntity();
+        final Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
+        final Entity targetEntity = field.getOwnEntity();
 
         Set<String> sourceFields = new HashSet<>();
 
         for (Iterator<ConfigBean> iter = config.iterator(); iter.hasNext(); ) {
             ConfigBean e = iter.next();
             String sourceField = e.getString("source");
-            if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)) {
+            if (MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
+                log.warn("Unknown field `{}` in `{}`", sourceField, sourceEntity.getName());
                 iter.remove();
                 continue;
             }
 
             String targetField = e.getString("target");
-            // 明细 > 主记录
+            // 明细 > 主
             if (targetField.contains(".")) {
                 String[] fs = targetField.split("\\.");
                 Entity mainEntity = targetEntity.getMainEntity();
@@ -106,9 +120,6 @@ public class AutoFillinManager implements ConfigManager {
                     iter.remove();
                     continue;
                 }
-            } else if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)) {
-                iter.remove();
-                continue;
             }
 
             sourceFields.add(sourceField);
@@ -127,6 +138,7 @@ public class AutoFillinManager implements ConfigManager {
             String targetField = e.getString("target");
 
             Field targetFieldMeta;
+            // 明细 > 主
             if (targetField.contains(".")) {
                 String[] fs = targetField.split("\\.");
                 targetFieldMeta = targetEntity.getMainEntity().getField(fs[1]);
@@ -138,7 +150,7 @@ public class AutoFillinManager implements ConfigManager {
             if (sourceRecord.hasValue(sourceField, false)) {
                 value = sourceRecord.getObjectValue(sourceField);
                 value = conversionCompatibleValue(
-                        sourceEntity.getField(sourceField),
+                        MetadataHelper.getLastJoinField(sourceEntity, sourceField),
                         targetFieldMeta,
                         value);
             }

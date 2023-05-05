@@ -103,7 +103,10 @@ class PreviewTable extends React.Component {
     return cells
   }
 
-  componentDidMount = () => $('.font-italic.hide').removeClass('hide')
+  componentDidMount() {
+    $('.J_print-meta.hide').removeClass('hide')
+    if (~~$urlp('mode') === 1) setTimeout(() => window.print(), 100)
+  }
 
   formatValue(item) {
     if (item && item.type === 'AVATAR' && !item.value) {
@@ -153,11 +156,11 @@ class PreviewTable extends React.Component {
         return <div className="mdedit-content" dangerouslySetInnerHTML={{ __html: md2html }} />
       } else {
         return (
-          <React.Fragment>
+          <RF>
             {item.value.split('\n').map((line, idx) => {
               return <p key={'kl-' + idx}>{line}</p>
             })}
-          </React.Fragment>
+          </RF>
         )
       }
     } else if (item.type === 'BOOL') {

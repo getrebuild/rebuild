@@ -304,11 +304,11 @@ const add_axis = (target, axis) => {
 
 // 图表选项
 const render_option = () => {
-  const cts = $('.chart-type>a').removeClass('active')
+  const $types = $('.chart-type>a').removeClass('active')
   const dimsAxis = $('.J_axis-dim .item').length
   const numsAxis = $('.J_axis-num .item').length
 
-  cts.each(function () {
+  $types.each(function () {
     const $this = $(this)
     const dims = ($this.data('allow-dims') || '0|0').split('|')
     const nums = ($this.data('allow-nums') || '0|0').split('|')
@@ -317,6 +317,9 @@ const render_option = () => {
   // FUNNEL
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
+  // LINE/BAR
+  if ((dimsAxis === 2 && numsAxis === 1) || (dimsAxis === 1 && numsAxis >= 1));
+  else $('.chart-type>a[data-type="LINE"],.chart-type>a[data-type="BAR"]').removeClass('active')
 
   // Active
   let $select = $('.chart-type>a.select')
@@ -332,12 +335,12 @@ const render_option = () => {
   else ctOpt.removeClass('hide')
 
   // Sort
-  const sorts = $('.axis-editor .J_sort').removeClass('disabled')
+  const $sorts = $('.axis-editor .J_sort').removeClass('disabled')
   if (ct === 'INDEX') {
-    sorts.addClass('disabled')
+    $sorts.addClass('disabled')
   } else if (ct === 'FUNNEL') {
     if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
-    else sorts.addClass('disabled')
+    else $sorts.addClass('disabled')
   }
 
   render_preview()

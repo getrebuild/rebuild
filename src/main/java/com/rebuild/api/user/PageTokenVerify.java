@@ -26,7 +26,7 @@ import com.rebuild.utils.JSONUtils;
  */
 public class PageTokenVerify extends BaseApi {
 
-    public static final int TOKEN_EXPIRES = CommonsCache.TS_HOUR;
+    public static final int TOKEN_EXPIRES = CommonsCache.TS_HOUR * 2;
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
@@ -46,6 +46,8 @@ public class PageTokenVerify extends BaseApi {
     // -- TOKENs
 
     /**
+     * 生成 Token，有效期 2h，如期间调用 #verify 会续期 2h
+     *
      * @param user
      * @return
      */
@@ -56,10 +58,17 @@ public class PageTokenVerify extends BaseApi {
     }
 
     /**
-     * @param token
+     * 验证 Token
+     *
+     * @param ptoken
      * @return
      */
-    protected static ID verify(String token) {
-        return (ID) Application.getCommonsCache().getx("RBPT." + token);
+    protected static ID verify(String ptoken) {
+        ID user = (ID) Application.getCommonsCache().getx("RBPT." + ptoken);
+        if (user == null) return null;
+
+        // 自动续期
+        Application.getCommonsCache().putx("RBPT." + ptoken, user, TOKEN_EXPIRES);
+        return user;
     }
 }

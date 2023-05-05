@@ -535,7 +535,7 @@ class Pagination extends React.Component {
                 )
               else
                 return (
-                  <li key={`pn-${item}`} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}>
+                  <li key={`pn-${item}`} className={`paginate_button page-item ${this.state.pageNo === item && 'active'}`}>
                     <a className="page-link" onClick={() => this._goto(item)}>
                       {item}
                     </a>
@@ -654,7 +654,7 @@ function __renderRichContent(e) {
           {e.attachments.map((item) => {
             const fileName = $fileCutName(item)
             return (
-              <a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
+              <a key={`file-${item}`} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
               </a>

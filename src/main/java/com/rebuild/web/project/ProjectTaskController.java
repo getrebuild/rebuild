@@ -27,12 +27,12 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -101,7 +101,7 @@ public class ProjectTaskController extends BaseController {
         // 关键词搜索
         String search = getParameter(request, "search");
         if (StringUtils.isNotBlank(search)) {
-            queryWhere += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+            queryWhere += " and taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
         }
 
         // 高级查询
@@ -374,7 +374,7 @@ public class ProjectTaskController extends BaseController {
         // 关键词搜索
         String search = getParameter(request, "search");
         if (StringUtils.isNotBlank(search)) {
-            queryWhere += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+            queryWhere += " and taskName like '%" + CommonsUtils.escapeSql(search) + "%'";
         }
 
         int pageNo = getIntParameter(request, "pageNo", 1);

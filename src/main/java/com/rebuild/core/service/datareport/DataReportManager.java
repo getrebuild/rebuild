@@ -10,13 +10,17 @@ package com.rebuild.core.service.datareport;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +36,7 @@ public class DataReportManager implements ConfigManager {
 
     public static final DataReportManager instance = new DataReportManager();
 
-    private DataReportManager() { }
+    private DataReportManager() {}
 
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
@@ -48,7 +52,7 @@ public class DataReportManager implements ConfigManager {
         JSONArray list = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
-                list.add(e.toJSON("id", "name"));
+                list.add(e.toJSON("id", "name", "outputType"));
             }
         }
         return list;
@@ -61,25 +65,31 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public ConfigBean[] getReportsRaw(Entity entity) {
-        final String cKey = "DataReportManager2-" + entity.getName();
+        final String cKey = "DataReportManager33-" + entity.getName();
         ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return cached;
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,templateFile,templateType from DataReportConfig where belongEntity = ?")
+                "select configId,name,isDisabled,templateFile,templateType,extraDefinition from DataReportConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
                 .array();
 
         List<ConfigBean> alist = new ArrayList<>();
         for (Object[] o : array) {
+            JSONObject extra = o[5] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[5]);
+            String outputType = StringUtils.defaultIfBlank(extra.getString("outputType"), "excel");
+            int templateVersion = extra.containsKey("templateVersion") ? extra.getInteger("templateVersion") : 2;
+
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
                     .set("name", o[1])
                     .set("disabled", o[2])
                     .set("template", o[3])
-                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD));
+                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
+                    .set("outputType", outputType)
+                    .set("templateVersion", templateVersion);
             alist.add(cb);
         }
 
@@ -93,11 +103,16 @@ public class DataReportManager implements ConfigManager {
      * @param reportId
      * @return
      */
-    public File getTemplateFile(Entity entity, ID reportId) {
+    public TemplateFile getTemplateFile(Entity entity, ID reportId) {
         String template = null;
+        boolean isList = false;
+        boolean isV33 = false;
+
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getID("id").equals(reportId)) {
                 template = e.getString("template");
+                isList = e.getInteger("type") == TYPE_LIST;
+                isV33 = e.getInteger("templateVersion") == 3;
                 break;
             }
         }
@@ -110,7 +125,8 @@ public class DataReportManager implements ConfigManager {
         if (!file.exists()) {
             throw new ConfigurationException("File of template not extsts : " + file);
         }
-        return file;
+
+        return new TemplateFile(file, entity, isList, isV33);
     }
 
     /**
@@ -118,8 +134,7 @@ public class DataReportManager implements ConfigManager {
      * @return
      * @see #getTemplateFile(Entity, ID) 性能好
      */
-    @Deprecated
-    public File getTemplateFile(ID reportId) {
+    public TemplateFile getTemplateFile(ID reportId) {
         Object[] report = Application.createQueryNoFilter(
                 "select belongEntity from DataReportConfig where configId = ?")
                 .setParameter(1, reportId)
@@ -133,7 +148,7 @@ public class DataReportManager implements ConfigManager {
 
     @Override
     public void clean(Object entity) {
-        final String cKey = "DataReportManager2-" + ((Entity) entity).getName();
+        final String cKey = "DataReportManager33-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
 }

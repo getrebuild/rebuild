@@ -16,7 +16,7 @@
         margin-bottom: 6px;
       }
       .axis-target .item::before {
-        display: none;
+        border-color: #fff;
       }
       .set-fields a.item {
         background-color: #eee;
@@ -24,9 +24,6 @@
       .set-fields a.item:hover {
         background-color: #4285f4;
         color: #fff;
-      }
-      .set-items .item {
-        padding-right: 3px;
       }
       .set-items a.del {
         margin-left: 3px;
@@ -45,7 +42,7 @@
   </head>
   <body class="dialog">
     <div class="main-content">
-      <div class="p-3">
+      <div class="p-2">
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
         <div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
         <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
@@ -53,8 +50,8 @@
       </div>
 
       <div class="dialog-footer">
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+        <button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

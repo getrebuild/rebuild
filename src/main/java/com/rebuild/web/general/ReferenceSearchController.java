@@ -26,11 +26,11 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -135,7 +135,7 @@ public class ReferenceSearchController extends EntityController {
                 return JSONUtils.EMPTY_ARRAY;
             }
 
-            String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
+            String like = " like '%" + CommonsUtils.escapeSql(q) + "%'";
             searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
         }
 
@@ -176,7 +176,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        q = StringEscapeUtils.escapeSql(q);
+        q = CommonsUtils.escapeSql(q);
 
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
         String sqlWhere = String.format(
@@ -273,7 +273,8 @@ public class ReferenceSearchController extends EntityController {
         ModelAndView mv = createModelAndView("/general/reference-search");
         putEntityMeta(mv, searchEntity);
 
-        JSON config = DataListManager.instance.getListFields(searchEntity.getName(), user);
+        JSON config = DataListManager.instance.getListFields(
+                searchEntity.getName(), user, DataListManager.SYS_REFERENCE);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 
         // 可新建

@@ -10,7 +10,7 @@
   <body class="view-body">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="|zmdi-${entityIcon}|"></i>
-      <h3 class="title" th:text="${bundle.L('%s视图', entityLabel)}"></h3>
+      <h3 class="title" th:text="${bundle.L('%s详情', entityLabel)}"></h3>
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
@@ -45,7 +45,7 @@
                 <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('分配')}]]</a>
                 <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('共享')}]]</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item J_print" target="_blank" th:href="|${baseUrl}/app/${entityName}/print?id=${id}|"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</a>
+                <a class="dropdown-item J_print" target="_blank" th:href="|${baseUrl}/app/${entityName}/print?id=${id}&mode=1|"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</a>
                 <a class="dropdown-item J_report"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('报表')}]]</a>
               </div>
             </div>
@@ -124,14 +124,8 @@
     </script>
     <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/feeds-list.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
   </body>
 </html>

@@ -104,8 +104,19 @@ $(document).ready(() => {
     $btn.button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        if (rb.env === 'dev') location.reload()
-        else location.href = '../triggers'
+        const msg = (
+          <RF>
+            <strong>{$L('保存成功')}</strong>
+            {when <= 0 && <p className="text-warning m-0 mt-1">{$L('由于未启用任何触发动作，此触发器不会被自动执行')}</p>}
+          </RF>
+        )
+        RbAlert.create(msg, {
+          icon: 'info-outline',
+          cancelText: $L('返回列表'),
+          cancel: () => location.replace('../triggers'),
+          confirmText: $L('继续编辑'),
+          confirm: () => location.reload(),
+        })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -203,7 +214,7 @@ function _handle512Change() {
 // eslint-disable-next-line no-unused-vars
 function useExecManual() {
   $('.footer .btn-light').removeClass('hide')
-  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv" title="${$L('增值功能')}"></sup></a>`)
+  $(`<a class="dropdown-item">${$L('立即执行')} <sup class="rbv"></sup></a>`)
     .appendTo('.footer .dropdown-menu')
     .on('click', () => {
       if (rb.commercial < 10) {
@@ -216,15 +227,24 @@ function useExecManual() {
           this.disabled(true, true)
           $mp.start()
 
-          // eslint-disable-next-line no-undef
-          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, () => {
-            $mp.end()
-            this.hide()
-            RbHighbar.success($L('执行成功'))
+          $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
+            useExecManual_checkState(res.data, this)
           })
         },
       })
     })
+}
+// 检查状态
+function useExecManual_checkState(taskid, _dlg) {
+  $.get('/commons/task/state?taskid=' + taskid, (res) => {
+    if ((res.data || {}).isCompleted) {
+      _dlg && _dlg.hide(true)
+      $mp.end()
+      RbHighbar.success($L('执行成功'))
+    } else {
+      setTimeout(() => useExecManual_checkState(taskid, _dlg), 1000)
+    }
+  })
 }
 
 // ~ 指定字段
@@ -288,6 +308,14 @@ class DlgSpecFields extends RbModalHandler {
 
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${wpc.sourceEntity}`, (res) => this.setState({ fields: res.data }))
+  }
+
+  static render(content) {
+    if (content.whenUpdateFields && content.whenUpdateFields.length > 0) {
+      window.whenUpdateFields = content.whenUpdateFields
+      const $s = $('.when-update .custom-control-label')
+      $s.text(`${$s.text()} (${content.whenUpdateFields.length})`)
+    }
   }
 }
 

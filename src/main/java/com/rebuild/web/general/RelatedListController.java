@@ -25,11 +25,11 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +37,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 相关项列表
@@ -141,7 +146,7 @@ public class RelatedListController extends BaseController {
             Set<String> searchFields = ParseHelper.buildQuickFields(relatedEntity, null);
 
             if (!searchFields.isEmpty()) {
-                String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
+                String like = " like '%" + CommonsUtils.escapeSql(q) + "%'";
                 String searchWhere = " and ( " + StringUtils.join(searchFields.iterator(), like + " or ") + like + " )";
                 where += searchWhere;
             }
@@ -169,8 +174,8 @@ public class RelatedListController extends BaseController {
 
     @GetMapping("related-list-config")
     public RespBody getDataListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
-        final ID user = getRequestUser(req);
-        JSON config = DataListManager.instance.getListFields(listEntity.getName(), user);
+        JSON config = DataListManager.instance.getListFields(
+                listEntity.getName(), getRequestUser(req), DataListManager.SYS_RELATED);
         return RespBody.ok(config);
     }
 }

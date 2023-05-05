@@ -37,8 +37,7 @@ $(document).ready(() => {
       tags: $('#tags').val().join(','),
     }
     // v3.1
-    if ($('#notCoEditing')[0]) {
-      extConfig.notCoEditing = $val('#notCoEditing')
+    if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
     }
 
@@ -155,6 +154,5 @@ $(document).ready(() => {
   })
 
   // v3.1
-  if (wpc.extConfig.notCoEditing) $('#notCoEditing').attr('checked', true)
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
 })

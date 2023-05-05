@@ -61,7 +61,7 @@ public class AutoShare extends AutoAssign {
         }
 
         int shareRights = BizzPermission.READ.getMask();
-        if (content.containsKey("withUpdate") && content.getBoolean("withUpdate")) {
+        if (content.getBooleanValue("withUpdate")) {
             shareRights += BizzPermission.UPDATE.getMask();
         }
         

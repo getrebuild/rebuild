@@ -16,8 +16,8 @@ class RbModal extends React.Component {
   }
 
   render() {
-    const styles = {}
-    if (this.props.zIndex) styles.zIndex = this.props.zIndex
+    const style1 = {}
+    if (this.props.zIndex) style1.zIndex = this.props.zIndex
 
     const iframe = !this.props.children // No child
     const style2 = { maxWidth: this.props.width || 680 }
@@ -25,7 +25,7 @@ class RbModal extends React.Component {
     return (
       <div
         className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`}
-        style={styles}
+        style={style1}
         ref={(c) => {
           this._rbmodal = c
           this._element = c
@@ -219,8 +219,8 @@ class RbAlert extends React.Component {
   }
 
   render() {
-    const styles = {}
-    if (this.props.width) styles.maxWidth = ~~this.props.width
+    const style2 = {}
+    if (this.props.width) style2.maxWidth = ~~this.props.width
 
     return (
       <div
@@ -229,7 +229,7 @@ class RbAlert extends React.Component {
           this._dlg = c
           this._element = c
         }}>
-        <div className="modal-dialog modal-dialog-centered" style={styles}>
+        <div className="modal-dialog modal-dialog-centered" style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
@@ -254,22 +254,28 @@ class RbAlert extends React.Component {
     const _onConfirm = (this.props.onConfirm || this.props.confirm || this.hide).bind(this)
 
     return (
-      <div className="text-center ml-6 mr-6" ref={(c) => (this._element = c)}>
-        <div className={`text-${type}`}>
-          <i className={`modal-main-icon zmdi zmdi-${icon}`} />
-        </div>
+      <div className="text-center ml-6 mr-6">
+        {type !== 'clear' && (
+          <div className={`text-${type}`}>
+            <i className={`modal-main-icon zmdi zmdi-${icon}`} />
+          </div>
+        )}
+
         {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
         <div className={this.props.title ? '' : 'mt-3'}>
           <div>{this.props.message}</div>
         </div>
-        <div className="mt-4 mb-3">
-          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
-            {this.props.cancelText || $L('取消')}
-          </button>
-          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
-            {this.props.confirmText || $L('确定')}
-          </button>
-        </div>
+
+        {type !== 'clear' && (
+          <div className="mt-4 mb-3">
+            <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={_onCancel}>
+              {this.props.cancelText || $L('取消')}
+            </button>
+            <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={_onConfirm}>
+              {this.props.confirmText || $L('确定')}
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -290,8 +296,8 @@ class RbAlert extends React.Component {
     }, 0)
   }
 
-  hide() {
-    $(this._dlg).off('hide.bs.modal') // force
+  hide(forceHide) {
+    if (forceHide) $(this._dlg).off('hide.bs.modal')
     $(this._dlg).modal('hide')
   }
 
@@ -301,15 +307,20 @@ class RbAlert extends React.Component {
     this.setState({ disable: d }, () => {
       if (d && preventHide) {
         $(this._dlg).find('.close').attr('disabled', true)
-        $(this._dlg).on('hide.bs.modal', function () {
-          return false
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            RbHighbar.create($L('请等待请求执行完毕'))
+            return false
+          })
       }
       if (!d) {
         $(this._dlg).find('.close').attr('disabled', false)
-        $(this._dlg).on('hide.bs.modal', function () {
-          return true
-        })
+        $(this._dlg)
+          .off('hide.bs.modal')
+          .on('hide.bs.modal', function () {
+            return true
+          })
       }
     })
   }
@@ -344,7 +355,7 @@ class RbHighbar extends React.Component {
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
 
     return (
-      <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div ref={(c) => (this._element = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
         <div className={`alert alert-dismissible alert-${this.props.type || 'warning'} mb-0`}>
           <button className="close" type="button" onClick={this.close} title={$L('关闭')}>
             <i className="zmdi zmdi-close" />
@@ -362,7 +373,7 @@ class RbHighbar extends React.Component {
     setTimeout(() => this.close(), this.props.timeout || 3000)
   }
 
-  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._rbhighbar).parent()))
+  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._element).parent()))
 
   // -- Usage
   /**

@@ -646,13 +646,17 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowReferral" checked={this.state.allowReferral === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人转审')} <sup className="rbv" title={$L('增值功能')} /></span>
+              <span className="custom-control-label">
+                {$L('允许审批人转审')} <sup className="rbv" />
+              </span>
             </label>
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('允许审批人加签')} <sup className="rbv" title={$L('增值功能')} /></span>
+              <span className="custom-control-label">
+                {$L('允许审批人加签')} <sup className="rbv" />
+              </span>
             </label>
           </div>
 
@@ -815,7 +819,7 @@ class CCNodeConfig extends StartNodeConfig {
 
           <div className="form-group mt-3">
             <label className="text-bold">
-              {$L('抄送给外部人员')} <sup className="rbv" title={$L('增值功能')} />
+              {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
             <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
             <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
@@ -948,7 +952,14 @@ class RbFlowCanvas extends NodeGroupSpec {
       $btns.button('loading')
       $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
-          RbAlert.create($L('保存并发布成功') + (noApproverNode ? `(${$L('由于未添加审批节点，此流程暂不可用')})` : ''), {
+          const msg = (
+            <RF>
+              <strong>{$L('保存成功')}</strong>
+              {noApproverNode && <p className="text-warning m-0 mt-1">{$L('由于未添加任何审批节点，因此此流程暂不可用')}</p>}
+            </RF>
+          )
+          RbAlert.create(msg, {
+            icon: 'info-outline',
             cancelText: $L('返回列表'),
             cancel: () => location.replace('../approvals'),
             confirmText: $L('继续编辑'),
@@ -1050,7 +1061,7 @@ class DlgCopy extends ConfigFormDlg {
           <div className="col-sm-7 offset-sm-3">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-              <span className="custom-control-label">{$L('同时禁用当前流程')}</span>
+              <span className="custom-control-label">{$L('同时禁用当前审批流程')}</span>
             </label>
           </div>
         </div>

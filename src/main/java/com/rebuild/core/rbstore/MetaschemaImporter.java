@@ -17,11 +17,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.configuration.general.*;
+import com.rebuild.core.configuration.general.AdvFilterService;
+import com.rebuild.core.configuration.general.AutoFillinConfigService;
+import com.rebuild.core.configuration.general.LayoutConfigService;
+import com.rebuild.core.configuration.general.PickListService;
+import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.configuration.general.TransformConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
@@ -31,12 +35,18 @@ import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.rebuild.core.rbstore.MetaSchemaGenerator.KEEP_ID;
 

@@ -26,7 +26,11 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -71,7 +75,7 @@ public class ViewAddonsController extends BaseController {
         final ID user = getRequestUser(request);
         String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
-        ConfigBean config = ViewAddonsManager.instance.getLayout(user, entity, applyType);
+        ConfigBean config = ViewAddonsManager.instance.getLayoutOfViewAddons(entity, user, applyType);
         // compatible: v2.2
         JSON configJson = config == null ? null : config.getJSON("config");
         if (configJson instanceof JSONArray) {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.privileges;
 
+import cn.devezhao.persist4j.PersistManager;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -18,6 +19,7 @@ import com.rebuild.core.service.BaseService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -132,5 +134,36 @@ public class RoleService extends BaseService implements AdminGuard {
         }
 
         Application.getUserStore().refreshRole(roleId);
+    }
+
+    /**
+     * @param fromRole
+     * @param toRoles
+     */
+    public void updateWithCopyTo(ID fromRole, ID[] toRoles) {
+        List<Record> fromPrivileges = Application.createQuery(
+                "select definition,entity,zeroKey from RolePrivileges where roleId = ?")
+                .setParameter(1, fromRole)
+                .list();
+
+        final PersistManager pm = getPersistManagerFactory().createPersistManager();
+
+        for (ID to : toRoles) {
+            if (fromRole.equals(to)) continue;
+
+            // 1.清空
+            String dsql = String.format("delete from `role_privileges` where `ROLE_ID` = '%s'", to);
+            Application.getSqlExecutor().execute(dsql);
+
+            // 2.复制
+            for (Record p : fromPrivileges) {
+                Record clone = p.clone();
+                clone.setID("roleId", to);
+                pm.save(clone);
+            }
+
+            // 3.刷新
+            Application.getUserStore().refreshRole(to);
+        }
     }
 }

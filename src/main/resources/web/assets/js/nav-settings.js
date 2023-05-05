@@ -43,8 +43,8 @@ $(document).ready(() => {
           }
         }
 
-        if ($ref.val() === TYPE_PARENT) $('.J_defaultOpen').show()
-        else $('.J_defaultOpen').hide()
+        if ($ref.val() === TYPE_PARENT) $('.J_parentOption').show()
+        else $('.J_parentOption').hide()
       })
   })
 
@@ -153,10 +153,23 @@ $(document).ready(() => {
         renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
 
-          $(`<a class="dropdown-item bosskey-show">${$L('配置顶部菜单')}</a>`)
-            .appendTo($(this._$switch).find('.dropdown-menu'))
+          const $menu = $(this._$switch).find('.dropdown-menu')
+
+          $(`<a class="dropdown-item bosskey-show" ${c ? '' : 'disabled'}>${$L('复制导航菜单')}</a>`)
+            .prependTo($menu)
             .on('click', () => {
-              renderRbcomp(<TopNavSettings list={alist} />)
+              if (c) renderRbcomp(<CopyNavTo list={alist} current={c[0]} />)
+            })
+
+          $('<div class="dropdown-divider"></div>').prependTo($menu)
+          $(`<a class="dropdown-item">${$L('配置顶部菜单')} <sup class="rbv"></sup></a>`)
+            .prependTo($menu)
+            .on('click', () => {
+              if (rb.commercial < 1) {
+                RbHighbar.error(WrapHtml($L('免费版不支持顶部菜单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+              } else {
+                renderRbcomp(<TopNavSettings list={alist} />)
+              }
             })
         })
       } else {
@@ -193,7 +206,9 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
-  if (data.value === TYPE_PARENT) data.open = item.attr('attr-open') === 'true'
+  if (data.value === TYPE_PARENT) {
+    data.open = item.attr('attr-open') === 'true'
+  }
 
   const $subNavs = item.find('ul>li')
   if ($subNavs.length > 0) {
@@ -279,11 +294,11 @@ const render_item = function (data, isNew, append2) {
 
       if (data.value === TYPE_PARENT) {
         $me.attr('disabled', true)
-        $('.J_defaultOpen').show()
+        $('.J_parentOption').show()
         $('#defaultOpen')[0].checked = data.open === true
       } else {
         $me.attr('disabled', false)
-        $('.J_defaultOpen').hide()
+        $('.J_parentOption').hide()
       }
 
       // 实体已经不存在
@@ -421,5 +436,57 @@ class TopNavSettings extends Share2Switch {
       })
 
     $.post('/app/settings/nav-settings/topnav', JSON.stringify(sets), () => this.hide())
+  }
+}
+
+// eslint-disable-next-line no-undef
+class CopyNavTo extends Share2Switch {
+  renderContent() {
+    return (
+      <div style={{ margin: '0 15px' }}>
+        <div className="form-group">
+          <label className="text-bold mb-2">{$L('复制到哪些导航菜单')}</label>
+          <div ref={(c) => (this._$selected = c)}>
+            {this.props.list.map((item) => {
+              return (
+                <label className="custom-control custom-checkbox custom-control-inline mb-2" key={item[0]}>
+                  <input className="custom-control-input" type="checkbox" data-id={item[0]} disabled={item[0] === this.props.current} />
+                  <span className="custom-control-label">
+                    {item[1] || $L('未命名')}
+                    {item[0] === this.props.current && ` [${$L('当前')}]`}
+                  </span>
+                </label>
+              )
+            })}
+          </div>
+          <div className="form-text mt-1">{$L('将当前导航菜单配置复制到选择的导航菜单中')}</div>
+        </div>
+        <div className="mb-1">
+          <button className="btn btn-primary" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  handleConfirm() {
+    const post = {
+      from: this.props.current,
+      copyTo: [],
+    }
+
+    $(this._$selected)
+      .find('input:checked')
+      .each(function () {
+        post.copyTo.push($(this).data('id'))
+      })
+
+    console.log(post)
+
+    $.post('/app/settings/nav-settings/nav-copyto', JSON.stringify(post), () => {
+      this.hide()
+      RbHighbar.success($L('复制完成'))
+    })
   }
 }

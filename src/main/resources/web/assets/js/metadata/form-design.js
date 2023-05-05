@@ -17,6 +17,9 @@ const COLSPANS = {
   8: 'w-66',
 }
 
+const _FieldLabelChanged = {}
+const _FieldNullableChanged = {}
+
 $(document).ready(() => {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     const validFields = {},
@@ -115,10 +118,11 @@ $(document).ready(() => {
 
         const tip = $this.find('.J_tip').attr('title')
         if (tip) item.tip = tip
-        item.__newLabel = $this.find('span').text()
-        if (item.__newLabel === $this.data('label')) delete item.__newLabel
         const height = $this.attr('data-height')
         if (height) item.height = height
+
+        if (_FieldLabelChanged[item.field]) item.__newLabel = _FieldLabelChanged[item.field]
+        if (_FieldNullableChanged[item.field] !== undefined) item.__newNullable = _FieldNullableChanged[item.field]
 
         AdvControl.cfgAppend(item)
       }
@@ -164,6 +168,40 @@ $(document).ready(() => {
       else $tr.addClass('hide')
     })
   })
+
+  $('.J_resize-fields').on('click', () => {
+    $('.form-preview .dd-item').each(function () {
+      const $field = $(this).find('.J_field')
+      if ($field.data('field') !== '$DIVIDER$') {
+        $field.removeAttr('data-height').parent().removeClass('w-25 w-50 w-75 w-100 w-33 w-66').addClass('w-50')
+      }
+    })
+  })
+  $('.J_del-unlayout-fields').on('click', () => {
+    RbAlert.create($L('是否删除所有未布局字段？'), {
+      type: 'danger',
+      onConfirm: function () {
+        this.disabled(true, true)
+        const that = this
+
+        let del = 0
+        $('#FIELDLIST .dd-handle').each(function () {
+          const $item = $(this)
+          if ($item.hasClass('readonly')) return
+
+          del++
+          $.post(`/admin/entity/field-drop?id=${wpc.entityName}.${$item.data('field')}`, (res) => {
+            if (res.error_code === 0) $item.parent().remove()
+
+            if (--del <= 0) {
+              RbHighbar.success($L('删除完成'))
+              that.hide(true)
+            }
+          })
+        })
+      },
+    })
+  })
 })
 
 const render_item = function (data) {
@@ -175,7 +213,9 @@ const render_item = function (data) {
   const isDivider = data.fieldName === DIVIDER_LINE
 
   const $handle = $(
-    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : 'FIELD'}">${data.fieldLabel}</span></div>`
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : ''}" _title2="${isDivider ? $L('断行') : ''}">${
+      data.fieldLabel
+    }</span></div>`
   ).appendTo($item)
 
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
@@ -209,16 +249,22 @@ const render_item = function (data) {
       .appendTo($action)
       .on('click', function () {
         const _onConfirm = function (nv) {
-          // 字段名
+          // 字段名称
+          _FieldLabelChanged[nv.field] = nv.fieldLabel || null
           if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
           else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
+
+          // 允许为空
+          _FieldNullableChanged[nv.field] = nv.fieldNullable ? true : false
+          if (nv.fieldNullable) $item.find('.dd-handle').removeClass('not-nullable')
+          else $item.find('.dd-handle').addClass('not-nullable')
 
           // 填写提示
           let $tip = $item.find('.dd-handle>span>i')
           if (!nv.fieldTips) {
             $tip.remove()
           } else {
-            if ($tip.length === 0) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle span'))
+            if (!$tip[0]) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle>span'))
             $tip.attr('title', nv.fieldTips)
           }
 
@@ -231,6 +277,8 @@ const render_item = function (data) {
           fieldLabel: $item.find('.dd-handle>span').text(),
           fieldLabelOld: $item.find('.dd-handle').data('label'),
           fieldHeight: $item.find('.dd-handle').attr('data-height') || null,
+          fieldNullable: !$item.find('.dd-handle').hasClass('not-nullable'),
+          field: $item.find('.dd-handle').data('field'),
         }
         // if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
@@ -278,7 +326,7 @@ const render_item = function (data) {
 }
 
 const render_unset = function (data) {
-  const $item = $(`<li class="dd-item"><div class="dd-handle">${data.fieldLabel}</div></li>`).appendTo('.field-list')
+  const $item = $(`<li class="dd-item"><div class="dd-handle" data-field="${data.fieldName}">${data.fieldLabel}</div></li>`).appendTo('.field-list')
   $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
   if (data.creatable === false) $item.find('.dd-handle').addClass('readonly')
   else if (data.nullable === false) $item.find('.dd-handle').addClass('not-nullable')
@@ -329,9 +377,7 @@ class DlgEditField extends RbAlert {
           </div>
         )}
         <div className="form-group">
-          <label>
-            {$L('字段名称')} <span>({$L('部分内置字段不能修改')})</span>
-          </label>
+          <label>{$L('字段名称')}</label>
           <input
             type="text"
             className="form-control form-control-sm"
@@ -342,10 +388,19 @@ class DlgEditField extends RbAlert {
             maxLength="100"
           />
         </div>
+        <div className="form-group">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked={this.props.fieldNullable} name="fieldNullable" onChange={this.handleChange} />
+            <span className="custom-control-label">{$L('允许为空')}</span>
+          </label>
+        </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
             {$L('确定')}
           </button>
+          <a className="btn btn-link" href={`./field/${this.props.field}`} target="_blank">
+            {$L('更多配置')}
+          </a>
         </div>
       </form>
     )
@@ -382,7 +437,7 @@ class DlgEditDivider extends DlgEditField {
             <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.collapsed)} name="collapsed" onChange={this.handleChange} />
             <span className="custom-control-label">{$L('默认收起')}</span>
           </label>
-          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0 bosskey-show">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
             <input className="custom-control-input" type="checkbox" defaultChecked={$isTrue(this.props.breaked)} name="breaked" onChange={this.handleChange} />
             <span className="custom-control-label">{$L('仅用于断行')}</span>
           </label>

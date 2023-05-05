@@ -30,7 +30,11 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +77,13 @@ public class GeneralListController extends EntityController {
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList));
         mv.getModel().put(ZeroEntry.AllowDataExport.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
+        // v3.3
+        if (Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport)) {
+            boolean allow = listEntity.getMainEntity() == null
+                    ? Application.getPrivilegesManager().allowCreate(user, listEntity.getEntityCode())
+                    : Application.getPrivilegesManager().allowUpdate(user, listEntity.getMainEntity().getEntityCode());
+            mv.getModel().put(ZeroEntry.AllowDataImport.name(), allow);
+        }
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
 
@@ -81,7 +92,8 @@ public class GeneralListController extends EntityController {
         if (listMode == 1) {
             listConfig = DataListManager.instance.getListFields(entity, user);
 
-            // 扩展配置
+            // 侧栏
+
             String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
             String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
             String advListShowCategory = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_SHOWCATEGORY);
@@ -94,10 +106,10 @@ public class GeneralListController extends EntityController {
 
             // 查询面板
 
-            String advListFilterpane = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
-            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterpane);
+            String advListFilterPane = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERPANE);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERPANE, advListFilterPane);
 
-            if (BooleanUtils.toBoolean(advListFilterpane)) {
+            if (BooleanUtils.toBoolean(advListFilterPane)) {
                 JSONArray paneFields = new JSONArray();
                 for (String field : DataListManager.instance.getListFilterPaneFields(user, entity)) {
                     if (AdvFilterParser.VF_ACU.equals(field)) {
@@ -111,6 +123,11 @@ public class GeneralListController extends EntityController {
                 }
                 mv.getModel().put("paneFields", paneFields);
             }
+
+            // 查询页签 v3.3
+
+            String advListFilterTabs = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERTABS);
+            mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERTABS, advListFilterTabs);
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);

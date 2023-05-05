@@ -15,7 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.task.HeavyTask;
-import org.apache.commons.lang.StringEscapeUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -81,9 +81,9 @@ public class ClassificationImporter extends HeavyTask<Integer> {
         String sql = "select itemId from ClassificationData where dataId = ? and ";
         if (StringUtils.isNotBlank(code)) {
             sql += String.format("(code = '%s' or name = '%s')",
-                    StringEscapeUtils.escapeSql(code), StringEscapeUtils.escapeSql(name));
+                    CommonsUtils.escapeSql(code), CommonsUtils.escapeSql(name));
         } else {
-            sql += String.format("name = '%s'", StringEscapeUtils.escapeSql(name));
+            sql += String.format("name = '%s'", CommonsUtils.escapeSql(name));
         }
 
         if (parent != null) {

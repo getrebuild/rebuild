@@ -241,8 +241,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
         final RecycleStore recycleBin = useRecycleStore(record);
 
-        this.deleteInternal(record);
-        int affected = 1;
+        int affected = this.deleteInternal(record);
+        if (affected == 0) return 0;
+        affected = 1;
 
         Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
         for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
@@ -577,26 +578,26 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         } else {
             final Entity checkEntity = mainEntity != null ? mainEntity : entity;
-            ID recordId = record.getPrimary();
+            ID checkRecordId = record.getPrimary();
 
             if (checkEntity.containsField(EntityHelper.ApprovalId)) {
                 // 需要验证主记录
                 String recordType = Language.L("记录");
                 if (mainEntity != null) {
-                    recordId = QueryHelper.getMainIdByDetail(recordId);
+                    checkRecordId = QueryHelper.getMainIdByDetail(checkRecordId);
                     recordType = Language.L("主记录");
                 }
 
                 ApprovalState currentState;
                 ApprovalState changeState = null;
                 try {
-                    currentState = ApprovalHelper.getApprovalState(recordId);
+                    currentState = ApprovalHelper.getApprovalState(checkRecordId);
                     if (record.hasValue(EntityHelper.ApprovalState)) {
                         changeState = (ApprovalState) ApprovalState.valueOf(record.getInt(EntityHelper.ApprovalState));
                     }
 
                 } catch (NoRecordFoundException ignored) {
-                    log.warn("No record found for check : " + recordId);
+                    log.warn("No record found for check ({}) : {}", action.getName(), checkRecordId);
                     return false;
                 }
 

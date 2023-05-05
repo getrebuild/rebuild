@@ -49,19 +49,23 @@ class RbViewForm extends React.Component {
         hadApproval = null
       }
 
-      const viewData = {}
+      this.__ViewData = {}
+      this.__lastModified = res.data.lastModified || 0
+
       const VFORM = (
-        <React.Fragment>
+        <RF>
           {hadAlert}
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
-              if (item.field !== TYPE_DIVIDER) viewData[item.field] = item.value
+              if (item.field !== TYPE_DIVIDER) this.__ViewData[item.field] = item.value
               item.$$$parent = this
               return detectViewElement(item, this.props.entity)
             })}
           </div>
-        </React.Fragment>
+
+          {this.renderCustomizedFormArea()}
+        </RF>
       )
 
       this.setState({ formComponent: VFORM }, () => {
@@ -70,15 +74,21 @@ class RbViewForm extends React.Component {
           window.FrontJS.View._trigger('open', [res.data])
         }
       })
-
-      this.__ViewData = viewData
-      this.__lastModified = res.data.lastModified || 0
     })
   }
 
   renderViewError(message) {
     this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
+  }
+
+  renderCustomizedFormArea() {
+    let _FormArea
+    if (window._CustomizedForms) {
+      _FormArea = window._CustomizedForms.useFormArea(this.props.entity, this)
+      if (_FormArea) _FormArea = <div className="row">{React.cloneElement(_FormArea, { $$$parent: this })}</div>
+    }
+    return _FormArea || null
   }
 
   hideLoading() {
@@ -152,6 +162,9 @@ class RbViewForm extends React.Component {
 
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
+        // v3.3 刷新本页
+        // setTimeout(() => location.reload(), 200)
+        setTimeout(() => RbViewPage.reload(), 200)
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -215,8 +228,8 @@ class RelatedList extends React.Component {
     const isListView = this.props.showViewMode && this.state.viewMode === 'LIST'
 
     return (
-      <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
-        {!this.state.dataList && <RbSpinner />}
+      <div className={`related-list ${this.state.dataList || isListView ? '' : 'rb-loading rb-loading-active'}`}>
+        {!(this.state.dataList || isListView) && <RbSpinner />}
 
         <div className="related-toolbar">
           <div className="row">
@@ -245,7 +258,7 @@ class RelatedList extends React.Component {
                     <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-agenda-outline" />
                   </label>
-                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('数据列表视图')}>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('列表视图')}>
                     <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
                     <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
                   </label>
@@ -408,7 +421,7 @@ class EntityRelatedList extends RelatedList {
 
   renderData() {
     if (this.state.viewMode === 'LIST') {
-      if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
+      // if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
       return <EntityRelatedList2 $$$parent={this} ref={(c) => (this._EntityRelatedList2 = c)} />
     } else {
       return super.renderData()
@@ -595,10 +608,12 @@ const RbViewPage = {
         <DeleteConfirm
           id={that.__id}
           entity={needEntity}
-          deleteAfter={() => {
-            // 刷新主视图
-            parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
-            that.hide(true)
+          deleteAfter={(deleted) => {
+            if (deleted > 0) {
+              // 刷新主视图
+              parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+              that.hide(true)
+            }
           }}
         />
       )
@@ -871,10 +886,10 @@ const RbViewPage = {
               this.disabled(true, true)
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
-                  this.hide()
+                  this.hide(true)
                   setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
                 } else {
-                  this.disabled(false)
+                  this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
                 }
               })

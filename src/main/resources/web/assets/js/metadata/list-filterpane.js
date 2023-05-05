@@ -7,12 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const VF_ACU = window.VF_ACU || '$APPROVALCURRENTUSER$'
 
-$(document).ready(function () {
+$(document).ready(() => {
   const entity = $urlp('entity')
   const settingsUrl = `/admin/entity/${entity}/list-filterpane`
 
   $.get(settingsUrl, (res) => {
-    let fields = []
+    const fields = []
     res.data.fields &&
       res.data.fields.forEach((item) => {
         fields.push(item)

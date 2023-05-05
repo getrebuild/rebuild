@@ -21,11 +21,11 @@ $(document).ready(function () {
     }
 
     if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
-      return RbHighbar.create('请选择引用实体')
+      return RbHighbar.create($L('请选择引用实体'))
     } else if (type === 'CLASSIFICATION' && !refClassification) {
-      return RbHighbar.create('请选择分类数据')
+      return RbHighbar.create($L('请选择分类数据'))
     } else if (type === 'STATE' && !stateClass) {
-      return RbHighbar.create('请输入状态类 (Enum)')
+      return RbHighbar.create($L('请输入状态类 (StateSpec)'))
     }
 
     const data = {

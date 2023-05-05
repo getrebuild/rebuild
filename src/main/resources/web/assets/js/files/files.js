@@ -28,7 +28,7 @@ class FilesList extends React.Component {
                 </div>
               </div>
               <div className="type">
-                <i className="file-icon" data-type={item.fileType} />
+                <i className="file-icon" data-type={item.fileType || '?'} />
               </div>
               <div className="detail">
                 <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)} title={$L('预览')}>
@@ -118,7 +118,7 @@ var currentSort
 var filesList
 
 $(document).ready(() => {
-  $('.side-toggle').click(() => {
+  $('.side-toggle').on('click', () => {
     const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
     $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
   })
@@ -137,7 +137,7 @@ $(document).ready(() => {
     $('.input-search input').val(currentSearch)
   }
 
-  $('.J_sort .dropdown-item').click(function () {
+  $('.J_sort .dropdown-item').on('click', function () {
     const $this = $(this)
     currentSort = $this.data('sort')
     $('.J_sort > .btn').find('span').text($this.text())

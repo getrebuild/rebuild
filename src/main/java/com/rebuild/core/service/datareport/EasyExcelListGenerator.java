@@ -37,12 +37,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     private JSONObject queryData;
 
-    public EasyExcelListGenerator(ID reportId, JSONObject queryData) {
-        this(DataReportManager.instance.getTemplateFile(
-                MetadataHelper.getEntity(queryData.getString("entity")), reportId), queryData);
-    }
-
-    public EasyExcelListGenerator(File template, JSONObject queryData) {
+    protected EasyExcelListGenerator(File template, JSONObject queryData) {
         super(template, null);
         this.queryData = queryData;
     }
@@ -95,5 +90,26 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
 
     public int getExportCount() {
         return phNumber - 1;
+    }
+
+    // --
+
+    /**
+     * @param reportId
+     * @param queryData
+     * @return
+     */
+    public static EasyExcelListGenerator create(ID reportId, JSONObject queryData) {
+        TemplateFile tb = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(queryData.getString("entity")), reportId);
+        return create(tb.templateFile, queryData);
+    }
+
+    /**
+     * @param template
+     * @param queryData
+     * @return
+     */
+    public static EasyExcelListGenerator create(File template, JSONObject queryData) {
+        return new EasyExcelListGenerator(template, queryData);
     }
 }

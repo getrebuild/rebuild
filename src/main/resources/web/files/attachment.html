@@ -15,8 +15,8 @@
           <a class="side-toggle" th:title="${bundle.L('展开/收起')}"><i class="zmdi zmdi-arrow-left"></i></a>
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="attachment">[[${bundle.L('附件')}]]</a></li>
               <li class="nav-item"><a class="nav-link" href="docs">[[${bundle.L('文件')}]]</a></li>
+              <li class="nav-item"><a class="nav-link active" href="attachment">[[${bundle.L('附件')}]]</a></li>
             </ul>
             <div class="tab-content rb-scroller">
               <div class="tab-pane active" id="navTree">
@@ -77,8 +77,6 @@
     <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/files/files.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/files/files-attachment.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.protable.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
   </body>
 </html>

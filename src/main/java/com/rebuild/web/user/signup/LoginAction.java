@@ -46,10 +46,13 @@ import java.util.Map;
 public class LoginAction extends BaseController {
 
     public static final String CK_AUTOLOGIN = "rb.alt";
+
     public static final String SK_USER_THEME = "currentUseTheme";
 
     protected static final String SK_NEED_VCODE = "needLoginVCode";
-    protected static final String SK_START_TOUR = "needStartTour";
+
+    private static final String SK_SHOW_TOUR = "showStartTour";
+    private static final String SK_SHOW_GUIDE = "showStartGuide";
 
     protected static final String PREFIX_2FA = "2FA:";
     protected static final String PREFIX_ALT = "ALT:";
@@ -82,21 +85,20 @@ public class LoginAction extends BaseController {
         // 头像缓存
         ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
-        // v3.2 Guide
+        // v3.2 GUIDE 显示规则
         if (UserHelper.isSuperAdmin(user)) {
             Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
-            if (!ObjectUtils.toBool(GuideShowNaver)) {
-                ServletUtils.setSessionAttribute(request, "GuideShow", true);
+            if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
             }
         }
-
         // TOUR 显示规则
         Object[] initLoginTimes = Application.createQueryNoFilter(
                 "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                 .setParameter(1, user)
                 .unique();
         if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-            ServletUtils.setSessionAttribute(request, SK_START_TOUR, "yes");
+            ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
         }
 
         // 密码过期剩余时间

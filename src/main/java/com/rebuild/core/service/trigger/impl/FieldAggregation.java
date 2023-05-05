@@ -28,8 +28,14 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.core.service.trigger.*;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.service.trigger.TriggerResult;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -140,8 +146,13 @@ public class FieldAggregation extends TriggerAction {
         this.prepare(operatingContext);
 
         if (targetRecordId == null) {
-            log.info("No target record(s) found");
+            log.info("No target record found");
             return TriggerResult.noMatching();
+        }
+
+        if (!QueryHelper.exists(targetRecordId)) {
+            log.warn("Target record dose not exists: {} (On {})", targetRecordId, actionContext.getConfigId());
+            return TriggerResult.targetNotExists();
         }
 
         // 聚合数据过滤
@@ -173,11 +184,37 @@ public class FieldAggregation extends TriggerAction {
             DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
                 targetRecord.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
+
             } else if (dt == DisplayType.DECIMAL) {
                 targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
+
             } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 if (evalValue instanceof Date) targetRecord.setDate(targetField, (Date) evalValue);
                 else targetRecord.setNull(targetField);
+
+            } else if (dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
+                Object[] oArray = (Object[]) evalValue;
+
+                if (oArray.length == 0) {
+                    targetRecord.setNull(targetField);
+                } else if (dt == DisplayType.NTEXT) {
+                    // 使用文本
+                    if (oArray[0] instanceof ID) {
+                        List<String> labelList = new ArrayList<>();
+                        for (Object id : oArray) {
+                            labelList.add(FieldValueHelper.getLabelNotry((ID) id));
+                        }
+                        oArray = labelList.toArray(new String[0]);
+                    }
+
+                    String join = StringUtils.join(oArray, ", ");
+                    targetRecord.setString(targetField, join);
+                } else {
+                    List<ID> idList = new ArrayList<>();
+                    for (Object id : oArray) idList.add((ID) id);
+                    targetRecord.setIDArray(targetField, idList.toArray(new ID[0]));
+                }
+
             } else {
                 log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
             }

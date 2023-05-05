@@ -93,12 +93,15 @@ class ClassificationSelector extends React.Component {
   }
 
   componentDidMount() {
-    const $m = this.show()
-    if (this.props.keepModalOpen) {
-      $m.on('hidden.bs.modal', () => {
-        $(document.body).addClass('modal-open') // keep scroll
-      })
-    }
+    const $root = this.show()
+    $root.on('hidden.bs.modal', () => {
+      if (this.props.disposeOnHide === true) {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      } else if (this.props.keepModalOpen === true) {
+        $(document.body).addClass('modal-open') // Keep scroll
+      }
+    })
 
     const that = this
     $(this._select).each(function (idx) {
@@ -178,7 +181,7 @@ class ReferenceSearcher extends RbModal {
               </button>
             </div>
             <div className="modal-body iframe" style={{ borderTop: '1px solid #dee2e6' }}>
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 360 }} />
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 497 }} />
             </div>
           </div>
         </div>
@@ -287,14 +290,14 @@ class DeleteConfirm extends RbAlert {
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) RbHighbar.success($L('删除成功'))
-        else if (res.data.deleted === 0) RbHighbar.error($L('无法删除选中记录'))
+        else if (res.data.deleted === 0) RbHighbar.error($L('无法删除记录'))
         else RbHighbar.success($L('成功删除 %d 条记录', res.data.deleted))
 
-        this.hide()
-        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
+        this.hide(true)
+        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter(res.data.deleted)
       } else {
         RbHighbar.error(res.error_msg)
-        this.disabled(false)
+        this.disabled()
       }
     })
   }
@@ -440,7 +443,7 @@ class BaiduMapModal extends RbModal {
                                 $stopEvent(e, true)
                                 this._suggestUpDown(e.which)
                               } else if (e.which === 13) {
-                                let $active = $(this._$suggestion).find('.active')
+                                const $active = $(this._$suggestion).find('.active')
                                 if ($active[0] && $active.text()) {
                                   this._suggestSelect({ address: $active.text(), location: $active.data('location') })
                                 }
@@ -561,6 +564,12 @@ class BaiduMapModal extends RbModal {
     $(this._$searchValue).val(item.address)
     this._BaiduMap.center(item.location)
     this.setState({ suggestion: [] })
+
+    this._latlngValue = {
+      lat: item.location.lat,
+      lng: item.location.lng,
+      text: item.address,
+    }
   }
 
   _suggestUpDown(key) {
@@ -765,5 +774,240 @@ class RepeatedViewer extends RbModalHandler {
   openView(id) {
     if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
     else window.open(`${rb.baseUrl}/app/redirect?id=${id}`)
+  }
+}
+
+// -- LiteForm
+
+// eslint-disable-next-line no-unused-vars
+class LiteForm extends RbForm {
+  renderCustomizedFormArea() {
+    return null
+  }
+
+  renderDetailsForm() {
+    return null
+  }
+
+  renderFormAction() {
+    return null
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // TODO init...
+  }
+
+  buildFormData() {
+    const s = {}
+    const data = this.__FormData || {}
+    for (let k in data) {
+      const error = data[k].error
+      if (error) {
+        RbHighbar.create(error)
+        return false
+      }
+      s[k] = data[k].value
+    }
+    s.metadata = { id: this.props.id || '' }
+    return s
+  }
+}
+
+class LiteFormModal extends RbModalHandler {
+  render() {
+    const props = this.props
+    const entity = props.entityMeta
+
+    const title = props.id ? $L('编辑%s', entity.entityLabel) : $L('新建%s', entity.entityLabel)
+    const fake = {
+      state: { id: props.id },
+    }
+
+    return (
+      <RbModal title={props.title || title} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="liteform-wrap">
+          <LiteForm entity={entity.entity} id={props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
+            {this.props.elements.map((item) => {
+              // eslint-disable-next-line no-undef
+              return detectElement(item)
+            })}
+          </LiteForm>
+
+          <div className="footer" ref={(c) => (this._$formAction = c)}>
+            <button className="btn btn-primary" type="button" onClick={() => this._handleSave()}>
+              {$L('保存')}
+            </button>
+            <a className="btn btn-link" onClick={this.hide}>
+              {$L('取消')}
+            </a>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  _handleSave() {
+    const data = this._LiteForm.buildFormData()
+    if (data === false) return
+
+    const props = this.props
+    const data2 = {
+      ...data,
+      metadata: {
+        entity: props.entityMeta.entity,
+        id: props.id || null,
+      },
+    }
+
+    const $btn = $(this._$formAction).find('.btn').button('loading')
+    $.post('/app/entity/liteform/record-save', JSON.stringify(data2), (res) => {
+      $btn.button('reset')
+      if (res.error_code === 0) {
+        RbHighbar.success($L('保存成功'))
+
+        // 刷新列表
+        const rlp = window.RbListPage || parent.RbListPage
+        if (rlp) rlp.reload(data.id)
+        // 刷新视图
+        if (window.RbViewPage) window.RbViewPage.reload()
+        // 关闭
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  // -- Usage
+
+  /**
+   * @param {*} entityOrId
+   * @param {*} fields
+   * @param {*} title
+   * @param {*} _callback
+   */
+  static create(entityOrId, fields, title, _callback) {
+    const post = {
+      id: entityOrId,
+      fields: fields,
+    }
+
+    $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
+      if (res.error_code === 0) {
+        renderRbcomp(<LiteFormModal title={title} {...res.data} />, null, _callback)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+/**
+ * 表单区域
+ */
+class LiteFormArea extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const _data = this.state.data
+    return _data ? (
+      <RF>
+        {this.props.divider ? (
+          <div className="form-line">
+            <fieldset>
+              <legend>{this.props.divider}</legend>
+            </fieldset>
+          </div>
+        ) : (
+          <div className="col-12"></div>
+        )}
+
+        {_data.map((item, idx) => {
+          return (
+            <div className="col-sm-6 form-group pt-0 pb-1" key={idx}>
+              <label className="col-form-label">{item.label}</label>
+              <div className="col-form-control">
+                <div className="form-control-plaintext">{this._text(item.value)}</div>
+              </div>
+            </div>
+          )
+        })}
+      </RF>
+    ) : null
+  }
+
+  componentDidMount() {
+    const $$$parent = this.props.$$$parent
+
+    // 视图
+    if ($$$parent.__ViewData) {
+      this.initOnView($$$parent.__ViewData)
+    } else {
+      // 新建
+      if ($$$parent.isNew) {
+        this.initOnFormNew()
+      }
+      // 编辑
+      else {
+        const data = {}
+        $$$parent.props.rawModel.elements.forEach((item) => (data[item.field] = item.value))
+        this.initOnFormEdit(data)
+      }
+    }
+  }
+
+  initOnFormEdit(data) {
+    this.initOnView(data)
+    this.initOnFormNew()
+  }
+
+  initOnFormNew() {
+    const $$$parent = this.props.$$$parent
+    $$$parent.onFieldValueChange((s) => {
+      if (s.name === this.props.triggerField) {
+        if (s.value) this._fetch(s.value)
+        else this.setState({ data: null })
+      }
+    })
+  }
+
+  initOnView(data) {
+    const val = data[this.props.triggerField]
+    if (val) this._fetch(typeof val === 'object' ? val.id : val)
+  }
+
+  _fetch(id) {
+    const post = {
+      id: id,
+      fields: this.props.showFields || this.props.fields,
+    }
+
+    $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
+      if (res.data && res.data.elements) {
+        this.setState({ data: res.data.elements })
+      } else {
+        this.setState({ data: null })
+      }
+    })
+  }
+
+  _text(v) {
+    if ($empty(v)) {
+      return <span className="text-muted">{$L('无')}</span>
+    }
+
+    if (typeof v === 'object') {
+      v = v.text
+      if (typeof v === 'object') v = v.join(' / ')
+      return v
+    }
+
+    if (v === 'F') return $L('否')
+    else if (v === 'T') return $L('是')
+    else return v
   }
 }

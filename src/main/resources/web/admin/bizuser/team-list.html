@@ -28,7 +28,7 @@
                   <div class="col-12 col-lg-6">
                     <div class="dataTables_oper">
                       <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
-                      <button class="btn btn-primary btn-space J_new" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建团队')}]]</button>
+                      <button class="btn btn-primary btn-space J_new" type="button"><i class="icon mdi mdi-briefcase-plus"></i> [[${bundle.L('新建团队')}]]</button>
                       <div class="btn-group btn-space">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -57,9 +57,7 @@
         advFilter: false,
       }
     </script>
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
   </body>
 </html>

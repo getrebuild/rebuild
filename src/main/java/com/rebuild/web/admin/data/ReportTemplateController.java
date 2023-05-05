@@ -7,9 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -19,10 +19,13 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
+import com.rebuild.core.service.datareport.TemplateExtractor33;
+import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
@@ -40,6 +43,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
  * Excel 报表
@@ -61,11 +67,15 @@ public class ReportTemplateController extends BaseController {
         String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType from DataReportConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,templateType,extraDefinition from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] list = ConfigCommons.queryListOfConfig(sql, entity, q);
+        for (Object[] o : list) {
+            o[7] = o[7] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[7]);
+        }
+
         return RespBody.ok(list);
     }
 
@@ -75,17 +85,29 @@ public class ReportTemplateController extends BaseController {
         boolean isList = getBoolParameter(request, "list");  // 列表模板
 
         File template = RebuildConfiguration.getFileOfData(file);
-        Map<String, String> vars = new TemplateExtractor(template, isList).transformVars(entity);
+        Map<String, String> vars = isList
+                ? new TemplateExtractor(template, Boolean.TRUE).transformVars(entity)
+                : new TemplateExtractor33(template).transformVars(entity);
         if (vars.isEmpty()) {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
+        }
+
+        String invalidMsg = null;
+        if (isList) {
+            invalidMsg = Language.L("这可能不是一个有效的列表模板");
+            for (String varName : vars.keySet()) {
+                if (varName.startsWith(NROW_PREFIX)) {
+                    invalidMsg = null;
+                    break;
+                }
+            }
         }
 
         Set<String> invalidVars = new HashSet<>();
         for (Map.Entry<String, String> e : vars.entrySet()) {
             String varName = e.getKey();
             if (e.getValue() == null) {
-                if (!(varName.startsWith(TemplateExtractor.PLACEHOLDER)
-                        || varName.startsWith(TemplateExtractor.NROW_PREFIX + TemplateExtractor.PLACEHOLDER))) {
+                if (!(varName.startsWith(PLACEHOLDER) || varName.startsWith(NROW_PREFIX + PLACEHOLDER))) {
                     invalidVars.add(e.getKey());
                 }
             }
@@ -95,35 +117,47 @@ public class ReportTemplateController extends BaseController {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
-        return RespBody.ok(JSONUtils.toJSONObject("invalidVars", invalidVars));
+        JSON res = JSONUtils.toJSONObject(
+                new String[] { "invalidVars", "invalidMsg" },
+                new Object[] { invalidVars, invalidMsg });
+        return RespBody.ok(res);
     }
 
     @GetMapping("/report-templates/preview")
-    public void preview(@IdParam ID reportId, HttpServletResponse response) throws IOException {
-        Object[] report = Application.createQueryNoFilter(
-                "select belongEntity,templateType from DataReportConfig where configId = ?")
-                .setParameter(1, reportId)
-                .unique();
-        Entity entity = MetadataHelper.getEntity((String) report[0]);
+    public void preview(@IdParam(required = false) ID reportId,
+                        HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        TemplateFile tt;
+
+        // 新建时
+        if (reportId == null) {
+            String entity = getParameter(request, "entity");
+            String template = getParameter(request, "file");
+            boolean isList = getBoolParameter(request, "list");
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), isList, true);
+        } else {
+            // 使用配置
+            tt = DataReportManager.instance.getTemplateFile(reportId);
+        }
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
-                entity.getPrimaryField().getName(), entity.getName());
+                tt.entity.getPrimaryField().getName(), tt.entity.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, Language.L("未找到可供预览的记录"));
             return;
         }
 
-        File file;
+        File output;
         try {
             // 列表报表
-            if (ObjectUtils.toInt(report[1]) == DataReportManager.TYPE_LIST) {
+            if (tt.isList) {
                 JSONObject queryData = JSONUtils.toJSONObject(
                         new String[] { "pageSize", "entity" },
-                        new Object[] { 2, report[0] });
-                file = new EasyExcelListGenerator(reportId, queryData).generate();
+                        new Object[] { 2, tt.entity.getName() });
+                output = EasyExcelListGenerator.create(tt.templateFile, queryData).generate();
             } else {
-                file = new EasyExcelGenerator(reportId, (ID) random[0]).generate();
+                output = EasyExcelGenerator.create(tt.templateFile, (ID) random[0], tt.isV33).generate();
             }
 
         } catch (ConfigurationException ex) {
@@ -131,13 +165,13 @@ public class ReportTemplateController extends BaseController {
             return;
         }
 
-        FileDownloader.downloadTempFile(response, file, null);
+        RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
+        FileDownloader.downloadTempFile(response, output, null);
     }
 
     @GetMapping("/report-templates/download")
     public void download(@IdParam ID reportId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        @SuppressWarnings("deprecation")
-        File template = DataReportManager.instance.getTemplateFile(reportId);
+        File template = DataReportManager.instance.getTemplateFile(reportId).templateFile;
         String attname = QiniuCloud.parseFileName(template.getName());
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);
