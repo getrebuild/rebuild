@@ -499,6 +499,7 @@ class RbForm extends React.Component {
     data.forEach((item) => {
       const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
+        // 非强制
         if (!item.fillinForce && fieldComp.getValue()) return
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
