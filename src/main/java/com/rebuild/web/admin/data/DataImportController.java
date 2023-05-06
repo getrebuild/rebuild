@@ -171,7 +171,7 @@ public class DataImportController extends BaseController {
     // 开始导入
     @PostMapping("/data-imports/import-submit")
     public RespBody importSubmit(HttpServletRequest request) {
-        final ID user = getIdParameterNotNull(request, "user");
+        final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataImport),
                 Language.L("无操作权限"));
