@@ -68,8 +68,14 @@ public class DataImporter extends HeavyTask<Integer> {
         final ID defaultOwning = ObjectUtils.defaultIfNull(rule.getDefaultOwningUser(), getUser());
 
         final boolean isViaAdmin = UserHelper.isAdmin(getUser());
-        final boolean isAllowCreate = isViaAdmin
-                || Application.getPrivilegesManager().allowCreate(getUser(), rule.getToEntity().getEntityCode());
+        final boolean isAllowCreate;
+        if (isViaAdmin) {
+            isAllowCreate = true;
+        } else if (rule.getToEntity().getMainEntity() == null) {
+            isAllowCreate = Application.getPrivilegesManager().allowCreate(getUser(), rule.getToEntity().getEntityCode());
+        } else {
+            isAllowCreate = Application.getPrivilegesManager().allowUpdate(getUser(), rule.getToEntity().getMainEntity().getEntityCode());
+        }
 
         GeneralEntityServiceContextHolder.setSkipSeriesValue();
         final EntityService ies = Application.getEntityService(rule.getToEntity().getEntityCode());
