@@ -5178,3 +5178,13 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .alert.alert-dismissible .message {
   padding-right: 42px;
 }
+
+.datetimepicker table {
+  min-width: 248px;
+}
+
+.datetimepicker table tr td span.minute {
+  width: 20%;
+  margin-left: 0;
+  margin-right: 0;
+}
