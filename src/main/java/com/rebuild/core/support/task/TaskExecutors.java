@@ -54,7 +54,7 @@ public class TaskExecutors extends DistributedJobLock {
             new LinkedBlockingQueue<>());
 
     // 延迟执行
-    private static final Timer TIMER = new Timer("Boot-Timer");
+    private static final Timer TIMER = new Timer("TaskExecutors-Timer");
 
     /**
      * 异步执行（提交给任务调度）
