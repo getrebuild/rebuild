@@ -499,6 +499,7 @@ class RbForm extends React.Component {
     data.forEach((item) => {
       const fieldComp = this.getFieldComp(item.target)
       if (fieldComp) {
+        // 非强制
         if (!item.fillinForce && fieldComp.getValue()) return
         if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
@@ -1359,6 +1360,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
+          minuteStep: 1,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -1398,6 +1400,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
+          minuteStep: 1,
           title: $L('选择时间'),
         })
         .on('changeDate', function () {

@@ -39,6 +39,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.DataMigrator;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONable;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.utils.RebuildBanner;
@@ -53,7 +54,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.OrderComparator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimerTask;
 
 /**
  * 后台入口类
@@ -67,7 +73,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.3.0-beta1";
+    public static final String VER = "3.3.0-beta2";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
@@ -123,14 +129,12 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         long time = System.currentTimeMillis();
         boolean started = false;
 
-        final Timer timer = new Timer("Boot-Timer");
-
         try {
             if (Installer.isInstalled()) {
                 started = init();
 
                 if (started) {
-                    timer.schedule(new TimerTask() {
+                    TaskExecutors.delay(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
@@ -158,7 +162,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
 
             } else {
-                timer.schedule(new TimerTask() {
+                TaskExecutors.delay(new TimerTask() {
                     @Override
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(

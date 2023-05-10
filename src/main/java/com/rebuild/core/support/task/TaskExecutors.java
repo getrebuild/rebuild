@@ -19,7 +19,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务执行调度/管理
@@ -35,6 +41,7 @@ public class TaskExecutors extends DistributedJobLock {
 
     private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
+    // 线程池
     private static final ExecutorService EXEC = new ThreadPoolExecutor(
             MAX_TASKS_NUMBER, MAX_TASKS_NUMBER, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(MAX_TASKS_NUMBER * 6));
@@ -45,6 +52,9 @@ public class TaskExecutors extends DistributedJobLock {
     private static final ExecutorService SINGLE_QUEUE = new ThreadPoolExecutor(
             1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>());
+
+    // 延迟执行
+    private static final Timer TIMER = new Timer("TaskExecutors-Timer");
 
     /**
      * 异步执行（提交给任务调度）
@@ -110,6 +120,16 @@ public class TaskExecutors extends DistributedJobLock {
      */
     public static void queue(Runnable command) {
         SINGLE_QUEUE.execute(command);
+    }
+
+    /**
+     * 延迟执行
+     *
+     * @param task
+     * @param delay
+     */
+    public static void delay(TimerTask task, long delay) {
+        TIMER.schedule(task, delay);
     }
 
     /**

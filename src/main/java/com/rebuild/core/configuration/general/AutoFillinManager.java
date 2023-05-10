@@ -29,6 +29,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class AutoFillinManager implements ConfigManager {
     public JSONArray getFillinValue(Field field, ID sourceId) {
         final EasyField easyField = EasyMetaFactory.valueOf(field);
 
-        // 内置字段无配置 @see field-edit.html
+        // 内置字段无配置
         if (easyField.isBuiltin()) return JSONUtils.EMPTY_ARRAY;
 
         final List<ConfigBean> config = new ArrayList<>();
@@ -155,9 +156,14 @@ public class AutoFillinManager implements ConfigManager {
                         value);
             }
 
-            // NOTE 忽略空值
+            // 空值
             if (NullValue.isNull(value) || StringUtils.isBlank(value.toString())) {
-                continue;
+                // v3.3 强制回填空值
+                if (BooleanUtils.isTrue(e.getBoolean("fillinForce"))) {
+                    value = null;
+                } else {
+                    continue;
+                }
             }
 
             // 日期格式处理
