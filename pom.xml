@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.3.0-beta2</version>
+    <version>3.4.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -293,7 +293,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.6.3</version>
+            <version>n-details-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
