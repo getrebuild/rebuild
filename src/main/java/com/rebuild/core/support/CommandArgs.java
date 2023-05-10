@@ -16,7 +16,6 @@ import org.apache.commons.lang.BooleanUtils;
  * @author RB
  * @since 2023/2/4
  * @see ConfigurationItem
- * @see cn.devezhao.bizz.privileges.impl.BizzDepthEntry
  */
 public class CommandArgs {
 

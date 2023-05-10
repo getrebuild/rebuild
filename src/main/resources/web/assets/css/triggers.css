@@ -112,7 +112,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation .items > div .badge.badge-light {
-  padding: 2px 10px;
+  padding: 4px 10px;
 }
 
 .field-aggregation .items > div .col-2 > .zmdi {
@@ -371,7 +371,7 @@ textarea.formula-code {
 }
 
 textarea.formula-code + .fields-vars {
-  bottom: 14px;
+  bottom: 21px;
 }
 
 .auto-assign .select2-selection__rendered,

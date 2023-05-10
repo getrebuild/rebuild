@@ -31,7 +31,7 @@ public class EasyPhone extends EasyText {
     // --
 
     // 兼容电话、手机，国际区号
-    public static Pattern PATT_PHONE = Pattern.compile(
+    public static final Pattern PATT_PHONE = Pattern.compile(
             "((\\(\\d{1,5}\\))?(\\d{3,4}-)?\\d{7,8}(-\\d{1,6})?)|(1[3456789]\\d{9})");
 
     /**

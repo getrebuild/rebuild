@@ -350,7 +350,7 @@ class EditorWithFieldVars extends React.Component {
     }
 
     if (this.props.isCode) {
-      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, wrap: 'off', autoFocus: true }
+      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, autoFocus: true }
     }
 
     return (
