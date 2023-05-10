@@ -19,8 +19,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
@@ -61,7 +59,7 @@ import java.util.Set;
 @RequestMapping("/commons/search/")
 public class ReferenceSearchController extends EntityController {
 
-    // 快速搜索引用字段
+    // 引用字段-快速搜索
     @GetMapping({"reference", "quick"})
     public JSON referenceSearch(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
@@ -211,11 +209,6 @@ public class ReferenceSearchController extends EntityController {
         List<Object> result = new ArrayList<>();
         for (Object[] o : array) {
             ID recordId = (ID) o[0];
-            if (MetadataHelper.isBizzEntity(entity)
-                    && (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
-                continue;
-            }
-
             String label = (String) FieldValueHelper.wrapFieldValue(o[1], nameField, true);
             if (StringUtils.isBlank(label)) {
                 label = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
