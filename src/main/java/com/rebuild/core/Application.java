@@ -39,7 +39,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.DataMigrator;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONable;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.utils.RebuildBanner;
@@ -59,6 +58,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -129,12 +129,14 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         long time = System.currentTimeMillis();
         boolean started = false;
 
+        final Timer timer = new Timer("Boot-Timer");
+
         try {
             if (Installer.isInstalled()) {
                 started = init();
 
                 if (started) {
-                    TaskExecutors.delay(new TimerTask() {
+                    timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
@@ -162,7 +164,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
 
             } else {
-                TaskExecutors.delay(new TimerTask() {
+                timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
