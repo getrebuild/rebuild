@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.setup;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
@@ -25,6 +26,7 @@ import com.rebuild.web.user.signup.LoginController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -152,8 +154,28 @@ public class InstallController extends BaseController implements InstallState {
     }
 
     @GetMapping("request-sn")
-    public RespBody requestSn() {
+    public RespBody requestSn(HttpServletRequest request) {
         checkInstalled();
-        return RespBody.ok(License.SN());
+
+        final String sn = getParameter(request, "sn");
+        if (StringUtils.isNotBlank(sn)) {
+            System.setProperty("SN", sn);
+            try {
+                JSONObject res = License.siteApiNoCache("api/authority/query");
+                if (res != null && res.getIntValue("authTypeInt") > 0) {
+                    return RespBody.ok();
+                }
+
+                System.setProperty("SN", StringUtils.EMPTY);
+                return RespBody.error(Language.L("无效商业授权码"));
+
+            } catch (Exception ex) {
+                System.setProperty("SN", StringUtils.EMPTY);
+            }
+        }
+
+        System.setProperty("SN", StringUtils.EMPTY);
+        ThreadPool.waitFor(500 + RandomUtils.nextInt(1000));
+        return RespBody.ok();
     }
 }
