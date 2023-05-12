@@ -30,7 +30,7 @@ class Setup extends React.Component {
               <div>
                 <i className={`zmdi icon ${state[0]}`} />
               </div>
-              <h2 className="mb-0">{state[1]}</h2>
+              <h2>{state[1]}</h2>
               {this.state.installState === 11 && (
                 <a className="btn btn-secondary mt-3" href="../user/login">
                   {$L('立即登录')}
@@ -113,7 +113,7 @@ class RbWelcome extends React.Component {
             }}>
             {$L('我有商业授权码')}
           </a>
-          <input className="form-control form-control-sm hide" maxLength="25" placeholder={$L('(无授权码无需填写)')} />
+          <input className="form-control form-control-sm hide" maxLength="30" placeholder={$L('(无授权码无需填写)')} />
         </div>
       </div>
     )
@@ -127,7 +127,7 @@ class RbWelcome extends React.Component {
       confirm: function () {
         this.disabled(true)
 
-        const sn = $(this._dlg).find('input').val()
+        const sn = $.trim($(this._dlg).find('input').val())
         const $btn = $(this._dlg)
           .find('.btn-danger')
           .text(sn ? $L('验证授权') : $L('请求授权'))

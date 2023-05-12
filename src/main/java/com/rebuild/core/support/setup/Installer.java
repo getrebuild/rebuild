@@ -189,7 +189,7 @@ public class Installer implements InstallState {
 
         String inputSN = System.getProperty("SN");
         if (StringUtils.isNotBlank(inputSN)) {
-            RebuildConfiguration.setValue(ConfigurationItem.SN.name(), inputSN);
+            RebuildConfiguration.set(ConfigurationItem.SN, inputSN);
             EXISTS_SN = inputSN;
         }
 

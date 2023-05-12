@@ -83,7 +83,7 @@ public class KVStorage {
      * @param key
      * @param value
      */
-    public static void setValue(final String key, Object value) {
+    protected static void setValue(final String key, Object value) {
         Object[] exists = Application.createQueryNoFilter(
                 "select configId from SystemConfig where item = ?")
                 .setParameter(1, key)
