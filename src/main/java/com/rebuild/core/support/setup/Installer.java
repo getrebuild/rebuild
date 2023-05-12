@@ -146,22 +146,16 @@ public class Installer implements InstallState {
         // Clean cached
         clearAllCache();
 
-        String INPUT_SN = System.getProperty("SN");
-        if (StringUtils.isNotBlank(INPUT_SN)) {
-            RebuildConfiguration.setValue(ConfigurationItem.SN.name(), INPUT_SN);
-            System.setProperty("SN", StringUtils.EMPTY);
-        }
-        log.info("Installed SN : {}", License.SN());
-
         if (!dbNew) return;
 
         // 附加数据
 
         try {
+            // 导入实体
             String[] created = this.installModel();
-
             // 初始化菜单
             if (created.length > 0) NavBuilder.instance.addInitNavOnInstall(created);
+
         } catch (Exception ex) {
             log.error("Error installing business module", ex);
         }
@@ -193,6 +187,12 @@ public class Installer implements InstallState {
             if (!((BaseCacheTemplate<?>) o).reinjectJedisPool(pool)) break;
         }
 
+        String inputSN = System.getProperty("SN");
+        if (StringUtils.isNotBlank(inputSN)) {
+            RebuildConfiguration.setValue(ConfigurationItem.SN.name(), inputSN);
+            EXISTS_SN = inputSN;
+        }
+
         // L
         if (EXISTS_SN != null) {
             System.setProperty("SN", EXISTS_SN);
@@ -200,6 +200,9 @@ public class Installer implements InstallState {
         }
 
         Application.init();
+
+        System.setProperty("SN", StringUtils.EMPTY);
+        log.info("Installed SN : {}", License.SN());
     }
 
     /**

@@ -111,7 +111,7 @@ class RbWelcome extends React.Component {
               $('.input-sn>a').addClass('hide')
               $('.input-sn>input').removeClass('hide')[0].focus()
             }}>
-            [ {$L('我有商业授权码')} ]
+            {$L('我有商业授权码')}
           </a>
           <input className="form-control form-control-sm hide" maxLength="25" placeholder={$L('(无授权码无需填写)')} />
         </div>
@@ -132,15 +132,22 @@ class RbWelcome extends React.Component {
           .find('.btn-danger')
           .text(sn ? $L('验证授权') : $L('请求授权'))
 
+        let s = new Date().getTime()
         $.get(`request-sn?sn=${$encode(sn)}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
-          } else {
-            this.disabled()
-            $btn.text($L('同意'))
-            RbHighbar.error(res.error_msg)
-          }
+          s = new Date().getTime() - s
+          setTimeout(
+            () => {
+              if (res.error_code === 0) {
+                this.hide()
+                that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+              } else {
+                this.disabled()
+                $btn.text($L('同意'))
+                RbHighbar.error(res.error_msg)
+              }
+            },
+            s < 1000 ? 500 + Math.random() * 1000 : Math.random() * 500
+          )
         })
       },
     })
