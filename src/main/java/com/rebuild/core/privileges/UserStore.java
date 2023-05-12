@@ -8,23 +8,32 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.privileges;
 
 import cn.devezhao.bizz.privileges.Privileges;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.bizz.security.EntityPrivileges;
-import cn.devezhao.bizz.security.member.*;
+import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.MemberGroup;
+import cn.devezhao.bizz.security.member.NoMemberFoundException;
+import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.bizz.CombinedRole;
+import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
+import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.*;
+import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -631,118 +640,20 @@ public class UserStore implements Initialization {
      * @param role
      */
     private void loadPrivileges(Role role) {
-        Object[][] definition = aPMFactory.createQuery(
+        Object[][] defs = aPMFactory.createQuery(
                 "select entity,definition,zeroKey from RolePrivileges where roleId = ?")
                 .setParameter(1, role.getIdentity())
                 .array();
-        for (Object[] d : definition) {
+
+        for (Object[] d : defs) {
             int entity = (int) d[0];
             Privileges p;
             if (entity == 0) {
                 p = new ZeroPrivileges((String) d[2], (String) d[1]);
             } else {
-                JSONObject def = JSON.parseObject((String) d[1]);
-                p = new CustomEntityPrivileges(entity, converEntityPrivilegesDefinition(def), def);
+                p = new CustomEntityPrivileges(entity, JSON.parseObject((String) d[1]));
             }
             role.addPrivileges(p);
         }
-    }
-
-    /**
-     * 转换成 bizz 能识别的权限定义
-     *
-     * @param definition
-     * @return
-     * @see EntityPrivileges
-     * @see BizzPermission
-     */
-    private String converEntityPrivilegesDefinition(JSONObject definition) {
-        int C = definition.getIntValue("C");
-        int D = definition.getIntValue("D");
-        int U = definition.getIntValue("U");
-        int R = definition.getIntValue("R");
-        int A = definition.getIntValue("A");
-        int S = definition.getIntValue("S");
-
-        int deepP = 0;
-        int deepL = 0;
-        int deepD = 0;
-        int deepG = 0;
-
-        // {"A":0,"R":1,"C":4,"S":0,"D":0,"U":0} >> 1:9,2:1,3:1,4:1
-
-        if (C >= 4) {
-            deepP += BizzPermission.CREATE.getMask();
-            deepL += BizzPermission.CREATE.getMask();
-            deepD += BizzPermission.CREATE.getMask();
-            deepG += BizzPermission.CREATE.getMask();
-        }
-
-        if (D >= 1) {
-            deepP += BizzPermission.DELETE.getMask();
-        }
-        if (D >= 2) {
-            deepL += BizzPermission.DELETE.getMask();
-        }
-        if (D >= 3) {
-            deepD += BizzPermission.DELETE.getMask();
-        }
-        if (D >= 4) {
-            deepG += BizzPermission.DELETE.getMask();
-        }
-
-        if (U >= 1) {
-            deepP += BizzPermission.UPDATE.getMask();
-        }
-        if (U >= 2) {
-            deepL += BizzPermission.UPDATE.getMask();
-        }
-        if (U >= 3) {
-            deepD += BizzPermission.UPDATE.getMask();
-        }
-        if (U >= 4) {
-            deepG += BizzPermission.UPDATE.getMask();
-        }
-
-        if (R >= 1) {
-            deepP += BizzPermission.READ.getMask();
-        }
-        if (R >= 2) {
-            deepL += BizzPermission.READ.getMask();
-        }
-        if (R >= 3) {
-            deepD += BizzPermission.READ.getMask();
-        }
-        if (R >= 4) {
-            deepG += BizzPermission.READ.getMask();
-        }
-
-        if (A >= 1) {
-            deepP += BizzPermission.ASSIGN.getMask();
-        }
-        if (A >= 2) {
-            deepL += BizzPermission.ASSIGN.getMask();
-        }
-        if (A >= 3) {
-            deepD += BizzPermission.ASSIGN.getMask();
-        }
-        if (A >= 4) {
-            deepG += BizzPermission.ASSIGN.getMask();
-        }
-
-        if (S >= 1) {
-            deepP += BizzPermission.SHARE.getMask();
-        }
-        if (S >= 2) {
-            deepL += BizzPermission.SHARE.getMask();
-        }
-        if (S >= 3) {
-            deepD += BizzPermission.SHARE.getMask();
-        }
-        if (S >= 4) {
-            deepG += BizzPermission.SHARE.getMask();
-        }
-
-        return "1:" + deepP + ",2:" + deepL + ",3:" + deepD + ",4:" + deepG;
     }
 }
