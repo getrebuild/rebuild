@@ -103,6 +103,13 @@ class DlgAssign extends RbModalHandler {
     return <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} />
   }
 
+  _reset() {
+    this.setState({ cascadesShow: false })
+    this._UserSelector.clearSelection()
+    $(this._cascades).val(null).trigger('change')
+    $(this._withUpdate).prop('checked', false)
+  }
+
   post() {
     let users = this._UserSelector.val()
     if (!users || users.length === 0) return RbHighbar.create($L('请选择%s给谁', this._Props[1]))
@@ -113,13 +120,19 @@ class DlgAssign extends RbModalHandler {
     const $btn = $(this._btns).find('.btn').button('loading')
     $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}&withUpdate=${withUpdate || ''}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ cascadesShow: false })
-        this._UserSelector.clearSelection()
-        $(this._cascades).val(null).trigger('change')
-        $(this._withUpdate).prop('checked', false)
+        const _data = res.data
+        if (this._Props[0] === 'assign') {
+          if (_data.assigned >= _data.requests) RbHighbar.success($L('分配成功'))
+          else if (_data.assigned === 0) RbHighbar.error($L('无法分配记录'))
+          else RbHighbar.success($L('成功分配 %d 条记录', _data.assigned))
+        } else if (this._Props[0] === 'share') {
+          if (_data.shared >= _data.requests) RbHighbar.success($L('共享成功'))
+          else if (_data.shared === 0) RbHighbar.error($L('无法共享记录'))
+          else RbHighbar.success($L('成功共享 %d 条记录', _data.shared))
+        }
 
+        this._reset()
         this.hide()
-        RbHighbar.success($L('%s成功', this._Props[1]))
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
@@ -240,14 +253,17 @@ class DlgUnshare extends RbModalHandler {
     const $btns = $(this._btns).find('.btn').button('loading')
     $.post(`/app/entity/record-unshare-batch?id=${this.state.ids.join(',')}&to=${users}`, (res) => {
       if (res.error_code === 0) {
-        this._UserSelector.clearSelection()
+        const _data = res.data
+        if (_data.unshared >= _data.requests) RbHighbar.success($L('取消共享成功'))
+        else if (_data.unshared === 0) RbHighbar.success($L('无法取消共享'))
+        else RbHighbar.success($L('成功取消共享 %d 条记录', _data.unshared))
 
+        this._UserSelector.clearSelection()
         this.hide()
-        RbHighbar.success($L('取消共享成功'))
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
-        }, 500)
+        }, 200)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -308,11 +324,11 @@ class DlgShareManager extends RbModalHandler {
           </table>
         </div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.hide()}>
+          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>
             {$L('取消')}
           </button>
           {this.props.unshare === true && (
-            <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
+            <button className="btn btn-primary btn-space ml-1" type="button" onClick={() => this.post()}>
               {$L('取消共享')}
             </button>
           )}
@@ -336,9 +352,12 @@ class DlgShareManager extends RbModalHandler {
     const $btn = $(this._btns).button('loading')
     $.post(`/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
-        this.hide()
         RbHighbar.success($L('取消共享成功'))
-        setTimeout(() => window.RbViewPage && window.RbViewPage.reload(), 200)
+        this.hide()
+
+        setTimeout(() => {
+          window.RbViewPage && window.RbViewPage.reload()
+        }, 200)
       } else {
         RbHighbar.error(res.error_msg)
       }
