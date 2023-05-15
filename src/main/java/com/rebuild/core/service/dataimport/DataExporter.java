@@ -17,6 +17,7 @@ import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -112,12 +113,15 @@ public class DataExporter extends SetUser {
                 head4Excel.add(Collections.singletonList(h));
             }
 
+            List<List<String>> datas = this.buildData(builder, Boolean.FALSE);
+            if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
+
             EasyExcel.write(file)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .registerWriteHandler(this.buildExcelStyle())
                     .sheet("Sheet1")
                     .head(head4Excel)
-                    .doWrite(this.buildData(builder, Boolean.FALSE));
+                    .doWrite(datas);
             return file;
         }
 
@@ -130,7 +134,10 @@ public class DataExporter extends SetUser {
                     writer.write("\ufeff");
                     writer.write(mergeLine(head));
 
-                    for (List<String> row : this.buildData(builder, Boolean.TRUE)) {
+                    List<List<String>> datas = this.buildData(builder, Boolean.TRUE);
+                    if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
+
+                    for (List<String> row : datas) {
                         writer.newLine();
                         writer.write(mergeLine(row));
                         count++;
