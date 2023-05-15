@@ -26,15 +26,25 @@ import java.util.Arrays;
  */
 public class MarkdownUtils {
 
-    private static final MutableDataSet OPTIONS = new MutableDataSet();
+    private static final Parser PARSER;
+    private static final HtmlRenderer RENDERER;
+
+    private static final Parser PARSER2;
+    private static final HtmlRenderer RENDERER2;
 
     static {
-        OPTIONS.setFrom(ParserEmulationProfile.MARKDOWN)
-                .set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), TaskListExtension.create()));
-    }
+        MutableDataSet option = new MutableDataSet();
+        option.setFrom(ParserEmulationProfile.MARKDOWN).set(Parser.EXTENSIONS,
+                Arrays.asList(TablesExtension.create(), TaskListExtension.create()));
+        PARSER = Parser.builder(option).build();
+        RENDERER = HtmlRenderer.builder(option).build();
 
-    private static final Parser PARSER = Parser.builder(OPTIONS).build();
-    private static final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
+        option = new MutableDataSet();
+        option.setFrom(ParserEmulationProfile.MARKDOWN).set(Parser.EXTENSIONS,
+                Arrays.asList(TablesExtension.create(), TaskListExtension.create(), MarkdownLinkAttrProvider.MarkdownLinkAttrExtension.create()));
+        PARSER2 = Parser.builder(option).build();
+        RENDERER2 = HtmlRenderer.builder(option).build();
+    }
 
     /**
      * MD 渲染，支持表格，HTML 代码会转义
@@ -43,10 +53,27 @@ public class MarkdownUtils {
      * @return
      */
     public static String render(String md) {
+        return render(md, false);
+    }
+
+    /**
+     * MD 渲染，支持表格，HTML 代码会转义
+     *
+     * @param md
+     * @param targetBlank
+     * @return
+     */
+    public static String render(String md, boolean targetBlank) {
         md = CommonsUtils.escapeHtml(md);
         md = md.replace("&gt; ", "> ");  // for MD quote
-        Node document = PARSER.parse(md);
-        return RENDERER.render(document);
+
+        if (targetBlank) {
+            Node document = PARSER2.parse(md);
+            return RENDERER2.render(document);
+        } else {
+            Node document = PARSER.parse(md);
+            return RENDERER.render(document);
+        }
     }
 
     /**

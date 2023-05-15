@@ -26,14 +26,13 @@ public class ZeroPrivileges implements Privileges {
     private static final long serialVersionUID = 7185091441777921842L;
 
     public static final String ZERO_FLAG = "Z";
-
     public static final int ZERO_MASK = 4;
 
     private final String zreoKey;
     private final String definition;
 
     /**
-     * @param zreoKey    {@link ZeroEntry}
+     * @param zreoKey {@link ZeroEntry}
      * @param definition
      */
     public ZeroPrivileges(String zreoKey, String definition) {

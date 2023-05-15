@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.service.PerHourJob;
@@ -263,7 +264,11 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static void set(ConfigurationItem name, Object value) {
         if (ConfigurationItem.inJvmArgs(name.name())) {
-            throw new SecurityException("Attack configuration detected : " + name + "=" + value);
+            if (name == ConfigurationItem.SN) {
+                if (Application.isReady()) return;
+            } else {
+                throw new SecurityException("Attack configuration detected : " + name + "=" + value);
+            }
         }
         setValue(name.name(), value);
     }

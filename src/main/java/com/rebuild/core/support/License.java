@@ -41,7 +41,7 @@ public final class License {
 
         String SN = RebuildConfiguration.get(ConfigurationItem.SN, true);
         if (SN != null) {
-            USE_SN = SN;
+            if (Application.isReady()) USE_SN = SN;
             return SN;
         }
 
@@ -51,6 +51,7 @@ public final class License {
         SN = newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
+            siteApiNoCache("api/authority/query");
         }
 
         if (SN == null) {
@@ -60,6 +61,7 @@ public final class License {
                     ComputerIdentifier.generateIdentifierKey(),
                     CodecUtils.randomCode(9)).toUpperCase();
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
+            siteApiNoCache("api/authority/query");
         }
 
         USE_SN = SN;
@@ -121,6 +123,8 @@ public final class License {
         if (t > 0) {
             JSONObject c = MCACHED.get(api, t);
             if (c != null) return c.clone();
+        } else {
+            MCACHED.remove(api);
         }
 
         Map<String, String> hs = new HashMap<>();

@@ -152,8 +152,27 @@ public class InstallController extends BaseController implements InstallState {
     }
 
     @GetMapping("request-sn")
-    public RespBody requestSn() {
+    public RespBody requestSn(HttpServletRequest request) {
         checkInstalled();
-        return RespBody.ok(License.SN());
+
+        final String sn = getParameter(request, "sn");
+        if (StringUtils.isNotBlank(sn)) {
+            System.setProperty("SN", sn);
+            try {
+                JSONObject res = License.siteApiNoCache("api/authority/query");
+                if (res != null && res.getIntValue("authTypeInt") > 0) {
+                    return RespBody.ok();
+                }
+
+                System.setProperty("SN", StringUtils.EMPTY);
+                return RespBody.error(Language.L("无效商业授权码"));
+
+            } catch (Exception ex) {
+                System.setProperty("SN", StringUtils.EMPTY);
+            }
+        }
+
+        System.setProperty("SN", StringUtils.EMPTY);
+        return RespBody.ok();
     }
 }
