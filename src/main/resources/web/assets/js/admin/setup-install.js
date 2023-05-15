@@ -30,7 +30,7 @@ class Setup extends React.Component {
               <div>
                 <i className={`zmdi icon ${state[0]}`} />
               </div>
-              <h2 className="mb-0">{state[1]}</h2>
+              <h2>{state[1]}</h2>
               {this.state.installState === 11 && (
                 <a className="btn btn-secondary mt-3" href="../user/login">
                   {$L('立即登录')}
@@ -103,22 +103,52 @@ class RbWelcome extends React.Component {
       <div className="text-left link" style={{ lineHeight: 2 }}>
         <div dangerouslySetInnerHTML={{ __html: $('.license').html() }} />
         <div dangerouslySetInnerHTML={{ __html: $L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。') }} className="text-bold" />
+
+        <div className="input-sn">
+          <a
+            className="text-primary"
+            onClick={() => {
+              $('.input-sn>a').addClass('hide')
+              $('.input-sn>input').removeClass('hide')[0].focus()
+            }}>
+            {$L('我有商业授权码')}
+          </a>
+          <input className="form-control form-control-sm hide" maxLength="30" placeholder={$L('(无授权码无需填写)')} />
+        </div>
       </div>
     )
 
     const that = this
     RbAlert.create(commercialTip, {
-      type: 'warning',
+      icon: ' mdi mdi-copyright',
+      type: 'danger',
       cancelText: $L('不同意'),
       confirmText: $L('同意'),
       confirm: function () {
         this.disabled(true)
-        $(this._dlg).find('.btn-warning').text($L('请求授权'))
 
-        setTimeout(() => {
-          this.hide()
-          that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
-        }, 1500 + Math.random() * 1000)
+        const sn = $.trim($(this._dlg).find('input').val())
+        const $btn = $(this._dlg)
+          .find('.btn-danger')
+          .text(sn ? $L('验证授权') : $L('请求授权'))
+
+        let s = new Date().getTime()
+        $.get(`request-sn?sn=${$encode(sn)}`, (res) => {
+          s = new Date().getTime() - s
+          setTimeout(
+            () => {
+              if (res.error_code === 0) {
+                this.hide()
+                that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+              } else {
+                this.disabled()
+                $btn.text($L('同意'))
+                RbHighbar.error(res.error_msg)
+              }
+            },
+            s < 1000 ? 500 + Math.random() * 1000 : Math.random() * 500
+          )
+        })
       },
     })
   }

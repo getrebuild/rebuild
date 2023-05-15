@@ -39,7 +39,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.DataMigrator;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONable;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.utils.RebuildBanner;
@@ -59,6 +58,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -73,11 +73,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.3.0-beta2";
+    public static final String VER = "3.3.0-beta3";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3030002;
+    public static final int BUILD = 3030003;
 
     static {
         // Driver for DB
@@ -129,12 +129,14 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         long time = System.currentTimeMillis();
         boolean started = false;
 
+        final Timer timer = new Timer("Boot-Timer");
+
         try {
             if (Installer.isInstalled()) {
                 started = init();
 
                 if (started) {
-                    TaskExecutors.delay(new TimerTask() {
+                    timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
@@ -162,7 +164,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
 
             } else {
-                TaskExecutors.delay(new TimerTask() {
+                timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
@@ -211,7 +213,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
-        if (lastBuild < BUILD) {
+        if (lastBuild > 0 && lastBuild < BUILD) {
             log.warn("Clean up the cache once when upgrading : {}", BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);

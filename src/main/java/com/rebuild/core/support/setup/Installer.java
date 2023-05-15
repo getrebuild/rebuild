@@ -23,6 +23,7 @@ import com.rebuild.core.configuration.NavBuilder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
@@ -45,12 +46,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.DateTimeException;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 
-import static com.rebuild.core.support.ConfigurationItem.*;
+import static com.rebuild.core.support.ConfigurationItem.CacheHost;
+import static com.rebuild.core.support.ConfigurationItem.CachePassword;
+import static com.rebuild.core.support.ConfigurationItem.CachePort;
 
 /**
  * 系统安装
@@ -139,10 +151,11 @@ public class Installer implements InstallState {
         // 附加数据
 
         try {
+            // 导入实体
             String[] created = this.installModel();
-
             // 初始化菜单
             if (created.length > 0) NavBuilder.instance.addInitNavOnInstall(created);
+
         } catch (Exception ex) {
             log.error("Error installing business module", ex);
         }
@@ -174,6 +187,12 @@ public class Installer implements InstallState {
             if (!((BaseCacheTemplate<?>) o).reinjectJedisPool(pool)) break;
         }
 
+        String inputSN = System.getProperty("SN");
+        if (StringUtils.isNotBlank(inputSN)) {
+            RebuildConfiguration.set(ConfigurationItem.SN, inputSN);
+            EXISTS_SN = inputSN;
+        }
+
         // L
         if (EXISTS_SN != null) {
             System.setProperty("SN", EXISTS_SN);
@@ -181,6 +200,9 @@ public class Installer implements InstallState {
         }
 
         Application.init();
+
+        System.setProperty("SN", StringUtils.EMPTY);
+        log.info("Installed SN : {}", License.SN());
     }
 
     /**

@@ -60,6 +60,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     @Resource(name = "thymeleafViewResolver")
     private ThymeleafViewResolver thymeleafViewResolver;
 
+    private static String pageFooterHtml;
+    public static String getPageFooterHtml() {
+        return pageFooterHtml;
+    }
+
     @Override
     public void init() {
         Assert.notNull(thymeleafViewResolver, "[thymeleafViewResolver] is null");
@@ -79,11 +84,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
         if (StringUtils.isBlank(pageFooter)) {
-            thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, null);
+            pageFooterHtml = null;
         } else {
-            pageFooter = MarkdownUtils.render(pageFooter);
-            thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
+            pageFooterHtml = MarkdownUtils.render(pageFooter, true);
         }
+        thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooterHtml);
 
         setStaticVariable(ConfigurationItem.PortalOfficePreviewUrl);
         setStaticVariable(ConfigurationItem.PortalBaiduMapAk);
