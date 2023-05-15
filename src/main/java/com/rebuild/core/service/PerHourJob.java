@@ -19,7 +19,6 @@ import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.core.support.setup.DatafileBackup;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.FileFilterByLastModified;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimerTask;
 
 /**
  * 每小时执行一次的 Job
@@ -45,21 +43,14 @@ import java.util.TimerTask;
 @Component
 public class PerHourJob extends DistributedJobLock {
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "45 0 * * * ?")
     protected void executeJob() {
         if (!tryLock()) return;
 
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
         if (hour == 0 && RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
-            // v3.3 延迟执行减少与其他任务冲突
-            TaskExecutors.delay(new TimerTask() {
-                @Override
-                public void run() {
-                    doDatabaseBackup();
-                }
-            }, 30 * 1000);
-
+            doBackups();
         } else if (hour == 1) {
             doCleanTempFiles();
         }
@@ -71,9 +62,9 @@ public class PerHourJob extends DistributedJobLock {
     }
 
     /**
-     * 数据库备份
+     * 备份
      */
-    protected void doDatabaseBackup() {
+    protected void doBackups() {
         File backups = RebuildConfiguration.getFileOfData("_backups");
         if (!backups.exists()) {
             try {

@@ -57,6 +57,9 @@
         color: #4285f4;
         margin-right: 6px;
       }
+      .unstyle.text-break {
+        white-space: pre-wrap !important;
+      }
     </style>
   </head>
   <body>
@@ -112,7 +115,7 @@
                           data-optional="true"
                           th:data-form-text="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
                         >
-                          <pre class="unstyle">[[${PageFooter ?:bundle.L('无')}]]</pre>
+                          <pre class="unstyle text-break">[[${PageFooter ?:bundle.L('无')}]]</pre>
                         </td>
                       </tr>
                       <tr>
