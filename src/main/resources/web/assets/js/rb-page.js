@@ -7,25 +7,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-unused-vars */
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
+// GA
+;(function () {
+  const gaScript = document.createElement('script')
+  gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
+  gaScript.async = true
+  gaScript.onload = function () {
+    window.dataLayer = window.dataLayer || []
+    function gtag() {
+      window.dataLayer.push(arguments)
+    }
+    gtag('js', new Date())
+    gtag('config', 'G-ZCZHJPMEG7')
+  }
+  const s = document.getElementsByTagName('script')[0]
+  s.parentNode.insertBefore(gaScript, s)
+})()
+
 // PAGE INITIAL
 $(function () {
-  // Analytics
-  var __js = function (url) {
-    var el = document.createElement('script')
-    el.src = url
-    el.async = true
-    var s = document.getElementsByTagName('script')[0]
-    s.parentNode.insertBefore(el, s)
-  }
-  // for GA
-  window.dataLayer = window.dataLayer || []
-  var gtag = function () {
-    window.dataLayer.push(arguments)
-  }
-  gtag('js', new Date())
-  gtag('config', 'G-CC8EXS9BLD')
-  __js('https://www.googletagmanager.com/gtag/js?id=G-CC8EXS9BLD')
-
   // scroller
   var $t = $('.rb-scroller')
   $t.perfectScrollbar()
