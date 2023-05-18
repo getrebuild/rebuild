@@ -756,13 +756,13 @@ var $mp = {
   _timer: null,
   _mp: null,
   // 开始
-  start: function (parent) {
+  start: function (_parent) {
     if ($mp._timer || $mp._mp) {
       console.log('Element `$mp._mp` exists')
       return
     }
     $mp._timer = setTimeout(function () {
-      $mp._mp = new Mprogress({ template: 3, start: true, parent: parent || null })
+      $mp._mp = new Mprogress({ template: 3, start: true, parent: _parent || undefined })
     }, 600)
   },
   // 结束
