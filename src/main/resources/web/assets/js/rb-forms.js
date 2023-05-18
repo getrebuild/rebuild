@@ -1232,11 +1232,43 @@ class RbFormTextarea extends RbFormElement {
       )
     } else {
       return (
-        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>
-          {this.state.value.split('\n').map((line, idx) => {
-            return <p key={`line-${idx}`}>{line}</p>
-          })}
-        </div>
+        <RF>
+          <div className="form-control-plaintext" ref={(c) => (this._textarea = c)} style={style}>
+            {this.state.value.split('\n').map((line, idx) => {
+              return <p key={`line-${idx}`}>{line}</p>
+            })}
+          </div>
+
+          <div className="ntext-action">
+            <a title={$L('展开')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
+              <i className="mdi mdi-arrow-expand" />
+            </a>
+            <a
+              title={$L('复制')}
+              ref={(c) => (this._actionCopy = c)}
+              className="J_copy"
+              onClick={() => {
+                const that = this
+                const initCopy = function () {
+                  const $copy = $(that._actionCopy)
+                  // eslint-disable-next-line no-undef
+                  new ClipboardJS($copy[0], {
+                    text: function () {
+                      return that.state.value
+                    },
+                  })
+                }
+                if (window.ClipboardJS) {
+                  initCopy()
+                } else {
+                  // eslint-disable-next-line no-undef
+                  $getScript('/assets/lib/clipboard.min.js', initCopy)
+                }
+              }}>
+              <i className="mdi mdi-content-copy" />
+            </a>
+          </div>
+        </RF>
       )
     }
   }
