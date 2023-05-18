@@ -235,14 +235,14 @@ function useExecManual() {
     })
 }
 // 检查状态
-function useExecManual_checkState(taskid, _dlg) {
+function useExecManual_checkState(taskid, _alert) {
   $.get('/commons/task/state?taskid=' + taskid, (res) => {
     if ((res.data || {}).isCompleted) {
-      _dlg && _dlg.hide(true)
+      _alert && _alert.hide(true)
       $mp.end()
       RbHighbar.success($L('执行成功'))
     } else {
-      setTimeout(() => useExecManual_checkState(taskid, _dlg), 1000)
+      setTimeout(() => useExecManual_checkState(taskid, _alert), 1000)
     }
   })
 }

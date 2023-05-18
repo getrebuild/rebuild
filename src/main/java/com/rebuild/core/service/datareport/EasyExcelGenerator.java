@@ -19,6 +19,7 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -96,8 +97,7 @@ public class EasyExcelGenerator extends SetUser {
                 System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
 
         List<Map<String, Object>> datas = buildData();
-        // 无数据
-        if (datas.isEmpty()) return null;
+        if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
         Map<String, Object> main = null;
         if (this.hasMain) {

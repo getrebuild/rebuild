@@ -310,7 +310,7 @@ class RbAlert extends React.Component {
         $(this._dlg)
           .off('hide.bs.modal')
           .on('hide.bs.modal', function () {
-            RbHighbar.create($L('请等待请求执行完毕'))
+            if ($(event.target).hasClass('zmdi-close')) RbHighbar.create($L('请等待请求执行完毕'))
             return false
           })
       }
