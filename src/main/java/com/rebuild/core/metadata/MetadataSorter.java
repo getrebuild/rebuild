@@ -15,6 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.Assert;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -101,6 +103,19 @@ public class MetadataSorter {
     }
 
     /**
+     * @param mainEntity
+     * @return
+     */
+    public static Entity[] sortDetailEntities(Entity mainEntity) {
+        Assert.notNull(mainEntity.getDetailEntity(), "None main entity : " + mainEntity);
+
+        List<BaseMeta> entities = new ArrayList<>();
+        CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
+        sortByLabel(entities);
+        return entities.toArray(new Entity[0]);
+    }
+
+    /**
      * 获取字段
      *
      * @param entity
@@ -174,6 +189,8 @@ public class MetadataSorter {
      * @param metas
      */
     public static void sortByLabel(List<BaseMeta> metas) {
+        if (metas.size() <= 1) return;
+
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         metas.sort((foo, bar) -> {
             String fooLetter = EasyMetaFactory.getLabel(foo);

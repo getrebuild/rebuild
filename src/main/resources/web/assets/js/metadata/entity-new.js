@@ -6,6 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global InitModels */
 
+window.__LAB_SHOWNDETAIL = true
+
 $(document).ready(() => {
   const $bnew = $('.btn-primary.new').on('click', () => {
     const entityLabel = $val('#entityLabel'),
