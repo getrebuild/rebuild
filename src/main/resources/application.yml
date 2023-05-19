@@ -13,6 +13,7 @@ server:
       tracking-modes: cookie
       cookie:
         same-site: lax
+        name: RBSESSION
   error:
     whitelabel.enabled: false
   tomcat:

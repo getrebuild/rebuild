@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -95,7 +96,7 @@ public class ReportsController extends BaseController {
         final String outputType = getParameter(request, "output");
         // PDF
         if ("pdf".equals(outputType) || isOnlyPdf(entity, reportId)) {
-            output = PdfConverter.convert(output.toPath()).toFile();
+            output = convertPdf(output);
         }
 
         final String fileName = getReportName(entity, reportId, recordId, output);
@@ -148,14 +149,8 @@ public class ReportsController extends BaseController {
 
                 // PDF
                 if ("PDF".equalsIgnoreCase(getParameter(request, "output")) || isOnlyPdf(entity, useReport)) {
-                    try {
-                        output = PdfConverter.convert(output.toPath()).toFile();
-                    } catch (PdfConverterException ex) {
-                        log.error(null, ex);
-                        return RespBody.errorl("无法输出 PDF 文件");
-                    }
+                    output = convertPdf(output);
                 }
-
             } else {
                 output = exporter.export(reportType);
             }
@@ -213,5 +208,14 @@ public class ReportsController extends BaseController {
             }
         }
         return false;
+    }
+
+    private File convertPdf(File source) throws DefinedException {
+        try {
+            return PdfConverter.convert(source.toPath()).toFile();
+        } catch (PdfConverterException ex) {
+            log.error(null, ex);
+            throw new DefinedException(Language.L("无法输出 PDF 文件"));
+        }
     }
 }

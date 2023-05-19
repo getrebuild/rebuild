@@ -108,6 +108,44 @@ body {
   max-height: 1001px;
 }
 
+.rbview-form .type-NTEXT .ntext-action {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.rbview-form .type-NTEXT.editable .ntext-action {
+  right: 24px;
+}
+
+.rbview-form .type-NTEXT .ntext-action > a {
+  background-color: #eee;
+  background-color: #f8f9fa;
+  color: #aaa;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 16px;
+  text-align: center;
+  padding-top: 2px;
+  border-radius: 2px;
+}
+
+.rbview-form .type-NTEXT .col-form-control:hover .ntext-action {
+  opacity: 1;
+}
+
+.rbview-form .type-NTEXT .ps-container.ntext-expand {
+  max-height: unset !important;
+}
+
+.rbview-form .type-NTEXT .ps-container.ntext-expand + .ntext-action .mdi-arrow-expand::before {
+  content: '\F0615';
+}
+
 .nav-tabs > li.nav-item a.nav-link {
   padding: 11px 10px;
   overflow: hidden;
@@ -405,11 +443,13 @@ body {
   display: inline-block;
 }
 
-.rbview-form .form-group.editable a.edit:hover {
+.rbview-form .form-group.editable a.edit:hover,
+.rbview-form .type-NTEXT .ntext-action > a:hover {
   color: #4285f4;
 }
 
-.rbview-form .form-group.editable a.edit:active {
+.rbview-form .form-group.editable a.edit:active,
+.rbview-form .type-NTEXT .ntext-action > a:active {
   box-shadow: inset 0 2px 0 #e6e6e6;
   background-color: #f0f0f0;
 }
