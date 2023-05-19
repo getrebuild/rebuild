@@ -414,8 +414,8 @@ class RbForm extends React.Component {
     let moreActions = []
     // 添加明细
     if (this.props.rawModel.mainMeta) {
-      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-      if (!previewid) {
+      const props = this.props
+      if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
             {$L('保存并继续添加')}
