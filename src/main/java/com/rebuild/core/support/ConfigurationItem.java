@@ -102,8 +102,6 @@ public enum ConfigurationItem {
     WxworkAuthFile,
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
-    // SAML (IdP)
-    SamlIdPEntityid, SamlIdPEndpoint, SamlIdPSloEndpoint, SamlIdPCert,
 
     // PORTALs
     PortalBaiduMapAk,

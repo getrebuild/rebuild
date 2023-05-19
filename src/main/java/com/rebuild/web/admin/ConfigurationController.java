@@ -34,7 +34,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -288,30 +292,6 @@ public class ConfigurationController extends BaseController {
                 new Object[] { sms, email, smsCount, emailCount });
     }
 
-    private String[] starsAccount(String[] account, int... index) {
-        if (account == null || account.length == 0) return null;
-
-        for (int i : index) {
-            account[i] = DataDesensitized.any(account[i]);
-        }
-        return account;
-    }
-
-    private String defaultIfBlank(JSONObject data, ConfigurationItem item) {
-        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.get(item));
-    }
-
-    private void setValues(JSONObject data) {
-        for (Map.Entry<String, Object> e : data.entrySet()) {
-            try {
-                ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
-                RebuildConfiguration.set(item, e.getValue());
-            } catch (Exception ex) {
-                log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
-            }
-        }
-    }
-
     // DingTalk
 
     @GetMapping("integration/dingtalk")
@@ -387,37 +367,29 @@ public class ConfigurationController extends BaseController {
         return RespBody.ok();
     }
 
-    // SAML
+    // --
 
-    @GetMapping("integration/sso-saml")
-    public ModelAndView pageIntegrationSsoSaml() {
-        RbAssert.isCommercial(
-                Language.L("免费版不支持企业身份认证 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+    private String[] starsAccount(String[] account, int... index) {
+        if (account == null || account.length == 0) return null;
 
-        ModelAndView mv = createModelAndView("/admin/integration/sso-saml");
-        for (ConfigurationItem item : ConfigurationItem.values()) {
-            String name = item.name();
-            if (name.startsWith("Saml")) {
-                String value = RebuildConfiguration.get(item);
-//                if (value != null && item == ConfigurationItem.SamlIdPCert) {
-//                    String[] vs = value.split("\n");
-//                    value = StringUtils.join(
-//                            new String[] { vs[0], vs[1], "**********", vs[vs.length - 2], vs[vs.length - 1] }, "\n");
-//                }
-                mv.getModel().put(name, value);
-            }
+        for (int i : index) {
+            account[i] = DataDesensitized.any(account[i]);
         }
-
-        mv.getModel().put("_SamlSpEndpoint", RebuildConfiguration.getHomeUrl("/user/sso-saml2-login"));
-        mv.getModel().put("_SamlSpSloEndpoint", RebuildConfiguration.getHomeUrl("/user/logout"));
-        mv.getModel().put("_SamlSpEntityid", RebuildConfiguration.getHomeUrl());
-
-        return mv;
+        return account;
     }
 
-    @PostMapping("integration/sso-saml")
-    public RespBody postIntegrationSsoSaml(@RequestBody JSONObject data) {
-        setValues(data);
-        return RespBody.ok();
+    private String defaultIfBlank(JSONObject data, ConfigurationItem item) {
+        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.get(item));
+    }
+
+    private void setValues(JSONObject data) {
+        for (Map.Entry<String, Object> e : data.entrySet()) {
+            try {
+                ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
+                RebuildConfiguration.set(item, e.getValue());
+            } catch (Exception ex) {
+                log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
+            }
+        }
     }
 }
