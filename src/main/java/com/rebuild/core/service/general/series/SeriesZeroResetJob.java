@@ -36,15 +36,19 @@ public class SeriesZeroResetJob extends DistributedJobLock {
     protected void executeJob() {
         if (!tryLock()) return;
 
+        final Calendar now = CalendarUtils.getInstance();
+
         boolean isFirstDayOfYear = false;
         boolean isFirstDayOfMonth = false;
-        final Calendar now = CalendarUtils.getInstance();
         if (now.get(Calendar.DAY_OF_MONTH) == 1) {
             isFirstDayOfMonth = true;
             if (now.get(Calendar.MONTH) == Calendar.JANUARY) {
                 isFirstDayOfYear = true;
             }
         }
+
+        // 周一
+        boolean isFirstDayOfWeek = now.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY;
 
         for (Entity entity : MetadataHelper.getEntities()) {
             for (Field field : entity.getFields()) {
@@ -60,6 +64,9 @@ public class SeriesZeroResetJob extends DistributedJobLock {
                     } else if ("Y".equalsIgnoreCase(zeroMode) && isFirstDayOfYear) {
                         SeriesGeneratorFactory.zero(field);
                         log.info("Zero field by [Y] : " + field);
+                    } else if ("W".equalsIgnoreCase(zeroMode) && isFirstDayOfWeek) {
+                        SeriesGeneratorFactory.zero(field);
+                        log.info("Zero field by [W] : " + field);
                     }
                 }
             }

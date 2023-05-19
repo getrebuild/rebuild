@@ -441,7 +441,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     const selectUsers = this.getSelectUsers()
     if (!selectUsers) return
 
-    this.disabled(true, true)
+    this.disabled(true)
     $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else _reload(this, $L('审批已提交'))
@@ -530,7 +530,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   post(state) {
     const that = this
     if (state === 11 && this.state.isRejectStep) {
-      this.disabled(true, true)
+      this.disabled(true)
       $.get(`/app/entity/approval/fetch-backsteps?record=${this.props.id}`, (res) => {
         this.disabled()
 
@@ -607,7 +607,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       } else if (res.error_code > 0) {
         RbHighbar.error(res.error_msg)
       } else {
-        _alert && _alert.hide()
+        _alert && _alert.hide(true)
         _reload(this, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
@@ -897,7 +897,7 @@ class ApprovalStepViewer extends React.Component {
 
 // 刷新页面
 const _reload = function (dlg, msg) {
-  dlg && dlg.hide()
+  dlg && dlg.hide(true)
   msg && RbHighbar.success(msg)
 
   setTimeout(() => {

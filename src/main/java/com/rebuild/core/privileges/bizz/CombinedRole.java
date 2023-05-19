@@ -125,7 +125,7 @@ public class CombinedRole extends Role {
             }
         }
 
-        if (log.isDebugEnabled() || Application.devMode()) {
+        if (log.isDebugEnabled()) {
             for (Privileges p : getAllPrivileges()) {
                 if (p instanceof ZeroPrivileges) continue;
                 System.out.println();

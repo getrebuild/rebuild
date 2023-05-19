@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +44,14 @@ public class FormulaCellWriteHandler implements CellWriteHandler {
 
         String cellFormula = cellValue.substring(2, cellValue.length() - 1);
         Matcher m = PATT_CELLNO.matcher(cellValue);
+        Set<String> set = new HashSet<>();
         while (m.find()) {
             String cellNo = m.group(1);
-            String cellNoNew = cellNo.replaceAll("[0-9]+", rowIndex + "");
+            // 避免多次替换出错
+            if (set.contains(cellNo)) continue;
+            set.add(cellNo);
+
+            String cellNoNew = cellNo.replaceAll("[0-9]+", String.valueOf(rowIndex));
             cellFormula = cellFormula.replace(cellNo, cellNoNew);
         }
 
