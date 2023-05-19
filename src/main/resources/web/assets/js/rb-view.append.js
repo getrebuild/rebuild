@@ -221,7 +221,7 @@ class LightTaskList extends RelatedList {
 class LightTaskDlg extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} icon="calendar-check" disposeOnHide>
         <div className="m-2">
           <div className="row">
             <div className="col-6">

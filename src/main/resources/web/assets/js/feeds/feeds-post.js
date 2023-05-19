@@ -684,7 +684,7 @@ class FeedsEditDlg extends RbModalHandler {
     const scope = (this.props.scopeRaw || '').length > 10 /*ID*/ ? this.props.scope : this.props.scopeRaw
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} icon="chart-donut" disposeOnHide>
         <div className="feeds-post p-0 ml-2 mr-2 mt-1">
           {!this.props.id && (
             <React.Fragment>

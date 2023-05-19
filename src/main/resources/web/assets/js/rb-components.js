@@ -33,6 +33,7 @@ class RbModal extends React.Component {
         <div className="modal-dialog" style={style2}>
           <div className="modal-content" style={style2}>
             <div className="modal-header modal-header-colored">
+              {this.props.icon && <i className={`icon zmdi zmdi-${this.props.icon}`} />}
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
