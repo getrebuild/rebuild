@@ -486,7 +486,7 @@
         </dependency>
         -->
 
-        <!-- fix: CVEs
+        <!-- fix: CVEs -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -512,6 +512,5 @@
             <artifactId>netty-handler</artifactId>
             <version>4.1.90.Final</version>
         </dependency>
-        -->
     </dependencies>
 </project>

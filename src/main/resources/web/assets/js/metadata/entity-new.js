@@ -87,8 +87,8 @@ $(document).ready(() => {
     if ($('#mainEntity option').length === 0) {
       _loadEntities((e) => {
         e.forEach((item) => {
-          if (!item.detailEntity && !item.mainEntity) {
-            $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+          if (!item.mainEntity) {  // 非明细
+            $(`<option value="${item.entityName}">${item.entityLabel}${item.detailEntity ? ' (D)' : ''}</option>`).appendTo('#mainEntity')
           }
         })
 

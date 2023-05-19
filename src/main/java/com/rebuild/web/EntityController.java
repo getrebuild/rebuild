@@ -15,12 +15,19 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -138,5 +145,23 @@ public abstract class EntityController extends BaseController {
             into.getModel().put("detailEntityLabel", detail.getLabel());
             into.getModel().put("detailEntityIcon", detail.getIcon());
         }
+    }
+
+    /**
+     * @param mainEntity
+     * @return
+     */
+    public static Object[] formatDetailEntities(Entity mainEntity) {
+        Assert.notNull(mainEntity.getDetailEntity(), "MUST BE MAIN ENTITY : " + mainEntity);
+
+        List<Object[]> list = new ArrayList<>();
+        for (Entity de : mainEntity.getDetialEntities()) {
+            EasyEntity ee = EasyMetaFactory.valueOf(de);
+            list.add(new Object[] { de.getEntityCode(), de.getName(), ee.getLabel(), ee.getIcon() } );
+        }
+
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        list.sort((o1, o2) -> comparator.compare(o1[2], o2[2]));
+        return list.toArray(new Object[0]);
     }
 }
