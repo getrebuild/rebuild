@@ -87,8 +87,12 @@ $(document).ready(() => {
     if ($('#mainEntity option').length === 0) {
       _loadEntities((e) => {
         e.forEach((item) => {
-          if (!item.mainEntity) {  // 非明细
-            $(`<option value="${item.entityName}">${item.entityLabel}${item.detailEntity ? ' (D)' : ''}</option>`).appendTo('#mainEntity')
+          if (!item.mainEntity) {
+            if (window.__LAB_SHOWNDETAIL) {
+              $(`<option value="${item.entityName}">${item.entityLabel}${item.detailEntity ? ' (LAB)' : ''}</option>`).appendTo('#mainEntity')
+            } else if (!item.detailEntity) {
+              $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+            }
           }
         })
 

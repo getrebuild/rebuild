@@ -1239,7 +1239,7 @@ class RbFormTextarea extends RbFormElement {
             })}
           </div>
 
-          <div className={`ntext-action ${window.__SHOW_NTEXTACTION ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
