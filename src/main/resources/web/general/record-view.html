@@ -49,10 +49,13 @@
                 <a class="dropdown-item J_report"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('报表')}]]</a>
               </div>
             </div>
-            <div th:if="${detailEntity != null}" class="col-12 col-lg-6">
-              <button class="btn btn-secondary J_add-detail" type="button" th:data-entity="${detailEntity}" th:data-label="${detailEntityLabel}" th:data-icon="${detailEntityIcon}">
-                <i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('添加明细')}]]
-              </button>
+            <div th:if="${detailEntity != null}" class="col-12 col-lg-6 J_add-detail">
+              <button class="btn btn-secondary" type="button" data-toggle="dropdown"><i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('添加明细')}]]</button>
+              <div class="dropdown-menu dropdown-menu-right J_add-details">
+                <a th:each="e : ${detailEntities}" class="dropdown-item" th:data-entity="${e[1]}" th:data-label="${e[2]}" th:data-icon="${e[3]}">
+                  <i class="icon zmdi" th:classappend="|zmdi-${e[3]}|"></i> [[${e[2]}]]
+                </a>
+              </div>
             </div>
             <div class="col-12 col-lg-6 btn-group J_adds">
               <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建相关')}]]</button>
@@ -65,7 +68,7 @@
               <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon mdi mdi-transfer"></i> [[${bundle.L('转换为')}]]</button>
               <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/robot/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置记录转换')}]]</a>
+                <a class="dropdown-item admin-show" target="_blank" th:href="|${baseUrl}/admin/robot/transforms|"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置记录转换')}]]</a>
               </div>
             </div>
           </div>

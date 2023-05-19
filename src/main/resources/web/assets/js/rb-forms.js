@@ -411,11 +411,11 @@ class RbForm extends React.Component {
   }
 
   renderFormAction() {
+    const props = this.props
     let moreActions = []
     // 添加明细
-    if (this.props.rawModel.mainMeta) {
-      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-      if (!previewid) {
+    if (props.rawModel.mainMeta) {
+      if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
             {$L('保存并继续添加')}
@@ -437,10 +437,10 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
           {$L('取消')}
         </button>
-        {!this.props.readonly && (
+        {!props.readonly && (
           <div className="btn-group dropup btn-space ml-1">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
               {$L('保存')}
@@ -643,8 +643,8 @@ class RbForm extends React.Component {
             this._postAfter(recordId)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
-            const iv = { '$MAINID$': recordId }
-            const dm = this.props.rawModel.detailMeta
+            const iv = $$$parent.props.initialValue
+            const dm = this.props.rawModel.entityMeta
             RbFormModal.create({
               title: $L('添加%s', dm.entityLabel),
               entity: dm.entity,
