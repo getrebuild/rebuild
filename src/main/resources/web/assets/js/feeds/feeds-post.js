@@ -66,6 +66,7 @@ class FeedsPost extends React.Component {
     if (prevState.type !== this.state.type) {
       const pos = $(this._$activeType).find('.text-primary').position()
       $(this._$activeArrow).css('margin-left', pos.left - 30)
+      setTimeout(() => this._FeedsEditor.focus(), 200)
     }
   }
 
@@ -684,7 +685,7 @@ class FeedsEditDlg extends RbModalHandler {
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide>
-        <div className="feeds-post p-0 m-1">
+        <div className="feeds-post p-0 ml-2 mr-2 mt-1">
           {!this.props.id && (
             <React.Fragment>
               <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._$activeType = c)}>
@@ -708,13 +709,12 @@ class FeedsEditDlg extends RbModalHandler {
           </div>
         </div>
 
-        <div className="mt-4 text-right" ref={(c) => (this._$btn = c)}>
+        <div className="mt-4 mr-1 text-right" ref={(c) => (this._$btn = c)}>
           <FeedsScope ref={(c) => (this.__FeedsScope = c)} initValue={scope} />
-
           <button className="btn btn-primary btn-space ml-4" type="button" onClick={this._post}>
             {this.props.id ? $L('保存') : $L('发布')}
           </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space ml-1" type="button" onClick={this.hide}>
             {$L('取消')}
           </button>
         </div>
