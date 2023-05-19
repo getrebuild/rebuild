@@ -187,7 +187,7 @@ $(document).ready(() => {
         let del = 0
         $('#FIELDLIST .dd-handle').each(function () {
           const $item = $(this)
-          if ($item.hasClass('readonly')) return
+          if ($item.hasClass('readonly') || $item.text().includes('SYS ')) return
 
           del++
           $.post(`/admin/entity/field-drop?id=${wpc.entityName}.${$item.data('field')}`, (res) => {
@@ -199,6 +199,8 @@ $(document).ready(() => {
             }
           })
         })
+        // No del?
+        if (del === 0) that.hide(true)
       },
     })
   })
