@@ -304,11 +304,11 @@ class RbForm extends React.Component {
   _renderDetailForm(detailMeta, detailImports, previewid) {
     let _ProTable
     if (window._CustomizedForms) {
-      _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
+      _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
       if (_ProTable === false) return null // 不显示
     }
 
-    function _addNews(n = 1) {
+    function _addNew(n = 1) {
       for (let i = 0; i < n; i++) {
         setTimeout(() => _ProTable.addNew(), i * 20)
       }
@@ -407,7 +407,7 @@ class RbForm extends React.Component {
             )}
 
             <div className="btn-group">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNews()} disabled={this.props.readonly}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
@@ -417,7 +417,7 @@ class RbForm extends React.Component {
               <div className="dropdown-menu dropdown-menu-right">
                 {[5, 10, 20].map((n) => {
                   return (
-                    <a className="dropdown-item" onClick={() => _addNews(n)} key={`n-${n}`}>
+                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
                       {$L('添加 %d 条', n)}
                     </a>
                   )
@@ -1812,13 +1812,15 @@ class RbFormReference extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
+    const $$$form = this.props.$$$parent
+
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: this.props.$$$parent.props.entity,
+        entity: $$$form.props.entity,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -1837,15 +1839,18 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          const $$$form = that.props.$$$parent
-          if ($$$form._ProTable && !$$$form._inAutoFillin && (that.props._cascadingFieldChild || '').includes('.')) {
-            const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            $$$form._ProTable.setFieldNull(field)
-            console.log('Clean details ...', field)
+          const _cascadingFieldChild = that.props._cascadingFieldChild || ''
+          if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
+            const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
+            if (_ProTable) {
+              const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
+              _ProTable.setFieldNull(field)
+              console.log('Clean details ...', field)
+            }
           }
         }
 
-        that.handleChange({ target: { value: v } }, true)
+        this.handleChange({ target: { value: v } }, true)
       })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
