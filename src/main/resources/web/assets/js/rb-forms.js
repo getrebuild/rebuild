@@ -266,7 +266,7 @@ class RbForm extends React.Component {
           {this.renderCustomizedFormArea()}
         </div>
 
-        {this.renderDetailsForm()}
+        {this.renderDetailForms()}
         {this.renderFormAction()}
       </div>
     )
@@ -281,59 +281,74 @@ class RbForm extends React.Component {
     return _FormArea || null
   }
 
-  renderDetailsForm() {
-    const detailMeta = this.props.rawModel.detailMeta
-    if (!detailMeta || !window.ProTable) return null
+  renderDetailForms() {
+    if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
+    // 记录转换:预览模式
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // FIXME: 导入仅支持第一个
+    const detailImports = this.props.rawModel.detailImports
+
+    this._ProTables = {}
+
+    return (
+      <RF>
+        {this.props.rawModel.detailMetas.map((item, idx) => {
+          return <RF key={idx}>{this._renderDetailForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+        })}
+      </RF>
+    )
+  }
+
+  _renderDetailForm(detailMeta, detailImports, previewid) {
     let _ProTable
     if (window._CustomizedForms) {
       _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
       if (_ProTable === false) return null // 不显示
     }
 
-    const that = this
-
-    function _addNew(n = 1) {
+    function _addNews(n = 1) {
       for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+        setTimeout(() => _ProTable.addNew(), i * 20)
       }
     }
 
     function _setLines(details) {
-      if (that._ProTable.isEmpty()) {
-        that._ProTable.setLines(details)
+      if (_ProTable.isEmpty()) {
+        _ProTable.setLines(details)
       } else {
         RbAlert.create($L('是否保留已有明细记录？'), {
           confirmText: $L('保留'),
           cancelText: $L('不保留'),
           onConfirm: function () {
             this.hide()
-            that._ProTable.setLines(details)
+            _ProTable.setLines(details)
           },
           onCancel: function () {
             this.hide()
-            that._ProTable.clear()
-            setTimeout(() => that._ProTable.setLines(details), 200)
+            _ProTable.clear()
+            setTimeout(() => _ProTable.setLines(details), 200)
           },
         })
       }
     }
 
     // 记录转换:明细导入
-    let detailImports = []
-    if (this.props.rawModel.detailImports) {
-      this.props.rawModel.detailImports.forEach((item) => {
-        detailImports.push({
+    let _detailImports = []
+    if (detailImports) {
+      detailImports.forEach((item) => {
+        _detailImports.push({
           icon: item.icon,
           label: item.transName || item.entityLabel,
-          fetch: (form, callback) => {
+          fetch: (form, cb) => {
             const formdata = form.getFormData()
             const mainid = form.props.id || null
 
             $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-                else typeof callback === 'function' && callback(res.data)
+                else typeof cb === 'function' && cb(res.data)
               } else {
                 RbHighbar.error(res.error_msg)
               }
@@ -343,12 +358,19 @@ class RbForm extends React.Component {
       })
     }
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
-    if (!_ProTable) {
-      _ProTable = <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-    }
+    if (!_ProTable)
+      _ProTable = (
+        <ProTable
+          entity={detailMeta}
+          mainid={this.state.id}
+          previewid={previewid}
+          ref={(c) => {
+            _ProTable = c // ref
+            this._ProTables[detailMeta.entity] = c
+          }}
+          $$$main={this}
+        />
+      )
 
     return (
       <div className="detail-form-table">
@@ -361,13 +383,13 @@ class RbForm extends React.Component {
           </div>
 
           <div className="col text-right">
-            {detailImports && detailImports.length > 0 && (
+            {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {detailImports.map((def, idx) => {
+                  {_detailImports.map((def, idx) => {
                     return (
                       <a
                         key={`imports-${idx}`}
@@ -385,7 +407,7 @@ class RbForm extends React.Component {
             )}
 
             <div className="btn-group">
-              <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
+              <button className="btn btn-secondary" type="button" onClick={() => _addNews()} disabled={this.props.readonly}>
                 <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
@@ -395,7 +417,7 @@ class RbForm extends React.Component {
               <div className="dropdown-menu dropdown-menu-right">
                 {[5, 10, 20].map((n) => {
                   return (
-                    <a className="dropdown-item" onClick={() => _addNew(n)} key={`n-${n}`}>
+                    <a className="dropdown-item" onClick={() => _addNews(n)} key={`n-${n}`}>
                       {$L('添加 %d 条', n)}
                     </a>
                   )
@@ -588,15 +610,24 @@ class RbForm extends React.Component {
       else data[k] = this.__FormData[k].value
     }
 
-    if (this._ProTable) {
-      const details = this._ProTable.buildFormData()
-      if (!details) return
+    if (this._ProTables) {
+      const detailsNotEmpty = this.props.rawModel.detailsNotEmpty
+      let detailsMix = []
 
-      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty) {
-        RbHighbar.create($L('请添加明细'))
-        return
+      const keys = Object.keys(this._ProTables)
+      for (let i = 0; i < keys.length; i++) {
+        const _ProTable = this._ProTables[keys[i]]
+        const details = _ProTable.buildFormData()
+        if (!details) return
+
+        if (detailsNotEmpty && _ProTable.isEmpty()) {
+          RbHighbar.create($L('请添加明细'))
+          return // break
+        }
+
+        detailsMix = [...detailsMix, ...details]
       }
-      data['$DETAILS$'] = details
+      data['$DETAILS$'] = detailsMix
     }
 
     data.metadata = {
