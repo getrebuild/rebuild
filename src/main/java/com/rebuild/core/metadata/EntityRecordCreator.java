@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  *
  * @author Zhao Fangfang
  * @since 1.0, 2018-6-26
- * @see RecordBuilder
+ * @see com.rebuild.core.support.general.RecordBuilder
  */
 @Slf4j
 public class EntityRecordCreator extends JsonRecordCreator {
