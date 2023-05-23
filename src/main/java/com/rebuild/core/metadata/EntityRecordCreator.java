@@ -242,4 +242,17 @@ public class EntityRecordCreator extends JsonRecordCreator {
             }
         }
     }
+
+    @Override
+    public boolean isNoValue(String value, Field field) {
+        boolean is = super.isNoValue(value, field);
+        if (is) return true;
+
+        // 空的文件/图片
+        if ("[]".equalsIgnoreCase(value)) {
+            DisplayType dt = EasyMetaFactory.getDisplayType(field);
+            return dt == DisplayType.IMAGE || dt == DisplayType.FILE;
+        }
+        return false;
+    }
 }
