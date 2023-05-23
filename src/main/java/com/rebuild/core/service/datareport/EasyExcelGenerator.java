@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -56,9 +57,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTBIZUNIT;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATE;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATETIME;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
@@ -251,7 +256,10 @@ public class EasyExcelGenerator extends SetUser {
 
         final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
-        final String phCurrentuser = UserHelper.getName(getUser());
+        final String phCurrentUser = UserHelper.getName(getUser());
+        final String phCurrentBizunit = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
+        final String phCurrentDateTime = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
+        final String phCurrentDate = phCurrentDateTime.split(" ")[0];
 
         final Map<String, Object> data = new HashMap<>();
 
@@ -269,10 +277,16 @@ public class EasyExcelGenerator extends SetUser {
                     String phKeep = varName.length() > PH__KEEP.length()
                             ? varName.substring(PH__KEEP.length() + 1) : "";
                     data.put(varName, phKeep);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
-                    data.put(varName, phCurrentuser);
                 } else if (varName.equalsIgnoreCase(PH__NUMBER)) {
                     data.put(varName, phNumber);
+                } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
+                    data.put(varName, phCurrentUser);
+                } else if (varName.equalsIgnoreCase(PH__CURRENTBIZUNIT)) {
+                    data.put(varName, phCurrentBizunit);
+                } else if (varName.equalsIgnoreCase(PH__CURRENTDATE)) {
+                    data.put(varName, phCurrentDate);
+                } else if (varName.equalsIgnoreCase(PH__CURRENTDATETIME)) {
+                    data.put(varName, phCurrentDateTime);
                 }
                 else {
                     data.put(varName, invalidFieldTip);
