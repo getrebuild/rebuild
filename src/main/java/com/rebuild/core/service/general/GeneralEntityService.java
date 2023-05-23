@@ -147,17 +147,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             final String dtfField = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
             final ID mainid = record.getPrimary();
-            final int detailCode = record.getEntity().getDetailEntity().getEntityCode();
 
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
             // 先删除
             for (Record d : details) {
-                if (d instanceof DeleteRecord) {
-                    Assert.isTrue(d.getPrimary().getEntityCode() == detailCode, "Invalid detail-id: " + d.getPrimary());
-                    delete(d.getPrimary());
-                }
+                if (d instanceof DeleteRecord) delete(d.getPrimary());
             }
 
             // 再保存
@@ -177,7 +173,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     d.setID(dtfField, mainid);
                     create(d);
                 } else {
-                    Assert.isTrue(d.getPrimary().getEntityCode() == detailCode, "Invalid detail-id: " + d.getPrimary());
                     update(d);
                 }
             }
