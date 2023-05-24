@@ -42,7 +42,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.rebuild.web.general.GeneralListController.checkPageOfEntity;
 
@@ -144,6 +148,7 @@ public class GeneralModelController extends EntityController {
             }
 
             // v3.1 明细导入配置
+            // v3.4 FIXME 只有第一个实体支持转换
             if (metaEntity.getDetailEntity() != null) {
                 List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
                 if (!imports.isEmpty()) {

@@ -266,7 +266,7 @@ class RbForm extends React.Component {
           {this.renderCustomizedFormArea()}
         </div>
 
-        {this.renderDetailsForm()}
+        {this.renderDetailForms()}
         {this.renderFormAction()}
       </div>
     )
@@ -281,59 +281,74 @@ class RbForm extends React.Component {
     return _FormArea || null
   }
 
-  renderDetailsForm() {
-    const detailMeta = this.props.rawModel.detailMeta
-    if (!detailMeta || !window.ProTable) return null
+  renderDetailForms() {
+    if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
+    // 记录转换:预览模式
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // FIXME: 导入仅支持第一个
+    const detailImports = this.props.rawModel.detailImports
+
+    this._ProTables = {}
+
+    return (
+      <RF>
+        {this.props.rawModel.detailMetas.map((item, idx) => {
+          return <RF key={idx}>{this._renderDetailForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+        })}
+      </RF>
+    )
+  }
+
+  _renderDetailForm(detailMeta, detailImports, previewid) {
     let _ProTable
     if (window._CustomizedForms) {
-      _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
+      _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
       if (_ProTable === false) return null // 不显示
     }
 
-    const that = this
-
     function _addNew(n = 1) {
       for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+        setTimeout(() => _ProTable.addNew(), i * 20)
       }
     }
 
     function _setLines(details) {
-      if (that._ProTable.isEmpty()) {
-        that._ProTable.setLines(details)
+      if (_ProTable.isEmpty()) {
+        _ProTable.setLines(details)
       } else {
         RbAlert.create($L('是否保留已有明细记录？'), {
           confirmText: $L('保留'),
           cancelText: $L('不保留'),
           onConfirm: function () {
             this.hide()
-            that._ProTable.setLines(details)
+            _ProTable.setLines(details)
           },
           onCancel: function () {
             this.hide()
-            that._ProTable.clear()
-            setTimeout(() => that._ProTable.setLines(details), 200)
+            _ProTable.clear()
+            setTimeout(() => _ProTable.setLines(details), 200)
           },
         })
       }
     }
 
     // 记录转换:明细导入
-    let detailImports = []
-    if (this.props.rawModel.detailImports) {
-      this.props.rawModel.detailImports.forEach((item) => {
-        detailImports.push({
+    let _detailImports = []
+    if (detailImports) {
+      detailImports.forEach((item) => {
+        _detailImports.push({
           icon: item.icon,
           label: item.transName || item.entityLabel,
-          fetch: (form, callback) => {
+          fetch: (form, cb) => {
             const formdata = form.getFormData()
             const mainid = form.props.id || null
 
             $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-                else typeof callback === 'function' && callback(res.data)
+                else typeof cb === 'function' && cb(res.data)
               } else {
                 RbHighbar.error(res.error_msg)
               }
@@ -343,12 +358,19 @@ class RbForm extends React.Component {
       })
     }
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
-    if (!_ProTable) {
-      _ProTable = <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-    }
+    if (!_ProTable)
+      _ProTable = (
+        <ProTable
+          entity={detailMeta}
+          mainid={this.state.id}
+          previewid={previewid}
+          ref={(c) => {
+            _ProTable = c // ref
+            this._ProTables[detailMeta.entity] = c
+          }}
+          $$$main={this}
+        />
+      )
 
     return (
       <div className="detail-form-table">
@@ -361,13 +383,13 @@ class RbForm extends React.Component {
           </div>
 
           <div className="col text-right">
-            {detailImports && detailImports.length > 0 && (
+            {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {detailImports.map((def, idx) => {
+                  {_detailImports.map((def, idx) => {
                     return (
                       <a
                         key={`imports-${idx}`}
@@ -411,11 +433,11 @@ class RbForm extends React.Component {
   }
 
   renderFormAction() {
+    const props = this.props
     let moreActions = []
     // 添加明细
-    if (this.props.rawModel.mainMeta) {
-      const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-      if (!previewid) {
+    if (props.rawModel.mainMeta) {
+      if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
             {$L('保存并继续添加')}
@@ -437,10 +459,10 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
           {$L('取消')}
         </button>
-        {!this.props.readonly && (
+        {!props.readonly && (
           <div className="btn-group dropup btn-space ml-1">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
               {$L('保存')}
@@ -588,15 +610,24 @@ class RbForm extends React.Component {
       else data[k] = this.__FormData[k].value
     }
 
-    if (this._ProTable) {
-      const details = this._ProTable.buildFormData()
-      if (!details) return
+    if (this._ProTables) {
+      const detailsNotEmpty = this.props.rawModel.detailsNotEmpty
+      let detailsMix = []
 
-      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty) {
-        RbHighbar.create($L('请添加明细'))
-        return
+      const keys = Object.keys(this._ProTables)
+      for (let i = 0; i < keys.length; i++) {
+        const _ProTable = this._ProTables[keys[i]]
+        const details = _ProTable.buildFormData()
+        if (!details) return
+
+        if (detailsNotEmpty && _ProTable.isEmpty()) {
+          RbHighbar.create($L('请添加明细'))
+          return // break
+        }
+
+        detailsMix = [...detailsMix, ...details]
       }
-      data['$DETAILS$'] = details
+      data['$DETAILS$'] = detailsMix
     }
 
     data.metadata = {
@@ -643,8 +674,8 @@ class RbForm extends React.Component {
             this._postAfter(recordId)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
-            const iv = { '$MAINID$': recordId }
-            const dm = this.props.rawModel.detailMeta
+            const iv = $$$parent.props.initialValue
+            const dm = this.props.rawModel.entityMeta
             RbFormModal.create({
               title: $L('添加%s', dm.entityLabel),
               entity: dm.entity,
@@ -1239,7 +1270,7 @@ class RbFormTextarea extends RbFormElement {
             })}
           </div>
 
-          <div className={`ntext-action ${window.__SHOW_NTEXTACTION ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
@@ -1392,7 +1423,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: 1,
+          minuteStep: window.__LAB_MINUTESTEP || 2,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -1432,7 +1463,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: 1,
+          minuteStep: window.__LAB_MINUTESTEP || 2,
           title: $L('选择时间'),
         })
         .on('changeDate', function () {
@@ -1781,13 +1812,15 @@ class RbFormReference extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
+    const $$$form = this.props.$$$parent
+
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: this.props.$$$parent.props.entity,
+        entity: $$$form.props.entity,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -1806,15 +1839,18 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          const $$$form = that.props.$$$parent
-          if ($$$form._ProTable && !$$$form._inAutoFillin && (that.props._cascadingFieldChild || '').includes('.')) {
-            const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            $$$form._ProTable.setFieldNull(field)
-            console.log('Clean details ...', field)
+          const _cascadingFieldChild = that.props._cascadingFieldChild || ''
+          if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
+            const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
+            if (_ProTable) {
+              const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
+              _ProTable.setFieldNull(field)
+              console.log('Clean details ...', field)
+            }
           }
         }
 
-        that.handleChange({ target: { value: v } }, true)
+        this.handleChange({ target: { value: v } }, true)
       })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)

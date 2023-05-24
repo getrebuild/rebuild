@@ -15,12 +15,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -135,8 +138,20 @@ public abstract class EntityController extends BaseController {
             into.getModel().put("mainEntityLabel", main.getLabel());
             into.getModel().put("mainEntityIcon", main.getIcon());
             into.getModel().put("detailEntity", detail.getName());
-            into.getModel().put("detailEntityLabel", detail.getLabel());
-            into.getModel().put("detailEntityIcon", detail.getIcon());
+            into.getModel().put("detailEntities", formatDetailEntities(detail.getRawMeta().getMainEntity()));
         }
+    }
+
+    /**
+     * @param mainEntity
+     * @return Returns [][Code, Name, Label, Icon]
+     */
+    public static Object[] formatDetailEntities(Entity mainEntity) {
+        List<Object[]> list = new ArrayList<>();
+        for (Entity de : MetadataSorter.sortDetailEntities(mainEntity)) {
+            EasyEntity ee = EasyMetaFactory.valueOf(de);
+            list.add(new Object[] { de.getEntityCode(), de.getName(), ee.getLabel(), ee.getIcon() } );
+        }
+        return list.toArray(new Object[0]);
     }
 }

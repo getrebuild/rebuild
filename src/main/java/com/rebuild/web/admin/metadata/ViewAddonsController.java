@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,7 +90,8 @@ public class ViewAddonsController extends BaseController {
         for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             Entity e = field.getOwnEntity();
             if (!MetadataHelper.isBusinessEntity(e)) continue;
-            if (e.equals(entityMeta.getDetailEntity())) continue;
+            if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
+
             // 新建项无明细、多引用
             if (ViewAddonsManager.TYPE_ADD.equals(applyType)) {
                 if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;

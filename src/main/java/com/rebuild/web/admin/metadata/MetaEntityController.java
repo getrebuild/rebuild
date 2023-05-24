@@ -39,11 +39,16 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,9 +97,11 @@ public class MetaEntityController extends BaseController {
         if (metaEntity.getMainEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());
             mv.getModel().put("detailEntity", metaEntity.getName());
+            mv.getModel().put("detailEntities", EntityController.formatDetailEntities(metaEntity.getMainEntity()));
         } else if (metaEntity.getDetailEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getName());
             mv.getModel().put("detailEntity", metaEntity.getDetailEntity().getName());
+            mv.getModel().put("detailEntities", EntityController.formatDetailEntities(metaEntity));
         }
 
         // 扩展配置
@@ -171,8 +178,6 @@ public class MetaEntityController extends BaseController {
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
                 return RespBody.errorl("明细实体不能作为主实体");
-            } else if (useMain.getDetailEntity() != null) {
-                return RespBody.errorl("选择的主实体已被 [%s] 使用", useMain.getDetailEntity());
             }
         }
 

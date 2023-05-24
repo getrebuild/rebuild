@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -39,7 +40,15 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单构造
@@ -216,6 +225,11 @@ public class FormsBuilder extends FormsManager {
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+
+            // v3.4 N-D
+            List<JSON> detailMetas = new ArrayList<>();
+            for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) detailMetas.add(EasyMetaFactory.toJSON(de));
+            model.set("detailMetas", detailMetas);
         }
 
         // 最后修改时间

@@ -20,10 +20,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -72,14 +74,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
     public JSONObject getViewTab(String entity, ID user) {
         JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
 
-        // 添加明细实体到第一个
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        Entity detailMeta;
-        if ((detailMeta = entityMeta.getDetailEntity()) != null) {
-            JSONObject detail = EasyMetaFactory.toJSON(detailMeta);
-            detail.put("entity", detailMeta.getName() + "." + MetadataHelper.getDetailToMainField(detailMeta).getName());
+        // 添加明细实体
+        Entity ifMain = MetadataHelper.getEntity(entity);
+        if (ifMain.getDetailEntity() != null) {
             JSONArray tabsFluent = new JSONArray();
-            tabsFluent.add(detail);
+            for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
+                JSONObject deJson = EasyMetaFactory.toJSON(de);
+                deJson.put("entity", de.getName() + "." + MetadataHelper.getDetailToMainField(de).getName());
+                tabsFluent.add(deJson);
+            }
+
             tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
             vtabs.put("items", tabsFluent);
         }
@@ -151,7 +155,8 @@ public class ViewAddonsManager extends BaseLayoutManager {
             for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
                 Entity e = field.getOwnEntity();
                 if (!MetadataHelper.isBusinessEntity(e)) continue;
-                if (e.equals(entityMeta.getDetailEntity())) continue;
+                if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
+
                 // 新建项无明细、多引用
                 if (TYPE_ADD.equals(applyType)) {
                     if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;

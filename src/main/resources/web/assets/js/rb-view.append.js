@@ -221,8 +221,8 @@ class LightTaskList extends RelatedList {
 class LightTaskDlg extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} disposeOnHide={true}>
-        <div className="m-1">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} icon="calendar-check" disposeOnHide>
+        <div className="m-2">
           <div className="row">
             <div className="col-6">
               <div className="form-group">
@@ -261,11 +261,11 @@ class LightTaskDlg extends RbModalHandler {
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)} />
           </div>
         </div>
-        <div className="mt-3 text-right" ref={(c) => (this._btns = c)}>
+        <div className="mt-3 mr-1 text-right" ref={(c) => (this._btns = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
             {$L('保存')}
           </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space ml-1" type="button" onClick={this.hide}>
             {$L('取消')}
           </button>
         </div>

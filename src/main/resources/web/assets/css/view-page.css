@@ -626,7 +626,7 @@ body {
 .tasks-list.inview .header-title .title .custom-control {
   position: absolute;
   left: 15px;
-  margin: -1px 0 0;
+  margin: 0;
 }
 
 .tasks-list.inview .header-title::after {
@@ -637,6 +637,7 @@ body {
   text-align: right;
   color: #878787;
   font-size: 12px;
+  padding-top: 1px;
 }
 
 .tasks-list.inview .header-title .task-meta > span {

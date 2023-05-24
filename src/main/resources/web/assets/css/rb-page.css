@@ -70,7 +70,7 @@ button[disabled] {
 
 .dropdown-menu .dropdown-item,
 .dropdown-menu .dropdown-item > a {
-  cursor: default;
+  /*cursor: default;*/
 }
 
 .dropdown-menu.auto-scroller {
@@ -4428,11 +4428,6 @@ html.external-auth .auth-body.must-center .login {
   color: #777;
 }
 
-.aside-header .title.dropdown-toggle:hover {
-  cursor: pointer;
-  opacity: 0.8;
-}
-
 .btn.btn-light {
   box-shadow: none;
 }
@@ -5184,7 +5179,7 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 }
 
 .datetimepicker table tr td span.minute {
-  width: 16.66%;
+  width: 20%;
   margin-left: 0;
   margin-right: 0;
 }

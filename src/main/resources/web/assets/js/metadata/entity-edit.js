@@ -17,7 +17,12 @@ $(document).ready(() => {
   if (!wpc.metaId) $('.footer .alert').removeClass('hide')
   else $('.footer .J_action').removeClass('hide')
 
-  $(`.J_tab-${wpc.entity} a`).addClass('active')
+  $(`.nav-tabs>li[data-name=${wpc.entity}]>a`).addClass('active')
+  if ($('.J_details')[0]) {
+    const $toggle = $('.J_for-details')
+    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-18"></i>').appendTo($toggle)
+    $($toggle).attr('data-toggle', 'dropdown')
+  }
 
   const $btn = $('.J_save').on('click', () => {
     if (!wpc.metaId) return
