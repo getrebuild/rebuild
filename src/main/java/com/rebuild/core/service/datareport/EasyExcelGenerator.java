@@ -84,6 +84,7 @@ public class EasyExcelGenerator extends SetUser {
 
     protected boolean hasMain = false;
     protected int phNumber = 1;
+    protected Map<String, Object> phValues = new HashMap<>();
 
     /**
      * @param template
@@ -126,6 +127,11 @@ public class EasyExcelGenerator extends SetUser {
             // 主记录
             if (main != null) {
                 excelWriter.fill(main, writeSheet);
+            } else {
+                // PH 变量
+                if (!phValues.isEmpty()) {
+                    excelWriter.fill(phValues, writeSheet);
+                }
             }
 
             // 公式生效
@@ -272,23 +278,10 @@ public class EasyExcelGenerator extends SetUser {
                     varName = varName.substring(1);
                 }
 
-                // {.__KEEP:块}
-                if (varName.startsWith(PH__KEEP)) {
-                    String phKeep = varName.length() > PH__KEEP.length()
-                            ? varName.substring(PH__KEEP.length() + 1) : "";
-                    data.put(varName, phKeep);
-                } else if (varName.equalsIgnoreCase(PH__NUMBER)) {
-                    data.put(varName, phNumber);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
-                    data.put(varName, phCurrentUser);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTBIZUNIT)) {
-                    data.put(varName, phCurrentBizunit);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTDATE)) {
-                    data.put(varName, phCurrentDate);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTDATETIME)) {
-                    data.put(varName, phCurrentDateTime);
-                }
-                else {
+                Object phValue = getPhValue(varName);
+                if (phValue != null) {
+                    data.put(varName, phValue);
+                } else {
                     data.put(varName, invalidFieldTip);
                 }
             }
@@ -410,6 +403,35 @@ public class EasyExcelGenerator extends SetUser {
 
         } catch (IOException e) {
             log.error("Cannot encode image of barcode : {}", recordId, e);
+        }
+        return null;
+    }
+
+    /**
+     * @param phName
+     * @return
+     */
+    protected Object getPhValue(String phName) {
+        // {.__KEEP:块}
+        if (phName.startsWith(PH__KEEP)) {
+            return phName.length() > PH__KEEP.length()
+                    ? phName.substring(PH__KEEP.length() + 1) : "";
+        }
+        // 列表序号
+        if (phName.equalsIgnoreCase(PH__NUMBER)) {
+            return phNumber;
+        }
+        if (phName.equalsIgnoreCase(PH__CURRENTUSER)) {
+            return UserHelper.getName(getUser());
+        }
+        if (phName.equalsIgnoreCase(PH__CURRENTBIZUNIT)) {
+            return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
+        }
+        if (phName.equalsIgnoreCase(PH__CURRENTDATE)) {
+            return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
+        }
+        if (phName.equalsIgnoreCase(PH__CURRENTDATETIME)) {
+            return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
     }
