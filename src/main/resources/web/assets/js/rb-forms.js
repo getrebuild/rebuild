@@ -1239,7 +1239,7 @@ class RbFormTextarea extends RbFormElement {
             })}
           </div>
 
-          <div className={`ntext-action ${window.__SHOW_NTEXTACTION ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
@@ -1392,7 +1392,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: 1,
+          minuteStep: window.__LAB_MINUTESTEP || 2,
         })
         .on('changeDate', function () {
           const val = $(this).val()
@@ -1432,7 +1432,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: 1,
+          minuteStep: window.__LAB_MINUTESTEP || 2,
           title: $L('选择时间'),
         })
         .on('changeDate', function () {

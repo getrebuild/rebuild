@@ -66,6 +66,7 @@ class FeedsPost extends React.Component {
     if (prevState.type !== this.state.type) {
       const pos = $(this._$activeType).find('.text-primary').position()
       $(this._$activeArrow).css('margin-left', pos.left - 30)
+      setTimeout(() => this._FeedsEditor.focus(), 200)
     }
   }
 
@@ -683,10 +684,10 @@ class FeedsEditDlg extends RbModalHandler {
     const scope = (this.props.scopeRaw || '').length > 10 /*ID*/ ? this.props.scope : this.props.scopeRaw
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide>
-        <div className="feeds-post p-0 m-1">
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} icon="chart-donut" disposeOnHide>
+        <div className={`feeds-post p-0 ml-3 mr-3 ${this.props.id ? 'mt-2' : 'mt-1'}`}>
           {!this.props.id && (
-            <React.Fragment>
+            <RF>
               <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._$activeType = c)}>
                 <li className="list-inline-item">
                   <a onClick={() => this._clickTypeTab(2)} className={`${activeType === 2 ? activeClass : ''}`}>
@@ -700,7 +701,7 @@ class FeedsEditDlg extends RbModalHandler {
                 </li>
               </ul>
               <div className="arrow_box" ref={(c) => (this._$activeArrow = c)} />
-            </React.Fragment>
+            </RF>
           )}
 
           <div>
@@ -708,13 +709,12 @@ class FeedsEditDlg extends RbModalHandler {
           </div>
         </div>
 
-        <div className="mt-4 text-right" ref={(c) => (this._$btn = c)}>
+        <div className="mt-4 mr-1 text-right" ref={(c) => (this._$btn = c)}>
           <FeedsScope ref={(c) => (this.__FeedsScope = c)} initValue={scope} />
-
           <button className="btn btn-primary btn-space ml-4" type="button" onClick={this._post}>
             {this.props.id ? $L('保存') : $L('发布')}
           </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space ml-1 mr-2" type="button" onClick={this.hide}>
             {$L('取消')}
           </button>
         </div>
@@ -723,8 +723,9 @@ class FeedsEditDlg extends RbModalHandler {
   }
 
   componentDidMount() {
-    if (!this.props.id) {
+    if (this.props.id) {
       setTimeout(() => this._FeedsEditor._$editor.focus(), 100)
+    } else {
       this._clickTypeTab(this.state.type)
     }
   }
@@ -733,6 +734,7 @@ class FeedsEditDlg extends RbModalHandler {
     this.setState({ type: type }, () => {
       const pos = $(this._$activeType).find('.text-primary').position()
       $(this._$activeArrow).css('margin-left', pos.left - 20)
+      setTimeout(() => this._FeedsEditor._$editor.focus(), 200)
     })
   }
 
