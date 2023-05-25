@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.query.QueryHelper;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -131,6 +132,49 @@ public class RecordAccessor {
         Record r = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, Boolean.FALSE);
         if (NullValue.isNull(newValue)) r.setNull(field);
         else r.setObjectValue(field, newValue);
+
+        Application.getCommonsService().update(r, false);
+        return true;
+    }
+
+    /**
+     * @param fields
+     * @param newValues
+     * @return
+     */
+    public boolean setValue(String[] fields, Object[] newValues) {
+        return setValue(fields, newValues, Boolean.FALSE);
+    }
+
+    /**
+     * 更新（多个）值
+     *
+     * @param fields 仅支持本实体字段
+     * @param newValues
+     * @param checkSame 检查值是否一致，一致的不更新
+     * @return
+     */
+    public boolean setValue(String[] fields, Object[] newValues, boolean checkSame) {
+        Assert.isTrue(fields.length == newValues.length, "F/V length mismatch");
+
+        Record r = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, Boolean.FALSE);
+        for (int i = 0; i < fields.length; i++) {
+            String field = fields[i];
+            Object newValue = newValues[i];
+
+            if (checkSame) {
+                Object oldValue = getValue(field);
+                if (NullValue.isNull(newValue) && NullValue.isNull(oldValue)) continue;
+                if (newValue != null && newValue.equals(oldValue)) continue;
+                if (oldValue != null && oldValue.equals(newValue)) continue;
+            }
+
+            if (NullValue.isNull(newValue)) r.setNull(field);
+            else r.setObjectValue(field, newValue);
+        }
+
+        // 无需更新
+        if (r.isEmpty()) return false;
 
         Application.getCommonsService().update(r, false);
         return true;

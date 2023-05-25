@@ -44,7 +44,8 @@ public class JSONUtils {
      * @return
      */
     public static JSONObject toJSONObject(String[] keys, Object[] values) {
-        Assert.isTrue(keys.length <= values.length, "K/V 长度不匹配");
+        Assert.isTrue(keys.length == values.length, "K/V length mismatch");
+
         Map<String, Object> map = new HashMap<>(keys.length);
         for (int i = 0; i < keys.length; i++) {
             map.put(keys[i], values[i]);

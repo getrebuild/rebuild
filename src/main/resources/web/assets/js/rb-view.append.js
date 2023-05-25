@@ -222,7 +222,7 @@ class LightTaskDlg extends RbModalHandler {
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} icon="calendar-check" disposeOnHide>
-        <div className="m-2">
+        <div className="m-2 ml-3 mr-3">
           <div className="row">
             <div className="col-6">
               <div className="form-group">
@@ -261,7 +261,7 @@ class LightTaskDlg extends RbModalHandler {
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)} />
           </div>
         </div>
-        <div className="mt-3 mr-1 text-right" ref={(c) => (this._btns = c)}>
+        <div className="mt-3 mr-2 text-right" ref={(c) => (this._btns = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
             {$L('保存')}
           </button>
