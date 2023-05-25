@@ -1850,7 +1850,7 @@ class RbFormReference extends RbFormElement {
           }
         }
 
-        this.handleChange({ target: { value: v } }, true)
+        that.handleChange({ target: { value: v } }, true)
       })
 
       if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
