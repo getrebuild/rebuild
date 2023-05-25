@@ -94,7 +94,7 @@ public class ViewAddonsController extends BaseController {
 
             // 新建项无明细、多引用
             if (ViewAddonsManager.TYPE_ADD.equals(applyType)) {
-                if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;
+                if (e.getMainEntity() != null || field.getType() != FieldType.REFERENCE) continue;
             }
 
             String label = EasyMetaFactory.getLabel(e);

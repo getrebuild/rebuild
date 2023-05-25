@@ -305,7 +305,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final User toUser = Application.getUserStore().getUser(to);
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 
@@ -350,7 +350,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 

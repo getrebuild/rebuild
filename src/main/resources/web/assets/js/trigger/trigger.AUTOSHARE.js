@@ -21,7 +21,7 @@ class ContentAutoShare extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('共享给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._shareTo = c)} />
-              {wpc.sourceEntityType === 3 && (
+              {$isTrue(wpc.sourceEntityIsDetail) && (
                 <div className="form-text text-danger">
                   <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
                   {$L('源实体为明细实体，实际共享时会共享主记录')}
