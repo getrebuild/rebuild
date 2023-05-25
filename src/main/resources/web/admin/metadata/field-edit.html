@@ -87,17 +87,24 @@
                       </label>
                       <span>
                         <select class="underline-sm J_decimalTypeFlag">
-                          <option value="¥">¥</option>
-                          <option value="$">$</option>
-                          <option value="JP¥">JP¥</option>
-                          <option value="US$">US$</option>
-                          <option value="HK$">HK$</option>
-                          <option value="€">€</option>
-                          <option value="£">£</option>
-                          <option value="₽">₽</option>
-                          <option value="₩">₩</option>
-                          <option value="%s元">元</option>
-                          <option value="%s万元">万元</option>
+                          <optgroup th:label="${bundle.L('货币')}">
+                            <option value="¥">¥</option>
+                            <option value="$">$</option>
+                            <option value="JP¥">JP¥</option>
+                            <option value="US$">US$</option>
+                            <option value="HK$">HK$</option>
+                            <option value="€">€</option>
+                            <option value="£">£</option>
+                            <option value="₽">₽</option>
+                            <option value="₩">₩</option>
+                            <option value="%s元">元</option>
+                            <option value="%s万元">万元</option>
+                          </optgroup>
+                          <optgroup th:label="${bundle.L('单位')}">
+                            <option value="%sKG">KG</option>
+                            <option value="%sM³">M³</option>
+                            <option value="%sM²">M²</option>
+                          </optgroup>
                         </select>
                       </span>
                     </div>

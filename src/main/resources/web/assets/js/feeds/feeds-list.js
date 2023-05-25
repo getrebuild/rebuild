@@ -155,7 +155,7 @@ class FeedsList extends React.Component {
           <ul className="list-unstyled m-0">
             <li className="list-inline-item mr-3 hover-show">
               <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                <i className="zmdi zmdi-more" />
+                <i className="zmdi zmdi-more text-bold" />
                 &nbsp;
               </a>
               <div className="dropdown-menu dropdown-menu-right">
@@ -368,7 +368,7 @@ class FeedsComments extends React.Component {
                         {item.self && (
                           <li className="list-inline-item mr-3">
                             <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                              <i className="zmdi zmdi-more" />
+                              <i className="zmdi zmdi-more text-bold" />
                               &nbsp;
                             </a>
                             <div className="dropdown-menu dropdown-menu-right">

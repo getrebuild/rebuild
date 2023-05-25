@@ -38,6 +38,11 @@ public class EasyDecimal extends EasyField {
         if (targetType == DisplayType.NUMBER) {
             return CommonsUtils.toLongHalfUp(value);
         }
+//        else if (targetType == getDisplayType()) {
+//            int scale = ((EasyDecimal) targetField).getScale();
+//            double d = ObjectUtils.round(ObjectUtils.toDouble(value), scale);
+//            return BigDecimal.valueOf(d);
+//        }
 
         return super.convertCompatibleValue(value, targetField);
     }
@@ -63,5 +68,18 @@ public class EasyDecimal extends EasyField {
             else n = type + " " + n;
         }
         return n;
+    }
+
+    /**
+     * 小数精度
+     *
+     * @return
+     */
+    public int getScale() {
+        String format = StringUtils.defaultIfBlank(
+                getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT), getDisplayType().getDefaultFormat());
+        int dotIndex = format.lastIndexOf(".");
+        if (dotIndex == -1) return 0;
+        return format.substring(dotIndex).length() - 1;
     }
 }

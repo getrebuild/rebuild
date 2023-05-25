@@ -241,10 +241,10 @@ select.underline-sm {
   padding: 1px;
   border: 0 none;
   border-bottom: 1px solid #ccc;
-  text-align: center;
   appearance: none;
   outline: none;
   background-color: #fff;
+  text-align-last: center;
 }
 
 select.underline-sm:focus {

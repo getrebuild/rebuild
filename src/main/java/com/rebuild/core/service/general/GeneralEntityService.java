@@ -320,6 +320,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
             log.debug("The record owner has not changed, ignore : {}", record);
+            affected = 1;
         } else {
             assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
 
@@ -360,7 +361,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (!Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode()) /* 目标用户无基础更新权限 */
                         || !Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
                     rights = BizzPermission.READ.getMask();
-                    log.warn("Downgrade share rights to READ(8) : {}", record);
+                    log.warn("Downgrade share rights to READ({}) : {}", BizzPermission.READ.getMask(), record);
                 }
             }
         }
@@ -392,6 +393,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             } else {
                 log.debug("The record has been shared and has the same rights, ignore : {}", record);
+                affected = 1;
             }
 
         } else {

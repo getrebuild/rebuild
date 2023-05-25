@@ -294,7 +294,7 @@ class DlgShareManager extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('共享用户')} ref={(c) => (this._dlg = c)}>
-        <div className="sharing-list">
+        <div className="sharing-list ml-1 mr-1">
           <table className="table table-hover">
             <tbody ref={(c) => (this._tbody = c)}>
               {(this.state.sharingList || []).map((item) => {
@@ -328,7 +328,7 @@ class DlgShareManager extends RbModalHandler {
             {$L('取消')}
           </button>
           {this.props.unshare === true && (
-            <button className="btn btn-primary btn-space ml-1" type="button" onClick={() => this.post()}>
+            <button className="btn btn-primary btn-space ml-1 mr-1" type="button" onClick={() => this.post()}>
               {$L('取消共享')}
             </button>
           )}
