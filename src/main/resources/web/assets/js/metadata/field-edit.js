@@ -253,9 +253,13 @@ $(document).ready(function () {
       if (!extConfig.decimalType || extConfig.decimalType === 0 || extConfig.decimalType === '0' || extConfig.decimalType === '%') {
         // 数字、百分比
       } else {
-        $('input[name="decimalType"]:eq(2)').attr('checked', true)
+        $('input[name="decimalType"]:eq(2)')[0].click()
         $('.J_decimalTypeFlag').val(extConfig.decimalType)
       }
+
+      $('.J_decimalTypeFlag').on('click', () => {
+        $('input[name="decimalType"]:eq(2)')[0].click()
+      })
     }
   } else if (dt === 'TAG') {
     _handleTag(extConfig.tagList || [])
