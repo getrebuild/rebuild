@@ -249,9 +249,7 @@ public class FormsBuilder extends FormsManager {
      * @return
      */
     private JSONObject formatModelError(String error) {
-        JSONObject cfg = new JSONObject();
-        cfg.put("error", error);
-        return cfg;
+        return JSONUtils.toJSONObject("error", error);
     }
 
     /**
