@@ -375,3 +375,6 @@ renderContentComp = function (props) {
   // eslint-disable-next-line no-undef
   useExecManual()
 }
+
+// eslint-disable-next-line no-undef
+renderLastLog = renderLastLog2
