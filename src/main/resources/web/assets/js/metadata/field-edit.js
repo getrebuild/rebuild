@@ -194,7 +194,7 @@ $(document).ready(function () {
 
     if (!$('#fieldNullable').prop('disabled') && !$('#fieldNullable').prop('checked') && !$('#fieldCreatable').prop('checked')) {
       RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法创建记录。是否仍要保存？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.disabled(true)
           save()
         },
@@ -277,15 +277,13 @@ $(document).ready(function () {
     RbAlert.create($L('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除字段'), {
       type: 'danger',
       confirmText: $L('删除'),
-      confirm: function () {
+      onConfirm: function () {
         this.disabled(true)
         $.post(`/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success($L('字段已删除'))
-            setTimeout(function () {
-              location.replace('../fields')
-            }, 1500)
+            setTimeout(() => location.replace('../fields'), 1500)
           } else {
             RbHighbar.error(res.error_msg)
             this.disabled()
@@ -346,7 +344,7 @@ const _handleSeries = function () {
     .appendTo('.J_action .dropdown-menu')
     .on('click', () => {
       RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
-        confirm: function () {
+        onConfirm: function () {
           this.disabled(true)
           $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
             this.hide()
@@ -359,7 +357,8 @@ const _handleSeries = function () {
     .appendTo('.J_action .dropdown-menu')
     .on('click', () => {
       RbAlert.create($L('此操作将立即执行自增数字归零，归零后可能导致编号重复，请谨慎执行。是否继续？'), {
-        confirm: function () {
+        type: 'danger',
+        onConfirm: function () {
           this.disabled(true)
           $.post(`/admin/field/series-reset?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
             this.hide()
