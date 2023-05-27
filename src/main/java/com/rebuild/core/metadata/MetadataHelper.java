@@ -46,13 +46,6 @@ public class MetadataHelper {
     public static final String SPLITER = CommonsUtils.COMM_SPLITER;
     public static final String SPLITER_RE = CommonsUtils.COMM_SPLITER_RE;
 
-    // 实体类型 https://getrebuild.com/docs/admin/entity/#%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B
-    public static final int TYPE_BAD = -1;
-    public static final int TYPE_SYS = 0;
-    public static final int TYPE_NORMAL = 1;
-    public static final int TYPE_MAIN = 2;
-    public static final int TYPE_DETAIL = 3;
-
     /**
      * 元数据工厂
      *
@@ -437,26 +430,6 @@ public class MetadataHelper {
             }
         }
         return set;
-    }
-
-    /**
-     * @param entityCode
-     * @return
-     */
-    public static int getEntityType(int entityCode) {
-        if (containsEntity(entityCode)) return getEntityType(getEntity(entityCode));
-        return TYPE_BAD;
-    }
-
-    /**
-     * @param entity
-     * @return
-     */
-    public static int getEntityType(Entity entity) {
-        if (entity.getMainEntity() != null) return TYPE_DETAIL;
-        if (entity.getDetailEntity() != null) return TYPE_MAIN;
-        if (hasPrivilegesField(entity)) return TYPE_NORMAL;
-        return TYPE_SYS;
     }
 
     /**

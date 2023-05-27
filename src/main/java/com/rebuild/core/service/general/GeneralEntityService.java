@@ -61,6 +61,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -139,6 +140,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
         }
 
+        // 保证顺序
+        Map<Integer, ID> detaileds = new TreeMap<>();
+
         try {
             record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
@@ -152,12 +156,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
             // 先删除
-            for (Record d : details) {
-                if (d instanceof DeleteRecord) delete(d.getPrimary());
+            for (int i = 0; i < details.size(); i++) {
+                Record d = details.get(i);
+                if (d instanceof DeleteRecord) {
+                    delete(d.getPrimary());
+                    detaileds.put(i, d.getPrimary());
+                }
             }
 
             // 再保存
-            for (Record d : details) {
+            for (int i = 0; i < details.size(); i++) {
+                Record d = details.get(i);
                 if (d instanceof DeleteRecord) continue;
 
                 if (checkDetailsRepeated) {
@@ -175,8 +184,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 } else {
                     update(d);
                 }
+                detaileds.put(i, d.getPrimary());
             }
 
+            record.setObjectValue(HAS_DETAILS, detaileds.values());
             return record;
 
         } finally {
@@ -305,7 +316,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final User toUser = Application.getUserStore().getUser(to);
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 
@@ -316,7 +327,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 分配前数据
         Record assignBefore = null;
 
-        int affected = 0;
+        int affected;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
             log.debug("The record owner has not changed, ignore : {}", record);
@@ -350,7 +361,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 
@@ -380,7 +391,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .setParameter(3, to)
                 .unique();
 
-        int affected = 0;
+        int affected;
         boolean shareChange = false;
         if (hasShared != null) {
             if ((int) hasShared[1] != rights) {

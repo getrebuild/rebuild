@@ -76,8 +76,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 else {
                     String[] split = listField.split("\\.");
                     String ref2Field = split[0];
-                    String ref2Entity = split[1];
-                    Field ref2FieldMeta = MetadataHelper.containsField(ref2Entity, ref2Field)
+                    String ref2Entity = split.length > 1 ? split[1] : null;
+                    Field ref2FieldMeta = ref2Entity != null && MetadataHelper.containsField(ref2Entity, ref2Field)
                             ? MetadataHelper.getField(ref2Entity, ref2Field) : null;
 
                     if (ref2FieldMeta != null && entity.equals(ref2FieldMeta.getReferenceEntity())) {

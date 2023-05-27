@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTBIZUNIT;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATE;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATETIME;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
@@ -85,6 +89,12 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
             datas.add(buildData(c, varsMap));
             phNumber++;
         }
+
+        if (varsMap.containsKey(PH__CURRENTUSER)) phValues.put(PH__CURRENTUSER, getPhValue(PH__CURRENTUSER));
+        if (varsMap.containsKey(PH__CURRENTBIZUNIT)) phValues.put(PH__CURRENTBIZUNIT, getPhValue(PH__CURRENTBIZUNIT));
+        if (varsMap.containsKey(PH__CURRENTDATE)) phValues.put(PH__CURRENTDATE, getPhValue(PH__CURRENTDATE));
+        if (varsMap.containsKey(PH__CURRENTDATETIME)) phValues.put(PH__CURRENTDATETIME, getPhValue(PH__CURRENTDATETIME));
+
         return datas;
     }
 

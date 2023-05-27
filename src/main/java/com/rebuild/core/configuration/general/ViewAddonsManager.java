@@ -159,7 +159,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
                 // 新建项无明细、多引用
                 if (TYPE_ADD.equals(applyType)) {
-                    if (MetadataHelper.getEntityType(e) == MetadataHelper.TYPE_DETAIL || field.getType() != FieldType.REFERENCE) continue;
+                    if (e.getMainEntity() != null || field.getType() != FieldType.REFERENCE) continue;
                 }
 
                 Entity eCheck = ObjectUtils.defaultIfNull(e.getMainEntity(), e);

@@ -167,7 +167,7 @@ public class GeneralListController extends EntityController {
         }
 
         final Entity checkEntity = MetadataHelper.getEntity(entity);
-        if (MetadataHelper.getEntityType(checkEntity) == MetadataHelper.TYPE_SYS) {
+        if (checkEntity.getEntityCode() < 100 && !MetadataHelper.isBizzEntity(checkEntity)) {
             response.sendError(404);
             return null;
         }

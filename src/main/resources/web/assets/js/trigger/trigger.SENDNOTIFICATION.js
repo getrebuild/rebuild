@@ -191,3 +191,27 @@ class AccountSelectorWithField extends UserSelector {
     this.setState({ tabType: 'FIELDS', items: this._fields || [] })
   }
 }
+
+// eslint-disable-next-line no-undef
+LastLogsViewer.renderLog = function (log) {
+  return log.level === 1 && log.message ? (
+    <dl className="m-0">
+      <dt>{$L('已发送给')}</dt>
+      <dd className="mb-0">
+        {log.message.split(',').map((a, idx) => {
+          return $regex.isId(a) ? (
+            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+              {a}
+            </a>
+          ) : (
+            <span key={idx} className="badge text-id">
+              {a}
+            </span>
+          )
+        })}
+      </dd>
+    </dl>
+  ) : (
+    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
+  )
+}

@@ -169,9 +169,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$clearFields = c)} />
-                  <span className="custom-control-label">
-                    {$L('源字段为空时置空目标字段')}
-                  </span>
+                  <span className="custom-control-label">{$L('源字段为空时置空目标字段')}</span>
                 </label>
               </div>
             </div>

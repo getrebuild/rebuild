@@ -22,12 +22,12 @@
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left}" />
-      <div class="rb-loading rb-loading-active must-center J_dash-load">
+      <div class="rb-loading rb-loading-active must-center J_dock-load">
         <th:block th:replace="~{/_include/spinner}" />
       </div>
       <div class="rb-content">
         <div class="main-content container-fluid">
-          <div class="iframe-wrap">
+          <div class="iframe-wrap shadow hide">
             <iframe frameborder="0" scrolling="no"></iframe>
           </div>
         </div>
@@ -63,9 +63,8 @@
         })()
 
         const wpc = window.__PageConfig
-        setTimeout(() => {
-          $('.iframe-wrap iframe').attr('src', wpc.viewUrl)
-        }, 40)
+        setTimeout(() => $('.iframe-wrap iframe').attr('src', wpc.viewUrl), 40)
+        setTimeout(() => $('.iframe-wrap').removeClass('hide'), 100)
       })
     </script>
   </body>

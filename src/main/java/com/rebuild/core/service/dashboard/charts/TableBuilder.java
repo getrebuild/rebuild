@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -73,7 +74,7 @@ public class TableBuilder {
                 Axis axis = axes.get(i);
                 TD td;
                 if (axis == LN_REF) {
-                    td = new TD(row[i] + "", "th");
+                    td = new TD(String.valueOf(row[i]), "th");
                 } else {
                     String text;
                     if (isLast == 0) {
@@ -197,9 +198,9 @@ public class TableBuilder {
             if (rowspan == 0) {
                 return StringUtils.EMPTY;
             } else if (rowspan > 1) {
-                return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, content, tag);
+                return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, CommonsUtils.escapeHtml(content), tag);
             } else {
-                return String.format("<%s>%s</%s>", tag, content, tag);
+                return String.format("<%s>%s</%s>", tag, CommonsUtils.escapeHtml(content), tag);
             }
         }
     }
