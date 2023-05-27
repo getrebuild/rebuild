@@ -180,7 +180,7 @@ class LastLogsViewer extends RbAlert {
             })}
           </tbody>
         </table>
-        {this.props.data.length >= 100 && <p className="text-muted text-center">{$L('最多展示最近 100 次执行')}</p>}
+        {this.props.data.length >= 100 && <p className="text-muted text-center">{$L('最多显示最近 100 次执行')}</p>}
       </RF>
     )
   }
