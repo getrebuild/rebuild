@@ -8,7 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.bizz;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.privileges.UserFilters;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
+import com.rebuild.web.commons.ErrorPageView;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +32,10 @@ public class BizzPageView extends EntityController {
 
     @GetMapping("User/view/{id}")
     public ModelAndView userView(@PathVariable ID id, HttpServletRequest request) {
+        if (!UserFilters.allowAccessBizz(getRequestUser(request), id)) {
+            return ErrorPageView.createErrorPage(Language.L("无权读取此记录或记录已被删除"));
+        }
+
         ModelAndView mv = createModelAndView(
                 "/admin/bizuser/user-view", "User", getRequestUser(request));
         mv.getModel().put("id", id);
@@ -42,6 +49,10 @@ public class BizzPageView extends EntityController {
 
     @GetMapping("Department/view/{id}")
     public ModelAndView deptView(@PathVariable ID id, HttpServletRequest request) {
+        if (!UserFilters.allowAccessBizz(getRequestUser(request), id)) {
+            return ErrorPageView.createErrorPage(Language.L("无权读取此记录或记录已被删除"));
+        }
+
         ModelAndView mv = createModelAndView(
                 "/admin/bizuser/dept-view", "Department", getRequestUser(request));
         mv.getModel().put("id", id);
@@ -55,6 +66,10 @@ public class BizzPageView extends EntityController {
 
     @GetMapping("Role/view/{id}")
     public ModelAndView roleView(@PathVariable ID id, HttpServletRequest request) {
+        if (!UserFilters.allowAccessBizz(getRequestUser(request), id)) {
+            return ErrorPageView.createErrorPage(Language.L("无权读取此记录或记录已被删除"));
+        }
+
         ModelAndView mv = createModelAndView(
                 "/admin/bizuser/role-view", "Role", getRequestUser(request));
         mv.getModel().put("id", id);
@@ -68,6 +83,10 @@ public class BizzPageView extends EntityController {
 
     @GetMapping("Team/view/{id}")
     public ModelAndView teamView(@PathVariable ID id, HttpServletRequest request) {
+        if (!UserFilters.allowAccessBizz(getRequestUser(request), id)) {
+            return ErrorPageView.createErrorPage(Language.L("无权读取此记录或记录已被删除"));
+        }
+
         ModelAndView mv = createModelAndView(
                 "/admin/bizuser/team-view", "Team", getRequestUser(request));
         mv.getModel().put("id", id);

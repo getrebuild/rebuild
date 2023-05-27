@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.charts.ChartsHelper;
 import com.rebuild.core.service.dashboard.charts.FormatCalc;
@@ -66,9 +67,21 @@ public class DataListBuilderImpl implements DataListBuilder {
 
     @Override
     public String getDefaultFilter() {
-        // 隐藏系统用户
-        if (queryParser.getEntity().getEntityCode() == EntityHelper.User) {
-            return String.format("userId <> '%s'", UserService.SYSTEM_USER);
+        final int entity = queryParser.getEntity().getEntityCode();
+
+        if (entity == EntityHelper.User || entity == EntityHelper.Department || entity == EntityHelper.Team) {
+            List<String> where = new ArrayList<>();
+
+            // 隐藏系统用户
+            if (entity == EntityHelper.User) {
+                where.add(String.format("userId <> '%s'", UserService.SYSTEM_USER));
+            }
+
+            // 部门用户隔离
+            String s = UserFilters.getEnableBizzPartFilter(entity, this.user);
+            if (s != null) where.add(s);
+
+            return where.isEmpty() ? null : "( " + StringUtils.join(where, " and ") + " )";
         }
 
         return null;
