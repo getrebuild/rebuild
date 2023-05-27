@@ -218,8 +218,10 @@ class LastLogsViewer extends RbAlert {
         )}
         {log.chain && (
           <RF>
-            <dt className="mt-2">{$L('执行细节')}</dt>
-            <dd className="mb-0">{log.chain}</dd>
+            <dt className="mt-2 pointer" onClick={(e) => $(e.target).next().toggleClass('hide')}>
+              {$L('执行细节')} ...
+            </dt>
+            <dd className="mb-0 hide">{log.chain}</dd>
           </RF>
         )}
       </dl>

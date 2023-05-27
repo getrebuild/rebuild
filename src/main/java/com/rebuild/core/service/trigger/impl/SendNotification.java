@@ -80,7 +80,7 @@ public class SendNotification extends TriggerAction {
             s = sendToUsers(operatingContext);
         }
 
-        if (s == null || s.isEmpty()) return TriggerResult.wran("No users/addresses");
+        if (s == null || s.isEmpty()) return TriggerResult.wran("No users");
         log.info("Sent notification to : {} with {}", s, actionContext.getConfigId());
 
         return TriggerResult.success(StringUtils.join(s, ","));

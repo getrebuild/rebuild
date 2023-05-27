@@ -85,7 +85,7 @@ renderContentComp = function (props) {
 
 // eslint-disable-next-line no-undef
 LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 ? (
+  return log.level === 1 && log.affected ? (
     <dl className="m-0">
       <dt>{$L('审批记录')}</dt>
       <dd className="mb-0">
@@ -99,6 +99,6 @@ LastLogsViewer.renderLog = function (log) {
       </dd>
     </dl>
   ) : (
-    <p className="m-0 text-muted">{(log.message || 'N').toUpperCase()}</p>
+    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
   )
 }

@@ -115,7 +115,7 @@ renderContentComp = function (props) {
 
 // eslint-disable-next-line no-undef
 LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 ? (
+  return log.level === 1 && log.affected ? (
     <dl className="m-0">
       <dt>{$L('共享记录')}</dt>
       <dd className="mb-0">

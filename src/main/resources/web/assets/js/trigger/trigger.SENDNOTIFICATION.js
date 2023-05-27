@@ -194,7 +194,7 @@ class AccountSelectorWithField extends UserSelector {
 
 // eslint-disable-next-line no-undef
 LastLogsViewer.renderLog = function (log) {
-  return log.level === 1 ? (
+  return log.level === 1 && log.message ? (
     <dl className="m-0">
       <dt>{$L('已发送给')}</dt>
       <dd className="mb-0">
@@ -212,6 +212,6 @@ LastLogsViewer.renderLog = function (log) {
       </dd>
     </dl>
   ) : (
-    <p className="m-0 text-muted">{(log.message || 'N').toUpperCase()}</p>
+    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
   )
 }
