@@ -20,6 +20,7 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
+import com.rebuild.core.support.CommonsLog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -28,6 +29,8 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
 
 /**
  * @author devezhao
@@ -117,7 +120,10 @@ public class AutoApproval extends TriggerAction {
         if (lazyed != null) {
             for (AutoApproval a : lazyed) {
                 log.info("Lazy AutoApproval execute : {}", a);
-                a.execute(a.operatingContext);
+                Object res = a.execute(a.operatingContext);
+
+                CommonsLog.createLog(TYPE_TRIGGER,
+                        UserService.SYSTEM_USER, a.getActionContext().getConfigId(), res.toString());
             }
         }
         return lazyed == null ? 0 : lazyed.size();

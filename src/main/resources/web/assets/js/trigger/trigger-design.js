@@ -129,11 +129,11 @@ $(document).ready(() => {
     $('.footer .btn').attr('disabled', true)
   }
 
-  if (typeof renderLastLog === 'function' && rb.commercial > 1) {
+  if (LastLogsViewer.renderLog && rb.commercial > 1) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
       const _data = res.data || []
       if (_data.length > 0) {
-        const $a = $(`<a href="#last-logs">${_data[0][0]}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
+        const $a = $(`<a href="#last-logs">${$fromNow(_data[0][0])}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
         $a.on('click', (e) => {
           $stopEvent(e, true)
           renderRbcomp(<LastLogsViewer width="681" data={_data} />)
@@ -156,68 +156,72 @@ var renderContentComp = function (props) {
   if (rb.env === 'dev') console.log(props)
 }
 
-// 日志解析复写
-var renderLastLog = null
-// eslint-disable-next-line no-undef, react/display-name, no-unused-vars
-var renderLastLog2 = function (log) {
-  if (log.level >= 2) {
-    return <p className={`m-0 ${log.level === 2 ? 'text-muted' : 'text-warning'}`}>{(log.message || 'N').toUpperCase()}</p>
-  }
-
-  let chain
-  if (log.chain) {
-    chain = log.chain.split(' >> ')
-    const chain2 = chain.slice(0, chain.length - 1).map((c) => {
-      return c.split('#')[1]
-    })
-    chain = chain2.join(' ➔ ')
-  }
-
-  return (
-    <dl className="m-0">
-      <dt>{$L('影响记录')}</dt>
-      <dd className="mb-0">
-        {log.affected.map((a, idx) => {
-          return (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
-              {a}
-            </a>
-          )
-        })}
-      </dd>
-
-      {chain && (
-        <RF>
-          <dt className="mt-2">{$L('关联执行')}</dt>
-          <dd className="mb-0">{chain}</dd>
-        </RF>
-      )}
-    </dl>
-  )
-}
-
-// 日志解析查看
+// 执行日志查看
 class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
-      <table className="table">
-        <thead>
-          <tr>
-            <th>{$L('执行内容')}</th>
-            <th width="150">{$L('执行时间')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.data.map((item, idx) => {
-            return (
-              <tr key={idx}>
-                <td>{renderLastLog(JSON.parse(item[1]))}</td>
-                <td>{item[0]}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <RF>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>{$L('执行内容')}</th>
+              <th width="150">{$L('执行时间')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.props.data.map((item, idx) => {
+              return (
+                <tr key={idx}>
+                  <td>{this._renderLog(item[1])}</td>
+                  <td>{item[0]}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        {this.props.data.length >= 100 && <p className="text-muted text-center">{$L('最多展示最近 100 次执行')}</p>}
+      </RF>
+    )
+  }
+
+  _renderLog(log) {
+    try {
+      return LastLogsViewer.renderLog(JSON.parse(log))
+    } catch (err) {
+      console.log(err)
+      return <p className="m-0 text-warning">{log.toUpperCase()}</p>
+    }
+  }
+
+  // 日志解析复写
+  static renderLog(log) {
+    if (log.level > 1) {
+      return <p className={`m-0 ${log.level === 2 ? 'text-muted' : 'text-warning'}`}>{(log.message || 'N').toUpperCase()}</p>
+    }
+
+    return (
+      <dl className="m-0">
+        {log.affected && (
+          <RF>
+            <dt>{$L('影响记录')}</dt>
+            <dd className="mb-0">
+              {log.affected.map((a, idx) => {
+                return (
+                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+                    {a}
+                  </a>
+                )
+              })}
+            </dd>
+          </RF>
+        )}
+        {log.chain && (
+          <RF>
+            <dt className="mt-2">{$L('执行细节')}</dt>
+            <dd className="mb-0">{log.chain}</dd>
+          </RF>
+        )}
+      </dl>
     )
   }
 }

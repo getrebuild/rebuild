@@ -9,7 +9,6 @@ package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -30,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -73,58 +73,63 @@ public class SendNotification extends TriggerAction {
             // default
         }
 
-        int s;
+        Set<Object> s;
         if (userType == UTYPE_ACCOUNT) {
             s = sendToAccounts(operatingContext);
         } else {  // UTYPE_USER
             s = sendToUsers(operatingContext);
         }
-        log.info("Sent notification : {} with {}", s, actionContext.getConfigId());
 
-        return TriggerResult.success(String.valueOf(s));
+        if (s == null || s.isEmpty()) return TriggerResult.wran("No users/addresses");
+        log.info("Sent notification to : {} with {}", s, actionContext.getConfigId());
+
+        return TriggerResult.success(StringUtils.join(s, ","));
     }
 
-    private int sendToUsers(OperatingContext operatingContext) {
+    private Set<Object> sendToUsers(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int msgType = content.getIntValue("type");
 
         Set<ID> toUsers = UserHelper.parseUsers(
                 content.getJSONArray("sendTo"), actionContext.getSourceRecord(), Boolean.TRUE);
-        if (toUsers.isEmpty()) return -1;
+        if (toUsers.isEmpty()) return null;
 
         String[] message = formatMessageContent(actionContext, operatingContext);
-        int send = 0;
+        Set<Object> send = new HashSet<>();
 
         for (ID user : toUsers) {
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (RegexUtils.isEMail(emailAddr)) {
+                if (RegexUtils.isEMail(emailAddr) && !send.contains(emailAddr)) {
                     SMSender.sendMailAsync(emailAddr, message[1], message[0]);
-                    send++;
+                    send.add(emailAddr);
                 }
 
             } else if (msgType == MTYPE_SMS) {
                 String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
-                if (RegexUtils.isCNMobile(mobileAddr)) {
+                if (RegexUtils.isCNMobile(mobileAddr) && !send.contains(mobileAddr)) {
                     SMSender.sendSMSAsync(mobileAddr, message[0]);
-                    send++;
+                    send.add(mobileAddr);
                 }
 
-            } else {  // TYPE_NOTIFICATION
-                Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
-                Application.getNotifications().send(m);
-                send++;
+            } else {
+                // TYPE_NOTIFICATION
+                if (!send.contains(user)) {
+                    Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                    Application.getNotifications().send(m);
+                    send.add(user);
+                }
             }
         }
         return send;
     }
 
-    private int sendToAccounts(OperatingContext operatingContext) {
+    private Set<Object> sendToAccounts(OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int msgType = content.getIntValue("type");
 
         JSONArray fieldsDef = content.getJSONArray("sendTo");
-        if (fieldsDef == null || fieldsDef.isEmpty()) return -1;
+        if (fieldsDef == null || fieldsDef.isEmpty()) return null;
 
         List<String> validFields = new ArrayList<>();
         for (Object field : fieldsDef) {
@@ -132,26 +137,29 @@ public class SendNotification extends TriggerAction {
                 validFields.add(field.toString());
             }
         }
-        if (validFields.isEmpty()) return -1;
+        if (validFields.isEmpty()) return null;
 
         Object[] o = Application.getQueryFactory().uniqueNoFilter(
                 actionContext.getSourceRecord(), validFields.toArray(new String[0]));
-        if (o == null) return -1;
+        if (o == null) return null;
 
         String[] message = formatMessageContent(actionContext, operatingContext);
-        int send = 0;
+        Set<Object> send = new HashSet<>();
 
         for (Object item : o) {
             if (item == null) continue;
 
             String mobileOrEmail = item.toString();
+            if (send.contains(mobileOrEmail)) continue;
+
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {
                 SMSender.sendSMSAsync(mobileOrEmail, message[0]);
-                send++;
+                send.add(mobileOrEmail);
             }
+
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
                 SMSender.sendMailAsync(mobileOrEmail, message[1], message[0]);
-                send++;
+                send.add(mobileOrEmail);
             }
         }
         return send;
