@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -118,6 +120,9 @@ public class AutoAssign extends TriggerAction {
             GeneralEntityServiceContextHolder.isFromTrigger(true);
         }
 
-        return TriggerResult.success(toUsers);
+        Collection<ID> affected = new ArrayList<>(2);
+        affected.add(toUser);
+        affected.add(recordId);
+        return TriggerResult.success(affected);
     }
 }

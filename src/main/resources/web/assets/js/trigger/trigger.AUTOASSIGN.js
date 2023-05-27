@@ -122,3 +122,23 @@ renderContentComp = function (props) {
     contentComp = this
   })
 }
+
+// eslint-disable-next-line no-undef
+LastLogsViewer.renderLog = function (log) {
+  return log.level === 1 ? (
+    <dl className="m-0">
+      <dt>{$L('分配记录')}</dt>
+      <dd className="mb-0">
+        {log.affected.map((a, idx) => {
+          return (
+            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+              {a}
+            </a>
+          )
+        })}
+      </dd>
+    </dl>
+  ) : (
+    <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
+  )
+}

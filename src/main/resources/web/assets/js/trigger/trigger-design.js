@@ -133,7 +133,8 @@ $(document).ready(() => {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
       const _data = res.data || []
       if (_data.length > 0) {
-        const $a = $(`<a href="#last-logs">${$fromNow(_data[0][0])}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
+        const last = _data[0]
+        const $a = $(`<a href="#last-logs">${$fromNow(last[0])}</a>`).appendTo($('.J_last-logs .form-control-plaintext').empty())
         $a.on('click', (e) => {
           $stopEvent(e, true)
           renderRbcomp(<LastLogsViewer width="681" data={_data} />)
