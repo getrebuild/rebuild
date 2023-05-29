@@ -84,7 +84,7 @@ public class UserFilters {
     @SuppressWarnings({"ConstantValue", "SuspiciousMethodCalls"})
     public static Member[] filterMembers32(Member[] members, ID currentUser) {
         if (members == null || members.length == 0) return members;
-        if (isEnableBizzPart(currentUser)) return members;
+        if (!isEnableBizzPart(currentUser)) return members;
 
         final String depth = "D";  // support: L,D,G
 
