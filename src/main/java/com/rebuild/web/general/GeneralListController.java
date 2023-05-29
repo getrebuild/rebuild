@@ -55,13 +55,13 @@ import java.util.Set;
 public class GeneralListController extends EntityController {
 
     @GetMapping("list")
-    public ModelAndView pageList(@PathVariable String entity,
-                                 HttpServletRequest request, HttpServletResponse response)
+    public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         final ID user = getRequestUser(request);
-        final Entity listEntity = checkPageOfEntity(user, entity, response);
-        if (listEntity == null) return null;
+        int status = isCanView(entity, user, response);
+        if (status > 0) return null;
 
+        final Entity listEntity = MetadataHelper.getEntity(entity);
         final EasyEntity easyEntity = EasyMetaFactory.valueOf(listEntity);
 
         String listPage = listEntity.getMainEntity() != null ? "/general/detail-list" : "/general/record-list";
@@ -149,35 +149,6 @@ public class GeneralListController extends EntityController {
         JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
         DataListBuilder builder = new DataListBuilderImpl(query, getRequestUser(request));
         return builder.getJSONResult();
-    }
-
-    /**
-     * 检查实体页面
-     *
-     * @param user
-     * @param entity
-     * @param response
-     * @return
-     * @throws IOException
-     */
-    static Entity checkPageOfEntity(ID user, String entity, HttpServletResponse response) throws IOException {
-        if (!MetadataHelper.containsEntity(entity)) {
-            response.sendError(404);
-            return null;
-        }
-
-        final Entity checkEntity = MetadataHelper.getEntity(entity);
-        if (checkEntity.getEntityCode() < 100 && !MetadataHelper.isBizzEntity(checkEntity)) {
-            response.sendError(404);
-            return null;
-        }
-
-        if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
-            response.sendError(403, Language.L("你没有访问此页面的权限"));
-            return null;
-        }
-
-        return checkEntity;
     }
 
     // 快速查询

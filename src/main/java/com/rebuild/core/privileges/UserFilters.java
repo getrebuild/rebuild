@@ -145,6 +145,7 @@ public class UserFilters {
             }
 
         } else {
+            if (bizzEntityCode == EntityHelper.Role) return "1=2";
 
             in.add((ID) ub.getOwningDept().getIdentity());
             in.addAll(UserHelper.getAllChildren(ub.getOwningDept()));

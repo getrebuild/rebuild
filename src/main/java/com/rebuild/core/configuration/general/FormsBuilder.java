@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -117,6 +118,10 @@ public class FormsBuilder extends FormsManager {
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (record != null) {
             Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+
+            if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, record)) {
+                return formatModelError(Language.L("无权读取此记录或记录已被删除"));
+            }
         }
 
         // 明细实体有主实体

@@ -38,7 +38,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +68,7 @@ import java.util.Set;
 @Slf4j
 @RestController
 @RequestMapping("/admin/")
-public class MetaEntityController extends BaseController {
+public class MetaEntityController extends EntityController {
 
     @GetMapping("entities")
     public ModelAndView page(HttpServletRequest request) {
@@ -97,11 +96,11 @@ public class MetaEntityController extends BaseController {
         if (metaEntity.getMainEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());
             mv.getModel().put("detailEntity", metaEntity.getName());
-            mv.getModel().put("detailEntities", EntityController.formatDetailEntities(metaEntity.getMainEntity()));
+            mv.getModel().put("detailEntities", buildDetailEntities(metaEntity.getMainEntity()));
         } else if (metaEntity.getDetailEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getName());
             mv.getModel().put("detailEntity", metaEntity.getDetailEntity().getName());
-            mv.getModel().put("detailEntities", EntityController.formatDetailEntities(metaEntity));
+            mv.getModel().put("detailEntities", buildDetailEntities(metaEntity));
         }
 
         // 扩展配置

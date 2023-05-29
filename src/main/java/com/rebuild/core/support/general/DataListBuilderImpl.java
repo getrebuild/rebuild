@@ -69,9 +69,8 @@ public class DataListBuilderImpl implements DataListBuilder {
     public String getDefaultFilter() {
         final int entity = queryParser.getEntity().getEntityCode();
 
-        if (entity == EntityHelper.User || entity == EntityHelper.Department || entity == EntityHelper.Team) {
+        if (entity == EntityHelper.User || entity == EntityHelper.Department || entity == EntityHelper.Team || entity == EntityHelper.Role) {
             List<String> where = new ArrayList<>();
-
             // 隐藏系统用户
             if (entity == EntityHelper.User) {
                 where.add(String.format("userId <> '%s'", UserService.SYSTEM_USER));
