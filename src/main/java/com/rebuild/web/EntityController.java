@@ -152,7 +152,7 @@ public abstract class EntityController extends BaseController {
      * @param sendError
      * @return
      */
-    protected int isCanView(String entity, ID user, HttpServletResponse sendError) throws IOException {
+    protected int getCanAccessStatus(String entity, ID user, HttpServletResponse sendError) throws IOException {
         int status = 0;
         if (!MetadataHelper.containsEntity(entity)) status = 404;
 
