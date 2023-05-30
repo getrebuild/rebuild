@@ -1315,7 +1315,13 @@ const CellRenders = {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window._CustomizedDataList.useCellRender(fieldKey)
-      if (fn) return fn(value, style, key)
+      if (fn) {
+        return (
+          <td key={key}>
+            <div style={style}>{fn(value, style, key)}</div>
+          </td>
+        )
+      }
     }
 
     if (!value) return this.renderSimple(value, style, key)
