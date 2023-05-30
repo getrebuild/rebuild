@@ -21,4 +21,8 @@ class PerHourJobTest extends TestSupport {
         new PerHourJob().doCleanTempFiles();
     }
 
+    @Test
+    void doCleanExpiredShare() {
+        new PerHourJob().doCleanExpiredShare();
+    }
 }

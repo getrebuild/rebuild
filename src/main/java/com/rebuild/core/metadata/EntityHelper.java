@@ -265,8 +265,9 @@ public class EntityHelper {
 
     public static final int ExtformConfig = 60;
 
-    // 锁/日志
+    // 锁/日志/短链
 
+    public static final int ShortUrl = 97;
     public static final int CommonsLock = 98;
     public static final int CommonsLog = 99;
 

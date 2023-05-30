@@ -113,6 +113,83 @@ const previewFile = function (e, path, checkId) {
   }
 }
 
+// ~~ 共享列表
+class ShareFiles extends RbModalHandler {
+  render() {
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('查看分享文件')} disposeOnHide>
+        <div className="sharing-list ml-1 mr-1">
+          {this.state.data && this.state.data.length === 0 ? (
+            <div className="list-nodata pt-5">
+              <i className="zmdi mdi mdi-share-variant-outline" />
+              <p>{$L('没有分享文件')}</p>
+            </div>
+          ) : (
+            <table className="table table-hover">
+              <thead>
+                <tr>
+                  <th>{$L('分享文件')}</th>
+                  <th width="140" className="text-right">
+                    {$L('过期时间')}
+                  </th>
+                  <th width="140"></th>
+                  <th width="40"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.data &&
+                  this.state.data.map((item, idx) => {
+                    return (
+                      <tr key={idx}>
+                        <td>
+                          <a href={`${rb.baseUrl}/s/${item[0]}`} className="link" target="_blank">
+                            {$fileCutName(item[1])}
+                          </a>
+                        </td>
+                        <td title={item[2]} className="text-right">
+                          <span>{$fromNow(item[2])}</span>
+                        </td>
+                        <td title={item[3]} className="text-muted text-right">
+                          <span>{$L('分享于 %s', $fromNow(item[3]))}</span>
+                        </td>
+                        <td className="p-0">
+                          <button
+                            className="btn btn-sm btn-light w-auto danger-hover"
+                            title={$L('取消分享')}
+                            onClick={(e) => {
+                              const $tr = $(e.currentTarget).parents('tr')
+
+                              $.post(`/filex/del-make-share?id=${item[5]}`, (res) => {
+                                if (res.error_code === 0) {
+                                  $tr.animate({ opacity: 0 }, 400)
+                                  setTimeout(() => $tr.remove(), 400)
+                                  RbHighbar.success($L('已取消分享'))
+                                } else {
+                                  RbHighbar.error(res.error_msg)
+                                }
+                              })
+                            }}>
+                            <i className="icon zmdi zmdi-delete fs-16 up-1" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get('/filex/all-make-share', (res) => {
+      this.setState({ data: res.data || [] })
+    })
+  }
+}
+
 var currentSearch
 var currentSort
 var filesList
@@ -154,4 +231,6 @@ $(document).ready(() => {
     $input.val('')
     $btn.trigger('click')
   })
+
+  $('.J_view-share').on('click', () => renderRbcomp(<ShareFiles />))
 })
