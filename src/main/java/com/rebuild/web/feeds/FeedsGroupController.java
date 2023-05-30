@@ -15,13 +15,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.commons.UsersGetting;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -125,12 +125,12 @@ public class FeedsGroupController extends BaseController {
 
     private Object filterMembers32(Object members, ID currentUser) {
         if (members instanceof Member[]) {
-            return UsersGetting.filterMembers32((Member[]) members, currentUser);
+            return UserFilters.filterMembers32((Member[]) members, currentUser);
         }
 
         // Set
         Member[] members2 = ((Set<Member>) members).toArray(new Member[0]);
-        members2 = UsersGetting.filterMembers32(members2, currentUser);
+        members2 = UserFilters.filterMembers32(members2, currentUser);
 
         Set<Member> set2 = new HashSet<>();
         CollectionUtils.addAll(set2, members2);

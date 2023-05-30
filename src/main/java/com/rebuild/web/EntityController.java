@@ -14,13 +14,17 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -138,15 +142,44 @@ public abstract class EntityController extends BaseController {
             into.getModel().put("mainEntityLabel", main.getLabel());
             into.getModel().put("mainEntityIcon", main.getIcon());
             into.getModel().put("detailEntity", detail.getName());
-            into.getModel().put("detailEntities", formatDetailEntities(detail.getRawMeta().getMainEntity()));
+            into.getModel().put("detailEntities", buildDetailEntities(detail.getRawMeta().getMainEntity()));
         }
+    }
+
+    /**
+     * @param entity
+     * @param user
+     * @param sendError
+     * @return
+     */
+    protected int getCanAccessStatus(String entity, ID user, HttpServletResponse sendError) throws IOException {
+        int status = 0;
+        if (!MetadataHelper.containsEntity(entity)) status = 404;
+
+        final Entity checkEntity = MetadataHelper.getEntity(entity);
+        if (status == 0) {
+            if (checkEntity.getEntityCode() < 100) {
+                status = MetadataHelper.isBizzEntity(checkEntity)
+                        || checkEntity.getEntityCode() == EntityHelper.RobotApprovalConfig ? 0 : 404;
+            }
+        }
+
+        if (status == 0) {
+            if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) status = 403;
+        }
+
+        if (sendError != null && status > 0) {
+            String statusText = status == 403 ? Language.L("你没有访问此页面的权限") : null;
+            sendError.sendError(status, statusText);
+        }
+        return status;
     }
 
     /**
      * @param mainEntity
      * @return Returns [][Code, Name, Label, Icon]
      */
-    public static Object[] formatDetailEntities(Entity mainEntity) {
+    protected Object[] buildDetailEntities(Entity mainEntity) {
         List<Object[]> list = new ArrayList<>();
         for (Entity de : MetadataSorter.sortDetailEntities(mainEntity)) {
             EasyEntity ee = EasyMetaFactory.valueOf(de);

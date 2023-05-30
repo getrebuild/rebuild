@@ -1311,10 +1311,10 @@ const CellRenders = {
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
 
-    if (window._CustomizedDataList) {
+    if (window.FrontJS) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
-      const fn = window._CustomizedDataList.useCellRender(fieldKey)
+      const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
       if (fn) return fn(value, style, key)
     }
 
