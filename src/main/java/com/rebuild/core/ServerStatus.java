@@ -147,7 +147,7 @@ public final class ServerStatus {
 
             // fix:异常关闭文件损坏
             try {
-                cache.get("ServerStatus.test");
+                cache.getx("ServerStatus.test");
             } catch (Exception ex) {
                 log.warn("Clear ehcache because : {}", ex.getLocalizedMessage());
                 Installer.clearAllCache();
@@ -156,6 +156,7 @@ public final class ServerStatus {
 
         try {
             cache.putx("ServerStatus.test", 1, 60);
+            cache.getx("ServerStatus.test");
         } catch (Exception ex) {
             return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
