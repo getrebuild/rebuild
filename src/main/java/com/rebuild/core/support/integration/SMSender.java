@@ -193,11 +193,18 @@ public class SMSender {
         email.setFrom(specAccount[2], specAccount[3]);
         email.setAuthentication(specAccount[0], specAccount[1]);
 
-        // HOST[:PORT:SSL]
+        // HOST[:PORT:SSL|TLS]
         String[] hostPortSsl = specAccount[5].split(":");
         email.setHostName(hostPortSsl[0]);
         if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
-        if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
+        if (hostPortSsl.length > 2) {
+            if ("ssl".equalsIgnoreCase(hostPortSsl[2])) {
+                email.setSSLOnConnect(true);
+            } else if ("tls".equalsIgnoreCase(hostPortSsl[2])) {
+                email.setStartTLSEnabled(true);
+                email.setStartTLSRequired(true);
+            }
+        }
 
         email.addHeader("X-User-Agent", OkHttpUtils.RB_UA);
         email.setCharset(AppUtils.UTF8);
