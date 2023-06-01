@@ -82,10 +82,18 @@ public class ParseHelper {
      */
     public static final String FT = "FT";    // 全文索引（暂未用）
 
+    public static final String PUW = "PUW";  // 本周-
     public static final String CUW = "CUW";  // 本周
+    public static final String NUW = "NUW";  // 本周+
+    public static final String PUM = "PUM";  // 本月-
     public static final String CUM = "CUM";  // 本月
+    public static final String NUM = "NUM";  // 本月+
+    public static final String PUQ = "PUQ";  // 本季度-
     public static final String CUQ = "CUQ";  // 本季度
+    public static final String NUQ = "NUQ";  // 本季度+
+    public static final String PUY = "PUY";  // 本年-
     public static final String CUY = "CUY";  // 本年
+    public static final String NUY = "NUY";  // 本年+
 
     // 日期时间
 
@@ -167,9 +175,11 @@ public class ParseHelper {
             return "!&";
         } else if (FT.equalsIgnoreCase(token)) {
             return "match";
-        } else if (CUW.equalsIgnoreCase(token) || CUM.equalsIgnoreCase(token)
-                || CUQ.equalsIgnoreCase(token) || CUY.equalsIgnoreCase(token)) {
-            return ">=";
+        } else if (
+                CUW.equalsIgnoreCase(token) || CUM.equalsIgnoreCase(token) || CUQ.equalsIgnoreCase(token) || CUY.equalsIgnoreCase(token) ||
+                PUW.equalsIgnoreCase(token) || PUM.equalsIgnoreCase(token) || PUQ.equalsIgnoreCase(token) || PUY.equalsIgnoreCase(token) ||
+                NUW.equalsIgnoreCase(token) || NUM.equalsIgnoreCase(token) || NUQ.equalsIgnoreCase(token) || NUY.equalsIgnoreCase(token)) {
+            return "between";
         }
 
         throw new UnsupportedOperationException("Unsupported token of operation : " + token);
