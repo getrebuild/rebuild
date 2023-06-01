@@ -98,6 +98,7 @@ public class FileShareController extends BaseController {
                 .setLimit(1000)
                 .array();
         for (Object[] o : array) {
+            o[0] = RebuildConfiguration.getHomeUrl("s/" + o[0]);
             o[4] = UserHelper.getName((ID) o[4]);
         }
 

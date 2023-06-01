@@ -114,31 +114,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 2px;
 }
 
-.file-list-item > div.detail > .extras > span.fop {
-  position: relative;
-  display: none;
-}
-
-.file-list-item:hover > div.detail > .extras > span.fop {
-  display: inline-block;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a {
-  color: #999;
-  padding: 0 6px;
-  font-size: 14px;
-  position: absolute;
-  margin-top: -1px;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a + a {
-  margin-left: 24px;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a:hover {
-  color: #4285f4;
-}
-
 .file-list-item > div.detail .extras > span,
 .file-list-item > div.detail .extras > span > a {
   color: #777;
@@ -228,4 +203,34 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .sharing-list .table tbody {
   border-bottom: 1px solid #dee2e6;
+}
+
+.fop-action {
+  position: absolute;
+  right: 0;
+  top: 7px;
+  display: none;
+}
+
+.info .fop-action {
+  top: 5px;
+}
+
+.fop-action > a {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 16px;
+  color: #777 !important;
+}
+
+.fop-action > a:hover {
+  color: #0d5bdd !important;
+}
+
+.sharing-list .table tbody tr:hover > td > .fop-action,
+.file-list-item:hover > div.info > .fop-action {
+  display: block;
 }

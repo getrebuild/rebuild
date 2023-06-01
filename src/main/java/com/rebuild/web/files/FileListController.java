@@ -170,7 +170,9 @@ public class FileListController extends BaseController {
 
         String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
-        if ("older".equals(sort)) {
+        if ("size".equals(sort)) {
+            sql += " order by fileSize desc";
+        } else if ("older".equals(sort)) {
             sql += " order by createdOn asc";
         } else {
             sql += " order by modifiedOn desc";

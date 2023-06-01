@@ -420,20 +420,20 @@ class FilesList4Docs extends FilesList {
   state = { ...this.props }
   __lastEntry = __DEFAULT_ALL
 
-  renderExtras(item) {
+  renderExtras34(item) {
     return (
-      <RF>
-        <span className="fop">
-          <a title={$L('下载')} className="fs-16" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-            <i className="icon zmdi zmdi-download" />
+      <div className="info position-relative">
+        <span className="fop-action">
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+            <i className="icon zmdi zmdi-download fs-17" />
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this.handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share" />
+              <i className="icon zmdi zmdi-share up-1" />
             </a>
           )}
         </span>
-      </RF>
+      </div>
     )
   }
 
