@@ -165,12 +165,22 @@ public class ProtocolFilterParser {
             String cascadingFieldParent = field.getExtraAttrs().getString("_cascadingFieldParent");
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
 
+            // FIXME v3.3.2 在多级级联中会同时存在父子级，以父级为准
+            boolean useCascadingFieldParent = false;
+            ID cascadingValueId = ID.valueOf(cascadingValue);
+
             if (StringUtils.isNotBlank(cascadingFieldParent)) {
                 String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
-                sqls.add(String.format("%s = '%s'", fs[1], cascadingValue));
+                Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
+
+                // 可能是子级的
+                if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
+                    sqls.add(String.format("%s = '%s'", fs[1], cascadingValue));
+                    useCascadingFieldParent = true;
+                }
             }
 
-            if (StringUtils.isNotBlank(cascadingFieldChild)) {
+            if (StringUtils.isNotBlank(cascadingFieldChild) && !useCascadingFieldParent) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
 
