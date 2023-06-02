@@ -1343,6 +1343,7 @@ select.form-control:not([disabled]) {
   text-align: left;
   pointer-events: auto;
   max-width: 680px;
+  border-radius: 6px;
 }
 
 @media (max-width: 440px) {
@@ -4659,7 +4660,7 @@ pre.unstyle {
   padding-right: 14px;
   margin-left: 6px;
   margin-right: 6px;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .rb-left-sidebar.v2 .sidebar-elements > li ul li > a {

@@ -39,7 +39,6 @@ $(document).ready(() => {
     $(this).attr('src', `captcha?${$random()}`)
   })
 
-  $('#login-form .btn').attr('disabled', false)
   $('#login-form').on('submit', function (e) {
     $stopEvent(e, true)
 
