@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.general.RecordBuilder;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class AutoFillinManagerTest extends TestSupport {
 
     @Test
-    public void testConversionCompatibleValue() {
+    void testConversionCompatibleValue() {
         Entity test = MetadataHelper.getEntity(TestAllFields);
         Field textField = test.getField("text");
 
@@ -44,7 +45,7 @@ public class AutoFillinManagerTest extends TestSupport {
     }
 
     @Test
-    public void testGetFillinValue() {
+    void testGetFillinValueAndFillinRecord() {
         final String setField = "REFERENCE";
 
         Record config = EntityHelper.forNew(EntityHelper.AutoFillinConfig, UserService.SYSTEM_USER);
@@ -59,11 +60,21 @@ public class AutoFillinManagerTest extends TestSupport {
             Entity test = MetadataHelper.getEntity(TestAllFields);
             ID recordId = addRecordOfTestAllFields(SIMPLE_USER);
 
-            JSONArray fills = AutoFillinManager.instance.getFillinValue(test.getField(setField), recordId);
-            System.out.println("Fills : " + fills);
+            // GetFillinValue
+            JSONArray fillins = AutoFillinManager.instance.getFillinValue(test.getField(setField), recordId);
+            System.out.println("Fillins : " + fillins);
+
+            // FillinRecord
+            Record test2 = RecordBuilder.builder(MetadataHelper.getEntity(TestAllFields))
+                    .add("TestAllFieldsName", "TestAllFieldsName")
+                    .add(setField, recordId)
+                    .build(UserService.SYSTEM_USER);
+            AutoFillinManager.instance.fillinRecord(test2, true);
+            System.out.println(test2);
+
         } finally {
             Application.getCommonsService().delete(config.getPrimary(), false);
         }
-
     }
+
 }

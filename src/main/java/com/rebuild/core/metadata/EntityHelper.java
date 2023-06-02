@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -33,11 +34,23 @@ public class EntityHelper {
     public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
 
     /**
+     *
      * @param data
      * @param user
      * @return
      */
     public static Record parse(JSONObject data, ID user) {
+        return parse(data, user, true, false);
+    }
+
+    /**
+     * @param data
+     * @param user
+     * @param safeCheck
+     * @param useAutoFillin
+     * @return
+     */
+    public static Record parse(JSONObject data, ID user, boolean safeCheck, boolean useAutoFillin) {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
             throw new FieldValueException(
@@ -59,8 +72,11 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user);
         }
 
-        EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-        return creator.create(false);
+        EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safeCheck);
+        Record record = creator.create(false);
+
+        if (useAutoFillin) AutoFillinManager.instance.fillinRecord(record, true);
+        return record;
     }
 
     /**

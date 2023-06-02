@@ -180,6 +180,62 @@ public class AutoFillinManager implements ConfigManager {
     }
 
     /**
+     * 表单回填作用
+     *
+     * @param record
+     * @param fillinForce
+     */
+    public void fillinRecord(Record record, boolean fillinForce) {
+        final Entity entity = record.getEntity();
+        final boolean isNew = record.getPrimary() == null;
+
+        for (String fieldName : record.getAvailableFields()) {
+            if (!entity.containsField(fieldName)) continue;
+
+            EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
+            if (easyField.getDisplayType() != DisplayType.REFERENCE) continue;
+
+            fillinRecordItem(easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
+        }
+    }
+
+    private boolean fillinRecordItem(Field field, Object sourceId, boolean isNew, boolean fillinForce, Record into) {
+        if (NullValue.isNull(sourceId)) return false;
+
+        JSONArray fillinValue = getFillinValue(field, (ID) sourceId);
+        if (fillinValue.isEmpty()) return false;
+
+        for (Object o : fillinValue) {
+            JSONObject item = (JSONObject) o;
+            String targetFieldName = item.getString("target");
+
+            boolean fillinForce2 = fillinForce || item.getBooleanValue("fillinForce");
+            if (into.hasValue(targetFieldName) && !fillinForce2) continue;
+
+            if (isNew) {
+                if (!item.getBooleanValue("whenCreate")) continue;
+            } else {
+                if (!item.getBooleanValue("whenUpdate")) continue;
+            }
+
+            Object value = item.get("value");
+            if (value instanceof JSONObject) {
+                value = ((JSONObject) value).getString("id");
+                value = ID.valueOf(value.toString());
+            }
+
+            into.setObjectValue(targetFieldName, value);
+
+            // 继续回填
+            EasyField nextField = EasyMetaFactory.valueOf(field.getOwnEntity().getField(targetFieldName));
+            if (nextField.getDisplayType() == DisplayType.REFERENCE) {
+                fillinRecordItem(nextField.getRawMeta(), value, isNew, fillinForce, into);
+            }
+        }
+        return true;
+    }
+
+    /**
      * 回填值做兼容处理。例如引用字段回填至文本，要用 Label，而不是 ID
      *
      * @param source
