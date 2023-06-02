@@ -458,12 +458,12 @@ $(document).ready(() => {
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('确认删除此文件？'), {
+    RbAlert.create($L('确认删除选中的文件？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/files/delete-files?ids=${s}`, (res) => {
+        $.post(`/files/delete-files?ids=${s.join(',')}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             filesList.loadData()
@@ -479,6 +479,6 @@ $(document).ready(() => {
   $('.J_move').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    renderRbcomp(<FileMoveDlg files={[s]} call={() => filesList && filesList.loadData()} />)
+    renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
   })
 })

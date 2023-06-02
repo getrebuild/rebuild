@@ -15,10 +15,11 @@ class FilesList extends React.Component {
   __pageNo = 1
 
   render() {
+    const currentActive = this.state.currentActive || []
     return (
       <div className="file-list file-list-striped">
         {(this.state.files || []).map((item) => {
-          const checked = this.state.currentActive === item.id
+          const checked = currentActive.includes(item.id)
           return (
             <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
@@ -72,8 +73,9 @@ class FilesList extends React.Component {
 
   _handleClick(e, id) {
     $stopEvent(e, true)
-    if (id === this.state.currentActive) this.setState({ currentActive: null })
-    else this.setState({ currentActive: id })
+    let currentActiveNew = this.state.currentActive || []
+    currentActiveNew.toggle(id)
+    this.setState({ currentActive: currentActiveNew })
   }
 
   renderExtras(item) {
@@ -94,13 +96,13 @@ class FilesList extends React.Component {
       const current = res.data || []
       let files = this.__pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
-      this.setState({ files: files, currentLen: current.length })
+      this.setState({ files: files, currentLen: current.length, currentActive: [] })
     })
   }
 
   getSelected() {
     const s = this.state.currentActive
-    if (!s) RbHighbar.create($L('未选中任何文件'))
+    if ((s || []).length === 0) RbHighbar.create($L('未选中任何文件'))
     else return s
   }
 }
@@ -146,7 +148,7 @@ class SharedFiles extends RbModalHandler {
                     return (
                       <tr key={idx}>
                         <td className="position-relative">
-                          <a href={item[0]} target="_blank">
+                          <a href={item[0]} target="_blank" className="link">
                             {$fileCutName(item[1])}
                           </a>
                           <div className="fop-action">
