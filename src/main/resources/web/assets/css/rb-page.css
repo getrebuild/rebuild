@@ -2171,8 +2171,7 @@ th.column-fixed {
 }
 
 .aside-tree li.active > a {
-  color: #fff !important;
-  background-color: #4285f4 !important;
+  background-color: #dedede !important;
 }
 
 .aside-tree li > div.action,
