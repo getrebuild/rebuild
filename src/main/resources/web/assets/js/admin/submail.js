@@ -91,6 +91,7 @@ const _renderStats = function (data, $el) {
   c.setOption(option)
 }
 
+const __LastReceiver = {}
 class TestSend extends RbAlert {
   constructor(props) {
     super(props)
@@ -103,7 +104,7 @@ class TestSend extends RbAlert {
       <form style={{ maxWidth: 400, margin: '0 auto' }}>
         <div className="form-group">
           <label>{$L('输入接收%s', this._typeName)}</label>
-          <input type="text" className="form-control form-control-sm" placeholder={$L(this._typeName)} ref={(c) => (this._input = c)} />
+          <input type="text" className="form-control form-control-sm" placeholder={$L(this._typeName)} ref={(c) => (this._input = c)} defaultValue={__LastReceiver[this._typeName]} />
         </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-primary" onClick={() => this.confirm()} ref={(c) => (this._btn = c)}>
@@ -136,6 +137,7 @@ class TestSend extends RbAlert {
         RbHighbar.create(res.error_msg || $L('发送失败'))
       }
       $(this._btn).button('reset')
+      __LastReceiver[this._typeName] = receiver
     })
   }
 }

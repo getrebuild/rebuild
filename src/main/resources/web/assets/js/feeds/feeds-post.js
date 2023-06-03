@@ -671,7 +671,7 @@ class FeedsEditDlg extends RbModalHandler {
 
   render() {
     const _data = {
-      initValue: $escapeHtml(this.props.content),
+      initValue: (this.props.content || '').replace(/<\/?.+?>/g, ''),
       images: this.props.images,
       files: this.props.attachments,
       relatedRecord: this.props.relatedRecord,

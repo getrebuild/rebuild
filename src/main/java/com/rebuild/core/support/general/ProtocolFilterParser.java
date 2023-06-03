@@ -162,24 +162,36 @@ public class ProtocolFilterParser {
 
         // 父级级联字段
         if (hasFieldCascadingField(field) && ID.isId(cascadingValue)) {
+            // 可能同时存在父子级
             String cascadingFieldParent = field.getExtraAttrs().getString("_cascadingFieldParent");
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
 
+            ID cascadingValueId = ID.valueOf(cascadingValue);
+            List<String> parentOrChind = new ArrayList<>();
+
             if (StringUtils.isNotBlank(cascadingFieldParent)) {
                 String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
-                sqls.add(String.format("%s = '%s'", fs[1], cascadingValue));
+                Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
+
+                if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
+                    parentOrChind.add(String.format("%s = '%s'", fs[1], cascadingValueId));
+                }
             }
 
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
                 Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
 
-                String s = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
-                        fs[1], refEntity.getName(),
-                        field.getReferenceEntity().getPrimaryField().getName(), fs[1],
-                        refEntity.getPrimaryField().getName(), cascadingValue);
-                sqls.add(s);
+                if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
+                    String s = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
+                            fs[1], refEntity.getName(),
+                            field.getReferenceEntity().getPrimaryField().getName(), fs[1],
+                            refEntity.getPrimaryField().getName(), cascadingValueId);
+                    parentOrChind.add(s);
+                }
             }
+
+            if (!parentOrChind.isEmpty()) sqls.add("( " + StringUtils.join(parentOrChind, " or ") + " )");
         }
 
         return sqls.isEmpty() ? null

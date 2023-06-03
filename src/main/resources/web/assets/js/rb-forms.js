@@ -1831,22 +1831,24 @@ class RbFormReference extends RbFormElement {
   }
 
   _getCascadingFieldValue() {
-    if (typeof this.props.getCascadingFieldValue === 'function') {
-      return this.props.getCascadingFieldValue(this)
+    const props = this.props
+    if (typeof props.getCascadingFieldValue === 'function') {
+      return props.getCascadingFieldValue(this)
     }
 
+    // FIXME v3.3.2 在多级级联中会同时存在父子级，以父级为准
     let cascadingField
-    if (this.props._cascadingFieldParent) {
-      cascadingField = this.props._cascadingFieldParent.split('$$$$')[0]
-    } else if (this.props._cascadingFieldChild) {
-      cascadingField = this.props._cascadingFieldChild.split('$$$$')[0]
+    if (props._cascadingFieldParent) {
+      cascadingField = props._cascadingFieldParent.split('$$$$')[0]
+    } else if (props._cascadingFieldChild) {
+      cascadingField = props._cascadingFieldChild.split('$$$$')[0]
     }
     if (!cascadingField) return null
 
-    let $$$parent = this.props.$$$parent
+    let $$$parent = props.$$$parent
 
     // v2.10 明细中使用主表单
-    if ($$$parent._InlineForm && (this.props._cascadingFieldParent || '').includes('.')) {
+    if ($$$parent._InlineForm && (props._cascadingFieldParent || '').includes('.')) {
       $$$parent = $$$parent.props.$$$main
       cascadingField = cascadingField.split('.')[1]
     }
@@ -1856,16 +1858,16 @@ class RbFormReference extends RbFormElement {
       v = ($$$parent.__ViewData || {})[cascadingField]
 
       // v2.10 无值时使用后台值
-      if (!v && this.props._cascadingFieldParentValue) {
-        v = { id: this.props._cascadingFieldParentValue }
+      if (!v && props._cascadingFieldParentValue) {
+        v = { id: props._cascadingFieldParentValue }
       }
     } else {
       const fieldComp = $$$parent.refs[`fieldcomp-${cascadingField}`]
       v = fieldComp ? fieldComp.getValue() : null
 
       // v2.10 无布局时使用后台值
-      if (!fieldComp && this.props._cascadingFieldParentValue) {
-        v = { id: this.props._cascadingFieldParentValue }
+      if (!fieldComp && props._cascadingFieldParentValue) {
+        v = { id: props._cascadingFieldParentValue }
       }
     }
 
