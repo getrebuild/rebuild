@@ -389,10 +389,10 @@ a.btn {
 }
 
 .logo-img {
-  height: 27px;
-  width: 144px;
+  height: 30px;
+  width: 150px;
   background: url(../img/logo.png) center center no-repeat;
-  background-size: auto 27px;
+  background-size: auto 30px;
   display: block;
   margin: 0 auto;
   cursor: default;
@@ -5063,6 +5063,11 @@ pre.unstyle {
 .logo-img.white,
 .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
   background-image: url('../../commons/theme/use-logo-white');
+}
+
+.rb-top-header .rb-navbar-header .navbar-brand {
+  background-size: auto 30px;
+  padding-right: 0;
 }
 
 .badge-arrow3 {
