@@ -205,6 +205,7 @@ public class TestSupport {
         }
 
         Record record = EntityHelper.forNew(testEntity.getEntityCode(), user);
+        record.setString("TestAllFieldsName", "TestAllFieldsName-" + RandomUtils.nextLong());
         record.setString("text", "TEXT-" + RandomUtils.nextLong());
         return Application.getGeneralEntityService().create(record).getPrimary();
     }

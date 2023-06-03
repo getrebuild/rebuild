@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -53,6 +54,7 @@ public class PerHourJob extends DistributedJobLock {
             doBackups();
         } else if (hour == 1) {
             doCleanTempFiles();
+            doCleanExpiredShare();
         }
 
         new SysbaseHeartbeat().heartbeat();
@@ -98,10 +100,21 @@ public class PerHourJob extends DistributedJobLock {
     }
 
     /**
-     * 清理临时目录
+     * 清理临时目录/文件
      */
     protected void doCleanTempFiles() {
         FileFilterByLastModified.deletes(RebuildConfiguration.getFileOfTemp(null), 7);
+    }
+
+    /**
+     * 清理过期共享文件
+     * @see com.rebuild.core.support.ShortUrls
+     */
+    protected void doCleanExpiredShare() {
+        String dsql = String.format(
+                "delete from `short_url` where EXPIRE_TIME < '%s'", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+        int a = Application.getSqlExecutor().execute(dsql, 600);
+        log.info("Clean expired share(s) : {}", a);
     }
 
     // --

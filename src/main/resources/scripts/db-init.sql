@@ -814,6 +814,19 @@ create table if not exists `commons_log` (
   index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
 )Engine=InnoDB;
 
+-- ************ Entity [ShortUrl] DDL ************
+create table if not exists `short_url` (
+  `SHORT_ID`           char(20) not null,
+  `SHORT_KEY`          varchar(40) not null comment '短链ID',
+  `LONG_URL`           varchar(600) not null comment '对应长链/文件',
+  `EXPIRE_TIME`        timestamp null default null comment '到期时间',
+  `CHECK_PASSWD`       timestamp null default null comment '密码',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`SHORT_ID`),
+  index IX0_short_url (`CREATED_BY`, `CREATED_ON`, `EXPIRE_TIME`),
+  index IX1_short_url (`SHORT_KEY`)
+)Engine=InnoDB;
 
 -- #3 datas
 
@@ -870,4 +883,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 51);
+  values ('021-9000000000000001', 'DBVer', 52);

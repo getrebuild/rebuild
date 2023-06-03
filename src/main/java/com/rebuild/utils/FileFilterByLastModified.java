@@ -46,9 +46,7 @@ public class FileFilterByLastModified implements FileFilter {
      */
     public static void deletes(File indir, int keepDays) {
         File[] ds = indir.listFiles(new FileFilterByLastModified(keepDays));
-        if (ds == null || ds.length == 0) {
-            return;
-        }
+        if (ds == null) return;
 
         for (File d : ds) {
             if (d.isFile()) FileUtils.deleteQuietly(d);

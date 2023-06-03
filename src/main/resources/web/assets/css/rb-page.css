@@ -389,10 +389,10 @@ a.btn {
 }
 
 .logo-img {
-  height: 27px;
-  width: 144px;
+  height: 30px;
+  width: 150px;
   background: url(../img/logo.png) center center no-repeat;
-  background-size: auto 27px;
+  background-size: auto 30px;
   display: block;
   margin: 0 auto;
   cursor: default;
@@ -2168,13 +2168,10 @@ th.column-fixed {
 
 .aside-tree li > a:hover {
   background-color: #eee;
-  border-radius: 2px;
 }
 
 .aside-tree li.active > a {
-  color: #fff !important;
-  background-color: #4285f4 !important;
-  border-radius: 2px;
+  background-color: #dedede !important;
 }
 
 .aside-tree li > div.action,
@@ -2247,7 +2244,6 @@ th.column-fixed {
 .aside-2tree ul li.active {
   color: #fff !important;
   background-color: #4285f4 !important;
-  border-radius: 2px;
 }
 
 .aside-2tree ul li > a {
@@ -5065,6 +5061,11 @@ pre.unstyle {
   background-image: url('../../commons/theme/use-logo-white');
 }
 
+.rb-top-header .rb-navbar-header .navbar-brand {
+  background-size: auto 30px;
+  padding-right: 0;
+}
+
 .badge-arrow3 {
   border-radius: 99px 99px 99px 0;
 }
@@ -5182,4 +5183,13 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
   width: 20%;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* v34 radius 6px */
+
+.rbhighbar > .alert,
+.rb-left-sidebar.v2 .sidebar-elements li > a,
+.aside-2tree ul li,
+.aside-tree li > a {
+  border-radius: 6px;
 }

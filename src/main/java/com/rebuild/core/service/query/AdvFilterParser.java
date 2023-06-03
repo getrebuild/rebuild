@@ -330,12 +330,23 @@ public class AdvFilterParser extends SetUser {
             } else if (ParseHelper.CUW.equalsIgnoreCase(op)
                     || ParseHelper.CUM.equalsIgnoreCase(op)
                     || ParseHelper.CUQ.equalsIgnoreCase(op)
-                    || ParseHelper.CUY.equalsIgnoreCase(op)) {
+                    || ParseHelper.CUY.equalsIgnoreCase(op)
+                    || ParseHelper.PUW.equalsIgnoreCase(op)
+                    || ParseHelper.PUM.equalsIgnoreCase(op)
+                    || ParseHelper.PUQ.equalsIgnoreCase(op)
+                    || ParseHelper.PUY.equalsIgnoreCase(op)
+                    || ParseHelper.NUW.equalsIgnoreCase(op)
+                    || ParseHelper.NUM.equalsIgnoreCase(op)
+                    || ParseHelper.NUQ.equalsIgnoreCase(op)
+                    || ParseHelper.NUY.equalsIgnoreCase(op)) {
 
-                Date begin = Moment.moment().startOf(op.substring(2)).date();
+                String unit = op.substring(2);
+                int amount = op.startsWith("P") ? -1 : (op.startsWith("N") ? 1 : 0);
+
+                Date begin = Moment.moment().startOf(op.substring(2)).add(amount, unit).date();
                 value = formatDate(begin, 0);
 
-                Date end = Moment.moment(begin).endOf(op.substring(2)).date();
+                Date end = Moment.moment(begin).endOf(unit).date();
                 valueEnd = formatDate(end, 0);
 
                 if (isDatetime) {

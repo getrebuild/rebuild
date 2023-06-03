@@ -361,6 +361,9 @@ class LightAttachmentList extends RelatedList {
         <a className="dropdown-item" data-sort="older" onClick={(e) => this.search(e)}>
           {$L('最早上传')}
         </a>
+        <a className="dropdown-item" data-sort="size" onClick={(e) => this.search(e)}>
+          {$L('文件大小')}
+        </a>
       </div>
     )
   }
@@ -377,23 +380,25 @@ class LightAttachmentList extends RelatedList {
           </a>
           <div className="extras">
             <span className="fsize">{item.fileSize}</span>
-            <span className="fop">
-              <a title={$L('下载')} className="fs-15" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-                <i className="icon zmdi zmdi-download" />
-              </a>
-              {rb.fileSharable && (
-                <a
-                  title={$L('分享')}
-                  onClick={(e) => {
-                    $stopEvent(e)
-                    // eslint-disable-next-line react/jsx-no-undef
-                    renderRbcomp(<FileShare file={item.filePath} />)
-                  }}>
-                  <i className="icon zmdi zmdi-share" />
-                </a>
-              )}
-            </span>
           </div>
+        </div>
+        <div className="info position-relative">
+          <span className="fop-action">
+            <a title={$L('下载')} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+              <i className="icon zmdi zmdi-download fs-17" />
+            </a>
+            {rb.fileSharable && (
+              <a
+                title={$L('分享')}
+                onClick={(e) => {
+                  $stopEvent(e)
+                  // eslint-disable-next-line react/jsx-no-undef
+                  renderRbcomp(<FileShare file={item.filePath} />)
+                }}>
+                <i className="icon zmdi zmdi-share up-1" />
+              </a>
+            )}
+          </span>
         </div>
         <div className="info">
           <DateShow date={item.uploadOn} />
