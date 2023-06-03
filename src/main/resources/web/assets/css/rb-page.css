@@ -2168,13 +2168,11 @@ th.column-fixed {
 
 .aside-tree li > a:hover {
   background-color: #eee;
-  border-radius: 2px;
 }
 
 .aside-tree li.active > a {
   color: #fff !important;
   background-color: #4285f4 !important;
-  border-radius: 2px;
 }
 
 .aside-tree li > div.action,
@@ -2247,7 +2245,6 @@ th.column-fixed {
 .aside-2tree ul li.active {
   color: #fff !important;
   background-color: #4285f4 !important;
-  border-radius: 2px;
 }
 
 .aside-2tree ul li > a {
@@ -5187,4 +5184,13 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
   width: 20%;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* v34 radius 6px */
+
+.rbhighbar > .alert,
+.rb-left-sidebar.v2 .sidebar-elements li > a,
+.aside-2tree ul li,
+.aside-tree li > a {
+  border-radius: 6px;
 }
