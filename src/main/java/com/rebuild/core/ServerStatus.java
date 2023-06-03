@@ -140,11 +140,23 @@ public final class ServerStatus {
     static Status checkCacheService() {
         CommonsCache cache = Application.getCommonsCache();
         String name = "Cache";
-        if (Installer.isUseRedis()) name += "/REDIS";
-        else name += "/EHCACHE";
+        if (Installer.isUseRedis()) {
+            name += "/REDIS";
+        } else {
+            name += "/EHCACHE";
+
+            // fix:异常关闭文件损坏
+            try {
+                cache.getx("ServerStatus.test");
+            } catch (Exception ex) {
+                log.warn("Clear ehcache because : {}", ex.getLocalizedMessage());
+                Installer.clearAllCache();
+            }
+        }
 
         try {
             cache.putx("ServerStatus.test", 1, 60);
+            cache.getx("ServerStatus.test");
         } catch (Exception ex) {
             return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
