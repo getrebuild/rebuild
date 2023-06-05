@@ -11,24 +11,19 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.BaseService;
-import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 
 /**
  * 可注入观察者的服务
@@ -118,19 +113,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @return
      */
     protected Record recordSnap(Record base) {
-        final ID primaryId = base.getPrimary();
-        Assert.notNull(primaryId, "Record primary cannot be null");
-
-        Set<String> fields = new HashSet<>();
-        for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
-            fields.add(iter.next());
-        }
-
-        fields.add(base.getEntity().getPrimaryField().getName());
-        Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
-
-        if (snap == null) throw new NoRecordFoundException(primaryId);
-        return snap;
+        return QueryHelper.querySnap(base);
     }
 
     /**

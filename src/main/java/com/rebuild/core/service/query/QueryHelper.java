@@ -18,12 +18,18 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
+ * 常用查询封装
+ *
  * @author devezhao
  * @since 2021/8/25
  */
@@ -98,7 +104,7 @@ public class QueryHelper {
         Record o = Application.getQueryFactory().recordNoFilter(recordId);
 
         if (o == null) throw new NoRecordFoundException(recordId);
-        else return o;
+        return o;
     }
 
     /**
@@ -188,5 +194,28 @@ public class QueryHelper {
 
         Object[] found = Application.createQueryNoFilter(sql.toString()).unique();
         return found == null ? null : (ID) found[0];
+    }
+
+    /**
+     * 根据 Record 中的字段获取数据库中的记录
+     *
+     * @param base
+     * @return
+     * @throws NoRecordFoundException
+     */
+    public static Record querySnap(Record base) throws NoRecordFoundException {
+        final ID primaryId = base.getPrimary();
+        Assert.notNull(primaryId, "Record primary cannot be null");
+
+        Set<String> fields = new HashSet<>();
+        for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
+            fields.add(iter.next());
+        }
+
+        fields.add(base.getEntity().getPrimaryField().getName());
+        Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
+
+        if (snap == null) throw new NoRecordFoundException(primaryId);
+        return snap;
     }
 }
