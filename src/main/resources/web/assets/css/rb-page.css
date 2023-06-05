@@ -2167,11 +2167,13 @@ th.column-fixed {
 }
 
 .aside-tree li > a:hover {
-  background-color: #eee;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .aside-tree li.active > a {
-  background-color: #dedede !important;
+  background-color: rgba(0, 0, 0, 0.09) !important;
+  background-color: #4285f4 !important;
+  color: #fff !important;
 }
 
 .aside-tree li > div.action,
