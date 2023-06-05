@@ -641,9 +641,9 @@ public class AdvFilterParser extends SetUser {
     }
 
     // 字段变量 {@FIELD}
-    private static final String PATT_FIELDVAR = "\\{@([\\w.]+)(\\(\\))?}";
-    // `当前`变量（当前日期、用户、部门、角色）
-    private static final String CURRENT_ANY = "CURRENT()";
+    private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
+    // `当前`变量（当前日期、时间）
+    private static final String CURRENT_ANY = "CURRENT";
 
     private String useValueOfVarRecord(String value, Field queryField) {
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
@@ -651,27 +651,14 @@ public class AdvFilterParser extends SetUser {
         // {@FIELD}
         final String fieldName = value.substring(2, value.length() - 1);
 
+        // {@CURRENT}
         if (CURRENT_ANY.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                 return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
-
             } else if (dt == DisplayType.TIME) {
                 return CalendarUtils.getDateFormat("HH:mm").format(CalendarUtils.now());
-
-            } else if (dt == DisplayType.REFERENCE) {
-                int ec = queryField.getReferenceEntity().getEntityCode();
-                if (ec == EntityHelper.User) {
-                    return getUser().toLiteral();
-                } else if (ec == EntityHelper.Department) {
-                    Department dept = Application.getUserStore().getUser(getUser()).getOwningDept();
-                    if (dept != null) return dept.getIdentity().toString();
-                } else if (ec == EntityHelper.Role) {
-                    Role role = Application.getUserStore().getUser(getUser()).getOwningRole();
-                    if (role != null) return role.getIdentity().toString();
-                }
             }
-
             return StringUtils.EMPTY;
         }
 
