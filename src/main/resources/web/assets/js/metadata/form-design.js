@@ -57,6 +57,10 @@ $(document).ready(() => {
         cursor: 'move',
         placeholder: 'dd-placeholder',
         cancel: '.nodata',
+        start: function (e, ui) {
+          const wc = ui.item.attr('class').match(/\w-([0-9]{2,3})/gi)
+          if (wc) ui.placeholder.addClass((wc[0] || '') + ' dd-item')
+        }
       })
       .disableSelection()
   })
