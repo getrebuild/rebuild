@@ -59,7 +59,7 @@ public class RelatedListController extends BaseController {
         final ID user = getRequestUser(request);
 
         String related = getParameterNotNull(request, "related");
-        String q = getParameter(request, "q");
+        String q = StringUtils.trim(getParameter(request, "q"));
         String sql = buildBaseSql(mainid, related, q, false, user);
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);

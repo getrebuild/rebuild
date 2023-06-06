@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -699,7 +699,7 @@ var $initReferenceSelect2 = function (el, options) {
     },
     language: {
       noResults: function () {
-        return (search_input || '').length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+        return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
       },
       inputTooShort: function () {
         return $L('输入关键词搜索')
