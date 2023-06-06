@@ -186,11 +186,13 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
+    if (!log) return <p className="m-0 text-warning">N</p>
+
     try {
       return LastLogsViewer.renderLog(JSON.parse(log))
     } catch (err) {
-      console.log(err)
-      return <p className="m-0 text-warning">{log.toUpperCase()}</p>
+      console.debug(err)
+      return <p className="m-0 text-warning">{(log || 'N').toUpperCase()}</p>
     }
   }
 

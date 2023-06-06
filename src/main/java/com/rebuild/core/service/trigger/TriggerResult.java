@@ -135,4 +135,13 @@ public class TriggerResult implements JSONAware {
     public static TriggerResult targetNotExists() {
         return wran("Target not exists");
     }
+
+    /**
+     * 无更新字段
+     *
+     * @return
+     */
+    public static TriggerResult noUpdateFields() {
+        return wran("No update fields");
+    }
 }

@@ -30,8 +30,9 @@ import java.util.List;
  * 查询服务
  *
  * @author Zixin (RB)
- * @see RoleBaseQueryFilter
  * @since 05/21/2017
+ * @see RoleBaseQueryFilter
+ * @see QueryHelper
  */
 @Service
 public class QueryFactory {
