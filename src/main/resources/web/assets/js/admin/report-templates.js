@@ -194,7 +194,10 @@ class ReportEditor extends ConfigFormDlg {
     if (this.__upload) {
       $createUploader(
         this.__upload,
-        () => $mp.start(),
+        () => {
+          that.setState({ uploadFileName: null })
+          $mp.start()
+        },
         (res) => {
           $mp.end()
           that.__lastFile = res.key
@@ -285,7 +288,7 @@ class ReportEditor extends ConfigFormDlg {
     // v3.3
     post.extraDefinition = {
       outputType: output.length === 0 ? 'excel' : output.join(','),
-      templateVersion: (this.props.extraDefinition || {}).templateVersion || 2
+      templateVersion: (this.props.extraDefinition || {}).templateVersion || 2,
     }
 
     if (this.props.id) {
