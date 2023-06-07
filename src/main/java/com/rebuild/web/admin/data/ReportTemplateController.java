@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
-import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 
 /**
  * Excel 报表
@@ -105,11 +104,8 @@ public class ReportTemplateController extends BaseController {
 
         Set<String> invalidVars = new HashSet<>();
         for (Map.Entry<String, String> e : vars.entrySet()) {
-            String varName = e.getKey();
-            if (e.getValue() == null) {
-                if (!(varName.startsWith(PLACEHOLDER) || varName.startsWith(NROW_PREFIX + PLACEHOLDER))) {
-                    invalidVars.add(e.getKey());
-                }
+            if (e.getValue() == null && !TemplateExtractor33.isPlaceholder(e.getKey())) {
+                invalidVars.add(e.getKey());
             }
         }
 

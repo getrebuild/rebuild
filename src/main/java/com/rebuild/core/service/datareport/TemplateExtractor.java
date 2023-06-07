@@ -44,11 +44,17 @@ public class TemplateExtractor {
     public static final String PLACEHOLDER = "__";
     // 空
     protected static final String PH__KEEP = PLACEHOLDER + "KEEP";
-    // 当前用户
-    protected static final String PH__CURRENTUSER = PLACEHOLDER + "CURRENTUSER";
     // 序号
     protected static final String PH__NUMBER = PLACEHOLDER + "NUMBER";
-    
+    // 当前用户
+    protected static final String PH__CURRENTUSER = PLACEHOLDER + "CURRENTUSER";
+    // 当前部门
+    protected static final String PH__CURRENTBIZUNIT = PLACEHOLDER + "CURRENTBIZUNIT";
+    // 当前日期
+    protected static final String PH__CURRENTDATE = PLACEHOLDER + "CURRENTDATE";
+    // 当前日期时间
+    protected static final String PH__CURRENTDATETIME = PLACEHOLDER + "CURRENTDATETIME";
+
     // v2:{xxx} v1:${xxx}
     private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
@@ -155,7 +161,7 @@ public class TemplateExtractor {
      * @return
      */
     protected String transformRealField(Entity entity, String fieldPath) {
-        if (fieldPath.startsWith(PLACEHOLDER)) return null;
+        if (TemplateExtractor33.isPlaceholder(fieldPath)) return null;
 
         if (fieldPath.contains("$")) {
             fieldPath = fieldPath.replace("$", ".");

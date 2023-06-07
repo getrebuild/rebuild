@@ -52,10 +52,13 @@ public class TemplateExtractor33 extends TemplateExtractor {
         for (final String varName : vars) {
             // 列表型字段
             if (varName.startsWith(NROW_PREFIX)) {
-                String listField = varName.substring(1);
+                final String listField = varName.substring(1);
 
+                if (isPlaceholder(listField)) {
+                    map.put(varName, null);
+                }
                 // 审批流程
-                if (varName.startsWith(APPROVAL_PREFIX)) {
+                else if (varName.startsWith(APPROVAL_PREFIX)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(varName, stepNodeField);
@@ -76,8 +79,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 else {
                     String[] split = listField.split("\\.");
                     String ref2Field = split[0];
-                    String ref2Entity = split[1];
-                    Field ref2FieldMeta = MetadataHelper.containsField(ref2Entity, ref2Field)
+                    String ref2Entity = split.length > 1 ? split[1] : null;
+                    Field ref2FieldMeta = ref2Entity != null && MetadataHelper.containsField(ref2Entity, ref2Field)
                             ? MetadataHelper.getField(ref2Entity, ref2Field) : null;
 
                     if (ref2FieldMeta != null && entity.equals(ref2FieldMeta.getReferenceEntity())) {
@@ -94,5 +97,15 @@ public class TemplateExtractor33 extends TemplateExtractor {
             }
         }
         return map;
+    }
+
+    /**
+     * 是否占位符
+     *
+     * @param varName
+     * @return
+     */
+    public static boolean isPlaceholder(String varName) {
+        return varName.startsWith(PLACEHOLDER) || varName.contains(NROW_PREFIX + PLACEHOLDER);
     }
 }

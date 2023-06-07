@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -56,9 +57,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTBIZUNIT;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATE;
+import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTDATETIME;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTUSER;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
@@ -79,6 +84,7 @@ public class EasyExcelGenerator extends SetUser {
 
     protected boolean hasMain = false;
     protected int phNumber = 1;
+    protected Map<String, Object> phValues = new HashMap<>();
 
     /**
      * @param template
@@ -121,6 +127,11 @@ public class EasyExcelGenerator extends SetUser {
             // 主记录
             if (main != null) {
                 excelWriter.fill(main, writeSheet);
+            } else {
+                // PH 变量
+                if (!phValues.isEmpty()) {
+                    excelWriter.fill(phValues, writeSheet);
+                }
             }
 
             // 公式生效
@@ -251,7 +262,6 @@ public class EasyExcelGenerator extends SetUser {
 
         final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
-        final String phCurrentuser = UserHelper.getName(getUser());
 
         final Map<String, Object> data = new HashMap<>();
 
@@ -264,17 +274,10 @@ public class EasyExcelGenerator extends SetUser {
                     varName = varName.substring(1);
                 }
 
-                // {.__KEEP:块}
-                if (varName.startsWith(PH__KEEP)) {
-                    String phKeep = varName.length() > PH__KEEP.length()
-                            ? varName.substring(PH__KEEP.length() + 1) : "";
-                    data.put(varName, phKeep);
-                } else if (varName.equalsIgnoreCase(PH__CURRENTUSER)) {
-                    data.put(varName, phCurrentuser);
-                } else if (varName.equalsIgnoreCase(PH__NUMBER)) {
-                    data.put(varName, phNumber);
-                }
-                else {
+                Object phValue = getPhValue(varName);
+                if (phValue != null) {
+                    data.put(varName, phValue);
+                } else {
                     data.put(varName, invalidFieldTip);
                 }
             }
@@ -396,6 +399,40 @@ public class EasyExcelGenerator extends SetUser {
 
         } catch (IOException e) {
             log.error("Cannot encode image of barcode : {}", recordId, e);
+        }
+        return null;
+    }
+
+    /**
+     * @param phName
+     * @return
+     */
+    protected Object getPhValue(String phName) {
+        if (!phName.contains("__")) return null;
+
+        // detail.__KEEP > __KEEP
+        phName = PLACEHOLDER + phName.split("__")[1];
+
+        // {.__KEEP:块}
+        if (phName.startsWith(PH__KEEP)) {
+            return phName.length() > PH__KEEP.length()
+                    ? phName.substring(PH__KEEP.length() + 1) : "";
+        }
+        // 列表序号
+        if (phName.equals(PH__NUMBER)) {
+            return phNumber;
+        }
+        if (phName.equals(PH__CURRENTUSER)) {
+            return UserHelper.getName(getUser());
+        }
+        if (phName.equals(PH__CURRENTBIZUNIT)) {
+            return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
+        }
+        if (phName.equals(PH__CURRENTDATE)) {
+            return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
+        }
+        if (phName.equals(PH__CURRENTDATETIME)) {
+            return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
     }
