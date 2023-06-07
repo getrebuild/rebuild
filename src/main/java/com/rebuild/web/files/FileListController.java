@@ -79,7 +79,7 @@ public class FileListController extends BaseController {
         int pageSize = getIntParameter(request, "pageSize", 100);
 
         String sort = getParameter(request, "sort");
-        String q = getParameter(request, "q");
+        String q = StringUtils.trim(getParameter(request, "q"));
         // 从相关记录
         ID related = getIdParameter(request, "related");
 

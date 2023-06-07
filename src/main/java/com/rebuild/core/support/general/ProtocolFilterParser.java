@@ -167,31 +167,45 @@ public class ProtocolFilterParser {
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
 
             ID cascadingValueId = ID.valueOf(cascadingValue);
-            List<String> parentOrChind = new ArrayList<>();
+            List<String> parentAndChind = new ArrayList<>();
 
             if (StringUtils.isNotBlank(cascadingFieldParent)) {
                 String[] fs = cascadingFieldParent.split(MetadataHelper.SPLITER_RE);
-                Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
+                Entity refEntity;
+                // 明细使用主实体的
+                if (fs[0].contains(".")) {
+                    String[] d2m = fs[0].split("\\.");
+                    refEntity = MetadataHelper.getField(d2m[0], d2m[1]).getReferenceEntity();
+                } else {
+                    refEntity = entity.getField(fs[0]).getReferenceEntity();
+                }
 
                 if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
-                    parentOrChind.add(String.format("%s = '%s'", fs[1], cascadingValueId));
+                    parentAndChind.add(String.format("%s = '%s'", fs[1], cascadingValueId));
                 }
             }
-
+            
             if (StringUtils.isNotBlank(cascadingFieldChild)) {
                 String[] fs = cascadingFieldChild.split(MetadataHelper.SPLITER_RE);
-                Entity refEntity = entity.getField(fs[0]).getReferenceEntity();
+                Entity refEntity;
+                // 明细使用主实体的
+                if (fs[0].contains(".")) {
+                    String[] d2m = fs[0].split("\\.");
+                    refEntity = MetadataHelper.getField(d2m[0], d2m[1]).getReferenceEntity();
+                } else {
+                    refEntity = entity.getField(fs[0]).getReferenceEntity();
+                }
 
                 if (refEntity.getEntityCode().equals(cascadingValueId.getEntityCode())) {
                     String s = String.format("exists (select %s from %s where ^%s = %s and %s = '%s')",
                             fs[1], refEntity.getName(),
                             field.getReferenceEntity().getPrimaryField().getName(), fs[1],
                             refEntity.getPrimaryField().getName(), cascadingValueId);
-                    parentOrChind.add(s);
+                    parentAndChind.add(s);
                 }
             }
 
-            if (!parentOrChind.isEmpty()) sqls.add("( " + StringUtils.join(parentOrChind, " or ") + " )");
+            if (!parentAndChind.isEmpty()) sqls.add("( " + StringUtils.join(parentAndChind, " or ") + " )");
         }
 
         return sqls.isEmpty() ? null

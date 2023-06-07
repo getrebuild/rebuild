@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
+import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.momentjava.Moment;
@@ -254,7 +255,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         String op = item.getString("op");
-        String value = useValueOfVarRecord(item.getString("value"));
+        String value = useValueOfVarRecord(item.getString("value"), fieldMeta);
         String valueEnd = null;
 
         // exists ( in (...) )
@@ -484,7 +485,7 @@ public class AdvFilterParser extends SetUser {
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
         if (isBetween && valueEnd == null) {
-            valueEnd = useValueOfVarRecord(item.getString("value2"));
+            valueEnd = useValueOfVarRecord(item.getString("value2"), fieldMeta);
             valueEnd = parseValue(valueEnd, op, fieldMeta, true);
             if (valueEnd == null) valueEnd = value;
         }
@@ -641,12 +642,28 @@ public class AdvFilterParser extends SetUser {
 
     // 字段变量 {@FIELD}
     private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
+    // `当前`变量（当前日期、时间）
+    private static final String CURRENT_ANY = "CURRENT";
 
-    private String useValueOfVarRecord(String value) {
-        if (varRecord == null || StringUtils.isBlank(value)) return value;
-        if (!value.matches(PATT_FIELDVAR)) return value;
+    private String useValueOfVarRecord(String value, Field queryField) {
+        if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
 
-        String fieldName = value.substring(2, value.length() - 1);
+        // {@FIELD}
+        final String fieldName = value.substring(2, value.length() - 1);
+
+        // {@CURRENT}
+        if (CURRENT_ANY.equals(fieldName)) {
+            DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
+            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
+            } else if (dt == DisplayType.TIME) {
+                return CalendarUtils.getDateFormat("HH:mm").format(CalendarUtils.now());
+            }
+            return StringUtils.EMPTY;
+        }
+
+        if (varRecord == null) return value;
+
         Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
         if (field == null) {
             log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
@@ -733,7 +750,7 @@ public class AdvFilterParser extends SetUser {
      *
      * @param filterExpr
      * @return
-     * @see #useValueOfVarRecord(String)
+     * @see #useValueOfVarRecord(String, Field)
      */
     public static boolean hasFieldVars(JSONObject filterExpr) {
         for (Object o : filterExpr.getJSONArray("items")) {

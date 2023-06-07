@@ -1836,12 +1836,14 @@ class RbFormReference extends RbFormElement {
       return props.getCascadingFieldValue(this)
     }
 
-    // FIXME v3.3.2 在多级级联中会同时存在父子级，以父级为准
+    // v3.3.2 在多级级联中会同时存在父子级
     let cascadingField
     if (props._cascadingFieldParent) {
       cascadingField = props._cascadingFieldParent.split('$$$$')[0]
     } else if (props._cascadingFieldChild) {
       cascadingField = props._cascadingFieldChild.split('$$$$')[0]
+      // v3.3.3 明细作为子级时不控制，因为选择后明细关联字段会清空
+      if (cascadingField && cascadingField.includes('.')) return null
     }
     if (!cascadingField) return null
 
