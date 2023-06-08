@@ -49,7 +49,7 @@ public class UsersGetting extends BaseController {
     @GetMapping("users")
     public JSON loadUsers(HttpServletRequest request) {
         final String type = getParameter(request, "type", "User");
-        final String query = getParameter(request, "q");
+        final String query = StringUtils.trim(getParameter(request, "q"));
 
         Member[] members;
         if ("User".equalsIgnoreCase(type)) {

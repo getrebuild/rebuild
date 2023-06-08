@@ -828,7 +828,7 @@ class AnyRecordSelector extends React.Component {
         },
         language: {
           noResults: () => {
-            return (search_input || '').length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
+            return $.trim(search_input).length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
           },
           inputTooShort: () => {
             return $L('输入关键词搜索')

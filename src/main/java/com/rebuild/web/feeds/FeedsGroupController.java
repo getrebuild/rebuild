@@ -49,7 +49,7 @@ public class FeedsGroupController extends BaseController {
     @GetMapping("group-list")
     public JSON groupList(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String query = getParameter(request, "q");
+        final String query = StringUtils.trim(getParameter(request, "q"));
 
         JSONArray res = new JSONArray();
 
@@ -86,7 +86,7 @@ public class FeedsGroupController extends BaseController {
     @GetMapping("user-list")
     public JSON userList(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String query = getParameter(request, "q");
+        final String query = StringUtils.trim(getParameter(request, "q"));
 
         JSONArray res = new JSONArray();
 

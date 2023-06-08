@@ -161,7 +161,7 @@ public class TemplateExtractor {
      * @return
      */
     protected String transformRealField(Entity entity, String fieldPath) {
-        if (fieldPath.startsWith(PLACEHOLDER)) return null;
+        if (TemplateExtractor33.isPlaceholder(fieldPath)) return null;
 
         if (fieldPath.contains("$")) {
             fieldPath = fieldPath.replace("$", ".");
