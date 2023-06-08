@@ -75,7 +75,7 @@ public class ReferenceSearchController extends EntityController {
         String protocolFilter = new ProtocolFilterParser(null)
                 .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
-        String q = getParameter(request, "q");
+        String q = StringUtils.trim(getParameter(request, "q"));
 
         // 强制搜索 H5
         boolean forceResults = getBoolParameter(request, "forceResults");
@@ -106,7 +106,7 @@ public class ReferenceSearchController extends EntityController {
         // 强制搜索 H5
         boolean forceResults = getBoolParameter(request, "forceResults");
 
-        String q = getParameter(request, "q");
+        String q = StringUtils.trim(getParameter(request, "q"));
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
             String type = getParameter(request, "type");
@@ -169,7 +169,7 @@ public class ReferenceSearchController extends EntityController {
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, false);
         if (useClassification == null) return JSONUtils.EMPTY_ARRAY;
 
-        String q = getParameter(request, "q");
+        String q = StringUtils.trim(getParameter(request, "q"));
 
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {

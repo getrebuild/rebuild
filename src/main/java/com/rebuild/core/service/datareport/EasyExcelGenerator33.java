@@ -26,7 +26,6 @@ import java.util.Map;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
-import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PREFIX;
 
 /**
@@ -47,9 +46,10 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         final Map<String, String> varsMap = new TemplateExtractor33(template).transformVars(entity);
 
+        // 变量
         Map<String, String> varsMapOfMain = new HashMap<>();
         Map<String, Map<String, String>> varsMapOfRefs = new HashMap<>();
-
+        // 字段
         List<String> fieldsOfMain = new ArrayList<>();
         Map<String, List<String>> fieldsOfRefs = new HashMap<>();
 
@@ -79,9 +79,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
             // 占位字段
-            if (varName.startsWith(PLACEHOLDER) || varName.startsWith(NROW_PREFIX + PLACEHOLDER)) {
-                continue;
-            }
+            if (TemplateExtractor33.isPlaceholder(varName)) continue;
             // 无效字段
             if (fieldName == null) {
                 log.warn("Invalid field `{}` in template : {}", e.getKey(), template);

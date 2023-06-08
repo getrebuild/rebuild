@@ -262,10 +262,6 @@ public class EasyExcelGenerator extends SetUser {
 
         final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
-        final String phCurrentUser = UserHelper.getName(getUser());
-        final String phCurrentBizunit = Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
-        final String phCurrentDateTime = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
-        final String phCurrentDate = phCurrentDateTime.split(" ")[0];
 
         final Map<String, Object> data = new HashMap<>();
 
@@ -412,25 +408,30 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     protected Object getPhValue(String phName) {
+        if (!phName.contains("__")) return null;
+
+        // detail.__KEEP > __KEEP
+        phName = PLACEHOLDER + phName.split("__")[1];
+
         // {.__KEEP:块}
         if (phName.startsWith(PH__KEEP)) {
             return phName.length() > PH__KEEP.length()
                     ? phName.substring(PH__KEEP.length() + 1) : "";
         }
         // 列表序号
-        if (phName.equalsIgnoreCase(PH__NUMBER)) {
+        if (phName.equals(PH__NUMBER)) {
             return phNumber;
         }
-        if (phName.equalsIgnoreCase(PH__CURRENTUSER)) {
+        if (phName.equals(PH__CURRENTUSER)) {
             return UserHelper.getName(getUser());
         }
-        if (phName.equalsIgnoreCase(PH__CURRENTBIZUNIT)) {
+        if (phName.equals(PH__CURRENTBIZUNIT)) {
             return Objects.requireNonNull(UserHelper.getDepartment(getUser())).getName();
         }
-        if (phName.equalsIgnoreCase(PH__CURRENTDATE)) {
+        if (phName.equals(PH__CURRENTDATE)) {
             return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
         }
-        if (phName.equalsIgnoreCase(PH__CURRENTDATETIME)) {
+        if (phName.equals(PH__CURRENTDATETIME)) {
             return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
