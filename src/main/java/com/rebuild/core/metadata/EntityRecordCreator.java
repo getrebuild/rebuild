@@ -43,8 +43,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class EntityRecordCreator extends JsonRecordCreator {
 
-    // 附件等是否不允许外链
-    private boolean safeUrl;
+    // 安全URL（即附件/图片不允许外链）
+    private boolean safetyUrl;
 
     /**
      * @param entity
@@ -52,17 +52,18 @@ public class EntityRecordCreator extends JsonRecordCreator {
      * @param editor
      */
     public EntityRecordCreator(Entity entity, JSONObject source, ID editor) {
-        this(entity, source, editor, false);
+        this(entity, source, editor, true);
     }
 
     /**
      * @param entity
      * @param source
      * @param editor
+     * @param safedUrl
      */
-    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safeUrl) {
+    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safedUrl) {
         super(entity, source, editor);
-        this.safeUrl = safeUrl;
+        this.safetyUrl = safedUrl;
     }
 
     @Override
@@ -221,7 +222,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
             // 不能外链
             // https://github.com/getrebuild/rebuild/issues/596
-            if (safeUrl) {
+            if (safetyUrl) {
                 if (field.getDisplayType() == DisplayType.IMAGE
                         || field.getDisplayType() == DisplayType.FILE
                         || field.getDisplayType() == DisplayType.AVATAR) {

@@ -50,12 +50,12 @@ public class EntityHelper {
      *
      * @param data
      * @param user
-     * @param safeUrl
-     * @param useAutoFillin
+     * @param safetyUrl 附件/图片字段值是否允许外链（默认否）
+     * @param useAutoFillin 是否自动作用表单回填（默认否）
      * @return
      * @see EntityRecordCreator
      */
-    public static Record parse(JSONObject data, ID user, boolean safeUrl, boolean useAutoFillin) {
+    public static Record parse(JSONObject data, ID user, boolean safetyUrl, boolean useAutoFillin) {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
             throw new FieldValueException(
@@ -77,7 +77,7 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user);
         }
 
-        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safeUrl)
+        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
 
         if (useAutoFillin) AutoFillinManager.instance.fillinRecord(record, true);
