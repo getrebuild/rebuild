@@ -34,23 +34,28 @@ public class EntityHelper {
     public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
 
     /**
+     * 解析 JSON 到 Record
      *
      * @param data
      * @param user
      * @return
+     * @see EntityRecordCreator
      */
     public static Record parse(JSONObject data, ID user) {
         return parse(data, user, true, false);
     }
 
     /**
+     * 解析 JSON 到 Record
+     *
      * @param data
      * @param user
-     * @param safeCheck
+     * @param safeUrl
      * @param useAutoFillin
      * @return
+     * @see EntityRecordCreator
      */
-    public static Record parse(JSONObject data, ID user, boolean safeCheck, boolean useAutoFillin) {
+    public static Record parse(JSONObject data, ID user, boolean safeUrl, boolean useAutoFillin) {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
             throw new FieldValueException(
@@ -72,14 +77,16 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user);
         }
 
-        EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safeCheck);
-        Record record = creator.create(false);
+        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safeUrl)
+                .create(false);
 
         if (useAutoFillin) AutoFillinManager.instance.fillinRecord(record, true);
         return record;
     }
 
     /**
+     * 构建更新 Record
+     *
      * @param recordId
      * @param user
      * @return
@@ -89,6 +96,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建更新 Record
+     *
      * @param recordId
      * @param user
      * @param bindCommons 是否自动补充公共字段
@@ -108,6 +117,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return
@@ -117,6 +128,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return
@@ -126,6 +139,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return

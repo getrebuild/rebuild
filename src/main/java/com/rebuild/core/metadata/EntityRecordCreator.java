@@ -17,6 +17,7 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
@@ -42,7 +43,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class EntityRecordCreator extends JsonRecordCreator {
 
-    private boolean safeCheck;
+    // 附件等是否不允许外链
+    private boolean safeUrl;
 
     /**
      * @param entity
@@ -50,18 +52,17 @@ public class EntityRecordCreator extends JsonRecordCreator {
      * @param editor
      */
     public EntityRecordCreator(Entity entity, JSONObject source, ID editor) {
-        this(entity, source, editor, Boolean.TRUE);
+        this(entity, source, editor, false);
     }
 
     /**
      * @param entity
      * @param source
      * @param editor
-     * @param safeCheck
      */
-    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safeCheck) {
+    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean safeUrl) {
         super(entity, source, editor);
-        this.safeCheck = safeCheck;
+        this.safeUrl = safeUrl;
     }
 
     @Override
@@ -88,16 +89,17 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     protected void afterCreate(Record record) {
-        int ec = entity.getEntityCode();
+        final int e = entity.getEntityCode();
+
         // 记录验证
         if (MetadataHelper.isBusinessEntity(entity)) {
             verify(record);
-        } else if (ec == EntityHelper.Feeds || ec == EntityHelper.FeedsComment
-                || ec == EntityHelper.ProjectTask || ec == EntityHelper.ProjectTaskComment
-                || ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role || ec == EntityHelper.Team) {
-            removeFieldIfSafeCheck(record);
+        } else if (e == EntityHelper.Feeds || e == EntityHelper.FeedsComment
+                || e == EntityHelper.ProjectTask || e == EntityHelper.ProjectTaskComment
+                || e == EntityHelper.User || e == EntityHelper.Department || e == EntityHelper.Role || e == EntityHelper.Team) {
+            keepFieldValueSafe(record);
         }
-        
+
         EntityHelper.bindCommonsFieldsValue(record, record.getPrimary() == null);
     }
 
@@ -177,10 +179,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     Language.L("%s 格式不正确", StringUtils.join(notWells, " / ")));
         }
 
-        removeFieldIfSafeCheck(record);
-
-        // TODO 检查引用字段的ID是否正确（是否是其他实体的ID）
-
+        keepFieldValueSafe(record);
     }
 
     // 明细关联主记录字段
@@ -191,7 +190,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         return false;
     }
 
-    // 强制可新建
+    // 强制可新建的字段
     private boolean isForceCreateable(Field field) {
         // DTF 字段
         if (isDtmField(field)) return true;
@@ -213,32 +212,37 @@ public class EntityRecordCreator extends JsonRecordCreator {
         return patt == null || patt.matcher((CharSequence) val).matches();
     }
 
-    // 字段值安全检查
-    private void removeFieldIfSafeCheck(Record record) {
-        if (!safeCheck) return;
-
+    private void keepFieldValueSafe(Record record) {
         for (String fieldName : record.getAvailableFields()) {
-            EasyField field = EasyMetaFactory.valueOf(entity.getField(fieldName));
-            Object value = record.getObjectValue(fieldName);
+            final Object value = record.getObjectValue(fieldName);
             if (NullValue.isNull(value)) continue;
+
+            final EasyField field = EasyMetaFactory.valueOf(entity.getField(fieldName));
 
             // 不能外链
             // https://github.com/getrebuild/rebuild/issues/596
-            if (field.getDisplayType() == DisplayType.IMAGE
-                    || field.getDisplayType() == DisplayType.FILE
-                    || field.getDisplayType() == DisplayType.AVATAR) {
+            if (safeUrl) {
+                if (field.getDisplayType() == DisplayType.IMAGE
+                        || field.getDisplayType() == DisplayType.FILE
+                        || field.getDisplayType() == DisplayType.AVATAR) {
 
-                String s = value.toString().toLowerCase();
-                boolean unsafe = s.contains("http://") || s.contains("https://");
-                if (!unsafe) {
-                    s = CodecUtils.urlDecode(s);
-                    unsafe = s.contains("http://") || s.contains("https://");
-                }
+                    String s = value.toString().toLowerCase();
+                    boolean unsafe = s.contains("http://") || s.contains("https://");
+                    if (!unsafe) {
+                        s = CodecUtils.urlDecode(s);
+                        unsafe = s.contains("http://") || s.contains("https://");
+                    }
 
-                if (unsafe) {
-                    log.warn("Remove not-safe field : {} < {}", field.getRawMeta(), value);
-                    record.removeValue(fieldName);
+                    if (unsafe) {
+                        log.warn("Remove not-safe field : {} < {}", field.getRawMeta(), value);
+                        record.removeValue(fieldName);
+                    }
                 }
+            }
+
+            // 小数精度处理
+            if (field.getDisplayType() == DisplayType.DECIMAL) {
+                record.setDecimal(fieldName, EasyDecimal.fixedDecimalScale(value, field.getRawMeta()));
             }
         }
     }

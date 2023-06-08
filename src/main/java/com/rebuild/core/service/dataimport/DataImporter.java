@@ -192,7 +192,7 @@ public class DataImporter extends HeavyTask<Integer> {
         // Verify new record
         // Throws DataSpecificationException
         if (checkout.getPrimary() == null) {
-            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null, Boolean.FALSE)
+            new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null, false)
                     .verify(checkout);
         }
 
