@@ -421,7 +421,7 @@ FieldFormula.formatText = function (formula, fields) {
 // eslint-disable-next-line no-undef
 class FormulaCalcWithCode extends FormulaCalc {
   renderContent() {
-    if (this.props.forceCode || this.state.useCode) {
+    if (this.props.forceCode || !$empty(this.props.initCode) || this.state.useCode) {
       return (
         <FormulaCode
           initCode={this.props.initCode}
@@ -440,7 +440,7 @@ class FormulaCalcWithCode extends FormulaCalc {
 
   renderExtraKeys() {
     return (
-      <React.Fragment>
+      <RF>
         <li className="list-inline-item">
           <a data-toggle="dropdown">{$L('函数')}</a>
           <div className="dropdown-menu">
@@ -483,7 +483,7 @@ class FormulaCalcWithCode extends FormulaCalc {
         <li className="list-inline-item">
           <a onClick={() => this.handleInput(',')}>,</a>
         </li>
-      </React.Fragment>
+      </RF>
     )
   }
 
