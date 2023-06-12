@@ -532,5 +532,8 @@
   "metadata",
   "feeds",
   "project",
-  "attachment"
+  "attachment",
+  "current",
+  "main",
+  "detail"
 ]
