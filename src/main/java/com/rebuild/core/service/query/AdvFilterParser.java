@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
-import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.momentjava.Moment;
@@ -38,6 +37,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -653,7 +653,7 @@ public class AdvFilterParser extends SetUser {
 
     // 字段变量 {@FIELD}
     private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
-    // `当前`变量（当前日期、时间）
+    // `当前`变量（当前日期、时间、用户）
     private static final String CURRENT_ANY = "CURRENT";
 
     private String useValueOfVarRecord(String value, Field queryField) {
@@ -662,38 +662,50 @@ public class AdvFilterParser extends SetUser {
         // {@FIELD}
         final String fieldName = value.substring(2, value.length() - 1);
 
-        // {@CURRENT}
+        Object useValue = null;
+
+        // {@CURRENT} DATE
         if (CURRENT_ANY.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
-            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                return CalendarUtils.getUTCDateFormat().format(CalendarUtils.now());
-            } else if (dt == DisplayType.TIME) {
-                return CalendarUtils.getDateFormat("HH:mm").format(CalendarUtils.now());
+            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
+                useValue = CalendarUtils.now();
+            } else {
+                log.warn("Cannot use `CURRENT` in `{}` (None date fields)", queryField);
+                return StringUtils.EMPTY;
             }
-            return StringUtils.EMPTY;
+        }
+        // {@CURRENT.} USER
+        if (fieldName.startsWith(CURRENT_ANY + ".")) {
+            String userField = fieldName.substring(CURRENT_ANY.length() + 1);
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(getUser(), userField);
+            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            else useValue = o[0];
         }
 
-        if (varRecord == null) return value;
+        if (useValue == null) {
+            if (varRecord == null) return value;
 
-        Field field = MetadataHelper.getLastJoinField(rootEntity, fieldName);
-        if (field == null) {
-            log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
-            return StringUtils.EMPTY;
+            Field valueField = MetadataHelper.getLastJoinField(rootEntity, fieldName);
+            if (valueField == null) {
+                log.warn("Invalid var-field : {} in {}", value, rootEntity.getName());
+                return StringUtils.EMPTY;
+            }
+
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
+            if (o == null || o[0] == null) return StringUtils.EMPTY;
+            else useValue = o[0];
         }
 
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(varRecord, fieldName);
-        if (o == null || o[0] == null) return StringUtils.EMPTY;
-
-        Object v = o[0];
-
-        if (v instanceof Date) {
-            v = CalendarUtils.getUTCDateFormat().format(v);
-        } else if (v instanceof BigDecimal) {
-            v = String.valueOf(((BigDecimal) v).doubleValue());
+        if (useValue instanceof Date) {
+            useValue = CalendarUtils.getUTCDateFormat().format(useValue);
+        } else if (useValue instanceof TemporalAccessor) {
+            useValue = CalendarUtils.getDateFormat("HH:mm").format(CalendarUtils.now());
+        } else if (useValue instanceof BigDecimal) {
+            useValue = String.valueOf(((BigDecimal) useValue).doubleValue());
         } else {
-            v = String.valueOf(v);
+            useValue = String.valueOf(useValue);
         }
-        return (String) v;
+        return (String) useValue;
     }
 
     /**

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.CommonsUtils;
@@ -14,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 /**
@@ -38,11 +40,10 @@ public class EasyDecimal extends EasyField {
         if (targetType == DisplayType.NUMBER) {
             return CommonsUtils.toLongHalfUp(value);
         }
-//        else if (targetType == getDisplayType()) {
-//            int scale = ((EasyDecimal) targetField).getScale();
-//            double d = ObjectUtils.round(ObjectUtils.toDouble(value), scale);
-//            return BigDecimal.valueOf(d);
-//        }
+
+        if (targetType == getDisplayType()) {
+            return fixedDecimalScale(value, targetField.getRawMeta());
+        }
 
         return super.convertCompatibleValue(value, targetField);
     }
@@ -81,5 +82,21 @@ public class EasyDecimal extends EasyField {
         int dotIndex = format.lastIndexOf(".");
         if (dotIndex == -1) return 0;
         return format.substring(dotIndex).length() - 1;
+    }
+
+    /**
+     * @param decimalValue
+     * @param decimalField
+     * @return
+     */
+    public static BigDecimal fixedDecimalScale(Object decimalValue, Field decimalField) {
+        int scale = ((EasyDecimal) EasyMetaFactory.valueOf(decimalField)).getScale();
+
+        if (decimalValue instanceof BigDecimal) {
+            return ((BigDecimal) decimalValue).setScale(scale, RoundingMode.HALF_UP);
+        } else {
+            double d = ObjectUtils.round(ObjectUtils.toDouble(decimalValue), scale);
+            return BigDecimal.valueOf(d);
+        }
     }
 }

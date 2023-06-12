@@ -50,7 +50,11 @@ class AdvFilter extends React.Component {
           <div
             className="filter-items"
             onKeyPress={(e) => {
-              if (e.which === 13 && typeof this.searchNow === 'function') this.searchNow()
+              if (e.which === 13 && typeof this.searchNow === 'function') {
+                const $input = $(e.target)
+                if ($input.prop('tagName') === 'INPUT') $input[0].blur()
+                setTimeout(() => this.searchNow(), 20)
+              }
             }}>
             {this.state.items}
 
@@ -335,7 +339,35 @@ const OP_TYPE = {
   NUY: $L('明年'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
+const OP_DATE_NOPICKER = [
+  'TDA',
+  'YTA',
+  'TTA',
+  'RED',
+  'REM',
+  'REY',
+  'FUD',
+  'FUM',
+  'FUY',
+  'BFD',
+  'BFM',
+  'BFY',
+  'AFD',
+  'AFM',
+  'AFY',
+  'PUW',
+  'CUW',
+  'NUW',
+  'PUM',
+  'CUM',
+  'NUM',
+  'PUQ',
+  'CUQ',
+  'NUQ',
+  'PUY',
+  'CUY',
+  'NUY',
+]
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
 
@@ -389,7 +421,39 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
+      op = [
+        'TDA',
+        'YTA',
+        'TTA',
+        'GT',
+        'LT',
+        'EQ',
+        'BW',
+        'RED',
+        'REM',
+        'REY',
+        'FUD',
+        'FUM',
+        'FUY',
+        'BFD',
+        'BFM',
+        'BFY',
+        'AFD',
+        'AFM',
+        'AFY',
+        'PUW',
+        'CUW',
+        'NUW',
+        'PUM',
+        'CUM',
+        'NUM',
+        'PUQ',
+        'CUQ',
+        'NUQ',
+        'PUY',
+        'CUY',
+        'NUY',
+      ]
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN') {
@@ -600,7 +664,7 @@ class FilterItem extends React.Component {
     const $el = e.target ? $(e.target) : e
     $el.removeClass('is-invalid')
     const v = e.target ? e.target.value : e.val()
-    if (!v) {
+    if ($empty(v)) {
       $el.addClass('is-invalid')
     } else {
       if (/^\{@[a-z0-9._]{4,}}$/i.test(v)) {

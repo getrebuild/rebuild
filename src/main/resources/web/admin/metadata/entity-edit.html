@@ -40,7 +40,7 @@
             <li th:class="nav-item" th:data-name="${detailEntity}">
               <a th:href="|../${detailEntity}/base|" class="nav-link J_for-details">[[${bundle.L('明细实体')}]]</a>
               <div th:if="${detailEntities.length > 1}" class="dropdown-menu J_details">
-                <a th:each="e : ${detailEntities}" th:href="|../${e[1]}/base|" th:data-name="${e[1]}" class="dropdown-item">[[${e[2]}]]</a>
+                <a th:each="e : ${detailEntities}" th:href="|../${e[1]}/base|" th:data-name="${e[1]}" class="dropdown-item"><i th:class="|icon zmdi zmdi-${e[3]}|"></i> [[${e[2]}]]</a>
               </div>
             </li>
           </ul>
