@@ -66,7 +66,7 @@
           </tr>
         </tbody>
       </table>
-      <th:block th:if="${isAdminVerified}">
+      <th:block th:if="${isAdminVerified || !ok}">
         <h5 class="text-bold mt-5">[[${bundle.L('系统信息')}]]</h5>
         <table class="table table-bordered table-sm table-hover">
           <tbody>
@@ -88,11 +88,11 @@
             </tr>
             <tr>
               <th>System Time</th>
-              <td>[[${T(cn.devezhao.commons.CalendarUtils).now()}]]</td>
+              <td>[[${T(cn.devezhao.commons.CalendarUtils).now().toLocaleString()}]]</td>
             </tr>
             <tr>
               <th>Startup Time</th>
-              <td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME}]]</td>
+              <td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME.toLocaleString()}]]</td>
             </tr>
             <tr>
               <th>Data Directory</th>
