@@ -57,7 +57,7 @@ import java.util.Set;
  */
 @Slf4j
 @RestController
-@RequestMapping("/commons/search/")
+@RequestMapping({"/commons/search/","/app/entity/"})
 public class ReferenceSearchController extends EntityController {
 
     // 引用字段-快速搜索
