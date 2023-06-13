@@ -112,7 +112,7 @@ class PlanBoxes extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {this.props.plans.map((item) => {
           return (
             <PlanBox
@@ -129,7 +129,7 @@ class PlanBoxes extends React.Component {
             />
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -186,6 +186,9 @@ class PlanBoxes extends React.Component {
           if (nextSeq === -1) seq = -1
           else if (prevSeq === 0) seq = nextSeq / 2
           else seq = ~~(prevSeq + (nextSeq - prevSeq) / 2)
+
+          // v3.4 bugfix `0`
+          if (seq <= 0) seq = 1000
 
           // Use state of react for move
           let $itemholder

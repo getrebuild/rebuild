@@ -163,7 +163,7 @@ public class ProjectTaskService extends BaseTaskService {
                 "select max(seq) from ProjectTask where projectPlanId = ?")
                 .setParameter(1, projectPlanId)
                 .unique();
-        return (seqMax == null || seqMax[0] == null) ? 0 : ((Integer) seqMax[0] + MID_VALUE);
+        return (seqMax == null || seqMax[0] == null) ? MID_VALUE : ((Integer) seqMax[0] + MID_VALUE);
     }
 
     /**
