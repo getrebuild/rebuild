@@ -114,7 +114,7 @@ $(document).ready(function () {
   const gs = $urlp('gs', location.hash)
   if (gs) {
     // eslint-disable-next-line no-undef
-    _showGlobalSearch(gs)
+    // _showGlobalSearch(gs)
     $('.J_search-key').val($decode(gs))
   }
 
