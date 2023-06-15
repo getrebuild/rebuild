@@ -103,7 +103,6 @@ public enum ConfigurationItem {
     WxworkAuthFile,
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
-    WxworkRobotWebhook,
 
     // PORTALs
     PortalBaiduMapAk,

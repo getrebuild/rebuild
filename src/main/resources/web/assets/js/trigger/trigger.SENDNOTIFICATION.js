@@ -14,73 +14,116 @@ class ContentSendNotification extends ActionContentSpec {
   state = { ...this.props, type: 1, userType: 1 }
 
   render() {
+    const state = this.state
     return (
       <div className="send-notification">
         <form className="simple">
           <div className="form-group row pt-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('通知类型')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right" style={{ paddingTop: 19 }}>
+              {$L('通知类型')}
+            </label>
             <div className="col-12 col-lg-8 pt-1">
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 1 })} checked={this.state.type === 1} disabled={this.state.userType === 2} />
-                <span className="custom-control-label">{$L('通知')}</span>
-              </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 2 })} checked={this.state.type === 2} />
-                <span className="custom-control-label">
-                  {$L('邮件')} {this.state.serviceMail === false && `(${$L('不可用')})`}
-                </span>
-              </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 3 })} checked={this.state.type === 3} />
-                <span className="custom-control-label">
-                  {$L('短信')} {this.state.serviceSms === false && `(${$L('不可用')})`}
-                </span>
-              </label>
+              <div>
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 1 && 'active'}`} onClick={() => this.setMsgType(1)}>
+                      {$L('通知')}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 2 && 'active'}`} onClick={() => this.setMsgType(2)}>
+                      {$L('邮件')}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 3 && 'active'}`} onClick={() => this.setMsgType(3)}>
+                      {$L('短信')}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 4 && 'active'}`} onClick={() => this.setMsgType(4)}>
+                      {$L('企业微信群')} <sup className="rbv" />
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a className={`nav-link ${state.type === 5 && 'active'}`} onClick={() => this.setMsgType(5)}>
+                      {$L('钉钉群')} <sup className="rbv" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 2 && state.serviceMail === false ? '' : 'hide'}`}>
+                <p className="message">{$L('不可用')}</p>
+              </div>
+              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 3 && state.serviceSms === false ? '' : 'hide'}`}>
+                <p className="message">{$L('不可用')}</p>
+              </div>
+              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 4 && state.serviceWxwork === false ? '' : 'hide'}`}>
+                <p className="message">{$L('不可用')}</p>
+              </div>
+              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 5 && state.serviceDingtalk === false ? '' : 'hide'}`}>
+                <p className="message">{$L('不可用')}</p>
+              </div>
             </div>
           </div>
 
-          <div className="form-group row pt-1 mb-0">
+          <div className="form-group row pt-1 pb-1 mb-0">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('发送给谁')}</label>
-            <div className="col-12 col-lg-8 pt-1">
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(1)} checked={this.state.userType === 1} />
+            <div className="col-12 col-lg-8 pt-1" ref={(c) => (this._$userTypes = c)}>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type <= 3 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 1 })} checked={state.userType === 1} />
                 <span className="custom-control-label">{$L('内部用户')}</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setUserType(2)} checked={this.state.userType === 2} />
-                <span className="custom-control-label">
-                  {$L('外部人员')} <sup className="rbv" />
-                </span>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 2 || state.type === 3 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 2 })} checked={state.userType === 2} />
+                <span className="custom-control-label">{$L('外部人员')}</span>
+              </label>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 4 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 4 })} checked={state.userType === 4} />
+                <span className="custom-control-label">{$L('企业微信群')}</span>
+              </label>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 5 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 5 })} checked={state.userType === 5} />
+                <span className="custom-control-label">{$L('钉钉群')}</span>
               </label>
             </div>
           </div>
           <div className="form-group row pt-0 mt-0">
             <label className="col-12 col-lg-3 col-form-label text-lg-right" />
             <div className="col-12 col-lg-8">
-              <div className={this.state.userType === 1 ? '' : 'hide'}>
+              <div className={state.userType === 1 ? '' : 'hide'}>
                 <UserSelectorWithField ref={(c) => (this._sendTo1 = c)} />
               </div>
-              <div className={this.state.userType === 2 ? '' : 'hide'}>
+              <div className={state.userType === 2 ? '' : 'hide'}>
                 <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
                 <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
+              </div>
+              <div className={state.userType === 4 ? '' : 'hide'}>
+                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
+                <p className="form-text">{$L('[如何获取群 Webhook 地址](https://getrebuild.com/docs/admin/integration-wxwork)')}</p>
+              </div>
+              <div className={state.userType === 5 ? '' : 'hide'}>
+                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$robotCode = c)} style={{ maxWidth: '100%' }} placeholder={$L('群号')} />
+                <p className="form-text">{$L('[如何获取群号](https://getrebuild.com/docs/admin/integration-dingtalk)')}</p>
               </div>
             </div>
           </div>
 
-          {this.state.type === 2 && (
-            <div className="form-group row pb-1">
-              <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件标题')}</label>
-              <div className="col-12 col-lg-8">
-                <input type="text" className="form-control form-control-sm" ref={(c) => (this._$title = c)} maxLength="60" placeholder={$L('你有一条新通知')} style={{ maxWidth: '100%' }} />
+          <div>
+            {state.type === 2 && (
+              <div className="form-group row pb-1">
+                <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('邮件标题')}</label>
+                <div className="col-12 col-lg-8">
+                  <input type="text" className="form-control form-control-sm" ref={(c) => (this._$title = c)} maxLength="60" placeholder={$L('你有一条新通知')} style={{ maxWidth: '100%' }} />
+                </div>
               </div>
-            </div>
-          )}
-
-          <div className="form-group row">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
-            <div className="col-12 col-lg-8">
-              <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
-              <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
+            )}
+            <div className="form-group row">
+              <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
+              <div className="col-12 col-lg-8">
+                <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
+                <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
+              </div>
             </div>
           </div>
         </form>
@@ -88,10 +131,10 @@ class ContentSendNotification extends ActionContentSpec {
     )
   }
 
-  setUserType(type) {
-    const s = { userType: type }
-    if (type === 2 && this.state.type === 1) s.type = 2
-    this.setState(s)
+  setMsgType(type) {
+    this.setState({ type: type }, () => {
+      $(this._$userTypes).find('>label:not(.hide) input')[0].click()
+    })
   }
 
   componentDidMount() {
