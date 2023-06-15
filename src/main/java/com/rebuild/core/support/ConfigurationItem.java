@@ -96,12 +96,14 @@ public enum ConfigurationItem {
     DingtalkPushAeskey, DingtalkPushToken,
     DingtalkSyncUsers(false),
     DingtalkSyncUsersRole,
+    DingtalkRobotCode,
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
     WxworkAuthFile,
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
+    WxworkRobotWebhook,
 
     // PORTALs
     PortalBaiduMapAk,

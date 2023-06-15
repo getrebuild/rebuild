@@ -35,6 +35,10 @@
                         <td>[[${bundle.L('企业 ID')}]]</td>
                         <td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未设置')}]]</td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('机器人 / Webhook 地址')}]]</td>
+                        <td data-id="WxworkRobotWebhook" th:data-value="${WxworkRobotWebhook ?:''}" data-optional="true">[[${WxworkRobotWebhook ?:bundle.L('未设置')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <h5>[[${bundle.L('企业微信侧配置')}]]</h5>

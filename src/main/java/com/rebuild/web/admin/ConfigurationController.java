@@ -346,6 +346,9 @@ public class ConfigurationController extends BaseController {
                 if (value != null && item == ConfigurationItem.WxworkSecret) {
                     value = DataDesensitized.any(value);
                 }
+                if (value != null && item == ConfigurationItem.WxworkRobotWebhook) {
+                    value = value.substring(0, value.length() - 28) + "**********";
+                }
                 mv.getModel().put(name, value);
 
                 if (ID.isId(value) && item == ConfigurationItem.WxworkSyncUsersRole) {
@@ -363,6 +366,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/wxwork")
     public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        String dWxworkRobotWebhook = defaultIfBlank(data, ConfigurationItem.WxworkRobotWebhook);
+        if (StringUtils.isNotBlank(dWxworkRobotWebhook) && !RegexUtils.isUrl(dWxworkRobotWebhook)) {
+            return RespBody.errorl("无效 Webhook 地址");
+        }
+
         setValues(data);
         return RespBody.ok();
     }
