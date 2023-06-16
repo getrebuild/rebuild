@@ -33,36 +33,28 @@ class ContentSendNotification extends ActionContentSpec {
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 2 && 'active'}`} onClick={() => this.setMsgType(2)}>
                       {$L('邮件')}
+                      {state.serviceMail === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 3 && 'active'}`} onClick={() => this.setMsgType(3)}>
                       {$L('短信')}
+                      {state.serviceSms === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 4 && 'active'}`} onClick={() => this.setMsgType(4)}>
-                      {$L('企业微信群')} <sup className="rbv" />
+                      {$L('企业微信群')}
+                      {state.serviceWxwork === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 5 && 'active'}`} onClick={() => this.setMsgType(5)}>
-                      {$L('钉钉群')} <sup className="rbv" />
+                      {$L('钉钉群')}
+                      {state.serviceDingtalk === false && <span className="text-danger fs-12"> ({$L('不可用')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                 </ul>
-              </div>
-              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 2 && state.serviceMail === false ? '' : 'hide'}`}>
-                <p className="message">{$L('不可用')}</p>
-              </div>
-              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 3 && state.serviceSms === false ? '' : 'hide'}`}>
-                <p className="message">{$L('不可用')}</p>
-              </div>
-              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 4 && state.serviceWxwork === false ? '' : 'hide'}`}>
-                <p className="message">{$L('不可用')}</p>
-              </div>
-              <div className={`alert alert-warning alert-sm mt-2 mb-0 ${state.type === 5 && state.serviceDingtalk === false ? '' : 'hide'}`}>
-                <p className="message">{$L('不可用')}</p>
               </div>
             </div>
           </div>
