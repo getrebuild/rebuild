@@ -22,9 +22,12 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerResult;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -40,11 +43,15 @@ import java.util.Set;
 @Slf4j
 public class SendNotification extends TriggerAction {
 
-    private static final int MTYPE_NOTIFICATION = 1;// 通知
-    private static final int MTYPE_MAIL = 2;        // 邮件
-    private static final int MTYPE_SMS = 3;         // 短信
-    private static final int UTYPE_USER = 1;    // 内部用户
-    private static final int UTYPE_ACCOUNT = 2; // 外部人员
+    private static final int MTYPE_NOTIFICATION = 1;    // 通知
+    private static final int MTYPE_MAIL = 2;            // 邮件
+    private static final int MTYPE_SMS = 3;             // 短信
+    private static final int MTYPE_WXWORK = 4;          // 企微群
+    private static final int MTYPE_DINGTALK = 5;        // 钉钉群
+    private static final int UTYPE_USER = 1;            // 内部用户
+    private static final int UTYPE_ACCOUNT = 2;         // 外部人员
+    private static final int UTYPE_WXWORK = 4;          // 企微群
+    private static final int UTYPE_DINGTALK = 5;        // 钉钉群
 
     public SendNotification(ActionContext context) {
         super(context);
@@ -69,6 +76,10 @@ public class SendNotification extends TriggerAction {
             return TriggerResult.wran("email-service unavailable");
         } else if (msgType == MTYPE_SMS && !SMSender.availableSMS()) {
             return TriggerResult.wran("sms-service unavailable");
+        } else if (msgType == MTYPE_WXWORK && RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) == null) {
+            return TriggerResult.wran("wxwork-service unavailable");
+        } else if (msgType == MTYPE_DINGTALK && RebuildConfiguration.get(ConfigurationItem.DingtalkRobotCode) == null) {
+            return TriggerResult.wran("dingtalk-service unavailable");
         } else if (msgType == MTYPE_NOTIFICATION) {
             // default
         }
@@ -76,6 +87,10 @@ public class SendNotification extends TriggerAction {
         Set<Object> s;
         if (userType == UTYPE_ACCOUNT) {
             s = sendToAccounts(operatingContext);
+        } else if (userType == UTYPE_WXWORK) {
+            s = sendToWxwork(operatingContext);
+        } else if (userType == UTYPE_DINGTALK) {
+            s = sendToDingtalk(operatingContext);
         } else {  // UTYPE_USER
             s = sendToUsers(operatingContext);
         }
@@ -163,6 +178,20 @@ public class SendNotification extends TriggerAction {
             }
         }
         return send;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Object> sendToWxwork(OperatingContext operatingContext) {
+        Object resp = CommonsUtils.invokeMethod(
+                "com.rebuild.rbv.trigger.SendNotification2#sendToWxwork", actionContext, operatingContext);
+        return (Set<Object>) resp;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Object> sendToDingtalk(OperatingContext operatingContext) {
+        Object resp = CommonsUtils.invokeMethod(
+                "com.rebuild.rbv.trigger.SendNotification2#sendToDingtalk", actionContext, operatingContext);
+        return (Set<Object>) resp;
     }
 
     // --

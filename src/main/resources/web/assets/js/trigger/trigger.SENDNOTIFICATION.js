@@ -103,7 +103,7 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text">{$L('[如何获取群 Webhook 地址](https://getrebuild.com/docs/admin/integration-wxwork)')}</p>
               </div>
               <div className={state.userType === 5 ? '' : 'hide'}>
-                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$robotCode = c)} style={{ maxWidth: '100%' }} placeholder={$L('群号')} />
+                <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$groupId = c)} style={{ maxWidth: '100%' }} placeholder={$L('群号')} />
                 <p className="form-text">{$L('[如何获取群号](https://getrebuild.com/docs/admin/integration-dingtalk)')}</p>
               </div>
             </div>
@@ -143,15 +143,21 @@ class ContentSendNotification extends ActionContentSpec {
     const content = this.props.content
     if (content) {
       if (content.sendTo) {
-        $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
-          if (res.error_code === 0 && res.data.length > 0) {
-            if (content.userType === 2) {
-              this._sendTo2.setState({ selected: res.data })
-            } else {
-              this._sendTo1.setState({ selected: res.data })
+        if (content.type === 4) {
+          $(this._$webhook).val(content.sendTo)
+        } else if (content.type === 5) {
+          $(this._$groupId).val(content.sendTo)
+        } else {
+          $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
+            if (res.error_code === 0 && res.data.length > 0) {
+              if (content.userType === 2) {
+                this._sendTo2.setState({ selected: res.data })
+              } else {
+                this._sendTo1.setState({ selected: res.data })
+              }
             }
-          }
-        })
+          })
+        }
       }
 
       this.setState(
@@ -171,23 +177,43 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   buildContent() {
-    if (rb.commercial < 1 && this.state.userType === 2) {
-      RbHighbar.error(WrapHtml($L('免费版不支持外部人员功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    if (rb.commercial < 1 && this.state.type === 4) {
+      RbHighbar.error(WrapHtml($L('免费版不支持企业微信群功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return false
+    }
+    if (rb.commercial < 1 && this.state.type === 5) {
+      RbHighbar.error(WrapHtml($L('免费版不支持钉钉群功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return false
+    }
+
+    let sendTo = this.state.userType === 2 ? this._sendTo2.getSelected() : this._sendTo1.getSelected()
+    if (this.state.type === 4) {
+      sendTo = $(this._$webhook).val()
+      if (!sendTo || !$regex.isUrl(sendTo)) {
+        RbHighbar.create($L('请输入有效的群 Webhook 地址'))
+        return false
+      }
+    } else if (this.state.type === 5) {
+      sendTo = $(this._$groupId).val()
+      if (!sendTo) {
+        RbHighbar.create($L('请输入群号'))
+        return false
+      }
+    } else {
+      if ((sendTo || []).length === 0) {
+        RbHighbar.create($L('请选择发送给谁'))
+        return false
+      }
     }
 
     const _data = {
       type: this.state.type,
       userType: this.state.userType,
-      sendTo: this.state.userType === 2 ? this._sendTo2.getSelected() : this._sendTo1.getSelected(),
+      sendTo: sendTo,
       title: $(this._$title).val(),
       content: this._content.val(),
     }
 
-    if ((_data.sendTo || []).length === 0) {
-      RbHighbar.create($L('请选择发送给谁'))
-      return false
-    }
     if (!_data.content) {
       RbHighbar.create($L('内容不能为空'))
       return false
