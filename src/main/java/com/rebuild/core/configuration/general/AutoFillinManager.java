@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
@@ -137,6 +138,7 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
+            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) continue;
 
             Field targetFieldMeta;
             // 明细 > 主
@@ -187,6 +189,7 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public int fillinRecord(Record record, boolean fillinForce) {
+        RbAssert.isCommercial(null);
         final Entity entity = record.getEntity();
         final boolean isNew = record.getPrimary() == null;
 

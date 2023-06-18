@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.support.License;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -21,10 +22,10 @@ public class RbAssert {
      */
     public static void isCommercial(String message) {
         if (!License.isCommercial()) {
-            throw new DefinedException(message);
+            throw new DefinedException(StringUtils.defaultString(message, "FEATURE REJECTION"));
         }
     }
-
+    
     /**
      * @param expression
      * @param message
