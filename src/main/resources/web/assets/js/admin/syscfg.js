@@ -78,7 +78,7 @@ const post = function (data) {
         else $c.find('.smtp-show').remove()
       }
 
-      RbHighbar.create($L('%s 不能为空', $c.text()))
+      RbHighbar.create($L('%s不能为空', $c.text()))
       return false
     }
   }

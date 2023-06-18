@@ -32,11 +32,14 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -668,7 +671,23 @@ public class FormsBuilder extends FormsManager {
             }
             // 其他
             else if (entity.containsField(field)) {
-                if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+                EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
+                if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+
+                    // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
+                    String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+                    if (JSONUtils.wellFormat(dataFilter)) {
+                        JSONObject dataFilterJson = JSON.parseObject(dataFilter);
+                        if (ParseHelper.validAdvFilter(dataFilterJson)) {
+                            boolean m = QueryHelper.isMatchAdvFilter(ID.valueOf(value), dataFilterJson);
+                            if (!m) {
+                                ((JSONObject) formModel).put("alertMessage",
+                                        Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
+                                continue;
+                            }
+                        }
+                    }
+
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);

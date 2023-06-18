@@ -582,7 +582,7 @@ class BatchUpdateEditor extends React.Component {
     const field = this.props.fields.find((x) => this.state.selectField === x.name)
     if (data.op === 'NULL') {
       if (!field.nullable) {
-        RbHighbar.create($L('%s 不能为空', field.label))
+        RbHighbar.create($L('%s不能为空', field.label))
         return null
       } else {
         return data

@@ -130,6 +130,10 @@ class RbFormModal extends React.Component {
       })
 
       this.__lastModified = res.data.lastModified || 0
+
+      setTimeout(() => {
+        formModel.alertMessage && RbHighbar.create(formModel.alertMessage)
+      }, 1000)
     })
   }
 
@@ -790,7 +794,7 @@ class RbFormElement extends React.Component {
     if (!props.onView) {
       // 必填字段
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
-        props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
+        props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
       }
 
       this.onEditModeChanged()
