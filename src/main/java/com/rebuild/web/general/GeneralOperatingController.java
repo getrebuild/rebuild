@@ -13,7 +13,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.exception.JdbcException;
 import com.alibaba.fastjson.JSON;
@@ -33,6 +32,7 @@ import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.TransformerPreview;
 import com.rebuild.core.service.trigger.DataValidateException;
@@ -135,6 +135,13 @@ public class GeneralOperatingController extends BaseController {
             CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.DataValidate#setWeakOnce", recordId);
         }
 
+        // v3.4 单字段修改
+        final boolean singleField = getBoolParameter(request, "singleField");
+        Record beforeSnap = null;
+        if (singleField) {
+            beforeSnap = Application.getQueryFactory().recordNoFilter(record.getPrimary());
+        }
+
         try {
             record = ies.createOrUpdate(record);
 
@@ -167,28 +174,40 @@ public class GeneralOperatingController extends BaseController {
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
         }
 
+        // 转换后回填
         String previewid = request.getParameter("previewid");
         if (isNew && StringUtils.isNotBlank(previewid)) {
-            // NOTE 新事物
-            new TransformerPreview(previewid, user).fillback(record.getPrimary());
+            try {
+                new TransformerPreview(previewid, user).fillback(record.getPrimary());
+            } catch (Exception ex) {
+                log.error("Transformer fillback error!", ex);
+            }
         }
 
         JSONObject res = new JSONObject();
         res.put("id", record.getPrimary());
 
-        // 单字段修改立即返回新值
-        // FIXME 是否整个返回 ??? 因为可能其他字段也更新了
-        boolean singleField = getBoolParameter(request, "singleField");
         if (singleField) {
+            res.put("forceReload", true);
+
+            String singleFieldName = null;
             for (String field : record.getAvailableFields()) {
                 Field fieldMeta = record.getEntity().getField(field);
-                if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
-                    continue;
-                }
+                if (MetadataHelper.isCommonsField(fieldMeta)) continue;
 
                 Object newValue = FormsBuilder.instance.wrapFieldValue(
                         record, EasyMetaFactory.valueOf(fieldMeta), null);
                 res.put(field, newValue);
+                singleFieldName = field;
+            }
+
+            // 不一致时前端整体刷新
+            if (singleFieldName != null) {
+                Record afterSnap = Application.getQueryFactory().recordNoFilter(record.getPrimary());
+                beforeSnap.removeValue(singleFieldName);
+                afterSnap.removeValue(singleFieldName);
+                boolean same = new RecordDifference(beforeSnap).isSame(afterSnap, false);
+                res.put("forceReload", !same);
             }
         }
 

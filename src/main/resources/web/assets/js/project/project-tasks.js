@@ -14,7 +14,7 @@ $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
   if (gs) {
     // eslint-disable-next-line no-undef
-    _showGlobalSearch(gs)
+    // _showGlobalSearch(gs)
     gs = $decode(gs)
     $('.J_search .input-search input').val(gs)
     $('.J_search .indicator-primary').removeClass('hide')
@@ -112,7 +112,7 @@ class PlanBoxes extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {this.props.plans.map((item) => {
           return (
             <PlanBox
@@ -129,7 +129,7 @@ class PlanBoxes extends React.Component {
             />
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
@@ -186,6 +186,9 @@ class PlanBoxes extends React.Component {
           if (nextSeq === -1) seq = -1
           else if (prevSeq === 0) seq = nextSeq / 2
           else seq = ~~(prevSeq + (nextSeq - prevSeq) / 2)
+
+          // v3.4 bugfix `0`
+          if (seq <= 0) seq = 1000
 
           // Use state of react for move
           let $itemholder

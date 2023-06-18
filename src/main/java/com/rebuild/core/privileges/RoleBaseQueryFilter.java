@@ -225,7 +225,12 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             JSONArray items2 = new JSONArray();
             for (Object item : items) {
                 JSONObject c = (JSONObject) JSONUtils.clone((JSON) item);
-                c.put("field", String.format("%s.%s", dtmField.getName(), c.getString("field")));
+                String field = c.getString("field");
+                if (field.startsWith("&")) {
+                    c.put("field", String.format("&%s.%s", dtmField.getName(), field.substring(1)));
+                } else {
+                    c.put("field", String.format("%s.%s", dtmField.getName(), field));
+                }
                 items2.add(c);
             }
 

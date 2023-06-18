@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.robot.trigger;
 
 import com.rebuild.api.RespBody;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,8 @@ public class SendNotificationController extends BaseController {
         Map<String, Boolean> map = new HashMap<>();
         map.put("serviceMail", SMSender.availableMail());
         map.put("serviceSms", SMSender.availableSMS());
+        map.put("serviceWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) != null);
+        map.put("serviceDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkRobotCode) != null);
         return RespBody.ok(map);
     }
 }

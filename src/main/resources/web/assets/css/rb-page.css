@@ -3170,6 +3170,8 @@ form {
 
 .rb-top-header .search-container {
   padding-right: 8px;
+  padding-top: 12px;
+  padding-bottom: 10px;
 }
 
 .search-container .global-search {
@@ -3178,7 +3180,7 @@ form {
 
 .search-container .search-input-gs {
   background-color: #f5f5f5;
-  border-radius: 99px;
+  border-radius: 6px;
   display: inline-block;
 }
 

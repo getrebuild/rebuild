@@ -17,11 +17,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.TransactionManual;
+import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsService;
+import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.TransactionStatus;
@@ -135,7 +141,41 @@ public class RecycleRestore {
      */
     private List<Record> conver2Record(JSONObject content, ID recordId) {
         if (!MetadataHelper.containsEntity(recordId.getEntityCode())) {
-            throw new DefinedException(Language.L("所属实体已经不存在，无法恢复"));
+            throw new DefinedException(Language.L("记录所属实体已经不存在，无法恢复"));
+        }
+
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+
+        if (entity.getEntityCode() == EntityHelper.ProjectTask) {
+            String projectId = content.getString("projectId");
+            String projectPlanId = content.getString("projectPlanId");
+
+            try {
+                ProjectManager.instance.getProject(ID.valueOf(projectId), null);
+                ProjectManager.instance.getProjectByX(ID.valueOf(projectPlanId), null);
+            } catch (ConfigurationException know) {
+                log.warn(null, know);
+                throw new DefinedException(Language.L("任务所属项目或面板已经不存在，无法恢复"));
+            }
+        }
+
+        if (entity.getMainEntity() != null) {
+            String dtfName = MetadataHelper.getDetailToMainField(entity).getName();
+            String dtfValue = content.getString(dtfName);
+            ID mainid = ID.valueOf(dtfValue);
+
+            if (!QueryHelper.exists(mainid)) {
+                throw new DefinedException(Language.L("明细所属主记录已经不存在，无法恢复"));
+            }
+
+            if (MetadataHelper.hasApprovalField(entity.getMainEntity())) {
+                ApprovalState state = ApprovalHelper.getApprovalState(mainid);
+                if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+                    throw new DataSpecificationException(state == ApprovalState.APPROVED
+                            ? Language.L("明细所属主记录已完成审批，无法恢复")
+                            : Language.L("明细所属主记录正在审批中，无法恢复"));
+                }
+            }
         }
 
         JSONArray detailList = content.getJSONArray(RecycleBean.NAME_DETAILLIST);
@@ -144,8 +184,6 @@ public class RecycleRestore {
         }
 
         List<Record> records = new ArrayList<>();
-
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         Record record = new RestoreRecordCreator(entity, content).create(true);
         records.add(record);
 

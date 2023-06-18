@@ -1964,7 +1964,7 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+    const url = `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
     if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
 
     if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {

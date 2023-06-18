@@ -609,7 +609,7 @@ const RbListCommon = {
     const gs = $urlp('gs', location.hash)
     if (gs) {
       // eslint-disable-next-line no-undef
-      _showGlobalSearch(gs)
+      // _showGlobalSearch(gs)
       $('.input-search>input').val($decode(gs))
     }
 
@@ -1311,7 +1311,7 @@ const CellRenders = {
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
 
-    if (window.FrontJS) {
+    if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window.FrontJS.DataList.__cellRenders[fieldKey]

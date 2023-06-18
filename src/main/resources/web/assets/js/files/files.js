@@ -237,7 +237,7 @@ $(document).ready(() => {
   const gs = $urlp('gs', location.hash)
   if (gs) {
     // eslint-disable-next-line no-undef
-    _showGlobalSearch(gs)
+    // _showGlobalSearch(gs)
     currentSearch = $decode(gs)
     $('.input-search input').val(currentSearch)
   }

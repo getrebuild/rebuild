@@ -24,7 +24,7 @@ class RebuildGuide extends React.Component {
               onClick={(e) => {
                 const s = $val(e.target)
                 $.cookie('GuideShowNaver', s, { expires: null })
-                $.post(`/common/guide/show-naver?s=${s}`, () => {})
+                $.post(`/commons/guide/show-naver?s=${s}`, () => {})
               }}
             />
             <span className="mr-2 text-muted">{$L('下次登录不再显示')}</span>
@@ -181,7 +181,7 @@ class CommonGuide extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/common/guide/${this.props.feat}`, (res) => {
+    $.get(`/commons/guide/${this.props.feat}`, (res) => {
       this.setState({ items: res.data }, () => {
         this._pcalc()
         $(this._$guideItems).find('a.confirm').tooltip({})
@@ -199,7 +199,7 @@ class CommonGuide extends React.Component {
   }
 
   handleConfirm(url) {
-    $.post(`/common/guide/confirm?url=${$encode(url)}`, () => {
+    $.post(`/commons/guide/confirm?url=${$encode(url)}`, () => {
       const items = this.state.items
       items.forEach((item) => {
         if (item.url === url) item.confirm = true
