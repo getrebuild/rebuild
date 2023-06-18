@@ -39,7 +39,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 表单构造
@@ -310,21 +316,28 @@ public class FormsBuilder extends FormsManager {
             Object requiredOnCreate = el.remove("requiredOnCreate");
             Object requiredOnUpdate = el.remove("requiredOnUpdate");
             if (useAdvControl) {
+                // fix v3.3.4 跟随主记录新建/更新
+                boolean isNew2 = isNew;
+                if (entity.getMainEntity() != null) {
+                    ID fromMain = FormsBuilderContextHolder.getMainIdOfDetail(false);
+                    isNew2 = EntityHelper.isUnsavedId(fromMain);
+                }
+
                 // 显示
-                if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew) {
+                if (displayOnCreate != null && !(Boolean) displayOnCreate && isNew2) {
                     iter.remove();
                     continue;
                 }
-                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && !isNew) {
+                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && !isNew2) {
                     iter.remove();
                     continue;
                 }
 
                 // 必填
-                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew) {
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && isNew2) {
                     el.put("nullable", false);
                 }
-                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew) {
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew2) {
                     el.put("nullable", false);
                 }
             }
