@@ -118,7 +118,7 @@ class LevelBox extends React.Component {
             {(this.state.items || []).map((item) => {
               const active = this.state.activeId === item[0]
               return (
-                <li className={`dd-item ${active && 'active'}`} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                <li className={`dd-item ${active && 'active'}`} key={item[0]} onClick={() => this.clickItem(item[0])} data-key={item[0]}>
                   <div className={`dd-handle ${item[3] && 'text-disabled'}`} title={item[3] ? $L('已禁用') : null}>
                     {item[1]}
                     {item[3] && <small />}
