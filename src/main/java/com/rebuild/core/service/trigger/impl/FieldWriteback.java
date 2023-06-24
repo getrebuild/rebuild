@@ -122,6 +122,7 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
+        final boolean stopPropagation = ((JSONObject) actionContext.getActionContent()).getBooleanValue("stopPropagation");
 
         List<ID> affected = new ArrayList<>();
         boolean targetSame = false;
@@ -167,8 +168,13 @@ public class FieldWriteback extends FieldAggregation {
             System.out.println("[dev] Use current-loop tschain : " + tschainCurrentLoop);
 
             try {
-                Application.getBestService(targetEntity).createOrUpdate(targetRecord);
+                if (stopPropagation) {
+                    Application.getCommonsService().update(targetRecord, false);
+                } else {
+                    Application.getBestService(targetEntity).createOrUpdate(targetRecord);
+                }
                 affected.add(targetRecord.getPrimary());
+
             } finally {
                 PrivilegesGuardContextHolder.getSkipGuardOnce();
                 if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();

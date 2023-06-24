@@ -233,6 +233,7 @@ public class FieldAggregation extends TriggerAction {
         }
 
         final boolean forceUpdate = ((JSONObject) actionContext.getActionContent()).getBooleanValue("forceUpdate");
+        final boolean stopPropagation = ((JSONObject) actionContext.getActionContent()).getBooleanValue("stopPropagation");
 
         // 跳过权限
         PrivilegesGuardContextHolder.setSkipGuard(targetRecordId);
@@ -248,7 +249,12 @@ public class FieldAggregation extends TriggerAction {
         targetRecord.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
 
         try {
-            Application.getBestService(targetEntity).update(targetRecord);
+            if (stopPropagation) {
+                Application.getCommonsService().update(targetRecord, false);
+            } else {
+                Application.getBestService(targetEntity).update(targetRecord);
+            }
+
         } finally {
             PrivilegesGuardContextHolder.getSkipGuardOnce();
             if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
