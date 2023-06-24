@@ -39,7 +39,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
