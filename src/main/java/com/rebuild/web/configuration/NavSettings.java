@@ -17,10 +17,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.NavManager;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
@@ -68,10 +68,7 @@ public class NavSettings extends BaseController implements ShareTo {
         Record record;
         if (cfgid == null) {
             record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
-            // v3.4 设为系统用户，否则后续查询会有问题
-            if (UserHelper.isAdmin(user) && !UserService.ADMIN_USER.equals(user)) {
-                record.setID(EntityHelper.CreatedBy, UserService.SYSTEM_USER);
-            }
+            ShareToManager.putCreatedBy(record, user);
 
             record.setString("belongEntity", "N");
             record.setString("applyType", BaseLayoutManager.TYPE_NAV);
