@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -386,13 +386,14 @@ var _loadMessages = function () {
   $.get('/notification/messages?pageSize=10&preview=true', function (res) {
     $ul.empty()
     $(res.data).each(function (idx, item) {
-      var o = $('<li class="notification"></li>').appendTo($ul)
-      if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread=' : 'all=') + item[4] + '"></a>').appendTo(o)
-      $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
-      o = $('<div class="notification-info"></div>').appendTo(o)
-      $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
-      $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
+      var $o = $('<li class="notification"></li>').appendTo($ul)
+      if (item[3] === true) $o.addClass('notification-unread')
+      $o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread=' : 'all=') + item[4] + '"></a>').appendTo($o)
+      $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo($o)
+      $o = $('<div class="notification-info"></div>').appendTo($o)
+      var $m = $('<div class="text text-truncate"></div>').appendTo($o)
+      $m.attr('title', item[1]).text(item[1])
+      $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo($o)
     })
 
     _loadMessages__state = true
