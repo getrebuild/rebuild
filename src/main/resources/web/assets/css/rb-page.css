@@ -921,6 +921,7 @@ select.form-control:not([disabled]) {
   width: 150px;
   padding-right: 17px;
   text-align: right;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1064px) {
@@ -996,6 +997,10 @@ select.form-control:not([disabled]) {
 .type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
   right: 7px;
   top: 8px;
+}
+
+.type-REFERENCE .col-form-control {
+  overflow: hidden;
 }
 
 .type-N2NREFERENCE .select2-container--default .select2-selection--multiple::after {
