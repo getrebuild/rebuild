@@ -9,17 +9,23 @@ package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
+import com.esotericsoftware.minlog.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
 
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author devezhao
  * @since 2021/9/22
  */
+@Slf4j
 public class OshiUtils {
 
     private static SystemInfo SI;
@@ -100,5 +106,31 @@ public class OshiUtils {
         }
 
         return StringUtils.defaultString(bestipv4, "127.0.0.1");
+    }
+
+    /**
+     * 获取网络时间
+     *
+     * @return
+     */
+    public static Date getNetworkDate() {
+        final String[] FROMURLS = new String[] {
+                "http://www.baidu.com/",
+                "http://bjtime.cn/",
+                "http://www.google.com/",
+        };
+
+        for (String u : FROMURLS) {
+            try {
+                URLConnection conn = new URL(u).openConnection();
+                long l = conn.getDate();
+                return new Date(l);
+            } catch (Exception ex) {
+                Log.debug("Failed with : {}", u);
+            }
+        }
+
+        log.warn("Cannot getdate from network");
+        return new Date();
     }
 }
