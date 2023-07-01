@@ -268,8 +268,9 @@ public class QiniuCloud {
             // 去除特殊符号
             fileName = fileName.replaceAll("[?&#+%/\\s]", "");
 
-            if (fileName.length() > 41) {
-                fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
+            // 文件名长度控制
+            if (fileName.length() > 51) {
+                fileName = fileName.substring(0, 25) + ".." + fileName.substring(fileName.length() - 25);
             }
 
         } else {

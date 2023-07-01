@@ -478,6 +478,24 @@ public class UserHelper {
     }
 
     /**
+     * 获取用户的所有角色
+     *
+     * @param user
+     * @return
+     */
+    public static Set<ID> getUserRoles(ID user) {
+        Role role = Application.getUserStore().getUser(user).getOwningRole();
+        Set<ID> s = new HashSet<>();
+        if (role != null) {
+            s.add((ID) role.getIdentity());
+            if (role instanceof CombinedRole) {
+                s.addAll(((CombinedRole) role).getRoleAppends());
+            }
+        }
+        return Collections.unmodifiableSet(s);
+    }
+
+    /**
      * 获取附加了指定角色的用户
      *
      * @param roleId
