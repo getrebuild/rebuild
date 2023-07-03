@@ -209,7 +209,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             }
 
             if (fieldElement == null) {
-                log.warn("No field found: {}.{}", fs[0], fs[1]);
+                log.warn("No parent-field found: {} > {} in {}", fs[1], fs[2], fs[0]);
                 continue;
             }
 

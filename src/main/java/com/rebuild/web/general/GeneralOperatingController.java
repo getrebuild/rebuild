@@ -196,7 +196,7 @@ public class GeneralOperatingController extends BaseController {
                 if (MetadataHelper.isCommonsField(fieldMeta)) continue;
 
                 Object newValue = FormsBuilder.instance.wrapFieldValue(
-                        record, EasyMetaFactory.valueOf(fieldMeta), null);
+                        record, EasyMetaFactory.valueOf(fieldMeta), user);
                 res.put(field, newValue);
                 singleFieldName = field;
             }

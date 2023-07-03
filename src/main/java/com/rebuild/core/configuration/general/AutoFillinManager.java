@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -34,6 +36,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -227,12 +230,7 @@ public class AutoFillinManager implements ConfigManager {
 
             String targetFieldName = item.getString("target");
             boolean fillinForce2 = fillinForce || item.getBooleanValue("fillinForce");
-
-            Object value = item.get("value");
-            if (value instanceof JSONObject) {
-                value = ((JSONObject) value).getString("id");
-                value = ID.valueOf(value.toString());
-            }
+            Object value = conversion2RecordValue(into.getEntity().getField(targetFieldName), item.get("value"));
 
             // 强制回填
             if (fillinForce2) {
@@ -289,6 +287,34 @@ public class AutoFillinManager implements ConfigManager {
         }
 
         return newValue;
+    }
+
+    // 利用表单回填功能取到的值是 <tt>String</tt>，这里需要转换成类型值
+    private Object conversion2RecordValue(Field target, Object value) {
+        if (NullValue.isNull(value)) return null;
+
+        // REF
+        if (value instanceof JSONObject) {
+            value = ((JSONObject) value).getString("id");
+            return ID.valueOf(value.toString());
+        }
+        // FILE,IMAGE
+        if (value instanceof JSONArray) {
+            return ((JSONArray) value).toJSONString();
+        }
+        // Keep
+        if (value instanceof Number) {
+            return value;
+        }
+
+        Record temp4Value = new StandardRecord(target.getOwnEntity());
+        try {
+            RecordVisitor.setValueByLiteral(target.getName(), value.toString(), temp4Value);
+            return temp4Value.getObjectValue(target.getName());
+        } catch (Exception ex) {
+            log.error("Cannot conversion value of record : {} = {}", target.getName(), value);
+            return null;
+        }
     }
 
     /**
