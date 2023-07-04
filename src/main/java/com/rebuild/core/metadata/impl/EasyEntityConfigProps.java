@@ -25,6 +25,10 @@ public class EasyEntityConfigProps {
      * 明细不允许为空
      */
     public static final String DETAILS_NOTEMPTY = "detailsNotEmpty";
+    /**
+     * 明细重复判断模式为全部数据（否则为主记录下的）
+     */
+    public static final String DETAILS_GLOBALREPEAT = "detailsGlobalRepeat";
 
     /**
      * 隐藏常用查询面板
