@@ -154,6 +154,12 @@ class ContentFieldAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
+                  <span className="custom-control-label">{$L('禁用传播')}</span>
+                </label>
+              </div>
             </div>
           </div>
         </form>
@@ -185,6 +191,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
+      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       this.saveAdvFilter(content.dataFilter)
     }
   }
@@ -343,6 +350,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       items: this.state.items || [],
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
+      stopPropagation: $(this._$stopPropagation).prop('checked'),
       dataFilter: this._advFilter__data,
     }
 

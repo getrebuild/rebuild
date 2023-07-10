@@ -195,16 +195,17 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      let tdActive = null
-      const $els = $tb.find('tbody td').on('mousedown', function () {
-        if (tdActive === this) {
-          $(this).toggleClass('highlight')
-          return
-        }
-        tdActive = this
-        $els.removeClass('highlight')
-        $(this).addClass('highlight')
-      })
+      // let tdActive = null
+      // const $els = $tb.find('tbody td').on('mousedown', function () {
+      //   if (tdActive === this) {
+      //     $(this).toggleClass('highlight')
+      //     return
+      //   }
+      //   tdActive = this
+      //   $els.removeClass('highlight')
+      //   $(this).addClass('highlight')
+      // })
+      $tb.find('table').tableCellsSelection()
 
       if (window.render_preview_chart) {
         $tb.find('tbody td>a').removeAttr('href')

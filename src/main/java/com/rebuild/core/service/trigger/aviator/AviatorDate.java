@@ -22,11 +22,12 @@ import java.util.Map;
 public class AviatorDate extends AviatorObject {
     private static final long serialVersionUID = 2930549924386648595L;
 
-    protected static final String DU_MINUTE= "I";
-    protected static final String DU_HOUR = "H";
-    protected static final String DU_DAY = "D";
-    protected static final String DU_MONTH = "M";
     protected static final String DU_YEAR = "Y";
+    protected static final String DU_MONTH = "M";
+    protected static final String DU_DAY = "D";
+    protected static final String DU_HOUR = "H";
+    protected static final String DU_MINUTE = "I";
+    protected static final String DU_SECOND = "S";
 
     final private Date dateValue;
 

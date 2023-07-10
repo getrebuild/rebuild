@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.privileges.bizz.User;
@@ -49,6 +50,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -333,7 +335,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             log.debug("The record owner has not changed, ignore : {}", record);
             affected = 1;
         } else {
-            assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
+            assignBefore = countObservers() > 0 ? recordSnap(assignAfter, false) : null;
 
             delegateService.update(assignAfter);
             Application.getRecordOwningCache().cleanOwningUser(record);
@@ -445,7 +447,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             unsharedBefore.setNull("belongEntity");
             unsharedBefore.setNull("recordId");
             unsharedBefore.setNull("shareTo");
-            unsharedBefore = recordSnap(unsharedBefore);
+            unsharedBefore = recordSnap(unsharedBefore, false);
         }
 
         delegateService.delete(accessId);
@@ -737,14 +739,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     entity.getPrimaryField().getName(), checkRecord.getPrimary()));
         }
 
-        // 明细实体在主记录下检查重复
+        // 明细实体
         if (entity.getMainEntity() != null) {
-            String dtf = MetadataHelper.getDetailToMainField(entity).getName();
-            ID mainid = checkRecord.getID(dtf);
-            if (mainid == null) {
-                log.warn("Check all detail records for repeated");
-            } else {
-                checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+            String globalRepeat = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.DETAILS_GLOBALREPEAT);
+            // v3.4
+            if (!BooleanUtils.toBoolean(globalRepeat)) {
+                String dtf = MetadataHelper.getDetailToMainField(entity).getName();
+                ID mainid = checkRecord.getID(dtf);
+                if (mainid == null) {
+                    log.warn("Check all records of detail for repeatable");
+                } else {
+                    checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+                }
             }
         }
 

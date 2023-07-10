@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.AdvFilterService;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -61,6 +62,8 @@ public class AdvFilterController extends BaseController implements ShareTo {
         Record record;
         if (filterId == null) {
             record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
+            ShareToManager.putCreatedBy(record, user);
+
             record.setString("belongEntity", entity);
             if (StringUtils.isBlank(filterName)) filterName =  Language.L("我的查询");
         } else {
@@ -102,6 +105,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
         return valid == null ? RespBody.error() : RespBody.ok();
     }
 
+    @Deprecated
     @RequestMapping("advfilter/add-commons")
     public RespBody addCommons(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);

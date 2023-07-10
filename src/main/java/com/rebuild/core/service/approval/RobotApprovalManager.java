@@ -79,7 +79,7 @@ public class RobotApprovalManager implements ConfigManager {
                 return def;
             }
         }
-        throw new ConfigurationException("No approval found : " + approvalId);
+        throw new ConfigurationException("No `RobotApprovalConfig` found : " + approvalId);
     }
 
     /**

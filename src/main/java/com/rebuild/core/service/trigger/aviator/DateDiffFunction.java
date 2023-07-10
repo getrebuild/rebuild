@@ -71,6 +71,7 @@ public class DateDiffFunction extends AbstractFunction {
             else if (AviatorDate.DU_MONTH.equalsIgnoreCase($du)) mysqlUnit = "MONTH";
             else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) mysqlUnit = "HOUR";
             else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) mysqlUnit = "MINUTE";
+            else if (AviatorDate.DU_SECOND.equalsIgnoreCase($du)) mysqlUnit = "SECOND";
 
             // 利用 MySQL 计算，可预期
             String mysql = String.format("select TIMESTAMPDIFF(%s, '%s', '%s')",
@@ -91,6 +92,7 @@ public class DateDiffFunction extends AbstractFunction {
             else if (AviatorDate.DU_DAY.equalsIgnoreCase($du)) res = between.between(DateUnit.DAY);
             else if (AviatorDate.DU_HOUR.equalsIgnoreCase($du)) res = between.between(DateUnit.HOUR);
             else if (AviatorDate.DU_MINUTE.equalsIgnoreCase($du)) res = between.between(DateUnit.MINUTE);
+            else if (AviatorDate.DU_SECOND.equalsIgnoreCase($du)) res = between.between(DateUnit.SECOND);
 
             return AviatorLong.valueOf(res);
         }

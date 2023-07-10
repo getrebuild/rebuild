@@ -44,6 +44,8 @@ $(document).ready(() => {
     // v3.1
     if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
+      // v3.4
+      extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -160,4 +162,6 @@ $(document).ready(() => {
 
   // v3.1
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
+  // v3.4
+  if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
 })

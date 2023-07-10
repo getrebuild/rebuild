@@ -27,7 +27,7 @@ public class KnownExceptionConverter {
      * @param ex
      * @return
      */
-    public static String convert2ErrorMsg(Exception ex) {
+    public static String convert2ErrorMsg(Throwable ex) {
         if (ex == null) return null;
 
         if (ex instanceof DataSpecificationException) {

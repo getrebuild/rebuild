@@ -28,6 +28,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -237,8 +238,8 @@ public class RecordTransfomer extends SetUser {
 
         List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         if (validFields.isEmpty()) {
-            log.warn("No fields for transform : {}", fieldsMapping);
-            return null;
+            // Fixed https://github.com/getrebuild/rebuild/issues/633
+            log.warn("No fields (var) for transform : {}", fieldsMapping);
         }
 
         validFields.add(sourceEntity.getPrimaryField().getName());
