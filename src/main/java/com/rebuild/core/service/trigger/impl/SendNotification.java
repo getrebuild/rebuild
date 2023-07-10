@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -154,14 +155,28 @@ public class SendNotification extends TriggerAction {
         }
         if (validFields.isEmpty()) return null;
 
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(
-                actionContext.getSourceRecord(), validFields.toArray(new String[0]));
-        if (o == null) return null;
+        Object[] to = null;
+        // v3.4 删除就尝试从快照中取
+        if (operatingContext.getAction() == BizzPermission.DELETE) {
+            Record beforeRecord = operatingContext.getBeforeRecord();
+            if (beforeRecord != null) {
+                List<String> toList = new ArrayList<>();
+                for (String s : validFields) {
+                    Object v;
+                    if ((v = beforeRecord.getObjectValue(s)) != null) toList.add(v.toString());
+                }
+                to = toList.toArray(new String[0]);
+            }
+        } else {
+            to = Application.getQueryFactory().uniqueNoFilter(
+                    actionContext.getSourceRecord(), validFields.toArray(new String[0]));
+        }
+        if (to == null) return null;
 
         String[] message = formatMessageContent(actionContext, operatingContext);
         Set<Object> send = new HashSet<>();
 
-        for (Object item : o) {
+        for (Object item : to) {
             if (item == null) continue;
 
             String mobileOrEmail = item.toString();

@@ -335,7 +335,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             log.debug("The record owner has not changed, ignore : {}", record);
             affected = 1;
         } else {
-            assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
+            assignBefore = countObservers() > 0 ? recordSnap(assignAfter, false) : null;
 
             delegateService.update(assignAfter);
             Application.getRecordOwningCache().cleanOwningUser(record);
@@ -447,7 +447,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             unsharedBefore.setNull("belongEntity");
             unsharedBefore.setNull("recordId");
             unsharedBefore.setNull("shareTo");
-            unsharedBefore = recordSnap(unsharedBefore);
+            unsharedBefore = recordSnap(unsharedBefore, false);
         }
 
         delegateService.delete(accessId);
