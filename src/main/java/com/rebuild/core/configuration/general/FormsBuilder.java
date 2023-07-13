@@ -415,23 +415,8 @@ public class FormsBuilder extends FormsManager {
                 }
             }
 
-            // 编辑/视图
-            if (recordData != null) {
-                Object value = wrapFieldValue(recordData, easyField, user);
-                if (value != null) {
-                    el.put("value", value);
-                }
-
-                // 父级级联
-                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
-                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
-                    if (parentValue != null) {
-                        el.put("_cascadingFieldParentValue", parentValue);
-                    }
-                }
-            }
             // 新建记录
-            else {
+            if (isNew) {
                 if (!fieldMeta.isCreatable()) {
                     el.put("readonly", true);
                     switch (fieldName) {
@@ -468,8 +453,8 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
+                            // `wrapValue` 会添加格式符号
                             if (easyField.getDisplayType() == DisplayType.DECIMAL) {
-                                // `wrapValue` 会添加格式符号
                                 el.put("value", defaultValue);
                             } else {
                                 el.put("value", easyField.wrapValue(defaultValue));
@@ -504,7 +489,25 @@ public class FormsBuilder extends FormsManager {
                         el.put("_cascadingFieldParentValue", parentValue);
                     }
                 }
+            }
 
+            // 编辑/视图/记录转换
+            if (recordData != null) {
+                // `wrapValue` 会添加格式符号
+                if (easyField.getDisplayType() != DisplayType.DECIMAL) {
+                    Object value = wrapFieldValue(recordData, easyField, user);
+                    if (value != null) {
+                        el.put("value", value);
+                    }
+                }
+
+                // 父级级联
+                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
+                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
+                    }
+                }
             }
 
             // Clean

@@ -97,7 +97,8 @@ public class GroupAggregationController extends BaseController {
             if (build != null) targetGroupFields.add(build);
 
             DisplayType dt = easyField.getDisplayType();
-            if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
+            if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
+                    || dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
                 targetFields.add(buildField(field));
             }
         }
@@ -110,7 +111,7 @@ public class GroupAggregationController extends BaseController {
                 new String[] { "targetGroupFields", "targetFields", "hadApproval" },
                 new Object[] { targetGroupFields, targetFields, hadApproval });
     }
-
+    
     private String[] buildIfGroupField(EasyField field) {
         if (MetadataHelper.isApprovalField(field.getName())) return null;
 

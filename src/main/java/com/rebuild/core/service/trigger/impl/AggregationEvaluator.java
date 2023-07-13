@@ -14,9 +14,11 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
@@ -216,7 +218,15 @@ public class AggregationEvaluator {
             } else if (n instanceof ID) {
                 nvList.add(n);
             } else {
-                nvList.add(easyField.wrapValue(n));
+                Object v = easyField.wrapValue(n);
+                if (v == null) continue;
+
+                if (easyField.getDisplayType() == DisplayType.MULTISELECT) {
+                    JSONArray a = ((JSONObject) v).getJSONArray("text");
+                    CollectionUtils.addAll(nvList, a);
+                } else {
+                    nvList.add(v);
+                }
             }
         }
 

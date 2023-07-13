@@ -6,6 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FormulaAggregation, ActionContentSpec */
 
+const CALC_MODES2 = {
+  ...FormulaAggregation.CALC_MODES,
+  RBJOIN: $L('连接'),
+}
+
 // ~~ 分组聚合
 class ContentGroupAggregation extends ActionContentSpec {
   render() {
@@ -46,7 +51,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                     return (
                       <span className="mt-1 d-inline-block" key={item.targetField}>
                         <span className="badge badge-primary badge-close m-0 mr-1">
-                          <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
+                          <span>{_getFieldLabel(item.targetField, this.__targetGroupFieldsCache)}</span>
                           <i className="mdi mdi-arrow-left-right ml-2 mr-2" />
                           <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
                           <a className="close down-1" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
@@ -105,11 +110,11 @@ class ContentGroupAggregation extends ActionContentSpec {
                       <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.state.targetFields)}</span>
+                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.__targetFieldsCache)}</span>
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
-                            <span className="badge badge-warning">{FormulaAggregation.CALC_MODES[item.calcMode]}</span>
+                            <span className="badge badge-warning">{CALC_MODES2[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
@@ -140,10 +145,10 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <div className="col-2 pr-0">
                   <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
-                    {Object.keys(FormulaAggregation.CALC_MODES).map((item) => {
+                    {(this.state.calcModes || []).map((item) => {
                       return (
                         <option key={item} value={item}>
-                          {FormulaAggregation.CALC_MODES[item]}
+                          {CALC_MODES2[item]}
                         </option>
                       )
                     })}
@@ -280,6 +285,9 @@ class ContentGroupAggregation extends ActionContentSpec {
     $.get(`/admin/robot/trigger/group-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
+      this.__targetFieldsCache = res.data.targetFields
+      this.__targetGroupFieldsCache = res.data.targetGroupFields
+
       const fb = this.__sourceGroupFieldsCache.filter((x) => x[2] === `REFERENCE:${te}`)
       this.setState({ fillbackFields: fb }, () => {
         $(this._$fillbackField).val(null).trigger('change')
@@ -293,7 +301,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       } else {
         // init
         this.setState({ ...res.data }, () => {
-          // 字段关联
+          // 分组字段关联
 
           const $s2tgf = $(this._$targetGroupField)
             .select2({ placeholder: $L('选择目标字段') })
@@ -320,23 +328,48 @@ class ContentGroupAggregation extends ActionContentSpec {
 
           // 聚合规则
 
-          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择聚合字段') })
-          const $s2cm = $(this._$calcMode)
+          let $s2sf, $s2cm, $s2tf
+
+          $s2sf = $(this._$sourceField)
+            .select2({ placeholder: $L('选择聚合字段') })
+            .on('change', (e) => {
+              let sf = e.target.value
+              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              if (!sf) return
+
+              let cm = Object.keys(FormulaAggregation.CALC_MODES)
+              if (!['NUMBER', 'DECIMAL'].includes(sf[2])) {
+                cm = ['COUNT', 'COUNT2', 'RBJOIN']
+              }
+              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+            })
+
+          $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
-              this.setState({ calcMode: e.target.value })
+              const cm = e.target.value
+              this.setState({ calcMode: cm })
 
-              if (e.target.value === 'COUNT' || e.target.value === 'COUNT2') {
-                this.setState({ sourceFields: this.__sourceFieldsCache })
+              let sf = $s2sf.val()
+              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              if (!sf) return
+
+              let fs
+              if ('RBJOIN' === cm) {
+                fs = this.__targetFieldsCache.filter((x) => {
+                  if ('NTEXT' === x[2]) return true
+                  else return 'N2NREFERENCE' === x[2] && x[3] === sf[3]
+                })
               } else {
-                // 仅数字字段
-                const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
-                this.setState({ sourceFields: fs })
+                fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
               }
-            })
-          const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
 
-          $s2cm.trigger('change')
+              this.setState({ targetFields: fs })
+            })
+
+          $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
+
+          $s2sf.trigger('change')
 
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
