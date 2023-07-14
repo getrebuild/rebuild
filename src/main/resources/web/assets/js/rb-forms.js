@@ -49,7 +49,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button
-                  className="close md-close"
+                  className="close md-close J_maximize"
                   type="button"
                   title={this.state._maximize ? $L('向下还原') : $L('最大化')}
                   onClick={() => {
@@ -199,6 +199,12 @@ class RbFormModal extends React.Component {
   }
 
   hide(reset) {
+    // v3.4
+    if (location.href.includes('/app/entity/form')) {
+      window.close()
+      return
+    }
+
     $(this._rbmodal).modal('hide')
 
     const state = { reset: reset === true }

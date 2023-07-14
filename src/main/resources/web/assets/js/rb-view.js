@@ -377,7 +377,7 @@ class EntityRelatedList extends RelatedList {
 
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('在新页面打开')}>
         <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
@@ -599,6 +599,8 @@ const RbViewPage = {
 
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
+    $('.J_newpage').attr({ target: '_blank', href: `${rb.baseUrl}/app/entity/view?id=${id}` })
+    if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
 
     const that = this
 
@@ -949,6 +951,8 @@ const RbViewPage = {
         if (parent.RbListPage) parent.RbListPage.reload()
         else setTimeout(() => parent.location.reload(), 200)
       }
+      // v3.4
+      if (parent.location.href.includes('/app/entity/view')) parent.window.close()
     } else {
       window.close() // Maybe unclose
     }
@@ -970,8 +974,6 @@ const RbViewPage = {
 
 // init
 $(document).ready(function () {
-  // 无关闭按钮
-  if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
   // 回退按钮
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
