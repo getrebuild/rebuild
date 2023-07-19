@@ -74,7 +74,7 @@ public class AppUtils {
     }
 
     /**
-     * 获取当前 Session 请求用户
+     * 获取请求用户
      *
      * @param request
      * @return null or UserID
@@ -84,7 +84,7 @@ public class AppUtils {
     }
 
     /**
-     * 获取当前 Session 请求用户
+     * 获取请求用户
      *
      * @param request
      * @return null or UserID
