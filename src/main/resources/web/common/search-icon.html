@@ -9,7 +9,7 @@
         width: 34px;
         height: 34px;
         text-align: center;
-        border-radius: 2px;
+        border-radius: 4px;
       }
       #icons a i {
         font-size: 21px;
@@ -21,10 +21,26 @@
       #icons a:hover i {
         color: #fff;
       }
+      #search-box {
+        margin: 0 14px 14px;
+      }
+      #search-box > input {
+        appearance: none !important;
+        outline: none !important;
+        border: 0 none;
+        border-bottom: 1px solid #eee;
+        padding: 2px 0;
+      }
+      #search-box > input:focus {
+        border-color: #5f99f5;
+      }
     </style>
   </head>
   <body class="dialog">
     <div class="main-content">
+      <div id="search-box">
+        <input class="w-100" th:placeholder="${bundle.L('搜索 (EN)')}" />
+      </div>
       <div id="icons" class="text-center"></div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
@@ -47,6 +63,28 @@
             parent && parent.RbModal && parent.RbModal.resize()
           }, 666)
         }
+
+        let lastKey
+        let lastTimer
+        $('#search-box input').on('input', (e) => {
+          if (lastKey === e.target.value) return
+          lastKey = $.trim(e.target.value)
+
+          if (lastTimer) {
+            clearTimeout(lastTimer)
+            lastTimer = null
+          }
+          const lastKey2 = lastKey.toUpperCase()
+          lastTimer = setTimeout(() => {
+            $('#icons > a').each(function () {
+              const $this = $(this)
+              const title = $this.attr('title')
+              if (!lastKey2 || title.includes(lastKey2)) $this.removeClass('hide')
+              else $this.addClass('hide')
+            })
+            parent && parent.RbModal && parent.RbModal.resize()
+          }, 200)
+        })
       })
 
       // V1

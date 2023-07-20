@@ -113,7 +113,7 @@ CellRenders.renderSimple = function (v, s, k) {
     v = v ? (
       <React.Fragment>
         {$L('关联操作')}
-        <span className="badge text-id ml-1" title={$L('关联主记录 ID')}>
+        <span className="badge text-id ml-1" title={$L('关联记录 ID')}>
           {v.id}
         </span>
       </React.Fragment>
