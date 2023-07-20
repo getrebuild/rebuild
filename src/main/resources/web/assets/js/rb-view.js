@@ -51,6 +51,7 @@ class RbViewForm extends React.Component {
 
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
+      if (res.data.onViewEditable === false) this.onViewEditable = false
 
       const VFORM = (
         <RF>

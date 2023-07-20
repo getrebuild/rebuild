@@ -59,7 +59,7 @@ public class EasyEntityConfigProps {
      */
     public static final String REPEAT_FIELDS_CHECK_MODE = "repeatFieldsCheckMode";
     /**
-     * 视图单字段编辑
+     * 禁用视图单字段编辑
      */
-    public static final String ON_VIEW_EDITABLE = "onViewEditable";
+    public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
 }

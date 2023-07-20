@@ -39,6 +39,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -249,6 +250,11 @@ public class FormsBuilder extends FormsManager {
 
         if (approvalState != null) model.set("hadApproval", approvalState.getState());
         if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
+
+        // v34
+        String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
+                .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
+        model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
 
         model.set("id", null);  // Clean form's ID of config
         return model.toJSON();

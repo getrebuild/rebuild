@@ -51,7 +51,7 @@ $(document).ready(() => {
     // v3.4
     if ($('#repeatFieldsCheckMode')[0]) {
       extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
-      extConfig.onViewEditable = $val('#onViewEditable')
+      extConfig.disabledViewEditable = $val('#disabledViewEditable')
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -171,5 +171,5 @@ $(document).ready(() => {
   // v3.4
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
-  if (wpc.extConfig.onViewEditable) $('#onViewEditable').attr('checked', true)
+  if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
 })
