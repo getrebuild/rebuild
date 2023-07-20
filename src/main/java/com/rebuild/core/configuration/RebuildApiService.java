@@ -37,7 +37,7 @@ public class RebuildApiService extends BaseConfigurationService implements Admin
 
     @Override
     public Record create(Record record) {
-        record.setString("appId", (100000000 + RandomUtils.nextInt(899999999)) + "");
+        record.setString("appId", String.valueOf(100000000 + RandomUtils.nextInt(899999999)));
         record.setString("appSecret", CodecUtils.randomCode(40));
         return super.create(record);
     }
