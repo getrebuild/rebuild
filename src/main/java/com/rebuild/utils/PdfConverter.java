@@ -7,18 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.hutool.core.util.RuntimeUtil;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
@@ -63,36 +62,38 @@ public class PdfConverter {
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
         String cmd = String.format("%s --headless --convert-to pdf \"%s\" --outdir \"%s\"", soffice, path, outdir);
 
-        ProcessBuilder builder = new ProcessBuilder();
-        String encoding = "UTF-8";
+//        ProcessBuilder builder = new ProcessBuilder();
+//        String encoding = "UTF-8";
+//
+//        if (SystemUtils.IS_OS_WINDOWS) {
+//            builder.command("cmd.exe", "/c", cmd);
+//            encoding = "GBK";
+//        } else {
+//            // for Linux/Unix
+//            builder.command("/bin/sh", "-c", cmd);
+//        }
+//
+//        builder.redirectErrorStream(true);
+//        Process process = builder.start();
+//
+//        BufferedReader reader = null;
+//        StringBuilder echo = new StringBuilder();
+//        try {
+//            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding));
+//
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                echo.append(line).append("\n");
+//            }
+//
+//        } finally {
+//            IOUtils.closeQuietly(reader);
+//            process.destroy();
+//        }
 
-        if (SystemUtils.IS_OS_WINDOWS) {
-            builder.command("cmd.exe", "/c", cmd);
-            encoding = "GBK";
-        } else {
-            // for Linux/Unix
-            builder.command("/bin/sh", "-c", cmd);
-        }
+        String echo = RuntimeUtil.execForStr(StandardCharsets.UTF_8, cmd);
 
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-
-        BufferedReader reader = null;
-        StringBuilder echo = new StringBuilder();
-        try {
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encoding));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                echo.append(line).append("\n");
-            }
-
-        } finally {
-            IOUtils.closeQuietly(reader);
-            process.destroy();
-        }
-
-        if (echo.length() > 0) log.info(echo.toString());
+        if (echo.length() > 0) log.info(echo);
 
         if (dest.exists()) return dest.toPath();
         throw new PdfConverterException("Cannot convert to PDF : " + echo);

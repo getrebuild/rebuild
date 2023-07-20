@@ -58,4 +58,8 @@ public class EasyEntityConfigProps {
      * 重复字段检查模式 (AND/OR)
      */
     public static final String REPEAT_FIELDS_CHECK_MODE = "repeatFieldsCheckMode";
+    /**
+     * 视图单字段编辑
+     */
+    public static final String ON_VIEW_EDITABLE = "onViewEditable";
 }
