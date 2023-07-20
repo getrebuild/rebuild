@@ -542,7 +542,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error) this._onFieldValueChangeCall(field, value)
+    this._onFieldValueChangeCall(field, value)
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
