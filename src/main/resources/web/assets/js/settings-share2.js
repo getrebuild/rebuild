@@ -125,7 +125,7 @@ class Share2Switch extends _ChangeHandler {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (ESC)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
