@@ -21,7 +21,8 @@ $(document).ready(() => {
   if ($('.J_details')[0]) {
     const $toggle = $('.J_for-details')
     $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-18"></i>').appendTo($toggle)
-    $($toggle).attr('data-toggle', 'dropdown')
+    $toggle.attr('data-toggle', 'dropdown')
+    $toggle.next().find(`a[data-name=${wpc.entity}]`).addClass('text-primary')
   }
 
   const $btn = $('.J_save').on('click', () => {
@@ -46,6 +47,10 @@ $(document).ready(() => {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
       // v3.4
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
+    }
+    // v3.4
+    if ($('#repeatFieldsCheckMode')[0]) {
+      extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -164,4 +169,5 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
   // v3.4
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
+  if (wpc.extConfig.repeatFieldsCheckMode) $('#repeatFieldsCheckMode').attr('checked', true)
 })
