@@ -38,8 +38,6 @@ public class SysbaseHeartbeat {
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
 
-    volatile public static String DENIEDMSG = null;
-
     /**
      * Check server
      */
@@ -66,12 +64,9 @@ public class SysbaseHeartbeat {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
-            DENIEDMSG = echoValidity.getString("deniedMsg");
-
         } else {
             dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
-            DENIEDMSG = null;
         }
 
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
