@@ -29,6 +29,7 @@
   <meta name="rb.authToken" th:content="${authToken}" />
   <th:block th:if="${user != null}">
     <meta name="rb.currentUser" th:content="${user.getId()}" />
+    <meta name="rb.currentRoles" th:content="${T(com.rebuild.core.privileges.UserHelper).getUserRoles(user.getId())}" />
     <meta name="rb.isAdminUser" th:content="${user.isAdmin()}" />
     <meta name="rb.isAdminVerified" th:content="${T(com.rebuild.utils.AppUtils).isAdminVerified(#request)}" />
   </th:block>
