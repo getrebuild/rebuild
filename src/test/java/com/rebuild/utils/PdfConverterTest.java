@@ -19,8 +19,8 @@ class PdfConverterTest {
 
     @Test
     void convert() throws IOException {
-        Path path = ResourceUtils.getFile("classpath:classification-demo.xlsx").toPath();
-        Path pdf = PdfConverter.convert(path, Boolean.TRUE);
+        Path path = ResourceUtils.getFile("C:\\Users\\devezhao\\Desktop\\福达6.21-国际托书(2).xlsx").toPath();
+        Path pdf = PdfConverter.convert(path, PdfConverter.TYPE_HTML, Boolean.TRUE);
         System.out.println(path + " > " + pdf);
     }
 }
