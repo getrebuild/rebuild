@@ -162,7 +162,7 @@ class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
       <RF>
-        <table className="table">
+        <table className="table table-hover">
           <thead>
             <tr>
               <th>{$L('执行内容')}</th>

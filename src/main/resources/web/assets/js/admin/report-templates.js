@@ -226,7 +226,7 @@ class ReportEditor extends ConfigFormDlg {
     } else {
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
-      const $pw = $(`<a class="btn btn-secondary ml-2">${$L('预览')}</a>`)
+      const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon zmdi zmdi-eye mr-1"></i>${$L('预览')}</a>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {
         if (this.props.id) {

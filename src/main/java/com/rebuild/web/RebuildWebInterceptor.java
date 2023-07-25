@@ -263,7 +263,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (ServletUtils.isAjaxRequest(request)
                 || requestUri.contains("/assets/")
                 || requestUri.contains("/commons/frontjs/")
-                || requestUri.contains("/commons/theme/")) {
+                || requestUri.contains("/commons/theme/")
+                || requestUri.contains("/filex/download/")
+                || requestUri.startsWith("/filex/img/")) {
             return false;
         }
 
