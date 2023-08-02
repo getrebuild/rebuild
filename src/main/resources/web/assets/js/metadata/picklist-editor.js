@@ -12,6 +12,7 @@ const maxOptions = 100
 $(document).ready(() => {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
 
+  let _color
   const $cs = $('.rbcolors')
   RBCOLORS.forEach((c) => {
     $(`<a style="background-color:${c}" data-color="${c}"></a>`).appendTo($cs)
@@ -19,7 +20,15 @@ $(document).ready(() => {
   $cs.find('>a').on('click', function () {
     $cs.find('>a .zmdi').remove()
     $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+    _color = null
   })
+
+  $('<input type="color" />')
+    .appendTo($cs)
+    .on('change', (e) => {
+      $cs.find('>a .zmdi').remove()
+      _color = e.target.value
+    })
 
   $.get(`/admin/field/picklist-gets?isAll=true&${query}`, (res) => {
     $(res.data).each(function () {
@@ -46,7 +55,7 @@ $(document).ready(() => {
     }
 
     const id = $('.J_text').attr('attr-id')
-    const color = $('.rbcolors >a>i').parent().data('color') || ''
+    const color = $('.rbcolors>a>i').parent().data('color') || _color || ''
 
     let exists = null
     $('.J_config .dd3-content, .unset-list .dd-handle>span').each(function () {
@@ -88,6 +97,7 @@ $(document).ready(() => {
     $('.J_confirm').text($L('添加'))
     $('.rbcolors>a>i').remove()
     $('.J_config').parent().scrollTop(9999)
+    _color = null
 
     return false
   })

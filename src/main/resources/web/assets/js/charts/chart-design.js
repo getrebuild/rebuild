@@ -130,6 +130,13 @@ $(document).ready(() => {
     render_preview()
   })
 
+  $('<input type="color" />')
+    .appendTo($cs)
+    .on('change', (e) => {
+      $cs.find('>a .zmdi').remove()
+      render_preview(e.target.value)
+    })
+
   // Load
   if (wpc.chartConfig && wpc.chartConfig.axis) {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
@@ -348,7 +355,7 @@ const render_option = () => {
 
 // 生成预览
 let render_preview_chart = null
-const render_preview = () => {
+const render_preview = (_color) => {
   const $fs = $('a.J_filter > span:eq(1)')
   if (dataFilter && (dataFilter.items || []).length > 0) {
     $fs.text(`(${dataFilter.items.length})`)
@@ -368,6 +375,7 @@ const render_preview = () => {
         $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('当前图表无数据')}</h4>`)
         return
       }
+      if (cfg.option.useColor === '' && _color) cfg.option.useColor = _color
 
       $('#chart-preview').empty()
       // eslint-disable-next-line no-undef

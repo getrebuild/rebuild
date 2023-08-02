@@ -448,10 +448,11 @@ a.ui-draggable.ui-draggable-dragging {
   background-position: -1290px -1288px;
 }
 
-.rbcolors > a:first-child > i {
-  color: #777 !important;
-}
-
 .chart-option label {
   margin-bottom: 10px;
+}
+
+.rbcolors > a + a,
+.rbcolors input[type='color'] {
+  margin-left: 5px;
 }
