@@ -64,7 +64,7 @@ RbList.renderAfter = function () {
 class OnlineUserViewer extends RbAlert {
   renderContent() {
     return (
-      <table className="table table-striped table-hover">
+      <table className="table table-hover">
         <thead>
           <tr>
             <th width="30%">{$L('用户')}</th>
@@ -81,11 +81,15 @@ class OnlineUserViewer extends RbAlert {
                   <span className="pt-1">{item.fullName}</span>
                 </td>
                 <td className="cell-detail">
-                  <code className="text-break text-primary">{item.activeUrl || 'n/a'}</code>
                   <span className="cell-detail-description">
                     <DateShow date={item.activeTime} />
-                    <span className="ml-1">{item.activeIp}</span>
+                    <span className="ml-1" title="IP">
+                      {item.activeIp}
+                    </span>
                   </span>
+                  <a className="text-break link" href={item.activeUrl || '/'} target="_blank">
+                    {item.activeUrl || 'n/a'}
+                  </a>
                 </td>
                 <td className="actions text-right">
                   <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.sid)}>
@@ -105,10 +109,18 @@ class OnlineUserViewer extends RbAlert {
     this._load()
   }
 
+  componentWillUnmount() {
+    if (this._loadTimer) clearTimeout(this._loadTimer)
+  }
+
   _load() {
     $.get('/admin/audit/online-users', (res) => {
-      if (res.error_code === 0) this.setState({ users: res.data })
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        this.setState({ users: res.data })
+        this._loadTimer = setTimeout(() => this._load(), 60 * 1000)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 

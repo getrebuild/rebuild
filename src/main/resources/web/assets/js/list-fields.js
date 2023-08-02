@@ -199,7 +199,8 @@ class ShowStyles2 extends ShowStyles {
                 if (this.state.sortActive === 'asc') this.setState({ sortActive: 'desc' })
                 else if (this.state.sortActive === 'desc') this.setState({ sortActive: null })
                 else this.setState({ sortActive: 'asc' })
-              }}>
+              }}
+              title={$L('正序/倒序')}>
               <i className={`mdi mdi-sort-alphabetical-ascending ${this.state.sortActive || ''}`} />
             </a>
           </div>

@@ -718,9 +718,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             checkFields.add(field.getName());
         }
 
-        if (checkFields.isEmpty()) {
-            return Collections.emptyList();
-        }
+        if (checkFields.isEmpty()) return Collections.emptyList();
+
+        // OR AND
+        final String orAnd = StringUtils.defaultString(
+                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or");
 
         StringBuilder checkSql = new StringBuilder("select ")
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
@@ -729,9 +731,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .append(entity.getName())
                 .append(" where ( ");
         for (String field : checkFields) {
-            checkSql.append(field).append(" = ? or ");
+            checkSql.append(field).append(" = ? ").append(orAnd).append(" ");
         }
-        checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
+        checkSql.delete(checkSql.lastIndexOf("?") + 1, checkSql.length()).append(" )");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {

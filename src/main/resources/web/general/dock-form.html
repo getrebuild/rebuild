@@ -16,7 +16,7 @@
         margin: 0;
         box-shadow: none;
       }
-      .form-wrap .modal .modal-header button.md-close,
+      .form-wrap .modal .modal-header button.J_maximize,
       .form-wrap .modal .dialog-footer .btn-secondary {
         display: none;
       }
@@ -75,6 +75,7 @@
                 const after = $urlp('after')
                 if (after === 'view') location.replace(`./view?id=${id}`)
                 else if (after === 'edit') location.replace(`./form?id=${id}`)
+                else if (after === 'list') location.replace(`./form?id=${id}`)
                 else if (after === 'close') window.close()
                 else location.reload()
               }, 400)

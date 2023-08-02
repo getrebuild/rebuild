@@ -57,7 +57,7 @@ body {
   opacity: 0.6;
   padding: 1rem;
   height: 40px;
-  margin: -10px -1rem -1rem auto;
+  margin: -7px -1rem -1rem auto;
 }
 
 .view-header > span > .close.sm {
@@ -987,4 +987,20 @@ body {
 
 .switch-view-mode .btn.active .icon {
   color: var(--rb-btn-active-color) !important;
+}
+
+@media (min-width: 768px) {
+  .view-body .col-md-3 {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 21%;
+    flex: 0 0 21%;
+    max-width: 21%;
+  }
+
+  .view-body .col-md-9 {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 79%;
+    flex: 0 0 79%;
+    max-width: 79%;
+  }
 }

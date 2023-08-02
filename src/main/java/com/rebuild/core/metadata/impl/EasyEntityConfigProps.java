@@ -54,4 +54,12 @@ public class EasyEntityConfigProps {
      * 列表查询页签
      */
     public static final String ADV_LIST_FILTERTABS = "advListFilterTabs";
+    /**
+     * 重复字段检查模式 (AND/OR)
+     */
+    public static final String REPEAT_FIELDS_CHECK_MODE = "repeatFieldsCheckMode";
+    /**
+     * 禁用视图单字段编辑
+     */
+    public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
 }

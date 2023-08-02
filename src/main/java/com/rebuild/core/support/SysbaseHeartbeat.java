@@ -7,13 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
@@ -32,8 +37,6 @@ public class SysbaseHeartbeat {
 
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
-
-    volatile public static String DENIEDMSG = null;
 
     /**
      * Check server
@@ -61,12 +64,9 @@ public class SysbaseHeartbeat {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
-            DENIEDMSG = echoValidity.getString("deniedMsg");
-
         } else {
             dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
-            DENIEDMSG = null;
         }
 
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
@@ -137,5 +137,15 @@ public class SysbaseHeartbeat {
     public static String getUsersDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
         return dangers.get(UsersMsg);
+    }
+
+    /**
+     * @return
+     */
+    public static File getLogbackFile() {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger lg = lc.getLogger("ROOT");
+        FileAppender<?> fa = (FileAppender<?>) lg.getAppender("FILE");
+        return new File(fa.getFile());
     }
 }

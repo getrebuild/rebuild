@@ -217,7 +217,7 @@ class DeleteConfirm extends RbAlert {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -757,7 +757,7 @@ class RepeatedViewer extends RbModalHandler {
   renderRow(item, idx) {
     return (
       <tr key={`row-${idx}`}>
-        <td className="text-right pl-0">{idx}</td>
+        <td className="text-right pl-0 text-muted">{idx}.</td>
         {item.map((o, i) => {
           if (i === 0) return null
           return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
@@ -773,7 +773,7 @@ class RepeatedViewer extends RbModalHandler {
 
   openView(id) {
     if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
-    else window.open(`${rb.baseUrl}/app/redirect?id=${id}`)
+    else window.open(`${rb.baseUrl}/app/entity/view?id=${id}`)
   }
 }
 

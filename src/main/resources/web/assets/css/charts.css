@@ -554,7 +554,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: transparent;
 }
 
-.tcs .tcs-selected:not(.sel-from) {
+.tcs td.tcs-selected:not(.sel-from) {
   /*border: 1px double #4887c7;*/
   /*background-color: rgba(51, 122, 183, 0.2) !important;*/
   border: 1px double #4285f4;

@@ -49,7 +49,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button
-                  className="close md-close"
+                  className="close md-close J_maximize"
                   type="button"
                   title={this.state._maximize ? $L('向下还原') : $L('最大化')}
                   onClick={() => {
@@ -199,6 +199,12 @@ class RbFormModal extends React.Component {
   }
 
   hide(reset) {
+    // v3.4
+    if (location.href.includes('/app/entity/form')) {
+      window.close()
+      return
+    }
+
     $(this._rbmodal).modal('hide')
 
     const state = { reset: reset === true }
@@ -536,7 +542,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error) this._onFieldValueChangeCall(field, value)
+    this._onFieldValueChangeCall(field, value)
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))

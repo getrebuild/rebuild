@@ -146,7 +146,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
      */
     public Object wrapValue(Object value) {
         if (value == null) return null;
-        if (value instanceof String) return value.toString().trim();
+        if (value instanceof String) return value.toString();
         return value;
     }
 

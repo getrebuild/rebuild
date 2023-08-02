@@ -70,11 +70,13 @@ public final class License {
 
     public static JSONObject queryAuthority() {
         JSONObject auth = siteApi("api/authority/query");
-        if (auth.getString("error") != null) {
+        String error;
+        if ((error = auth.getString("error")) != null) {
             auth = JSONUtils.toJSONObject(
                     new String[] { "sn", "authType", "authObject", "authExpires" },
                     new String[] { SN(), "开源社区版", "GitHub", "无" });
         }
+        if ("BLOCKED".equals(error)) System.exit(110);
         return auth;
     }
 

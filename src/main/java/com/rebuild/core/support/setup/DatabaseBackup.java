@@ -62,19 +62,46 @@ public class DatabaseBackup {
         File dest = new File(backups, destName);
 
         String cmd = String.format(
-                "-u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
+                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
+                SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump",
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
 
+        String echo = execFor(cmd);
+        boolean isGotError = echo.contains("Got error");
+        if (isGotError) throw new RuntimeException(echo);
+
+        File zip = new File(backups, destName + ".zip");
+        try {
+            CompressUtils.forceZip(dest, zip, null);
+            
+            FileUtils.deleteQuietly(dest);
+            dest = zip;
+        } catch (Exception e) {
+            log.warn("Cannot zip backup : {}", zip);
+        }
+
+        log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
+
+        return dest;
+    }
+
+    /**
+     * 执行命令行
+     *
+     * @param cmd
+     * @return
+     * @throws IOException
+     */
+    public static String execFor(String cmd) throws IOException {
         ProcessBuilder builder = new ProcessBuilder();
         String encoding = "UTF-8";
 
         if (SystemUtils.IS_OS_WINDOWS) {
-            builder.command("cmd.exe", "/c", "mysqldump.exe " + cmd);
+            builder.command("cmd.exe", "/c", cmd);
             encoding = "GBK";
         } else {
             // for Linux/Unix
-            cmd = cmd.replace("\"", "'");
-            builder.command("/bin/sh", "-c", "mysqldump " + cmd);
+            builder.command("/bin/sh", "-c", cmd);
         }
 
         builder.redirectErrorStream(true);
@@ -95,29 +122,16 @@ public class DatabaseBackup {
             process.destroy();
         }
 
-        boolean isGotError = echo.toString().contains("Got error");
         try {
             int code = process.waitFor();
-            if (code != 0 || isGotError) {
-                throw new RuntimeException(echo.toString());
+            if (code != 0) {
+                throw new RuntimeException(code + "#" + echo);
             }
         } catch (InterruptedException ex) {
             log.error("command interrupted");
             throw new RuntimeException("COMMAND INTERRUPTED");
         }
 
-        File zip = new File(backups, destName + ".zip");
-        try {
-            CompressUtils.forceZip(dest, zip, null);
-            
-            FileUtils.deleteQuietly(dest);
-            dest = zip;
-        } catch (Exception e) {
-            log.warn("Cannot zip backup : {}", zip);
-        }
-
-        log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
-
-        return dest;
+        return echo.toString();
     }
 }

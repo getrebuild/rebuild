@@ -162,7 +162,7 @@ class LastLogsViewer extends RbAlert {
   renderContent() {
     return (
       <RF>
-        <table className="table">
+        <table className="table table-hover">
           <thead>
             <tr>
               <th>{$L('执行内容')}</th>
@@ -220,10 +220,12 @@ class LastLogsViewer extends RbAlert {
         )}
         {log.chain && (
           <RF>
-            <dt className="mt-2 pointer" onClick={(e) => $(e.target).next().toggleClass('hide')}>
+            <dt className="mt-2 pointer font-weight-normal" onClick={(e) => $(e.target).next().toggleClass('hide')}>
               {$L('执行细节')} ...
             </dt>
-            <dd className="mb-0 hide">{log.chain}</dd>
+            <dd className="mb-0 hide">
+              <code>{log.chain}</code>
+            </dd>
           </RF>
         )}
       </dl>
