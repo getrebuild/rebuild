@@ -45,7 +45,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     @Override
     protected List<Map<String, Object>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        final Map<String, String> varsMap = new TemplateExtractor33(template).transformVars(entity);
+
+        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(template);
+        final Map<String, String> varsMap = templateExtractor33.transformVars(entity);
 
         // 变量
         Map<String, String> varsMapOfMain = new HashMap<>();
@@ -137,7 +139,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 Field ref2Field = MetadataHelper.getField(split[1], split[0]);
                 Entity ref2Entity = ref2Field.getOwnEntity();
 
-                querySql += " order by createdOn";
+                String sortField = templateExtractor33.getSortField(refName);
+                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn");
+
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
             }

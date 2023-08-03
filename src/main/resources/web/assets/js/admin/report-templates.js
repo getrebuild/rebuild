@@ -100,6 +100,19 @@ class ReportEditor extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('模板类型')}</label>
+              <div className="col-sm-7 pt-1">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">{$L('记录模板')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" value="2" name="reportType" ref={(c) => (this._$listType = c)} onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">{$L('列表模板')}</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
               <div className="col-sm-9">
                 <div className="float-left">
@@ -122,21 +135,6 @@ class ReportEditor extends ConfigFormDlg {
                     <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
                   </div>
                 )}
-              </div>
-            </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right" />
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
-                  <input className="custom-control-input" type="checkbox" />
-                  <span className="custom-control-label">
-                    {$L('这是一个列表模板')}
-                    <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E5%9C%A8%E5%88%97%E8%A1%A8%E4%B8%AD%E4%BD%BF%E7%94%A8">
-                      <i className="zmdi zmdi-help zicon down-1" />
-                    </a>
-                  </span>
-                </label>
-
                 {this.state.invalidMsg && (
                   <div className="invalid-vars mt-2 mr-3">
                     <RbAlertBox message={this.state.invalidMsg} />
@@ -212,11 +210,6 @@ class ReportEditor extends ConfigFormDlg {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }
 
-    $(this._$listType)
-      .on('change', () => this.checkTemplate())
-      .find('[data-toggle="tooltip"]')
-      .tooltip()
-
     $(this._$outputType).find('[data-toggle="tooltip"]').tooltip()
 
     if (this.props.id) {
@@ -273,7 +266,7 @@ class ReportEditor extends ConfigFormDlg {
     const file = this.__lastFile
     if (!file || !entity) return false
 
-    const list = $(this._$listType).find('input').prop('checked')
+    const list = $(this._$listType).prop('checked')
     return `file=${$encode(file)}&entity=${entity}&list=${list}`
   }
 
@@ -296,7 +289,7 @@ class ReportEditor extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
-      post.templateType = $(this._$listType).find('input').prop('checked') ? 2 : 1
+      post.templateType = $(this._$listType).prop('checked') ? 2 : 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
       if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
       post.extraDefinition.templateVersion = 3
