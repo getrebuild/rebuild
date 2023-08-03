@@ -129,23 +129,29 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "stepId", "RobotApprovalStep", "recordId");
+
             } else if (refName.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
-                querySql += " order by autoId asc";
+
+                String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
+                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
+
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
+
             } else {
                 String[] split = refName.substring(1).split("\\.");
                 Field ref2Field = MetadataHelper.getField(split[1], split[0]);
                 Entity ref2Entity = ref2Field.getOwnEntity();
 
                 String sortField = templateExtractor33.getSortField(refName);
-                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn");
+                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
             }
 
+            log.info("SQL of template : {}", querySql);
             List<Record> list = Application.createQuery(querySql, getUser())
                     .setParameter(1, recordId)
                     .list();

@@ -74,6 +74,14 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 // 明细实体
                 else if (varName.startsWith(DETAIL_PREFIX)) {
                     String detailField = listField.substring(DETAIL_PREFIX.length());
+                    if (detailField.endsWith(SORT_ASC)) {
+                        detailField = detailField.substring(0, detailField.length() - 4);
+                        sortFields.put(DETAIL_PREFIX, detailField + " asc");
+                    } else if (detailField.endsWith(SORT_DESC)) {
+                        detailField = detailField.substring(0, detailField.length() - 5);
+                        sortFields.put(DETAIL_PREFIX, detailField + " desc");
+                    }
+                    
                     if (detailEntity != null && MetadataHelper.getLastJoinField(detailEntity, detailField) != null) {
                         map.put(varName, detailField);
                     } else {
@@ -98,7 +106,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                             subField = subField.substring(0, subField.length() - 5);
                             sortFields.put(refName, subField + " desc");
                         }
-                        
+
                         if (MetadataHelper.getLastJoinField(MetadataHelper.getEntity(ref2Entity), subField) != null) {
                             map.put(varName, subField);
                         } else {
