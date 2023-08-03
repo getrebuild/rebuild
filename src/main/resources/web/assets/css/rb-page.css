@@ -4952,7 +4952,8 @@ pre.unstyle {
   font-size: 0;
 }
 
-.rbcolors > a {
+.rbcolors > a,
+.rbcolors input[type='color'] {
   width: 24px;
   height: 24px;
   display: inline-block;
@@ -4970,8 +4971,9 @@ pre.unstyle {
   color: rgb(117, 0, 234);
 }
 
-.rbcolors > a + a {
-  margin-left: 7px;
+.rbcolors > a + a,
+.rbcolors input[type='color'] {
+  margin-left: 6px;
 }
 
 .rbcolors > a > i {
@@ -4979,12 +4981,22 @@ pre.unstyle {
 }
 
 .rbcolors > a.default {
-  background-color: #fff;
   border: 1px solid #ccc;
+  background-color: #fff;
 }
 
 .rbcolors > a.default > i {
   color: #444 !important;
+}
+
+.rbcolors input[type='color'] {
+  appearance: none;
+  -moz-appearance: none;
+  padding: 2px !important;
+  border: 0 none;
+  cursor: pointer;
+  background: #ccc;
+  font-size: 0;
 }
 
 .dd-item.star .dd3-content::after {

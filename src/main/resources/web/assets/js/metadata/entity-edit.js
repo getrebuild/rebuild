@@ -83,9 +83,9 @@ $(document).ready(() => {
     fields.forEach((item) => {
       if (item.disabled === false) ss.push(item)
     })
-    fields.forEach((item) => {
-      if (item.disabled === true) ss.push(item)
-    })
+    // fields.forEach((item) => {
+    //   if (item.disabled === true) ss.push(item)
+    // })
     return ss
   }
 
@@ -134,7 +134,7 @@ $(document).ready(() => {
       allowClear: true,
       data: sortFields(canQuickFields),
       multiple: true,
-      maximumSelectionLength: 5,
+      maximumSelectionLength: 9,
     })
 
     if (wpc.extConfig.quickFields) {
@@ -159,6 +159,7 @@ $(document).ready(() => {
         },
       },
       tags: true,
+      theme: 'default select2-tag',
     })
 
     if (wpc.extConfig.tags) {
