@@ -160,8 +160,9 @@ $(document).ready(() => {
         }
       }
 
-      if (k === 'useColor') {
+      if (k === 'useColor' && option[k]) {
         $cs.find(`a[data-color="${option[k]}"]`).trigger('click')
+        $('.rbcolors >input').val(option[k])
       }
     }
   }
@@ -412,9 +413,10 @@ const build_config = () => {
     if (name) option[name] = $val(this)
   })
 
-  const color = $('.rbcolors >a>i').parent().data('color') || ''
+  let color = $('.rbcolors >a>i')
+  if (color[0]) color = color.parent().data('color') || ''
+  else color = $('.rbcolors >input').val() || ''
   option.useColor = color || ''
-
   cfg.option = option
 
   if (dataFilter) cfg.filter = dataFilter
