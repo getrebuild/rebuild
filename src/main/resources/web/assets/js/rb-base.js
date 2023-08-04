@@ -19,6 +19,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // select2.zh-TW
 // eslint-disable-next-line
 !(function(){if(jQuery&&jQuery.fn&&jQuery.fn.select2&&jQuery.fn.select2.amd){var e=jQuery.fn.select2.amd}return(e.define("select2/i18n/zh_TW",[],function(){return{errorLoading:function(){return"無法載入結果"},inputTooLong:function(e){var t=e.input.length-e.maximum,n="請刪除"+t+"個字符";return n},inputTooShort:function(e){var t=e.minimum-e.input.length,n="请再输入至少"+t+"个字符";n="輸入關鍵詞搜索";return n},loadingMore:function(){return"載入更多結果"},maximumSelected:function(e){var t="最多只能選擇"+e.maximum+"項";return t},noResults:function(){return"未找到結果"},searching:function(){return"搜索中..."},removeAllItems:function(){return"清除"}}}),{define:e.define,require:e.require})})();
+// https://github.com/JDMCreator/isDark.js
+// eslint-disable-next-line
+var $isDark=function(color){color=color.trim().toLowerCase();var length=color.length,firstChar=color[0],_255=255,h=[],s,l=/[\d.*]+/g;if(/(^#?[a-f\d]+$)|\d/.test(color)){if("h"==firstChar){for(;s=l.exec(color);)h.push(s[0]);s=h[1]/100,l=h[2]/100;var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;h=h[0]/100,color=[h+1/3,h,h-1/3].map(function(r,o){return 0|(o=q-p,((r+=r<0?1:r>1?-1:0)<1/6?p+6*o*r:.5>r?q:r<2/3?p+o*(2/3-r)*6:p)*_255+.5)})}else if("r"==firstChar){for(;s=l.exec(color.replace(/%/g,"*2.55"));)h.push(s[0]);color=h.map(eval)}else color=[(z="0x"+/\w{6}/.exec(color.replace(length<6&&/./g,"$&$&")))>>16&_255,z>>8&_255,z&_255];return 299*color[0]+587*color[1]+114*color[2]<128e3}return!("bIb=b*bRcLcRdYdad{dcdRdgdHd*dndKdofifGf(gSi{iimum>mom;m\\mnnmoMoWo{p,r.r?rUscs#s8sUsWs{t*th".indexOf(firstChar+String.fromCharCode(color.charCodeAt(628%length)*length%91+33))%2)};
 
 // extends jQuery
 !(function ($) {

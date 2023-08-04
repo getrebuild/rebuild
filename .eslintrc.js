@@ -127,5 +127,6 @@ module.exports = {
     $clone: true,
     $isSysMask: true,
     $escapeHtml: true,
+    $isDark: true,
   },
 }
