@@ -119,7 +119,7 @@ class DlgMode1Option extends RbFormHandler {
               </div>
             </div>
           </div>
-          <div className="form-group row bosskey-show">
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分组”')}</label>
             <div className="col-sm-9">
               <div className="switch-button switch-button-xs">
@@ -237,7 +237,6 @@ class DlgMode1Option extends RbFormHandler {
           let set = wpc.extConfig && wpc.extConfig.advListShowCategory ? wpc.extConfig.advListShowCategory : null
           if (set) set = set.split(':')
 
-          wpc.extConfig.advListShowCategory
           that.setState({ advListShowCategoryFields: _data }, () => {
             $catFields
               .select2({
@@ -251,11 +250,12 @@ class DlgMode1Option extends RbFormHandler {
                 let formats
                 if (found && found.type === 'CLASSIFICATION') {
                   formats = [
-                    // [0, $L('%d 级分类', 1)],
-                    // [1, $L('%d 级分类', 2)],
-                    // [2, $L('%d 级分类', 3)],
-                    // [3, $L('%d 级分类', 4)],
+                    [0, $L('%d 级分类', 1)],
+                    [1, $L('%d 级分类', 2)],
+                    [2, $L('%d 级分类', 3)],
+                    [3, $L('%d 级分类', 4)],
                   ]
+                  formats = null  // FIXME 无法区分几级
                 } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
                   formats = [
                     ['yyyy', 'YYYY'],
@@ -276,6 +276,8 @@ class DlgMode1Option extends RbFormHandler {
               setTimeout(() => {
                 if (set[1]) $catFormats.val(set[1]).trigger('change')
               }, 200)
+            } else {
+              $catFields.trigger('change')
             }
           })
         })
@@ -297,6 +299,8 @@ class DlgMode1Option extends RbFormHandler {
 
     if (this.state.advListShowCategory) {
       o.advListShowCategory = `${$val('.advListShowCategory-set select:eq(0)')}:${$val('.advListShowCategory-set select:eq(1)') || ''}`
+    } else {
+      o.advListShowCategory = null
     }
 
     this.disabled(true)

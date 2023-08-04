@@ -167,13 +167,13 @@ class DlgChangeEmail extends RbFormHandler {
       <RbModal title={$L('修改邮箱')} ref="dlg" disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('邮箱')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('新邮箱')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" data-id="newEmail" onChange={this.handleChange} />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('验证码')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('新邮箱验证码')}</label>
             <div className="col-sm-4 pr-0">
               <input type="text" className="form-control form-control-sm" data-id="vcode" onChange={this.handleChange} />
             </div>
