@@ -11,12 +11,18 @@ body {
   height: 100%;
 }
 
-.main-content {
+.view-body .main-content {
+  padding: 20px 25px;
   margin-top: 60px;
+}
+
+.view-body .related-list > .list-nodata {
+  padding: 41px 0;
 }
 
 .tab-container {
   margin-top: -8px;
+  padding-right: 4px;
 }
 
 .tab-content {
@@ -35,7 +41,7 @@ body {
   z-index: 1001;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
-  background-color: rgba(230, 230, 230, 0.6);
+  background-color: rgba(230, 230, 230, 0.7);
   border-bottom-color: rgba(230, 230, 230, 1);
 }
 
@@ -1003,4 +1009,27 @@ body {
     flex: 0 0 79%;
     max-width: 79%;
   }
+}
+
+.tab-content-bottom .tab-pane-bottom {
+  padding: 0;
+  margin-top: 20px;
+}
+
+.tab-content-bottom .tab-pane-bottom h5 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 14px !important;
+  background-color: #eceff1;
+  padding: 12px 15px;
+  border-radius: 2px;
+}
+
+.tab-content-bottom .tab-pane-bottom h5 > i {
+  margin-right: 10px;
+  font-size: 15px;
+}
+
+.tab-content-bottom .related-list {
+  min-height: auto;
 }

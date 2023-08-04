@@ -586,8 +586,8 @@ const RbViewPage = {
 
   /**
    * @param {*} id Record ID
-   * @param {*} entity  [Name, Label, Icon]
-   * @param {*} ep  Privileges of this entity
+   * @param {*} entity array:[Name, Label, Icon]
+   * @param {*} ep Privileges of this entity
    */
   init(id, entity, ep) {
     this.__id = id
@@ -771,16 +771,32 @@ const RbViewPage = {
     const that = this
     that.__vtabEntities = []
     $(config).each(function () {
+      const configThat = this
       const entity = this.entity // Entity.Field
       that.__vtabEntities.push(entity)
-
       const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
+
+      // v3.4 明细显示在下方
+      if (this._showAtBottom) {
+        $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        renderRbcomp(
+          <MixRelatedList
+            entity={entity}
+            entity2={[configThat.entityLabel, configThat.icon]}
+            mainid={that.__id}
+            autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
+            defaultList={$isTrue(wpc.viewTabsDefaultList)}
+          />,
+          tabId
+        )
+        return
+      }
+
       const $tabNav = $(
         `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
-      const configThat = this
       $tabNav.find('a').on('click', function () {
         $tabPane.find('.related-list').length === 0 &&
           renderRbcomp(
@@ -814,11 +830,21 @@ const RbViewPage = {
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
         if (~~res.data[k] > 0) {
-          const $tabNav = $(`.nav-tabs a[href="#tab-${k.replace('.', '--')}"]`)
-          $tabNav.parent().removeClass('hide')
+          const tabId = `#tab-${k.replace('.', '--')}`
+          const $tabNav = $(`.nav-tabs a[href="${tabId}"]`)
+          if ($tabNav[0]) {
+            $tabNav.parent().removeClass('hide')
 
-          if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
-          else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
+            if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
+            else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
+          } else {
+            const $tabLine = $(tabId)
+            if ($tabLine[0]) {
+              let $span = $tabLine.prev().find('span')
+              if (!$span[0]) $span = $('<span></span>').appendTo($tabLine.prev())
+              $span.text(` (${res.data[k]})`)
+            }
+          }
         }
       }
     })
