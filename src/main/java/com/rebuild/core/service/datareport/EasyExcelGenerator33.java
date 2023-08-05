@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -123,9 +124,10 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
         for (Map.Entry<String, List<String>> e : fieldsOfRefs.entrySet()) {
             final String refName = e.getKey();
+            final boolean isApproval = refName.startsWith(APPROVAL_PREFIX);
 
             String querySql = baseSql;
-            if (refName.startsWith(APPROVAL_PREFIX)) {
+            if (isApproval) {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "stepId", "RobotApprovalStep", "recordId");
@@ -152,7 +154,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
             log.info("SQL of template : {}", querySql);
-            List<Record> list = Application.createQuery(querySql, getUser())
+            List<Record> list = Application.createQuery(querySql, isApproval ? UserService.SYSTEM_USER : getUser())
                     .setParameter(1, recordId)
                     .list();
 
