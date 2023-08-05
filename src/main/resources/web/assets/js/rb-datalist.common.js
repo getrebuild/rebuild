@@ -1527,7 +1527,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           if (typeof item === 'object') {
-            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
+            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: $isLight(item.color) ? '#444' : '#fff' } : null
             return (
               <span key={item.text} className="badge" title={item.text} style={style2}>
                 {item.text}
