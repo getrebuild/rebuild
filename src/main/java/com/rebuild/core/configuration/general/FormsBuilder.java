@@ -500,12 +500,13 @@ public class FormsBuilder extends FormsManager {
             // 编辑/视图/记录转换
             if (recordData != null) {
                 // `wrapValue` 会添加格式符号
-                if (easyField.getDisplayType() != DisplayType.DECIMAL) {
-                    Object value = wrapFieldValue(recordData, easyField, user);
-                    if (value != null) {
-                        el.put("value", value);
-                    }
+                Object value;
+                if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                    value = recordData.getObjectValue(easyField.getName());
+                } else {
+                    value = wrapFieldValue(recordData, easyField, user);
                 }
+                if (value != null) el.put("value", value);
 
                 // 父级级联
                 if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
