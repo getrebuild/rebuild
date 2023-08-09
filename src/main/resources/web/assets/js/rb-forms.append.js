@@ -251,7 +251,7 @@ class DeleteConfirm extends RbAlert {
                   <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
                     {$L('取消')}
                   </button>
-                  <button disabled={this.state.disable} className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
+                  <button disabled={this.state.disable} className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()} ref={(c) => (this._$dbtn = c)}>
                     {$L('删除')}
                   </button>
                 </div>
@@ -286,8 +286,14 @@ class DeleteConfirm extends RbAlert {
     if (typeof ids === 'object') ids = ids.join(',')
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
+    let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 6000)
+    let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在继续')), 15000)
+
     this.disabled(true, true)
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
+      clearTimeout(_timer1)
+      clearTimeout(_timer2)
+
       if (res.error_code === 0) {
         if (res.data.deleted >= res.data.requests) RbHighbar.success($L('删除成功'))
         else if (res.data.deleted === 0) RbHighbar.error($L('无法删除记录'))
