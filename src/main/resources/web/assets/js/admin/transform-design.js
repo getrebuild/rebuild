@@ -174,7 +174,7 @@ class FieldsMapping extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, useVfixed: {} }
-    this._FieldValueSet = []
+    this._FieldValueSet = {}
   }
 
   componentDidMount() {

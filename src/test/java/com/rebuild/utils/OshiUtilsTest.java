@@ -34,4 +34,9 @@ class OshiUtilsTest {
     void getLocalIp() {
         System.out.println(OshiUtils.getLocalIp());
     }
+
+    @Test
+    void getNetworkDate() {
+        System.out.println(OshiUtils.getNetworkDate());
+    }
 }
