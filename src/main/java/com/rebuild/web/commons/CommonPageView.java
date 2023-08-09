@@ -90,10 +90,8 @@ public class CommonPageView extends BaseController {
     @GetMapping("/app/home")
     public void home(@IdParam(name = "n", required = false) ID useNav, @IdParam(name = "d", required = false) ID useDash,
                      HttpServletResponse response) throws IOException {
-        // 设置默认（本次会话有效）
         addCookie("AppHome.Nav", useNav, response);
         addCookie("AppHome.Dash", useDash, response);
-
         response.sendRedirect("../dashboard/home");
     }
 
@@ -101,6 +99,7 @@ public class CommonPageView extends BaseController {
         Cookie cookie = new Cookie(name, value == null ? "N" : CodecUtils.urlEncode(value.toLiteral()));
         cookie.setPath("/");
         if (value == null) cookie.setMaxAge(0);
+        else cookie.setMaxAge(60 * 60 * 24 * 30);  // 30d
         response.addCookie(cookie);
     }
 }

@@ -67,7 +67,7 @@ public class PdfConverter {
      * @throws IOException
      */
     protected static Path convert(Path path, String type, boolean forceRegen) throws IOException {
-        type = StringUtils.defaultIfBlank(type, "pdf");
+        type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
         final File outdir = RebuildConfiguration.getFileOfTemp(null);
         String pdfName = path.getFileName().toString();
@@ -82,10 +82,10 @@ public class PdfConverter {
         // alias
         String soffice = RebuildConfiguration.get(ConfigurationItem.LibreofficeBin);
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
-        String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, "word", path, outdir);
+        String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outdir);
 
         String echo = DatabaseBackup.execFor(cmd);
-        if (echo.length() > 0) log.info(echo);
+        if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) return dest.toPath();
         throw new PdfConverterException("Cannot convert to PDF : " + StringUtils.defaultIfBlank(echo, "<empty>"));

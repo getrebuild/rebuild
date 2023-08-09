@@ -96,6 +96,8 @@ public class DatabaseBackup {
         ProcessBuilder builder = new ProcessBuilder();
         String encoding = "UTF-8";
 
+        log.info("CMD : {}", cmd);
+
         if (SystemUtils.IS_OS_WINDOWS) {
             builder.command("cmd.exe", "/c", cmd);
             encoding = "GBK";
