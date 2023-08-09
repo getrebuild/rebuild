@@ -1020,7 +1020,8 @@ body {
 
 .tab-content-bottom .tab-pane-bottom {
   padding: 0;
-  margin-top: 20px;
+  margin-top: 25px;
+  margin-bottom: 5px;
 }
 
 .tab-content-bottom .tab-pane-bottom h5 {

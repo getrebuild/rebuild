@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -81,7 +82,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
             for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
                 JSONObject deJson = EasyMetaFactory.toJSON(de);
                 deJson.put("entity", de.getName() + "." + MetadataHelper.getDetailToMainField(de).getName());
-                deJson.put("_showAtBottom", false);
+                deJson.put("_showAtBottom", CommandArgs.getBoolean(CommandArgs._DetailsShowAtBottom));
                 tabsFluent.add(deJson);
             }
 
