@@ -66,8 +66,8 @@ const startTour123 = function () {
       scrollToElement: false,
       tooltipClass: 'rebuild-tour-tooltip',
       highlightClass: 'rebuild-tour-highlight',
-      prevLabel: '<i class="zmdi zmdi-arrow-left"></i>',
-      nextLabel: '<i class="zmdi zmdi-arrow-right"></i>',
+      prevLabel: '<i class="zmdi zmdi-arrow-left down-2"></i>',
+      nextLabel: '<i class="zmdi zmdi-arrow-right down-2"></i>',
       doneLabel: $L('知道了'),
     })
     .onchange((target) => {

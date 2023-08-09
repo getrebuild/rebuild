@@ -29,6 +29,7 @@ class ReportList extends ConfigList {
                 {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
                 {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
+                {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{ShowEnable(item[4])}</td>
@@ -165,6 +166,10 @@ class ReportEditor extends ConfigFormDlg {
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+              <input className="custom-control-input" type="checkbox" value="html" />
+              <span className="custom-control-label">HTML</span>
+            </label>
           </div>
         </div>
 
@@ -216,6 +221,7 @@ class ReportEditor extends ConfigFormDlg {
       const outputType = (this.props.extraDefinition || {}).outputType || 'excel'
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
+      if (outputType.includes('html')) $(this._$outputType).find('input:eq(2)').attr('checked', true)
     } else {
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
@@ -275,8 +281,9 @@ class ReportEditor extends ConfigFormDlg {
     if (!post.name) return RbHighbar.create($L('请输入名称'))
 
     const output = []
-    if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
     if ($val($(this._$outputType).find('input:eq(0)'))) output.push('excel')
+    if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
+    if ($val($(this._$outputType).find('input:eq(2)'))) output.push('html')
 
     // v3.3
     post.extraDefinition = {

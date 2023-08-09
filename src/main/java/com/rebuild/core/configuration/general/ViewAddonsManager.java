@@ -81,6 +81,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
             for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
                 JSONObject deJson = EasyMetaFactory.toJSON(de);
                 deJson.put("entity", de.getName() + "." + MetadataHelper.getDetailToMainField(de).getName());
+                deJson.put("_showAtBottom", false);
                 tabsFluent.add(deJson);
             }
 

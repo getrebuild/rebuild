@@ -143,6 +143,7 @@ public class UserController extends EntityController {
                 .updateEnableUser(userId, deptNew, roleNew, roleAppends, enableNew);
 
         // 禁用后马上销毁会话
+        enUser = Application.getUserStore().getUser(enUser.getId());
         if (!enUser.isActive()) {
             HttpSession s = Application.getSessionStore().getSession(enUser.getId());
             if (s != null) {

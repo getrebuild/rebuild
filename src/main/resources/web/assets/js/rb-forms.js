@@ -2797,7 +2797,7 @@ const __findOptionText = function (options, value, useColor) {
   let text = (o || {}).text || `[${value.toUpperCase()}]`
   if (useColor) {
     if (o && o.color) {
-      const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+      const style2 = { borderColor: o.color, backgroundColor: o.color, color: $isLight(o.color) ? '#444' : '#fff' }
       text = (
         <span className="badge" style={style2}>
           {text}

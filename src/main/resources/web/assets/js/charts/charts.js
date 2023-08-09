@@ -1599,60 +1599,62 @@ class ChartSelect extends RbModalHandler {
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')}>
-        <div className="row chart-select-wrap">
-          <div className="col-3">
-            <div className="nav flex-column nav-pills">
-              <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>
-                {$L('全部')}
-              </a>
-              {this.props.entity && (
-                <a href="#entity" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#entity' ? 'active' : ''}`}>
-                  {$L('当前实体')}
+        <div className="m-1">
+          <div className="row chart-select-wrap">
+            <div className="col-3">
+              <div className="nav flex-column nav-pills">
+                <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>
+                  {$L('全部')}
                 </a>
-              )}
-              <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
-                {$L('我自己的')}
-              </a>
-              <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
-                {$L('内置图表')}
-              </a>
+                {this.props.entity && (
+                  <a href="#entity" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#entity' ? 'active' : ''}`}>
+                    {$L('当前实体')}
+                  </a>
+                )}
+                <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
+                  {$L('我自己的')}
+                </a>
+                <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
+                  {$L('内置图表')}
+                </a>
+              </div>
             </div>
-          </div>
-          <div className="col-9 pl-0">
-            <div className="chart-list">
-              {chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
-              {chartList.map((item) => {
-                return (
-                  <div key={item.id}>
-                    <span className="float-left chart-icon">
-                      <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
-                    </span>
-                    <span className="float-left title">
-                      <strong>{item.title}</strong>
-                      <p className="text-muted fs-12">{item.entityLabel && <span>{item.entityLabel}</span>}</p>
-                    </span>
-                    <span className="float-right">
-                      {this.state.appended.includes(item.id) ? (
-                        <a className="btn disabled" data-id={item.id}>
-                          {$L('已添加')}
-                        </a>
-                      ) : (
-                        <a className="btn" onClick={() => this.selectChart(item)}>
-                          {$L('添加')}
-                        </a>
-                      )}
-                    </span>
-                    {item.isManageable && !this.props.entity && (
-                      <span className="float-right">
-                        <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
-                          <i className="zmdi zmdi-delete" />
-                        </a>
+            <div className="col-9 pl-0">
+              <div className="chart-list">
+                {chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
+                {chartList.map((item) => {
+                  return (
+                    <div key={item.id}>
+                      <span className="float-left chart-icon">
+                        <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
                       </span>
-                    )}
-                    <div className="clearfix" />
-                  </div>
-                )
-              })}
+                      <span className="float-left title">
+                        <strong>{item.title}</strong>
+                        <p className="text-muted fs-12">{item.entityLabel && <span>{item.entityLabel}</span>}</p>
+                      </span>
+                      <span className="float-right">
+                        {this.state.appended.includes(item.id) ? (
+                          <a className="btn disabled" data-id={item.id}>
+                            {$L('已添加')}
+                          </a>
+                        ) : (
+                          <a className="btn" onClick={() => this.selectChart(item)}>
+                            {$L('添加')}
+                          </a>
+                        )}
+                      </span>
+                      {item.isManageable && !this.props.entity && (
+                        <span className="float-right">
+                          <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                            <i className="zmdi zmdi-delete" />
+                          </a>
+                        </span>
+                      )}
+                      <div className="clearfix" />
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>

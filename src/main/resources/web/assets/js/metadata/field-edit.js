@@ -687,13 +687,21 @@ class TagEditor extends RbAlert {
     $cs.find('>a').on('click', function () {
       $cs.find('>a .zmdi').remove()
       $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+      this._color = null
     })
+
+    $('<input type="color" />')
+      .appendTo($cs)
+      .on('change', (e) => {
+        $cs.find('>a .zmdi').remove()
+        this._color = e.target.value
+      })
   }
 
   _onConfirm() {
     const name = $val(this._$name)
     if (!name) return RbHighbar.create($L('请输入标签'))
-    const color = $(this._$rbcolors).find('>a>i').parent().data('color') || ''
+    const color = this._color || $(this._$rbcolors).find('>a>i').parent().data('color') || ''
     const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
     ok && this.hide()
   }
