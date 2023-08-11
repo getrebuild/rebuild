@@ -24,7 +24,7 @@ $(document).ready(function () {
   $('.J_email').click(() => renderRbcomp(<DlgChangeEmail />))
   $('.J_passwd').click(() => renderRbcomp(<DlgChangePasswd />))
   $('.J_temp-auth').click(() => {
-    RbAlert.create(<strong>{$L('注意!!! 请勿向陌生人发送临时授权链接')}</strong>, $L('安全提示'), {
+    RbAlert.create(<strong>{$L('注意!!! 请勿向陌生人提供临时授权链接')}</strong>, $L('安全提示'), {
       type: 'danger',
       confirmText: $L('我知道'),
       onConfirm: function () {
@@ -264,7 +264,7 @@ class DlgTempAuth extends RbModalHandler {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('临时授权')} disposeOnHide>
         <div className="file-share">
-          <label>{$L('临时授权链接')}</label>
+          <label className="text-dark">{$L('临时授权链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
@@ -273,7 +273,7 @@ class DlgTempAuth extends RbModalHandler {
               </button>
             </span>
           </div>
-          <p className="form-text">{$L('请复制临时授权链接发送给协助人，此链接 5 分钟内有效')}</p>
+          <p className="form-text">{$L('通过临时授权链接可登录你的账号 (此链接 5 分钟内有效)')}</p>
         </div>
       </RbModal>
     )

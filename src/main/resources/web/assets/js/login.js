@@ -77,4 +77,8 @@ $(document).ready(() => {
       }
     })
   })
+
+  if ($urlp('error') === 'TempAuth') {
+    RbHighbar.create($L('临时授权链接已过期'))
+  }
 })

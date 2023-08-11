@@ -320,7 +320,7 @@ class FileShare extends RbModalHandler {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide>
         <div className="file-share">
-          <label>{$L('分享链接')}</label>
+          <label className="text-dark">{$L('分享链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">

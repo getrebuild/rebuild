@@ -228,7 +228,7 @@ public class LoginController extends LoginAction {
         String token = getParameterNotNull(request, "token");
         Object loginUserId = Application.getCommonsCache().getx(SK_TEMP_AUTH + token);
         if (loginUserId == null) {
-            return new ModelAndView("redirect:/user/login");
+            return new ModelAndView("redirect:/user/login?error=TempAuth");
         }
 
         loginSuccessed(request, response, (ID) loginUserId, false);
