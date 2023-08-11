@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -202,7 +203,7 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/user/temp-auth")
     public RespBody tempAuth(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String token = CommonsUtils.randomHex(true);
+        final String token = CodecUtils.randomCode(40);
         Application.getCommonsCache().putx(LoginController.SK_TEMP_AUTH + token, user, 60 * 5);
 
         String url = RebuildConfiguration.getHomeUrl("/user/login/temp-auth?token=" + token);

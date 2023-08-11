@@ -124,11 +124,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // for `watermark`
   if (window.watermark && self === top) {
     window.watermark.init({
-      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName, rb._rbTempAuth ? 'TEMP-AUTH 临时授权' : null],
+      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName, rb._rbTempAuth ? 'TEMP.AUTH 临时授权' : null],
       watermark_angle: 30,
       watermark_width: 200,
       watermark_font: 'arial',
-      watermark_fontsize: '16px',
+      watermark_fontsize: '15px',
       watermark_alpha: rb._rbTempAuth ? 0.2 : 0.1,
       watermark_color: rb._rbTempAuth ? 'red' : 'black',
       watermark_parent_width: $(window).width(),

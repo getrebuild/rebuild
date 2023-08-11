@@ -26,7 +26,7 @@ $(document).ready(function () {
   $('.J_temp-auth').click(() => {
     RbAlert.create(<strong>{$L('注意!!! 请勿向陌生人提供临时授权链接')}</strong>, $L('安全提示'), {
       type: 'danger',
-      confirmText: $L('我知道'),
+      confirmText: $L('我知道了'),
       onConfirm: function () {
         this.hide()
         renderRbcomp(<DlgTempAuth />)
