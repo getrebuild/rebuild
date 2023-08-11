@@ -23,6 +23,19 @@ $(document).ready(function () {
 
   $('.J_email').click(() => renderRbcomp(<DlgChangeEmail />))
   $('.J_passwd').click(() => renderRbcomp(<DlgChangePasswd />))
+  $('.J_temp-auth').click(() => {
+    RbAlert.create(<strong>{$L('注意!!! 请勿向陌生人发送临时授权链接')}</strong>, $L('安全提示'), {
+      type: 'danger',
+      confirmText: $L('我知道'),
+      onConfirm: function () {
+        this.hide()
+        renderRbcomp(<DlgTempAuth />)
+      },
+      call: function () {
+        $countdownButton($(this._dlg).find('.btn-danger'))
+      },
+    })
+  })
 
   $('.J_save').click(function () {
     const fullName = $val('#fullName'),
@@ -101,7 +114,7 @@ $(document).ready(function () {
 class DlgChangePasswd extends RbFormHandler {
   render() {
     return (
-      <RbModal title={$L('修改密码')} ref="dlg" disposeOnHide={true}>
+      <RbModal title={$L('修改密码')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('原密码')}</label>
@@ -164,7 +177,7 @@ class DlgChangeEmail extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('修改邮箱')} ref="dlg" disposeOnHide={true}>
+      <RbModal title={$L('修改邮箱')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('新邮箱')}</label>
@@ -241,6 +254,52 @@ class DlgChangeEmail extends RbFormHandler {
       } else {
         RbHighbar.create(res.error_msg)
       }
+    })
+  }
+}
+
+// 临时授权
+class DlgTempAuth extends RbModalHandler {
+  render() {
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('临时授权')} disposeOnHide>
+        <div className="file-share">
+          <label>{$L('临时授权链接')}</label>
+          <div className="input-group input-group-sm">
+            <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
+            <span className="input-group-append">
+              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon zmdi zmdi-copy" />
+              </button>
+            </span>
+          </div>
+          <p className="form-text">{$L('请复制临时授权链接发送给协助人，此链接 5 分钟内有效')}</p>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    const initCopy = function () {
+      // eslint-disable-next-line no-undef
+      new ClipboardJS(that._$copy, {
+        text: function () {
+          return that.state.tempUrl
+        },
+      }).on('success', () => $(that._$copy).addClass('copied-check'))
+      $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
+    }
+
+    if (window.ClipboardJS) {
+      initCopy()
+    } else {
+      // eslint-disable-next-line no-undef
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
+    }
+
+    $.post('/settings/user/temp-auth', (res) => {
+      this.setState({ tempUrl: res.data || 'ERROR' })
     })
   }
 }
