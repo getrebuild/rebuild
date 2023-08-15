@@ -29,14 +29,12 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -192,7 +190,6 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public int fillinRecord(Record record, boolean fillinForce) {
-        RbAssert.isCommercial(null);
         final Entity entity = record.getEntity();
         final boolean isNew = record.getPrimary() == null;
 
