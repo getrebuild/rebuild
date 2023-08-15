@@ -14,6 +14,7 @@ server:
       cookie:
         same-site: lax
         name: RBSESSION
+      timeout: 14400
   error:
     whitelabel.enabled: false
   tomcat:

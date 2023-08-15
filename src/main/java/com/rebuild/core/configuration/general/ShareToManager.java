@@ -7,13 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigManager;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -213,17 +210,5 @@ public abstract class ShareToManager implements ConfigManager {
         return String.format("%s-%s-%s33-1", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
-    }
-
-    /**
-     * v3.4 设为系统用户，否则后续查询会有问题（修改了角色）
-     *
-     * @param cfgRecord
-     * @param createUser
-     */
-    public static void putCreatedBy(Record cfgRecord, ID createUser) {
-        if (UserHelper.isAdmin(createUser) && !UserService.ADMIN_USER.equals(createUser)) {
-            cfgRecord.setID(EntityHelper.CreatedBy, UserService.SYSTEM_USER);
-        }
     }
 }

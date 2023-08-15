@@ -17,7 +17,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.NavManager;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
@@ -68,8 +67,6 @@ public class NavSettings extends BaseController implements ShareTo {
         Record record;
         if (cfgid == null) {
             record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
-            ShareToManager.putCreatedBy(record, user);
-
             record.setString("belongEntity", "N");
             record.setString("applyType", BaseLayoutManager.TYPE_NAV);
             record.setString("shareTo", BaseLayoutManager.SHARE_SELF);

@@ -19,7 +19,6 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -81,8 +80,6 @@ public class ListFieldsController extends BaseController implements ShareTo {
         Record record;
         if (cfgid == null) {
             record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
-            ShareToManager.putCreatedBy(record, user);
-
             record.setString("belongEntity", entity);
             record.setString("applyType", BaseLayoutManager.TYPE_DATALIST);
             record.setString("shareTo", BaseLayoutManager.SHARE_SELF);

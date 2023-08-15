@@ -11,11 +11,16 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.InternalPersistService;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * 配置类的 Service。在增/删/改时调用清理缓存方法
@@ -31,7 +36,7 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     @Override
     public Record create(Record record) {
-        record = super.create(record);
+        record = super.create(putCreateBy4ShareTo(record));
         cleanCache(record.getPrimary());
         return record;
     }
@@ -45,7 +50,7 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
         throwIfNotSelf(record.getPrimary());
         cleanCache(record.getPrimary());
-        return super.update(record);
+        return super.update(putCreateBy4ShareTo(record));
     }
 
     @Override
@@ -98,5 +103,29 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     protected boolean hasLock() {
         return false;
+    }
+
+    /**
+     * v34 非 admin 共享则设为系统用户，否则后续查询会有问题（修改了角色）
+     *
+     * @param cfgRecord
+     */
+    protected Record putCreateBy4ShareTo(Record cfgRecord) {
+        final ID user = ObjectUtils.defaultIfNull(cfgRecord.getEditor(), UserContextHolder.getUser());
+        if (UserService.ADMIN_USER.equals(user)) return cfgRecord;
+        if (!cfgRecord.hasValue("shareTo")) return cfgRecord;
+
+        if (cfgRecord.getPrimary() != null) {
+            Object createBy = QueryHelper.queryField(cfgRecord.getPrimary(), EntityHelper.CreatedBy);
+            if (UserService.ADMIN_USER.equals(createBy)) return cfgRecord;
+        }
+
+        String shareTo = cfgRecord.getString("shareTo");
+        if (ShareToManager.SHARE_SELF.equalsIgnoreCase(shareTo)) {
+            cfgRecord.setID(EntityHelper.CreatedBy, user);
+        } else {
+            cfgRecord.setID(EntityHelper.CreatedBy, UserService.SYSTEM_USER);
+        }
+        return cfgRecord;
     }
 }

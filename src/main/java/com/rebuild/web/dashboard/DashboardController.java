@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -75,8 +74,7 @@ public class DashboardController extends BaseController {
         formJson.put("config", JSONUtils.EMPTY_ARRAY_STR);
 
         Record dashRecord = EntityHelper.parse(formJson, user);
-        ShareToManager.putCreatedBy(dashRecord, user);
-        
+
         // 复制当前面板
         if (dashCopy != null) {
             for (Object o : dashCopy) {
