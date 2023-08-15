@@ -55,8 +55,6 @@ public class DashboardManager extends ShareToManager {
         // 没有就初始化一个
         if (detected == null) {
             Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
-            putCreatedBy(record, user);
-
             record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
             record.setString("title", UserHelper.isAdmin(user) ? Language.L("默认仪表盘") : Language.L("我的仪表盘"));
             record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);

@@ -197,6 +197,16 @@ public class QueryHelper {
     }
 
     /**
+     * @param recordId
+     * @param fieldName
+     * @return
+     */
+    public static Object queryField(ID recordId, String fieldName) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldName);
+        return o == null || o[0] == null ? null : o[0];
+    }
+
+    /**
      * 根据 Record 中的字段获取数据库中的记录
      *
      * @param base

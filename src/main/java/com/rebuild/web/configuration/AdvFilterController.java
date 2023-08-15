@@ -18,7 +18,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.AdvFilterService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -26,7 +25,11 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,8 +65,6 @@ public class AdvFilterController extends BaseController implements ShareTo {
         Record record;
         if (filterId == null) {
             record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
-            ShareToManager.putCreatedBy(record, user);
-
             record.setString("belongEntity", entity);
             if (StringUtils.isBlank(filterName)) filterName =  Language.L("我的查询");
         } else {
