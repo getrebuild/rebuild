@@ -424,7 +424,7 @@ var _showNotification = function () {
  */
 var _initGlobalSearch = function () {
   $('.global-search2>a').on('click', function () {
-    _showGlobalSearch()
+    _showGlobalSearch($storage.get('GlobalSearch-gs'))
     $('.search-container input')[0].focus()
     setTimeout(function () {
       $('.search-container .dropdown-toggle').dropdown('toggle')
@@ -446,6 +446,7 @@ var _initGlobalSearch = function () {
 
   var $es = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
+    $storage.set('GlobalSearch-gs', s || '')
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
   if ($es.length === 0) return

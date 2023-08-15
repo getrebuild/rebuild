@@ -60,7 +60,7 @@ public class Entity2Schema extends Field2Schema {
         entityLabel = StringUtils.trim(entityLabel);
 
         if (!License.isCommercial() && MetadataHelper.getEntities().length >= 100) {
-            throw new NeedRbvException("实体数量超出免费版限制");
+            throw new NeedRbvException(Language.L("实体数量超出免费版限制"));
         }
 
         entityName = StringUtils.trim(entityName);

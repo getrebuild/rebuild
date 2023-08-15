@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.privileges.bizz.User;
@@ -49,6 +50,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -61,6 +63,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -139,6 +142,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
         }
 
+        // 保证顺序
+        Map<Integer, ID> detaileds = new TreeMap<>();
+
         try {
             record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
@@ -152,12 +158,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
             // 先删除
-            for (Record d : details) {
-                if (d instanceof DeleteRecord) delete(d.getPrimary());
+            for (int i = 0; i < details.size(); i++) {
+                Record d = details.get(i);
+                if (d instanceof DeleteRecord) {
+                    delete(d.getPrimary());
+                    detaileds.put(i, d.getPrimary());
+                }
             }
 
             // 再保存
-            for (Record d : details) {
+            for (int i = 0; i < details.size(); i++) {
+                Record d = details.get(i);
                 if (d instanceof DeleteRecord) continue;
 
                 if (checkDetailsRepeated) {
@@ -175,8 +186,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 } else {
                     update(d);
                 }
+                detaileds.put(i, d.getPrimary());
             }
 
+            record.setObjectValue(HAS_DETAILS, detaileds.values());
             return record;
 
         } finally {
@@ -305,7 +318,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final User toUser = Application.getUserStore().getUser(to);
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 
@@ -316,13 +329,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 分配前数据
         Record assignBefore = null;
 
-        int affected = 0;
+        int affected;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
             log.debug("The record owner has not changed, ignore : {}", record);
             affected = 1;
         } else {
-            assignBefore = countObservers() > 0 ? recordSnap(assignAfter) : null;
+            assignBefore = countObservers() > 0 ? recordSnap(assignAfter, false) : null;
 
             delegateService.update(assignAfter);
             Application.getRecordOwningCache().cleanOwningUser(record);
@@ -350,7 +363,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
         final ID recordOrigin = record;
         // v3.2.2 若为明细则转为主记录
-        if (MetadataHelper.getEntityType(record.getEntityCode()) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(record.getEntityCode()).getMainEntity() != null) {
             record = QueryHelper.getMainIdByDetail(record);
         }
 
@@ -380,7 +393,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .setParameter(3, to)
                 .unique();
 
-        int affected = 0;
+        int affected;
         boolean shareChange = false;
         if (hasShared != null) {
             if ((int) hasShared[1] != rights) {
@@ -434,7 +447,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             unsharedBefore.setNull("belongEntity");
             unsharedBefore.setNull("recordId");
             unsharedBefore.setNull("shareTo");
-            unsharedBefore = recordSnap(unsharedBefore);
+            unsharedBefore = recordSnap(unsharedBefore, false);
         }
 
         delegateService.delete(accessId);
@@ -705,9 +718,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             checkFields.add(field.getName());
         }
 
-        if (checkFields.isEmpty()) {
-            return Collections.emptyList();
-        }
+        if (checkFields.isEmpty()) return Collections.emptyList();
+
+        // OR AND
+        final String orAnd = StringUtils.defaultString(
+                EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.REPEAT_FIELDS_CHECK_MODE), "or");
 
         StringBuilder checkSql = new StringBuilder("select ")
                 .append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
@@ -716,9 +731,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 .append(entity.getName())
                 .append(" where ( ");
         for (String field : checkFields) {
-            checkSql.append(field).append(" = ? or ");
+            checkSql.append(field).append(" = ? ").append(orAnd).append(" ");
         }
-        checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
+        checkSql.delete(checkSql.lastIndexOf("?") + 1, checkSql.length()).append(" )");
 
         // 排除自己
         if (checkRecord.getPrimary() != null) {
@@ -726,14 +741,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     entity.getPrimaryField().getName(), checkRecord.getPrimary()));
         }
 
-        // 明细实体在主记录下检查重复
+        // 明细实体
         if (entity.getMainEntity() != null) {
-            String dtf = MetadataHelper.getDetailToMainField(entity).getName();
-            ID mainid = checkRecord.getID(dtf);
-            if (mainid == null) {
-                log.warn("Check all detail records for repeated");
-            } else {
-                checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+            String globalRepeat = EasyMetaFactory.valueOf(entity).getExtraAttr(EasyEntityConfigProps.DETAILS_GLOBALREPEAT);
+            // v3.4
+            if (!BooleanUtils.toBoolean(globalRepeat)) {
+                String dtf = MetadataHelper.getDetailToMainField(entity).getName();
+                ID mainid = checkRecord.getID(dtf);
+                if (mainid == null) {
+                    log.warn("Check all records of detail for repeatable");
+                } else {
+                    checkSql.append(String.format(" and (%s = '%s')", dtf, mainid));
+                }
             }
         }
 

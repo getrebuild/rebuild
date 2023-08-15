@@ -30,6 +30,7 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
@@ -358,6 +359,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 || axisType == DisplayType.PICKLIST
                 || axisType == DisplayType.STATE) {
             label = (String) FieldValueHelper.wrapFieldValue(value, axisField, true);
+            label = CommonsUtils.escapeHtml(label);
 
             if (useRefLink && axisType == DisplayType.REFERENCE
                     && ID.valueOf(value.toString()).getEntityCode() > 100) {
@@ -366,6 +368,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
 
         } else {
             label = value.toString();
+            label = CommonsUtils.escapeHtml(label);
         }
         return label;
     }

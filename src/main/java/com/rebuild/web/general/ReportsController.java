@@ -93,10 +93,13 @@ public class ReportsController extends BaseController {
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        final String outputType = getParameter(request, "output");
+        final String typeOutput = getParameter(request, "output");
+        final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
         // PDF
-        if ("pdf".equals(outputType) || isOnlyPdf(entity, reportId)) {
-            output = convertPdf(output);
+        if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, reportId)) {
+            output = convertPdf(output, null);
+        } else if (isHtml) {
+            output = convertPdf(output, PdfConverter.TYPE_HTML);
         }
 
         final String fileName = getReportName(entity, reportId, recordId, output);
@@ -106,7 +109,7 @@ public class ReportsController extends BaseController {
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
             writeSuccess(response, data);
 
-        } else if ("preview".equalsIgnoreCase(outputType)) {
+        } else if ("preview".equalsIgnoreCase(typeOutput)) {
             String fileUrl = String.format(
                     "/filex/download/%s?temp=yes&_onceToken=%s",
                     CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null));
@@ -120,7 +123,8 @@ public class ReportsController extends BaseController {
             response.sendRedirect(previewUrl);
 
         } else {
-            FileDownloader.downloadTempFile(response, output, fileName);
+            // HTML 会直接预览
+            FileDownloader.downloadTempFile(response, output, isHtml ? FileDownloader.INLINE_FORCE : fileName);
         }
     }
 
@@ -148,9 +152,13 @@ public class ReportsController extends BaseController {
                 output = exporter.export(useReport);
 
                 // PDF
-                if ("PDF".equalsIgnoreCase(getParameter(request, "output")) || isOnlyPdf(entity, useReport)) {
-                    output = convertPdf(output);
+                final String typeOutput = getParameter(request, "output");
+                if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, useReport)) {
+                    output = convertPdf(output, null);
+                } else if ("HTML".equalsIgnoreCase(typeOutput)) {
+                    output = convertPdf(output, PdfConverter.TYPE_HTML);
                 }
+
             } else {
                 output = exporter.export(reportType);
             }
@@ -210,12 +218,17 @@ public class ReportsController extends BaseController {
         return false;
     }
 
-    private File convertPdf(File source) throws DefinedException {
+    // 转换格式
+    private File convertPdf(File source, String type) throws DefinedException {
         try {
-            return PdfConverter.convert(source.toPath()).toFile();
+            if (PdfConverter.TYPE_HTML.equalsIgnoreCase(type)) {
+                return PdfConverter.convertHtml(source.toPath()).toFile();
+            } else {
+                return PdfConverter.convert(source.toPath()).toFile();
+            }
         } catch (PdfConverterException ex) {
-            log.error(null, ex);
-            throw new DefinedException(Language.L("无法输出 PDF 文件"));
+            log.error("PdfConverterException", ex);
+            throw new DefinedException(Language.L("无法输出转换文件"));
         }
     }
 }

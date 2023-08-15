@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -24,9 +25,15 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.signup.LoginController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -191,5 +198,15 @@ public class UserSettingsController extends BaseController {
         }
 
         return RespBody.ok();
+    }
+
+    @PostMapping("/user/temp-auth")
+    public RespBody tempAuth(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final String token = CodecUtils.randomCode(40);
+        Application.getCommonsCache().putx(LoginController.SK_TEMP_AUTH + token, user, 60 * 5);
+
+        String url = RebuildConfiguration.getHomeUrl("/user/login/temp-auth?token=" + token);
+        return RespBody.ok(url);
     }
 }

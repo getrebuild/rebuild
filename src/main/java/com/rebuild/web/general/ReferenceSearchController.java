@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
@@ -56,7 +57,7 @@ import java.util.Set;
  */
 @Slf4j
 @RestController
-@RequestMapping("/commons/search/")
+@RequestMapping({"/commons/search/","/app/entity/"})
 public class ReferenceSearchController extends EntityController {
 
     // 引用字段-快速搜索
@@ -94,7 +95,7 @@ public class ReferenceSearchController extends EntityController {
 
         int pageSize = getIntParameter(request, "pageSize", 10);
         return buildResultSearch(
-                searchEntity, getParameter(request, "quickFields"), q, protocolFilter, pageSize);
+                searchEntity, getParameter(request, "quickFields"), q, protocolFilter, pageSize, user);
     }
 
     // 搜索指定实体的指定字段
@@ -121,11 +122,11 @@ public class ReferenceSearchController extends EntityController {
 
         int pageSize = getIntParameter(request, "pageSize", 10);
         return buildResultSearch(
-                searchEntity, getParameter(request, "quickFields"), q, null, pageSize);
+                searchEntity, getParameter(request, "quickFields"), q, null, pageSize, user);
     }
 
     // 构建查询
-    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere, int maxResults) {
+    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere, int maxResults, ID user) {
         String searchWhere = "(1=1)";
 
         if (StringUtils.isNotBlank(q)) {
@@ -143,6 +144,12 @@ public class ReferenceSearchController extends EntityController {
             searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
         } else {
             searchWhere = String.format("(%s)", searchWhere);
+        }
+
+        int sec = searchEntity.getEntityCode();
+        if (sec == EntityHelper.User || sec == EntityHelper.Department || sec == EntityHelper.Role) {
+            String s = UserFilters.getEnableBizzPartFilter(sec, user);
+            if (s != null) searchWhere += " and " + s;
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);

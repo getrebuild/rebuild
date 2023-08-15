@@ -233,7 +233,7 @@ class RbAlert extends React.Component {
         <div className="modal-dialog modal-dialog-centered" style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
+              <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (ESC)`}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>

@@ -41,7 +41,7 @@
             </div>
             <div class="file-operator">
               <div class="row">
-                <div class="col-6">
+                <div class="col-5">
                   <div class="input-group input-search">
                     <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" maxlength="40" />
                     <button class="btn btn-input-clear" type="button"></button>
@@ -50,7 +50,7 @@
                     </span>
                   </div>
                 </div>
-                <div class="col-6 text-right">
+                <div class="col-7 text-right">
                   <div class="btn-group btn-space mb-0">
                     <button class="btn btn-primary J_upload-file" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传文件')}]]</button>
                     <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
@@ -61,7 +61,7 @@
                       <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除文件')}]]</a>
                     </div>
                   </div>
-                  <div class="btn-group btn-space mb-0 mr-0 J_sort">
+                  <div class="btn-group btn-space mb-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                       <span>[[${bundle.L('默认排序')}]]</span>
                       <i class="icon zmdi zmdi-chevron-down up-1"></i>
@@ -69,8 +69,10 @@
                     <div class="dropdown-menu dropdown-menu-right">
                       <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近上传')}]]</a>
                       <a class="dropdown-item" data-sort="older">[[${bundle.L('最早上传')}]]</a>
+                      <a class="dropdown-item" data-sort="size">[[${bundle.L('文件大小')}]]</a>
                     </div>
                   </div>
+                  <button class="btn btn-secondary btn-space mb-0 mr-0 J_view-share"><i class="icon mdi mdi-share-variant-outline"></i> [[${bundle.L('查看分享文件')}]]</button>
                 </div>
               </div>
             </div>

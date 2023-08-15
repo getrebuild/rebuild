@@ -11,8 +11,10 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -44,7 +46,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     @Override
     protected List<Map<String, Object>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        final Map<String, String> varsMap = new TemplateExtractor33(template).transformVars(entity);
+
+        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(template);
+        final Map<String, String> varsMap = templateExtractor33.transformVars(entity);
 
         // 变量
         Map<String, String> varsMapOfMain = new HashMap<>();
@@ -66,6 +70,8 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 } else {
                     // .AccountId.SalesOrder.SalesOrderName
                     String[] split = varName.substring(1).split("\\.");
+                    if (split.length < 2) throw new ExcelRuntimeException("Bad REF (Miss .detail prefix?) : " + varName);
+                    
                     String refName2 = split[0] + split[1];
                     refName = varName.substring(0, refName2.length() + 2 /* dots */);
                 }
@@ -118,28 +124,37 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
         for (Map.Entry<String, List<String>> e : fieldsOfRefs.entrySet()) {
             final String refName = e.getKey();
+            final boolean isApproval = refName.startsWith(APPROVAL_PREFIX);
 
             String querySql = baseSql;
-            if (refName.startsWith(APPROVAL_PREFIX)) {
+            if (isApproval) {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "stepId", "RobotApprovalStep", "recordId");
+
             } else if (refName.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
-                querySql += " order by autoId asc";
+
+                String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
+                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
+
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
+
             } else {
                 String[] split = refName.substring(1).split("\\.");
                 Field ref2Field = MetadataHelper.getField(split[1], split[0]);
                 Entity ref2Entity = ref2Field.getOwnEntity();
 
-                querySql += " order by createdOn";
+                String sortField = templateExtractor33.getSortField(refName);
+                querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
+
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
             }
 
-            List<Record> list = Application.createQuery(querySql, getUser())
+            log.info("SQL of template : {}", querySql);
+            List<Record> list = Application.createQuery(querySql, isApproval ? UserService.SYSTEM_USER : getUser())
                     .setParameter(1, recordId)
                     .list();
 

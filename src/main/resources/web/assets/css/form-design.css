@@ -211,6 +211,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
+.form-preview .divider .dd-action {
+  margin-top: 14px;
+}
+
 .form-preview .dd-item,
 .form-preview .dd-handle {
   cursor: move !important;

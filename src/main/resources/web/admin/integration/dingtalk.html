@@ -39,6 +39,10 @@
                         <td>CorpId</td>
                         <td data-id="DingtalkCorpid" th:data-value="${DingtalkCorpid ?:''}">[[${DingtalkCorpid ?:bundle.L('未设置')}]]</td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('机器人 RobotCode')}]]</td>
+                        <td data-id="DingtalkRobotCode" th:data-value="${DingtalkRobotCode ?:''}" data-optional="true">[[${DingtalkRobotCode ?:bundle.L('未设置')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <h5>[[${bundle.L('钉钉侧配置')}]]</h5>

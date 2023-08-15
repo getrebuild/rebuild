@@ -51,6 +51,7 @@ class RbViewForm extends React.Component {
 
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
+      if (res.data.onViewEditable === false) this.onViewEditable = false
 
       const VFORM = (
         <RF>
@@ -162,9 +163,11 @@ class RbViewForm extends React.Component {
 
         // 刷新列表
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
-        // v3.3 刷新本页
-        // setTimeout(() => location.reload(), 200)
-        setTimeout(() => RbViewPage.reload(), 200)
+
+        // 刷新本页
+        if (res.data && res.data.forceReload) {
+          setTimeout(() => RbViewPage.reload(), 200)
+        }
       } else if (res.error_code === 499) {
         // 有重复
         // eslint-disable-next-line react/jsx-no-undef
@@ -375,7 +378,7 @@ class EntityRelatedList extends RelatedList {
 
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+      <a className="btn btn-light w-auto" href={openListUrl} target="_blank" title={$L('在新页面打开')}>
         <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
@@ -583,8 +586,8 @@ const RbViewPage = {
 
   /**
    * @param {*} id Record ID
-   * @param {*} entity  [Name, Label, Icon]
-   * @param {*} ep  Privileges of this entity
+   * @param {*} entity array:[Name, Label, Icon]
+   * @param {*} ep Privileges of this entity
    */
   init(id, entity, ep) {
     this.__id = id
@@ -597,6 +600,8 @@ const RbViewPage = {
 
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
+    $('.J_newpage').attr({ target: '_blank', href: `${rb.baseUrl}/app/entity/view?id=${id}` })
+    if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
 
     const that = this
 
@@ -634,14 +639,15 @@ const RbViewPage = {
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_report').on('click', () => SelectReport.create(entity[0], id))
 
-    $('.J_add-detail').on('click', function () {
+    $('.J_add-details>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
       RbFormModal.create({
-        title: $L('添加明细'),
+        title: $L('添加%s', $this.data('label')),
         entity: $this.data('entity'),
         icon: $this.data('icon'),
         initialValue: iv,
+        _nextAddDetail: true,
       })
     })
 
@@ -655,7 +661,7 @@ const RbViewPage = {
     // Privileges
     if (ep) {
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit, .J_add-detail').remove()
+      if (ep.U === false) $('.J_edit, .J_add-detail, .J_add-details').remove()
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share').remove()
     }
@@ -765,16 +771,32 @@ const RbViewPage = {
     const that = this
     that.__vtabEntities = []
     $(config).each(function () {
+      const configThat = this
       const entity = this.entity // Entity.Field
       that.__vtabEntities.push(entity)
-
       const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
+
+      // v3.4 明细显示在下方
+      if (this._showAtBottom) {
+        $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        renderRbcomp(
+          <MixRelatedList
+            entity={entity}
+            entity2={[configThat.entityLabel, configThat.icon]}
+            mainid={that.__id}
+            autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
+            defaultList={$isTrue(wpc.viewTabsDefaultList)}
+          />,
+          tabId
+        )
+        return
+      }
+
       const $tabNav = $(
         `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
-      const configThat = this
       $tabNav.find('a').on('click', function () {
         $tabPane.find('.related-list').length === 0 &&
           renderRbcomp(
@@ -808,11 +830,21 @@ const RbViewPage = {
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
         if (~~res.data[k] > 0) {
-          const $tabNav = $(`.nav-tabs a[href="#tab-${k.replace('.', '--')}"]`)
-          $tabNav.parent().removeClass('hide')
+          const tabId = `#tab-${k.replace('.', '--')}`
+          const $tabNav = $(`.nav-tabs a[href="${tabId}"]`)
+          if ($tabNav[0]) {
+            $tabNav.parent().removeClass('hide')
 
-          if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
-          else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
+            if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
+            else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
+          } else {
+            const $tabLine = $(tabId)
+            if ($tabLine[0]) {
+              let $span = $tabLine.prev().find('span')
+              if (!$span[0]) $span = $('<span></span>').appendTo($tabLine.prev())
+              $span.text(` (${res.data[k]})`)
+            }
+          }
         }
       }
     })
@@ -946,6 +978,8 @@ const RbViewPage = {
         if (parent.RbListPage) parent.RbListPage.reload()
         else setTimeout(() => parent.location.reload(), 200)
       }
+      // v3.4
+      if (parent.location.href.includes('/app/entity/view')) parent.window.close()
     } else {
       window.close() // Maybe unclose
     }
@@ -960,15 +994,13 @@ const RbViewPage = {
   // 记录只读
   setReadonly() {
     $(this._RbViewForm._viewForm).addClass('readonly')
-    $('.J_edit, .J_delete, .J_add-detail').remove()
+    $('.J_edit, .J_delete, .J_add-detail, .J_add-details').remove()
     this._cleanViewActionButton()
   },
 }
 
 // init
 $(document).ready(function () {
-  // 无关闭按钮
-  if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
   // 回退按钮
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')

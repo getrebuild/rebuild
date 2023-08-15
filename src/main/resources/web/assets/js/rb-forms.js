@@ -49,7 +49,7 @@ class RbFormModal extends React.Component {
                   </a>
                 )}
                 <button
-                  className="close md-close"
+                  className="close md-close J_maximize"
                   type="button"
                   title={this.state._maximize ? $L('向下还原') : $L('最大化')}
                   onClick={() => {
@@ -130,6 +130,10 @@ class RbFormModal extends React.Component {
       })
 
       this.__lastModified = res.data.lastModified || 0
+
+      setTimeout(() => {
+        formModel.alertMessage && RbHighbar.create(formModel.alertMessage)
+      }, 1000)
     })
   }
 
@@ -195,6 +199,12 @@ class RbFormModal extends React.Component {
   }
 
   hide(reset) {
+    // v3.4
+    if (location.href.includes('/app/entity/form')) {
+      window.close()
+      return
+    }
+
     $(this._rbmodal).modal('hide')
 
     const state = { reset: reset === true }
@@ -266,7 +276,7 @@ class RbForm extends React.Component {
           {this.renderCustomizedFormArea()}
         </div>
 
-        {this.renderDetailsForm()}
+        {this.renderDetailForms()}
         {this.renderFormAction()}
       </div>
     )
@@ -281,59 +291,74 @@ class RbForm extends React.Component {
     return _FormArea || null
   }
 
-  renderDetailsForm() {
-    const detailMeta = this.props.rawModel.detailMeta
-    if (!detailMeta || !window.ProTable) return null
+  renderDetailForms() {
+    if (!window.ProTable || !this.props.rawModel.detailMeta) return null
 
+    // 记录转换:预览模式
+    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
+
+    // FIXME: 导入仅支持第一个
+    const detailImports = this.props.rawModel.detailImports
+
+    this._ProTables = {}
+
+    return (
+      <RF>
+        {this.props.rawModel.detailMetas.map((item, idx) => {
+          return <RF key={idx}>{this._renderDetailForm(item, idx === 0 ? detailImports : null, previewid)}</RF>
+        })}
+      </RF>
+    )
+  }
+
+  _renderDetailForm(detailMeta, detailImports, previewid) {
     let _ProTable
     if (window._CustomizedForms) {
-      _ProTable = window._CustomizedForms.useProTable(this.props.entity, this)
+      _ProTable = window._CustomizedForms.useProTable(detailMeta.entity, this)
       if (_ProTable === false) return null // 不显示
     }
 
-    const that = this
-
     function _addNew(n = 1) {
       for (let i = 0; i < n; i++) {
-        setTimeout(() => that._ProTable.addNew(), i * 20)
+        setTimeout(() => _ProTable.addNew(), i * 20)
       }
     }
 
     function _setLines(details) {
-      if (that._ProTable.isEmpty()) {
-        that._ProTable.setLines(details)
+      if (_ProTable.isEmpty()) {
+        _ProTable.setLines(details)
       } else {
         RbAlert.create($L('是否保留已有明细记录？'), {
           confirmText: $L('保留'),
           cancelText: $L('不保留'),
           onConfirm: function () {
             this.hide()
-            that._ProTable.setLines(details)
+            _ProTable.setLines(details)
           },
           onCancel: function () {
             this.hide()
-            that._ProTable.clear()
-            setTimeout(() => that._ProTable.setLines(details), 200)
+            _ProTable.clear()
+            setTimeout(() => _ProTable.setLines(details), 200)
           },
         })
       }
     }
 
     // 记录转换:明细导入
-    let detailImports = []
-    if (this.props.rawModel.detailImports) {
-      this.props.rawModel.detailImports.forEach((item) => {
-        detailImports.push({
+    let _detailImports = []
+    if (detailImports) {
+      detailImports.forEach((item) => {
+        _detailImports.push({
           icon: item.icon,
           label: item.transName || item.entityLabel,
-          fetch: (form, callback) => {
+          fetch: (form, cb) => {
             const formdata = form.getFormData()
             const mainid = form.props.id || null
 
             $.post(`/app/entity/extras/detail-imports?transid=${item.transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
               if (res.error_code === 0) {
                 if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-                else typeof callback === 'function' && callback(res.data)
+                else typeof cb === 'function' && cb(res.data)
               } else {
                 RbHighbar.error(res.error_msg)
               }
@@ -343,12 +368,19 @@ class RbForm extends React.Component {
       })
     }
 
-    // 记录转换:预览模式
-    const previewid = this.props.$$$parent ? this.props.$$$parent.state.previewid : null
-
-    if (!_ProTable) {
-      _ProTable = <ProTable entity={detailMeta} mainid={this.state.id} previewid={previewid} ref={(c) => (this._ProTable = c)} $$$main={this} />
-    }
+    if (!_ProTable)
+      _ProTable = (
+        <ProTable
+          entity={detailMeta}
+          mainid={this.state.id}
+          previewid={previewid}
+          ref={(c) => {
+            _ProTable = c // ref
+            this._ProTables[detailMeta.entity] = c
+          }}
+          $$$main={this}
+        />
+      )
 
     return (
       <div className="detail-form-table">
@@ -361,13 +393,13 @@ class RbForm extends React.Component {
           </div>
 
           <div className="col text-right">
-            {detailImports && detailImports.length > 0 && (
+            {_detailImports.length > 0 && (
               <div className="btn-group mr-2">
                 <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <i className="icon mdi mdi-transfer-down"></i> {$L('导入明细')}
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {detailImports.map((def, idx) => {
+                  {_detailImports.map((def, idx) => {
                     return (
                       <a
                         key={`imports-${idx}`}
@@ -411,10 +443,10 @@ class RbForm extends React.Component {
   }
 
   renderFormAction() {
+    const props = this.props
     let moreActions = []
     // 添加明细
-    if (this.props.rawModel.mainMeta) {
-      const props = this.props
+    if (props.rawModel.mainMeta) {
       if (props.$$$parent && props.$$$parent.props._nextAddDetail) {
         moreActions.push(
           <a key="Action101" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADDDETAIL)}>
@@ -437,10 +469,10 @@ class RbForm extends React.Component {
 
     return (
       <div className="dialog-footer" ref={(c) => (this._$formAction = c)}>
-        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => props.$$$parent.hide()}>
           {$L('取消')}
         </button>
-        {!this.props.readonly && (
+        {!props.readonly && (
           <div className="btn-group dropup btn-space ml-1">
             <button className="btn btn-primary" type="button" onClick={() => this.post()}>
               {$L('保存')}
@@ -510,7 +542,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (!error) this._onFieldValueChangeCall(field, value)
+    this._onFieldValueChangeCall(field, value)
 
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
@@ -588,15 +620,25 @@ class RbForm extends React.Component {
       else data[k] = this.__FormData[k].value
     }
 
-    if (this._ProTable) {
-      const details = this._ProTable.buildFormData()
-      if (!details) return
+    if (this._ProTables) {
+      const detailsNotEmpty = this.props.rawModel.detailsNotEmpty
+      let detailsMix = []
 
-      if (this._ProTable.isEmpty() && this.props.rawModel.detailsNotEmpty) {
-        RbHighbar.create($L('请添加明细'))
-        return
+      const keys = Object.keys(this._ProTables)
+      for (let i = 0; i < keys.length; i++) {
+        const _ProTable = this._ProTables[keys[i]]
+        const details = _ProTable.buildFormData()
+        if (!details) return
+
+        const detailsNotEmpty34 = _ProTable._initModel.detailsNotEmpty || detailsNotEmpty
+        if (detailsNotEmpty34 && _ProTable.isEmpty()) {
+          RbHighbar.create($L('请添加明细'))
+          return // break
+        }
+
+        detailsMix = [...detailsMix, ...details]
       }
-      data['$DETAILS$'] = details
+      data['$DETAILS$'] = detailsMix
     }
 
     data.metadata = {
@@ -643,8 +685,8 @@ class RbForm extends React.Component {
             this._postAfter(recordId)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
-            const iv = { '$MAINID$': recordId }
-            const dm = this.props.rawModel.detailMeta
+            const iv = $$$parent.props.initialValue
+            const dm = this.props.rawModel.entityMeta
             RbFormModal.create({
               title: $L('添加%s', dm.entityLabel),
               entity: dm.entity,
@@ -759,7 +801,7 @@ class RbFormElement extends React.Component {
     if (!props.onView) {
       // 必填字段
       if (!this.state.nullable && $empty(props.value) && props.readonlyw !== 2) {
-        props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
+        props.$$$parent.setFieldValue(props.field, null, $L('%s不能为空', props.label))
       }
 
       this.onEditModeChanged()
@@ -1781,13 +1823,15 @@ class RbFormReference extends RbFormElement {
   }
 
   onEditModeChanged(destroy) {
+    const $$$form = this.props.$$$parent
+
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: this.props.field,
         label: this.props.label,
-        entity: this.props.$$$parent.props.entity,
+        entity: $$$form.props.entity,
         wrapQuery: (query) => {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
@@ -1806,11 +1850,14 @@ class RbFormReference extends RbFormElement {
 
           // v2.10 FIXME 父级改变后清除明细
           // v3.1 因为父级无法获取到明细的级联值，且级联值有多个（逻辑上存在多个父级值）
-          const $$$form = that.props.$$$parent
-          if ($$$form._ProTable && !$$$form._inAutoFillin && (that.props._cascadingFieldChild || '').includes('.')) {
-            const field = that.props._cascadingFieldChild.split('$$$$')[0].split('.')[1]
-            $$$form._ProTable.setFieldNull(field)
-            console.log('Clean details ...', field)
+          const _cascadingFieldChild = that.props._cascadingFieldChild || ''
+          if ($$$form._ProTables && !$$$form._inAutoFillin && _cascadingFieldChild.includes('.')) {
+            const _ProTable = $$$form._ProTables[_cascadingFieldChild.split('.')[0]]
+            if (_ProTable) {
+              const field = _cascadingFieldChild.split('$$$$')[0].split('.')[1]
+              _ProTable.setFieldNull(field)
+              console.log('Clean details ...', field)
+            }
           }
         }
 
@@ -1928,7 +1975,7 @@ class RbFormReference extends RbFormElement {
       that._ReferenceSearcher.hide()
     }
 
-    const url = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
+    const url = `${rb.baseUrl}/app/entity/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}&cascadingValue=${this._getCascadingFieldValue() || ''}`
     if (!this._ReferenceSearcher_Url) this._ReferenceSearcher_Url = url
 
     if (this._ReferenceSearcher && this._ReferenceSearcher_Url === url) {
@@ -2750,7 +2797,7 @@ const __findOptionText = function (options, value, useColor) {
   let text = (o || {}).text || `[${value.toUpperCase()}]`
   if (useColor) {
     if (o && o.color) {
-      const style2 = { borderColor: o.color, backgroundColor: o.color, color: '#fff' }
+      const style2 = { borderColor: o.color, backgroundColor: o.color, color: $isLight(o.color) ? '#444' : '#fff' }
       text = (
         <span className="badge" style={style2}>
           {text}

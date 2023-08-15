@@ -15,6 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.Assert;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -46,21 +48,21 @@ public class MetadataSorter {
      * 用户权限内*可读*实体
      *
      * @param user
-     * @param usesBizz 是否包括内置 BIZZ 实体
-     * @param usesDetail 是否包括明细实体
+     * @param includesBizz 是否包括内置 BIZZ 实体
+     * @param includesDetail 是否包括明细实体
      * @return
      */
-    public static Entity[] sortEntities(ID user, boolean usesBizz, boolean usesDetail) {
+    public static Entity[] sortEntities(ID user, boolean includesBizz, boolean includesDetail) {
         List<BaseMeta> entities = new ArrayList<>();
         for (Entity e : MetadataHelper.getEntities()) {
             if (!e.isQueryable()) continue;
-            if (!usesDetail && e.getMainEntity() != null) continue;
+            if (!includesDetail && e.getMainEntity() != null) continue;
 
             EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
             if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
 
             Entity checkEntity = e;
-            if (usesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
+            if (includesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
 
             if (user == null || !MetadataHelper.hasPrivilegesField(checkEntity)) {
                 entities.add(e);
@@ -71,13 +73,45 @@ public class MetadataSorter {
 
         sortByLabel(entities);
 
-        if (usesBizz) {
+        // 明细放在主实体后面
+        if (includesDetail) {
+            List<BaseMeta> entities2 = new ArrayList<>();
+            for (BaseMeta o : entities) {
+                Entity me = (Entity) o;
+                if (me.getDetailEntity() == null && me.getMainEntity() == null) {
+                    entities2.add(me);
+                } else if (me.getDetailEntity() != null) {
+                    entities2.add(me);
+
+                    for (BaseMeta de : entities) {
+                        if (me.equals(((Entity) de).getMainEntity())) entities2.add(de);
+                    }
+                }
+            }
+
+            entities = entities2;
+        }
+
+        if (includesBizz) {
             entities.add(MetadataHelper.getEntity(EntityHelper.User));
             entities.add(MetadataHelper.getEntity(EntityHelper.Department));
             entities.add(MetadataHelper.getEntity(EntityHelper.Role));
             entities.add(MetadataHelper.getEntity(EntityHelper.Team));
         }
 
+        return entities.toArray(new Entity[0]);
+    }
+
+    /**
+     * @param mainEntity
+     * @return
+     */
+    public static Entity[] sortDetailEntities(Entity mainEntity) {
+        Assert.notNull(mainEntity.getDetailEntity(), "None main entity : " + mainEntity);
+
+        List<BaseMeta> entities = new ArrayList<>();
+        CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
+        sortByLabel(entities);
         return entities.toArray(new Entity[0]);
     }
 
@@ -154,7 +188,9 @@ public class MetadataSorter {
      *
      * @param metas
      */
-    static void sortByLabel(List<BaseMeta> metas) {
+    public static void sortByLabel(List<BaseMeta> metas) {
+        if (metas.size() <= 1) return;
+
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         metas.sort((foo, bar) -> {
             String fooLetter = EasyMetaFactory.getLabel(foo);

@@ -15,10 +15,11 @@ class FilesList extends React.Component {
   __pageNo = 1
 
   render() {
+    const currentActive = this.state.currentActive || []
     return (
       <div className="file-list file-list-striped">
         {(this.state.files || []).map((item) => {
-          const checked = this.state.currentActive === item.id
+          const checked = currentActive.includes(item.id)
           return (
             <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
@@ -39,6 +40,7 @@ class FilesList extends React.Component {
                   {this.renderExtras(item)}
                 </div>
               </div>
+              {this.renderExtras34(item)}
               <div className="info">
                 <DateShow date={item.uploadOn} />
               </div>
@@ -71,11 +73,16 @@ class FilesList extends React.Component {
 
   _handleClick(e, id) {
     $stopEvent(e, true)
-    if (id === this.state.currentActive) this.setState({ currentActive: null })
-    else this.setState({ currentActive: id })
+    let currentActiveNew = this.state.currentActive || []
+    currentActiveNew.toggle(id)
+    this.setState({ currentActive: currentActiveNew })
   }
 
   renderExtras(item) {
+    return null
+  }
+
+  renderExtras34(item) {
     return null
   }
 
@@ -89,13 +96,13 @@ class FilesList extends React.Component {
       const current = res.data || []
       let files = this.__pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
-      this.setState({ files: files, currentLen: current.length })
+      this.setState({ files: files, currentLen: current.length, currentActive: [] })
     })
   }
 
   getSelected() {
     const s = this.state.currentActive
-    if (!s) RbHighbar.create($L('未选中任何文件'))
+    if ((s || []).length === 0) RbHighbar.create($L('未选中任何文件'))
     else return s
   }
 }
@@ -110,6 +117,104 @@ const previewFile = function (e, path, checkId) {
     })
   } else {
     RbPreview.create(path)
+  }
+}
+
+// ~~ 共享列表
+class SharedFiles extends RbModalHandler {
+  render() {
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('查看分享文件')} disposeOnHide>
+        <div className="sharing-list ml-1 mr-1">
+          {this.state.data && this.state.data.length === 0 ? (
+            <div className="list-nodata pt-5">
+              <i className="zmdi mdi mdi-share-variant-outline" />
+              <p>{$L('没有分享文件')}</p>
+            </div>
+          ) : (
+            <table className="table table-hover">
+              <thead>
+                <tr>
+                  <th>{$L('分享文件')}</th>
+                  <th width="100" className="text-right">
+                    {$L('过期时间')}
+                  </th>
+                  <th width="130"></th>
+                </tr>
+              </thead>
+              <tbody ref={(c) => (this._$tbody = c)}>
+                {this.state.data &&
+                  this.state.data.map((item, idx) => {
+                    return (
+                      <tr key={idx}>
+                        <td className="position-relative">
+                          <a href={item[0]} target="_blank" className="link">
+                            {$fileCutName(item[1])}
+                          </a>
+                          <div className="fop-action">
+                            <a className="link J_copy" title={$L('复制分享链接')} data-url={item[0]}>
+                              <i className="icon zmdi zmdi-copy fs-14" />
+                            </a>
+                            <a
+                              title={$L('取消分享')}
+                              onClick={(e) => {
+                                const $tr = $(e.currentTarget).parents('tr')
+                                $.post(`/filex/del-make-share?id=${item[5]}`, (res) => {
+                                  if (res.error_code === 0) {
+                                    $tr.animate({ opacity: 0 }, 400)
+                                    setTimeout(() => $tr.remove(), 400)
+                                    RbHighbar.success($L('已取消分享'))
+                                  } else {
+                                    RbHighbar.error(res.error_msg)
+                                  }
+                                })
+                              }}>
+                              <i className="icon zmdi zmdi-delete fs-16" />
+                            </a>
+                          </div>
+                        </td>
+                        <td title={item[2]} className="text-right">
+                          <span>{$fromNow(item[2])}</span>
+                        </td>
+                        <td title={item[3]} className="text-muted text-right">
+                          <span>{$L('分享于 %s', $fromNow(item[3]))}</span>
+                        </td>
+                        <td className="p-0"></td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get('/filex/all-make-share', (res) => {
+      this.setState({ data: res.data || [] }, () => {
+        const $tbody = $(this._$tbody)
+        const initCopy = function () {
+          $tbody.find('.J_copy').each(function () {
+            const $copy = $(this)
+            // eslint-disable-next-line no-undef
+            new ClipboardJS($copy[0], {
+              text: function () {
+                return $copy.data('url')
+              },
+            }).on('success', () => $copy.addClass('copied-check'))
+            $copy.on('mouseenter', () => $copy.removeClass('copied-check'))
+          })
+        }
+        if (window.ClipboardJS) {
+          initCopy()
+        } else {
+          // eslint-disable-next-line no-undef
+          $getScript('/assets/lib/clipboard.min.js', initCopy)
+        }
+      })
+    })
   }
 }
 
@@ -132,7 +237,7 @@ $(document).ready(() => {
   const gs = $urlp('gs', location.hash)
   if (gs) {
     // eslint-disable-next-line no-undef
-    _showGlobalSearch(gs)
+    // _showGlobalSearch(gs)
     currentSearch = $decode(gs)
     $('.input-search input').val(currentSearch)
   }
@@ -154,4 +259,6 @@ $(document).ready(() => {
     $input.val('')
     $btn.trigger('click')
   })
+
+  $('.J_view-share').on('click', () => renderRbcomp(<SharedFiles />))
 })

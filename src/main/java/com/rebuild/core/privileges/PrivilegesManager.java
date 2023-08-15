@@ -237,7 +237,7 @@ public class PrivilegesManager {
             action = BizzPermission.SHARE;
         }
 
-        if (MetadataHelper.getEntityType(entity) == MetadataHelper.TYPE_DETAIL) {
+        if (MetadataHelper.getEntity(entity).getMainEntity() != null) {
             // 明细实体不能使用此方法检查创建权限
             // 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
             if (action == BizzPermission.CREATE) {

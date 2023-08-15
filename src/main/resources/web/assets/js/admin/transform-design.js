@@ -222,6 +222,7 @@ class FieldsMapping extends React.Component {
 
     for (let fieldName in mapping) {
       if ($.isArray(mapping[fieldName])) {
+        if (!this._FieldValueSet[fieldName]) continue
         this._FieldValueSet[fieldName].setValue(mapping[fieldName][0])
 
         const $this = $(this._$fieldsMapping).find(`.J_vfixed-${fieldName}`)
@@ -264,7 +265,7 @@ class FieldsMapping extends React.Component {
         </div>
 
         {_target.fields.map((item, idx) => {
-          const isCommon = item.name === 'owningUser'
+          const isCommon = item.name === 'owningUser' || item.readonly
           return (
             <div className="row" key={idx}>
               <div className="col-4">

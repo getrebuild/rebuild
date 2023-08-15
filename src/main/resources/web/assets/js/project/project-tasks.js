@@ -14,7 +14,7 @@ $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
   if (gs) {
     // eslint-disable-next-line no-undef
-    _showGlobalSearch(gs)
+    // _showGlobalSearch(gs)
     gs = $decode(gs)
     $('.J_search .input-search input').val(gs)
     $('.J_search .indicator-primary').removeClass('hide')

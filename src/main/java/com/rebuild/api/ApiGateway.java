@@ -14,7 +14,11 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.core.*;
+import com.rebuild.core.Application;
+import com.rebuild.core.Initialization;
+import com.rebuild.core.RebuildException;
+import com.rebuild.core.ServerStatus;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -25,6 +29,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
+import com.rebuild.web.KnownExceptionConverter;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -36,7 +41,11 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * OpenAPI 网关
@@ -123,6 +132,10 @@ public class ApiGateway extends Controller implements Initialization {
             errorCode = Controller.CODE_SERV_ERROR;
             errorMsg = ex.getLocalizedMessage();
             log.error("Server Internal Error ({})", requestId, ex);
+
+            String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
+            if (knownError != null) errorMsg = "Server Internal Error : " + knownError;
+
         } finally {
             UserContextHolder.clear();
         }

@@ -169,9 +169,13 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$clearFields = c)} />
-                  <span className="custom-control-label">
-                    {$L('源字段为空时置空目标字段')}
-                  </span>
+                  <span className="custom-control-label">{$L('源字段为空时置空目标字段')}</span>
+                </label>
+              </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
+                  <span className="custom-control-label">{$L('禁用传播')}</span>
                 </label>
               </div>
             </div>
@@ -205,6 +209,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$clearFields).attr('checked', content.clearFields === true)
+      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
     }
   }
 
@@ -324,6 +329,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
       clearFields: $(this._$clearFields).prop('checked'),
+      stopPropagation: $(this._$stopPropagation).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
@@ -423,7 +429,7 @@ FieldFormula.formatText = function (formula, fields) {
 // eslint-disable-next-line no-undef
 class FormulaCalcWithCode extends FormulaCalc {
   renderContent() {
-    if (this.props.forceCode || this.state.useCode) {
+    if (this.props.forceCode || !$empty(this.props.initCode) || this.state.useCode) {
       return (
         <FormulaCode
           initCode={this.props.initCode}
@@ -442,7 +448,7 @@ class FormulaCalcWithCode extends FormulaCalc {
 
   renderExtraKeys() {
     return (
-      <React.Fragment>
+      <RF>
         <li className="list-inline-item">
           <a data-toggle="dropdown">{$L('函数')}</a>
           <div className="dropdown-menu">
@@ -485,7 +491,7 @@ class FormulaCalcWithCode extends FormulaCalc {
         <li className="list-inline-item">
           <a onClick={() => this.handleInput(',')}>,</a>
         </li>
-      </React.Fragment>
+      </RF>
     )
   }
 

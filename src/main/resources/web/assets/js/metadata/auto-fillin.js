@@ -30,6 +30,7 @@ const loadRules = () => {
         if (this.extConfig.whenUpdate) ruleLabels.push($L('编辑时'))
         if (this.extConfig.fillinForce) ruleLabels.push($L('强制回填'))
         if (this.extConfig.readonlyTargetField) ruleLabels.push($L('自动设置目标字段为只读'))
+        if (this.extConfig.fillinBackend) ruleLabels.push($L('使用后端回填'))
         $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
       }
 
@@ -137,6 +138,17 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
             </div>
           </div>
+          <div className="form-group row pt-1">
+            <label className="col-sm-3 col-form-label text-sm-right pt-1"></label>
+            <div className="col-sm-7">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.fillinBackend === true} data-id="fillinBackend" onChange={this.handleChange} />
+                <span className="custom-control-label">
+                  {$L('使用后端回填')} <sup className="rbv"></sup>
+                </span>
+              </label>
+            </div>
+          </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -221,8 +233,13 @@ class DlgRuleEdit extends RbFormHandler {
       whenUpdate: this.state.whenUpdate,
       fillinForce: this.state.fillinForce,
       readonlyTargetField: this.state.readonlyTargetField,
+      fillinBackend: this.state.fillinBackend,
     }
     if (this.props.id) _data.id = this.props.id
+
+    if (rb.commercial < 1 && this.state.fillinBackend) {
+      return RbHighbar.error(WrapHtml($L('免费版不支持使用后端回填 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    }
 
     this.disabled(true)
     $.post('../auto-fillin-save', JSON.stringify(_data), (res) => {

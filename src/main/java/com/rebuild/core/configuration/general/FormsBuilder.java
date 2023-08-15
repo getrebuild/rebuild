@@ -20,30 +20,37 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -114,6 +121,10 @@ public class FormsBuilder extends FormsManager {
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (record != null) {
             Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+
+            if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, record)) {
+                return formatModelError(Language.L("无权读取此记录或记录已被删除"));
+            }
         }
 
         // 明细实体有主实体
@@ -219,9 +230,17 @@ public class FormsBuilder extends FormsManager {
         // 主/明细实体处理
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
+            // v3.4
+            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
+            // compatible v3.3
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+
+            // v3.4 N-D
+            List<JSON> detailMetas = new ArrayList<>();
+            for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) detailMetas.add(EasyMetaFactory.toJSON(de));
+            model.set("detailMetas", detailMetas);
         }
 
         // 最后修改时间
@@ -232,6 +251,11 @@ public class FormsBuilder extends FormsManager {
         if (approvalState != null) model.set("hadApproval", approvalState.getState());
         if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
+        // v34
+        String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
+                .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
+        model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
+
         model.set("id", null);  // Clean form's ID of config
         return model.toJSON();
     }
@@ -241,9 +265,7 @@ public class FormsBuilder extends FormsManager {
      * @return
      */
     private JSONObject formatModelError(String error) {
-        JSONObject cfg = new JSONObject();
-        cfg.put("error", error);
-        return cfg;
+        return JSONUtils.toJSONObject("error", error);
     }
 
     /**
@@ -406,23 +428,8 @@ public class FormsBuilder extends FormsManager {
                 }
             }
 
-            // 编辑/视图
-            if (recordData != null) {
-                Object value = wrapFieldValue(recordData, easyField, user);
-                if (value != null) {
-                    el.put("value", value);
-                }
-
-                // 父级级联
-                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
-                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
-                    if (parentValue != null) {
-                        el.put("_cascadingFieldParentValue", parentValue);
-                    }
-                }
-            }
             // 新建记录
-            else {
+            if (isNew) {
                 if (!fieldMeta.isCreatable()) {
                     el.put("readonly", true);
                     switch (fieldName) {
@@ -459,8 +466,8 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
+                            // `wrapValue` 会添加格式符号
                             if (easyField.getDisplayType() == DisplayType.DECIMAL) {
-                                // `wrapValue` 会添加格式符号
                                 el.put("value", defaultValue);
                             } else {
                                 el.put("value", easyField.wrapValue(defaultValue));
@@ -495,7 +502,26 @@ public class FormsBuilder extends FormsManager {
                         el.put("_cascadingFieldParentValue", parentValue);
                     }
                 }
+            }
 
+            // 编辑/视图/记录转换
+            if (recordData != null) {
+                // `wrapValue` 会添加格式符号
+                Object value;
+                if (easyField.getDisplayType() == DisplayType.DECIMAL) {
+                    value = recordData.getObjectValue(easyField.getName());
+                } else {
+                    value = wrapFieldValue(recordData, easyField, user);
+                }
+                if (value != null) el.put("value", value);
+
+                // 父级级联
+                if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {
+                    ID parentValue = getCascadingFieldParentValue(easyField, recordData.getPrimary(), false);
+                    if (parentValue != null) {
+                        el.put("_cascadingFieldParentValue", parentValue);
+                    }
+                }
             }
 
             // Clean
@@ -664,7 +690,23 @@ public class FormsBuilder extends FormsManager {
             }
             // 其他
             else if (entity.containsField(field)) {
-                if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+                EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
+                if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+
+                    // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
+                    String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+                    if (JSONUtils.wellFormat(dataFilter)) {
+                        JSONObject dataFilterJson = JSON.parseObject(dataFilter);
+                        if (ParseHelper.validAdvFilter(dataFilterJson)) {
+                            boolean m = QueryHelper.isMatchAdvFilter(ID.valueOf(value), dataFilterJson);
+                            if (!m) {
+                                ((JSONObject) formModel).put("alertMessage",
+                                        Language.L("%s不符合附加过滤条件，不能自动填写", Language.L(easyField)));
+                                continue;
+                            }
+                        }
+                    }
+
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);

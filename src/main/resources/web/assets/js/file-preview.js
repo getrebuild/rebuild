@@ -318,9 +318,9 @@ const EXPIRES_TIME = [
 class FileShare extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide>
         <div className="file-share">
-          <label>{$L('分享链接')}</label>
+          <label className="text-dark">{$L('分享链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
@@ -373,8 +373,9 @@ class FileShare extends RbModalHandler {
     const t = e ? ~~e.target.dataset.time : EXPIRES_TIME[0][0]
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
-      $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {
-        this.setState({ shareUrl: res.data.shareUrl })
+      $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
+        this.__shareUrl = (res.data || {}).shareUrl
+        this.setState({ shareUrl: this.__shareUrl })
       })
     })
   }

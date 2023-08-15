@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -33,11 +34,28 @@ public class EntityHelper {
     public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
 
     /**
+     * 解析 JSON 到 Record
+     *
      * @param data
      * @param user
      * @return
+     * @see EntityRecordCreator
      */
     public static Record parse(JSONObject data, ID user) {
+        return parse(data, user, true, false);
+    }
+
+    /**
+     * 解析 JSON 到 Record
+     *
+     * @param data
+     * @param user
+     * @param safetyUrl 附件/图片字段值是否不允许外链（默认是）
+     * @param forceFillin 是否强制表单回填（默认否）
+     * @return
+     * @see EntityRecordCreator
+     */
+    public static Record parse(JSONObject data, ID user, boolean safetyUrl, boolean forceFillin) {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
             throw new FieldValueException(
@@ -59,11 +77,20 @@ public class EntityHelper {
             return new DeleteRecord(ID.valueOf(id), user);
         }
 
-        EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-        return creator.create(false);
+        Record record = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user, safetyUrl)
+                .create(false);
+
+        // v3.4 表单后端回填
+        if (MetadataHelper.isBusinessEntity(record.getEntity())) {
+            AutoFillinManager.instance.fillinRecord(record, forceFillin);
+        }
+
+        return record;
     }
 
     /**
+     * 构建更新 Record
+     *
      * @param recordId
      * @param user
      * @return
@@ -73,6 +100,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建更新 Record
+     *
      * @param recordId
      * @param user
      * @param bindCommons 是否自动补充公共字段
@@ -92,6 +121,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return
@@ -101,6 +132,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return
@@ -110,6 +143,8 @@ public class EntityHelper {
     }
 
     /**
+     * 构建新建 Record
+     *
      * @param entity
      * @param user
      * @return
@@ -265,8 +300,9 @@ public class EntityHelper {
 
     public static final int ExtformConfig = 60;
 
-    // 锁/日志
+    // 锁/日志/短链
 
+    public static final int ShortUrl = 97;
     public static final int CommonsLock = 98;
     public static final int CommonsLog = 99;
 

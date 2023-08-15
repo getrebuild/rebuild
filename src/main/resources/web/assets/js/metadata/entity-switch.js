@@ -14,30 +14,31 @@ $(document).ready(() => {
     href = href.split('/field/')[0] + '/fields'
   }
 
-  const $switch = $('<ul class="dropdown-menu auto-scroller entity-switch"></ul>').appendTo('.aside-header')
+  const $switch = $('<div class="dropdown-menu auto-scroller entity-switch"></div>').appendTo('.aside-header')
 
   function _render(item) {
-    const $item = $(`<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`)
-    if (entity === item.entityName) {
-      $item.addClass('current')
-    }
+    const $item = $(
+      `<a class="dropdown-item" href="${href.replace(`/${entity}/`, `/${item.entityName}/`)}" data-name="${item.entityName}"><i class="icon zmdi zmdi-${item.icon}"></i> ${item.entityLabel}</a>`
+    )
+    if (entity === item.entityName) $item.addClass('current')
     $item.appendTo($switch)
   }
 
   $.get('/admin/entity/entity-list?detail=true&bizz=true', (res) => {
-    $(res.data).each((idx, item) => {
-      if (item.builtin === true) _render(item)
+    const _data = res.data || []
+    _data.forEach((item) => {
+      if (item.builtin) _render(item)
     })
-    $(res.data).each((idx, item) => {
-      if (item.builtin === false) _render(item)
+    _data.forEach((item) => {
+      if (!item.builtin) _render(item)
     })
 
     $switch.perfectScrollbar()
   })
 
-  const $toggle = $('.aside-header .title')
+  const $toggle = $('.aside-header .title').addClass('pointer')
 
-  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted"></i>').appendTo($toggle)
+  $('<i class="icon zmdi zmdi-caret-down ml-1 text-muted fs-18"></i>').appendTo($toggle)
   $toggle.addClass('dropdown-toggle').attr({
     'data-toggle': 'dropdown',
     'title': $L('切换'),

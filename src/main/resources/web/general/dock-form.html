@@ -16,7 +16,7 @@
         margin: 0;
         box-shadow: none;
       }
-      .form-wrap .modal .modal-header button.md-close,
+      .form-wrap .modal .modal-header button.J_maximize,
       .form-wrap .modal .dialog-footer .btn-secondary {
         display: none;
       }
@@ -29,9 +29,12 @@
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-loading rb-loading-active must-center J_dock-load">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
       <div class="rb-content">
         <div class="main-content container-fluid">
-          <div class="form-wrap"></div>
+          <div class="form-wrap shadow"></div>
         </div>
       </div>
     </div>
@@ -54,6 +57,7 @@
 
         componentDidMount() {
           this.getFormModel()
+          $('.J_dock-load').remove()
         }
       }
 
@@ -71,6 +75,7 @@
                 const after = $urlp('after')
                 if (after === 'view') location.replace(`./view?id=${id}`)
                 else if (after === 'edit') location.replace(`./form?id=${id}`)
+                else if (after === 'list') location.replace(`./form?id=${id}`)
                 else if (after === 'close') window.close()
                 else location.reload()
               }, 400)

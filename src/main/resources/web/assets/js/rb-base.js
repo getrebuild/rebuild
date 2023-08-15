@@ -124,12 +124,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // for `watermark`
   if (window.watermark && self === top) {
     window.watermark.init({
-      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName],
+      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName, rb._rbTempAuth ? 'TEMP.AUTH 临时授权' : null],
       watermark_angle: 30,
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
-      watermark_alpha: 0.1,
+      watermark_alpha: rb._rbTempAuth ? 0.2 : 0.1,
+      watermark_color: rb._rbTempAuth ? 'red' : 'black',
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
       monitor: true,
@@ -527,4 +528,15 @@ var $clone = function (o) {
 var $escapeHtml = function (s) {
   if (!s) return ''
   return s.replace(/</gi, '&lt;').replace(/>/gi, '&gt;')
+}
+
+// 是否浅色（仅支持 Hex 颜色）
+// https://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
+var $isLight = function (color) {
+  var hex = color.replace('#', '')
+  var c_r = parseInt(hex.substring(0, 0 + 2), 16)
+  var c_g = parseInt(hex.substring(2, 2 + 2), 16)
+  var c_b = parseInt(hex.substring(4, 4 + 2), 16)
+  var brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
+  return brightness > 155
 }

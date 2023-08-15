@@ -9,6 +9,11 @@
         cursor: pointer;
         opacity: 0.8;
       }
+      .badge {
+        margin: 0 !important;
+        margin-bottom: 4px !important;
+        margin-right: 4px !important;
+      }
     </style>
   </head>
   <body class="view-body">
@@ -18,7 +23,6 @@
       <span>
         <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
-        <a class="close sm J_back hide" th:title="${bundle.L('回退')}"><i class="zmdi zmdi-arrow-left"></i></a>
       </span>
     </div>
     <div class="main-content container-fluid">

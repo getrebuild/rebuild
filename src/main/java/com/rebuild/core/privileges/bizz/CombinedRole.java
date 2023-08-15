@@ -180,11 +180,13 @@ public class CombinedRole extends Role {
             JSONObject bCustom = ((CustomEntityPrivileges) b).getCustomFilter(action);
             if (aCustom == null && bCustom == null) continue;
 
-            if (isGreaterThan(action.getMask(), aDefMap, bDefMap) == 1) {
+            int gt = isGreaterThan(action.getMask(), aDefMap, bDefMap);
+            if (gt == 1) {
                 if (aCustom != null) customFilters.put(action.getName(), aCustom);
-            } else {
+            } else if (gt == 2) {
                 if (bCustom != null) customFilters.put(action.getName(), bCustom);
             }
+            // gt == 0 无自定义权限
         }
 
         String definition = StringUtils.join(defs.iterator(), ",");
@@ -228,24 +230,29 @@ public class CombinedRole extends Role {
         return maskValue;
     }
 
+    // 指定动作是否同一权限深度 0:a=b, 1:a>b, 2:a<b
     private int isGreaterThan(int mask, Map<String, Integer> aDefMap, Map<String, Integer> bDefMap) {
         int a4 = aDefMap.get(PERMISSION_DEPTHS[3]);
         int b4 = bDefMap.get(PERMISSION_DEPTHS[3]);
+        if ((a4 & mask) != 0 && (b4 & mask) != 0) return 0;
         if ((a4 & mask) != 0) return 1;
         if ((b4 & mask) != 0) return 2;
 
         int a3 = aDefMap.get(PERMISSION_DEPTHS[2]);
         int b3 = bDefMap.get(PERMISSION_DEPTHS[2]);
+        if ((a3 & mask) != 0 && (b3 & mask) != 0) return 0;
         if ((a3 & mask) != 0) return 1;
         if ((b3 & mask) != 0) return 2;
 
         int a2 = aDefMap.get(PERMISSION_DEPTHS[1]);
         int b2 = bDefMap.get(PERMISSION_DEPTHS[1]);
+        if ((a2 & mask) != 0 && (b2 & mask) != 0) return 0;
         if ((a2 & mask) != 0) return 1;
         if ((b2 & mask) != 0) return 2;
 
         int a1 = aDefMap.get(PERMISSION_DEPTHS[0]);
         int b1 = bDefMap.get(PERMISSION_DEPTHS[0]);
+        if ((a1 & mask) != 0 && (b1 & mask) != 0) return 0;
         if ((a1 & mask) != 0) return 1;
         if ((b1 & mask) != 0) return 2;
 

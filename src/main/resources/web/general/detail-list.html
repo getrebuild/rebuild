@@ -53,10 +53,10 @@
 
           <ul class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item">
-              <a th:href="|../${mainEntity}/list|" class="nav-link"><span class="icon zmdi" th:classappend="${'zmdi-' + mainEntityIcon}"></span> [[${mainEntityLabel}]]</a>
+              <a th:href="|../${mainEntity}/list|" class="nav-link"><span class="icon zmdi" th:classappend="|zmdi-${mainEntityIcon}|"></span> [[${mainEntityLabel}]]</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active"><span class="icon zmdi" th:classappend="${'zmdi-' + detailEntityIcon}"></span> [[${detailEntityLabel}]]</a>
+            <li th:each="e : ${detailEntities}" class="nav-item">
+              <a th:href="|../${e[1]}/list|" class="nav-link" th:classappend="${e[1] == entityName ? 'active' : ''}"><span class="icon zmdi" th:classappend="|zmdi-${e[3]}|"></span> [[${e[2]}]]</a>
             </li>
           </ul>
 

@@ -29,6 +29,7 @@ class ReportList extends ConfigList {
                 {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
                 {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
+                {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{ShowEnable(item[4])}</td>
@@ -100,6 +101,19 @@ class ReportEditor extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('模板类型')}</label>
+              <div className="col-sm-7 pt-1">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">{$L('记录模板')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" value="2" name="reportType" ref={(c) => (this._$listType = c)} onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">{$L('列表模板')}</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
               <div className="col-sm-9">
                 <div className="float-left">
@@ -122,21 +136,6 @@ class ReportEditor extends ConfigFormDlg {
                     <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
                   </div>
                 )}
-              </div>
-            </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right" />
-              <div className="col-sm-7">
-                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0" ref={(c) => (this._$listType = c)}>
-                  <input className="custom-control-input" type="checkbox" />
-                  <span className="custom-control-label">
-                    {$L('这是一个列表模板')}
-                    <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E5%9C%A8%E5%88%97%E8%A1%A8%E4%B8%AD%E4%BD%BF%E7%94%A8">
-                      <i className="zmdi zmdi-help zicon down-1" />
-                    </a>
-                  </span>
-                </label>
-
                 {this.state.invalidMsg && (
                   <div className="invalid-vars mt-2 mr-3">
                     <RbAlertBox message={this.state.invalidMsg} />
@@ -163,6 +162,13 @@ class ReportEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="pdf" />
               <span className="custom-control-label">PDF</span>
+              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F">
+                <i className="zmdi zmdi-help zicon down-1" />
+              </a>
+            </label>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input className="custom-control-input" type="checkbox" value="html" />
+              <span className="custom-control-label">HTML</span>
               <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F">
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
@@ -194,7 +200,10 @@ class ReportEditor extends ConfigFormDlg {
     if (this.__upload) {
       $createUploader(
         this.__upload,
-        () => $mp.start(),
+        () => {
+          that.setState({ uploadFileName: null })
+          $mp.start()
+        },
         (res) => {
           $mp.end()
           that.__lastFile = res.key
@@ -209,21 +218,17 @@ class ReportEditor extends ConfigFormDlg {
       setTimeout(() => $(this._entity).val(e).trigger('change'), 300)
     }
 
-    $(this._$listType)
-      .on('change', () => this.checkTemplate())
-      .find('[data-toggle="tooltip"]')
-      .tooltip()
-
     $(this._$outputType).find('[data-toggle="tooltip"]').tooltip()
 
     if (this.props.id) {
       const outputType = (this.props.extraDefinition || {}).outputType || 'excel'
       if (outputType.includes('excel')) $(this._$outputType).find('input:eq(0)').attr('checked', true)
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
+      if (outputType.includes('html')) $(this._$outputType).find('input:eq(2)').attr('checked', true)
     } else {
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
-      const $pw = $(`<a class="btn btn-secondary ml-2">${$L('预览')}</a>`)
+      const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon zmdi zmdi-eye mr-1"></i>${$L('预览')}</a>`)
       $(this._btns).find('.btn-primary').after($pw)
       $pw.on('click', () => {
         if (this.props.id) {
@@ -270,7 +275,7 @@ class ReportEditor extends ConfigFormDlg {
     const file = this.__lastFile
     if (!file || !entity) return false
 
-    const list = $(this._$listType).find('input').prop('checked')
+    const list = $(this._$listType).prop('checked')
     return `file=${$encode(file)}&entity=${entity}&list=${list}`
   }
 
@@ -279,13 +284,14 @@ class ReportEditor extends ConfigFormDlg {
     if (!post.name) return RbHighbar.create($L('请输入名称'))
 
     const output = []
-    if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
     if ($val($(this._$outputType).find('input:eq(0)'))) output.push('excel')
+    if ($val($(this._$outputType).find('input:eq(1)'))) output.push('pdf')
+    if ($val($(this._$outputType).find('input:eq(2)'))) output.push('html')
 
     // v3.3
     post.extraDefinition = {
       outputType: output.length === 0 ? 'excel' : output.join(','),
-      templateVersion: (this.props.extraDefinition || {}).templateVersion || 2
+      templateVersion: (this.props.extraDefinition || {}).templateVersion || 2,
     }
 
     if (this.props.id) {
@@ -293,7 +299,7 @@ class ReportEditor extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
-      post.templateType = $(this._$listType).find('input').prop('checked') ? 2 : 1
+      post.templateType = $(this._$listType).prop('checked') ? 2 : 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
       if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
       post.extraDefinition.templateVersion = 3

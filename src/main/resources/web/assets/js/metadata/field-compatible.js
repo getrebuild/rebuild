@@ -27,6 +27,11 @@ const FT_TYPE2TYPE = ['FILE', 'IMAGE', 'AVATAR', 'SIGN']
  */
 // eslint-disable-next-line no-unused-vars
 function $fieldIsCompatible(s, t) {
+  if (!s || !t) {
+    console.log('Bad fileds of source or target :', s, t)
+    return false
+  }
+
   // 必须对应
   if (FT_TYPE2TYPE.includes(s.type) && s.type !== t.type) return false
 

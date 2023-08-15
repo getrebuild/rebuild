@@ -53,6 +53,8 @@ import java.util.Map;
 @RequestMapping("/user/")
 public class LoginController extends LoginAction {
 
+    public static final String SK_TEMP_AUTH = "rbTempAuth";
+
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String homeUrl = "../dashboard/home";
@@ -216,6 +218,25 @@ public class LoginController extends LoginAction {
         ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         ServletUtils.getSession(request).invalidate();
         return new ModelAndView("redirect:/user/login");
+    }
+
+    @GetMapping("login/temp-auth")
+    public ModelAndView tempAuth(HttpServletRequest request, HttpServletResponse response) {
+        ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
+        ServletUtils.getSession(request).invalidate();
+
+        String token = getParameterNotNull(request, "token");
+        Object loginUserId = Application.getCommonsCache().getx(SK_TEMP_AUTH + token);
+        if (loginUserId == null) {
+            return new ModelAndView("redirect:/user/login?error=TempAuth");
+        }
+
+        loginSuccessed(request, response, (ID) loginUserId, false);
+
+        request.getSession().setMaxInactiveInterval(60 * 5);
+        request.getSession().setAttribute(SK_TEMP_AUTH, "true");
+
+        return new ModelAndView("redirect:/dashboard/home");
     }
 
     // --

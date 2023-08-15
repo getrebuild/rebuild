@@ -25,7 +25,11 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -102,6 +106,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
         return valid == null ? RespBody.error() : RespBody.ok();
     }
 
+    @Deprecated
     @RequestMapping("advfilter/add-commons")
     public RespBody addCommons(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);

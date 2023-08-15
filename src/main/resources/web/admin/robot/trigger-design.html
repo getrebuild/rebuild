@@ -34,35 +34,35 @@
                         <div class="col-12 col-lg-9 pt-1 J_when">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="1" />
-                            <span class="custom-control-label"> [[${bundle.L('新建时')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 when-update">
                             <input class="custom-control-input" type="checkbox" value="4" />
-                            <span class="custom-control-label"> [[${bundle.L('更新时')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('更新时')}]]</span>
                             <a class="hide ml-1" th:title="${bundle.L('指定字段')}"><i class="icon zmdi zmdi-settings fs-15"></i></a>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="2" />
-                            <span class="custom-control-label"> [[${bundle.L('删除时')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('删除时')}]]</span>
                           </label>
                           <div class="mt-1">
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="16" />
-                              <span class="custom-control-label"> [[${bundle.L('分配时')}]]</span>
+                              <span class="custom-control-label">[[${bundle.L('分配时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="32" />
-                              <span class="custom-control-label"> [[${bundle.L('共享时')}]]</span>
+                              <span class="custom-control-label">[[${bundle.L('共享时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="64" />
-                              <span class="custom-control-label"> [[${bundle.L('取消共享时')}]]</span>
+                              <span class="custom-control-label">[[${bundle.L('取消共享时')}]]</span>
                             </label>
                           </div>
                           <div class="mt-1">
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="128" />
-                              <span class="custom-control-label"> [[${bundle.L('审批通过时')}]]</span>
+                              <span class="custom-control-label">[[${bundle.L('审批通过时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="256" />
@@ -73,18 +73,18 @@
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="1024" />
-                              <span class="custom-control-label"> [[${bundle.L('审批提交时')}]] <sup class="rbv"></sup></span>
+                              <span class="custom-control-label">[[${bundle.L('审批提交时')}]] <sup class="rbv"></sup></span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="2048" />
-                              <span class="custom-control-label"> [[${bundle.L('审批驳回/撤回时')}]] <sup class="rbv"></sup></span>
+                              <span class="custom-control-label">[[${bundle.L('审批驳回/撤回时')}]] <sup class="rbv"></sup></span>
                             </label>
                           </div>
                           <div class="mt-1">
                             <div>
                               <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                                 <input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
-                                <span class="custom-control-label"> [[${bundle.L('定期执行')}]] <sup class="rbv"></sup></span>
+                                <span class="custom-control-label">[[${bundle.L('定期执行')}]] <sup class="rbv"></sup></span>
                               </label>
                             </div>
                             <div class="on-timers mt-1 hide">
@@ -141,6 +141,12 @@
                           <p class="form-text mb-0">[[${bundle.L('优先级高 (数字大) 的会被先执行')}]]</p>
                         </div>
                       </div>
+                      <div class="form-group row J_last-logs hide">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('最近执行')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <div class="form-control-plaintext"><span class="text-muted">[[${bundle.L('无')}]]</span></div>
+                        </div>
+                      </div>
                     </form>
                   </div>
                 </li>
@@ -179,7 +185,7 @@
         configId: '[[${configId}]]',
         actionType: '[[${actionType}]]',
         sourceEntity: '[[${sourceEntity}]]',
-        sourceEntityType: ~~'[[${sourceEntityType}]]',
+        sourceEntityIsDetail: '[[${sourceEntityIsDetail}]]',
         when: ~~'[[${when}]]',
         whenTimer: '[[${whenTimer}]]',
         whenFilter: [(${whenFilter ?:'null'})],

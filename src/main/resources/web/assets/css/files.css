@@ -66,7 +66,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div {
   display: table-cell;
-  vertical-align: top;
+  vertical-align: middle;
   margin: 0;
 }
 
@@ -102,7 +102,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .file-list-item > div.detail > .extras {
-  margin-top: 1px;
+  margin-top: 0;
   overflow: hidden;
 }
 
@@ -111,32 +111,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
   line-height: 1;
   float: left;
-  padding-top: 4px;
-}
-
-.file-list-item > div.detail > .extras > span.fop {
-  position: relative;
-  display: none;
-}
-
-.file-list-item:hover > div.detail > .extras > span.fop {
-  display: inline-block;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a {
-  color: #999;
-  padding: 0 6px;
-  font-size: 14px;
-  position: absolute;
-  margin-top: -1px;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a + a {
-  margin-left: 24px;
-}
-
-.file-list-item > div.detail > .extras > span.fop > a:hover {
-  color: #4285f4;
+  padding-top: 2px;
 }
 
 .file-list-item > div.detail .extras > span,
@@ -202,8 +177,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aside-2tree li > a > .icon.flag {
   font-size: 12px;
   color: #aaa;
-  margin: 0;
-  margin-left: 6px;
+  margin: 0 0 0 6px;
   cursor: help;
 }
 
@@ -215,4 +189,48 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .file-list-striped .file-list-item.active > div.type .file-icon::before {
   border-top-color: #dee2e6;
   border-right-color: #dee2e6;
+}
+
+.sharing-list .table th,
+.sharing-list .table td {
+  padding: 12px 6px;
+}
+
+.sharing-list .table th {
+  border-top: 0 none;
+  padding-top: 4px;
+}
+
+.sharing-list .table tbody {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.fop-action {
+  position: absolute;
+  right: 0;
+  top: 7px;
+  display: none;
+}
+
+.info .fop-action {
+  top: 5px;
+}
+
+.fop-action > a {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 16px;
+  color: #777 !important;
+}
+
+.fop-action > a:hover {
+  color: #0d5bdd !important;
+}
+
+.sharing-list .table tbody tr:hover > td > .fop-action,
+.file-list-item:hover > div.info > .fop-action {
+  display: block;
 }

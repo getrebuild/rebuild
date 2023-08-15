@@ -78,7 +78,6 @@ public class TransformConfigController extends BaseController {
         Entity sourceEntity = MetadataHelper.getEntity(config.getString("source"));
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
 
-        // 主实体
         mv.getModelMap().put("sourceEntity", buildEntity(sourceEntity, true));
         mv.getModelMap().put("targetEntity", buildEntity(targetEntity, false));
 
@@ -155,6 +154,9 @@ public class TransformConfigController extends BaseController {
                 new String[] { "entity", "label" },
                 new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
 
+        final String dtfName = entity.getMainEntity() == null
+                ? null : MetadataHelper.getDetailToMainField(entity).getName();
+
         JSONArray fields = new JSONArray();
 
         for (Field field : MetadataSorter.sortFields(entity)) {
@@ -167,7 +169,11 @@ public class TransformConfigController extends BaseController {
                 if (easyField.getDisplayType() == DisplayType.SERIES) continue;
 
                 // v2.10 非可创建字段也支持
-                fields.add(MetaFormatter.buildRichField(easyField));
+                JSONObject m = MetaFormatter.buildRichField(easyField);
+                // v3.4 for dtf
+                if (field.getName().equalsIgnoreCase(dtfName)) m.put("readonly", true);
+
+                fields.add(m);
             }
         }
 

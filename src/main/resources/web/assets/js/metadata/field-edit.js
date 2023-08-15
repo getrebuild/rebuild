@@ -23,7 +23,8 @@ $(document).ready(function () {
 
   // 内置字段
   if (wpc.fieldBuildin) {
-    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter, .J_advOpt').remove()
+    $('.J_fieldAttrs, .J_advOpt, .J_for-STATE').remove()
+    $('#referenceCascadingField, #referenceQuickNew, #referenceDataFilter').parents('.form-group').remove()
   }
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
@@ -508,7 +509,7 @@ const _handleReference = function (isN2N) {
     if (_ReferenceSearcher) {
       _ReferenceSearcher.show()
     } else {
-      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
+      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} />, function () {
         _ReferenceSearcher = this
@@ -686,13 +687,21 @@ class TagEditor extends RbAlert {
     $cs.find('>a').on('click', function () {
       $cs.find('>a .zmdi').remove()
       $('<i class="zmdi zmdi-check"></i>').appendTo(this)
+      this._color = null
     })
+
+    $('<input type="color" />')
+      .appendTo($cs)
+      .on('change', (e) => {
+        $cs.find('>a .zmdi').remove()
+        this._color = e.target.value
+      })
   }
 
   _onConfirm() {
     const name = $val(this._$name)
     if (!name) return RbHighbar.create($L('请输入标签'))
-    const color = $(this._$rbcolors).find('>a>i').parent().data('color') || ''
+    const color = this._color || $(this._$rbcolors).find('>a>i').parent().data('color') || ''
     const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
     ok && this.hide()
   }

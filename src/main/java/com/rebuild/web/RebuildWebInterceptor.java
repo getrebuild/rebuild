@@ -21,7 +21,6 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -56,8 +55,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     private static final ThreadLocal<RequestEntry> REQUEST_ENTRY = new NamedThreadLocal<>("RequestEntry");
 
     private static final int CODE_STARTING = 600;
-    private static final int CODE_DENIEDMSG = 601;
-    @SuppressWarnings("unused")
     private static final int CODE_MAINTAIN = 602;
     private static final int CODE_UNSAFE_USE = 603;
 
@@ -68,9 +65,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         if (Application.isWaitLoad()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
-        }
-        if (SysbaseHeartbeat.DENIEDMSG != null) {
-            throw new DefinedException(CODE_DENIEDMSG, SysbaseHeartbeat.DENIEDMSG);
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
@@ -269,7 +263,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (ServletUtils.isAjaxRequest(request)
                 || requestUri.contains("/assets/")
                 || requestUri.contains("/commons/frontjs/")
-                || requestUri.contains("/commons/theme/")) {
+                || requestUri.contains("/commons/theme/")
+                || requestUri.contains("/filex/download/")
+                || requestUri.startsWith("/filex/img/")) {
             return false;
         }
 

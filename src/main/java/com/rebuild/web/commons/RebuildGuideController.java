@@ -35,7 +35,7 @@ import java.util.List;
  * @since 12/04/2022
  */
 @RestController
-@RequestMapping("/common/guide/")
+@RequestMapping("/commons/guide/")
 public class RebuildGuideController extends BaseController {
 
     @GetMapping("syscfg")

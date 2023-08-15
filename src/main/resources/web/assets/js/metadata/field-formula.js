@@ -133,7 +133,7 @@ class FormulaCalc extends RbAlert {
       formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{____${field[1]}}`)
     }
     formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
-    return formula.toUpperCase()
+    return formula//.toUpperCase()
   }
 }
 

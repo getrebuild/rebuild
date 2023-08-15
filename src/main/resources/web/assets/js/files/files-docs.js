@@ -420,20 +420,20 @@ class FilesList4Docs extends FilesList {
   state = { ...this.props }
   __lastEntry = __DEFAULT_ALL
 
-  renderExtras(item) {
+  renderExtras34(item) {
     return (
-      <RF>
-        <span className="fop">
-          <a title={$L('下载')} className="fs-16" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-            <i className="icon zmdi zmdi-download" />
+      <div className="info position-relative">
+        <span className="fop-action">
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+            <i className="icon zmdi zmdi-download fs-17" />
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this.handleShare(item, e)}>
-              <i className="icon zmdi zmdi-share" />
+              <i className="icon zmdi zmdi-share up-1" />
             </a>
           )}
         </span>
-      </RF>
+      </div>
     )
   }
 
@@ -458,12 +458,12 @@ $(document).ready(() => {
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('确认删除此文件？'), {
+    RbAlert.create($L('确认删除选中的文件？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/files/delete-files?ids=${s}`, (res) => {
+        $.post(`/files/delete-files?ids=${s.join(',')}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             filesList.loadData()
@@ -479,6 +479,6 @@ $(document).ready(() => {
   $('.J_move').on('click', () => {
     const s = filesList.getSelected()
     if (!s) return
-    renderRbcomp(<FileMoveDlg files={[s]} call={() => filesList && filesList.loadData()} />)
+    renderRbcomp(<FileMoveDlg files={s} call={() => filesList && filesList.loadData()} />)
   })
 })

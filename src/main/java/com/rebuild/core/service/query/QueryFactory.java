@@ -30,8 +30,9 @@ import java.util.List;
  * 查询服务
  *
  * @author Zixin (RB)
- * @see RoleBaseQueryFilter
  * @since 05/21/2017
+ * @see RoleBaseQueryFilter
+ * @see QueryHelper
  */
 @Service
 public class QueryFactory {
@@ -127,7 +128,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields
+     * @param fields 不指定则返使用字段
      * @return
      */
     public Object[] unique(ID recordId, String... fields) {
@@ -137,7 +138,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields
+     * @param fields 不指定则返使用字段
      * @return
      */
     public Object[] uniqueNoFilter(ID recordId, String... fields) {
@@ -147,7 +148,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields
+     * @param fields 不指定则返使用字段
      * @return
      */
     public Record record(ID recordId, String... fields) {
@@ -157,7 +158,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields
+     * @param fields 不指定则返使用字段
      * @return
      */
     public Record recordNoFilter(ID recordId, String... fields) {

@@ -24,6 +24,8 @@ import com.rebuild.core.service.trigger.TriggerResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -78,6 +80,8 @@ public class AutoShare extends AutoAssign {
             }
         }
 
-        return TriggerResult.success(toUsers);
+        Collection<ID> affected = new ArrayList<>(toUsers);
+        affected.add(recordId);
+        return TriggerResult.success(affected);
     }
 }

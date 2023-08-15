@@ -6,6 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global InitModels */
 
+window.__LAB_SHOWNDETAIL = true
+
 $(document).ready(() => {
   const $bnew = $('.btn-primary.new').on('click', () => {
     const entityLabel = $val('#entityLabel'),
@@ -87,8 +89,12 @@ $(document).ready(() => {
     if ($('#mainEntity option').length === 0) {
       _loadEntities((e) => {
         e.forEach((item) => {
-          if (!item.detailEntity && !item.mainEntity) {
-            $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+          if (!item.mainEntity) {
+            if (window.__LAB_SHOWNDETAIL) {
+              $(`<option value="${item.entityName}">${item.entityLabel}${item.detailEntity ? ' (LAB)' : ''}</option>`).appendTo('#mainEntity')
+            } else if (!item.detailEntity) {
+              $(`<option value="${item.entityName}">${item.entityLabel}</option>`).appendTo('#mainEntity')
+            }
           }
         })
 

@@ -16,19 +16,16 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.BaseService;
-import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 
 /**
  * 可注入观察者的服务
@@ -77,7 +74,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
     @Override
     public Record update(Record record) {
-        final Record before = countObservers() > 0 ? recordSnap(record) : null;
+        final Record before = countObservers() > 0 ? recordSnap(record, false) : null;
 
         record = delegateService.update(record);
 
@@ -95,7 +92,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         Record deleted = null;
         if (countObservers() > 0) {
             deleted = EntityHelper.forUpdate(recordId, currentUser, Boolean.FALSE);
-            deleted = recordSnap(deleted);
+            deleted = recordSnap(deleted, true);
 
             // 删除前触发，做一些状态保持
             setChanged();
@@ -115,22 +112,15 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * 用于操作前获取原记录
      *
      * @param base
+     * @param allFields 使用全部字段
      * @return
      */
-    protected Record recordSnap(Record base) {
-        final ID primaryId = base.getPrimary();
-        Assert.notNull(primaryId, "Record primary cannot be null");
-
-        Set<String> fields = new HashSet<>();
-        for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
-            fields.add(iter.next());
+    protected Record recordSnap(Record base, boolean allFields) {
+        Assert.notNull(base.getPrimary(), "[primary] cannot be null");
+        if (allFields) {
+            return Application.getQueryFactory().recordNoFilter(base.getPrimary());
         }
-
-        fields.add(base.getEntity().getPrimaryField().getName());
-        Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
-
-        if (snap == null) throw new NoRecordFoundException(primaryId);
-        return snap;
+        return QueryHelper.querySnap(base);
     }
 
     /**

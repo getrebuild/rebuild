@@ -361,6 +361,9 @@ class LightAttachmentList extends RelatedList {
         <a className="dropdown-item" data-sort="older" onClick={(e) => this.search(e)}>
           {$L('最早上传')}
         </a>
+        <a className="dropdown-item" data-sort="size" onClick={(e) => this.search(e)}>
+          {$L('文件大小')}
+        </a>
       </div>
     )
   }
@@ -377,23 +380,25 @@ class LightAttachmentList extends RelatedList {
           </a>
           <div className="extras">
             <span className="fsize">{item.fileSize}</span>
-            <span className="fop">
-              <a title={$L('下载')} className="fs-15" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-                <i className="icon zmdi zmdi-download" />
-              </a>
-              {rb.fileSharable && (
-                <a
-                  title={$L('分享')}
-                  onClick={(e) => {
-                    $stopEvent(e)
-                    // eslint-disable-next-line react/jsx-no-undef
-                    renderRbcomp(<FileShare file={item.filePath} />)
-                  }}>
-                  <i className="icon zmdi zmdi-share" />
-                </a>
-              )}
-            </span>
           </div>
+        </div>
+        <div className="info position-relative">
+          <span className="fop-action">
+            <a title={$L('下载')} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+              <i className="icon zmdi zmdi-download fs-17" />
+            </a>
+            {rb.fileSharable && (
+              <a
+                title={$L('分享')}
+                onClick={(e) => {
+                  $stopEvent(e)
+                  // eslint-disable-next-line react/jsx-no-undef
+                  renderRbcomp(<FileShare file={item.filePath} />)
+                }}>
+                <i className="icon zmdi zmdi-share up-1" />
+              </a>
+            )}
+          </span>
         </div>
         <div className="info">
           <DateShow date={item.uploadOn} />
@@ -471,9 +476,10 @@ class SelectReport extends React.Component {
                   {(this.state.reports || []).map((item) => {
                     rb._officePreviewUrl = 111
                     const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
-                    const showPdf = item.outputType.includes('pdf') && item.outputType.includes('excel')
+                    const showPdf = (item.outputType || '').includes('pdf')
+                    const showHtml = (item.outputType || '').includes('html')
                     return (
-                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'}`}>
+                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${showPdf && 'has-pdf'} ${showHtml && 'has-html'}`}>
                         <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
                           {item.name}
                           <i className="mdi mdi-download" />
@@ -482,6 +488,11 @@ class SelectReport extends React.Component {
                           {showPdf && (
                             <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('下载 PDF')}>
                               <i className="mdi mdi-file-pdf-box fs-18" />
+                            </a>
+                          )}
+                          {showHtml && (
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=html`} title={$L('下载 HTML')}>
+                              <i className="mdi mdi-language-html5 fs-18" />
                             </a>
                           )}
                           {rb._officePreviewUrl && (

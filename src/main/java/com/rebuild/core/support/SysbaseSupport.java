@@ -7,14 +7,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.FileAppender;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-import org.slf4j.LoggerFactory;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,31 +35,19 @@ public class SysbaseSupport {
      * @return
      */
     public String submit() {
-        File file = getLogbackFile();
+        File file = SysbaseHeartbeat.getLogbackFile();
 
         JSONObject resJson;
         try {
             String res = upload(file, "https://getrebuild.com/api/misc/request-support");
-            log.info("Upload support file : {}", res);
+            log.info("Upload support-file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {
-            log.error("Upload support file failed", e);
+            log.error("Upload support-file failed", e);
             return null;
         }
 
         return resJson.getString("TSID");
-    }
-
-    /**
-     * 最新日志文件
-     *
-     * @return
-     */
-    public File getLogbackFile() {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        @SuppressWarnings("rawtypes")
-        FileAppender fa = (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-        return new File(fa.getFile());
     }
 
     /**

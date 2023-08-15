@@ -42,9 +42,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
-
-import static com.rebuild.web.general.GeneralListController.checkPageOfEntity;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 表单/视图
@@ -61,14 +63,16 @@ public class GeneralModelController extends EntityController {
     public ModelAndView pageView(@PathVariable String entity, @PathVariable ID id,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
-        final Entity useEntity = checkPageOfEntity(user, entity, response);
-        if (useEntity == null) return null;
+        int status = getCanAccessStatus(entity, user, response);
+        if (status > 0) return null;
+
+        final Entity viewEntity = MetadataHelper.getEntity(entity);
 
         if (Application.devMode() && !Objects.equals(id.getEntityCode(), MetadataHelper.getEntity(entity).getEntityCode())) {
             log.warn("Entity and ID do not match : " + request.getRequestURI());
         }
-        
-        boolean isDetail = useEntity.getMainEntity() != null;
+
+        boolean isDetail = viewEntity.getMainEntity() != null;
         ModelAndView mv;
         if (isDetail) {
             mv = createModelAndView("/general/detail-view", id, user);
@@ -108,7 +112,7 @@ public class GeneralModelController extends EntityController {
     public JSON entityForm(@PathVariable String entity, @IdParam(required = false) ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final Entity metaEntity = MetadataHelper.getEntity(entity);
+        final Entity modelEntity = MetadataHelper.getEntity(entity);
 
         JSON initialVal = null;
         if (id == null) {
@@ -121,7 +125,7 @@ public class GeneralModelController extends EntityController {
                 }
                 // v2.8
                 else if (FormsBuilder.DV_MAINID.equals(mainid)) {
-                    ID fakeMainid = EntityHelper.newUnsavedId(metaEntity.getMainEntity().getEntityCode());
+                    ID fakeMainid = EntityHelper.newUnsavedId(modelEntity.getMainEntity().getEntityCode());
                     FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
                 }
             }
@@ -140,12 +144,13 @@ public class GeneralModelController extends EntityController {
 
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
-                FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
+                FormsBuilder.instance.setFormInitialValue(modelEntity, model, (JSONObject) initialVal);
             }
 
             // v3.1 明细导入配置
-            if (metaEntity.getDetailEntity() != null) {
-                List<ConfigBean> imports = TransformManager.instance.getDetailImports(metaEntity.getDetailEntity().getName());
+            // v3.4 FIXME 只有第一个实体支持转换
+            if (modelEntity.getDetailEntity() != null) {
+                List<ConfigBean> imports = TransformManager.instance.getDetailImports(modelEntity.getDetailEntity().getName());
                 if (!imports.isEmpty()) {
                     List<Object> detailImports = new ArrayList<>();
                     for (ConfigBean cb : imports) {

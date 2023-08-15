@@ -582,7 +582,7 @@ class BatchUpdateEditor extends React.Component {
     const field = this.props.fields.find((x) => this.state.selectField === x.name)
     if (data.op === 'NULL') {
       if (!field.nullable) {
-        RbHighbar.create($L('%s 不能为空', field.label))
+        RbHighbar.create($L('%s不能为空', field.label))
         return null
       } else {
         return data
@@ -609,7 +609,7 @@ const RbListCommon = {
     const gs = $urlp('gs', location.hash)
     if (gs) {
       // eslint-disable-next-line no-undef
-      _showGlobalSearch(gs)
+      // _showGlobalSearch(gs)
       $('.input-search>input').val($decode(gs))
     }
 
@@ -1242,7 +1242,17 @@ class RbListPagination extends React.Component {
           )
         })}
         {rb.isAdminUser && wpc.statsField && (
-          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计列'))}>
+          <a
+            className="list-stats-settings"
+            onClick={() =>
+              RbModal.create(
+                `/p/admin/metadata/list-stats?entity=${this._entity}`,
+                <RF>
+                  {$L('配置统计列')}
+                  <sup className="rbv" title={$L('增值功能')} />
+                </RF>
+              )
+            }>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}
@@ -1311,10 +1321,10 @@ const CellRenders = {
   render(value, type, width, key) {
     const style = { width: width || COLUMN_MIN_WIDTH }
 
-    if (window._CustomizedDataList) {
+    if (window.FrontJS && wpc.entity) {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
-      const fn = window._CustomizedDataList.useCellRender(fieldKey)
+      const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
       if (fn) return fn(value, style, key)
     }
 
@@ -1517,7 +1527,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
       <div className="column-multi" style={s}>
         {(v.text || []).map((item) => {
           if (typeof item === 'object') {
-            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: '#fff' } : null
+            const style2 = item.color ? { borderColor: item.color, backgroundColor: item.color, color: $isLight(item.color) ? '#444' : '#fff' } : null
             return (
               <span key={item.text} className="badge" title={item.text} style={style2}>
                 {item.text}
@@ -1573,7 +1583,7 @@ CellRenders.addRender('SIGN', function (v, s, k) {
 CellRenders.addRender('PICKLIST', function (v, s, k) {
   // Use badge
   if (typeof v === 'object') {
-    const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: '#fff' } : null
+    const style2 = v.color ? { borderColor: v.color, backgroundColor: v.color, color: $isLight(v.color) ? '#444' : '#fff' } : null
     return (
       <td key={k} className="td-sm column-state">
         <div style={s} title={v.text}>

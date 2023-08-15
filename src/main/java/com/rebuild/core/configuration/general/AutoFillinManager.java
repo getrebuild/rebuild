@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -27,12 +29,14 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -137,6 +141,7 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             String targetField = e.getString("target");
+            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) continue;
 
             Field targetFieldMeta;
             // 明细 > 主
@@ -180,6 +185,82 @@ public class AutoFillinManager implements ConfigManager {
     }
 
     /**
+     * 表单后端回填
+     *
+     * @param record
+     * @param fillinForce 是否强制（无视配置）
+     * @return
+     */
+    public int fillinRecord(Record record, boolean fillinForce) {
+        RbAssert.isCommercial(null);
+        final Entity entity = record.getEntity();
+        final boolean isNew = record.getPrimary() == null;
+
+        int fillin = 0;
+        for (String fieldName : record.getAvailableFields()) {
+            if (!entity.containsField(fieldName)) continue;
+
+            EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
+            if (easyField.getDisplayType() != DisplayType.REFERENCE) continue;
+
+            fillin += fillinRecordItem(easyField.getRawMeta(), record.getObjectValue(fieldName), isNew, fillinForce, record);
+        }
+        return fillin;
+    }
+
+    private int fillinRecordItem(Field field, Object sourceId, boolean isNew, boolean fillinForce, Record into) {
+        if (NullValue.isNull(sourceId)) return 0;
+
+        JSONArray fillinValue = getFillinValue(field, (ID) sourceId);
+        if (fillinValue.isEmpty()) return 0;
+
+        int fillin = 0;
+        for (Object o : fillinValue) {
+            JSONObject item = (JSONObject) o;
+            boolean fillinBackend2 = fillinForce || item.getBooleanValue("fillinBackend");
+            if (!fillinBackend2) continue;
+
+            if (!fillinForce) {
+                if (isNew) {
+                    if (!item.getBooleanValue("whenCreate")) continue;
+                } else {
+                    if (!item.getBooleanValue("whenUpdate")) continue;
+                }
+            }
+
+            String targetFieldName = item.getString("target");
+            boolean fillinForce2 = fillinForce || item.getBooleanValue("fillinForce");
+            Object value = conversion2RecordValue(into.getEntity().getField(targetFieldName), item.get("value"));
+
+            // 强制回填
+            if (fillinForce2) {
+                if (value == null) into.setNull(targetFieldName);
+                else into.setObjectValue(targetFieldName, value);
+            } else {
+
+                // 非强制时检查目标是否有值
+                if (into.hasValue(targetFieldName, false)) continue;
+
+                if (!isNew) {
+                    Object[] has = Application.getQueryFactory().uniqueNoFilter(into.getPrimary(), targetFieldName);
+                    if (has != null && has[0] != null) continue;
+                }
+
+                into.setObjectValue(targetFieldName, value);
+            }
+            fillin++;
+
+            // 继续回填
+            EasyField nextField = EasyMetaFactory.valueOf(field.getOwnEntity().getField(targetFieldName));
+            if (nextField.getDisplayType() == DisplayType.REFERENCE) {
+                fillin += fillinRecordItem(nextField.getRawMeta(), value, isNew, fillinForce, into);
+            }
+        }
+
+        return fillin;
+    }
+
+    /**
      * 回填值做兼容处理。例如引用字段回填至文本，要用 Label，而不是 ID
      *
      * @param source
@@ -208,6 +289,34 @@ public class AutoFillinManager implements ConfigManager {
         return newValue;
     }
 
+    // 利用表单回填功能取到的值是 <tt>String</tt>，这里需要转换成类型值
+    private Object conversion2RecordValue(Field target, Object value) {
+        if (NullValue.isNull(value)) return null;
+
+        // REF
+        if (value instanceof JSONObject) {
+            value = ((JSONObject) value).getString("id");
+            return ID.valueOf(value.toString());
+        }
+        // FILE,IMAGE
+        if (value instanceof JSONArray) {
+            return ((JSONArray) value).toJSONString();
+        }
+        // Keep
+        if (value instanceof Number) {
+            return value;
+        }
+
+        Record temp4Value = new StandardRecord(target.getOwnEntity());
+        try {
+            RecordVisitor.setValueByLiteral(target.getName(), value.toString(), temp4Value);
+            return temp4Value.getObjectValue(target.getName());
+        } catch (Exception ex) {
+            log.error("Cannot conversion value of record : {} = {}", target.getName(), value);
+            return null;
+        }
+    }
+
     /**
      * 获取配置
      *
@@ -216,7 +325,7 @@ public class AutoFillinManager implements ConfigManager {
      */
     @SuppressWarnings("unchecked")
     private List<ConfigBean> getConfig(Field field) {
-        final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
+        final String cKey = "AutoFillinManager34-" + field.getOwnEntity().getName() + "." + field.getName();
         Object cached = Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return (List<ConfigBean>) cached;
@@ -237,7 +346,8 @@ public class AutoFillinManager implements ConfigManager {
             JSONObject extra = JSON.parseObject((String) o[2]);
             entry.set("whenCreate", extra.getBooleanValue("whenCreate"))
                     .set("whenUpdate", extra.getBooleanValue("whenUpdate"))
-                    .set("fillinForce", extra.getBooleanValue("fillinForce"));
+                    .set("fillinForce", extra.getBooleanValue("fillinForce"))
+                    .set("fillinBackend", extra.getBooleanValue("fillinBackend"));
             entries.add(entry);
         }
 
@@ -248,7 +358,7 @@ public class AutoFillinManager implements ConfigManager {
     @Override
     public void clean(Object field) {
         Field field2 = (Field) field;
-        final String cKey = "AutoFillinManager-" + field2.getOwnEntity().getName() + "." + field2.getName();
+        final String cKey = "AutoFillinManager34-" + field2.getOwnEntity().getName() + "." + field2.getName();
         Application.getCommonsCache().evict(cKey);
         Application.getCommonsCache().evict(CKEY_AFARF);
     }

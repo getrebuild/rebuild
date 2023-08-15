@@ -12,11 +12,13 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.RebuildWebInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -67,6 +69,7 @@ public class ErrorPageView extends BaseController {
         mv.getModel().put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed());
         mv.getModel().put("SystemLoad", OshiUtils.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
+        mv.getModelMap().put("SN", License.SN() + "/" + OshiUtils.getLocalIp() + "/" + ServerStatus.STARTUP_ONCE);
         return mv;
     }
 

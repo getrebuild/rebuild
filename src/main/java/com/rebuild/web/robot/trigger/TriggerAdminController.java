@@ -12,6 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -75,7 +77,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("configId", configId);
         mv.getModel().put("sourceEntity", sourceEntity.getName());
         mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
-        mv.getModel().put("sourceEntityType", MetadataHelper.getEntityType(sourceEntity));
+        mv.getModel().put("sourceEntityIsDetail", sourceEntity.getMainEntity() != null);
         mv.getModel().put("actionType", actionType.name());
         mv.getModel().put("actionTypeLabel", Language.L(actionType));
         mv.getModel().put("when", config[2]);
@@ -126,25 +128,39 @@ public class TriggerAdminController extends BaseController {
             o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
 
             // 目标实体
-            o[10] = parseTargetEntity((String) o[10], (String) o[1]);
+            o[10] = tryParseTargetEntity((String) o[10], (String) o[1]);
         }
         return array;
     }
 
-    private String parseTargetEntity(String config, String sourceEntity) {
+    private String tryParseTargetEntity(String config, String sourceEntity) {
         if (!JSONUtils.wellFormat(config)) return null;
 
         JSONObject configJson = JSON.parseObject(config);
+
         String targetEntity = configJson.getString("targetEntity");
-        if (StringUtils.isBlank(targetEntity)) return null;
+        if (StringUtils.isNotBlank(targetEntity)) {
+            if (targetEntity.startsWith(TriggerAction.SOURCE_SELF)) targetEntity = sourceEntity;
+            else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
-        if (targetEntity.startsWith(TriggerAction.SOURCE_SELF)) targetEntity = sourceEntity;
-        else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
-
-        if (MetadataHelper.containsEntity(targetEntity)) {
-            return EasyMetaFactory.getLabel(targetEntity);
-        } else {
-            return String.format("[%s]", targetEntity.toUpperCase());
+            if (MetadataHelper.containsEntity(targetEntity)) {
+                return EasyMetaFactory.getLabel(targetEntity);
+            } else {
+                return String.format("[%s]", targetEntity.toUpperCase());
+            }
         }
+
+        String useTransform = configJson.getString("useTransform");
+        if (ID.isId(useTransform)) {
+            ConfigBean cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
+            targetEntity = cb.getString("target");
+            if (MetadataHelper.containsEntity(targetEntity)) {
+                return EasyMetaFactory.getLabel(targetEntity);
+            } else {
+                return String.format("[%s]", targetEntity.toUpperCase());
+            }
+        }
+
+        return null;
     }
 }

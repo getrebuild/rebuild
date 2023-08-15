@@ -17,7 +17,13 @@ $(document).ready(() => {
   if (!wpc.metaId) $('.footer .alert').removeClass('hide')
   else $('.footer .J_action').removeClass('hide')
 
-  $(`.J_tab-${wpc.entity} a`).addClass('active')
+  $(`.nav-tabs>li[data-name=${wpc.entity}]>a`).addClass('active')
+  if ($('.J_details')[0]) {
+    const $toggle = $('.J_for-details')
+    $('<i class="icon zmdi zmdi-caret-down ml-1 mr-0 text-muted fs-18"></i>').appendTo($toggle)
+    $toggle.attr('data-toggle', 'dropdown')
+    $toggle.next().find(`a[data-name=${wpc.entity}]`).addClass('text-primary')
+  }
 
   const $btn = $('.J_save').on('click', () => {
     if (!wpc.metaId) return
@@ -39,6 +45,13 @@ $(document).ready(() => {
     // v3.1
     if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
+      // v3.4
+      extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
+    }
+    // v3.4
+    if ($('#repeatFieldsCheckMode')[0]) {
+      extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
+      extConfig.disabledViewEditable = $val('#disabledViewEditable')
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -70,9 +83,9 @@ $(document).ready(() => {
     fields.forEach((item) => {
       if (item.disabled === false) ss.push(item)
     })
-    fields.forEach((item) => {
-      if (item.disabled === true) ss.push(item)
-    })
+    // fields.forEach((item) => {
+    //   if (item.disabled === true) ss.push(item)
+    // })
     return ss
   }
 
@@ -121,7 +134,7 @@ $(document).ready(() => {
       allowClear: true,
       data: sortFields(canQuickFields),
       multiple: true,
-      maximumSelectionLength: 5,
+      maximumSelectionLength: 9,
     })
 
     if (wpc.extConfig.quickFields) {
@@ -146,6 +159,7 @@ $(document).ready(() => {
         },
       },
       tags: true,
+      theme: 'default select2-tag',
     })
 
     if (wpc.extConfig.tags) {
@@ -155,4 +169,8 @@ $(document).ready(() => {
 
   // v3.1
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
+  // v3.4
+  if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
+  if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
+  if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
 })

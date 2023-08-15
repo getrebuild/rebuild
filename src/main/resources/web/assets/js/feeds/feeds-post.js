@@ -601,14 +601,14 @@ class ScheduleOptions extends React.Component {
               <input className="custom-control-input" name="remindOn" type="checkbox" value={2} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('邮件')}
-                {!email && <span> ({$L('不可用')})</span>}
+                {!email && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
               </span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
               <input className="custom-control-input" name="remindOn" type="checkbox" value={4} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('短信')}
-                {!mobile && <span> ({$L('不可用')})</span>}
+                {!mobile && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
               </span>
             </label>
           </dd>

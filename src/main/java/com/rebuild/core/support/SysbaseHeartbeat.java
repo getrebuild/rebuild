@@ -7,14 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
+import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.OshiUtils;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 /**
@@ -29,11 +37,10 @@ public class SysbaseHeartbeat {
     private static final String AdminMsg = "AdminMsg";
     private static final String UsersMsg = "UsersMsg";
     private static final String CommercialNoRbv = "CommercialNoRbv";
+    private static final String DateNotSync = "DateNotSync";
 
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DataFileBackupFail = "DataFileBackupFail";
-
-    volatile public static String DENIEDMSG = null;
 
     /**
      * Check server
@@ -43,6 +50,7 @@ public class SysbaseHeartbeat {
 
         LinkedHashMap<String, String> dangers = getDangersList();
 
+        // #1
         JSONObject checkBuild = License.siteApi("api/authority/check-build");
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
             dangers.put(HasUpdate,
@@ -51,6 +59,7 @@ public class SysbaseHeartbeat {
             dangers.remove(HasUpdate);
         }
 
+        // #2
         JSONObject echoValidity = License.siteApiNoCache("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE);
         if (echoValidity != null && !echoValidity.isEmpty()) {
             String adminMsg = echoValidity.getString("adminMsg");
@@ -61,12 +70,17 @@ public class SysbaseHeartbeat {
             if (usersMsg == null) dangers.remove(UsersMsg);
             else dangers.put(UsersMsg, usersMsg);
 
-            DENIEDMSG = echoValidity.getString("deniedMsg");
-
         } else {
-            dangers.remove(AdminMsg);
             dangers.remove(UsersMsg);
-            DENIEDMSG = null;
+        }
+
+        // #3
+        Date networkDate = OshiUtils.getNetworkDate();
+        long networkDateLeft = (networkDate.getTime() - CalendarUtils.now().getTime()) / 1000;
+        if (Math.abs(networkDateLeft) > 15) {
+            dangers.put(DateNotSync, String.valueOf(networkDateLeft));
+        } else {
+            dangers.remove(DateNotSync);
         }
 
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
@@ -128,6 +142,12 @@ public class SysbaseHeartbeat {
             }
         }
 
+        String hasNetworkDateLeft = dangers.get(DateNotSync);
+        if (hasNetworkDateLeft != null) {
+            dangers.put(DateNotSync,
+                    Language.L("服务器时间与网络时间存在偏移，可能导致某些功能异常，建议检查并同步服务器时间"));
+        }
+
         return dangers.values();
     }
 
@@ -137,5 +157,15 @@ public class SysbaseHeartbeat {
     public static String getUsersDanger() {
         LinkedHashMap<String, String> dangers = getDangersList();
         return dangers.get(UsersMsg);
+    }
+
+    /**
+     * @return
+     */
+    public static File getLogbackFile() {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger lg = lc.getLogger("ROOT");
+        FileAppender<?> fa = (FileAppender<?>) lg.getAppender("FILE");
+        return new File(fa.getFile());
     }
 }

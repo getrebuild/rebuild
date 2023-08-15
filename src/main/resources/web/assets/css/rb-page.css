@@ -70,7 +70,7 @@ button[disabled] {
 
 .dropdown-menu .dropdown-item,
 .dropdown-menu .dropdown-item > a {
-  cursor: default;
+  /*cursor: default;*/
 }
 
 .dropdown-menu.auto-scroller {
@@ -212,7 +212,7 @@ button[disabled] {
 }
 
 .badge.text-id {
-  color: #777;
+  color: #555;
   font-size: 12px !important;
   text-transform: uppercase;
   line-height: 1.2 !important;
@@ -389,10 +389,10 @@ a.btn {
 }
 
 .logo-img {
-  height: 27px;
-  width: 144px;
+  height: 30px;
+  width: 150px;
   background: url(../img/logo.png) center center no-repeat;
-  background-size: auto 27px;
+  background-size: auto 30px;
   display: block;
   margin: 0 auto;
   cursor: default;
@@ -2176,14 +2176,13 @@ th.column-fixed {
 }
 
 .aside-tree li > a:hover {
-  background-color: #eee;
-  border-radius: 2px;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .aside-tree li.active > a {
-  color: #fff !important;
+  background-color: rgba(0, 0, 0, 0.09) !important;
   background-color: #4285f4 !important;
-  border-radius: 2px;
+  color: #fff !important;
 }
 
 .aside-tree li > div.action,
@@ -2256,7 +2255,6 @@ th.column-fixed {
 .aside-2tree ul li.active {
   color: #fff !important;
   background-color: #4285f4 !important;
-  border-radius: 2px;
 }
 
 .aside-2tree ul li > a {
@@ -3177,6 +3175,8 @@ form {
 
 .rb-top-header .search-container {
   padding-right: 8px;
+  padding-top: 12px;
+  padding-bottom: 10px;
 }
 
 .search-container .global-search {
@@ -3185,7 +3185,7 @@ form {
 
 .search-container .search-input-gs {
   background-color: #f5f5f5;
-  border-radius: 99px;
+  border-radius: 6px;
   display: inline-block;
 }
 
@@ -3448,7 +3448,7 @@ form {
 
 .dialog-table {
   margin-bottom: 0;
-  margin-top: -16px;
+  margin-top: -13px;
 }
 
 .dialog-table th {
@@ -4437,11 +4437,6 @@ html.external-auth .auth-body.must-center .login {
   color: #777;
 }
 
-.aside-header .title.dropdown-toggle:hover {
-  cursor: pointer;
-  opacity: 0.8;
-}
-
 .btn.btn-light {
   box-shadow: none;
 }
@@ -4962,7 +4957,8 @@ pre.unstyle {
   font-size: 0;
 }
 
-.rbcolors > a {
+.rbcolors > a,
+.rbcolors input[type='color'] {
   width: 24px;
   height: 24px;
   display: inline-block;
@@ -4980,8 +4976,9 @@ pre.unstyle {
   color: rgb(117, 0, 234);
 }
 
-.rbcolors > a + a {
-  margin-left: 7px;
+.rbcolors > a + a,
+.rbcolors input[type='color'] {
+  margin-left: 6px;
 }
 
 .rbcolors > a > i {
@@ -4989,12 +4986,22 @@ pre.unstyle {
 }
 
 .rbcolors > a.default {
-  background-color: #fff;
   border: 1px solid #ccc;
+  background-color: #fff;
 }
 
 .rbcolors > a.default > i {
   color: #444 !important;
+}
+
+.rbcolors input[type='color'] {
+  appearance: none;
+  -moz-appearance: none;
+  padding: 2px !important;
+  border: 0 none;
+  cursor: pointer;
+  background: #ccc;
+  font-size: 0;
 }
 
 .dd-item.star .dd3-content::after {
@@ -5077,6 +5084,11 @@ pre.unstyle {
 .logo-img.white,
 .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
   background-image: url('../../commons/theme/use-logo-white');
+}
+
+.rb-top-header .rb-navbar-header .navbar-brand {
+  background-size: auto 30px;
+  padding-right: 0;
 }
 
 .badge-arrow3 {
@@ -5193,7 +5205,16 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 }
 
 .datetimepicker table tr td span.minute {
-  width: 16.66%;
+  width: 20%;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* v34 radius 6px */
+
+.rbhighbar > .alert,
+.rb-left-sidebar.v2 .sidebar-elements li > a,
+.aside-2tree ul li,
+.aside-tree li > a {
+  border-radius: 6px;
 }
