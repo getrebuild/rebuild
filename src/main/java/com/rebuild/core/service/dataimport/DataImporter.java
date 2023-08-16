@@ -33,6 +33,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -86,13 +87,13 @@ public class DataImporter extends HeavyTask<Integer> {
                 break;
             }
 
-            Cell fc = row == null || row.length == 0 ? null : row[0];
-            if (fc == null || fc.getRowNo() == 0) continue;
+            final Cell firstCell = row == null || row.length == 0 ? null : row[0];
+            if (firstCell == null || firstCell.getRowNo() == 0) continue;
 
             try {
                 Record record = checkoutRecord(row, defaultOwning);
                 if (record == null) {
-                    traceLogs.add(new Object[] { fc.getRowNo(), "SKIP" });
+                    traceLogs.add(new Object[] { firstCell.getRowNo(), "SKIP" });
                 } else {
 
                     boolean isNew = record.getPrimary() == null;
@@ -109,7 +110,7 @@ public class DataImporter extends HeavyTask<Integer> {
                         }
 
                         if (error != null) {
-                            traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", error });
+                            traceLogs.add(new Object[] { firstCell.getRowNo(), "ERROR", error });
                             continue;
                         }
                     }
@@ -117,19 +118,19 @@ public class DataImporter extends HeavyTask<Integer> {
                     record = ies.createOrUpdate(record);
                     this.addSucceeded();
 
-                    traceLogs.add(new Object[] { fc.getRowNo(),
+                    traceLogs.add(new Object[] { firstCell.getRowNo(),
                             isNew ? "CREATED" : "UPDATED", record.getPrimary(), cellTraces });
                 }
 
             } catch (Exception ex) {
                 String error = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
-                log.error("ROW#{} > {}", fc.getRowNo(), error, ex);
+                log.error("ROW#{} > {}", firstCell.getRowNo(), error, ex);
 
                 if (ex instanceof JdbcException) {
                     String know = KnownExceptionConverter.convert2ErrorMsg(ex);
                     if (know != null) error = know;
                 }
-                traceLogs.add(new Object[] { fc.getRowNo(), "ERROR", error });
+                traceLogs.add(new Object[] { firstCell.getRowNo(), "ERROR", error });
 
             } finally {
 
@@ -238,6 +239,6 @@ public class DataImporter extends HeavyTask<Integer> {
      * @return
      */
     public List<Object[]> getTraceLogs() {
-        return traceLogs;
+        return Collections.unmodifiableList(traceLogs);
     }
 }

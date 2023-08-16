@@ -77,7 +77,7 @@ $(document).ready(() => {
     const fm = _FieldsMapping.buildMapping()
     if (fm === false) return
     if (!fm) {
-      RbHighbar.create($L('请至少添加 1 个字段映射'))
+      RbHighbar.create($L('请至少设置 1 个字段映射'))
       return
     }
 
