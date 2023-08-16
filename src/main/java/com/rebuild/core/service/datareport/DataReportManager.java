@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -19,6 +20,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -150,5 +152,37 @@ public class DataReportManager implements ConfigManager {
     public void clean(Object entity) {
         final String cKey = "DataReportManager33-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
+    }
+
+    /**
+     * 获取报表名称
+     *
+     * @param reportId
+     * @param idOrEntity
+     * @param fileName
+     * @return
+     */
+    public static String getReportName(ID reportId, Object idOrEntity, String fileName) {
+        Entity be = idOrEntity instanceof ID ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
+                : MetadataHelper.getEntity((String) idOrEntity);
+
+        String name = null;
+        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(be)) {
+            if (cb.getID("id").equals(reportId)) {
+                name = cb.getString("name");
+                if (ContentWithFieldVars.matchsVars(name).isEmpty()) {
+                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
+                } else if (idOrEntity instanceof ID) {
+                    name = ContentWithFieldVars.replaceWithRecord(name, (ID) idOrEntity);
+                }
+
+                // suffix
+                if (fileName.endsWith(".pdf")) name += ".pdf";
+                else name += fileName.endsWith(".xlsx") ? ".xlsx" : ".xls";
+                break;
+            }
+        }
+
+        return StringUtils.defaultIfBlank(name, "UNTITLE");
     }
 }

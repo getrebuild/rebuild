@@ -31,7 +31,6 @@ import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
-import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
@@ -102,7 +101,7 @@ public class ReportsController extends BaseController {
             output = convertPdf(output, PdfConverter.TYPE_HTML);
         }
 
-        final String fileName = getReportName(entity, reportId, recordId, output);
+        final String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
@@ -111,8 +110,8 @@ public class ReportsController extends BaseController {
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
             String fileUrl = String.format(
-                    "/filex/download/%s?temp=yes&_onceToken=%s",
-                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null));
+                    "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
+                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), fileName);
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
             String previewUrl = StringUtils.defaultIfBlank(
@@ -172,7 +171,7 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                fileName = getReportName(entity, useReport, null, output);
+                fileName = DataReportManager.getReportName(useReport, entity, output.getName());
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
@@ -186,27 +185,6 @@ public class ReportsController extends BaseController {
             log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
-    }
-
-    private String getReportName(String entity, ID reportId, ID recordId, File file) {
-        String name = null;
-        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
-            if (cb.getID("id").equals(reportId)) {
-                name = cb.getString("name");
-                if (recordId == null || ContentWithFieldVars.matchsVars(name).isEmpty()) {
-                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
-                } else {
-                    name = ContentWithFieldVars.replaceWithRecord(name, recordId);
-                }
-
-                // suffix
-                if (file.getName().endsWith(".pdf")) name += ".pdf";
-                else name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
-                break;
-            }
-        }
-
-        return StringUtils.defaultIfBlank(name, "UNTITLE");
     }
 
     private boolean isOnlyPdf(String entity, ID reportId) {
