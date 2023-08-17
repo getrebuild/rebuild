@@ -94,7 +94,7 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-success shadow-sm">
         <span className="close">
-          {rb.isAdminUser && (
+          {(rb.isAdminUser || this.state.canRevoke) && (
             <button className="btn btn-secondary" onClick={this.revoke}>
               {$L('撤销')}
             </button>

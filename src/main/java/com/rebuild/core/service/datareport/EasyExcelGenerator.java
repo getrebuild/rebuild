@@ -134,9 +134,10 @@ public class EasyExcelGenerator extends SetUser {
                 }
             }
 
-            // 公式生效
+            // 强制公式生效
             Workbook wb = excelWriter.writeContext().writeWorkbookHolder().getWorkbook();
             wb.setForceFormulaRecalculation(true);
+            wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
         }
 
         return tmp;

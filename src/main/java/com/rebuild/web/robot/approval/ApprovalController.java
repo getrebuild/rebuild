@@ -20,15 +20,29 @@ import com.rebuild.core.configuration.general.LiteFormBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
-import com.rebuild.core.service.approval.*;
+import com.rebuild.core.service.approval.ApprovalException;
+import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.service.approval.ApprovalProcessor;
+import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.approval.ApprovalStatus;
+import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.service.approval.FlowDefinition;
+import com.rebuild.core.service.approval.FlowNode;
+import com.rebuild.core.service.approval.FlowNodeGroup;
+import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.UnexpectedRollbackException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -104,6 +118,11 @@ public class ApprovalController extends BaseController {
                     // v3.1 管理员也可撤回
                     data.put("canCancel", true);
                 }
+            }
+
+            if (stateVal == ApprovalState.APPROVED.getState()) {
+                // v3.4
+                data.put("canRevoke", Application.getPrivilegesManager().allow(user, ZeroEntry.AllowRevokeApproval));
             }
         }
 
