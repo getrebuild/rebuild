@@ -14,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +90,24 @@ public class PdfConverter {
         String echo = DatabaseBackup.execFor(cmd);
         if (!echo.isEmpty()) log.info(echo);
 
-        if (dest.exists()) return dest.toPath();
+        if (dest.exists()) {
+            if (TYPE_HTML.equalsIgnoreCase(type)) fixImages(dest);
+            return dest.toPath();
+        }
+
         throw new PdfConverterException("Cannot convert to PDF : " + StringUtils.defaultIfBlank(echo, "<empty>"));
+    }
+
+    // 添加 `temp=yes`
+    private static void fixImages(File htmlFile) throws IOException {
+        Document html = Jsoup.parse(htmlFile);
+        for (Element img : html.body().select("img")) {
+            String src = img.attr("src");
+            if (!src.startsWith("data:")) {
+                img.attr("src", src + "?temp=yes");
+            }
+        }
+
+        FileUtils.writeStringToFile(htmlFile, html.html(), "UTF-8");
     }
 }
