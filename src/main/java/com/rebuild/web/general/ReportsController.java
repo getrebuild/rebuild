@@ -49,6 +49,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 报表/导出
@@ -81,11 +83,21 @@ public class ReportsController extends BaseController {
     @RequestMapping({"report/generate", "report/export"})
     public void reportGenerate(@PathVariable String entity,
                                @IdParam(name = "report") ID reportId,
-                               @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String record = getParameterNotNull(request, "record");
+        List<ID> recordIds = new ArrayList<>();
+        for (String id : record.split(",")) {
+            if (ID.isId(id)) recordIds.add(ID.valueOf(id));
+        }
+        final ID recordId = recordIds.get(0);
+
         File output = null;
         try {
-            output = EasyExcelGenerator.create(reportId, recordId).generate();
+            if (recordIds.size() > 1) {
+                output = EasyExcelGenerator.create(reportId, recordIds).generate();
+            } else {
+                output = EasyExcelGenerator.create(reportId, recordId).generate();
+            }
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }

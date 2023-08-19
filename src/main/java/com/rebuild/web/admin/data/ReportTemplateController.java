@@ -123,9 +123,7 @@ public class ReportTemplateController extends BaseController {
     @GetMapping("/report-templates/preview")
     public void preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        TemplateFile tt;
-
+        final TemplateFile tt;
         // 新建时
         if (reportId == null) {
             String entity = getParameter(request, "entity");

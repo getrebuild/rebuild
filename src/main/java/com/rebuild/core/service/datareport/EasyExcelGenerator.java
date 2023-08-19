@@ -80,6 +80,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 public class EasyExcelGenerator extends SetUser {
 
     protected File template;
+    protected Integer writeSheetAt = null;
     protected ID recordId;
 
     protected boolean hasMain = false;
@@ -96,11 +97,12 @@ public class EasyExcelGenerator extends SetUser {
     }
 
     /**
+     * 生成报表
+     *
      * @return
      */
     public File generate() {
-        File tmp = RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s",
-                System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
+        final File target = getTargetFile();
 
         List<Map<String, Object>> datas = buildData();
         if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
@@ -113,8 +115,9 @@ public class EasyExcelGenerator extends SetUser {
         }
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
-        try (ExcelWriter excelWriter = EasyExcel.write(tmp).withTemplate(template).build()) {
-            WriteSheet writeSheet = EasyExcel.writerSheet()
+
+        try (ExcelWriter excelWriter = EasyExcel.write(target).withTemplate(template).build()) {
+            WriteSheet writeSheet = EasyExcel.writerSheet(writeSheetAt)
                     .registerWriteHandler(new FixsMergeStrategy())
                     .registerWriteHandler(new FormulaCellWriteHandler())
                     .build();
@@ -140,10 +143,20 @@ public class EasyExcelGenerator extends SetUser {
             wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
         }
 
-        return tmp;
+        return target;
     }
 
     /**
+     * @return
+     */
+    protected File getTargetFile() {
+        return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s",
+                System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
+    }
+
+    /**
+     * 构建报表数据
+     *
      * @return 第一个为主记录（若有）
      */
     protected List<Map<String, Object>> buildData() {
@@ -442,12 +455,27 @@ public class EasyExcelGenerator extends SetUser {
 
     /**
      * @param reportId
+     * @param recordIds
+     * @return
+     */
+    public static EasyExcelGenerator create(ID reportId, List<ID> recordIds) {
+        final ID recordId = recordIds.get(0);
+        if (recordIds.size() == 1) {
+            return create(reportId, recordId);
+        } else {
+            TemplateFile tt = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+            return new EasyExcelGenerator33(tt.templateFile, recordIds);
+        }
+    }
+
+    /**
+     * @param reportId
      * @param recordId
      * @return
      */
     public static EasyExcelGenerator create(ID reportId, ID recordId) {
-        TemplateFile tb = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
-        return create(tb.templateFile, recordId, tb.isV33);
+        TemplateFile tt = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+        return create(tt.templateFile, recordId, tt.isV33);
     }
 
     /**
