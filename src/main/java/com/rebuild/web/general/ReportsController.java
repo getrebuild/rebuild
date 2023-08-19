@@ -122,14 +122,15 @@ public class ReportsController extends BaseController {
             response.sendRedirect(previewUrl);
 
         } else {
-            // HTML 会直接预览
-            FileDownloader.downloadTempFile(response, output, isHtml ? FileDownloader.INLINE_FORCE : fileName);
+            // 直接预览
+            boolean forcePreview = isHtml || getBoolParameter(request, "preview");
+            FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
         }
     }
-
+    
     // 列表数据导出
 
-    @RequestMapping("export/submit")
+    @RequestMapping({ "export/submit", "report/export-list" })
     public RespBody export(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
@@ -187,6 +188,7 @@ public class ReportsController extends BaseController {
         }
     }
 
+    // 是否只能导出PDF
     private boolean isOnlyPdf(String entity, ID reportId) {
         for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
             if (cb.getID("id").equals(reportId)) {
