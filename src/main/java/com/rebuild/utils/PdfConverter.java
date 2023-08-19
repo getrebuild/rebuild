@@ -14,12 +14,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -71,6 +75,18 @@ public class PdfConverter {
      */
     protected static Path convert(Path path, String type, boolean forceRegen) throws IOException {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
+
+        // 打开并保存以便公式生效
+        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(path))) {
+            wb.setForceFormulaRecalculation(true);
+            wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
+
+            try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
+                wb.write(fos);
+            }
+        } catch (IOException e) {
+            throw new PdfConverterException(e);
+        }
 
         final File outdir = RebuildConfiguration.getFileOfTemp(null);
         String pdfName = path.getFileName().toString();
