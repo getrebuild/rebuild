@@ -157,9 +157,10 @@ public class FileDownloader extends BaseController {
             response.sendRedirect(privateUrl);
         } else {
 
-            // Local storage or temp
-            boolean inline = (request.getRequestURI().contains("/filex/access/") && filePath.toLowerCase().endsWith(".pdf"))
-                    || INLINE_FORCE.equals(attname);
+            // V34 PDF/HTML 可直接预览
+            boolean inline = (filePath.toLowerCase().endsWith(".pdf") || filePath.toLowerCase().endsWith(".html"))
+                    && (request.getRequestURI().contains("/filex/access/") || INLINE_FORCE.equals(attname));
+
             setDownloadHeaders(request, response, attname, inline);
             writeLocalFile(filePath, temp, response);
         }

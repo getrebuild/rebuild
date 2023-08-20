@@ -9,6 +9,7 @@ package com.rebuild.web.admin.data;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.core.io.file.FileNameUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
@@ -122,9 +123,7 @@ public class ReportTemplateController extends BaseController {
     @GetMapping("/report-templates/preview")
     public void preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        TemplateFile tt;
-
+        final TemplateFile tt;
         // 新建时
         if (reportId == null) {
             String entity = getParameter(request, "entity");
@@ -162,7 +161,8 @@ public class ReportTemplateController extends BaseController {
         }
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
-        FileDownloader.downloadTempFile(response, output, null);
+        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);
+        FileDownloader.downloadTempFile(response, output, attname);
     }
 
     @GetMapping("/report-templates/download")

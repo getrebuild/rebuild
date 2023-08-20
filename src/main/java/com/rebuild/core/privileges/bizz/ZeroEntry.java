@@ -57,6 +57,11 @@ public enum ZeroEntry {
      */
     EnableBizzPart(false),
 
+    /**
+     * 允许撤销审批
+     */
+    AllowRevokeApproval(false),
+
     ;
 
     private final boolean defaultVal;

@@ -158,37 +158,54 @@ const step3_import = () => {
     const field = _this.find('select').val()
     if (field) fsMapping[field] = col
   })
+  if (Object.keys(fsMapping).length === 0) {
+    RbHighbar.create($L('请至少设置 1 个字段映射'))
+    return
+  }
+
+  const notNullFields = []
   $(fields_cached).each((idx, item) => {
     if (item.nullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fsMapping[item.name] === undefined) {
-      RbHighbar.create($L('%s 为必填字段，请选择', item.label))
-      fsMapping = null
-      return false
+      notNullFields.push(item.label)
     }
   })
-  if (!fsMapping) return
 
-  _Config.fields_mapping = fsMapping
+  function _import() {
+    _Config.fields_mapping = fsMapping
+    RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
+      confirm: function () {
+        this.disabled(true)
+        $.post('/app/entity/data-imports/import-submit', JSON.stringify(_Config), (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            step3_import_show()
+            import_inprogress = true
+            import_taskid = res.data.taskid
+            location.hash = '#task=' + import_taskid
+            step3_import_state(import_taskid)
+          } else {
+            RbHighbar.error(res.error_msg)
+            this.disabled()
+          }
+        })
+      },
+    })
+  }
 
-  RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
-    confirm: function () {
-      this.disabled(true)
-      $.post('/app/entity/data-imports/import-submit', JSON.stringify(_Config), (res) => {
-        if (res.error_code === 0) {
-          this.hide()
-          step3_import_show()
-          import_inprogress = true
-          import_taskid = res.data.taskid
-          location.hash = '#task=' + import_taskid
-          step3_import_state(import_taskid)
-        } else {
-          RbHighbar.error(res.error_msg)
-          this.disabled()
-        }
-      })
-    },
-  })
+  if (notNullFields.length > 0) {
+    RbAlert.create($L('部分必填字段未映射，可能导致导入失败。是否继续？'), {
+      type: 'warning',
+      confirmText: $L('继续'),
+      onConfirm: function () {
+        this.hide()
+        setTimeout(() => _import(), 200)
+      },
+    })
+  } else {
+    _import()
+  }
 }
 
 // 3.1. 开始导入
@@ -324,13 +341,15 @@ const _fieldsMapping = (columns, fields) => {
 
 // 格式化秒显示
 function _secToTime(s) {
-  if (!s || ~~s <= 0) return '00:00:00'
+  if (!s || ~~s <= 0) return '00:00'
   let hh = Math.floor(s / 3600)
   let mm = Math.floor(s / 60) % 60
   let ss = ~~(s % 60)
   if (hh < 10) hh = '0' + hh
   if (mm < 10) mm = '0' + mm
   if (ss < 10) ss = '0' + ss
+
+  if (hh === '00') return mm + ':' + ss
   return hh + ':' + mm + ':' + ss
 }
 

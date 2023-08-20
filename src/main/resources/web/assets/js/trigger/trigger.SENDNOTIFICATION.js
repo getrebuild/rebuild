@@ -92,11 +92,19 @@ class ContentSendNotification extends ActionContentSpec {
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
-                <p className="form-text">{$L('[如何获取群 Webhook 地址](https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E7%BE%A4%20Webhook%20%E5%9C%B0%E5%9D%80)')}</p>
+                <p className="form-text">
+                  <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E7%BE%A4%20Webhook%20%E5%9C%B0%E5%9D%80" target="_blank">
+                    {$L('如何获取群 Webhook 地址')}
+                  </a>
+                </p>
               </div>
               <div className={state.userType === 5 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$groupId = c)} style={{ maxWidth: '100%' }} placeholder={$L('群号')} />
-                <p className="form-text">{$L('[如何获取群号](https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E9%92%89%E9%92%89%E7%BE%A4%E5%8F%B7)')}</p>
+                <p className="form-text">
+                  <a href="https://getrebuild.com/docs/admin/trigger/sendnotification#%E8%8E%B7%E5%8F%96%E9%92%89%E9%92%89%E7%BE%A4%E5%8F%B7" target="_blank">
+                    {$L('如何获取群号')}
+                  </a>
+                </p>
               </div>
             </div>
           </div>

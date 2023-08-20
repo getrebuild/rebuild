@@ -26,6 +26,7 @@ import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -303,7 +304,8 @@ public class ApprovalStepService extends InternalPersistService {
         final boolean isAdmin = UserHelper.isAdmin(opUser);
 
         if (isRevoke) {
-            if (!isAdmin) {
+            boolean canRevoke = Application.getPrivilegesManager().allow(opUser, ZeroEntry.AllowRevokeApproval);
+            if (!(isAdmin || canRevoke)) {
                 throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
             }
         } else {

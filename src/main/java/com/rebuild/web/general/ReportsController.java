@@ -31,7 +31,6 @@ import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
-import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
@@ -50,6 +49,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 报表/导出
@@ -82,11 +83,21 @@ public class ReportsController extends BaseController {
     @RequestMapping({"report/generate", "report/export"})
     public void reportGenerate(@PathVariable String entity,
                                @IdParam(name = "report") ID reportId,
-                               @IdParam(name = "record") ID recordId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String record = getParameterNotNull(request, "record");
+        List<ID> recordIds = new ArrayList<>();
+        for (String id : record.split(",")) {
+            if (ID.isId(id)) recordIds.add(ID.valueOf(id));
+        }
+        final ID recordId = recordIds.get(0);
+
         File output = null;
         try {
-            output = EasyExcelGenerator.create(reportId, recordId).generate();
+            if (recordIds.size() > 1) {
+                output = EasyExcelGenerator.create(reportId, recordIds).generate();
+            } else {
+                output = EasyExcelGenerator.create(reportId, recordId).generate();
+            }
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }
@@ -102,7 +113,7 @@ public class ReportsController extends BaseController {
             output = convertPdf(output, PdfConverter.TYPE_HTML);
         }
 
-        final String fileName = getReportName(entity, reportId, recordId, output);
+        final String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSON data = JSONUtils.toJSONObject(
@@ -111,8 +122,8 @@ public class ReportsController extends BaseController {
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
             String fileUrl = String.format(
-                    "/filex/download/%s?temp=yes&_onceToken=%s",
-                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null));
+                    "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
+                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), fileName);
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
             String previewUrl = StringUtils.defaultIfBlank(
@@ -123,14 +134,15 @@ public class ReportsController extends BaseController {
             response.sendRedirect(previewUrl);
 
         } else {
-            // HTML 会直接预览
-            FileDownloader.downloadTempFile(response, output, isHtml ? FileDownloader.INLINE_FORCE : fileName);
+            // 直接预览
+            boolean forcePreview = isHtml || getBoolParameter(request, "preview");
+            FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
         }
     }
-
+    
     // 列表数据导出
 
-    @RequestMapping("export/submit")
+    @RequestMapping({ "export/submit", "report/export-list" })
     public RespBody export(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
@@ -172,7 +184,7 @@ public class ReportsController extends BaseController {
                         CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
                         FileUtil.getSuffix(output));
             } else {
-                fileName = getReportName(entity, useReport, null, output);
+                fileName = DataReportManager.getReportName(useReport, entity, output.getName());
             }
 
             CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
@@ -188,27 +200,7 @@ public class ReportsController extends BaseController {
         }
     }
 
-    private String getReportName(String entity, ID reportId, ID recordId, File file) {
-        String name = null;
-        for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
-            if (cb.getID("id").equals(reportId)) {
-                name = cb.getString("name");
-                if (recordId == null || ContentWithFieldVars.matchsVars(name).isEmpty()) {
-                    name = String.format("%s-%s", name, CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()));
-                } else {
-                    name = ContentWithFieldVars.replaceWithRecord(name, recordId);
-                }
-
-                // suffix
-                if (file.getName().endsWith(".pdf")) name += ".pdf";
-                else name += file.getName().endsWith(".xlsx") ? ".xlsx" : ".xls";
-                break;
-            }
-        }
-
-        return StringUtils.defaultIfBlank(name, "UNTITLE");
-    }
-
+    // 是否只能导出PDF
     private boolean isOnlyPdf(String entity, ID reportId) {
         for (ConfigBean cb : DataReportManager.instance.getReportsRaw(MetadataHelper.getEntity(entity))) {
             if (cb.getID("id").equals(reportId)) {

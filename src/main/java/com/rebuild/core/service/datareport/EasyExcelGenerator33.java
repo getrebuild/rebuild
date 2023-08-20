@@ -13,13 +13,21 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,8 +47,16 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PRE
 @Slf4j
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
+    final private List<ID> recordIds;
+
     protected EasyExcelGenerator33(File template, ID recordId) {
         super(template, recordId);
+        this.recordIds = null;
+    }
+
+    protected EasyExcelGenerator33(File template, List<ID> recordIds) {
+        super(template, recordIds.get(0));
+        this.recordIds = recordIds;
     }
 
     @Override
@@ -166,5 +182,61 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         return datas;
+    }
+
+    // -- V34 多个
+
+    @Override
+    public File generate() {
+        if (recordIds == null) return super.generate();
+
+        // init
+        File targetFile = super.getTargetFile();
+        try {
+            FileUtils.copyFile(this.template, targetFile);
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
+
+        for (ID recordId : this.recordIds) {
+            int newSheetAt;
+            try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
+                // 1.复制模板
+                Sheet newSheet = wb.cloneSheet(0);
+                newSheetAt = wb.getSheetIndex(newSheet);
+                String newSheetName = recordId.toLiteral().toUpperCase();
+                wb.setSheetName(newSheetAt, newSheetName);
+
+                // 2.保存模板
+                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                    wb.write(fos);
+                }
+
+            } catch (IOException e) {
+                throw new RebuildException(e);
+            }
+
+            // 生成报表
+            this.template = targetFile;
+            this.writeSheetAt = newSheetAt;
+            this.recordId = recordId;
+            this.hasMain = false;
+            this.phNumber = 1;
+            this.phValues.clear();
+
+            targetFile = super.generate();
+        }
+
+        // 删除模板 Sheet
+        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
+            wb.removeSheetAt(0);
+            try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                wb.write(fos);
+            }
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
+
+        return targetFile;
     }
 }

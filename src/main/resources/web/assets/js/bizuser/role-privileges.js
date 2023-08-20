@@ -118,6 +118,13 @@ $(document).ready(() => {
 })
 
 const _clickPriv = function (elements, action) {
+  if (action === 'Z' && elements.hasClass('R0')) {
+    const isRbv = elements.parent().prev().find('.rbv')[0]
+    if (isRbv && rb.commercial < 1) {
+      return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+    }
+  }
+
   if (action === 'C' || action === 'Z') {
     if (elements.hasClass('R0')) elements.removeClass('R0').addClass('R4')
     else elements.removeClass('R4').addClass('R0')
