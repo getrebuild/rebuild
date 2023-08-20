@@ -107,16 +107,20 @@ public class PdfConverter {
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) {
-            if (TYPE_HTML.equalsIgnoreCase(type)) fixImages(dest);
+            if (TYPE_HTML.equalsIgnoreCase(type)) fixHtml(dest);
             return dest.toPath();
         }
 
         throw new PdfConverterException("Cannot convert to PDF : " + StringUtils.defaultIfBlank(echo, "<empty>"));
     }
 
-    // 添加 `temp=yes`
-    private static void fixImages(File htmlFile) throws IOException {
-        Document html = Jsoup.parse(htmlFile);
+    private static void fixHtml(File htmlFile) throws IOException {
+        final Document html = Jsoup.parse(htmlFile);
+
+        // 基础样式
+        html.head().append("<link rel=\"stylesheet\" type=\"text/css\" href=\"../../assets/css/html-report.css?v=3.4\" />");
+
+        // 图片添加 `temp=yes`
         for (Element img : html.body().select("img")) {
             String src = img.attr("src");
             if (!src.startsWith("data:")) {
