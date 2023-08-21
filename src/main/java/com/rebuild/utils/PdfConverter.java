@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author devezhao
@@ -113,27 +114,45 @@ public class PdfConverter {
         if (!echo.isEmpty()) log.info(echo);
 
         if (dest.exists()) {
-            if (TYPE_HTML.equalsIgnoreCase(type)) fixHtml(dest);
+            if (TYPE_HTML.equalsIgnoreCase(type)) fixHtml(dest, null);
             return dest.toPath();
         }
 
         throw new PdfConverterException("Cannot convert to PDF : " + StringUtils.defaultIfBlank(echo, "<empty>"));
     }
 
-    private static void fixHtml(File htmlFile) throws IOException {
-        final Document html = Jsoup.parse(htmlFile);
+    private static String TEMPALTE_HTML;
+    /**
+     * @param sourceHtml
+     * @param title
+     * @throws IOException
+     */
+    private static void fixHtml(File sourceHtml, String title) throws IOException {
+        if (TEMPALTE_HTML == null) TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
+        if (TEMPALTE_HTML == null) return;
 
-        // 基础样式
-        html.head().append("<link rel=\"stylesheet\" type=\"text/css\" href=\"../../assets/css/html-report.css?v=3.4\" />");
+        final Document template = Jsoup.parse(TEMPALTE_HTML);
+        final Element body = template.body();
 
-        // 图片添加 `temp=yes`
-        for (Element img : html.body().select("img")) {
+        final Document source = Jsoup.parse(sourceHtml);
+
+        // 提取表格
+        for (Element table : source.select("body>table")) {
+            Element page = body.appendElement("div").addClass("page");
+            page.appendChild(table);
+        }
+
+        // 图片添加 temp=yes
+        for (Element img : body.select("img")) {
             String src = img.attr("src");
             if (!src.startsWith("data:")) {
                 img.attr("src", src + "?temp=yes");
             }
         }
 
-        FileUtils.writeStringToFile(htmlFile, html.html(), "UTF-8");
+        // TITLE
+        if (title != null) Objects.requireNonNull(template.head().selectFirst("title")).text(title);
+
+        FileUtils.writeStringToFile(sourceHtml, template.html(), "UTF-8");
     }
 }
