@@ -558,9 +558,9 @@ class RbForm extends React.Component {
   }
 
   // 添加字段值变化回调
-  onFieldValueChange(call) {
+  onFieldValueChange(cb) {
     const c = this._onFieldValueChange_calls || []
-    c.push(call)
+    c.push(cb)
     this._onFieldValueChange_calls = c
   }
   // 执行
@@ -1137,7 +1137,7 @@ class RbFormNumber extends RbFormText {
       // 等待字段初始化完毕
       setTimeout(() => {
         const calcFormulaValues = {}
-        const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+        const watchFields = calcFormula.match(/\{([a-z0-9]+)}/gi) || []
 
         watchFields.forEach((item) => {
           const name = item.substr(1, item.length - 2)
@@ -1148,22 +1148,22 @@ class RbFormNumber extends RbFormText {
         })
 
         // 表单计算
-        // TODO 考虑异步延迟执行
+        let _timer
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
-            if (rb.env === 'dev') console.log('onFieldValueChange :', s)
+            if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, this.props.field)
             return false
           } else if (rb.env === 'dev') {
-            console.log('onFieldValueChange for calcFormula :', s)
+            console.log('onFieldValueChange for calcFormula :', s, this.props.field)
           }
 
-          // fix: 3.2 字段相互使用导致死循环
-          this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
-          if (this.__fixUpdateDepth > 9) {
-            console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
-            setTimeout(() => (this.__fixUpdateDepth = 0), 100)
-            return false
-          }
+          // // fix: 3.2 字段相互使用导致死循环
+          // this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
+          // if (this.__fixUpdateDepth > 9) {
+          //   console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
+          //   setTimeout(() => (this.__fixUpdateDepth = 0), 100)
+          //   return false
+          // }
 
           if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
@@ -1176,22 +1176,31 @@ class RbFormNumber extends RbFormText {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
           }
 
+          if (_timer) {
+            clearTimeout(_timer)
+            _timer = null
+          }
+
           // 还有变量无值
           if (formula.includes('{')) {
             this.setValue(null)
             return false
           }
 
-          try {
-            let calcv = null
-            eval(`calcv = ${formula}`)
-            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-          } catch (err) {
-            if (rb.env === 'dev') console.log(err)
-          }
-          return true
+          // v34 有值延迟执行
+          _timer = setTimeout(() => {
+            try {
+              let calcv = null
+              eval(`calcv = ${formula}`)
+              if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+            } catch (err) {
+              if (rb.env === 'dev') console.log(err)
+            }
+            return true
+          }, 200)
+          // _timer end
         })
-      }, 200)
+      }, 200) // init
     }
   }
 
