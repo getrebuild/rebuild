@@ -151,7 +151,8 @@ public class PdfConverter {
         }
 
         // TITLE
-        if (title != null) Objects.requireNonNull(template.head().selectFirst("title")).text(title);
+        if (title == null) title = sourceHtml.getName();
+        Objects.requireNonNull(template.head().selectFirst("title")).text(title);
 
         FileUtils.writeStringToFile(sourceHtml, template.html(), "UTF-8");
     }
