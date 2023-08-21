@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
@@ -128,7 +129,7 @@ public class PdfConverter {
      * @throws IOException
      */
     private static void fixHtml(File sourceHtml, String title) throws IOException {
-        if (TEMPALTE_HTML == null) TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
+        if (TEMPALTE_HTML == null || Application.devMode()) TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
         if (TEMPALTE_HTML == null) return;
 
         final Document template = Jsoup.parse(TEMPALTE_HTML);
