@@ -19,7 +19,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
-import com.rebuild.core.DefinedException;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -34,7 +33,6 @@ import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
-import com.rebuild.utils.PdfConverterException;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -108,9 +106,9 @@ public class ReportsController extends BaseController {
         final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
         // PDF
         if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, reportId)) {
-            output = convertPdf(output, null);
+            output = PdfConverter.convertPdf(output.toPath()).toFile();
         } else if (isHtml) {
-            output = convertPdf(output, PdfConverter.TYPE_HTML);
+            output = PdfConverter.convertHtml(output.toPath()).toFile();
         }
 
         final String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
@@ -166,9 +164,9 @@ public class ReportsController extends BaseController {
                 // PDF
                 final String typeOutput = getParameter(request, "output");
                 if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, useReport)) {
-                    output = convertPdf(output, null);
+                    output = PdfConverter.convertPdf(output.toPath()).toFile();
                 } else if ("HTML".equalsIgnoreCase(typeOutput)) {
-                    output = convertPdf(output, PdfConverter.TYPE_HTML);
+                    output = PdfConverter.convertHtml(output.toPath()).toFile();
                 }
 
             } else {
@@ -208,19 +206,5 @@ public class ReportsController extends BaseController {
             }
         }
         return false;
-    }
-
-    // 转换格式
-    private File convertPdf(File source, String type) throws DefinedException {
-        try {
-            if (PdfConverter.TYPE_HTML.equalsIgnoreCase(type)) {
-                return PdfConverter.convertHtml(source.toPath()).toFile();
-            } else {
-                return PdfConverter.convert(source.toPath()).toFile();
-            }
-        } catch (PdfConverterException ex) {
-            log.error("PdfConverterException", ex);
-            throw new DefinedException(Language.L("无法输出转换文件"));
-        }
     }
 }

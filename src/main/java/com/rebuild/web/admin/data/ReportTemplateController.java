@@ -26,6 +26,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -161,7 +162,14 @@ public class ReportTemplateController extends BaseController {
         }
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
-        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);
+
+        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);;
+        String typeOutput = getParameter(request, "output");
+        if (PdfConverter.TYPE_PDF.equalsIgnoreCase(typeOutput) || PdfConverter.TYPE_HTML.equalsIgnoreCase(typeOutput)) {
+            output = PdfConverter.convert(output.toPath(), typeOutput).toFile();
+            attname = FileDownloader.INLINE_FORCE;
+        }
+
         FileDownloader.downloadTempFile(response, output, attname);
     }
 

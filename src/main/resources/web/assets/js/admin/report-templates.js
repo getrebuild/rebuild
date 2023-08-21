@@ -236,7 +236,12 @@ class ReportEditor extends ConfigFormDlg {
         } else {
           const ps = this._buildParams()
           if (ps === false) return RbHighbar.create($L('请选择应用实体并上传模板文件'))
-          window.open(`./report-templates/preview?${ps}`)
+
+          let output // excel
+          if ($val($(this._$outputType).find('input:eq(1)'))) output = 'pdf'
+          else if ($val($(this._$outputType).find('input:eq(2)'))) output = 'html'
+
+          window.open(`./report-templates/preview?${ps}&output=${output || ''}`)
         }
       })
     }
@@ -250,13 +255,18 @@ class ReportEditor extends ConfigFormDlg {
     $.get(`/admin/data/report-templates/check-template?${ps}`, (res) => {
       if (res.error_code === 0) {
         const fileName = $fileCutName(this.__lastFile)
-        this.setState({
-          templateFile: this.__lastFile,
-          uploadFileName: fileName,
-          name: this.state.name || fileName,
-          invalidVars: res.data.invalidVars,
-          invalidMsg: res.data.invalidMsg,
-        })
+        this.setState(
+          {
+            templateFile: this.__lastFile,
+            uploadFileName: fileName,
+            name: this.state.name || fileName,
+            invalidVars: res.data.invalidVars,
+            invalidMsg: res.data.invalidMsg,
+          },
+          () => {
+            // ...
+          }
+        )
       } else {
         this.setState({
           templateFile: null,

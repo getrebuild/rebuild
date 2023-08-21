@@ -147,8 +147,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                     "      Local : " + localUrl,
                                     "   External : " + localUrl.replace("localhost", OshiUtils.getLocalIp()),
                                     "     Public : " + RebuildConfiguration.getHomeUrl());
-
-                            System.out.println(banner);
+                            log.info(banner);
 
                             if (!License.isCommercial()) {
                                 String thanks = RebuildBanner.formatSimple(
@@ -160,7 +159,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                 System.out.println(thanks);
                             }
                         }
-                    }, 1500);
+                    }, 999);
                 }
 
             } else {
@@ -171,7 +170,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                                 "REBUILD IS WAITING FOR INSTALL ...",
                                 "Install : " + BootApplication.getLocalUrl("/setup/install")));
                     }
-                }, 1500);
+                }, 999);
             }
 
         } catch (Exception ex) {

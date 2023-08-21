@@ -37,18 +37,28 @@ public class PdfConverter {
     public static final String TYPE_HTML = "html";
 
     /**
+     * @param path
+     * @param type
+     * @return
+     * @throws PdfConverterException
+     */
+    public static Path convert(Path path, String type) throws PdfConverterException {
+        try {
+            return convert(path, type, Boolean.FALSE);
+        } catch (IOException e) {
+            throw new PdfConverterException(e);
+        }
+    }
+
+    /**
      * 转 PDF
      *
      * @param path
      * @return
-     * @throws IOException
+     * @throws PdfConverterException
      */
-    public static Path convert(Path path) {
-        try {
-            return convert(path, TYPE_PDF, Boolean.FALSE);
-        } catch (IOException e) {
-            throw new PdfConverterException(e);
-        }
+    public static Path convertPdf(Path path) throws PdfConverterException {
+        return convert(path, TYPE_PDF);
     }
 
     /**
@@ -56,14 +66,10 @@ public class PdfConverter {
      *
      * @param path
      * @return
-     * @throws IOException
+     * @throws PdfConverterException
      */
-    public static Path convertHtml(Path path) {
-        try {
-            return convert(path, TYPE_HTML, Boolean.FALSE);
-        } catch (IOException e) {
-            throw new PdfConverterException(e);
-        }
+    public static Path convertHtml(Path path) throws PdfConverterException {
+        return convert(path, TYPE_HTML);
     }
 
     /**
