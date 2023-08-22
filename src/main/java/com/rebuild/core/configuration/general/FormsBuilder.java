@@ -323,9 +323,8 @@ public class FormsBuilder extends FormsManager {
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
             JSONObject el = (JSONObject) iter.next();
             String fieldName = el.getString("field");
-            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) {
-                continue;
-            }
+            if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
+
             // 已删除字段
             if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
                 iter.remove();
@@ -506,13 +505,8 @@ public class FormsBuilder extends FormsManager {
 
             // 编辑/视图/记录转换
             if (recordData != null) {
-                // `wrapValue` 会添加格式符号
-                Object value;
-                if (easyField.getDisplayType() == DisplayType.DECIMAL) {
-                    value = recordData.getObjectValue(easyField.getName());
-                } else {
-                    value = wrapFieldValue(recordData, easyField, user);
-                }
+                // FIXME `wrapFieldValue` 会添加格式符号（小数）
+                Object value = wrapFieldValue(recordData, easyField, user);
                 if (value != null) el.put("value", value);
 
                 // 父级级联

@@ -1181,14 +1181,14 @@ class RbFormNumber extends RbFormText {
             _timer = null
           }
 
-          // 还有变量无值
-          if (formula.includes('{')) {
-            this.setValue(null)
-            return false
-          }
-
-          // v34 有值延迟执行
+          // v34 延迟执行
           _timer = setTimeout(() => {
+            // 还有变量无值
+            if (formula.includes('{')) {
+              this.setValue(null)
+              return false
+            }
+
             try {
               let calcv = null
               eval(`calcv = ${formula}`)
@@ -1207,8 +1207,7 @@ class RbFormNumber extends RbFormText {
   // 移除千分为位
   _removeComma(n) {
     if (n === null || n === undefined) return ''
-    // if (n) return (n + '').replace(/,/g, '')
-    // debugger
+    if ((n + '').substring(0, 1) === '*') return n // 脱敏
     if (n) n = $regex.clearNumber(n)
     if (n === '-') return n
     if (isNaN(n)) return ''
