@@ -1067,7 +1067,7 @@ class RbGritter extends React.Component {
     const itemid = `gritter-item-${$random()}`
 
     const type = options.type || 'success'
-    const icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+    const icon = options.icon || (type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline')
 
     const item = (
       <div key={itemid} id={itemid} className={`gritter-item-wrapper color ${type} animated faster fadeInRight`}>
@@ -1083,7 +1083,9 @@ class RbGritter extends React.Component {
               onClick={(e) => {
                 $stopEvent(e, true)
                 this._removeItem(itemid)
+                typeof options.onCancel === 'function' && options.onCancel()
               }}
+              title={$L('关闭')}
             />
             {options.title && <span className="gritter-title">{options.title}</span>}
             <p>{message}</p>
@@ -1101,8 +1103,13 @@ class RbGritter extends React.Component {
 
   _removeItem(itemid) {
     const itemsNew = this.state.items.filter((item) => itemid !== item.key)
-    console.log(itemsNew)
     this.setState({ items: itemsNew })
+  }
+
+  destory() {
+    this.setState({ items: [] }, () => {
+      $('#gritter-notice-wrapper').remove()
+    })
   }
 
   // -- Usage
@@ -1114,15 +1121,22 @@ class RbGritter extends React.Component {
     if (top !== self && parent.RbGritter) {
       parent.RbGritter.create(message, options)
     } else {
-      if (this.__$wrapper) {
-        this.__$wrapper._addItem(message, options)
+      if (this._RbGritter) {
+        this._RbGritter._addItem(message, options)
       } else {
         const that = this
         renderRbcomp(<RbGritter />, null, function () {
-          that.__$wrapper = this
-          that.__$wrapper._addItem(message, options)
+          that._RbGritter = this
+          that._RbGritter._addItem(message, options)
         })
       }
+    }
+  }
+
+  static destory() {
+    if (this._RbGritter) {
+      this._RbGritter.destory()
+      this._RbGritter = null
     }
   }
 }

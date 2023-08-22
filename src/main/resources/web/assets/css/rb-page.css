@@ -4576,6 +4576,22 @@ pre.unstyle {
   position: fixed;
   right: 20px;
   z-index: 1099;
+  top: auto;
+  bottom: 10px;
+}
+
+.gritter-item-wrapper .gritter-item .gritter-img-container {
+  width: 20%;
+}
+
+.gritter-item-wrapper .gritter-item .gritter-content.gritter-with-image,
+.gritter-item-wrapper .gritter-item .gritter-content.gritter-without-image {
+  width: 286px;
+}
+
+.gritter-item-wrapper .gritter-item .gritter-content.gritter-with-image p,
+.gritter-item-wrapper .gritter-item .gritter-content.gritter-without-image p {
+  font-size: 13px;
 }
 
 .gritter-item-wrapper .gritter-image > .icon {

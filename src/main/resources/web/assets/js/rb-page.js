@@ -371,7 +371,8 @@ var _checkMessage = function () {
       _loadMessages__state = false
     }
 
-    setTimeout(_checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
+    _showStateMM(res.data.mm)
+    setTimeout(_checkMessage, rb.env === 'dev' ? 9000 : 2000)
   })
 }
 var _loadMessages__state = false
@@ -416,6 +417,33 @@ var _showNotification = function () {
     } else {
       _Notification.requestPermission()
     }
+  }
+}
+var _showStateMM = function (mm) {
+  console.log($.cookie('mm_gritter_cancel'))
+  if ($.cookie('mm_gritter_cancel')) return
+
+  if (mm) {
+    var $mm = $('#mm_gritter')
+    if ($mm[0]) {
+      $mm.html(mm.msg)
+    } else {
+      $mm = $('<div id="mm_gritter"></div>')
+      $mm.html(mm.msg)
+      RbGritter.create(WrapHtml($mm.prop('outerHTML')), {
+        timeout: (mm.time + 60) * 1000,
+        type: 'danger',
+        icon: 'mdi-server-network-off',
+        onCancel: function () {
+          var expires = moment()
+            .add(Math.min(mm.time - 30, 180), 'seconds')
+            .toDate()
+          $.cookie('mm_gritter_cancel', mm.time, { expires: expires })
+        },
+      })
+    }
+  } else {
+    RbGritter.destory()
   }
 }
 

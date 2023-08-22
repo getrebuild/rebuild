@@ -10,6 +10,7 @@ package com.rebuild.web.admin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -30,6 +31,8 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
+import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -391,5 +394,45 @@ public class ConfigurationController extends BaseController {
                 log.error("Invalid item : {} = {}", e.getKey(), e.getValue(), ex);
             }
         }
+    }
+
+    // --
+
+    private static MaintenanceMode CURRENT_MM = null;
+    /**
+     * @return
+     */
+    public static MaintenanceMode getCurrentMm() {
+        // 过期
+        if (CURRENT_MM != null && CURRENT_MM.getStartTime().getTime() - CalendarUtils.now().getTime() <= 0) {
+            CURRENT_MM = null;
+        }
+        return CURRENT_MM;
+    }
+
+    @Getter
+    @Data
+    public static class MaintenanceMode {
+        Date startTime;
+        Date endTime;
+        String note;
+    }
+
+    @GetMapping("systems/maintenance-mode")
+    public RespBody getMaintenanceMode() {
+        MaintenanceMode mm = getCurrentMm();
+        return mm == null ? RespBody.ok() : RespBody.ok(JSONObject.toJSON(mm));
+    }
+
+    @PostMapping("systems/maintenance-mode")
+    public RespBody setMaintenanceMode(HttpServletRequest request) {
+        if (getBoolParameter(request, "cancel")) {
+            CURRENT_MM = null;
+            return RespBody.ok();
+        }
+
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        CURRENT_MM = post.toJavaObject(MaintenanceMode.class);
+        return RespBody.ok();
     }
 }

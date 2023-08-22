@@ -60,6 +60,16 @@
       .unstyle.text-break {
         white-space: pre-wrap !important;
       }
+      .bg-white {
+        cursor: text !important;
+      }
+      .note {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        margin-top: 15px;
+        padding: 10px 15px;
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -297,7 +307,19 @@
                   </div>
                 </div>
               </div>
-
+              <div class="card mt-3 J_maintenanceMode">
+                <div class="card-body pt-4">
+                  <button class="btn btn-danger btn-lg w-100">[[${bundle.L('开启维护计划')}]]</button>
+                  <div class="note">
+                    <dl class="row mb-0 mt-1" style="line-height: 1.7">
+                      <dt class="col-4 pr-0">[[${bundle.L('计划维护时间')}]]</dt>
+                      <dd class="col-8 pl-0"></dd>
+                      <dt class="col-4 pr-0">[[${bundle.L('维护原因')}]]</dt>
+                      <dd class="col-8 pl-0"></dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
               <div class="card mt-3 J_cloudAccount hide">
                 <div class="card-header card-header-divider">REBUILD [[${bundle.L('云账号')}]]</div>
                 <div class="card-body">
