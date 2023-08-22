@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -433,7 +433,7 @@ var _showStateMM = function (mm) {
       RbGritter.create(WrapHtml($mm.prop('outerHTML')), {
         timeout: (mm.time + 60) * 1000,
         type: 'danger',
-        icon: 'mdi-server-network-off',
+        icon: 'mdi-server-network',
         onCancel: function () {
           var expires = moment()
             .add(Math.min(mm.time - 30, 180), 'seconds')
