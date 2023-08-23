@@ -164,9 +164,13 @@ public class EasyFieldConfigProps {
     public static final String TEXT_COMMON = "textCommon";
 
     /**
-     * 标签
+     * 标签列表
      */
     public static final String TAG_LIST = "tagList";
+    /**
+     * 标签最大数量
+     */
+    public static final String TAG_MAXSELECT = "tagMaxSelect";
 
     /**
      * 引用字段扫码
