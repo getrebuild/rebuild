@@ -136,7 +136,7 @@ class SharedFiles extends RbModalHandler {
               <thead>
                 <tr>
                   <th>{$L('分享文件')}</th>
-                  <th width="240" className="text-right">
+                  <th width="260" className="text-right">
                     {$L('过期时间')}
                   </th>
                 </tr>
