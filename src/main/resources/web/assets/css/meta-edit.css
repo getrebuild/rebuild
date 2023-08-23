@@ -275,3 +275,7 @@ select.underline-sm:focus {
 .form-text > b {
   color: #222;
 }
+
+.J_more-options .custom-control:last-child {
+  margin-bottom: 0;
+}

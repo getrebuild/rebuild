@@ -165,6 +165,12 @@ $(document).ready(() => {
     if (wpc.extConfig.tags) {
       $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
+
+    $('.J_more-options-btn').on('click', () => {
+      // $('.J_more-options-btn i.mdi').toggleClass('mdi-chevron-double-up')
+      $('.J_more-options-btn').addClass('hide')
+      $('.J_more-options').toggleClass('hide')
+    })
   })
 
   // v3.1
