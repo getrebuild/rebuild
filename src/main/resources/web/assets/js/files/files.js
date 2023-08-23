@@ -124,7 +124,7 @@ const previewFile = function (e, path, checkId) {
 class SharedFiles extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('查看分享文件')} disposeOnHide>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
         <div className="sharing-list ml-1 mr-1">
           {this.state.data && this.state.data.length === 0 ? (
             <div className="list-nodata pt-5">
@@ -136,10 +136,9 @@ class SharedFiles extends RbModalHandler {
               <thead>
                 <tr>
                   <th>{$L('分享文件')}</th>
-                  <th width="100" className="text-right">
+                  <th width="240" className="text-right">
                     {$L('过期时间')}
                   </th>
-                  <th width="130"></th>
                 </tr>
               </thead>
               <tbody ref={(c) => (this._$tbody = c)}>
@@ -153,7 +152,7 @@ class SharedFiles extends RbModalHandler {
                           </a>
                           <div className="fop-action">
                             <a className="link J_copy" title={$L('复制分享链接')} data-url={item[0]}>
-                              <i className="icon zmdi zmdi-copy fs-14" />
+                              <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
                               title={$L('取消分享')}
@@ -169,17 +168,16 @@ class SharedFiles extends RbModalHandler {
                                   }
                                 })
                               }}>
-                              <i className="icon zmdi zmdi-delete fs-16" />
+                              <i className="icon zmdi zmdi-delete fs-17" />
                             </a>
                           </div>
                         </td>
                         <td title={item[2]} className="text-right">
-                          <span>{$fromNow(item[2])}</span>
+                          <span title={item[2]}>{$fromNow(item[2])}</span>
+                          <div className="text-muted" title={item[3]}>
+                            {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
+                          </div>
                         </td>
-                        <td title={item[3]} className="text-muted text-right">
-                          <span>{$L('分享于 %s', $fromNow(item[3]))}</span>
-                        </td>
-                        <td className="p-0"></td>
                       </tr>
                     )
                   })}
