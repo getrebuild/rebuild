@@ -192,7 +192,11 @@ class LastLogsViewer extends RbAlert {
       return LastLogsViewer.renderLog(JSON.parse(log))
     } catch (err) {
       console.debug(err)
-      return <p className="m-0 text-warning">{(log || 'N').toUpperCase()}</p>
+      return (
+        <p className="m-0 text-warning text-overflow" style={{ maxHeight: 295 }}>
+          {(log || 'N').toUpperCase()}
+        </p>
+      )
     }
   }
 
@@ -220,8 +224,14 @@ class LastLogsViewer extends RbAlert {
         )}
         {log.chain && (
           <RF>
-            <dt className="mt-2 pointer font-weight-normal" onClick={(e) => $(e.target).next().toggleClass('hide')}>
-              {$L('执行细节')} ...
+            <dt
+              className="mt-2 pointer font-weight-normal"
+              onClick={(e) => {
+                $(e.target).find('i.mdi').toggleClass('mdi-chevron-double-up')
+                $(e.target).next().toggleClass('hide')
+              }}>
+              {$L('执行细节')}
+              <i className="mdi mdi-chevron-double-down" />
             </dt>
             <dd className="mb-0 hide">
               <code>{log.chain}</code>
