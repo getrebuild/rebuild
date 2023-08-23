@@ -58,7 +58,10 @@ $(document).ready(() => {
       $mm.find('.note .col-8:eq(1)').text(_data.note || $L('无'))
       $mm.find('.note').show()
     } else {
-      $mm.find('.btn').on('click', () => renderRbcomp(<DlgMM />))
+      $mm.find('.btn').on('click', () => {
+        if (rb.commercial < 1) return RbHighbar.error(WrapHtml($L('免费版不支持开启维护计划功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        renderRbcomp(<DlgMM />)
+      })
     }
   })
 })
@@ -158,7 +161,7 @@ class DlgMM extends RbAlert {
         </div>
         <div className="form-group">
           <label>{$L('维护原因')}</label>
-          <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('系统升级')} />
+          <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('例行维护')} />
         </div>
         <div className="form-group mb-2">
           <button type="button" className="btn btn-danger" onClick={this._onConfirm}>
@@ -181,7 +184,7 @@ class DlgMM extends RbAlert {
       if (post.startTime && post.endTime) {
         that.setState({
           takeTime1: moment(post.startTime).diff(moment(), 'minutes'),
-          takeTime2: moment(post.endTime).diff(moment(post.startTime), 'minutes'),
+          takeTime2: Math.max(moment(post.endTime).diff(moment(post.startTime), 'minutes'), 0),
         })
       } else {
         that.setState({ takeTime: null })

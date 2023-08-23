@@ -3434,7 +3434,7 @@ form {
   width: 64px;
 }
 
-.oper-box-wrap .unsupports {
+.preview-modal .preview-body .unsupports {
   max-width: 400px;
   margin: 15% auto 0;
   text-align: center;

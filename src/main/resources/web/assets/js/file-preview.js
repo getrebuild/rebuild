@@ -210,7 +210,7 @@ class RbPreview extends React.Component {
       }
     } else if (this._isText(fileName)) {
       $.ajax({
-        url: `/filex/read-raw?url=${$encode(currentUrl)}`,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}&cut=99999999`,
         type: 'GET',
         dataType: 'text',
         success: function (raw) {

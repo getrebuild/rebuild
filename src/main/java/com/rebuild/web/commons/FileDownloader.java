@@ -15,11 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.ImageView2;
-import com.rebuild.utils.OkHttpUtils;
-import com.rebuild.utils.RbAssert;
+import com.rebuild.utils.*;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -188,6 +184,11 @@ public class FileDownloader extends BaseController {
             filePath = checkFilePath(filePath);
             File file = RebuildConfiguration.getFileOfData(filePath);
             content = FileUtils.readFileToString(file, charset);
+        }
+
+        int cut = getIntParameter(request, "cut");
+        if (cut > 1 && content.length() > cut) {
+            content = Language.L("文件过大，请下载后查看") + " : " + QiniuCloud.parseFileName(filePath);
         }
 
         ServletUtils.write(response, content);
