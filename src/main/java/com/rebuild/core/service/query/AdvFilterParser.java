@@ -227,15 +227,15 @@ public class AdvFilterParser extends SetUser {
         final boolean hasNameFlag = field.startsWith(NAME_FIELD_PREFIX);
         if (hasNameFlag) field = field.substring(1);
 
-        Field fieldMeta = VF_ACU.equals(field)
+        Field lastFieldMeta = VF_ACU.equals(field)
                 ? specRootEntity.getField(EntityHelper.ApprovalLastUser)
                 : MetadataHelper.getLastJoinField(specRootEntity, field);
-        if (fieldMeta == null) {
+        if (lastFieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
             return null;
         }
 
-        DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
+        DisplayType dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
 
         if (dt == DisplayType.CLASSIFICATION
                 || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
@@ -248,36 +248,35 @@ public class AdvFilterParser extends SetUser {
 
             // 转为名称字段
             if (dt == DisplayType.REFERENCE) {
-                fieldMeta = fieldMeta.getReferenceEntity().getNameField();
-                dt = EasyMetaFactory.getDisplayType(fieldMeta);
-                field += "." + fieldMeta.getName();
+                lastFieldMeta = lastFieldMeta.getReferenceEntity().getNameField();
+                dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
+                field += "." + lastFieldMeta.getName();
             }
         }
 
         String op = item.getString("op");
-        String value = useValueOfVarRecord(item.getString("value"), fieldMeta);
+        String value = useValueOfVarRecord(item.getString("value"), lastFieldMeta);
         String valueEnd = null;
 
-        // exists ( in (...) )
         if (dt == DisplayType.N2NREFERENCE) {
             String inWhere = null;
             boolean forceNot = false;
             if (hasNameFlag) {
-                Entity refEntity = fieldMeta.getReferenceEntity();
+                Entity refEntity = lastFieldMeta.getReferenceEntity();
                 Field nameField = refEntity.getNameField();
 
-                JSONObject innerItem = (JSONObject) JSONUtils.clone(item);
-                innerItem.put("field", nameField.getName());
+                JSONObject fakeItem = (JSONObject) JSONUtils.clone(item);
+                fakeItem.put("field", nameField.getName());
+                fakeItem.put("op", fakeItem.getString("op"));
 
                 // Not 转换
-                String opCheck = innerItem.getString("op");
+                String opCheck = fakeItem.getString("op");
                 forceNot = ParseHelper.NLK.equalsIgnoreCase(opCheck) || ParseHelper.NEQ.equalsIgnoreCase(opCheck);
-                if (forceNot) innerItem.put("op", opCheck.substring(1));  // Remove `N`
+                if (forceNot) fakeItem.put("op", opCheck.substring(1));  // Remove `N`
 
-                String innerWhereSql = parseItem(innerItem, null, refEntity);
+                String realWhereSql = parseItem(fakeItem, null, refEntity);
                 inWhere = String.format("select %s from %s where %s",
-                        refEntity.getPrimaryField().getName(), refEntity.getName(), innerWhereSql);
-
+                        refEntity.getPrimaryField().getName(), refEntity.getName(), realWhereSql);
             }
             // 查询 ID，仅支持 IN
             else if (ParseHelper.IN.equals(op) && ID.isId(value)) {
@@ -285,19 +284,33 @@ public class AdvFilterParser extends SetUser {
             }
 
             if (inWhere != null) {
-                return String.format(
-                        "%sexists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId in (%s))",
-                        forceNot ? "not " : "", specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), inWhere);
+                String xJoinField = specRootEntity.getPrimaryField().getName();
+                if (StringUtils.countMatches(field, ".") > 0) {
+                    xJoinField = field.substring(0, field.lastIndexOf("."));
+                }
+
+                String inWhere2 = String.format(
+                        " in (select recordId from NreferenceItem where belongEntity = '%s' and belongField = '%s' and referenceId in (%s))",
+                        lastFieldMeta.getOwnEntity().getName(), lastFieldMeta.getName(), inWhere);
+
+                if (forceNot) inWhere2 = " not" + inWhere2;
+                return xJoinField + inWhere2;
             }
+
             // else `NL` `NT`
 
         } else if (dt == DisplayType.TAG && (ParseHelper.IN.equals(op) || ParseHelper.NIN.equals(op))) {
-            String existsWhere = String.format(
-                    "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName in (%s))",
-                    specRootEntity.getPrimaryField().getName(), fieldMeta.getName(), quoteValue(value, FieldType.STRING));
+            String xJoinField = specRootEntity.getPrimaryField().getName();
+            if (StringUtils.countMatches(field, ".") > 0) {
+                xJoinField = field.substring(0, field.lastIndexOf("."));
+            }
 
-            if (ParseHelper.NIN.equals(op)) return "not " + existsWhere;
-            return existsWhere;
+            String inWhere = String.format(
+                    " in (select recordId from TagItem where belongEntity = '%s' and belongField = '%s' and tagName in (%s))",
+                    lastFieldMeta.getOwnEntity().getName(), lastFieldMeta.getName(), quoteValue(value, FieldType.STRING));
+
+            if (ParseHelper.NIN.equals(op)) inWhere = " not" + inWhere;
+            return xJoinField + inWhere;
         }
 
         // 根据字段类型转换 `op`
@@ -325,7 +338,7 @@ public class AdvFilterParser extends SetUser {
 
                 if (isDatetime) {
                     op = ParseHelper.BW;
-                    valueEnd = parseValue(value, op, fieldMeta, true);
+                    valueEnd = parseValue(value, op, lastFieldMeta, true);
                 }
 
             } else if (ParseHelper.CUW.equalsIgnoreCase(op)
@@ -360,7 +373,7 @@ public class AdvFilterParser extends SetUser {
                     && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
 
                 op = ParseHelper.BW;
-                valueEnd = parseValue(value, op, fieldMeta, true);
+                valueEnd = parseValue(value, op, lastFieldMeta, true);
 
             } else if (isREX
                     || ParseHelper.FUD.equalsIgnoreCase(op)
@@ -450,7 +463,7 @@ public class AdvFilterParser extends SetUser {
             Department dept = UserHelper.getDepartment(getUser());
             if (dept != null) {
                 value = dept.getIdentity().toString();
-                int ref = fieldMeta.getReferenceEntity().getEntityCode();
+                int ref = lastFieldMeta.getReferenceEntity().getEntityCode();
                 if (ref == EntityHelper.User) {
                     sb.insert(sb.indexOf(" "), ".deptId");
                 } else if (ref == EntityHelper.Department) {
@@ -462,7 +475,7 @@ public class AdvFilterParser extends SetUser {
         } else if (ParseHelper.SFD.equalsIgnoreCase(op)) {
             Department dept = UserHelper.getDepartment(getUser());
             if (dept != null) {
-                int refe = fieldMeta.getReferenceEntity().getEntityCode();
+                int refe = lastFieldMeta.getReferenceEntity().getEntityCode();
                 if (refe == EntityHelper.Department) {
                     value = StringUtils.join(UserHelper.getAllChildren(dept), "|");
                 }
@@ -485,9 +498,9 @@ public class AdvFilterParser extends SetUser {
             if (values == null || values.isEmpty()) return null;
 
             String valHold = value.replaceAll("[{}]", "");
-            value = parseValue(values.get(valHold), op, fieldMeta, false);
+            value = parseValue(values.get(valHold), op, lastFieldMeta, false);
         } else {
-            value = parseValue(value, op, fieldMeta, false);
+            value = parseValue(value, op, lastFieldMeta, false);
         }
 
         // No value for search
@@ -496,8 +509,8 @@ public class AdvFilterParser extends SetUser {
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
         if (isBetween && valueEnd == null) {
-            valueEnd = useValueOfVarRecord(item.getString("value2"), fieldMeta);
-            valueEnd = parseValue(valueEnd, op, fieldMeta, true);
+            valueEnd = useValueOfVarRecord(item.getString("value2"), lastFieldMeta);
+            valueEnd = parseValue(valueEnd, op, lastFieldMeta, true);
             if (valueEnd == null) valueEnd = value;
         }
 
@@ -510,12 +523,12 @@ public class AdvFilterParser extends SetUser {
             if (op.equalsIgnoreCase(ParseHelper.LK) || op.equalsIgnoreCase(ParseHelper.NLK)) {
                 value = '%' + value + '%';
             }
-            sb.append(quoteValue(value, fieldMeta.getType()));
+            sb.append(quoteValue(value, lastFieldMeta.getType()));
         }
 
         if (isBetween) {
             sb.insert(0, "( ")
-                    .append(" and ").append(quoteValue(valueEnd, fieldMeta.getType()))
+                    .append(" and ").append(quoteValue(valueEnd, lastFieldMeta.getType()))
                     .append(" )");
         }
 
