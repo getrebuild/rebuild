@@ -49,7 +49,7 @@ class RbPreview extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <RF>
         <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => (this._dlg = c)}>
           <div className="preview-header">
             <div className="float-left">
@@ -76,13 +76,13 @@ class RbPreview extends React.Component {
             {previewContent}
           </div>
         </div>
-      </React.Fragment>
+      </RF>
     )
   }
 
   renderImage() {
     return (
-      <React.Fragment>
+      <RF>
         <div className="img-zoom fp-content">
           {!this.state.imgRendered && (
             <div className="must-center">
@@ -99,22 +99,33 @@ class RbPreview extends React.Component {
               // this.hide()
               // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
             }}
+            ref={(c) => (this._$image = c)}
           />
         </div>
-        {this.props.urls.length > 1 && (
+        <div className="oper-box-wrap">
+          {this.props.urls.length > 1 && (
+            <div className="oper-box">
+              <a className="arrow float-left" onClick={this._prevImage} title={$L('上一个')}>
+                <i className="zmdi zmdi-chevron-left" />
+              </a>
+              <span>
+                {this.state.currentIndex + 1} / {this.props.urls.length}
+              </span>
+              <a className="arrow float-right" onClick={this._nextImage} title={$L('下一个')}>
+                <i className="zmdi zmdi-chevron-right" />
+              </a>
+            </div>
+          )}
           <div className="oper-box">
-            <a className="arrow float-left" onClick={this._prevImage}>
-              <i className="zmdi zmdi-chevron-left" />
+            <a className="arrow float-left" onClick={this._rotateImage} title={$L('旋转')}>
+              <i className="mdi mdi-rotate-right" />
             </a>
-            <span>
-              {this.state.currentIndex + 1} / {this.props.urls.length}
-            </span>
-            <a className="arrow float-right" onClick={this._nextImage}>
-              <i className="zmdi zmdi-chevron-right" />
+            <a className="arrow float-right" onClick={this._screenImage} title={$L('放大')}>
+              <i className="mdi mdi-fit-to-screen-outline" />
             </a>
           </div>
-        )}
-      </React.Fragment>
+        </div>
+      </RF>
     )
   }
 
@@ -278,11 +289,21 @@ class RbPreview extends React.Component {
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
     this.setState({ currentIndex: ci - 1, imgRendered: false })
+    $(this._$image).attr('data-rotate', 0)
   }
   _nextImage = () => {
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
+    $(this._$image).attr('data-rotate', 0)
+  }
+  _rotateImage = () => {
+    let r = ~~$(this._$image).attr('data-rotate') || 0
+    if (r >= 270) r = -90
+    $(this._$image).attr('data-rotate', r + 90)
+  }
+  _screenImage = () => {
+    $(this._$image).attr('src', $(this._$image).attr('src').replace('/1000/', '/2000/'))
   }
 
   hide = () => {

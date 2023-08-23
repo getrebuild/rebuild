@@ -356,7 +356,8 @@ class FileUploadDlg extends RbFormHandler {
       for (let k in this.state.files) {
         const file = this.state.files[k]
         if (file) {
-          if (file.key) files.push(file)
+          if (file.key) files.push(file.key)
+          else if (file.error);
           else hasUploading = true
         }
       }
