@@ -816,6 +816,15 @@ body.view-body {
   max-width: 240px;
 }
 
+.select2-container--default.select2-container--disabled .select2-selection--multiple .select2-selection__choice {
+  margin-top: 5px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.select2-container--default.select2-container--disabled .select2-search.select2-search--inline {
+  display: none;
+}
+
 .select2-container--default .select2-results__group {
   color: #777;
   font-size: 12px;
