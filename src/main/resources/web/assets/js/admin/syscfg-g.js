@@ -54,8 +54,8 @@ $(document).ready(() => {
           })
         })
 
-      $mm.find('.note .col-8:eq(0)').text(_data.startTime.substr(0, 16) + ' ~ ' + _data.endTime.substr(0, 16))
-      $mm.find('.note .col-8:eq(1)').text(_data.note || $L('无'))
+      $mm.find('.note dd:eq(0)').text(_data.startTime.substr(0, 16) + ' ~ ' + _data.endTime.substr(0, 16))
+      $mm.find('.note dd:eq(1)').text(_data.note || $L('无'))
       $mm.find('.note').show()
     } else {
       $mm.find('.btn').on('click', () => {
