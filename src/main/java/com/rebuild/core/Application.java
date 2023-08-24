@@ -136,12 +136,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 started = init();
 
                 if (started) {
+                    final long time2 = System.currentTimeMillis() - time;
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
-                                    "Rebuild (" + VER + ") started successfully in " + (System.currentTimeMillis() - time) + " ms.",
+                                    "Rebuild (" + VER + ") started successfully in " + time2 + " ms.",
                                     "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,
