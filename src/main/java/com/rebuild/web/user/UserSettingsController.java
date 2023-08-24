@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
@@ -25,7 +26,6 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginController;
 import org.apache.commons.lang.StringUtils;
@@ -51,16 +51,19 @@ public class UserSettingsController extends BaseController {
 
     @GetMapping("/user")
     public ModelAndView pageUser(HttpServletRequest request) {
+        throwIfTempAuth(request);
+        final ID user = getRequestUser(request);
+
         ModelAndView mv = createModelAndView("/settings/user-settings");
 
-        User user = Application.getUserStore().getUser(getRequestUser(request));
-        mv.getModelMap().put("user", user);
+        User ub = Application.getUserStore().getUser(user);
+        mv.getModelMap().put("user", ub);
 
         String dingtalkCorpid = RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid);
         if (dingtalkCorpid != null) {
             Object[] dingtalkUser = Application.createQueryNoFilter(
                     "select appUser from ExternalUser where bindUser = ? and appId = ?")
-                    .setParameter(1, user.getId())
+                    .setParameter(1, ub.getId())
                     .setParameter(2, dingtalkCorpid)
                     .unique();
             if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser[0]);
@@ -69,7 +72,7 @@ public class UserSettingsController extends BaseController {
         if (wxworkCorpid != null) {
             Object[] wxworkUser = Application.createQueryNoFilter(
                     "select appUser from ExternalUser where bindUser = ? and appId = ?")
-                    .setParameter(1, user.getId())
+                    .setParameter(1, ub.getId())
                     .setParameter(2, wxworkCorpid)
                     .unique();
             if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
@@ -94,16 +97,13 @@ public class UserSettingsController extends BaseController {
         String content = Language.L("你的邮箱验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
-        if (sentid != null) {
-            return RespBody.ok();
-        } else {
-            return RespBody.errorl("操作失败，请稍后重试");
-        }
+        if (sentid != null) return RespBody.ok();
+        return RespBody.errorl("操作失败，请稍后重试");
     }
 
     @RequestMapping("/user/save-email")
     public RespBody saveEmail(HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
         String email = getParameterNotNull(request, "email");
         String vcode = getParameterNotNull(request, "vcode");
 
@@ -202,11 +202,17 @@ public class UserSettingsController extends BaseController {
 
     @PostMapping("/user/temp-auth")
     public RespBody tempAuth(HttpServletRequest request) {
+        throwIfTempAuth(request);
         final ID user = getRequestUser(request);
         final String token = CodecUtils.randomCode(40);
         Application.getCommonsCache().putx(LoginController.SK_TEMP_AUTH + token, user, 60 * 5);
 
         String url = RebuildConfiguration.getHomeUrl("/user/login/temp-auth?token=" + token);
         return RespBody.ok(url);
+    }
+
+    private void throwIfTempAuth(HttpServletRequest request) {
+        Object tempAuth = ServletUtils.getSessionAttribute(request, LoginController.SK_TEMP_AUTH);
+        if (tempAuth != null) throw new DefinedException(Language.L("无权访问该页面"));
     }
 }
