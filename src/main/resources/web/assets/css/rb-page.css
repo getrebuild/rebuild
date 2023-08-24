@@ -855,7 +855,7 @@ body.view-body {
 }
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
-  width: 100% !important;
+  /*width: 100% !important;*/
 }
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {

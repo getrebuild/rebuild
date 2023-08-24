@@ -54,6 +54,8 @@ public class LoginAction extends BaseController {
     private static final String SK_SHOW_TOUR = "showStartTour";
     private static final String SK_SHOW_GUIDE = "showStartGuide";
 
+    public static final String SK_TEMP_AUTH = "rbTempAuth";
+
     protected static final String PREFIX_2FA = "2FA:";
     protected static final String PREFIX_ALT = "ALT:";
 
@@ -148,6 +150,8 @@ public class LoginAction extends BaseController {
                 uaClear += " (" + os + ")";
                 if (os.getDeviceType() != null && os.getDeviceType() == DeviceType.MOBILE) uaClear += " [Mobile]";
             }
+
+            if (request.getAttribute(SK_TEMP_AUTH) != null) uaClear += " [TempAuth]";
 
         } catch (Exception ex) {
             log.warn("Unknown user-agent : {}", ua);
