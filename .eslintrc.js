@@ -128,5 +128,6 @@ module.exports = {
     $isSysMask: true,
     $escapeHtml: true,
     $isLight: true,
+    RbGritter: true,
   },
 }

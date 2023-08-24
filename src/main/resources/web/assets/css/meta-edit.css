@@ -272,6 +272,10 @@ select.underline-sm:focus {
   max-height: 24px;
 }
 
-.form-text.J_minmax > b {
+.form-text > b {
   color: #222;
+}
+
+.J_more-options .custom-control:last-child {
+  margin-bottom: 0;
 }

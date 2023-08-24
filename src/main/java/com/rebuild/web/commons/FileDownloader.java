@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.qiniu.storage.model.FileInfo;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -170,14 +171,22 @@ public class FileDownloader extends BaseController {
     public void readRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filePath = getParameterNotNull(request, "url");
         boolean fullUrl = CommonsUtils.isExternalUrl(filePath);
-        String charset = getParameter(request, "charset", AppUtils.UTF8);
+        final String charset = getParameter(request, "charset", AppUtils.UTF8);
+        final int cut = getIntParameter(request, "cut");  // MB
 
         String content;
         if (QiniuCloud.instance().available()) {
-            String privateUrl = fullUrl ? filePath : QiniuCloud.instance().makeUrl(filePath);
-            content = OkHttpUtils.get(privateUrl, null, charset);
-        } else {
+            FileInfo fi = QiniuCloud.instance().stat(filePath);
+            if (fi == null) {
+                content = "ERROR:FILE_NOT_EXISTS";
+            } else if (cut > 0 && fi.fsize / 1024 / 1024 > cut) {
+                content = "ERROR:FILE_TOO_LARGE";
+            } else {
+                String privateUrl = fullUrl ? filePath : QiniuCloud.instance().makeUrl(filePath);
+                content = OkHttpUtils.get(privateUrl, null, charset);
+            }
 
+        } else {
             if (fullUrl) {
                 String e = filePath.split("\\?e=")[1];
                 RbAssert.is(checkEsign(e), "Unauthorized access");
@@ -187,7 +196,14 @@ public class FileDownloader extends BaseController {
             // Local storage
             filePath = checkFilePath(filePath);
             File file = RebuildConfiguration.getFileOfData(filePath);
-            content = FileUtils.readFileToString(file, charset);
+
+            if (!file.exists()) {
+                content = "ERROR:FILE_NOT_EXISTS";
+            } else if (cut > 0 && FileUtils.sizeOf(file) / 1024 / 1024 > cut) {
+                content = "ERROR:FILE_TOO_LARGE";
+            } else {
+                content = FileUtils.readFileToString(file, charset);
+            }
         }
 
         ServletUtils.write(response, content);

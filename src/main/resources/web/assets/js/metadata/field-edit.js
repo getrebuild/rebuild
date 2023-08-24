@@ -262,7 +262,7 @@ $(document).ready(function () {
       })
     }
   } else if (dt === 'TAG') {
-    _handleTag(extConfig.tagList || [])
+    _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
   }
 
   // 只读属性
@@ -604,7 +604,7 @@ const _handleNumber = function (calcFormula) {
   $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
 }
 
-const _handleTag = function (tagList) {
+const _handleTag = function (tagList, tagMaxSelect) {
   const $items = $('#tag-items')
   function _add(item) {
     $items.find('.no-item').addClass('hide')
@@ -648,6 +648,13 @@ const _handleTag = function (tagList) {
       />
     )
   })
+
+  if (tagMaxSelect) $('.J_tagMaxSelect b').text(tagMaxSelect)
+  $('#tagMaxSelect')
+    .slider({ value: tagMaxSelect || 9 })
+    .on('change', function (e) {
+      $('.J_tagMaxSelect b').text(e.value.newValue)
+    })
 }
 
 class TagEditor extends RbAlert {

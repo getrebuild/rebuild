@@ -250,18 +250,20 @@ class FileUploadDlg extends RbFormHandler {
             <div className="col-sm-7">
               <div className="file-field files">
                 {Object.keys(files).map((file) => {
-                  let s = files[file]
-
+                  const state = files[file]
                   return (
                     <div key={file} className="img-thumbnail" title={file}>
                       <i className="file-icon" data-type={$fileExtName(file)} />
                       <span>{file}</span>
-                      <span className="status" style={{ width: `${isNaN(s) ? 100 : Math.max(s, 0)}%` }}>
-                        {isNaN(s) && <i className="zmdi zmdi-check text-success" />}
+                      <span className="status" style={{ width: `${state.key ? 100 : Math.max(state.percent, 0)}%` }}>
+                        {state.key && <i className="zmdi zmdi-check text-success" />}
+                        {state.error && <i className="zmdi zmdi-close-circle-o text-danger" />}
                       </span>
-                      <b title={$L('移除')} onClick={() => this._removeFile(file)}>
-                        <span className="zmdi zmdi-close" />
-                      </b>
+                      {(state.key || state.error) && (
+                        <b title={$L('移除')} onClick={() => this._removeFile(file)}>
+                          <span className="zmdi zmdi-close" />
+                        </b>
+                      )}
                     </div>
                   )
                 })}
@@ -300,8 +302,9 @@ class FileUploadDlg extends RbFormHandler {
 
     $createUploader(
       this._$upload,
-      (res) => fn(res.file, res.percent),
-      (res) => fn(res.file, res.key)
+      (res) => fn(res.file, { percent: res.percent }),
+      (res) => fn(res.file, { key: res.key }),
+      (res) => fn(res.file, { error: res.error })
     )
 
     // 拖拽上传
@@ -347,13 +350,21 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _post = () => {
-    if (!this.state.files || Object.keys(this.state.files).length === 0) return RbHighbar.create($L('请选择文件'))
-
+    let hasUploading
     let files = []
-    for (let k in this.state.files) {
-      const file = this.state.files[k]
-      if (file && isNaN(file)) files.push(file)
+    if (this.state.files) {
+      for (let k in this.state.files) {
+        const file = this.state.files[k]
+        if (file) {
+          if (file.key) files.push(file.key)
+          else if (file.error);
+          else hasUploading = true
+        }
+      }
     }
+
+    if (hasUploading) return RbHighbar.create($L('请等待文件上传完成'))
+    if (files.length === 0) return RbHighbar.create($L('请选择文件'))
 
     this.disabled(true)
     $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(files), (res) => {

@@ -91,27 +91,30 @@
                     <select class="form-control form-control-sm" id="tags"></select>
                   </div>
                 </div>
-                <div class="form-group row J_moreOpt">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('更多选项')}]]</label>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1"></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <label class="custom-control custom-control-sm custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
-                      <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
-                    </label>
-                    <label class="custom-control custom-control-sm custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
-                      <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
-                    </label>
-                    <th:block th:if="${currentEntity == detailEntity}">
+                    <a href="javascript:;" class="J_more-options-btn">[[${bundle.L('更多选项')}]] <i class="mdi mdi-chevron-double-down"></i></a>
+                    <div class="J_more-options hide">
                       <label class="custom-control custom-control-sm custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
-                        <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
+                        <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
+                        <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />
-                        <span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
+                        <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
+                        <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
                       </label>
-                    </th:block>
+                      <th:block th:if="${currentEntity == detailEntity}">
+                        <label class="custom-control custom-control-sm custom-checkbox">
+                          <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
+                          <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
+                        </label>
+                        <label class="custom-control custom-control-sm custom-checkbox">
+                          <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />
+                          <span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
+                        </label>
+                      </th:block>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row footer">

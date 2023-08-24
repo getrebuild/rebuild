@@ -19,6 +19,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.rebuild.core.Application;
@@ -173,15 +174,19 @@ public class QiniuCloud {
     }
 
     /**
-     * 下载文件
+     * 文件信息
      *
      * @param filePath
-     * @param dest
-     * @throws IOException
+     * @return
      */
-    public void download(String filePath, File dest) throws IOException {
-        String url = makeUrl(filePath);
-        OkHttpUtils.readBinary(url, dest, null);
+    public FileInfo stat(String filePath) {
+        BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
+        try {
+            return bucketManager.stat(this.bucketName, filePath);
+        } catch (QiniuException e) {
+            log.error("Cannot stat file : {}", filePath);
+        }
+        return null;
     }
 
     /**
@@ -203,18 +208,6 @@ public class QiniuCloud {
         } catch (QiniuException e) {
             throw new RebuildException("Failed to delete file : " + this.bucketName + " < " + key, e);
         }
-    }
-
-    /**
-     * @param fileKey
-     * @return
-     * @see #formatFileKey(String)
-     */
-    public String getUploadToken(String fileKey) {
-        // 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
-        int maxSize = RebuildConfiguration.getInt(ConfigurationItem.PortalUploadMaxSize);
-        StringMap policy = new StringMap().put("fsizeLimit", FileUtils.ONE_MB * maxSize);
-        return getAuth().uploadToken(bucketName, fileKey, 60 * 10, policy);
     }
 
     /**
@@ -241,6 +234,30 @@ public class QiniuCloud {
             log.warn(null, e);
         }
         return -1;
+    }
+
+    /**
+     * @param fileKey
+     * @return
+     * @see #formatFileKey(String)
+     */
+    public String getUploadToken(String fileKey) {
+        // 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
+        int maxSize = RebuildConfiguration.getInt(ConfigurationItem.PortalUploadMaxSize);
+        StringMap policy = new StringMap().put("fsizeLimit", FileUtils.ONE_MB * maxSize);
+        return getAuth().uploadToken(bucketName, fileKey, 60 * 10, policy);
+    }
+
+    /**
+     * 下载文件
+     *
+     * @param filePath
+     * @param dest
+     * @throws IOException
+     */
+    public void download(String filePath, File dest) throws IOException {
+        String url = makeUrl(filePath);
+        OkHttpUtils.readBinary(url, dest, null);
     }
 
     // --

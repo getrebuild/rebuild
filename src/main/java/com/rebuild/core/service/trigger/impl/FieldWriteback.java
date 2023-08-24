@@ -204,7 +204,7 @@ public class FieldWriteback extends FieldAggregation {
             // 自己更新自己
             targetRecordIds.add(actionContext.getSourceRecord());
         }
-        // 1>1
+        // 1:1
         else if (isOne2One) {
             Record afterRecord = operatingContext.getAfterRecord();
             if (afterRecord == null) return;
@@ -244,7 +244,7 @@ public class FieldWriteback extends FieldAggregation {
         }
         // 1>N
         else {
-            // N2N v3.1
+            // N:N v3.1
             Field targetField = targetEntity.getField(targetFieldEntity[0]);
             if (targetField.getType() == FieldType.REFERENCE_LIST) {
                 Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getAnyRecord().getPrimary());

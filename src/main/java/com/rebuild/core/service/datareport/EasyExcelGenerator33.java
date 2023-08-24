@@ -204,8 +204,13 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 // 1.复制模板
                 Sheet newSheet = wb.cloneSheet(0);
                 newSheetAt = wb.getSheetIndex(newSheet);
-                String newSheetName = recordId.toLiteral().toUpperCase();
-                wb.setSheetName(newSheetAt, newSheetName);
+                String newSheetName = "A" + newSheetAt;
+                try {
+                    wb.setSheetName(newSheetAt, newSheetName);
+                } catch (IllegalArgumentException ignored) {
+                    newSheetName = recordId.toLiteral().toUpperCase();
+                    wb.setSheetName(newSheetAt, newSheetName);
+                }
 
                 // 2.保存模板
                 try (FileOutputStream fos = new FileOutputStream(targetFile)) {

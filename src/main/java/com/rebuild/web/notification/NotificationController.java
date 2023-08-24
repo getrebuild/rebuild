@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.notification;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
@@ -18,12 +20,14 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.admin.ConfigurationController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -50,7 +54,12 @@ public class NotificationController extends BaseController {
     @GetMapping("/notification/check-state")
     public JSON checkMessage(HttpServletRequest request) {
         int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
-        return JSONUtils.toJSONObject("unread", unread);
+        JSONObject state = JSONUtils.toJSONObject("unread", unread);
+
+        JSON mm = buildMM();
+        if (mm != null) state.put("mm", mm);
+
+        return state;
     }
 
     @RequestMapping("/notification/make-read")
@@ -156,5 +165,18 @@ public class NotificationController extends BaseController {
         }
 
         return array;
+    }
+
+    private JSON buildMM() {
+        ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
+        if (mm == null) return null;
+
+        long time = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
+        String note = mm.getNote() == null ? "" : String.format(" (%s)", mm.getNote());
+        DateFormat df = CalendarUtils.getDateFormat("yyyy-MM-dd HH:mm");
+        String msg = Language.L("系统将于 %s (%d 分钟后) 进行维护%s，预计 %s 完成。在此期间系统将无法使用，请及时保存数据，以免造成数据丢失！[]如有重要操作正在进行，请联系系统管理员调整维护时间。",
+                df.format(mm.getStartTime()), Math.max(time / 60, 1), note, df.format(mm.getEndTime()));
+
+        return JSONUtils.toJSONObject(new String[] { "msg", "time" }, new Object[] { msg, time });
     }
 }

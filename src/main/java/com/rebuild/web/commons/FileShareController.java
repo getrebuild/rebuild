@@ -87,14 +87,18 @@ public class FileShareController extends BaseController {
     }
 
     @GetMapping("/filex/all-make-share")
-    public RespBody getAllShareFiles(HttpServletRequest request) {
-        final ID user = getRequestUser(request);
+    public RespBody allShareFiles(HttpServletRequest request) {
         String sql = "select shortKey,longUrl,expireTime,createdOn,createdBy,shortId" +
-                " from ShortUrl where expireTime > ? and createdBy = ? order by createdOn desc";
+                " from ShortUrl where expireTime > ? and (1=1) order by createdOn desc";
+
+        // 管理员可见全部
+        final ID user = getRequestUser(request);
+        if (!UserHelper.isAdmin(user)) {
+            sql = sql.replace("(1=1)", "createdBy = '" + user + "'");
+        }
 
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, CalendarUtils.now())
-                .setParameter(2, user)
                 .setLimit(1000)
                 .array();
         for (Object[] o : array) {
@@ -109,6 +113,18 @@ public class FileShareController extends BaseController {
     public RespBody delShareFile(@IdParam ID shortId) {
         Application.getCommonsService().delete(shortId, false);
         return RespBody.ok();
+    }
+
+    @PostMapping("/filex/is-make-share")
+    public RespBody isShareFile(HttpServletRequest request) {
+        final String longUrl = getParameterNotNull(request, "longUrl");
+
+        Object[] has = Application.createQueryNoFilter(
+                "select shortKey from from ShortUrl where longUrl = ? and expireTime > ?")
+                .setParameter(1, longUrl)
+                .setParameter(2, CalendarUtils.now())
+                .unique();
+        return RespBody.ok(has == null ? null : has[0]);
     }
 
     /**

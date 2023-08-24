@@ -33,6 +33,37 @@ $(document).ready(() => {
       })
     }
   })
+
+  // v34
+  const $mm = $('.J_maintenanceMode')
+  $.get('/admin/systems/maintenance-mode', (res) => {
+    const _data = res.data
+    if (_data) {
+      $mm
+        .find('.btn')
+        .text($L('取消维护计划'))
+        .on('click', () => {
+          RbAlert.create($L('确认取消维护计划？'), {
+            onConfirm: function () {
+              const that = this
+              $.post('/admin/systems/maintenance-mode?cancel=yes', () => {
+                that.hide()
+                setTimeout(() => location.reload(), 200)
+              })
+            },
+          })
+        })
+
+      $mm.find('.note .col-8:eq(0)').text(_data.startTime.substr(0, 16) + ' ~ ' + _data.endTime.substr(0, 16))
+      $mm.find('.note .col-8:eq(1)').text(_data.note || $L('无'))
+      $mm.find('.note').show()
+    } else {
+      $mm.find('.btn').on('click', () => {
+        if (rb.commercial < 1) return RbHighbar.error(WrapHtml($L('免费版不支持开启维护计划功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        renderRbcomp(<DlgMM />)
+      })
+    }
+  })
 })
 
 useEditComp = function (name) {
@@ -111,4 +142,83 @@ const _toggleImage = function (el) {
     $current.find('>i').css('background-image', `url(${rb.baseUrl}/assets/img/s.gif)`)
     changeValue({ target: { name: $current.data('id'), value: '' } })
   })
+}
+
+class DlgMM extends RbAlert {
+  renderContent() {
+    return (
+      <form className="rbalert-form-sm">
+        <div className="form-group">
+          <label>{$L('计划维护时间')}</label>
+          <div className="input-group">
+            <input type="text" className="form-control form-control-sm bg-white" ref={(c) => (this._$startTime = c)} placeholder={$L('开始时间')} readOnly />
+            <div className="input-group-prepend input-group-append">
+              <span className="input-group-text pt-0 pb-0">{$L('至')}</span>
+            </div>
+            <input type="text" className="form-control form-control-sm bg-white" ref={(c) => (this._$endTime = c)} placeholder={$L('结束时间')} readOnly />
+          </div>
+          {this.state.takeTime1 && <div className="form-text text-warning">{$L('将在 %s 分钟后开始，维护时间 %s 分钟', this.state.takeTime1, this.state.takeTime2)}</div>}
+        </div>
+        <div className="form-group">
+          <label>{$L('维护原因')}</label>
+          <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$note = c)} placeholder={$L('例行维护')} />
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-danger" onClick={this._onConfirm}>
+            {$L('开启')}
+          </button>
+          <div className="mt-3">
+            <RbAlertBox message={$L('开启后，系统将以弹窗形式通知所有登录用户')} />
+          </div>
+        </div>
+      </form>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    const that = this
+    function calcTakeTime() {
+      const post = that._buildPost()
+      if (post.startTime && post.endTime) {
+        that.setState({
+          takeTime1: moment(post.startTime).diff(moment(), 'minutes'),
+          takeTime2: Math.max(moment(post.endTime).diff(moment(post.startTime), 'minutes'), 0),
+        })
+      } else {
+        that.setState({ takeTime: null })
+      }
+    }
+
+    $([this._$startTime, this._$endTime])
+      .datetimepicker({
+        startDate: new Date(),
+      })
+      .on('changeDate', calcTakeTime)
+  }
+
+  _buildPost() {
+    return {
+      startTime: $val(this._$startTime),
+      endTime: $val(this._$endTime),
+      note: $val(this._$note),
+    }
+  }
+
+  _onConfirm = () => {
+    const post = this._buildPost()
+    if (!post.startTime || !post.endTime) return RbHighbar.create($L('请选择计划维护时间'))
+
+    post.startTime += ':00'
+    post.endTime += ':00'
+    $.post('/admin/systems/maintenance-mode', JSON.stringify(post), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        setTimeout(() => location.reload(), 200)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
 }
