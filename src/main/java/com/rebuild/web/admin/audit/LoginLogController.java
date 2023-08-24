@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.audit;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -17,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.EntityController;
@@ -49,8 +51,10 @@ public class LoginLogController extends EntityController {
     }
 
     @GetMapping("/admin/audit/online-users")
-    public JSON getOnlineUsers() {
-        JSONArray users = new JSONArray();
+    public JSON getOnlineUsers(HttpServletRequest request) {
+        final String currentSid = request.getSession().getId();
+
+        JSONArray online = new JSONArray();
         for (HttpSession s : Application.getSessionStore().getAllSession()) {
             ID user = (ID) s.getAttribute(WebUtils.CURRENT_USER);
             if (user == null) continue;
@@ -63,12 +67,22 @@ public class LoginLogController extends EntityController {
                 active[0] = I18nUtils.formatDate(new Date((Long) active[0]));
             }
 
+            String fullName = UserHelper.getName(user);
+            if (currentSid.equals(s.getId())) fullName += " [" + Language.L("当前") + "]";
+
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "user", "fullName", "activeTime", "activeUrl", "activeIp", "sid" },
-                    new Object[] { user, UserHelper.getName(user), active[0], active[1], active[2], s.getId() });
-            users.add(item);
+                    new Object[] { user, fullName, active[0], active[1], active[2], s.getId() });
+            online.add(item);
         }
-        return users;
+
+        online.sort((o1, o2) -> {
+            Date d1 = CalendarUtils.parse(((JSONObject) o1).getString("activeTime").substring(0, 19));
+            Date d2 = CalendarUtils.parse(((JSONObject) o2).getString("activeTime").substring(0, 19));
+            return d2.compareTo(d1);
+        });
+
+        return online;
     }
 
     @RequestMapping("/admin/audit/kill-session")
