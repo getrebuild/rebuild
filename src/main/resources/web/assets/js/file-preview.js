@@ -96,7 +96,7 @@ class RbPreview extends React.Component {
             onLoad={() => this.setState({ imgRendered: true })}
             onError={() => {
               RbHighbar.error($L('无法读取图片'))
-              // this.hide()
+              setTimeout(() => this.hide(), 1000)
               // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
             }}
             ref={(c) => (this._$image = c)}
@@ -210,7 +210,7 @@ class RbPreview extends React.Component {
       }
     } else if (this._isText(fileName)) {
       $.ajax({
-        url: `/filex/read-raw?url=${$encode(currentUrl)}&cut=99999999`,
+        url: `/filex/read-raw?url=${$encode(currentUrl)}&cut=10`,
         type: 'GET',
         dataType: 'text',
         success: function (raw) {
