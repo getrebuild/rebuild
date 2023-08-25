@@ -49,19 +49,37 @@
         padding: 3px;
         border-radius: 2px;
       }
-      .topnav-list > div .name {
+      .topnav-list > div .nav-name-text,
+      .topnav-list > div .nav-name-edit {
         cursor: move;
         display: block;
         padding-left: 18px;
+        position: relative;
       }
-      .topnav-list > div .name::before {
+      .topnav-list > div .nav-name-text::before,
+      .topnav-list > div .nav-name-edit::before {
         font-family: 'Material Design Icons', serif;
         content: '\F01DD';
         color: #999;
         position: absolute;
         font-size: 18px;
-        left: 15px;
+        left: 0;
         top: 6px;
+      }
+      .topnav-list > div .nav-name-text > a {
+        position: absolute;
+        font-size: 16px;
+        right: 3px;
+        top: 8px;
+        display: none;
+        color: #444;
+        opacity: 0.8;
+      }
+      .topnav-list > div .nav-name-text:hover > a {
+        display: inline-block;
+      }
+      .topnav-list > div .nav-name-text > a:hover {
+        opacity: 1;
       }
     </style>
   </head>

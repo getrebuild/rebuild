@@ -344,10 +344,24 @@ class TopNavSettings extends Share2Switch {
                 <div key={item[0]}>
                   <div className="row">
                     <div className="col-6">
-                      <span className="name pt-2">{item[1] || $L('未命名')}</span>
+                      <span className="J_nav-name nav-name-text pt-2">
+                        <span>{item[1] || $L('未命名')}</span>
+                        <a
+                          title={$L('编辑')}
+                          onClick={(e) => {
+                            const $ns = $(e.currentTarget).parent().addClass('hide')
+                            $ns.next().removeClass('hide')
+                            setTimeout(() => $ns.next().find('input').focus(), 100)
+                          }}>
+                          <i className="zmdi zmdi-edit" />
+                        </a>
+                      </span>
+                      <span className="J_nav-name nav-name-edit hide">
+                        <input className="form-control form-control-sm" defaultValue={item[1] || $L('未命名')} maxLength="100" />
+                      </span>
                     </div>
                     <div className="col-2 pr-0 pl-0">
-                      <label className="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0 mt-2">
+                      <label className="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0 mt-2 mr-0">
                         <input className="custom-control-input" type="checkbox" defaultChecked={item[2]} data-id={item[0]} />
                         <span className="custom-control-label">{$L('显示')}</span>
                       </label>
@@ -415,7 +429,7 @@ class TopNavSettings extends Share2Switch {
             $(this._$scrollbar)
               .find('.topnav-list')
               .sortable({
-                handle: '.name',
+                handle: '.J_nav-name',
                 axis: 'y',
               })
               .disableSelection()
@@ -426,16 +440,28 @@ class TopNavSettings extends Share2Switch {
   }
 
   handleConfirm() {
+    let newNameChanged = false
     const sets = []
     $(this._$scrollbar)
       .find('input:checked')
       .each((idx, item) => {
         const n = $(item).data('id')
         const d = $(item).parents('.row').find('select').val()
-        sets.push([n, d || null])
+        const oldName = $(item).parents('.row').find('.nav-name-text>span').text()
+        const newName = $(item).parents('.row').find('input').val()
+
+        // eslint-disable-next-line eqeqeq
+        sets.push([n, d || null, oldName == newName ? null : newName])
+        // eslint-disable-next-line eqeqeq
+        if (oldName != newName) newNameChanged = true
       })
 
-    $.post('/app/settings/nav-settings/topnav', JSON.stringify(sets), () => this.hide())
+    $.post('/app/settings/nav-settings/topnav', JSON.stringify(sets), () => {
+      this.hide()
+      setTimeout(() => {
+        if (newNameChanged) location.reload()
+      }, 200)
+    })
   }
 }
 

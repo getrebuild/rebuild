@@ -320,11 +320,6 @@ public class NavBuilder extends NavManager {
         return allow;
     }
 
-    @Override
-    protected String getConfigFields() {
-        return "configId,shareTo,createdBy,config,configName,createdBy.roleId";
-    }
-
     // -- PORTAL RENDER
 
     /**

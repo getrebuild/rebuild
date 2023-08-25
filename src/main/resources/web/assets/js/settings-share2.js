@@ -181,7 +181,15 @@ class Share2Settings extends Share2Switch {
         </div>
         {this.props.noName !== true && (
           <div className="form-group">
-            <input type="text" className="form-control form-control-sm" placeholder={$L('输入名称')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={$L('输入名称')}
+              value={this.state.configName || ''}
+              name="configName"
+              onChange={this.handleChange}
+              maxLength="100"
+            />
           </div>
         )}
 

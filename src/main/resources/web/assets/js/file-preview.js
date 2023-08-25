@@ -61,6 +61,18 @@ class RbPreview extends React.Component {
                   <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
+              {this.props.qrcodeUrl && (
+                <RF>
+                  <a title={$L('二维码')} data-toggle="dropdown" className="J_qrcode">
+                    <i className="zmdi zmdi-mdi-qrcode" />
+                  </a>
+                  <div className="dropdown-menu dropdown-menu-right p-0">
+                    <div className="p-1">
+                      <img alt="QRCODE" title={this.props.qrcodeUrl} src={`${rb.baseUrl}/commons/barcode/render-qr?w=185&t=${$encode(this.props.qrcodeUrl)}`} />
+                    </div>
+                  </div>
+                </RF>
+              )}
               <a title={$L('下载')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
                 <i className="zmdi zmdi-download" />
               </a>

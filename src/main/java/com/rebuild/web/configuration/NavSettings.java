@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -121,10 +122,22 @@ public class NavSettings extends BaseController implements ShareTo {
 
     @PostMapping("nav-settings/topnav")
     public RespBody setsTopNav(HttpServletRequest request) {
-        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error();
+        final ID user = getRequestUser(request);
+        if (!UserHelper.isAdmin(user)) return RespBody.error();
 
-        String s = ServletUtils.getRequestString(request);
-        KVStorage.setCustomValue("TopNav32", s);
+        JSONArray s = (JSONArray) ServletUtils.getRequestJson(request);
+        // v34 修改名称
+        for (Object o : s) {
+            JSONArray item = (JSONArray) o;
+            String newName = item.getString(2);
+            if (StringUtils.isBlank(newName)) continue;
+
+            Record record = EntityHelper.forUpdate(ID.valueOf(item.getString(0)), user);
+            record.setString("configName", newName);
+            Application.getBean(LayoutConfigService.class).update(record);
+        }
+
+        KVStorage.setCustomValue("TopNav32", s.toJSONString());
         return RespBody.ok();
     }
 
