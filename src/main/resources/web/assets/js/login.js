@@ -20,7 +20,7 @@ $(document).ready(() => {
     }, 200)
   }
 
-  $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=148&t=${$encode($('.h5-mobile a').attr('href'))}`)
+  $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=150&t=${$encode($('.h5-mobile a').attr('href'))}`)
 
   $.get('/user/live-wallpaper', (res) => {
     if (res.error_code !== 0 || !res.data) return
