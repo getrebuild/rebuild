@@ -60,9 +60,7 @@ public class CommonsService extends InternalPersistService {
      * @return
      */
     public Record create(Record record, boolean strictMode) {
-        if (strictMode) {
-            tryIfHasPrivileges(record);
-        }
+        if (strictMode) tryIfHasPrivileges(record);
         return super.create(record);
     }
 
@@ -72,9 +70,7 @@ public class CommonsService extends InternalPersistService {
      * @return
      */
     public Record update(Record record, boolean strictMode) {
-        if (strictMode) {
-            tryIfHasPrivileges(record);
-        }
+        if (strictMode) tryIfHasPrivileges(record);
         return super.update(record);
     }
 
@@ -84,9 +80,7 @@ public class CommonsService extends InternalPersistService {
      * @return
      */
     public int delete(ID recordId, boolean strictMode) {
-        if (strictMode) {
-            tryIfHasPrivileges(recordId);
-        }
+        if (strictMode) tryIfHasPrivileges(recordId);
         return super.delete(recordId);
     }
 
