@@ -56,7 +56,7 @@ public class TemplateExtractor {
     protected static final String PH__CURRENTDATETIME = PLACEHOLDER + "CURRENTDATETIME";
 
     // v2:{xxx} v1:${xxx}
-    private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
+    protected static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
     final protected File template;
     final private boolean isList;

@@ -41,7 +41,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
 
@@ -49,8 +53,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,6 +64,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
@@ -92,7 +99,7 @@ public class EasyExcelGenerator extends SetUser {
      * @param recordId
      */
     protected EasyExcelGenerator(File template, ID recordId) {
-        this.template = template;
+        this.template = getFixTemplate(template);
         this.recordId = recordId;
     }
 
@@ -449,6 +456,59 @@ public class EasyExcelGenerator extends SetUser {
             return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
+    }
+
+    // 修复模板
+    private File getFixTemplate(File template) {
+        String fixName = template.getName();
+        fixName = fixName.substring(0, fixName.lastIndexOf(".")) + "__FIX34" + fixName.substring(fixName.lastIndexOf("."));
+        File fixTemplate = new File(template.getParent(), fixName);
+        if (fixTemplate.exists()) return fixTemplate;
+
+        // Use copy
+        try {
+            FileUtils.copyFile(template, fixTemplate);
+        } catch (IOException e) {
+            throw new ReportsException(e);
+        }
+
+        // 替换 `.` > `$`
+        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(template.toPath()))) {
+            Sheet sheet = wb.getSheetAt(0);
+            for (Iterator<Row> iterRow = sheet.rowIterator(); iterRow.hasNext(); ) {
+                final Row row = iterRow.next();
+
+                for (Iterator<Cell> iterCell = row.cellIterator(); iterCell.hasNext(); ) {
+                    final Cell cell = iterCell.next();
+                    final String cellValue = cell.getStringCellValue();
+
+                    String newCellValue = cellValue;
+                    Matcher matcher = TemplateExtractor.PATT_V2.matcher(cellValue);
+                    while (matcher.find()) {
+                        String varName = matcher.group(1);
+                        if (varName.contains(".") && !varName.startsWith(".")) {
+                            newCellValue = newCellValue.replace(".", "$");
+                        }
+                    }
+
+                    if (!cellValue.equals(newCellValue)) {
+                        log.info("Replace `{}` to `{}` in : {}", cellValue, newCellValue, template);
+                        cell.setCellValue(newCellValue);
+                    }
+                }
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(fixTemplate)) {
+                wb.write(fos);
+            }
+        } catch (IOException ex) {
+            log.error("Cannot fix template : {}", template, ex);
+
+            FileUtils.deleteQuietly(fixTemplate);
+            return template;
+        }
+
+        return fixTemplate;
     }
 
     // --
