@@ -306,12 +306,12 @@ public class ApprovalStepService extends InternalPersistService {
         if (isRevoke) {
             boolean canRevoke = Application.getPrivilegesManager().allow(opUser, ZeroEntry.AllowRevokeApproval);
             if (!(isAdmin || canRevoke)) {
-                throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
+                throw new OperationDeniedException(Language.L("你无权撤销审批"));
             }
         } else {
             ID s = ApprovalHelper.getSubmitter(recordId, approvalId);
             if (!(isAdmin || opUser.equals(s))) {
-                throw new OperationDeniedException(Language.L("仅提交人可撤回审批"));
+                throw new OperationDeniedException(Language.L("你无权撤回审批"));
             }
         }
 

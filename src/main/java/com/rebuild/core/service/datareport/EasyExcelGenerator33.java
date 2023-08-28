@@ -11,9 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.excel.exception.ExcelRuntimeException;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +84,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 } else {
                     // .AccountId.SalesOrder.SalesOrderName
                     String[] split = varName.substring(1).split("\\.");
-                    if (split.length < 2) throw new ExcelRuntimeException("Bad REF (Miss .detail prefix?) : " + varName);
+                    if (split.length < 2) throw new ReportsException("Bad REF (Miss .detail prefix?) : " + varName);
                     
                     String refName2 = split[0] + split[1];
                     refName = varName.substring(0, refName2.length() + 2 /* dots */);
@@ -195,7 +193,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         try {
             FileUtils.copyFile(this.template, targetFile);
         } catch (IOException e) {
-            throw new RebuildException(e);
+            throw new ReportsException(e);
         }
 
         for (ID recordId : this.recordIds) {
@@ -218,7 +216,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 }
 
             } catch (IOException e) {
-                throw new RebuildException(e);
+                throw new ReportsException(e);
             }
 
             // 生成报表
@@ -239,7 +237,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 wb.write(fos);
             }
         } catch (IOException e) {
-            throw new RebuildException(e);
+            throw new ReportsException(e);
         }
 
         return targetFile;

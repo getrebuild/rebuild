@@ -233,8 +233,8 @@ class FileUploadDlg extends RbFormHandler {
     const files = this.state.files || {}
 
     return (
-      <RbModal title={$L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
-        <div className="form" ref={(c) => (this._dropArea = c)}>
+      <RbModal title={$L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form" ref={(c) => (this._$dropArea = c)}>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('上传目录')}</label>
             <div className="col-sm-7">
@@ -308,25 +308,26 @@ class FileUploadDlg extends RbFormHandler {
     )
 
     // 拖拽上传
-    const $da = $(this._dropArea)
-    $da.on('dragenter', (e) => e.preventDefault())
-    $da.on('dragleave', (e) => {
-      e.preventDefault()
-      $da.find('.upload-box').removeClass('active')
-    })
-    $da.on('dragover', (e) => {
-      e.preventDefault()
-      $da.find('.upload-box').addClass('active')
-    })
-
-    $da.on('drop', function (e) {
-      e.preventDefault()
-      const files = e.originalEvent.dataTransfer.files
-      if (!files || files.length === 0) return false
-      that._$upload.files = files
-      $(that._$upload).trigger('change')
-      $da.find('.upload-box').removeClass('active')
-    })
+    const $da = $(this._$dropArea)
+      .on('dragenter', (e) => {
+        e.preventDefault()
+      })
+      .on('dragover', (e) => {
+        e.preventDefault()
+        $da.find('.upload-box').addClass('active')
+      })
+      .on('dragleave', (e) => {
+        e.preventDefault()
+        $da.find('.upload-box').removeClass('active')
+      })
+      .on('drop', function (e) {
+        e.preventDefault()
+        const files = e.originalEvent.dataTransfer.files
+        if (!files || files.length === 0) return false
+        that._$upload.files = files
+        $(that._$upload).trigger('change')
+        $da.find('.upload-box').removeClass('active')
+      })
 
     // Ctrl+V 上传
     document.addEventListener('paste', (e) => {

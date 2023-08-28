@@ -174,9 +174,7 @@ public class FieldAggregation extends TriggerAction {
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
-            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                continue;
-            }
+            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) continue;
 
             Object evalValue = new AggregationEvaluator(item, sourceEntity, filterSql).eval();
             if (evalValue == null) continue;

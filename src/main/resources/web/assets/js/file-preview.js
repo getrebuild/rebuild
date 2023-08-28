@@ -349,6 +349,16 @@ class FileShare extends RbModalHandler {
                 <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
+            <span className="input-group-append">
+              <button className="btn btn-secondary" title={$L('二维码')} data-toggle="dropdown">
+                <i className="icon zmdi zmdi-mdi-qrcode" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right p-0">
+                <div className="p-1">
+                  <img alt="QRCODE" src={`${rb.baseUrl}/commons/barcode/render-qr?w=185&t=${$encode(this.state.shareUrl)}`} />
+                </div>
+              </div>
+            </span>
           </div>
           <div className="expires mt-2">
             <ul className="list-unstyled">

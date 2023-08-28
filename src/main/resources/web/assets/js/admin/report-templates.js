@@ -113,38 +113,38 @@ class ReportEditor extends ConfigFormDlg {
                 </label>
               </div>
             </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
-              <div className="col-sm-9">
-                <div className="float-left">
-                  <div className="file-select">
-                    <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="true" ref={(c) => (this.__upload = c)} />
-                    <label htmlFor="upload-input" className="btn-secondary">
-                      <i className="zmdi zmdi-upload" />
-                      <span>{$L('选择文件')}</span>
-                    </label>
-                  </div>
-                </div>
-                <div className="float-left ml-2" style={{ paddingTop: 8 }}>
-                  {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
-                </div>
-                <div className="clearfix" />
-                <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
-
-                {(this.state.invalidVars || []).length > 0 && (
-                  <div className="invalid-vars mt-2 mr-3">
-                    <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
-                  </div>
-                )}
-                {this.state.invalidMsg && (
-                  <div className="invalid-vars mt-2 mr-3">
-                    <RbAlertBox message={this.state.invalidMsg} />
-                  </div>
-                )}
-              </div>
-            </div>
           </RF>
         )}
+        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''}`}>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
+          <div className="col-sm-9">
+            <div className="float-left">
+              <div className="file-select">
+                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="true" ref={(c) => (this.__upload = c)} />
+                <label htmlFor="upload-input" className="btn-secondary">
+                  <i className="zmdi zmdi-upload" />
+                  <span>{$L('选择文件')}</span>
+                </label>
+              </div>
+            </div>
+            <div className="float-left ml-2" style={{ paddingTop: 8 }}>
+              {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
+            </div>
+            <div className="clearfix" />
+            <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('[如何编写模板文件](https://getrebuild.com/docs/admin/excel-admin)') }} />
+
+            {(this.state.invalidVars || []).length > 0 && (
+              <div className="invalid-vars mt-2 mr-3">
+                <RbAlertBox message={$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)} />
+              </div>
+            )}
+            {this.state.invalidMsg && (
+              <div className="invalid-vars mt-2 mr-3">
+                <RbAlertBox message={this.state.invalidMsg} />
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
@@ -207,7 +207,20 @@ class ReportEditor extends ConfigFormDlg {
         (res) => {
           $mp.end()
           that.__lastFile = res.key
-          that.checkTemplate()
+          if (this.__select2) {
+            that.checkTemplate()
+          } else {
+            const fileName = $fileCutName(this.__lastFile)
+            this.setState(
+              {
+                templateFile: this.__lastFile,
+                uploadFileName: fileName,
+              },
+              () => {
+                // ...
+              }
+            )
+          }
         }
       )
     }
@@ -306,6 +319,7 @@ class ReportEditor extends ConfigFormDlg {
 
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
+      if (this.state.templateFile) post.templateFile = this.state.templateFile
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile

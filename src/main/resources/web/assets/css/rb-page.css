@@ -854,8 +854,10 @@ body.view-body {
   color: #404040;
 }
 
+/* v34 */
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   /*width: 100% !important;*/
+  max-width: 141px;
 }
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
@@ -998,6 +1000,12 @@ select.form-control:not([disabled]) {
   margin: 0;
 }
 
+.type-REFERENCE .col-form-control,
+.type-CLASSIFICATION .col-form-control,
+.type-PICKLIST .col-form-control {
+  overflow: hidden;
+}
+
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear,
 .rbview-form .select2-container--default .select2-selection--multiple .select2-selection__clear {
   margin-right: 18px;
@@ -1006,10 +1014,6 @@ select.form-control:not([disabled]) {
 .type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
   right: 7px;
   top: 8px;
-}
-
-.type-REFERENCE .col-form-control {
-  overflow: hidden;
 }
 
 .type-N2NREFERENCE .select2-container--default .select2-selection--multiple::after {

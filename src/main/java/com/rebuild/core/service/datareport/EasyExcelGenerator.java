@@ -92,7 +92,7 @@ public class EasyExcelGenerator extends SetUser {
      * @param recordId
      */
     protected EasyExcelGenerator(File template, ID recordId) {
-        this.template = template;
+        this.template = getFixTemplate(template);
         this.recordId = recordId;
     }
 
@@ -449,6 +449,62 @@ public class EasyExcelGenerator extends SetUser {
             return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
+    }
+
+    // 修复模板
+    private File getFixTemplate(File template) {
+        return template;
+
+        // v34 暂不启用
+//        String fixName = template.getName();
+//        fixName = fixName.substring(0, fixName.lastIndexOf(".")) + "__FIX34" + fixName.substring(fixName.lastIndexOf("."));
+//        File fixTemplate = new File(template.getParent(), fixName);
+//        if (fixTemplate.exists()) return fixTemplate;
+//
+//        // Use copy
+//        try {
+//            FileUtils.copyFile(template, fixTemplate);
+//        } catch (IOException e) {
+//            throw new ReportsException(e);
+//        }
+//
+//        // 替换 `.` > `$`
+//        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(template.toPath()))) {
+//            Sheet sheet = wb.getSheetAt(0);
+//            for (Iterator<Row> iterRow = sheet.rowIterator(); iterRow.hasNext(); ) {
+//                final Row row = iterRow.next();
+//
+//                for (Iterator<Cell> iterCell = row.cellIterator(); iterCell.hasNext(); ) {
+//                    final Cell cell = iterCell.next();
+//                    final String cellValue = cell.getStringCellValue();
+//
+//                    String newCellValue = cellValue;
+//                    Matcher matcher = TemplateExtractor.PATT_V2.matcher(cellValue);
+//                    while (matcher.find()) {
+//                        String varName = matcher.group(1);
+//                        if (varName.contains(".") && !varName.startsWith(".")) {
+//                            newCellValue = newCellValue.replace(".", "$");
+//                        }
+//                    }
+//
+//                    if (!cellValue.equals(newCellValue)) {
+//                        log.info("Replace `{}` to `{}` in : {}", cellValue, newCellValue, template);
+//                        cell.setCellValue(newCellValue);
+//                    }
+//                }
+//            }
+//
+//            try (FileOutputStream fos = new FileOutputStream(fixTemplate)) {
+//                wb.write(fos);
+//            }
+//        } catch (IOException ex) {
+//            log.error("Cannot fix template : {}", template, ex);
+//
+//            FileUtils.deleteQuietly(fixTemplate);
+//            return template;
+//        }
+//
+//        return fixTemplate;
     }
 
     // --

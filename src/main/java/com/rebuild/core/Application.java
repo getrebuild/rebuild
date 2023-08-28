@@ -73,11 +73,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.4.0-beta3";
+    public static final String VER = "3.4.0-beta4";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3040003;
+    public static final int BUILD = 3040004;
 
     static {
         // Driver for DB
@@ -136,12 +136,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 started = init();
 
                 if (started) {
+                    final long time2 = System.currentTimeMillis() - time;
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             String localUrl = BootApplication.getLocalUrl(null);
                             String banner = RebuildBanner.formatSimple(
-                                    "Rebuild (" + VER + ") started successfully in " + (System.currentTimeMillis() - time) + " ms.",
+                                    "Rebuild (" + VER + ") started successfully in " + time2 + " ms.",
                                     "    License : " + License.queryAuthority().values(),
                                     "Access URLs : ",
                                     "      Local : " + localUrl,

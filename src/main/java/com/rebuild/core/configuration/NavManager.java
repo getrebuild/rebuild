@@ -71,4 +71,9 @@ public class NavManager extends BaseLayoutManager {
         }
         return array.toArray(new ID[0]);
     }
+
+    @Override
+    protected String getConfigFields() {
+        return "configId,shareTo,createdBy,config,configName,createdBy.roleId";
+    }
 }
