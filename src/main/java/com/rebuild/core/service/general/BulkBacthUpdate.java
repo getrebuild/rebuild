@@ -109,6 +109,6 @@ public class BulkBacthUpdate extends BulkOperator {
         JSONObject customData = (JSONObject) context.getExtraParams().get("customData");
         int dataRange = customData.getIntValue("_dataRange");
         BatchOperatorQuery query = new BatchOperatorQuery(dataRange, customData.getJSONObject("queryData"));
-        return query.getQueryedRecords();
+        return query.getQueryedRecordIds();
     }
 }

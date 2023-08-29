@@ -32,4 +32,11 @@ public class InternalPermission {
      */
     public static final Permission APPROVAL = new BizzPermission("APPROVAL", 0, false);
 
+    /**
+     * 取消共享，跟随共享权限
+     *
+     * @see BizzPermission
+     */
+    public static final Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
+
 }

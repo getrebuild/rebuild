@@ -30,7 +30,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import com.rebuild.core.service.NoRecordFoundException;
-import com.rebuild.core.service.general.EntityService;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -233,7 +232,7 @@ public class PrivilegesManager {
         }
 
         // 取消共享与共享共用权限
-        if (action == EntityService.UNSHARE) {
+        if (action == InternalPermission.UNSHARE) {
             action = BizzPermission.SHARE;
         }
 
@@ -305,7 +304,7 @@ public class PrivilegesManager {
         }
 
         // 取消共享与共享共用权限
-        if (action == EntityService.UNSHARE) {
+        if (action == InternalPermission.UNSHARE) {
             action = BizzPermission.SHARE;
         }
 
@@ -543,7 +542,7 @@ public class PrivilegesManager {
             BizzPermission.READ,
             BizzPermission.ASSIGN,
             BizzPermission.SHARE,
-            EntityService.UNSHARE
+            InternalPermission.UNSHARE
     };
 
     /**
