@@ -605,7 +605,12 @@ class BatchUpdateEditor extends React.Component {
 class BatchApprove extends BatchOperator {
   constructor(props) {
     super(props)
-    this._title = $L('批量审批')
+    this._title = (
+      <RF>
+        {$L('批量审批')}
+        <sup className="rbv" />
+      </RF>
+    )
     this._confirmText = $L('审批')
   }
 
@@ -637,6 +642,11 @@ class BatchApprove extends BatchOperator {
   }
 
   handleConfirm() {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
 
     const _data = {
@@ -871,12 +881,12 @@ class RbList extends React.Component {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
-                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e, true)} onDoubleClick={(e) => this._openView(e.currentTarget)}>
+                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e)} onDoubleClick={(e) => this._openView(e.currentTarget)}>
                         {this.props.uncheckbox !== true && (
                           <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
-                                <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
+                                <input className="custom-control-input" type="checkbox" />
                                 <i className="custom-control-label" />
                               </label>
                             </div>
@@ -1065,18 +1075,19 @@ class RbList extends React.Component {
   }
 
   // 单选
-  _clickRow(e, unhold) {
+  _clickRow(e) {
     const $target = $(e.target)
-    if ($target.hasClass('custom-control-label')) return
-    if ($target.hasClass('custom-control-input') && unhold) return
+    if ($target.hasClass('custom-control-label')) return // ignored
+    const holdSelected = $target.hasClass('custom-checkbox') || $target.parents('.custom-checkbox').hasClass('custom-checkbox')
+    console.log($target)
 
     const $tr = $target.parents('tr')
-    if (unhold) {
+    if (holdSelected) {
+      if ($tr.find('.custom-control-input')[0].checked) $tr.addClass('active')
+      else $tr.removeClass('active')
+    } else {
       this._toggleRows({ target: { checked: false } }, true)
       $tr.addClass('active').find('.custom-control-input').prop('checked', true)
-    } else {
-      if (e.target.checked) $tr.addClass('active')
-      else $tr.removeClass('active')
     }
 
     this._checkSelected()
