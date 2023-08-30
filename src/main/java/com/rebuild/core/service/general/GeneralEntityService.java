@@ -556,7 +556,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return new BulkBatchUpdate(context, this);
         } else if (context.getAction() == InternalPermission.APPROVAL) {
             return (BulkOperator) CommonsUtils.newObject(
-                    "com.rebuild.rbv.approval.BulkBacthApprove", context, this);
+                    "com.rebuild.rbv.approval.BulkBatchApprove", context, this);
         }
 
         throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());

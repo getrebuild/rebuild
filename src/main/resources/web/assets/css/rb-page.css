@@ -5266,3 +5266,7 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .aside-tree li > a {
   border-radius: 6px;
 }
+
+.alert-mb-0 > .alert {
+  margin-bottom: 0;
+}

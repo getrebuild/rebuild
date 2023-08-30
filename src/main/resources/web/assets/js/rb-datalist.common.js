@@ -266,9 +266,9 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <a className="btn btn-secondary btn-spacem mr-2" onClick={this.hide}>
+          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={this.hide}>
             {$L('取消')}
-          </a>
+          </button>
           <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
             {this._confirmText || $L('确定')}
           </button>
@@ -599,6 +599,105 @@ class BatchUpdateEditor extends React.Component {
   }
 }
 
+// ~ 批量审批
+
+// eslint-disable-next-line no-unused-vars
+class BatchApprove extends BatchOperator {
+  constructor(props) {
+    super(props)
+    this._title = $L('批量审批')
+    this._confirmText = $L('审批')
+  }
+
+  renderOperator() {
+    return (
+      <div>
+        <div className="form-group">
+          <label className="text-bold">{$L('审批结果')}</label>
+          <div>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('通过')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('驳回')}</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="text-bold">{$L('批注')}</label>
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
+        </div>
+        <div className="alert-mb-0">
+          <RbAlertBox message={$L('仅允许批量审批的记录才能审批成功')} />
+        </div>
+      </div>
+    )
+  }
+
+  handleConfirm() {
+    if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
+
+    const _data = {
+      queryData: this.getQueryData(),
+      approveContent: {
+        state: this.state.approveState,
+        remark: this.state.approveRemark,
+      },
+    }
+    if (rb.env === 'dev') console.log(JSON.stringify(_data))
+
+    const that = this
+    RbAlert.create($L('请再次确认审批数据范围和审批结果。开始审批吗？'), {
+      onConfirm: function () {
+        this.hide()
+        that.disabled(true)
+        $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
+          if (res.error_code === 0) {
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
+            const mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+
+            that._checkState(res.data, mp)
+          } else {
+            that.disabled(false)
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  }
+
+  _checkState(taskid, mp) {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.hasError) {
+          setTimeout(() => {
+            if (mp) mp.end()
+          }, 510)
+
+          RbHighbar.error(res.data.hasError)
+          return
+        }
+
+        const cp = res.data.progress
+        if (cp >= 1) {
+          mp && mp.end()
+          $(this._btns).find('.btn-primary').text($L('已完成'))
+          RbHighbar.success($L('成功审批 %d 条记录', res.data.succeeded))
+          setTimeout(() => {
+            RbListPage.reload()
+            setTimeout(() => this.hide(), 1000)
+          }, 500)
+        } else {
+          mp && mp.set(cp)
+          setTimeout(() => this._checkState(taskid, mp), 1500)
+        }
+      }
+    })
+  }
+}
+
 // ~ 通用操作
 
 // eslint-disable-next-line no-unused-vars
@@ -652,7 +751,9 @@ const RbListCommon = {
     // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
-    $('.J_batch').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
+    $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
+    // 批量审批
+    $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
 
     // 自动打开新建
     if (location.hash === '#!/New') {

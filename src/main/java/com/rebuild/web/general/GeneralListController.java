@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
@@ -86,6 +87,10 @@ public class GeneralListController extends EntityController {
         }
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
+
+        // v3.5
+        boolean hadApproval = RobotApprovalManager.instance.hadApproval(listEntity, null) != null;
+        mv.getModel().put("_HadApproval", hadApproval);
 
         JSON listConfig = null;
 

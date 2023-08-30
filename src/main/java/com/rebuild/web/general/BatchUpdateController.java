@@ -54,7 +54,6 @@ public class BatchUpdateController extends BaseController {
                 Language.L("无操作权限"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
-
         requestData.put("_dataRange", getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED));
         requestData.put("entity", entity);
         BulkContext bulkContext = new BulkContext(user, BizzPermission.UPDATE, requestData);

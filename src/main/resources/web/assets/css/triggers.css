@@ -516,10 +516,6 @@ textarea.formula-code + .fields-vars {
   }
 }
 
-.alert-mb-0 > .alert {
-  margin-bottom: 0;
-}
-
 .textarea-wrap {
   position: relative;
 }
