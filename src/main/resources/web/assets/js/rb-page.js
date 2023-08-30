@@ -420,7 +420,6 @@ var _showNotification = function () {
   }
 }
 var _showStateMM = function (mm) {
-  console.log($.cookie('mm_gritter_cancel'))
   if ($.cookie('mm_gritter_cancel')) return
 
   if (mm) {
