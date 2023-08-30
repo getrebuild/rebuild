@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
  * @since 2019/12/2
  */
 @Slf4j
-public class BulkBacthUpdate extends BulkOperator {
+public class BulkBatchUpdate extends BulkOperator {
 
     /**
      * 修改为
@@ -38,7 +38,7 @@ public class BulkBacthUpdate extends BulkOperator {
      */
     public static final String OP_NULL = "NULL";
 
-    public BulkBacthUpdate(BulkContext context, GeneralEntityService ges) {
+    public BulkBatchUpdate(BulkContext context, GeneralEntityService ges) {
         super(context, ges);
     }
 

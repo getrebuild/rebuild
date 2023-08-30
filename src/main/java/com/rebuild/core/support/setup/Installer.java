@@ -302,7 +302,7 @@ public class Installer implements InstallState {
         // 初始化数据库
         try (Connection conn = getConnection(null)) {
             int affetced = 0;
-            for (String sql : getDbInitScript()) {
+            for (final String sql : getDbInitScript()) {
                 try (Statement stmt = conn.createStatement()) {
                     stmt.execute(sql);
                     affetced++;

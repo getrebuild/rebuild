@@ -553,7 +553,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } else if (context.getAction() == InternalPermission.UNSHARE) {
             return new BulkUnshare(context, this);
         } else if (context.getAction() == BizzPermission.UPDATE) {
-            return new BulkBacthUpdate(context, this);
+            return new BulkBatchUpdate(context, this);
         } else if (context.getAction() == InternalPermission.APPROVAL) {
             return (BulkOperator) CommonsUtils.newObject(
                     "com.rebuild.rbv.approval.BulkBacthApprove", context, this);
