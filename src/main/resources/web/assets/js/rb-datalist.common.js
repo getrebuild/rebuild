@@ -449,7 +449,7 @@ class BatchUpdate extends BatchOperator {
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
             const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
 
             that._checkState(res.data, mp)
           } else {
@@ -630,7 +630,7 @@ class BatchApprove extends BatchOperator {
           <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
         </div>
         <div className="alert-mb-0">
-          <RbAlertBox message={$L('仅允许批量审批的记录才能审批成功')} />
+          <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} />
         </div>
       </div>
     )
@@ -656,7 +656,7 @@ class BatchApprove extends BatchOperator {
         $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
             const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
 
             that._checkState(res.data, mp)
           } else {
@@ -684,7 +684,13 @@ class BatchApprove extends BatchOperator {
         if (cp >= 1) {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text($L('已完成'))
-          RbHighbar.success($L('成功审批 %d 条记录', res.data.succeeded))
+
+          if (res.data.succeeded > 0) {
+            RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
+          } else {
+            RbHighbar.error($L('没有任何符合批量审批条件的记录'))
+          }
+
           setTimeout(() => {
             RbListPage.reload()
             setTimeout(() => this.hide(), 1000)

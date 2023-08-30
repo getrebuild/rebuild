@@ -9,6 +9,7 @@ package com.rebuild.core.support.task;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.SetUser;
 import lombok.extern.slf4j.Slf4j;
@@ -150,6 +151,15 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
      */
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    /**
+     * 执行结果（如有）
+     *
+     * @return
+     */
+    public JSON getExecResults() {
+        return null;
     }
 
     // 中断处理。是否允许中断由子类决定（实现）

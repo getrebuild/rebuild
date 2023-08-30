@@ -85,6 +85,7 @@ public class HeavyTaskController extends BaseController {
         state.put("isInterrupted", task.isInterrupted());
         state.put("elapsedTime", task.getElapsedTime());
         state.put("hasError", task.getErrorMessage());
+        if (task.isCompleted() || task.isInterrupted()) state.put("execResults", task.getExecResults());
         return state;
     }
 }
