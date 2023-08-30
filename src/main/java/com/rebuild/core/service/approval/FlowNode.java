@@ -21,7 +21,11 @@ import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 流程节点（包括审批、抄送）
@@ -145,6 +149,14 @@ public class FlowNode {
      */
     public boolean allowCountersign() {
         Boolean b = getDataMap().getBoolean("allowCountersign");
+        return b != null && b;
+    }
+
+    /**
+     * @return
+     */
+    public boolean allowBatch() {
+        Boolean b = getDataMap().getBoolean("allowBatch");
         return b != null && b;
     }
 

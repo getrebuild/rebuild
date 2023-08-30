@@ -219,6 +219,9 @@ public class PrivilegesManager {
             return true;
         }
 
+        // FIXME v35 批量审批无权限
+        if (action == InternalPermission.APPROVAL) return true;
+
         Boolean a = userAllow(user);
         if (a != null) {
             return a;

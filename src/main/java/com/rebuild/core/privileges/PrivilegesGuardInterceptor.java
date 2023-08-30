@@ -216,6 +216,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             actionHuman = Language.L("共享");
         } else if (action == InternalPermission.UNSHARE) {
             actionHuman = Language.L("取消共享");
+        } else if (action == InternalPermission.APPROVAL) {
+            actionHuman = Language.L("审批");
         }
 
         if (target == null) {

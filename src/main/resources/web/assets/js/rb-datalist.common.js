@@ -450,7 +450,6 @@ class BatchUpdate extends BatchOperator {
           if (res.error_code === 0) {
             const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
             const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
-
             that._checkState(res.data, mp)
           } else {
             that.disabled(false)
@@ -465,10 +464,7 @@ class BatchUpdate extends BatchOperator {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          setTimeout(() => {
-            if (mp) mp.end()
-          }, 510)
-
+          mp && mp.end()
           RbHighbar.error(res.data.hasError)
           return
         }
@@ -478,6 +474,7 @@ class BatchUpdate extends BatchOperator {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text($L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
+
           setTimeout(() => {
             RbListPage.reload()
             setTimeout(() => this.hide(), 1000)
@@ -667,7 +664,6 @@ class BatchApprove extends BatchOperator {
           if (res.error_code === 0) {
             const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
             const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
-
             that._checkState(res.data, mp)
           } else {
             that.disabled(false)
@@ -682,10 +678,7 @@ class BatchApprove extends BatchOperator {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          setTimeout(() => {
-            if (mp) mp.end()
-          }, 510)
-
+          mp && mp.end()
           RbHighbar.error(res.data.hasError)
           return
         }
@@ -694,11 +687,10 @@ class BatchApprove extends BatchOperator {
         if (cp >= 1) {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text($L('已完成'))
-
           if (res.data.succeeded > 0) {
             RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
           } else {
-            RbHighbar.error($L('没有任何符合批量审批条件的记录'))
+            RbHighbar.create($L('没有任何符合批量审批条件的记录'))
           }
 
           setTimeout(() => {

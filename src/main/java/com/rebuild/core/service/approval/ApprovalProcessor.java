@@ -575,6 +575,9 @@ public class ApprovalProcessor extends SetUser {
             // 加签
             String countersignFrom = attrMored.getString("countersignFrom");
             s.put("countersignFrom", ID.isId(countersignFrom) ? UserHelper.getName(ID.valueOf(countersignFrom)) : null);
+            // 批量
+            String batchMode = attrMored.getString("batchMode");
+            s.put("batchMode", batchMode != null);
         }
 
         return s;
