@@ -248,7 +248,16 @@ public class FormsBuilder extends FormsManager {
             model.set("lastModified", recordData.getDate(EntityHelper.ModifiedOn).getTime());
         }
 
-        if (approvalState != null) model.set("hadApproval", approvalState.getState());
+        if (approvalState != null) {
+            model.set("hadApproval", approvalState.getState());
+
+            // v35 无审批流程了
+            if (approvalState.getState() >= ApprovalState.REJECTED.getState()) {
+                boolean notHadApproval = !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity);
+                if (notHadApproval) model.set("hadApproval", null);
+            }
+        }
+
         if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
         // v34

@@ -46,10 +46,9 @@ public class RobotApprovalManager implements ConfigManager {
      * @return <tt>null</tt> 表示没有流程
      */
     public ApprovalState hadApproval(Entity entity, ID record) {
-        if (entity.getMainEntity() != null || !MetadataHelper.hasApprovalField(entity)) {
-            return null;
-        }
+        if (entity.getMainEntity() != null || !MetadataHelper.hasApprovalField(entity)) return null;
 
+        // 记录的
         if (record != null) {
             Object[] o = Application.getQueryFactory().unique(
                     record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
@@ -58,13 +57,32 @@ public class RobotApprovalManager implements ConfigManager {
             }
         }
 
+        // 实体的
         FlowDefinition[] defs = getFlowDefinitions(entity);
         for (FlowDefinition def : defs) {
             if (!def.isDisabled()) {
                 return ApprovalState.DRAFT;
             }
         }
+
         return null;
+    }
+
+
+    /**
+     * 获取实体是否有流程
+     *
+     * @param entity
+     * @return
+     */
+    public boolean hadApproval(Entity entity) {
+        if (entity.getMainEntity() != null || !MetadataHelper.hasApprovalField(entity)) return false;
+
+        FlowDefinition[] defs = getFlowDefinitions(entity);
+        for (FlowDefinition def : defs) {
+            if (!def.isDisabled()) return true;
+        }
+        return false;
     }
 
     /**
