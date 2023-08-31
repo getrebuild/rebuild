@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -36,8 +37,8 @@ import java.util.List;
 @Slf4j
 public class ApprovalFields2Schema extends Field2Schema {
 
-    public ApprovalFields2Schema(ID user) {
-        super(user);
+    public ApprovalFields2Schema() {
+        super(UserService.ADMIN_USER);
     }
 
     /**

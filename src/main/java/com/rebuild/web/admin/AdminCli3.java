@@ -9,7 +9,6 @@ package com.rebuild.web.admin;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -237,7 +236,7 @@ public class AdminCli3 {
             return "WRAN: No entity exists";
         }
 
-        boolean o = new ApprovalFields2Schema(UserService.ADMIN_USER).dropFields(MetadataHelper.getEntity(entity));
+        boolean o = new ApprovalFields2Schema().dropFields(MetadataHelper.getEntity(entity));
         return o ? "OK" : "WRAN: Drop error";
     }
 }
