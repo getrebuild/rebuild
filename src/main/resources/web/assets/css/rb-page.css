@@ -5266,3 +5266,8 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .aside-tree li > a {
   border-radius: 6px;
 }
+
+.datetimepicker table tr .disabled,
+.datetimepicker table tr .disabled:hover {
+  color: #b3b3b3 !important;
+}

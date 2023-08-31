@@ -20856,11 +20856,13 @@ div.dataTables_wrapper div.dataTables_filter label select {
 .datetimepicker table tbody tr td.day {
   border-radius: 50%;
   color: #737373;
+  color: #444;
 }
 
 .datetimepicker table tbody tr td.day.new,
 .datetimepicker table tbody tr td.day.old {
   color: #b3b3b3;
+  color: #737373;
 }
 
 .datetimepicker table tbody tr td.day.active {
@@ -20878,6 +20880,7 @@ div.dataTables_wrapper div.dataTables_filter label select {
 .datetimepicker table tbody tr td .month,
 .datetimepicker table tbody tr td .year {
   color: #737373;
+  color: #444;
 }
 
 .datetimepicker table tbody tr td .hour.new,
@@ -20889,6 +20892,7 @@ div.dataTables_wrapper div.dataTables_filter label select {
 .datetimepicker table tbody tr td .year.new,
 .datetimepicker table tbody tr td .year.old {
   color: #b3b3b3;
+  color: #737373;
 }
 
 .datetimepicker table tbody tr td .hour.active,
