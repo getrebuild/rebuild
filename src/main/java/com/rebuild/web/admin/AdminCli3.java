@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.approval.ApprovalFields2Schema;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
@@ -33,6 +36,7 @@ public class AdminCli3 {
     private static final String C_SYSCFG = "syscfg";
     private static final String C_BACKUP = "backup";
     private static final String C_AES = "aes";
+    private static final String C_CLEAN_APPROVAL = "clean-approval";
 
     private static final String SUCCESS = "OK";
 
@@ -69,7 +73,8 @@ public class AdminCli3 {
                         " \nsyscfg NAME [VALUE]" +
                         " \nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk" +
                         " \nbackup [database|datafile]" +
-                        " \naes [decrypt] VALUE";
+                        " \naes [decrypt] VALUE" +
+                        " \nclean-approval ENTITY";
                 break;
             }
             case C_CACHE: {
@@ -86,6 +91,10 @@ public class AdminCli3 {
             }
             case C_AES: {
                 result = this.execAes();
+                break;
+            }
+            case C_CLEAN_APPROVAL : {
+                result = this.execCleanApproval();
                 break;
             }
             default: {
@@ -213,5 +222,22 @@ public class AdminCli3 {
         } else {
             return AES.encrypt(value);
         }
+    }
+
+    /**
+     * 删除审批字段
+     *
+     * @return
+     */
+    private String execCleanApproval() {
+        if (commands.length < 2) return "WRAN: Bad arguments";
+
+        String entity = commands[1];
+        if (!MetadataHelper.containsEntity(entity)) {
+            return "WRAN: No entity exists";
+        }
+
+        boolean o = new ApprovalFields2Schema(UserService.ADMIN_USER).dropFields(MetadataHelper.getEntity(entity));
+        return o ? "OK" : "WRAN: Drop error";
     }
 }

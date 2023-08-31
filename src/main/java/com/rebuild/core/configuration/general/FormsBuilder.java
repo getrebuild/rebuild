@@ -251,7 +251,7 @@ public class FormsBuilder extends FormsManager {
         if (approvalState != null) {
             model.set("hadApproval", approvalState.getState());
 
-            // v35 无审批流程了
+            // v3.4 无审批流程了
             if (approvalState.getState() >= ApprovalState.REJECTED.getState()) {
                 boolean notHadApproval = !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity);
                 if (notHadApproval) model.set("hadApproval", null);
