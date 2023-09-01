@@ -1,7 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "name": "REBUILD Web",
+  "name": "REBUILD",
   "short_name": "REBUILD",
+  "description": "Made by getrebuild.com",
   "start_url": "../",
   "background_color": "#ffffff",
   "theme_color": "#4285f4",
