@@ -454,7 +454,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(currentUser, UNSHARE, unsharedBefore, null));
+            notifyObservers(OperatingContext.create(currentUser, InternalPermission.UNSHARE, unsharedBefore, null));
         }
         return 1;
     }
@@ -550,11 +550,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return new BulkAssign(context, this);
         } else if (context.getAction() == BizzPermission.SHARE) {
             return new BulkShare(context, this);
-        } else if (context.getAction() == UNSHARE) {
+        } else if (context.getAction() == InternalPermission.UNSHARE) {
             return new BulkUnshare(context, this);
         } else if (context.getAction() == BizzPermission.UPDATE) {
-            return new BulkBacthUpdate(context, this);
+            return new BulkBatchUpdate(context, this);
+        } else if (context.getAction() == InternalPermission.APPROVAL) {
+            return (BulkOperator) CommonsUtils.newObject(
+                    "com.rebuild.rbv.approval.BulkBatchApprove", context, this);
         }
+
         throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
     }
 

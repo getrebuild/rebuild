@@ -230,7 +230,7 @@ public class ApprovalController extends BaseController {
 
         try {
             new ApprovalProcessor(recordId).approve(
-                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup, rejectNode);
+                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup, rejectNode, false);
             return RespBody.ok();
 
         } catch (DataSpecificationNoRollbackException ex) {

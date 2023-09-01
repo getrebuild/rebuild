@@ -482,7 +482,7 @@ class DlgImports extends RbModalHandler {
   _checkState(taskid) {
     if (!this.__mp) {
       const mp_parent = $(this._dlg._element).find('.modal-body').attr('id')
-      this.__mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+      this.__mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
     }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {

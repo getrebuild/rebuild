@@ -8,7 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.hutool.core.util.ReflectUtil;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
@@ -209,7 +211,7 @@ public class CommonsUtils {
     public static Object invokeMethod(String desc, Object... args) {
         String[] classAndMethod = desc.split("#");
         try {
-            Class<?> clazz = Class.forName(classAndMethod[0]);
+            Class<?> clazz = ReflectUtils.classForName(classAndMethod[0]);
 
             Class<?>[] paramTypes = new Class<?>[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -222,6 +224,19 @@ public class CommonsUtils {
         } catch (ReflectiveOperationException ex) {
             log.error("Invalid method invoke : {}", desc);
             throw new RebuildException(ex);
+        }
+    }
+
+    /**
+     * @param clazz
+     * @param params
+     * @return
+     */
+    public static Object newObject(String clazz, Object... params) {
+        try {
+            return ReflectUtil.newInstance(ReflectUtils.classForName(clazz), params);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -245,6 +260,6 @@ public class CommonsUtils {
         if (any.getClass().isArray()) return ((Object[]) any).length > 0;
         if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
         if (NullValue.is(any)) return false;
-        return any.toString().length() > 0;
+        return !any.toString().isEmpty();
     }
 }

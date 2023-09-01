@@ -87,7 +87,7 @@ const RbListPage = {
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit, .J_batch').remove()
+      if (ep.U === false) $('.J_edit, .J_batch-update').remove()
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')

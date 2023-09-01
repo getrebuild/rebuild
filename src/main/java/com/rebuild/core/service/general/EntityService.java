@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -24,13 +23,6 @@ import java.util.List;
  * @since 12/28/2018
  */
 public interface EntityService extends ServiceSpec {
-
-    /**
-     * 取消共享，跟随共享权限
-     *
-     * @see BizzPermission
-     */
-    Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
 
     /**
      * 删除（带级联）

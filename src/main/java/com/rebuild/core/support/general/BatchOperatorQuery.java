@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -15,7 +16,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.SetUser;
+import org.apache.commons.lang.math.NumberUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,10 +71,12 @@ public class BatchOperatorQuery extends SetUser {
             queryData.put("pageNo", 1);
             queryData.put("pageSize", maxRows);  // Max
         }
+
         if (this.dataRange == DR_SELECTED || this.dataRange == DR_ALL) {
             queryData.remove("filter");
             queryData.remove("advFilter");
         }
+
         if (this.dataRange == DR_SELECTED) {
             JSONObject idsItem = new JSONObject();
             idsItem.put("op", ParseHelper.IN);
@@ -88,6 +93,7 @@ public class BatchOperatorQuery extends SetUser {
         if (clearFields) {
             queryData.put("fields", new String[]{getEntity().getPrimaryField().getName()});
         }
+
         queryData.put("reload", Boolean.FALSE);
         return queryData;
     }
@@ -109,7 +115,7 @@ public class BatchOperatorQuery extends SetUser {
      *
      * @return
      */
-    public ID[] getQueryedRecords() {
+    public ID[] getQueryedRecordIds() {
         if (this.dataRange == DR_SELECTED) {
             String selected = queryData.getString("_selected");
 
@@ -122,8 +128,7 @@ public class BatchOperatorQuery extends SetUser {
             return ids.toArray(new ID[0]);
         }
 
-        String sql = String.format("select %s %s",
-                getEntity().getPrimaryField().getName(), getFromClauseSql());
+        String sql = String.format("select %s %s", getEntity().getPrimaryField().getName(), getFromClauseSql());
         int pageNo = queryData.getIntValue("pageNo");
         int pageSize = queryData.getIntValue("pageSize");
 
@@ -140,7 +145,20 @@ public class BatchOperatorQuery extends SetUser {
     }
 
     private Entity getEntity() {
-        String entityName = queryData.getString("entity");
-        return MetadataHelper.getEntity(entityName);
+        return MetadataHelper.getEntity(queryData.getString("entity"));
+    }
+
+    // --
+
+    /**
+     * @param request
+     * @return
+     */
+    public static BatchOperatorQuery create(HttpServletRequest request, String entity) {
+        JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
+        requestData.put("entity", entity);
+
+        int dr = NumberUtils.toInt(request.getParameter("dr"), DR_PAGED);
+        return new BatchOperatorQuery(dr, requestData);
     }
 }

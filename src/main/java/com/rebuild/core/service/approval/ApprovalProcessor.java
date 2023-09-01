@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -122,7 +123,7 @@ public class ApprovalProcessor extends SetUser {
      * @throws ApprovalException
      */
     public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
-        approve(approver, state, remark, selectNextUsers, null, null, null);
+        approve(approver, state, remark, selectNextUsers, null, null, null, false);
     }
 
     /**
@@ -135,13 +136,14 @@ public class ApprovalProcessor extends SetUser {
      * @param addedData
      * @param checkUseGroup
      * @param rejectNode
+     * @param batchMode
      * @throws ApprovalException
      */
-    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode) throws ApprovalException {
+    public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup, String rejectNode, boolean batchMode) throws ApprovalException {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         final Object[] stepApprover = Application.createQueryNoFilter(
-                "select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
+                "select stepId,state,node,approvalId,attrMore from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
                 .setParameter(1, this.record)
                 .setParameter(2, approver)
                 .setParameter(3, getCurrentNodeId(status))
@@ -157,6 +159,13 @@ public class ApprovalProcessor extends SetUser {
         approvedStep.setDate("approvedTime", CalendarUtils.now());
         if (StringUtils.isNotBlank(remark)) {
             approvedStep.setString("remark", remark);
+        }
+
+        if (batchMode) {
+            JSONObject attrMore = JSONUtils.wellFormat((String) stepApprover[4])
+                    ? JSON.parseObject((String) stepApprover[4]) : new JSONObject();
+            attrMore.put("batchMode", true);
+            approvedStep.setString("attrMore", attrMore.toJSONString());
         }
 
         this.approval = (ID) stepApprover[3];
@@ -575,6 +584,9 @@ public class ApprovalProcessor extends SetUser {
             // 加签
             String countersignFrom = attrMored.getString("countersignFrom");
             s.put("countersignFrom", ID.isId(countersignFrom) ? UserHelper.getName(ID.valueOf(countersignFrom)) : null);
+            // 批量
+            String batchMode = attrMored.getString("batchMode");
+            s.put("batchMode", batchMode != null);
         }
 
         return s;

@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +26,18 @@ import org.apache.commons.lang.StringUtils;
  * @since 2019/12/2
  */
 @Slf4j
-public class BulkBacthUpdate extends BulkOperator {
+public class BulkBatchUpdate extends BulkOperator {
 
     /**
      * 修改为
      */
-    public static final String OP_SET = "SET";
+    protected static final String OP_SET = "SET";
     /**
      * 置空
      */
-    public static final String OP_NULL = "NULL";
+    protected static final String OP_NULL = "NULL";
 
-    public BulkBacthUpdate(BulkContext context, GeneralEntityService ges) {
+    public BulkBatchUpdate(BulkContext context, GeneralEntityService ges) {
         super(context, ges);
     }
 
@@ -84,7 +83,7 @@ public class BulkBacthUpdate extends BulkOperator {
                     ges.createOrUpdate(record);
                     this.addSucceeded();
 
-                } catch (DataSpecificationException ex) {
+                } catch (Exception ex) {
                     log.warn("Cannot update `{}` because : {}", id, ex.getLocalizedMessage());
 
                 } finally {
@@ -109,6 +108,6 @@ public class BulkBacthUpdate extends BulkOperator {
         JSONObject customData = (JSONObject) context.getExtraParams().get("customData");
         int dataRange = customData.getIntValue("_dataRange");
         BatchOperatorQuery query = new BatchOperatorQuery(dataRange, customData.getJSONObject("queryData"));
-        return query.getQueryedRecords();
+        return query.getQueryedRecordIds();
     }
 }

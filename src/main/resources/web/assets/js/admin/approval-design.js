@@ -206,6 +206,7 @@ class SimpleNode extends NodeSpec {
     if (data.accounts && data.accounts.length > 0) descs.push(`${$L('外部人员')}(${data.accounts.length})`)
     if (data.allowReferral) descs.push($L('允许转审'))
     if (data.allowCountersign) descs.push($L('允许加签'))
+    if (data.allowBatch) descs.push($L('允许批量'))
     if (this.nodeType === 'approver') descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
 
     return (
@@ -652,10 +653,18 @@ class ApproverNodeConfig extends StartNodeConfig {
             </label>
           </div>
           <div className="form-group mb-0">
-            <label className="custom-control custom-control-sm custom-checkbox">
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowCountersign" checked={this.state.allowCountersign === true} onChange={this.handleChange} />
               <span className="custom-control-label">
                 {$L('允许审批人加签')} <sup className="rbv" />
+              </span>
+            </label>
+          </div>
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox">
+              <input className="custom-control-input" type="checkbox" name="allowBatch" checked={this.state.allowBatch === true} onChange={this.handleChange} />
+              <span className="custom-control-label">
+                {$L('允许批量审批')} <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -755,6 +764,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       rejectStep: this.state.rejectStep,
       allowReferral: this.state.allowReferral,
       allowCountersign: this.state.allowCountersign,
+      allowBatch: this.state.allowBatch,
     }
 
     if (d.users.length === 0 && !d.selfSelecting) {
@@ -764,6 +774,10 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     if (rb.commercial < 1 && (d.allowReferral || d.allowCountersign)) {
       RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+    if (rb.commercial < 1 && (d.allowBatch)) {
+      RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 

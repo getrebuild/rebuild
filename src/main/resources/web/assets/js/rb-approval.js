@@ -796,6 +796,11 @@ class ApprovalStepViewer extends React.Component {
                     {$L('加签')}
                   </span>
                 )}
+                {item.batchMode && (
+                  <span className="badge badge-warning" title={$L('批量审批')}>
+                    {$L('批量')}
+                  </span>
+                )}
                 {approveAction && (
                   <a
                     href="###"

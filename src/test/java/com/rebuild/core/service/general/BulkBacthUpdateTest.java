@@ -43,14 +43,14 @@ public class BulkBacthUpdateTest extends TestSupport {
 
         JSONObject useSet = JSONUtils.toJSONObject(
                 new String[]{"field", "op", "value"},
-                new String[]{"text", BulkBacthUpdate.OP_SET, "BatchUpdate-" + System.currentTimeMillis()});
+                new String[]{"text", BulkBatchUpdate.OP_SET, "BatchUpdate-" + System.currentTimeMillis()});
         JSONArray updateContents = new JSONArray();
         updateContents.add(useSet);
         customData.put("updateContents", updateContents);
 
         BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
-        BulkBacthUpdate bacthUpdate = new BulkBacthUpdate(bulkContext, Application.getGeneralEntityService());
-        TaskExecutors.run(bacthUpdate);
+        BulkBatchUpdate batchUpdate = new BulkBatchUpdate(bulkContext, Application.getGeneralEntityService());
+        TaskExecutors.run(batchUpdate);
     }
 
     @Test
@@ -59,13 +59,13 @@ public class BulkBacthUpdateTest extends TestSupport {
 
         // SELECTED
         BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
-        ID[] ids = new BulkBacthUpdate(bulkContext, null).prepareRecords();
+        ID[] ids = new BulkBatchUpdate(bulkContext, null).prepareRecords();
         System.out.println(Arrays.toString(ids));
 
         // PAGED
         customData.put("_dataRange", BatchOperatorQuery.DR_PAGED);
         bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
-        ids = new BulkBacthUpdate(bulkContext, null).prepareRecords();
+        ids = new BulkBatchUpdate(bulkContext, null).prepareRecords();
         System.out.println(Arrays.toString(ids));
     }
 

@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 
 /**
  * 触发动作定义
@@ -46,7 +46,7 @@ public enum TriggerWhen {
     /**
      * 取消共享时
      */
-    UNSHARE(EntityService.UNSHARE.getMask()),
+    UNSHARE(InternalPermission.UNSHARE.getMask()),
     /**
      * 审批通过
      */
