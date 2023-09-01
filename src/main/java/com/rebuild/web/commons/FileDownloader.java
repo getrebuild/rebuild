@@ -146,7 +146,10 @@ public class FileDownloader extends BaseController {
         }
 
         String attname = getParameter(request, "attname");
-        if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
+        if (StringUtils.isBlank(attname)) {
+            attname = QiniuCloud.parseFileName(filePath);
+            attname = CodecUtils.urlDecode(attname);
+        }
 
         boolean temp = getBoolParameter(request, "temp");
 

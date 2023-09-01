@@ -131,6 +131,7 @@ public class ChartDesignController extends EntityController {
                     || dt == DisplayType.NTEXT
                     || dt == DisplayType.ANYREFERENCE
                     || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.TAG
                     || dt == DisplayType.MULTISELECT
                     || dt == DisplayType.LOCATION
                     || dt == DisplayType.SIGN) {

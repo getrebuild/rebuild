@@ -298,7 +298,7 @@ a.link.inline {
 
 .btn-group.w-auto > .btn,
 .btn.w-auto {
-  min-width: 34px !important;
+  min-width: 36px !important;
 }
 
 a.btn {
@@ -1936,7 +1936,7 @@ th.column-fixed {
 }
 
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
-  color: gray;
+  color: rgb(128, 128, 128);
 }
 
 .sortable-box .dd-list .dd3-item:hover > .dd3-action,
@@ -5265,4 +5265,9 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .aside-2tree ul li,
 .aside-tree li > a {
   border-radius: 6px;
+}
+
+.datetimepicker table tr .disabled,
+.datetimepicker table tr .disabled:hover {
+  color: #b3b3b3 !important;
 }

@@ -474,7 +474,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           {(this.state.allowReferral || this.state.allowCountersign) && (
-            <div className="btn-group btn-space">
+            <div className="btn-group btn-space mr-2">
               <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
                 <i className="icon zmdi zmdi-more-vert" />
               </button>
