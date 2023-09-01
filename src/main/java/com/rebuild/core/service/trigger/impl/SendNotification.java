@@ -29,6 +29,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -188,7 +189,8 @@ public class SendNotification extends TriggerAction {
             }
 
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
-                SMSender.sendMailAsync(mobileOrEmail, message[1], message[0]);
+                String mdHtml = MarkdownUtils.render(message[0]);
+                SMSender.sendMailAsync(mobileOrEmail, message[1], mdHtml);
                 send.add(mobileOrEmail);
             }
         }
