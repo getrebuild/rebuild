@@ -54,7 +54,7 @@ $(document).ready(() => {
           })
         })
 
-      $mm.find('.note dd:eq(0)').text(_data.startTime.substr(0, 16) + ' ~ ' + _data.endTime.substr(0, 16))
+      $mm.find('.note dd:eq(0)').text(_data.startTime.substr(0, 16) + ` ${$L('至')} ` + _data.endTime.substr(0, 16))
       $mm.find('.note dd:eq(1)').text(_data.note || $L('无'))
       $mm.find('.note').show()
     } else {
@@ -157,7 +157,7 @@ class DlgMM extends RbAlert {
             </div>
             <input type="text" className="form-control form-control-sm bg-white" ref={(c) => (this._$endTime = c)} placeholder={$L('结束时间')} readOnly />
           </div>
-          {this.state.takeTime1 && <div className="form-text text-warning">{$L('将在 %s 分钟后开始，维护时间 %s 分钟', this.state.takeTime1, this.state.takeTime2)}</div>}
+          {this.state.takeTime1 ? <div className="form-text text-warning">{$L('将在 %s 分钟后开始，维护时间 %s 分钟', this.state.takeTime1, this.state.takeTime2)}</div> : null}
         </div>
         <div className="form-group">
           <label>{$L('维护原因')}</label>

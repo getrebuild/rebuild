@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user.signup;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -24,6 +25,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.web.admin.ConfigurationController;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.utils.CaptchaUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -133,8 +135,8 @@ public class LoginController extends LoginAction {
 
     @PostMapping("user-login")
     public RespBody userLogin(HttpServletRequest request, HttpServletResponse response) {
-        String vcode = getParameter(request, "vcode");
-        Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
+        final String vcode = getParameter(request, "vcode");
+        final Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
         if ((needVcode != null && needVcode) || StringUtils.isNotBlank(vcode)) {
             if (StringUtils.isBlank(vcode)) {
                 ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
@@ -147,7 +149,7 @@ public class LoginController extends LoginAction {
         final String user = getParameterNotNull(request, "user");
         final String password = ServletUtils.getRequestString(request);
 
-        int retry = getLoginRetryTimes(user, 1);
+        final int retry = getLoginRetryTimes(user, 1);
         if (retry > 3 && StringUtils.isBlank(vcode)) {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
             return RespBody.error("VCODE");
@@ -163,6 +165,18 @@ public class LoginController extends LoginAction {
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
         final User loginUser = Application.getUserStore().getUser(user);
+
+        // v34 维护计划
+        if (!UserHelper.isAdmin(loginUser.getId())) {
+            ConfigurationController.MaintenanceMode mm = ConfigurationController.getCurrentMm();
+            if (mm != null) {
+                long left = (mm.getStartTime().getTime() - CalendarUtils.now().getTime()) / 1000;
+                if (left <= 300) {
+                    return RespBody.errorl("系统即将开始维护，暂时禁止登录");
+                }
+            }
+        }
+
         final boolean isRbMobile = AppUtils.isRbMobile(request);
 
         Map<String, Object> resMap = new HashMap<>();

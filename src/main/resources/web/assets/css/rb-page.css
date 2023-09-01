@@ -1936,7 +1936,7 @@ th.column-fixed {
 }
 
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
-  color: gray;
+  color: rgb(128, 128, 128);
 }
 
 .sortable-box .dd-list .dd3-item:hover > .dd3-action,

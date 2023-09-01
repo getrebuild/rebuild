@@ -435,7 +435,7 @@ var _showStateMM = function (mm) {
         icon: 'mdi-server-network',
         onCancel: function () {
           var expires = moment()
-            .add(Math.min(mm.time - 30, 180), 'seconds')
+            .add(Math.min(mm.time - 30, 300), 'seconds')
             .toDate()
           $.cookie('mm_gritter_cancel', mm.time, { expires: expires })
         },
