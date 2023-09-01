@@ -1936,7 +1936,7 @@ th.column-fixed {
 }
 
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
-  color: gray;
+  color: rgb(128, 128, 128);
 }
 
 .sortable-box .dd-list .dd3-item:hover > .dd3-action,
@@ -5269,4 +5269,9 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 
 .alert-mb-0 > .alert {
   margin-bottom: 0;
+}
+
+.datetimepicker table tr .disabled,
+.datetimepicker table tr .disabled:hover {
+  color: #b3b3b3 !important;
 }

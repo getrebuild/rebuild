@@ -400,6 +400,8 @@ public class ConfigurationController extends BaseController {
 
     private static MaintenanceMode CURRENT_MM = null;
     /**
+     * 获取维护计划（如有）
+     *
      * @return
      */
     public static MaintenanceMode getCurrentMm() {
