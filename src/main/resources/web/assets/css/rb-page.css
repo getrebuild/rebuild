@@ -854,10 +854,8 @@ body.view-body {
   color: #404040;
 }
 
-/* v34 */
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
-  /*width: 100% !important;*/
-  max-width: 141px;
+  max-width: 100%;
 }
 
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
@@ -4764,6 +4762,10 @@ pre.unstyle {
 
 .protable .file-field .file-select label.btn-secondary {
   margin-top: 4px;
+}
+
+.protable .table tr td {
+  position: relative;
 }
 
 .protable .table tr td .custom-control {
