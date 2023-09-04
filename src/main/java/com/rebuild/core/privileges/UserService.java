@@ -13,7 +13,6 @@ import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -125,11 +124,7 @@ public class UserService extends BaseService {
             throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
 
-        Object[] hasLogin = Application.createQueryNoFilter(
-                "select count(logId) from LoginLog where user = ?")
-                .setParameter(1, recordId)
-                .unique();
-        if (ObjectUtils.toInt(hasLogin[0]) > 0) {
+        if (checkHasUsed(recordId)) {
             throw new OperationDeniedException(Language.L("已使用过的用户禁止删除"));
         }
 
@@ -478,5 +473,29 @@ public class UserService extends BaseService {
             return peDays - peLeft;
         }
         return null;
+    }
+
+    /**
+     * 检查用户是否使用过
+     *
+     * @param user
+     * @return
+     */
+    public static boolean checkHasUsed(ID user) {
+        // FIXME 仅检查是否登陆过。严谨些还应该检查是否有其他业务数据
+
+        // 登录
+        Object[] hasLogin = Application.createQueryNoFilter(
+                "select user from LoginLog where user = ?")
+                .setParameter(1, user)
+                .unique();
+        if (hasLogin != null) return true;
+
+        // 绑定
+        Object[] hasBind = Application.createQueryNoFilter(
+                "select bindUser from ExternalUser where bindUser = ?")
+                .setParameter(1, user)
+                .unique();
+        return hasBind != null;
     }
 }

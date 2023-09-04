@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.bizz;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -27,12 +26,20 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -170,12 +177,7 @@ public class UserController extends EntityController {
             hasMember += UserHelper.getRoleMembers(bizzId).size();
 
         } else if (bizzId.getEntityCode() == EntityHelper.User) {
-            // NOTE 仅检查是否登陆过。严谨些还应该检查是否有其他业务数据
-            Object[] hasLogin = Application.createQueryNoFilter(
-                    "select count(logId) from LoginLog where user = ?")
-                    .setParameter(1, bizzId)
-                    .unique();
-            hasMember = ObjectUtils.toInt(hasLogin[0]);
+            hasMember = UserService.checkHasUsed(bizzId) ? 1 : 0;
         }
 
         return JSONUtils.toJSONObject(
