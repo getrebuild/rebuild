@@ -89,7 +89,7 @@
                     <div class="mt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline">
                         <input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked" />
-                        <span class="custom-control-label">[[${bundle.L('覆盖 (更新)')}]]</span>
+                        <span class="custom-control-label">[[${bundle.L('更新')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline">
                         <input class="custom-control-input" type="radio" name="repeatOpt" value="2" />
@@ -97,7 +97,7 @@
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline">
                         <input class="custom-control-input" type="radio" name="repeatOpt" value="3" />
-                        <span class="custom-control-label">[[${bundle.L('仍旧导入')}]]</span>
+                        <span class="custom-control-label">[[${bundle.L('仍旧导入 (新建)')}]]</span>
                       </label>
                     </div>
                     <div class="J_repeatFields">
@@ -106,6 +106,12 @@
                         <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('选择的字段必须存在字段映射，否则会导致重复判断有误')}"></i>
                       </label>
                       <select class="form-control form-control-sm" id="repeatFields" multiple="multiple"></select>
+                    </div>
+                    <div class="J_onlyUpdate mt-3">
+                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                        <input class="custom-control-input" type="checkbox" id="onlyUpdate" value="yes" />
+                        <span class="custom-control-label">[[${bundle.L('仅更新不要新建')}]]</span>
+                      </label>
                     </div>
                   </div>
                 </div>
