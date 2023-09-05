@@ -919,7 +919,7 @@ const RbViewPage = {
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide(true)
-                  setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+                  setTimeout(() => that.clickView(`#!/View/${item.entity}/${res.data}`), 200)
                 } else {
                   this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
@@ -1005,10 +1005,13 @@ $(document).ready(function () {
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
       .removeClass('hide')
-      .on('click', () => {
-        // parent.RbViewModal.holder(this.__id, 'LOADING')
-        history.back()
-      })
+      .on('click', () => history.back())
+  }
+  // 返回列表
+  if (parent && parent.location.href.includes('/app/entity/view')) {
+    $('.J_list')
+      .removeClass('hide')
+      .on('click', () => (parent.location.href = '../list'))
   }
 
   // iframe 点击穿透

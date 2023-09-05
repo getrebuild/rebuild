@@ -695,8 +695,11 @@ class RbForm extends React.Component {
             })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+            if (window.RbListPage) {
+              location.hash = `!/View/${this.state.entity}/${recordId}`
+            }
           } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
+            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
 
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
