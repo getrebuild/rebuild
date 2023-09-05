@@ -17,7 +17,6 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyText;
@@ -239,11 +238,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
                         record.removeValue(fieldName);
                     }
                 }
-            }
-
-            // 小数精度处理
-            if (field.getDisplayType() == DisplayType.DECIMAL) {
-                record.setDecimal(fieldName, EasyDecimal.fixedDecimalScale(value, field.getRawMeta()));
             }
         }
     }

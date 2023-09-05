@@ -15,17 +15,29 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.utils.Callable2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 基础服务类
@@ -33,6 +45,7 @@ import java.util.*;
  * @author devezhao
  * @since 01/04/2019
  */
+@Slf4j
 public class BaseService extends InternalPersistService {
 
     public BaseService(PersistManagerFactory aPMFactory) {
@@ -46,6 +59,7 @@ public class BaseService extends InternalPersistService {
 
     @Override
     public Record create(Record record) {
+        fixedDecimalScale(record);
         setQuickCodeValue(record);
         Callable2<Integer, Record> call1 = processN2NReference(record, Boolean.TRUE);
         Callable2<Integer, Record> call2 = processTag(record, Boolean.TRUE);
@@ -58,6 +72,7 @@ public class BaseService extends InternalPersistService {
 
     @Override
     public Record update(Record record) {
+        fixedDecimalScale(record);
         setQuickCodeValue(record);
         Callable2<Integer, Record> call1 = processN2NReference(record, Boolean.FALSE);
         Callable2<Integer, Record> call2 = processTag(record, Boolean.FALSE);
@@ -83,6 +98,30 @@ public class BaseService extends InternalPersistService {
         if (quickCode != null) {
             if (StringUtils.isBlank(quickCode)) record.setNull(EntityHelper.QuickCode);
             else record.setString(EntityHelper.QuickCode, quickCode);
+        }
+    }
+
+    /**
+     * 强制精度
+     *
+     * @param record
+     */
+    private void fixedDecimalScale(Record record) {
+        final Entity entity = record.getEntity();
+        if (!MetadataHelper.isBusinessEntity(entity)) return;
+
+        for (String field : record.getAvailableFields()) {
+            if (!record.hasValue(field, false)) continue;
+
+            EasyField decimalField = EasyMetaFactory.valueOf(entity.getField(field));
+            if (decimalField.getDisplayType() != DisplayType.DECIMAL) continue;
+
+            BigDecimal oldValue = record.getDecimal(field);
+            BigDecimal fixed = EasyDecimal.fixedDecimalScale(oldValue, decimalField);
+            if (oldValue.equals(fixed)) continue;
+
+            log.debug("Force decimal scale : {}={} < {}", decimalField.getRawMeta(), field, oldValue);
+            record.setDecimal(field, fixed);
         }
     }
 
