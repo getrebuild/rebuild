@@ -14,7 +14,7 @@ function verifyFormula(formula, entity, onConfirm) {
       RbAlert.create(
         <RF>
           <p>{$L('计算公式可能存在错误，这会导致触发器执行失败。是否继续？')}</p>
-          {res.error_msg && <pre className="text-danger">{res.error_msg}</pre>}
+          {res.error_msg && <pre className="text-danger p-2">{res.error_msg}</pre>}
         </RF>,
         {
           type: 'warning',
@@ -133,7 +133,7 @@ class FormulaCalc extends RbAlert {
       formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{____${field[1]}}`)
     }
     formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
-    return formula//.toUpperCase()
+    return formula //.toUpperCase()
   }
 }
 

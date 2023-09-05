@@ -498,4 +498,8 @@ class EditorWithFieldVars extends React.Component {
       return $(this._$content).val()
     }
   }
+
+  focus() {
+    setTimeout(() => this._$content.focus(), 20)
+  }
 }
