@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.qiniu.storage.model.FileInfo;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -25,6 +27,7 @@ import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -236,6 +239,11 @@ public class FileDownloader extends BaseController {
         if (user == null) {
             String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
             user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken);
+        }
+        // 5. UnsafeImgAccess
+        if (user == null && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
+            String unsafe = request.getParameter("_UNSAFEIMGACCESS");
+            user = NumberUtils.isNumber(unsafe) ? UserService.SYSTEM_USER : null;
         }
 
         return user != null;

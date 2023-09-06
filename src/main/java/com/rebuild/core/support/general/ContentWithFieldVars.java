@@ -10,12 +10,22 @@ package com.rebuild.core.support.general;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +49,18 @@ public class ContentWithFieldVars {
      * @return
      */
     public static String replaceWithRecord(String content, ID recordId) {
+        return replaceWithRecord(content, recordId, false);
+    }
+
+    /**
+     * 替换文本中的字段变量
+     *
+     * @param content
+     * @param recordId
+     * @param makeImg
+     * @return
+     */
+    public static String replaceWithRecord(String content, ID recordId, boolean makeImg) {
         if (StringUtils.isBlank(content) || recordId == null) {
             return content;
         }
@@ -59,7 +81,7 @@ public class ContentWithFieldVars {
         fieldVars.add(pkName);
         Record o = Application.getQueryFactory().recordNoFilter(recordId, fieldVars.toArray(new String[0]));
 
-        return replaceWithRecord(content, o);
+        return replaceWithRecord(content, o, makeImg);
     }
 
     /**
@@ -67,9 +89,10 @@ public class ContentWithFieldVars {
      *
      * @param content
      * @param record
+     * @param makeImg
      * @return
      */
-    public static String replaceWithRecord(String content, Record record) {
+    public static String replaceWithRecord(String content, Record record, boolean makeImg) {
         if (StringUtils.isBlank(content) || record == null) {
             return content;
         }
@@ -78,9 +101,11 @@ public class ContentWithFieldVars {
         content = content.replace("{ID}",
                 String.format("{%s}", record.getEntity().getPrimaryField().getName()));
 
+        final Entity entity = record.getEntity();
+
         Map<String, String> fieldVars = new HashMap<>();
         for (String field : matchsVars(content)) {
-            if (MetadataHelper.getLastJoinField(record.getEntity(), field) != null) {
+            if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 fieldVars.put(field, null);
             }
         }
@@ -90,15 +115,36 @@ public class ContentWithFieldVars {
             Object value = record.getObjectValue(field);
 
             value = FieldValueHelper.wrapFieldValue(value,
-                    MetadataHelper.getLastJoinField(record.getEntity(), field), true);
+                    MetadataHelper.getLastJoinField(entity, field), true);
             if (value != null) {
                 fieldVars.put(field, value.toString());
             }
         }
 
         for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-            content = content.replace("{" + e.getKey() + "}",
-                    StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
+            final String field = e.getKey();
+            String value = e.getValue();
+
+            if (value != null && makeImg) {
+                // 处理图片 UnsafeImgAccess
+                if (RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
+                    DisplayType image = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, field)).getDisplayType();
+                    if (image == DisplayType.IMAGE) {
+                        StringBuilder value4Image = new StringBuilder();
+                        for (Object img : JSON.parseArray(value)) {
+                            String path = img.toString();
+                            if (!CommonsUtils.isExternalUrl(path)) {
+                                path = RebuildConfiguration.getHomeUrl("/filex/img/" + path);
+                                path += "?_UNSAFEIMGACCESS=" + System.currentTimeMillis();
+                            }
+                            value4Image.append(String.format("![](%s)\n", path));
+                        }
+                        value = value4Image.toString();
+                    }
+                }
+            }
+
+            content = content.replace("{" + field + "}", StringUtils.defaultIfBlank(value, StringUtils.EMPTY));
         }
         return content;
     }
