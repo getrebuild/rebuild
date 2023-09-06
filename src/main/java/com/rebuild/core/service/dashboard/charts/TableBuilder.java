@@ -198,9 +198,9 @@ public class TableBuilder {
             if (rowspan == 0) {
                 return StringUtils.EMPTY;
             } else if (rowspan > 1) {
-                return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, CommonsUtils.escapeHtml(content), tag);
+                return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, content, tag);
             } else {
-                return String.format("<%s>%s</%s>", tag, CommonsUtils.escapeHtml(content), tag);
+                return String.format("<%s>%s</%s>", tag, content, tag);
             }
         }
     }

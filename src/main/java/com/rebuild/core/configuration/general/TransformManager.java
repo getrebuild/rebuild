@@ -85,9 +85,10 @@ public class TransformManager implements ConfigManager {
     /**
      * @param configId
      * @param sourceEntity [可选]
-     * @return Returns clone
+     * @return
+     * @throws ConfigurationException
      */
-    public ConfigBean getTransformConfig(ID configId, String sourceEntity) {
+    public ConfigBean getTransformConfig(ID configId, String sourceEntity) throws ConfigurationException {
         if (sourceEntity == null) sourceEntity = getBelongEntity(configId);
 
         for (ConfigBean c : getRawTransforms(sourceEntity)) {
