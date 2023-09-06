@@ -11,6 +11,8 @@ import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.fusesource.jansi.AnsiConsole;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -117,6 +119,7 @@ public class BootApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        if (SystemUtils.IS_OS_WINDOWS) AnsiConsole.systemInstall();
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
         try {

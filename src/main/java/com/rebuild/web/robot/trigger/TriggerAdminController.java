@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -152,7 +153,13 @@ public class TriggerAdminController extends BaseController {
 
         String useTransform = configJson.getString("useTransform");
         if (ID.isId(useTransform)) {
-            ConfigBean cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
+            ConfigBean cb;
+            try {
+                cb = TransformManager.instance.getTransformConfig(ID.valueOf(useTransform), sourceEntity);
+            } catch (ConfigurationException ex) {
+                return String.format("[%s]", useTransform.toUpperCase());
+            }
+
             targetEntity = cb.getString("target");
             if (MetadataHelper.containsEntity(targetEntity)) {
                 return EasyMetaFactory.getLabel(targetEntity);

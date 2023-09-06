@@ -70,7 +70,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         Assert.notNull(thymeleafViewResolver, "[thymeleafViewResolver] is null");
 
         // ServletContext 共享变量
-        thymeleafViewResolver.addStaticVariable(WebConstants.ENV, Application.devMode() ? "dev" : "prodution");
+        thymeleafViewResolver.addStaticVariable(WebConstants.ENV, Application.devMode() ? "dev" : "production");
         thymeleafViewResolver.addStaticVariable(WebConstants.COMMERCIAL, License.getCommercialType());
         thymeleafViewResolver.addStaticVariable(WebConstants.BASE_URL, AppUtils.getContextPath());
         thymeleafViewResolver.addStaticVariable(WebConstants.APP_NAME, RebuildConfiguration.get(ConfigurationItem.AppName));
