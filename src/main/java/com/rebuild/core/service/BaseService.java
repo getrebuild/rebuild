@@ -116,7 +116,7 @@ public class BaseService extends InternalPersistService {
             EasyField decimalField = EasyMetaFactory.valueOf(entity.getField(field));
             if (decimalField.getDisplayType() != DisplayType.DECIMAL) continue;
 
-            BigDecimal oldValue = record.getDecimal(field);
+            Object oldValue = record.getObjectValue(field);
             BigDecimal fixed = EasyDecimal.fixedDecimalScale(oldValue, decimalField);
             if (oldValue.equals(fixed)) continue;
 
