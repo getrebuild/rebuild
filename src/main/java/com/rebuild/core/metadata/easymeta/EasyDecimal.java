@@ -90,7 +90,16 @@ public class EasyDecimal extends EasyField {
      * @return
      */
     public static BigDecimal fixedDecimalScale(Object decimalValue, Field decimalField) {
-        int scale = ((EasyDecimal) EasyMetaFactory.valueOf(decimalField)).getScale();
+        return fixedDecimalScale(decimalValue, EasyMetaFactory.valueOf(decimalField));
+    }
+
+    /**
+     * @param decimalValue
+     * @param decimalField
+     * @return
+     */
+    public static BigDecimal fixedDecimalScale(Object decimalValue, EasyField decimalField) {
+        int scale = ((EasyDecimal) decimalField).getScale();
 
         if (decimalValue instanceof BigDecimal) {
             return ((BigDecimal) decimalValue).setScale(scale, RoundingMode.HALF_UP);
