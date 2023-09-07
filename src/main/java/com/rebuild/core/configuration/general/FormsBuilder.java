@@ -71,7 +71,7 @@ public class FormsBuilder extends FormsManager {
     // 分割线
     public static final String DIVIDER_LINE = "$DIVIDER$";
     // 引用
-    public static final String REF_FORM = "$REFFORM$";
+    public static final String REFFORM_LINE = "$REFFORM$";
 
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
@@ -335,7 +335,7 @@ public class FormsBuilder extends FormsManager {
             JSONObject el = (JSONObject) iter.next();
             String fieldName = el.getString("field");
             if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
-            if (REF_FORM.equalsIgnoreCase(fieldName)) continue;
+            if (REFFORM_LINE.equalsIgnoreCase(fieldName)) continue;
 
             // 已删除字段
             if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
