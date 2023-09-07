@@ -1276,10 +1276,16 @@ select.form-control:not([disabled]) {
   background-color: #eee;
 }
 
-/* .img-field.sign.sign-edit .img-upload:hover {
-  opacity: 0.8;
-  cursor: pointer;
-} */
+/* v35 */
+.form-layout.refform {
+  display: block;
+  background-color: rgba(230, 230, 230, 0.3);
+  box-shadow: inset 0px 0px 10px rgba(230, 230, 230, 0.6);
+  border-radius: 2px;
+  width: 100%;
+  margin: 10px 15px;
+  padding: 15px;
+}
 
 .input-group.has-append {
   max-width: 100%;
@@ -3101,6 +3107,8 @@ form {
   background-color: #f5f5f5;
   border-radius: 2px;
   padding: 15px;
+  background-color: rgba(230, 230, 230, 0.3);
+  box-shadow: inset 0px 0px 10px rgba(230, 230, 230, 0.6);
 }
 
 .form.approval-form .approval-list {
@@ -3689,7 +3697,7 @@ form {
 #asideFilters .dropdown-item,
 #asideCategory .dropdown-item {
   padding: 8px 10px;
-  border-radius: 2px;
+  border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
   text-transform: none;
