@@ -95,7 +95,7 @@ class ContentSendNotification extends ActionContentSpec {
                 <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
               </div>
               <div className={state.userType === 20 ? '' : 'hide'}>
-                <input type="input" className="form-control form-control-sm w-100" ref={(c) => this._sendTo20 = c} style={{ maxWidth: '100%' }} />
+                <input type="input" className="form-control form-control-sm w-100" ref={(c) => (this._sendTo20 = c)} style={{ maxWidth: '100%' }} />
                 <p className="form-text">{$L('输入手机或邮箱，多个请使用逗号分开')}</p>
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
