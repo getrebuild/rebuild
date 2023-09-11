@@ -13,8 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -31,9 +30,8 @@ import java.util.Set;
  * @author devezhao
  * @since 01/10/2019
  */
+@Slf4j
 public class ImportRule {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ImportRule.class);
 
     public static final int REPEAT_OPT_UPDATE = 1;
     public static final int REPEAT_OPT_SKIP = 2;
@@ -44,6 +42,7 @@ public class ImportRule {
 
     private int repeatOpt;
     private Field[] repeatFields;
+    private boolean onlyUpdate;
 
     private ID defaultOwningUser;
 
@@ -54,15 +53,17 @@ public class ImportRule {
      * @param toEntity
      * @param repeatOpt
      * @param repeatFields
+     * @param onlyUpdate
      * @param defaultOwningUser
      * @param filedsMapping
      */
-    protected ImportRule(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, ID defaultOwningUser,
+    ImportRule(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, boolean onlyUpdate, ID defaultOwningUser,
                          Map<Field, Integer> filedsMapping) {
         this.sourceFile = sourceFile;
         this.toEntity = toEntity;
         this.repeatOpt = repeatOpt;
         this.repeatFields = repeatFields;
+        this.onlyUpdate = onlyUpdate;
         this.defaultOwningUser = defaultOwningUser;
         this.filedsMapping = filedsMapping;
     }
@@ -89,6 +90,10 @@ public class ImportRule {
 
     public Map<Field, Integer> getFiledsMapping() {
         return filedsMapping;
+    }
+
+    public boolean isOnlyUpdate() {
+        return onlyUpdate;
     }
 
     // --
@@ -119,7 +124,7 @@ public class ImportRule {
                     throw new IllegalArgumentException("File not found : " + file, e);
                 }
             }
-            LOG.warn("Use file from TestCase : " + file);
+            log.warn("Use file from TestCase : " + file);
         }
         if (!file.exists()) {
             throw new IllegalArgumentException("File not found : " + file);
@@ -146,6 +151,7 @@ public class ImportRule {
             filedsMapping.put(entity.getField(e.getKey()), (Integer) e.getValue());
         }
 
-        return new ImportRule(file, entity, repeatOpt, repeatFields, ownUser, filedsMapping);
+        return new ImportRule(
+                file, entity, repeatOpt, repeatFields, rule.getBooleanValue("only_update"), ownUser, filedsMapping);
     }
 }

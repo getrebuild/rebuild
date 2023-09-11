@@ -14,6 +14,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
  */
 
 const TYPE_DIVIDER = '$DIVIDER$'
+const TYPE_REFFORM = '$REFFORM$'
 const MODAL_MAXWIDTH = 1064
 
 // ~~ 表单窗口
@@ -695,8 +696,11 @@ class RbForm extends React.Component {
             })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+            if (window.RbListPage) {
+              location.hash = `!/View/${this.state.entity}/${recordId}`
+            }
           } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
+            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
 
           RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
@@ -2712,7 +2716,7 @@ class RbFormDivider extends React.Component {
     return (
       <div className={`form-line hover -v33 ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
         <fieldset>
-          <legend onClick={() => this.toggle()} title={$L('展开/收起')}>
+          <legend onClick={() => this._toggle()} title={$L('展开/收起')}>
             {this.props.label || ''}
           </legend>
         </fieldset>
@@ -2720,7 +2724,7 @@ class RbFormDivider extends React.Component {
     )
   }
 
-  toggle() {
+  _toggle() {
     let collapsed = null
     let $next = $(this._$formLine)
     while (($next = $next.next()).length > 0) {
@@ -2729,6 +2733,55 @@ class RbFormDivider extends React.Component {
       if (collapsed === null) collapsed = $next.hasClass('hide')
     }
     this.setState({ collapsed })
+  }
+}
+
+// 表单引用（仅视图）
+class RbFormRefform extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (!this.state.formComponent) return null
+    return (
+      <div className="rbview-form form-layout refform" ref={(c) => (this._viewForm = c)}>
+        {this.state.formComponent || 'Loading'}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    if (!this.props.reffield) return
+
+    const $$$parent = this.props.$$$parent
+    if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
+      const s = $$$parent.__ViewData[this.props.reffield]
+      this._renderViewFrom({ ...s })
+    }
+  }
+
+  _renderViewFrom(props) {
+    $.get(`/app/${props.entity}/view-model?id=${props.id}`, (res) => {
+      // 有错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const err = res.data.error || res.error_msg
+        this.setState({ formComponent: <div>{err}</div> })
+        return
+      }
+
+      const VFORM = (
+        <div className="row">
+          {res.data.elements.map((item) => {
+            item.$$$parent = this
+            // eslint-disable-next-line no-undef
+            return detectViewElement(item, props.entity)
+          })}
+        </div>
+      )
+      this.setState({ formComponent: VFORM })
+    })
   }
 }
 
@@ -2791,6 +2844,8 @@ var detectElement = function (item, entity) {
     return <RbFormTag {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
+  } else if (item.field === TYPE_REFFORM) {
+    return <RbFormRefform {...item} />
   } else {
     return <RbFormUnsupportted {...item} />
   }

@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global SelectReport TransformRich */
 
 const wpc = window.__PageConfig || {}
+
 const TYPE_DIVIDER = '$DIVIDER$'
+const TYPE_REFFORM = '$REFFORM$'
 
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -59,7 +61,8 @@ class RbViewForm extends React.Component {
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
-              if (item.field !== TYPE_DIVIDER) this.__ViewData[item.field] = item.value
+              if (!(item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM)) this.__ViewData[item.field] = item.value
+              if (item.field === TYPE_REFFORM) this.__hasRefform = true
               item.$$$parent = this
               return detectViewElement(item, this.props.entity)
             })}
@@ -165,7 +168,7 @@ class RbViewForm extends React.Component {
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
 
         // 刷新本页
-        if (res.data && res.data.forceReload) {
+        if ((res.data && res.data.forceReload) || this.__hasRefform) {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {
@@ -919,7 +922,7 @@ const RbViewPage = {
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide(true)
-                  setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+                  setTimeout(() => that.clickView(`#!/View/${item.entity}/${res.data}`), 200)
                 } else {
                   this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
@@ -1005,10 +1008,13 @@ $(document).ready(function () {
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
       .removeClass('hide')
-      .on('click', () => {
-        // parent.RbViewModal.holder(this.__id, 'LOADING')
-        history.back()
-      })
+      .on('click', () => history.back())
+  }
+  // 返回列表
+  if (parent && parent.location.href.includes('/app/entity/view')) {
+    $('.J_list')
+      .removeClass('hide')
+      .on('click', () => (parent.location.href = '../list'))
   }
 
   // iframe 点击穿透

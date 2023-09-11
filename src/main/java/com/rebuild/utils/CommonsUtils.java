@@ -10,7 +10,6 @@ package com.rebuild.utils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
-import cn.hutool.core.util.ReflectUtil;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
@@ -224,19 +223,6 @@ public class CommonsUtils {
         } catch (ReflectiveOperationException ex) {
             log.error("Invalid method invoke : {}", desc);
             throw new RebuildException(ex);
-        }
-    }
-
-    /**
-     * @param clazz
-     * @param params
-     * @return
-     */
-    public static Object newObject(String clazz, Object... params) {
-        try {
-            return ReflectUtil.newInstance(ReflectUtils.classForName(clazz), params);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 

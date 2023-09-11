@@ -193,11 +193,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
-.form-preview .divider .dd-handle {
+.form-preview .divider .dd-handle,
+.form-preview .refform .dd-handle {
   background-color: #eee;
 }
 
-.form-preview .divider .dd-handle > span:empty::after {
+.form-preview .divider .dd-handle > span:empty::after,
+.form-preview .refform .dd-handle > span:empty::after {
   content: attr(_title);
   font-style: italic;
   color: #999;
@@ -207,11 +209,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   content: attr(_title2);
 }
 
-.form-preview .divider .dd-handle:hover > span:empty::after {
+.form-preview .divider .dd-handle:hover > span:empty::after,
+.form-preview .refform .dd-handle:hover > span:empty::after {
   color: #fff;
 }
 
-.form-preview .divider .dd-action {
+.form-preview .divider .dd-action,
+.form-preview .refform .dd-action {
   margin-top: 14px;
 }
 

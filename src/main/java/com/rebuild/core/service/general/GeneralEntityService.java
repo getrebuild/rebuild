@@ -9,6 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
@@ -555,7 +556,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         } else if (context.getAction() == BizzPermission.UPDATE) {
             return new BulkBatchUpdate(context, this);
         } else if (context.getAction() == InternalPermission.APPROVAL) {
-            return (BulkOperator) CommonsUtils.newObject(
+            return (BulkOperator) ReflectUtils.newObject(
                     "com.rebuild.rbv.approval.BulkBatchApprove", context, this);
         }
 

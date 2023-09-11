@@ -105,7 +105,7 @@ public class OshiUtils {
             }
         }
 
-        return StringUtils.defaultString(bestipv4, "127.0.0.1");
+        return StringUtils.defaultIfBlank(bestipv4, "127.0.0.1");
     }
 
     /**

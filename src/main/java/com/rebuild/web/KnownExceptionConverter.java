@@ -10,6 +10,7 @@ package com.rebuild.web;
 import cn.devezhao.persist4j.exception.jdbc.ConstraintViolationException;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.DataTruncation;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
  * @author devezhao
  * @since 2021/9/6
  */
+@Slf4j
 public class KnownExceptionConverter {
 
     /**
@@ -38,12 +40,15 @@ public class KnownExceptionConverter {
         final String exMsg = cause == null ? null : cause.getLocalizedMessage();
 
         if (cause instanceof DataTruncation) {
+            log.error("DBERR: {}", exMsg);
             // Data truncation: Incorrect datetime value: '0010-07-05 04:57:00' for column
             if (exMsg.contains("Incorrect datetime")) return Language.L("日期超出数据库限制");
             else return Language.L("数据库字段长度超出限制");
         } else if (cause instanceof SQLException && StringUtils.countMatches(exMsg, "\\x") >= 4) {  // mb4
+            log.error("DBERR: {}", exMsg);
             return Language.L("数据库编码不支持 4 字节编码");
         } else if (ex instanceof ConstraintViolationException) {
+            log.error("DBERR: {}", exMsg);
             return Language.L("数据库字段违反唯一性约束");
         }
 

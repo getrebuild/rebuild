@@ -70,6 +70,10 @@ class ContentSendNotification extends ActionContentSpec {
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 2 })} checked={state.userType === 2} />
                 <span className="custom-control-label">{$L('外部人员')}</span>
               </label>
+              <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 2 || state.type === 3 ? '' : 'hide'}`}>
+                <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 20 })} checked={state.userType === 20} />
+                <span className="custom-control-label">{$L('手动输入')}</span>
+              </label>
               <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 4 ? '' : 'hide'}`}>
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 4 })} checked={state.userType === 4} />
                 <span className="custom-control-label">{$L('企业微信群')}</span>
@@ -85,10 +89,15 @@ class ContentSendNotification extends ActionContentSpec {
             <div className="col-12 col-lg-8">
               <div className={state.userType === 1 ? '' : 'hide'}>
                 <UserSelectorWithField ref={(c) => (this._sendTo1 = c)} />
+                <p className="form-text">{$L('选择内部接收用户')}</p>
               </div>
               <div className={state.userType === 2 ? '' : 'hide'}>
                 <AccountSelectorWithField ref={(c) => (this._sendTo2 = c)} hideUser hideDepartment hideRole hideTeam />
                 <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
+              </div>
+              <div className={state.userType === 20 ? '' : 'hide'}>
+                <input type="input" className="form-control form-control-sm w-100" ref={(c) => (this._sendTo20 = c)} style={{ maxWidth: '100%' }} />
+                <p className="form-text">{$L('输入手机或邮箱，多个请使用逗号分开')}</p>
               </div>
               <div className={state.userType === 4 ? '' : 'hide'}>
                 <input type="text" className="form-control form-control-sm w-100" ref={(c) => (this._$webhook = c)} style={{ maxWidth: '100%' }} placeholder={$L('群 Webhook 地址')} />
@@ -147,6 +156,8 @@ class ContentSendNotification extends ActionContentSpec {
           $(this._$webhook).val(content.sendTo)
         } else if (content.type === 5) {
           $(this._$groupId).val(content.sendTo)
+        } else if (content.userType === 20) {
+          $(this._sendTo20).val(content.sendTo)
         } else {
           $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
             if (res.error_code === 0 && res.data.length > 0) {
@@ -187,6 +198,8 @@ class ContentSendNotification extends ActionContentSpec {
     }
 
     let sendTo = this.state.userType === 2 ? this._sendTo2.getSelected() : this._sendTo1.getSelected()
+    if (this.state.userType === 20) sendTo = $val(this._sendTo20)
+
     if (this.state.type === 4) {
       sendTo = $(this._$webhook).val()
       if (!sendTo || !$regex.isUrl(sendTo)) {

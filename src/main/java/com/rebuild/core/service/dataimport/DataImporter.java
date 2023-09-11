@@ -96,7 +96,13 @@ public class DataImporter extends HeavyTask<Integer> {
                     traceLogs.add(new Object[] { firstCell.getRowNo(), "SKIP" });
                 } else {
 
-                    boolean isNew = record.getPrimary() == null;
+                    final boolean isNew = record.getPrimary() == null;
+
+                    if (isNew && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE && rule.isOnlyUpdate()) {
+                        traceLogs.add(new Object[] { firstCell.getRowNo(), "SKIP" });
+                        continue;
+                    }
+
                     if (!isViaAdmin) {
                         String error = null;
                         if (isNew) {

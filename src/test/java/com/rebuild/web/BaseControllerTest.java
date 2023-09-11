@@ -32,7 +32,7 @@ class BaseControllerTest extends TestSupport {
 
         ApplicationContext context = Application.getContext();
         if (!(context instanceof WebApplicationContext)) {
-            LOG.warn("None WebApplicationContext!");
+            _log.warn("None WebApplicationContext!");
             return;
         }
 

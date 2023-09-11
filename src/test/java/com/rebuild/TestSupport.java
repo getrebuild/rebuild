@@ -40,14 +40,14 @@ import org.springframework.util.ResourceUtils;
  */
 public class TestSupport {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
+    protected static final Logger _log = LoggerFactory.getLogger(TestSupport.class);
 
     private static boolean RebuildReady = false;
 
     @BeforeAll
     public static void setUp() {
         if (RebuildReady) return;
-        LOG.warn("TESTING Setup ...");
+        _log.warn("TESTING Setup ...");
 
         try {
             System.setProperty("rbdev", "true");  // dev/debug mode
@@ -62,14 +62,14 @@ public class TestSupport {
             }
 
         } catch (Exception ex) {
-            LOG.error("TESTING Setup failed!", ex);
+            _log.error("TESTING Setup failed!", ex);
             System.exit(-1);
         }
     }
 
     @AfterAll
     public static void setDown() {
-        LOG.warn("TESTING Setdown ...");
+        _log.warn("TESTING Setdown ...");
 
         UserContextHolder.clear();
     }
@@ -114,17 +114,17 @@ public class TestSupport {
         boolean changed = false;
         if (dropExists) {
             if (MetadataHelper.containsEntity(TestAllFields)) {
-                LOG.warn("Dropping test entity : " + TestAllFields);
+                _log.warn("Dropping test entity : " + TestAllFields);
                 new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TestAllFields), true);
             }
 
             if (MetadataHelper.containsEntity(SalesOrder)) {
-                LOG.warn("Dropping test entity : " + SalesOrder);
+                _log.warn("Dropping test entity : " + SalesOrder);
                 new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrder), true);
             }
 
             if (MetadataHelper.containsEntity(Account)) {
-                LOG.warn("Dropping test entity : " + Account);
+                _log.warn("Dropping test entity : " + Account);
                 new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(Account), true);
             }
         }

@@ -210,6 +210,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
     }
   }
 
