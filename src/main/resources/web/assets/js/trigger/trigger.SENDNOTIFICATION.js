@@ -72,7 +72,7 @@ class ContentSendNotification extends ActionContentSpec {
               </label>
               <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 2 || state.type === 3 ? '' : 'hide'}`}>
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 20 })} checked={state.userType === 20} />
-                <span className="custom-control-label">{$L('自定义')}</span>
+                <span className="custom-control-label">{$L('手动输入')}</span>
               </label>
               <label className={`custom-control custom-control-sm custom-radio custom-control-inline mb-1 ${state.type === 4 ? '' : 'hide'}`}>
                 <input className="custom-control-input" name="utype" type="radio" onChange={() => this.setState({ userType: 4 })} checked={state.userType === 4} />
