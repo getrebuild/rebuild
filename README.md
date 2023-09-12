@@ -82,7 +82,7 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 - MySQL 5.6+
 - Redis 3.2+（非必须，默认使用内置的 Ehcache 缓存）
 - Tomcat 8.0+（非必须，默认使用 SpringBooot 内置 Tomcat）
-- Apache Maven 3.3+
+- Apache Maven 3.6+
 - IDEA 或 Eclipse (for JEE)
 
 更多详情请参见 [开发人员文档](https://getrebuild.com/docs/dev/)
