@@ -81,8 +81,10 @@ public class SysbaseHeartbeat {
         final Date localDate = CalendarUtils.now();
         final long networkDateLeft = (networkDate.getTime() - localDate.getTime()) / 1000;
         if (Math.abs(networkDateLeft) > 15) {
-            log.warn("Date is offset : {} vs {}", networkDate, localDate);
+            log.warn("Server date offset : {} vs {}", networkDate, localDate);
             dangers.put(DateNotSync, String.valueOf(networkDateLeft));
+            // FIXME v3.4.2 暂时禁用
+            dangers.remove(DateNotSync);
         } else {
             dangers.remove(DateNotSync);
         }
