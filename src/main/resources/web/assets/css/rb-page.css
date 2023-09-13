@@ -1743,10 +1743,6 @@ th.column-fixed {
   box-shadow: inset -5px 0 4px -4px rgb(0 0 0 / 15%) !important;
 }
 
-td.column-fixed.col-action::before {
-  display: none;
-}
-
 .column-fixed.col-action {
   left: unset;
   right: 0;
@@ -4902,13 +4898,7 @@ pre.unstyle {
   z-index: 2;
 }
 
-@-moz-document url-prefix() {
-  .protable .col-action.column-fixed::before {
-    display: block;
-  }
-}
-
-.protable .col-action.column-fixed::after {
+.protable .column-fixed.col-action::after {
   right: auto;
   left: -48px;
   box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
