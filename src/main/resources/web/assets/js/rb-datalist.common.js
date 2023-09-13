@@ -832,6 +832,7 @@ class RbList extends React.Component {
 
   render() {
     const lastIndex = this.state.fields.length
+    const rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
 
     return (
       <RF>
@@ -866,6 +867,7 @@ class RbList extends React.Component {
                       )
                     })}
                     <th className="column-empty" />
+                    {rowActions.length > 0 && <th className="col-action column-fixed" />}
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._$tbody = c)}>
@@ -888,6 +890,25 @@ class RbList extends React.Component {
                           return this.renderCell(cell, index, primaryKey)
                         })}
                         <td className="column-empty" />
+                        {rowActions.length > 0 && (
+                          <td className="col-action column-fixed">
+                            {rowActions.map((btn, idx) => {
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  className="btn btn-sm btn-link w-auto"
+                                  title={btn.title || null}
+                                  onClick={() => {
+                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id)
+                                  }}>
+                                  {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
+                                  {btn.text}
+                                </button>
+                              )
+                            })}
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
