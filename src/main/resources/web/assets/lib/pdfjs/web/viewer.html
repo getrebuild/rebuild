@@ -32,7 +32,10 @@ See https://github.com/adobe-type-tools/cmap-resources
 <script src="../build/pdf.js"></script>
 
     <link rel="stylesheet" href="viewer.css">
-
+  <script>
+    var urlp = new URLSearchParams(window.location.search)
+    window.__PDFURL = decodeURIComponent(urlp.get('src'))
+  </script>
   <script src="viewer.js"></script>
   </head>
 

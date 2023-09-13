@@ -197,6 +197,7 @@ class RbPreview extends React.Component {
       const ispdf = fileName.toLowerCase().endsWith('.pdf')
       const setPreviewUrl = function (url) {
         const previewUrl = ispdf ? url : (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        // const previewUrl = (ispdf ? `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=` : rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
