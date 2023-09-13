@@ -317,15 +317,17 @@ class DlgCropper extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('修改头像')} ref={(c) => (this._dlg = c)} width="500" onHide={() => (__cropper = null)}>
-        <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
-          {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => (this._avatar = c)} style={{ maxWidth: '100%' }} />}
-          {this.state.inLoad && <RbSpinner />}
-        </div>
-        <div className="mt-3">
-          <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => (this._btn = c)}>
-            {$L('修改')}
-          </button>
+      <RbModal title={$L('修改头像')} ref={(c) => (this._dlg = c)} width="550" onHide={() => (__cropper = null)}>
+        <div className="m-1">
+          <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
+            {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => (this._avatar = c)} style={{ maxWidth: '100%' }} />}
+            {this.state.inLoad && <RbSpinner />}
+          </div>
+          <div className="mt-3">
+            <button className="btn btn-primary w-100 btn-lg" onClick={this.post} ref={(c) => (this._btn = c)}>
+              {$L('修改')}
+            </button>
+          </div>
         </div>
       </RbModal>
     )

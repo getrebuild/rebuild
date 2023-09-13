@@ -20,7 +20,7 @@ class RbModal extends React.Component {
     if (this.props.zIndex) style1.zIndex = this.props.zIndex
 
     const iframe = !this.props.children // No child
-    const style2 = { maxWidth: this.props.width || 680 }
+    const style2 = { maxWidth: ~~(this.props.width || 680) }
 
     return (
       <div
