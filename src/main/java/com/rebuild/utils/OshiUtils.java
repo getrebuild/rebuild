@@ -16,10 +16,14 @@ import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.NetworkIF;
 
+import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author devezhao
@@ -132,5 +136,25 @@ public class OshiUtils {
 
         log.warn("Cannot getdate from network");
         return new Date();
+    }
+
+    /**
+     * 是否 Docker 环境
+     * https://github.com/alexvyber/isdocker/blob/main/index.cjs.js
+     *
+     * @return
+     */
+    public static boolean isDockerEnv() {
+        try {
+            // #1
+            if (new File("/.dockerenv").exists()) return true;
+        } catch (Exception ignored) {
+            // #2
+            try (Stream<String> stream = Files.lines(Paths.get("/proc/self/cgroup"))) {
+                return stream.anyMatch(l -> l.contains("docker"));
+            } catch (Exception ignored2) {
+            }
+        }
+        return false;
     }
 }
