@@ -337,6 +337,9 @@ const OP_TYPE = {
   NUQ: $L('下季度'),
   PUY: $L('去年'),
   NUY: $L('明年'),
+  DDD: $L('固定..天'),
+  EVW: $L('每周..'),
+  EVM: $L('每月..'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'PUW', 'CUW', 'NUW', 'PUM', 'CUM', 'NUM', 'PUQ', 'CUQ', 'NUQ', 'PUY', 'CUY', 'NUY']
 const OP_DATE_NOPICKER = [
@@ -367,6 +370,9 @@ const OP_DATE_NOPICKER = [
   'PUY',
   'CUY',
   'NUY',
+  'DDD',
+  'EVW',
+  'EVM',
 ]
 const REFENTITY_CACHE = {}
 const PICKLIST_CACHE = {}
@@ -453,6 +459,9 @@ class FilterItem extends React.Component {
         'PUY',
         'CUY',
         'NUY',
+        'DDD',
+        'EVW',
+        'EVM',
       ]
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']

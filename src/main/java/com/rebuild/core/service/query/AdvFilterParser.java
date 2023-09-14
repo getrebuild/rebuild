@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -326,9 +327,36 @@ public class AdvFilterParser extends SetUser {
 
             if (ParseHelper.TDA.equalsIgnoreCase(op)
                     || ParseHelper.YTA.equalsIgnoreCase(op)
-                    || ParseHelper.TTA.equalsIgnoreCase(op)) {
+                    || ParseHelper.TTA.equalsIgnoreCase(op)
+                    || ParseHelper.DDD.equalsIgnoreCase(op)
+                    || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
 
-                if (ParseHelper.YTA.equalsIgnoreCase(op)) {
+                if (ParseHelper.DDD.equalsIgnoreCase(op)) {
+                    int x = NumberUtils.toInt(value);
+                    value = formatDate(addDay(x), 0);
+                } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
+                    Calendar c = CalendarUtils.getInstance();
+                    int x = NumberUtils.toInt(value);
+                    if (ParseHelper.EVW.equalsIgnoreCase(op)) {
+                        boolean isSunday = c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+                        if (isSunday) c.add(Calendar.DAY_OF_WEEK, -1);
+                        if (x < 1) x = 1;
+                        if (x > 7) x = 7;
+                        x += 1;
+                        if (x <= 7) {
+                            c.set(Calendar.DAY_OF_WEEK, x);
+                        } else {
+                            c.set(Calendar.DAY_OF_WEEK, 7);
+                            c.add(Calendar.DAY_OF_WEEK, 1);
+                        }
+                    } else {
+                        if (x < 1) x = 1;
+                        if (x > 31) x = 31;
+                        c.set(Calendar.DAY_OF_MONTH, x);
+                    }
+                    value = formatDate(c.getTime(), 0);
+                }
+                else if (ParseHelper.YTA.equalsIgnoreCase(op)) {
                     value = formatDate(addDay(-1), 0);
                 } else if (ParseHelper.TTA.equalsIgnoreCase(op)) {
                     value = formatDate(addDay(1), 0);
@@ -774,9 +802,7 @@ public class AdvFilterParser extends SetUser {
         // 括弧成对出现
         for (int i = 0; i < 20; i++) {
             clearEquation = clearEquation.replace("()", "");
-            if (clearEquation.length() == 0) {
-                return equation;
-            }
+            if (clearEquation.isEmpty()) return equation;
         }
         return null;
     }
