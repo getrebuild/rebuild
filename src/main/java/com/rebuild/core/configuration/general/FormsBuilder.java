@@ -477,14 +477,12 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
-                            defaultValue = easyField.wrapValue(defaultValue);
                             // `wrapValue` 会添加格式符号
                             if (easyField.getDisplayType() == DisplayType.DECIMAL) {
                                 el.put("value", defaultValue.toString());
                             } else {
                                 el.put("value", easyField.wrapValue(defaultValue));
                             }
-                            el.put("value", defaultValue);
                         }
                     }
                 }
