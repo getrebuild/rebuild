@@ -480,7 +480,9 @@ public class FormsBuilder extends FormsManager {
                             defaultValue = easyField.wrapValue(defaultValue);
                             // `wrapValue` 会添加格式符号
                             if (easyField.getDisplayType() == DisplayType.DECIMAL) {
-                                defaultValue = EasyDecimal.clearFlaged(defaultValue);
+                                el.put("value", defaultValue.toString());
+                            } else {
+                                el.put("value", easyField.wrapValue(defaultValue));
                             }
                             el.put("value", defaultValue);
                         }
