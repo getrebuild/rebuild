@@ -94,6 +94,9 @@ public class ParseHelper {
     public static final String PUY = "PUY";  // 本年-
     public static final String CUY = "CUY";  // 本年
     public static final String NUY = "NUY";  // 本年+
+    public static final String DDD = "DDD";  // 指定天+-
+    public static final String EVW = "EVW";  // 每周几
+    public static final String EVM = "EVM";  // 每月几
 
     // 日期时间
 
@@ -180,6 +183,8 @@ public class ParseHelper {
                 PUW.equalsIgnoreCase(token) || PUM.equalsIgnoreCase(token) || PUQ.equalsIgnoreCase(token) || PUY.equalsIgnoreCase(token) ||
                 NUW.equalsIgnoreCase(token) || NUM.equalsIgnoreCase(token) || NUQ.equalsIgnoreCase(token) || NUY.equalsIgnoreCase(token)) {
             return "between";
+        } else if (DDD.equalsIgnoreCase(token) || EVW.equalsIgnoreCase(token) || EVM.equalsIgnoreCase(token)) {
+            return "=";
         }
 
         throw new UnsupportedOperationException("Unsupported token of operation : " + token);

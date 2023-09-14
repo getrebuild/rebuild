@@ -65,7 +65,7 @@ public class LiteFormBuilder {
             }
         }
 
-        FormsBuilder.instance.buildModelElements(fieldElements, entity, recordData, user, false);
+        FormsBuilder.instance.buildModelElements(fieldElements, entity, recordData, user, false, false);
         return fieldElements;
     }
 

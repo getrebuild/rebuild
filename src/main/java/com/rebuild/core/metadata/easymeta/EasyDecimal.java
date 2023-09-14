@@ -108,4 +108,15 @@ public class EasyDecimal extends EasyField {
             return BigDecimal.valueOf(d);
         }
     }
+
+    /**
+     * 清除小数符号
+     *
+     * @param flagedValue
+     * @return
+     */
+    public static String clearFlaged(Object flagedValue) {
+        if (flagedValue == null) return null;
+        return flagedValue.toString().replaceAll("[^\\d^.^-]", "");
+    }
 }

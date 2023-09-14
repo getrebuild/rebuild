@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
 import com.esotericsoftware.minlog.Log;
@@ -115,9 +116,8 @@ public class OshiUtils {
      */
     public static Date getNetworkDate() {
         final String[] FROMURLS = new String[] {
-                "http://www.baidu.com/",
-                "http://bjtime.cn/",
-                "http://www.google.com/",
+                "https://www.baidu.com/",
+                "https://www.microsoft.com/",
         };
 
         for (String u : FROMURLS) {
@@ -126,11 +126,10 @@ public class OshiUtils {
                 long l = conn.getDate();
                 return new Date(l);
             } catch (Exception ex) {
-                Log.debug("Failed with : {}", u);
+                log.warn("Cannot fetch date from : {}", u, ex);
             }
         }
 
-        log.warn("Cannot getdate from network");
-        return new Date();
+        return CalendarUtils.now();
     }
 }
