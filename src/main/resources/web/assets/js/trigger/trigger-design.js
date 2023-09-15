@@ -354,7 +354,7 @@ class DlgSpecFields extends RbModalHandler {
     const _selected = this.props.selected || []
 
     return (
-      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide width="780">
         <div className="p-1">
           <div className="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm">
             <div className="icon">
@@ -384,7 +384,7 @@ class DlgSpecFields extends RbModalHandler {
         </div>
 
         <div className="dialog-footer">
-          <button className="btn btn-primary btn-space" type="button" onClick={this.handleConfirm}>
+          <button className="btn btn-primary btn-space mr-2" type="button" onClick={this.handleConfirm}>
             {$L('确定')}
           </button>
           <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>

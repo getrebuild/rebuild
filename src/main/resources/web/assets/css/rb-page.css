@@ -1673,7 +1673,7 @@ a.column-url:hover {
 }
 
 .column-fixed {
-  position: sticky;
+  position: sticky !important;
   left: 0;
   background-color: #fff;
   overflow: unset !important;
@@ -1703,7 +1703,8 @@ th.column-fixed {
   z-index: 1;
 }
 
-.rb-scroller.column-fixed-pin .column-fixed::after {
+.rb-scroller.column-fixed-pin .column-fixed::after,
+.column-fixed.col-action::after {
   position: absolute;
   top: 0;
   right: 0;
@@ -1712,7 +1713,7 @@ th.column-fixed {
   pointer-events: none;
   transform: translateX(100%);
   box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
-  transition: box-shadow 0.3s;
+  box-shadow: inset 5px 0 4px -4px rgba(0, 0, 0, 0.15);
   /*width: 20px;*/
   /* fix: Safari */
   width: 24px;
@@ -1732,6 +1733,24 @@ th.column-fixed {
 
 .data-list .table tbody tr.active td.column-fixed {
   background-color: #dee2e6;
+}
+
+/* v35 */
+.column-fixed.col-action::after {
+  right: auto !important;
+  left: -48px !important;
+  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%) !important;
+  box-shadow: inset -5px 0 4px -4px rgb(0 0 0 / 15%) !important;
+}
+
+.column-fixed.col-action {
+  left: unset;
+  right: 0;
+  padding: 3px 10px !important;
+}
+
+.column-fixed.col-action .btn.btn-sm {
+  line-height: 28px;
 }
 
 .table.table-header-fixed thead > tr > th {
@@ -4874,23 +4893,12 @@ pre.unstyle {
   cursor: help;
 }
 
-.protable .col-action.column-fixed {
-  left: unset;
-  right: 0;
+.protable .column-fixed.col-action {
+  padding: 7px 0 7px 7px !important;
   z-index: 2;
 }
 
-.protable .col-action.column-fixed::before {
-  display: none;
-}
-
-@-moz-document url-prefix() {
-  .protable .col-action.column-fixed::before {
-    display: block;
-  }
-}
-
-.protable .col-action.column-fixed::after {
+.protable .column-fixed.col-action::after {
   right: auto;
   left: -48px;
   box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);

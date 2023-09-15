@@ -37,8 +37,6 @@ class ProTable extends React.Component {
     const fw = ww > 1064 ? 994 : ww - 70
     const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
 
-    const colStyle = { minWidth: COL_WIDTH }
-
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
         <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
@@ -48,8 +46,13 @@ class ProTable extends React.Component {
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { ...colStyle }
-                if (fixed && COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                let colStyle2 = { minWidth: COL_WIDTH }
+                if (fixed) {
+                  // v35
+                  if (item.colspan) colStyle2.minWidth = (COL_WIDTH / 2) * ~~item.colspan
+                  if (COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                  if (colStyle2.minWidth > COL_WIDTH * 2) colStyle2.minWidth = COL_WIDTH * 2
+                }
 
                 return (
                   <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>

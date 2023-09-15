@@ -233,11 +233,11 @@ public class SendNotification extends TriggerAction {
         if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");
 
         if (operatingContext.getAction() == BizzPermission.DELETE) {
-            message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord(), true);
-            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, operatingContext.getBeforeRecord(), false);
+            message = ContentWithFieldVars.replaceWithRecord(message, operatingContext.getBeforeRecord());
+            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, operatingContext.getBeforeRecord());
         } else {
-            message = ContentWithFieldVars.replaceWithRecord(message, actionContext.getSourceRecord(), true);
-            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, actionContext.getSourceRecord(), false);
+            message = ContentWithFieldVars.replaceWithRecord(message, actionContext.getSourceRecord());
+            emailSubject = ContentWithFieldVars.replaceWithRecord(emailSubject, actionContext.getSourceRecord());
         }
 
         return new String[] { message, emailSubject };

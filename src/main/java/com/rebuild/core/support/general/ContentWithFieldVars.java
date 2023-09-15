@@ -17,6 +17,8 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -49,18 +51,6 @@ public class ContentWithFieldVars {
      * @return
      */
     public static String replaceWithRecord(String content, ID recordId) {
-        return replaceWithRecord(content, recordId, false);
-    }
-
-    /**
-     * 替换文本中的字段变量
-     *
-     * @param content
-     * @param recordId
-     * @param makeImg
-     * @return
-     */
-    public static String replaceWithRecord(String content, ID recordId, boolean makeImg) {
         if (StringUtils.isBlank(content) || recordId == null) {
             return content;
         }
@@ -81,7 +71,7 @@ public class ContentWithFieldVars {
         fieldVars.add(pkName);
         Record o = Application.getQueryFactory().recordNoFilter(recordId, fieldVars.toArray(new String[0]));
 
-        return replaceWithRecord(content, o, makeImg);
+        return replaceWithRecord(content, o);
     }
 
     /**
@@ -89,10 +79,9 @@ public class ContentWithFieldVars {
      *
      * @param content
      * @param record
-     * @param makeImg
      * @return
      */
-    public static String replaceWithRecord(String content, Record record, boolean makeImg) {
+    public static String replaceWithRecord(String content, Record record) {
         if (StringUtils.isBlank(content) || record == null) {
             return content;
         }
@@ -125,11 +114,11 @@ public class ContentWithFieldVars {
             final String field = e.getKey();
             String value = e.getValue();
 
-            if (value != null && makeImg) {
-                // 处理图片 UnsafeImgAccess
-                if (RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
-                    DisplayType image = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, field)).getDisplayType();
-                    if (image == DisplayType.IMAGE) {
+            if (value != null) {
+                DisplayType dt = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, field)).getDisplayType();
+                if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
+                    // 处理图片 UnsafeImgAccess
+                    if (dt == DisplayType.IMAGE && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
                         StringBuilder value4Image = new StringBuilder();
                         for (Object img : JSON.parseArray(value)) {
                             String path = img.toString();
@@ -140,6 +129,14 @@ public class ContentWithFieldVars {
                             value4Image.append(String.format("![](%s)\n", path));
                         }
                         value = value4Image.toString();
+
+                    } else {
+                        StringBuilder value4Files = new StringBuilder();
+                        for (Object file : JSON.parseArray(value)) {
+                            String fileName = QiniuCloud.parseFileName(file.toString());
+                            value4Files.append(String.format("[%s] %s; ", Language.L(dt.getDisplayName()), fileName));
+                        }
+                        value = value4Files.toString().trim();
                     }
                 }
             }

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/12
+ * @see com.rebuild.core.support.general.ContentWithFieldVars
  */
 public class MessageBuilder {
 
