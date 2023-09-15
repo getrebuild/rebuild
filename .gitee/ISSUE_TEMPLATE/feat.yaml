@@ -1,0 +1,31 @@
+name: 需求建议
+description: 想要某种新功能，或者想要改进某个已有的功能。
+body:
+  - type: markdown
+    attributes:
+      value: 请简要陈述您要反馈的问题，记得包含重要关键词以便其他人能搜索到。
+  - type: markdown
+    attributes:
+      value: |
+        ----
+
+        ### **提交须知**
+        - 请严格按照问题反馈模板填写信息，如你未能按照模板要求填写，我们将不做处理。
+
+        ----
+  - type: checkboxes
+    attributes:
+      label: 是否有人提出过此需求？
+      options:
+        - label: 我已经搜索过了，确认此需求没有其他人提过。
+          required: true
+  - type: textarea
+    attributes:
+      label: 新需求描述
+      description: 清晰并简洁地描述这个需求
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 新需求所解决的问题
+      description: 清晰并简洁地描述此需求所解决的问题及其应用场景

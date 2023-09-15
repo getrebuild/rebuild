@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用问题请看官网文档
+    url: https://getrebuild.com/docs/startup
+    about: 包括安装、升级遇到问题，功能不会使用等。
