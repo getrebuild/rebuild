@@ -180,7 +180,7 @@ public class TransformerPreview {
             if (hasError != null) throw new DataSpecificationException(hasError);
 
             JSONArray elements = ((JSONObject) model).getJSONArray("elements");
-            buildModelElements(elements, entity, record, user, true);
+            buildModelElements(elements, entity, record, user, false, true);
             return model;
         }
     }

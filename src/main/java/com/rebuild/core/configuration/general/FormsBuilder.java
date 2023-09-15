@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
@@ -221,7 +222,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, recordData, user, !viewMode);
+        buildModelElements(elements, entityMeta, recordData, user, viewMode, !viewMode);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("此表单布局尚未配置，请配置后使用"));
@@ -320,9 +321,10 @@ public class FormsBuilder extends FormsManager {
      * @param entity
      * @param recordData
      * @param user
+     * @param viewModel
      * @param useAdvControl
      */
-    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean useAdvControl) {
+    protected void buildModelElements(JSONArray elements, Entity entity, Record recordData, ID user, boolean viewModel, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
 
@@ -348,6 +350,7 @@ public class FormsBuilder extends FormsManager {
             Object displayOnUpdate = el.remove("displayOnUpdate");
             Object requiredOnCreate = el.remove("requiredOnCreate");
             Object requiredOnUpdate = el.remove("requiredOnUpdate");
+            if (viewModel) useAdvControl = false;
             if (useAdvControl) {
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNew2 = isNew;
@@ -477,12 +480,12 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
+                            defaultValue = easyField.wrapValue(defaultValue);
                             // `wrapValue` 会添加格式符号
                             if (easyField.getDisplayType() == DisplayType.DECIMAL) {
-                                el.put("value", defaultValue);
-                            } else {
-                                el.put("value", easyField.wrapValue(defaultValue));
+                                defaultValue = EasyDecimal.clearFlaged(defaultValue);
                             }
+                            el.put("value", defaultValue);
                         }
                     }
                 }
@@ -517,9 +520,14 @@ public class FormsBuilder extends FormsManager {
 
             // 编辑/视图/记录转换
             if (recordData != null) {
-                // FIXME `wrapFieldValue` 会添加格式符号（小数）
                 Object value = wrapFieldValue(recordData, easyField, user);
-                if (value != null) el.put("value", value);
+                if (value != null) {
+                    // `wrapValue` 会添加格式符号
+                    if (!viewModel && easyField.getDisplayType() == DisplayType.DECIMAL) {
+                        value = EasyDecimal.clearFlaged(value);
+                    }
+                    el.put("value", value);
+                }
 
                 // 父级级联
                 if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && recordData.getPrimary() != null) {

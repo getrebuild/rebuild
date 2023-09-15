@@ -18,6 +18,7 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OshiUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -29,6 +30,7 @@ import java.util.LinkedHashMap;
  * @author devezhao
  * @since 2020/12/7
  */
+@Slf4j
 public class SysbaseHeartbeat {
 
     private static final String CKEY_DANGERS = "_DANGERS";
@@ -75,10 +77,14 @@ public class SysbaseHeartbeat {
         }
 
         // #3
-        Date networkDate = OshiUtils.getNetworkDate();
-        long networkDateLeft = (networkDate.getTime() - CalendarUtils.now().getTime()) / 1000;
+        final Date networkDate = OshiUtils.getNetworkDate();
+        final Date localDate = CalendarUtils.now();
+        final long networkDateLeft = (networkDate.getTime() - localDate.getTime()) / 1000;
         if (Math.abs(networkDateLeft) > 15) {
+            log.warn("Server date offset : {} vs {}", networkDate, localDate);
             dangers.put(DateNotSync, String.valueOf(networkDateLeft));
+            // FIXME v3.4.2 暂时禁用
+            dangers.remove(DateNotSync);
         } else {
             dangers.remove(DateNotSync);
         }

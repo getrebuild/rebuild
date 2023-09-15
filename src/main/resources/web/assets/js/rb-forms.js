@@ -497,7 +497,7 @@ class RbForm extends React.Component {
     if (this.isNew) {
       this.props.children.map((child) => {
         let iv = child.props.value
-        if (iv && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
+        if (!$empty(iv) && (!this.props.readonly || (this.props.readonly && this.props.readonlyw === 3))) {
           if (typeof iv === 'object') {
             if (child.props.type === 'TAG') {
               // eg. 标签
