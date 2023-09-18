@@ -161,6 +161,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('language', rb.locale)
   $.fn.select2.defaults.set('allowClear', true)
   $.fn.select2.defaults.set('placeholder', '')
+  $.fn.select2.defaults.set('templateResult', function (res) {
+    return $('<span></span>').attr('title', res.text).text(res.text)
+  })
 })(jQuery)
 
 // extends Array

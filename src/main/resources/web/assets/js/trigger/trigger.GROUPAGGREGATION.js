@@ -188,7 +188,7 @@ class ContentGroupAggregation extends ActionContentSpec {
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.dataAdvFilter()}>
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
-              <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
+              <div className="form-text mt-0">{$L('符合聚合数据条件的记录才会被聚合')}</div>
             </div>
           </div>
 
@@ -416,7 +416,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     } else {
       const that = this
       renderRbcomp(
-        <AdvFilter title={$L('数据过滤条件')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
+        <AdvFilter title={$L('聚合数据条件')} inModal canNoFilters entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
         null,
         function () {
           that._advFilter = this
