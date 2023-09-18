@@ -188,6 +188,27 @@ public class TransformConfigController extends BaseController {
                 if (res != null) fields.addAll(res);
             }
 
+            // v35 三级字段
+            for (Field refField : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
+                if (MetadataHelper.isCommonsField(refField.getName())) continue;
+
+                String fieldName = refField.getName() + ".";
+                String fieldLabel = EasyMetaFactory.getLabel(refField) + ".";
+                for (Field refField3 : MetadataSorter.sortFields(refField.getReferenceEntity(), DisplayType.REFERENCE)) {
+                    if (MetadataHelper.isCommonsField(refField3.getName())) continue;
+
+                    JSONArray res = MetaFormatter.buildFields(refField3);
+                    if (res != null) {
+                        for (Object e : res) {
+                            JSONObject item = (JSONObject) e;
+                            item.put("name", fieldName + item.getString("name"));
+                            item.put("label", fieldLabel + item.getString("label"));
+                            fields.add(item);
+                        }
+                    }
+                }
+            }
+
         } else if (entity.containsField(EntityHelper.OwningUser)) {
             fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
         }
