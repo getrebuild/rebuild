@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.JSONUtils;
@@ -26,7 +27,9 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 数据报表
@@ -48,16 +51,24 @@ public class DataReportManager implements ConfigManager {
      *
      * @param entity
      * @param type
+     * @param user
      * @return
      */
-    public JSONArray getReports(Entity entity, int type) {
-        JSONArray list = new JSONArray();
+    public JSONArray getReports(Entity entity, int type, ID user) {
+        JSONArray alist = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
-                list.add(e.toJSON("id", "name", "outputType"));
+                // v3.5
+                String vuDef = e.getString("visibleUsers");
+                if (StringUtils.isNotBlank(vuDef)) {
+                    Set<ID> users = UserHelper.parseUsers(Arrays.asList(vuDef.split(",")), null);
+                    if (!users.contains(user)) continue;
+                }
+
+                alist.add(e.toJSON("id", "name", "outputType"));
             }
         }
-        return list;
+        return alist;
     }
 
     /**
@@ -67,7 +78,7 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public ConfigBean[] getReportsRaw(Entity entity) {
-        final String cKey = "DataReportManager33-" + entity.getName();
+        final String cKey = "DataReportManager35-" + entity.getName();
         ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return cached;
@@ -83,6 +94,7 @@ public class DataReportManager implements ConfigManager {
             JSONObject extra = o[5] == null ? JSONUtils.EMPTY_OBJECT : JSON.parseObject((String) o[5]);
             String outputType = StringUtils.defaultIfBlank(extra.getString("outputType"), "excel");
             int templateVersion = extra.containsKey("templateVersion") ? extra.getInteger("templateVersion") : 2;
+            String visibleUsersDef = extra.getString("visibleUsers");
 
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
@@ -91,7 +103,8 @@ public class DataReportManager implements ConfigManager {
                     .set("template", o[3])
                     .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
                     .set("outputType", outputType)
-                    .set("templateVersion", templateVersion);
+                    .set("templateVersion", templateVersion)
+                    .set("visibleUsers", visibleUsersDef);
             alist.add(cb);
         }
 
@@ -150,7 +163,7 @@ public class DataReportManager implements ConfigManager {
 
     @Override
     public void clean(Object entity) {
-        final String cKey = "DataReportManager33-" + ((Entity) entity).getName();
+        final String cKey = "DataReportManager35-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
 
