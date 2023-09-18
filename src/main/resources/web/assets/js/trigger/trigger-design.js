@@ -18,7 +18,14 @@ $(document).ready(() => {
     $(`<option value="${i}">${H1}:00</option>`).appendTo('.J_startHour1')
     $(`<option value="${i}">${H2}:00</option>`).appendTo('.J_startHour2')
   }
-  $('.J_startHour1').val('0')
+  $('.J_startHour1')
+    .val('0')
+    .on('change', function () {
+      const start = ~~this.value
+      $('.J_startHour2 option').each(function () {
+        $(this).attr('disabled', ~~$(this).val() < start)
+      })
+    })
   $('.J_startHour2').val('23')
 
   if (wpc.when > 0) {
