@@ -154,67 +154,43 @@ public class TransformConfigController extends BaseController {
                 new String[] { "entity", "label" },
                 new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
 
-        final String dtfName = entity.getMainEntity() == null
-                ? null : MetadataHelper.getDetailToMainField(entity).getName();
-
-        JSONArray fields = new JSONArray();
-
-        for (Field field : MetadataSorter.sortFields(entity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
-
-            if (sourceType) {
-                fields.add(easyField.toJSON());
-            } else if (!MetadataHelper.isCommonsField(field)) {
-                if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-
-                // v2.10 非可创建字段也支持
-                JSONObject m = MetaFormatter.buildRichField(easyField);
-                // v3.4 for dtf
-                if (field.getName().equalsIgnoreCase(dtfName)) m.put("readonly", true);
-
-                fields.add(m);
-            }
-        }
-
+        JSONArray fields;
+        // 源
         if (sourceType) {
-            fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
+            fields = MetaFormatter.buildFieldsWithRefs(entity, 3, true, field -> {
+                if (field instanceof EasyField) {
+                    return ((EasyField) field).getDisplayType() == DisplayType.BARCODE;
+                }
+                return false;
+            });
+        }
+        // 目标
+        else {
+            fields = MetaFormatter.buildFieldsWithRefs(entity, 1, true, field -> {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.BARCODE
+                        || easyField.getDisplayType() == DisplayType.SERIES
+                        || MetadataHelper.isCommonsField(easyField.getRawMeta());
+            });
 
-            // 二级字段
-            for (Field refField : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
-                if (MetadataHelper.isCommonsField(refField.getName())) continue;
-
-                JSONArray res = MetaFormatter.buildFields(refField);
-                if (res != null) fields.addAll(res);
+            if (entity.containsField(EntityHelper.OwningUser)) {
+                fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
             }
 
-            // v35 三级字段
-            for (Field refField : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
-                if (MetadataHelper.isCommonsField(refField.getName())) continue;
-
-                String fieldName = refField.getName() + ".";
-                String fieldLabel = EasyMetaFactory.getLabel(refField) + ".";
-                for (Field refField3 : MetadataSorter.sortFields(refField.getReferenceEntity(), DisplayType.REFERENCE)) {
-                    if (MetadataHelper.isCommonsField(refField3.getName())) continue;
-
-                    JSONArray res = MetaFormatter.buildFields(refField3);
-                    if (res != null) {
-                        for (Object e : res) {
-                            JSONObject item = (JSONObject) e;
-                            item.put("name", fieldName + item.getString("name"));
-                            item.put("label", fieldLabel + item.getString("label"));
-                            fields.add(item);
-                        }
+            // v3.4 for dtf
+            if (entity.getMainEntity() != null) {
+                String dtfName = MetadataHelper.getDetailToMainField(entity).getName();
+                for (Object o : fields) {
+                    JSONObject item = (JSONObject) o;
+                    if (dtfName.equals(item.getString("name"))) {
+                        item.put("readonly", true);
+                        break;
                     }
                 }
             }
-
-        } else if (entity.containsField(EntityHelper.OwningUser)) {
-            fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
         }
 
         entityData.put("fields", fields);
-
         return entityData;
     }
 

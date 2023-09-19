@@ -9,6 +9,7 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.MultiSelectManager;
@@ -22,6 +23,10 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author ZHAO
@@ -91,5 +96,100 @@ public class MetaFormatter {
             res.add(subField);
         }
         return res;
+    }
+
+    /**
+     * @param entity
+     * @param deep
+     * @param filter
+     * @return
+     */
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, Predicate<BaseMeta> filter) {
+        return buildFieldsWithRefs(entity, deep, false, filter);
+    }
+
+    /**
+     * @param entity
+     * @param deep
+     * @param rich
+     * @param filter
+     * @return
+     */
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean rich, Predicate<BaseMeta> filter) {
+        JSONArray res = new JSONArray();
+
+        // 一级
+        for (Field field : MetadataSorter.sortFields(entity)) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (filter.test(easyField)) continue;
+
+            res.add(buildField(easyField, null, rich));
+        }
+        if (deep < 2) return res;
+
+        List<Object[]> deep3 = new ArrayList<>();
+
+        // 二级
+        for (Field field2 : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
+            EasyField easyField2 = EasyMetaFactory.valueOf(field2);
+            if (filter.test(field2)) continue;
+
+            String[] parents = new String[] {
+                    easyField2.getName(), easyField2.getLabel()
+            };
+
+            Entity entity2 = field2.getReferenceEntity();
+            for (Field field : MetadataSorter.sortFields(entity2)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (filter.test(easyField)) continue;
+
+                res.add(buildField(easyField, parents, rich));
+
+                if (deep >= 3 && easyField.getDisplayType() == DisplayType.REFERENCE) {
+                    deep3.add(new Object[] { parents[0], parents[1], easyField });
+                }
+            }
+        }
+        if (deep < 3) return res;
+
+        // 最多三级
+        for (Object[] d : deep3) {
+            EasyField easyField3 = (EasyField) d[2];
+            if (filter.test(easyField3.getRawMeta())) continue;
+
+            String[] parents = new String[] {
+                    d[0] + "." + easyField3.getName(), d[1] + "." + easyField3.getLabel()
+            };
+
+            Entity entity3 = easyField3.getRawMeta().getReferenceEntity();
+            for (Field field : MetadataSorter.sortFields(entity3)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (filter.test(easyField)) continue;
+
+                JSONObject item = buildField(easyField, parents, rich);
+                String name = item.getString("name");
+                // 特殊过滤
+                if (name.contains("modifiedBy.modifiedBy")) continue;
+                if (name.contains("createdBy.createdBy")) continue;
+                if (name.contains("createdBy.modifiedBy")) continue;
+                if (name.contains("modifiedBy.createdBy")) continue;
+
+                res.add(item);
+            }
+        }
+
+
+
+
+        return res;
+    }
+
+    private static JSONObject buildField(EasyField field, String[] parentsField, boolean rich) {
+        JSONObject item = rich ? buildRichField(field) : (JSONObject) field.toJSON();
+        if (parentsField != null) {
+            item.put("name", parentsField[0] + "." + item.get("name"));
+            item.put("label", parentsField[1] + "." + item.get("label"));
+        }
+        return item;
     }
 }

@@ -13,16 +13,17 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,76 +61,33 @@ public class MetadataGetting extends BaseController {
     }
 
     @GetMapping("fields")
-    public List<JSONObject> fields(HttpServletRequest request) {
-        Entity entityMeta = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
+    public JSON fields(HttpServletRequest request) {
+        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
         // 返回引用实体的字段
         int appendRefFields = getIntParameter(request, "deep", 0);
 
-        List<JSONObject> into = new ArrayList<>();
-        putFields(into, entityMeta, null);
+        JSON res = MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, field -> {
+            if (!field.isQueryable()) return true;
 
-        List<Object[]> deep3 = new ArrayList<>();
-
-        // 追加二级引用字段
-        if (appendRefFields >= 2) {
-            for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
-                if (!isAllowAppendRefFields(field)) continue;
-
-                String fieldName = field.getName();
-                String fieldLabel = EasyMetaFactory.getLabel(field);
-                putFields(into, field.getReferenceEntity(), new String[] { fieldName, fieldLabel });
-
-                if (appendRefFields < 3) continue;
-
-                // v35 追加三级引用字段
-                for (Field field3 : MetadataSorter.sortFields(field.getReferenceEntity(), DisplayType.REFERENCE)) {
-                    if (!isAllowAppendRefFields(field)) continue;
-
-                    deep3.add(new Object[] { fieldName, fieldLabel, field3 });
+            if (field instanceof Field) {
+                int c = ((Field) field).getReferenceEntity().getEntityCode();
+                if (MetadataHelper.isBizzEntity(c) || c == EntityHelper.RobotApprovalConfig) {
+                    return !(field.getName().equals(EntityHelper.OwningUser)
+                            || field.getName().equals(EntityHelper.OwningDept)
+                            || field.getName().equals(EntityHelper.ApprovalLastUser));
                 }
             }
 
-            if (!deep3.isEmpty()) {
-                for (Object[] e : deep3) {
-                    Field field3 = (Field) e[2];
-                    String fieldName = e[0] + "." + field3.getName();
-                    String fieldLabel = e[1] + "." + EasyMetaFactory.getLabel(field3);
-                    putFields(into, field3.getReferenceEntity(), new String[] { fieldName, fieldLabel });
-                }
-            }
+            return false;
+        });
+
+        for (Object o : (JSONArray) res) {
+            ((JSONObject) o).remove("creatable");
+            ((JSONObject) o).remove("nullable");
+            ((JSONObject) o).remove("updatable");
         }
 
-        return into;
-    }
-
-    private boolean isAllowAppendRefFields(Field field) {
-        if (!field.isQueryable()) return false;
-
-        int code = field.getReferenceEntity().getEntityCode();
-        if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) {
-            // NOTE 特殊放行
-            return field.getName().equals(EntityHelper.OwningUser)
-                    || field.getName().equals(EntityHelper.OwningDept)
-                    || field.getName().equals(EntityHelper.ApprovalLastUser);
-        }
-        return true;
-    }
-
-    private void putFields(List<JSONObject> dest, Entity useEntity, String[] parentsField) {
-        final String parentRefField = parentsField == null ? null : parentsField[0];
-        final String parentRefFieldLabel = parentsField == null ? null : parentsField[1];
-
-        for (Field field : MetadataSorter.sortFields(useEntity)) {
-            if (!field.isQueryable()) continue;
-
-            JSONObject map = (JSONObject) EasyMetaFactory.valueOf(field).toJSON();
-            if (parentRefField != null) {
-                map.put("name", parentRefField + "." + map.get("name"));
-                map.put("label", parentRefFieldLabel + "." + map.get("label"));
-            }
-
-            dest.add(map);
-        }
+        return res;
     }
 
     // 哪些实体引用了指定实体
