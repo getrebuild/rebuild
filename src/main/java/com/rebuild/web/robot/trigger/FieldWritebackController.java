@@ -72,7 +72,7 @@ public class FieldWritebackController extends BaseController {
         List<String[]> entities = new ArrayList<>(temp);
         temp.clear();
 
-        // 2.谁引用了我
+        // 2.谁引用了我 (N)
 
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity, true)) {
             String key = refTo.getOwnEntity().getName() + "." + refTo.getName();
@@ -103,41 +103,31 @@ public class FieldWritebackController extends BaseController {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        JSONArray sourceFields = new JSONArray();
-        JSONArray targetFields = new JSONArray();
-
         // 源字段
 
-        // 本实体
-        sourceFields.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
-        for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+            if (field instanceof EasyField) {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.BARCODE;
+            }
+            return false;
+        });
 
-            sourceFields.add(easyField.toJSON());
-        }
-
-        // 关联实体的
-        for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            // FIXME 是否过滤系统级引用实体 ???
-            if (MetadataHelper.isCommonsField(fieldRef)) continue;
-
-            JSONArray res = MetaFormatter.buildFields(fieldRef);
-            if (res != null) sourceFields.addAll(res);
-        }
+        JSONArray tmp = new JSONArray();
+        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
+        tmp.addAll(sourceFields);
+        sourceFields = tmp;
 
         // 目标字段
 
+        JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
-            for (Field field : MetadataSorter.sortFields(targetEntity)) {
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                DisplayType dt = easyField.getDisplayType();
-                if (dt == DisplayType.SERIES || dt == DisplayType.BARCODE || easyField.isBuiltin()) {
-                    continue;
-                }
-
-                targetFields.add(MetaFormatter.buildRichField(easyField));
-            }
+            targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, field -> {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.SERIES
+                        || easyField.getDisplayType() == DisplayType.BARCODE
+                        || easyField.isBuiltin();
+            });
         }
 
         // 审批流程启用

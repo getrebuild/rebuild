@@ -66,7 +66,7 @@ public class MetadataGetting extends BaseController {
         // 返回引用实体的字段
         int appendRefFields = getIntParameter(request, "deep", 0);
 
-        JSON res = MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, field -> {
+        JSONArray res = MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {
@@ -81,7 +81,7 @@ public class MetadataGetting extends BaseController {
             return false;
         });
 
-        for (Object o : (JSONArray) res) {
+        for (Object o : res) {
             ((JSONObject) o).remove("creatable");
             ((JSONObject) o).remove("nullable");
             ((JSONObject) o).remove("updatable");

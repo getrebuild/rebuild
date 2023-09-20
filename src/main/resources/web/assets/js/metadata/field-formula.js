@@ -50,8 +50,8 @@ class FormulaCalc extends RbAlert {
               <ul className="list-unstyled mb-0" _title={$L('无可用字段')}>
                 {this.props.fields.map((item) => {
                   return (
-                    <li key={item[0]} className={item[2] ? `flag-${item[2]}` : ''}>
-                      <a onClick={() => this.handleInput(item)}>{item[1]}</a>
+                    <li key={item.name} className={`flag-${item.type || 'N'}`}>
+                      <a onClick={() => this.handleInput(item)}>{item.label}</a>
                     </li>
                   )
                 })}
@@ -95,7 +95,7 @@ class FormulaCalc extends RbAlert {
     } else if (v === $L('清空')) {
       $(this._$formula).empty()
     } else if (typeof v === 'object') {
-      $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._$formula)
+      $(`<i class="v field" data-v="{${v.name}}">{${v.label}}</i>`).appendTo(this._$formula)
     } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
       $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
     } else {
@@ -128,12 +128,116 @@ class FormulaCalc extends RbAlert {
   // 公式文本化
   static textFormula(formula, fields) {
     if (!formula) return ''
+
     for (let i = 0; i < fields.length; i++) {
       const field = fields[i]
-      formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{____${field[1]}}`)
+      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{____${field.label}}`)
     }
     formula = formula.replace(new RegExp('\\{____', 'g'), '{') // fix: Label 与 Name 名称冲突
+
     return formula //.toUpperCase()
+  }
+}
+
+// ~ 聚合公式
+// eslint-disable-next-line no-unused-vars
+class FormulaAggregation extends FormulaCalc {
+  handleInput(v) {
+    if (typeof v === 'object') {
+      const that = this
+      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v.name}}" data-name="${v.label}">{${v.label}}<i></span>`)
+      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
+      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
+        $a.on('click', function () {
+          that._changeCalcMode(this)
+        })
+      })
+      $field.appendTo(this._$formula)
+      $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
+    } else {
+      super.handleInput(v)
+    }
+  }
+
+  _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
+  }
+
+  confirm() {
+    const expr = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        const $this = $(this)
+        const v = $this.data('v')
+        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+        else expr.push(v)
+      })
+
+    let formula
+    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
+    else formula = expr.join('')
+
+    const that = this
+    function _onConfirm() {
+      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
+      that.hide()
+    }
+
+    if (formula && this.props.verifyFormula) {
+      verifyFormula(formula, this.props.entity, _onConfirm)
+    } else {
+      _onConfirm()
+    }
+  }
+
+  static CALC_MODES = {
+    SUM: $L('求和'),
+    COUNT: $L('计数'),
+    COUNT2: $L('去重计数'),
+    AVG: $L('平均值'),
+    MAX: $L('最大值'),
+    MIN: $L('最小值'),
+    FORMULA: $L('计算公式'),
+  }
+
+  /**
+   * 公式文本化
+   *
+   * @param {*} formula
+   * @param {*} fields
+   * @returns
+   */
+  static textFormula(formula, fields) {
+    if (!formula) return ''
+
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`\\{${field.name}\\}`, 'ig'), `{${field.label}}`)
+      formula = formula.replace(new RegExp(`\\{${field.name}\\$`, 'ig'), `{${field.label}$`)
+    }
+
+    const keys = Object.keys(FormulaAggregation.CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
+    })
+    return formula //.toUpperCase()
+  }
+
+  /**
+   * @param {*} name
+   * @param {*} fields
+   * @returns
+   */
+  static getLabel(name, fields) {
+    const x = fields.find((x) => x.name === name)
+    return x ? x.label : `[${name.toUpperCase()}]`
   }
 }
 
@@ -214,95 +318,5 @@ class FormulaDate extends RbAlert {
 
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(`{${expr}}`)
     this.hide()
-  }
-}
-
-// ~ 聚合公式
-// eslint-disable-next-line no-unused-vars
-class FormulaAggregation extends FormulaCalc {
-  handleInput(v) {
-    if (typeof v === 'object') {
-      const that = this
-      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
-      const $aggrMenu = $('<div class="dropdown-menu dropdown-menu-sm"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($aggrMenu)
-        $a.on('click', function () {
-          that._changeCalcMode(this)
-        })
-      })
-      $field.appendTo(this._$formula)
-      $aggrMenu.find('a:eq(1)').trigger('click') // default:SUM
-    } else {
-      super.handleInput(v)
-    }
-  }
-
-  _changeCalcMode(el) {
-    el = $(el)
-    const $field = el.parent().prev()
-    const mode = el.data('mode')
-    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
-    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
-  }
-
-  confirm() {
-    const expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        const $this = $(this)
-        const v = $this.data('v')
-        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else expr.push(v)
-      })
-
-    let formula
-    if ($(this._$formulaInput).val()) formula = $(this._$formulaInput).val()
-    else formula = expr.join('')
-
-    const that = this
-    function _onConfirm() {
-      typeof that.props.onConfirm === 'function' && that.props.onConfirm(formula)
-      that.hide()
-    }
-
-    if (formula && this.props.verifyFormula) {
-      verifyFormula(formula, this.props.entity, _onConfirm)
-    } else {
-      _onConfirm()
-    }
-  }
-
-  static CALC_MODES = {
-    SUM: $L('求和'),
-    COUNT: $L('计数'),
-    COUNT2: $L('去重计数'),
-    AVG: $L('平均值'),
-    MAX: $L('最大值'),
-    MIN: $L('最小值'),
-    FORMULA: $L('计算公式'),
-  }
-
-  /**
-   * 公式文本化
-   *
-   * @param {*} formula
-   * @param {*} fields
-   * @returns
-   */
-  static textFormula(formula, fields) {
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`\\{${field[0]}\\}`, 'ig'), `{${field[1]}}`)
-      formula = formula.replace(new RegExp(`\\{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
-    }
-
-    const keys = Object.keys(FormulaAggregation.CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
-    })
-    return formula.toUpperCase()
   }
 }

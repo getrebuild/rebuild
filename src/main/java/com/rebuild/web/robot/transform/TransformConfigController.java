@@ -159,7 +159,12 @@ public class TransformConfigController extends BaseController {
         if (sourceType) {
             fields = MetaFormatter.buildFieldsWithRefs(entity, 3, true, field -> {
                 if (field instanceof EasyField) {
-                    return ((EasyField) field).getDisplayType() == DisplayType.BARCODE;
+                    EasyField easyField = (EasyField) field;
+                    int c = easyField.getDisplayType() == DisplayType.REFERENCE
+                            ? easyField.getRawMeta().getReferenceEntity().getEntityCode() : 0;
+
+                    return easyField.getDisplayType() == DisplayType.BARCODE
+                            || c == EntityHelper.RobotApprovalConfig;
                 }
                 return false;
             });
