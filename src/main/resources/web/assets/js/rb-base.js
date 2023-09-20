@@ -383,29 +383,6 @@ var $random = function (prefix, alphabetic, maxLength) {
 }
 
 /**
- * 分页计算
- */
-var $pages = function (tp, cp) {
-  var pages = []
-  if (tp <= 8) {
-    for (var i = 1; i <= tp; i++) pages.push(i)
-    return pages
-  }
-  if (cp > tp) cp = tp
-  if (cp <= 4) cp = 4
-  var begin = cp - 2,
-    end = cp + 3
-  if (begin < 1) begin = 1
-  if (end > tp) end = tp
-  if (begin > 1) pages.push(1)
-  if (begin > 2) pages.push('.')
-  for (var j = begin; j < end; j++) pages.push(j)
-  if (end <= tp - 1) pages.push('.')
-  if (end <= tp) pages.push(tp)
-  return pages
-}
-
-/**
  * 是否相同。兼容对象或数组
  */
 var $same = function (a, b) {
