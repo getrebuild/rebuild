@@ -28,6 +28,13 @@ $(document).ready(() => {
     })
   $('.J_startHour2').val('23')
 
+  $('.on-timers select, .on-timers input').on('change', () => {
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
+      console.log(res)
+    })
+  })
+
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512, 1024, 2048]).each(function () {
       let mask = this
