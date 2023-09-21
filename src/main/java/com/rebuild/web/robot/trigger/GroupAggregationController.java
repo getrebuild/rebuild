@@ -62,6 +62,11 @@ public class GroupAggregationController extends BaseController {
             return MetadataHelper.isApprovalField(field.getName());
         });
 
+        JSONArray tmp = new JSONArray();
+        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
+        tmp.addAll(sourceFields);
+        sourceFields = tmp;
+
         return JSONUtils.toJSONObject(
                 new String[] { "targetEntities", "sourceGroupFields", "sourceFields" },
                 new Object[] { entities, sourceGroupFields, sourceFields });

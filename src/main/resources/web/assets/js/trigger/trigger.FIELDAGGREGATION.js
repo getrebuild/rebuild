@@ -193,7 +193,9 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
-      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      if (content.stopPropagation === true) {
+        $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
+      }
       this.saveAdvFilter(content.dataFilter)
     }
   }
@@ -215,7 +217,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       } else {
         // init
         this.setState({ sourceFields: res.data.source }, () => {
-          let $s2sf, $s2cm
+          let $s2sf, $s2cm, $s2tf
 
           $s2sf = $(this._$sourceField)
             .select2({ placeholder: $L('选择聚合字段') })
@@ -224,14 +226,14 @@ class ContentFieldAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let cm = Object.keys(FormulaAggregation.CALC_MODES)
+              let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
               if (['DATE', 'DATETIME'].includes(sf.type)) {
-                cm = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
-                cm = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               }
 
-              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+              this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
             })
 
           $s2cm = $(this._$calcMode)
@@ -244,21 +246,24 @@ class ContentFieldAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+              let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
               if ('RBJOIN' === cm) {
-                fs = this.__targetFieldsCache.filter((x) => {
+                tfAllow = this.__targetFieldsCache.filter((x) => {
                   if ('NTEXT' === x.type) return true
                   if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]
+                  if ('FILE' === x.type) return true
                   return false
                 })
-              } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2'].includes(cm)) {
-                fs = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
+              } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2', 'FORMULA'].includes(cm)) {
+                tfAllow = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
               }
 
-              this.setState({ targetFields: fs })
+              this.setState({ targetFields: tfAllow })
             })
 
-          const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
+          $s2tf = $(this._$targetField)
+            .select2({ placeholder: $L('选择目标字段') })
+            .on('change', () => {})
 
           // 优先显示
           const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
@@ -284,10 +289,10 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   showFormula() {
-    const fs = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
+    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
     renderRbcomp(
       <FormulaAggregation
-        fields={fs}
+        fields={sfAllow}
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}

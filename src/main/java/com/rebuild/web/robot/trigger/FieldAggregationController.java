@@ -90,7 +90,7 @@ public class FieldAggregationController extends BaseController {
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity,
                     DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
-                    DisplayType.N2NREFERENCE, DisplayType.NTEXT)) {
+                    DisplayType.N2NREFERENCE, DisplayType.NTEXT, DisplayType.FILE)) {
                 EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (easyField.isBuiltin()) continue;
 

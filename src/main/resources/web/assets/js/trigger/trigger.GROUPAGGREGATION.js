@@ -219,6 +219,12 @@ class ContentGroupAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
+                  <span className="custom-control-label">{$L('禁用传播')}</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -272,6 +278,9 @@ class ContentGroupAggregation extends ActionContentSpec {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
+      if (content.stopPropagation === true) {
+        $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
+      }
       this.saveAdvFilter(content.dataFilter)
     } else {
       $(this._$autoCreate).attr('checked', true)
@@ -304,24 +313,27 @@ class ContentGroupAggregation extends ActionContentSpec {
         // init
         this.setState({ ...res.data }, () => {
           // 分组字段关联
+          let $s2tgf, $s2sgf
 
-          const $s2tgf = $(this._$targetGroupField)
+          $s2tgf = $(this._$targetGroupField)
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => {
-              let stf = $s2tgf.val()
-              if (!stf) return
-              stf = this.state.targetGroupFields.find((x) => x.name === stf)
+              let tgf = $s2tgf.val()
+              if (!tgf) return
+              tgf = this.state.targetGroupFields.find((x) => x.name === tgf)
 
-              // 仅同类型的字段
-              // DATE DATETIME 兼容
-              const fs = this.__sourceGroupFieldsCache.filter((x) => {
-                if (stf.type === 'DATE' && x.type === 'DATETIME') return true
-                if (stf.type === 'DATETIME' && x.type === 'DATE') return true
-                return x.type === stf.type
+              // 仅同类型的字段（DATE DATETIME 兼容）
+              const sgfAllow = this.__sourceGroupFieldsCache.filter((x) => {
+                if (tgf.type === 'DATE' && x.type === 'DATETIME') return true
+                if (tgf.type === 'DATETIME' && x.type === 'DATE') return true
+                return x.type === tgf.type
               })
-              this.setState({ sourceGroupFields: fs })
+              this.setState({ sourceGroupFields: sgfAllow })
             })
-          const $s2sgf = $(this._$sourceGroupField).select2({ placeholder: $L('选择源字段') })
+
+          $s2sgf = $(this._$sourceGroupField)
+            .select2({ placeholder: $L('选择源字段') })
+            .on('change', () => {})
 
           $s2tgf.trigger('change')
 
@@ -339,17 +351,24 @@ class ContentGroupAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let cm = Object.keys(FormulaAggregation.CALC_MODES)
-              if (!['NUMBER', 'DECIMAL'].includes(sf.type)) {
-                cm = ['COUNT', 'COUNT2', 'RBJOIN']
-
-                let tf = $s2tf.val()
-                tf = this.__targetFieldsCache.find((x) => x.name === tf)
-                if (['NUMBER', 'DECIMAL'].includes(tf.type)) {
-                  cm = ['COUNT', 'COUNT2', 'FORMULA', 'RBJOIN']
-                }
+              let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
+              if (['DATE', 'DATETIME'].includes(sf.type)) {
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+              } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               }
-              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+
+              this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
+
+              // if (!['NUMBER', 'DECIMAL'].includes(sf.type)) {
+              //   cmAllow = ['COUNT', 'COUNT2', 'RBJOIN']
+
+              //   let tf = $s2tf.val()
+              //   tf = this.__targetFieldsCache.find((x) => x.name === tf)
+              //   if (['NUMBER', 'DECIMAL'].includes(tf.type)) {
+              //     cmAllow = ['COUNT', 'COUNT2', 'FORMULA', 'RBJOIN']
+              //   }
+              // }
             })
 
           $s2cm = $(this._$calcMode)
@@ -362,21 +381,44 @@ class ContentGroupAggregation extends ActionContentSpec {
               sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let fs
+              let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
               if ('RBJOIN' === cm) {
-                fs = this.__targetFieldsCache.filter((x) => {
+                tfAllow = this.__targetFieldsCache.filter((x) => {
                   if ('NTEXT' === x.type) return true
-                  if ('N2NREFERENCE' === x.type) return x.type === sf.type
+                  if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]
+                  if ('FILE' === x.type) return true
                   return false
                 })
-              } else {
-                fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+              } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2', 'FORMULA'].includes(cm)) {
+                tfAllow = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
               }
 
-              this.setState({ targetFields: fs })
+              this.setState({ targetFields: tfAllow })
+
+              // let fs
+              // if ('RBJOIN' === cm) {
+              //   fs = this.__targetFieldsCache.filter((x) => {
+              //     if ('NTEXT' === x.type) return true
+              //     if ('N2NREFERENCE' === x.type) return x.type === sf.type
+              //     return false
+              //   })
+              // } else {
+              //   fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+              // }
             })
 
-          $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
+          $s2tf = $(this._$targetField)
+            .select2({ placeholder: $L('选择目标字段') })
+            .on('change', () => {})
+
+          // 优先显示
+          const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+          if (useNum) {
+            $s2sf.val(useNum.name)
+          } else {
+            const useDate = this.__sourceFieldsCache.find((x) => ['DATE', 'DATETIME'].includes(x.type))
+            if (useDate) $s2sf.val(useDate.name)
+          }
 
           $s2sf.trigger('change')
 
@@ -406,10 +448,10 @@ class ContentGroupAggregation extends ActionContentSpec {
   }
 
   showFormula() {
-    const fs = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
+    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
     renderRbcomp(
       <FormulaAggregation
-        fields={fs}
+        fields={sfAllow}
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
@@ -494,6 +536,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       autoCreate: $(this._$autoCreate).prop('checked'),
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
+      stopPropagation: $(this._$stopPropagation).prop('checked'),
       groupFields: this.state.groupFields || [],
       fillbackField: $(this._$fillbackField).val() || null,
     }
