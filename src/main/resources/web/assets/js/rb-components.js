@@ -406,23 +406,32 @@ class RbHighbar extends React.Component {
 }
 
 // ~~ 提示条
-function RbAlertBox(props) {
-  const type = (props || {}).type || 'warning'
-  const icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+class RbAlertBox extends React.Component {
+  render() {
+    const props = this.props
+    const type = (props || {}).type || 'warning'
+    let icon = props.icon
+    if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
 
-  return (
-    <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
-      <div className="icon">
-        <i className={`zmdi zmdi-${icon}`} />
+    return (
+      <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`} ref={(c) => (this._element = c)}>
+        <div className="icon">
+          <i className={`zmdi zmdi-${icon}`} />
+        </div>
+        <div className="message">
+          <a className="close" onClick={() => this._handleClose()} title={$L('关闭')}>
+            <i className="zmdi zmdi-close" />
+          </a>
+          <div>{props.message || 'INMESSAGE'}</div>
+        </div>
       </div>
-      <div className="message">
-        <a className="close" data-dismiss="alert" onClick={() => typeof props.onClose === 'function' && props.onClose()} title={$L('关闭')}>
-          <i className="zmdi zmdi-close" />
-        </a>
-        <p>{props.message || 'INMESSAGE'}</p>
-      </div>
-    </div>
-  )
+    )
+  }
+
+  _handleClose() {
+    $unmount($(this._element).parent(), 10, true)
+    typeof this.props.onClose === 'function' && this.props.onClose()
+  }
 }
 
 // ~~ 加载动画 @see spinner.html

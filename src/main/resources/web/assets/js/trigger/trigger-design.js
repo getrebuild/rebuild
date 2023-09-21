@@ -31,7 +31,18 @@ $(document).ready(() => {
   $('.on-timers select, .on-timers input').on('change', () => {
     const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
     $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
-      console.log(res)
+      renderRbcomp(
+        <RbAlertBox
+          icon="time"
+          message={
+            <div>
+              <span className="mr-1">{$L('预计执行时间')}</span>
+              <code>{res.data.join(', ')}</code>
+            </div>
+          }
+        />,
+        $('.eval-exec-times')[0]
+      )
     })
   })
 

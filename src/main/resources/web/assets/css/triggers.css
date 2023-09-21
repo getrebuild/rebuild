@@ -551,3 +551,9 @@ textarea.formula-code + .fields-vars {
   font-size: 1rem;
   padding: 4px 10px;
 }
+
+.eval-exec-times .alert {
+  margin-top: 15px;
+  margin-bottom: 0;
+  width: auto;
+}
