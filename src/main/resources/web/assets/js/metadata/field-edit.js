@@ -592,7 +592,7 @@ const _handleNumber = function (calcFormula) {
       const fs = []
       res.data.forEach((item) => {
         if ((item.type === 'NUMBER' || item.type === 'DECIMAL') && item.name !== wpc.fieldName) {
-          fs.push([item.name, item.label])
+          fs.push(item)
         }
       })
 

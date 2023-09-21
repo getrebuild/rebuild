@@ -379,7 +379,7 @@ class FieldFormula extends React.Component {
     const fieldVars = []
     this.props.fields.forEach((item) => {
       if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
-        fieldVars.push([item.name, item.label, item.type])
+        fieldVars.push(item)
       }
     })
 

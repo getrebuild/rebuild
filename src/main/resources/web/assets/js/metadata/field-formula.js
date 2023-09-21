@@ -51,7 +51,9 @@ class FormulaCalc extends RbAlert {
                 {this.props.fields.map((item) => {
                   return (
                     <li key={item.name} className={`flag-${item.type || 'N'}`}>
-                      <a onClick={() => this.handleInput(item)}>{item.label}</a>
+                      <a onClick={() => this.handleInput(item)} title={item.label}>
+                        {item.label}
+                      </a>
                     </li>
                   )
                 })}
@@ -139,7 +141,7 @@ class FormulaCalc extends RbAlert {
   }
 }
 
-// ~ 聚合公式
+// ~ 聚合公式编辑器
 // eslint-disable-next-line no-unused-vars
 class FormulaAggregation extends FormulaCalc {
   handleInput(v) {
@@ -241,7 +243,7 @@ class FormulaAggregation extends FormulaCalc {
   }
 }
 
-// ~~ 日期公式
+// ~~ 日期公式编辑器
 // eslint-disable-next-line no-unused-vars
 class FormulaDate extends RbAlert {
   constructor(props) {

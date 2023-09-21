@@ -359,16 +359,6 @@ class ContentGroupAggregation extends ActionContentSpec {
               }
 
               this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
-
-              // if (!['NUMBER', 'DECIMAL'].includes(sf.type)) {
-              //   cmAllow = ['COUNT', 'COUNT2', 'RBJOIN']
-
-              //   let tf = $s2tf.val()
-              //   tf = this.__targetFieldsCache.find((x) => x.name === tf)
-              //   if (['NUMBER', 'DECIMAL'].includes(tf.type)) {
-              //     cmAllow = ['COUNT', 'COUNT2', 'FORMULA', 'RBJOIN']
-              //   }
-              // }
             })
 
           $s2cm = $(this._$calcMode)
@@ -394,17 +384,6 @@ class ContentGroupAggregation extends ActionContentSpec {
               }
 
               this.setState({ targetFields: tfAllow })
-
-              // let fs
-              // if ('RBJOIN' === cm) {
-              //   fs = this.__targetFieldsCache.filter((x) => {
-              //     if ('NTEXT' === x.type) return true
-              //     if ('N2NREFERENCE' === x.type) return x.type === sf.type
-              //     return false
-              //   })
-              // } else {
-              //   fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
-              // }
             })
 
           $s2tf = $(this._$targetField)
@@ -455,7 +434,6 @@ class ContentGroupAggregation extends ActionContentSpec {
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
-        verifyFormula={false}
         entity={this.props.sourceEntity}
       />
     )
