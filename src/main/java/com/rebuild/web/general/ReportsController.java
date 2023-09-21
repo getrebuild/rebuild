@@ -65,9 +65,10 @@ public class ReportsController extends BaseController {
 
     @RequestMapping("report/available")
     public JSON availableReports(@PathVariable String entity, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         JSONArray res = DataReportManager.instance.getReports(
                 MetadataHelper.getEntity(entity),
-                getIntParameter(request, "type", DataReportManager.TYPE_RECORD));
+                getIntParameter(request, "type", DataReportManager.TYPE_RECORD), user);
 
         // 名称排序
         res.sort((o1, o2) -> {

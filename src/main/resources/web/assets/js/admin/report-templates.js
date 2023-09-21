@@ -175,6 +175,16 @@ class ReportEditor extends ConfigFormDlg {
             </label>
           </div>
         </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('谁能使用这个报表')}</label>
+          <div className="col-sm-7">
+            <UserSelector
+              ref={(c) => (this._UserSelector = c)}
+              defaultValue={this.props.extraDefinition && this.props.extraDefinition.visibleUsers ? this.props.extraDefinition.visibleUsers.split(',') : null}
+            />
+            <p className="form-text">{$L('留空表示所有用户均可使用')}</p>
+          </div>
+        </div>
 
         {this.props.id && (
           <div className="form-group row">
@@ -315,6 +325,8 @@ class ReportEditor extends ConfigFormDlg {
     post.extraDefinition = {
       outputType: output.length === 0 ? 'excel' : output.join(','),
       templateVersion: (this.props.extraDefinition || {}).templateVersion || 2,
+      // v3.5
+      visibleUsers: this._UserSelector.val().join(','),
     }
 
     if (this.props.id) {

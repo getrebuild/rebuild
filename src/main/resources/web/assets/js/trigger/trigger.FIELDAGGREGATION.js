@@ -53,7 +53,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                       <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.__targetFieldsCache)}</span>
+                            <span className="badge badge-warning">{FormulaAggregation.getLabel(item.targetField, this.__targetFieldsCache)}</span>
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
@@ -61,7 +61,9 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA' ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
+                              {item.calcMode === 'FORMULA'
+                                ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
+                                : FormulaAggregation.getLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <i className="zmdi zmdi-close" />
@@ -77,8 +79,8 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
-                        <option key={item[0]} value={item[0]}>
-                          {item[1]}
+                        <option key={item.name} value={item.name}>
+                          {item.label}
                         </option>
                       )
                     })}
@@ -107,8 +109,8 @@ class ContentFieldAggregation extends ActionContentSpec {
                     <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
-                          <option key={item[0]} value={item[0]}>
-                            {item[1]}
+                          <option key={item.name} value={item.name}>
+                            {item.label}
                           </option>
                         )
                       })}
@@ -131,7 +133,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.dataAdvFilter()}>
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
-              <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
+              <div className="form-text mt-0">{$L('符合聚合数据条件的记录才会被聚合')}</div>
             </div>
           </div>
 
@@ -191,7 +193,9 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
-      $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
+      if (content.stopPropagation === true) {
+        $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
+      }
       this.saveAdvFilter(content.dataFilter)
     }
   }
@@ -213,23 +217,23 @@ class ContentFieldAggregation extends ActionContentSpec {
       } else {
         // init
         this.setState({ sourceFields: res.data.source }, () => {
-          let $s2sf, $s2cm
+          let $s2sf, $s2cm, $s2tf
 
           $s2sf = $(this._$sourceField)
             .select2({ placeholder: $L('选择聚合字段') })
             .on('change', (e) => {
               let sf = e.target.value
-              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let cm = Object.keys(FormulaAggregation.CALC_MODES)
-              if (['DATE', 'DATETIME'].includes(sf[2])) {
-                cm = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
-              } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf[2])) {
-                cm = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+              let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
+              if (['DATE', 'DATETIME'].includes(sf.type)) {
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+              } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
               }
 
-              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+              this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
             })
 
           $s2cm = $(this._$calcMode)
@@ -239,31 +243,35 @@ class ContentFieldAggregation extends ActionContentSpec {
               this.setState({ calcMode: cm })
 
               let sf = $s2sf.val()
-              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
+              let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
               if ('RBJOIN' === cm) {
-                fs = this.__targetFieldsCache.filter((x) => {
-                  if ('NTEXT' === x[2]) return true
-                  else return 'N2NREFERENCE' === x[2] && x[3] === sf[3]
+                tfAllow = this.__targetFieldsCache.filter((x) => {
+                  if ('NTEXT' === x.type) return true
+                  if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]
+                  if ('FILE' === x.type) return true
+                  return false
                 })
-              } else if (['DATE', 'DATETIME'].includes(sf[2]) && !['COUNT', 'COUNT2'].includes(cm)) {
-                fs = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x[2]))
+              } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2', 'FORMULA'].includes(cm)) {
+                tfAllow = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
               }
 
-              this.setState({ targetFields: fs })
+              this.setState({ targetFields: tfAllow })
             })
 
-          const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
+          $s2tf = $(this._$targetField)
+            .select2({ placeholder: $L('选择目标字段') })
+            .on('change', () => {})
 
           // 优先显示
-          const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
+          const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
           if (useNum) {
-            $s2sf.val(useNum[0])
+            $s2sf.val(useNum.name)
           } else {
-            const useDate = this.__sourceFieldsCache.find((x) => ['DATE', 'DATETIME'].includes(x[2]))
-            if (useDate) $s2sf.val(useDate[0])
+            const useDate = this.__sourceFieldsCache.find((x) => ['DATE', 'DATETIME'].includes(x.type))
+            if (useDate) $s2sf.val(useDate.name)
           }
 
           $s2sf.trigger('change')
@@ -281,14 +289,13 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   showFormula() {
-    const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
+    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
     renderRbcomp(
       <FormulaAggregation
-        fields={fs}
+        fields={sfAllow}
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
-        verifyFormula
         entity={this.props.sourceEntity}
       />
     )
@@ -300,7 +307,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     } else {
       const that = this
       renderRbcomp(
-        <AdvFilter title={$L('数据过滤条件')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
+        <AdvFilter title={$L('聚合数据条件')} inModal canNoFilters entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
         null,
         function () {
           that._advFilter = this
@@ -365,11 +372,6 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     return content
   }
-}
-
-const _getFieldLabel = function (field, fields) {
-  const x = fields.find((x) => x[0] === field)
-  return x ? x[1] : `[${field.toUpperCase()}]`
 }
 
 // eslint-disable-next-line no-undef

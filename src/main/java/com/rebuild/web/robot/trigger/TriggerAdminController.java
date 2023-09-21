@@ -24,6 +24,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.rbv.trigger.TriggerByTimerJob;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
@@ -58,7 +59,7 @@ public class TriggerAdminController extends BaseController {
                                    HttpServletResponse response) throws IOException {
         ID configId = ID.valueOf(id);
         Object[] config = Application.createQuery(
-                "select belongEntity,actionType,when,whenFilter,actionContent,priority,name,whenTimer from RobotTriggerConfig where configId = ?")
+                "select belongEntity,actionType,when,whenFilter,actionContent,priority,name,whenTimer,isDisabled from RobotTriggerConfig where configId = ?")
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
@@ -88,6 +89,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
         mv.getModel().put("lockedUser", JSON.toJSONString(CommonsLock.getLockedUserFormat(configId)));
+        mv.getModel().put("isDisabled", config[8] == null ? false : config[8]);
 
         return mv;
     }
@@ -169,5 +171,12 @@ public class TriggerAdminController extends BaseController {
         }
 
         return null;
+    }
+
+    @GetMapping("trigger/eval-trigger-times")
+    public JSON evalTriggerTimes(HttpServletRequest request) {
+        String whenTimer = getParameterNotNull(request, "whenTimer");
+        List<String> s = TriggerByTimerJob.getInTriggerTime(whenTimer);
+        return (JSON) JSON.toJSON(s);
     }
 }

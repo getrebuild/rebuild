@@ -12,18 +12,18 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,62 +61,33 @@ public class MetadataGetting extends BaseController {
     }
 
     @GetMapping("fields")
-    public List<JSONObject> fields(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        Entity entityMeta = MetadataHelper.getEntity(entity);
+    public JSON fields(HttpServletRequest request) {
+        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
         // 返回引用实体的字段
-        boolean appendRefFields = "2".equals(getParameter(request, "deep"));
+        int appendRefFields = getIntParameter(request, "deep", 0);
 
-        List<JSONObject> data = new ArrayList<>();
-        putFields(data, entityMeta);
+        JSONArray res = MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, field -> {
+            if (!field.isQueryable()) return true;
 
-        // 追加二级引用字段
-        if (appendRefFields) {
-            for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
-                if (!field.isQueryable()) continue;
-
-                int code = field.getReferenceEntity().getEntityCode();
-                if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) {
-                    if (field.getName().equals(EntityHelper.OwningUser)
+            if (field instanceof Field) {
+                int c = ((Field) field).getReferenceEntity().getEntityCode();
+                if (MetadataHelper.isBizzEntity(c) || c == EntityHelper.RobotApprovalConfig) {
+                    return !(field.getName().equals(EntityHelper.OwningUser)
                             || field.getName().equals(EntityHelper.OwningDept)
-                            || field.getName().equals(EntityHelper.ApprovalLastUser)) {
-                        // NOTE 特殊放行
-                    } else {
-                        continue;
-                    }
+                            || field.getName().equals(EntityHelper.ApprovalLastUser));
                 }
-
-                putFields(data, field);
-            }
-        }
-
-        return data;
-    }
-
-    private void putFields(List<JSONObject> dest, BaseMeta entityOrField) {
-        Entity useEntity;
-        Field parentRefField = null;
-        String parentRefFieldLabel = null;
-
-        if (entityOrField instanceof Field) {
-            parentRefField = (Field) entityOrField;
-            parentRefFieldLabel = EasyMetaFactory.getLabel(parentRefField);
-            useEntity = parentRefField.getReferenceEntity();
-        } else {
-            useEntity = (Entity) entityOrField;
-        }
-
-        for (Field field : MetadataSorter.sortFields(useEntity)) {
-            if (!field.isQueryable()) continue;
-
-            JSONObject map = (JSONObject) EasyMetaFactory.valueOf(field).toJSON();
-            if (parentRefField != null) {
-                map.put("name", parentRefField.getName() + "." + map.get("name"));
-                map.put("label", parentRefFieldLabel + "." + map.get("label"));
             }
 
-            dest.add(map);
+            return false;
+        });
+
+        for (Object o : res) {
+            ((JSONObject) o).remove("creatable");
+            ((JSONObject) o).remove("nullable");
+            ((JSONObject) o).remove("updatable");
         }
+
+        return res;
     }
 
     // 哪些实体引用了指定实体

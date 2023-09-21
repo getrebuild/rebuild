@@ -9,6 +9,7 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.MultiSelectManager;
@@ -22,6 +23,10 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author ZHAO
@@ -70,26 +75,119 @@ public class MetaFormatter {
     }
 
     /**
-     * @param refField
+     * @param entity
+     * @param deep
+     * @param filter
      * @return
      */
-    public static JSONArray buildFields(Field refField) {
-        Entity refEntity = refField.getReferenceEntity();
-        if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) return null;
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, Predicate<BaseMeta> filter) {
+        return buildFieldsWithRefs(entity, deep, false, filter);
+    }
 
-        String refFieldName = refField.getName() + ".";
-        String refFieldLabel = EasyMetaFactory.getLabel(refField) + ".";
-
+    /**
+     * @param entity
+     * @param deep
+     * @param riching
+     * @param filter
+     * @return
+     */
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, Predicate<BaseMeta> filter) {
         JSONArray res = new JSONArray();
-        for (Field field : MetadataSorter.sortFields(refEntity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
 
-            JSONObject subField = (JSONObject) easyField.toJSON();
-            subField.put("name", refFieldName + subField.getString("name"));
-            subField.put("label", refFieldLabel + subField.getString("label"));
-            res.add(subField);
+        // 一级
+        for (Field field : MetadataSorter.sortFields(entity)) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (filter.test(easyField)) continue;
+
+            res.add(buildField(easyField, null, riching));
         }
+        if (deep < 2) return res;
+
+        List<Object[]> deep3Refs = new ArrayList<>();
+
+        // 二级
+        for (Field field2 : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
+            if (filter.test(field2)) continue;
+
+            Entity entity2 = field2.getReferenceEntity();
+            if (entity2.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
+
+            EasyField easyField2 = EasyMetaFactory.valueOf(field2);
+            String[] parents = new String[] {
+                    easyField2.getName(), easyField2.getLabel()
+            };
+
+            for (Field field : MetadataSorter.sortFields(entity2)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (filter.test(easyField)) continue;
+
+                res.add(buildField(easyField, parents, riching));
+
+                if (deep >= 3 && easyField.getDisplayType() == DisplayType.REFERENCE) {
+                    deep3Refs.add(new Object[] { parents[0], parents[1], easyField });
+                }
+            }
+        }
+        if (deep < 3) return res;
+
+        // 最多三级
+        for (Object[] d : deep3Refs) {
+            EasyField easyField3 = (EasyField) d[2];
+            if (filter.test(easyField3.getRawMeta())) continue;
+
+            Entity entity3 = easyField3.getRawMeta().getReferenceEntity();
+            if (entity3.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
+
+            String[] parents = new String[] {
+                    d[0] + "." + easyField3.getName(), d[1] + "." + easyField3.getLabel()
+            };
+
+            for (Field field : MetadataSorter.sortFields(entity3)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (filter.test(easyField)) continue;
+
+                JSONObject item = buildField(easyField, parents, riching);
+                String name = item.getString("name");
+
+                // 特殊过滤（对业务没什么用）
+                if (name.contains("modifiedBy.modifiedBy")) continue;
+                if (name.contains("createdBy.createdBy")) continue;
+                if (name.contains("createdBy.modifiedBy")) continue;
+                if (name.contains("modifiedBy.createdBy")) continue;
+                if (name.endsWith(".approvalLastUser.createdBy")) continue;
+                if (name.endsWith(".approvalLastUser.createdOn")) continue;
+                if (name.endsWith(".approvalLastUser.modifiedBy")) continue;
+                if (name.endsWith(".approvalLastUser.modifiedOn")) continue;
+                if (name.endsWith(".owningUser.createdBy")) continue;
+                if (name.endsWith(".owningUser.createdOn")) continue;
+                if (name.endsWith(".owningUser.modifiedBy")) continue;
+                if (name.endsWith(".owningUser.modifiedOn")) continue;
+                if (name.endsWith(".owningDept.createdBy")) continue;
+                if (name.endsWith(".owningDept.createdOn")) continue;
+                if (name.endsWith(".owningDept.modifiedBy")) continue;
+                if (name.endsWith(".owningDept.modifiedOn")) continue;
+                if (name.endsWith(".deptId.createdBy")) continue;
+                if (name.endsWith(".deptId.createdOn")) continue;
+                if (name.endsWith(".deptId.modifiedBy")) continue;
+                if (name.endsWith(".deptId.modifiedOn")) continue;
+                if (name.endsWith(".roleId.createdBy")) continue;
+                if (name.endsWith(".roleId.createdOn")) continue;
+                if (name.endsWith(".roleId.modifiedBy")) continue;
+                if (name.endsWith(".roleId.modifiedOn")) continue;
+
+                res.add(item);
+            }
+        }
+
         return res;
+    }
+
+    private static JSONObject buildField(EasyField field, String[] parentsField, boolean rich) {
+        JSONObject item = rich ? buildRichField(field) : (JSONObject) field.toJSON();
+        if (parentsField != null) {
+            item.put("name", parentsField[0] + "." + item.get("name"));
+            item.put("label", parentsField[1] + "." + item.get("label"));
+        }
+        return item;
     }
 }

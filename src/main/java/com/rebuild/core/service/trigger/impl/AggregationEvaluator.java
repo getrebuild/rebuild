@@ -216,14 +216,21 @@ public class AggregationEvaluator {
             if (n instanceof ID[]) {
                 CollectionUtils.addAll(nvList, (ID[]) n);
             } else if (n instanceof ID) {
-                nvList.add(n);
+                if (field.getType() == FieldType.PRIMARY) {
+                    nvList.add(n.toString());  // 保持主键
+                } else {
+                    nvList.add(n);
+                }
             } else {
                 Object v = easyField.wrapValue(n);
                 if (v == null) continue;
 
-                if (easyField.getDisplayType() == DisplayType.MULTISELECT) {
+                DisplayType dt = easyField.getDisplayType();
+                if (dt == DisplayType.MULTISELECT) {
                     JSONArray a = ((JSONObject) v).getJSONArray("text");
                     CollectionUtils.addAll(nvList, a);
+                } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+                    nvList.addAll((JSONArray) v);
                 } else {
                     nvList.add(v);
                 }
