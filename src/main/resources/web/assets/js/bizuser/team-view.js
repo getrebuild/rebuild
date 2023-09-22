@@ -82,11 +82,19 @@ class MemberList extends React.Component {
                 return (
                   <tr key={item[0]}>
                     <td className="user-avatar cell-detail user-info">
-                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
-                      <span>{item[1]}</span>
-                      <span className="cell-detail-description">{item[2] || '-'}</span>
+                      <a
+                        onClick={() => {
+                          window.RbViewPage && window.RbViewPage.clickView(`#!/View/User/${item[0]}`)
+                        }}>
+                        <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
+                        <span>{item[1]}</span>
+                        <span className="cell-detail-description">{item[2] || '-'}</span>
+                      </a>
                     </td>
-                    <td className="actions">
+                    <td className="cell-detail text-right" width="100">
+                      <div>{!item[3] && <em className="badge badge-danger badge-pill">{$L('未激活')}</em>}</div>
+                    </td>
+                    <td className="actions" width="60">
                       <a className="icon danger-hover" title={$L('删除')} onClick={() => this._removeMember(item[0])}>
                         <i className="zmdi zmdi-delete"></i>
                       </a>
@@ -126,7 +134,7 @@ class MemberList extends React.Component {
   componentDidMount = () => this.loadMembers()
 
   loadMembers() {
-    $.get(`/admin/bizuser/team-members?team=${this.props.id}`, (res) => {
+    $.get(`/admin/bizuser/group-members?id=${this.props.id}`, (res) => {
       const data = res.data || []
       this.setState({ members: data })
 

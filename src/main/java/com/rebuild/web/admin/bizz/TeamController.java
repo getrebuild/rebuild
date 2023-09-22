@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.bizz;
 
-import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.bizz.security.member.MemberGroup;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -15,11 +15,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.TeamService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +39,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/13
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/bizuser/")
 public class TeamController extends EntityController {
@@ -49,21 +52,6 @@ public class TeamController extends EntityController {
         JSON config = DataListManager.instance.getListFields("Team", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
         return mv;
-    }
-
-    @GetMapping("team-members")
-    public List<Object[]> getMembers(@IdParam(name = "team") ID teamId) {
-        Team team = Application.getUserStore().getTeam(teamId);
-
-        List<Object[]> members = new ArrayList<>();
-        for (Principal p : team.getMembers()) {
-            User user = (User) p;
-            members.add(new Object[] {
-                    user.getId(), user.getFullName(),
-                    user.getOwningDept() != null ? user.getOwningDept().getName() : null
-            });
-        }
-        return members;
     }
 
     @PostMapping("team-members-add")
@@ -81,5 +69,32 @@ public class TeamController extends EntityController {
     public RespBody deleteMembers(@IdParam(name = "team") ID teamId, @IdParam(name = "user") ID userId) {
         Application.getBean(TeamService.class).deleteMembers(teamId, Collections.singletonList(userId));
         return RespBody.ok();
+    }
+
+    @GetMapping("group-members")
+    public List<Object[]> getMembers(@IdParam ID groupId) {
+        MemberGroup group = null;
+        if (groupId.getEntityCode() == EntityHelper.Department) {
+            group = Application.getUserStore().getDepartment(groupId);
+        } else if (groupId.getEntityCode() == EntityHelper.Role) {
+            group = Application.getUserStore().getRole(groupId);
+        } else if (groupId.getEntityCode() == EntityHelper.Team) {
+            group = Application.getUserStore().getTeam(groupId);
+        } else {
+            log.warn("No group defined : {}", groupId);
+            return Collections.emptyList();
+        }
+
+        List<Object[]> members = new ArrayList<>();
+        for (Principal p : group.getMembers()) {
+            User user = (User) p;
+            members.add(new Object[] {
+                    user.getId(),
+                    user.getFullName(),
+                    user.getOwningDept() != null ? user.getOwningDept().getName() : null,
+                    user.isActive()
+            });
+        }
+        return members;
     }
 }
