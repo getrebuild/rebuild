@@ -28,9 +28,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,9 +71,9 @@ public class AggregationEvaluator {
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
             return evalFormula();
         }
-        // ONLY FieldAggregation
-        else if ("RBJOIN".equalsIgnoreCase(calcMode)) {
-            return evalRbJoin();
+        // for FieldAggregation/GroupAggregation
+        else if ("RBJOIN".equalsIgnoreCase(calcMode) || "RBJOIN2".equalsIgnoreCase(calcMode)) {
+            return evalRbJoin("RBJOIN2".equalsIgnoreCase(calcMode));
         }
 
         String sourceField = item.getString("sourceField");
@@ -193,9 +195,10 @@ public class AggregationEvaluator {
     /**
      * 智能连接
      *
+     * @param distinct 去重
      * @return
      */
-    private Object evalRbJoin() {
+    private Object evalRbJoin(boolean distinct) {
         String sourceField = item.getString("sourceField");
         Field field;
         if ((field = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) == null) {
@@ -205,9 +208,14 @@ public class AggregationEvaluator {
         String ql = String.format("select %s,%s from %s where %s",
                 sourceField, sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
         Object[][] array = Application.createQueryNoFilter(ql).array();
+        if (array.length == 0) return new Object[0];
 
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        List<Object> nvList = new ArrayList<>();
+
+        Collection<Object> nvList;
+        if (distinct) nvList = new LinkedHashSet<>();
+        else nvList = new ArrayList<>();
+
         for (Object[] o : array) {
             Object n = o[0];
             if (n == null) continue;
