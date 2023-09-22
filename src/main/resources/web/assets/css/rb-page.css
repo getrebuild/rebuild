@@ -5297,3 +5297,7 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .datetimepicker table tr .disabled:hover {
   color: #b3b3b3 !important;
 }
+
+.table.table-btm-line tbody {
+  border-bottom: 1px solid #dee2e6;
+}

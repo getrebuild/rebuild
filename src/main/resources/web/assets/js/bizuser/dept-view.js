@@ -41,19 +41,11 @@ class MemberList extends React.Component {
       )
     }
 
-    const depts = {}
-    this.state.members &&
-      this.state.members.forEach((item) => {
-        if (!item[2]) return
-        depts[item[2]] = (depts[item[2]] || 0) + 1
-      })
-
     return (
       <div>
-        <table className="table table-striped table-hover">
+        <table className="table table-striped table-hover table-btm-line">
           <tbody>
             {(this.state.members || []).map((item) => {
-              if (this.state.activeDept && this.state.activeDept !== item[2]) return null
               return (
                 <tr key={item[0]}>
                   <td className="user-avatar cell-detail user-info">
@@ -66,8 +58,8 @@ class MemberList extends React.Component {
                       <span className="cell-detail-description">{item[2] || '-'}</span>
                     </a>
                   </td>
-                  <td className="cell-detail text-right" width="100">
-                    <div>{!item[3] && <em className="badge badge-danger badge-pill">{$L('未激活')}</em>}</div>
+                  <td className="cell-detail text-right">
+                    <div>{!item[3] && <em className="badge badge-warning badge-pill">{$L('未激活')}</em>}</div>
                   </td>
                 </tr>
               )

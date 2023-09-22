@@ -75,7 +75,7 @@ class MemberList extends React.Component {
     return (
       <div className="row">
         <div className="col-9">
-          <table className="table table-striped table-hover">
+          <table className="table table-striped table-hover table-btm-line">
             <tbody>
               {(this.state.members || []).map((item) => {
                 if (this.state.activeDept && this.state.activeDept !== item[2]) return null
@@ -91,8 +91,8 @@ class MemberList extends React.Component {
                         <span className="cell-detail-description">{item[2] || '-'}</span>
                       </a>
                     </td>
-                    <td className="cell-detail text-right" width="100">
-                      <div>{!item[3] && <em className="badge badge-danger badge-pill">{$L('未激活')}</em>}</div>
+                    <td className="cell-detail text-right">
+                      <div>{!item[3] && <em className="badge badge-warning badge-pill">{$L('未激活')}</em>}</div>
                     </td>
                     <td className="actions" width="60">
                       <a className="icon danger-hover" title={$L('删除')} onClick={() => this._removeMember(item[0])}>

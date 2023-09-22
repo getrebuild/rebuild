@@ -29,6 +29,9 @@ $(document).ready(() => {
 
     $('.J_save').on('click', updatePrivileges)
     $('.J_copy-role').on('click', () => renderRbcomp(<CopyRoleTo roleId={roleId} />))
+
+    $('.nav-tabs li:eq(2)').removeClass('hide')
+    renderRbcomp(<MemberList id={roleId} />, 'tab-members', function () {})
   }
 
   // ENTITY
@@ -326,6 +329,63 @@ class CopyRoleTo extends RbModalHandler {
           }
         })
       },
+    })
+  }
+}
+
+// ~ 成员列表
+class MemberList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    if (this.state.members && this.state.members.length === 0) {
+      return (
+        <div className="list-nodata pt-8 mb-8">
+          <span className="zmdi zmdi-info-outline"></span>
+          <p>{$L('暂无使用用户')}</p>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        <table className="table table-striped table-hover table-btm-line">
+          <tbody>
+            {(this.state.members || []).map((item) => {
+              return (
+                <tr key={item[0]}>
+                  <td className="user-avatar cell-detail user-info">
+                    <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}`} target="_blank">
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
+                      <span>{item[1]}</span>
+                      <span className="cell-detail-description">{item[2] || '-'}</span>
+                    </a>
+                  </td>
+                  <td className="cell-detail text-right">
+                    <div>
+                      {!item[3] && <em className="badge badge-warning badge-pill">{$L('未激活')}</em>}
+                      {item[4] ? <em className="badge badge-light badge-pill">{$L('附加角色')}</em> : <em className="badge badge-light badge-pill">{$L('主角色')}</em>}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  componentDidMount = () => this.loadMembers()
+
+  loadMembers() {
+    $.get(`/admin/bizuser/group-members?id=${this.props.id}`, (res) => {
+      const data = res.data || []
+      this.setState({ members: data })
+
+      if (data.length > 0) {
+        $(`<span class="badge badge-pill badge-primary">${data.length}</span>`).appendTo($('.nav-tabs a:eq(2)'))
+      }
     })
   }
 }
