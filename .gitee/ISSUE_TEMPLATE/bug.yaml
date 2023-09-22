@@ -1,0 +1,52 @@
+name: 问题反馈
+description: 在使用中遇到了问题，并经过测试确信这个问题不是由于配置错误产生的。
+body:
+  - type: markdown
+    attributes:
+      value: 请简要陈述您要反馈的问题，记得包含重要关键词以便其他人能搜索到。
+  - type: markdown
+    attributes:
+      value: |
+        ----
+
+        ### **提交须知**
+        - 请严格按照问题反馈模板填写信息，如你未能按照模板要求填写，我们将不做处理，敬请谅解。
+
+        ----
+  - type: checkboxes
+    attributes:
+      label: 是否有人反馈过此问题？
+      options:
+        - label: 我已经搜索过了，确认此问题没有其他人反馈过。
+          required: true
+  - type: dropdown
+    attributes:
+      label: 是否使用官方发布包？
+      options:
+        - 是。我使用官方发布包
+        - 否。我使用自己修改过代码
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 问题描述
+      description: 请大致说一下这是个什么问题
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 问题重现步骤
+      description: 请详细描述如何重现这个问题
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 系统环境
+      description: 服务器软件版本信息和本地浏览器等信息
+      placeholder: |
+        REBUILD 版本
+        操作系统类型和版本
+        数据库类型和版本
+        浏览器类型和版本
+    validations:
+      required: true

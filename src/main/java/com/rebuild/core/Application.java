@@ -73,11 +73,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.4.2";
+    public static final String VER = "3.4.3";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3040207;
+    public static final int BUILD = 3040308;
 
     static {
         // Driver for DB
@@ -213,7 +213,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
-        if (lastBuild > 0 && lastBuild < BUILD) {
+        if (lastBuild > 0 && lastBuild != BUILD) {
             log.warn("Clean up the cache once when upgrading : {}", BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);

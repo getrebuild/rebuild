@@ -83,8 +83,6 @@ public class SysbaseHeartbeat {
         if (Math.abs(networkDateLeft) > 15) {
             log.warn("Server date offset : {} vs {}", networkDate, localDate);
             dangers.put(DateNotSync, String.valueOf(networkDateLeft));
-            // FIXME v3.4.2 暂时禁用
-            dangers.remove(DateNotSync);
         } else {
             dangers.remove(DateNotSync);
         }

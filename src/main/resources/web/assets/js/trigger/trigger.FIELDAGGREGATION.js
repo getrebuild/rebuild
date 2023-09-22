@@ -288,7 +288,6 @@ class ContentFieldAggregation extends ActionContentSpec {
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
-        verifyFormula
         entity={this.props.sourceEntity}
       />
     )
