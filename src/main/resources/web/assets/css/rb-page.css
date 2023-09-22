@@ -5240,6 +5240,10 @@ pre.unstyle {
   padding: 10px 0 10px 165px;
 }
 
+.liteform-wrap .form-text {
+  margin-bottom: 0;
+}
+
 /* fix btn-space compact */
 
 div.dataTables_wrapper div.dataTables_oper {
@@ -5292,4 +5296,8 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .datetimepicker table tr .disabled,
 .datetimepicker table tr .disabled:hover {
   color: #b3b3b3 !important;
+}
+
+.table.table-btm-line tbody {
+  border-bottom: 1px solid #dee2e6;
 }

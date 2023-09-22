@@ -9,6 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
+  RBJOIN2: $L('去重连接'),
 }
 
 // ~~ 分组聚合
@@ -353,9 +354,9 @@ class ContentGroupAggregation extends ActionContentSpec {
 
               let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
               if (['DATE', 'DATETIME'].includes(sf.type)) {
-                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'FORMULA']
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
-                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'FORMULA']
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'FORMULA']
               }
 
               this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
@@ -372,7 +373,7 @@ class ContentGroupAggregation extends ActionContentSpec {
               if (!sf) return
 
               let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
-              if ('RBJOIN' === cm) {
+              if ('RBJOIN' === cm || 'RBJOIN2' === cm) {
                 tfAllow = this.__targetFieldsCache.filter((x) => {
                   if ('NTEXT' === x.type) return true
                   if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]

@@ -867,9 +867,14 @@ class LiteFormModal extends RbModalHandler {
       },
     }
 
-    const $btn = $(this._$formAction).find('.btn').button('loading')
+    if (typeof this.props.onHandleSave === 'function') {
+      const s = this.props.onHandleSave(data2, this)
+      if (s === false) return
+    }
+
+    this.disabled(true)
     $.post('/app/entity/liteform/record-save', JSON.stringify(data2), (res) => {
-      $btn.button('reset')
+      this.disabled()
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
@@ -886,15 +891,21 @@ class LiteFormModal extends RbModalHandler {
     })
   }
 
+  disabled(d) {
+    if (!this._$formAction) return
+    if (d === true) $(this._$formAction).find('.btn').button('loading')
+    else $(this._$formAction).find('.btn').button('reset')
+  }
+
   // -- Usage
 
   /**
    * @param {*} entityOrId
    * @param {*} fields
    * @param {*} title
-   * @param {*} _callback
+   * @param {*} onHandleSave
    */
-  static create(entityOrId, fields, title, _callback) {
+  static create(entityOrId, fields, title, onHandleSave) {
     const post = {
       id: entityOrId,
       fields: fields,
@@ -902,7 +913,7 @@ class LiteFormModal extends RbModalHandler {
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} {...res.data} />, null, _callback)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} />)
       } else {
         RbHighbar.error(res.error_msg)
       }

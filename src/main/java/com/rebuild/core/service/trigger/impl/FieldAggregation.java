@@ -212,7 +212,7 @@ public class FieldAggregation extends TriggerAction {
                     targetRecord.setString(targetField, join);
 
                 } else if (dt == DisplayType.N2NREFERENCE) {
-                    // 排重
+                    // 强制去重
                     Set<ID> idSet = new LinkedHashSet<>();
                     for (Object id : oArray) idSet.add((ID) id);
                     targetRecord.setIDArray(targetField, idSet.toArray(new ID[0]));
