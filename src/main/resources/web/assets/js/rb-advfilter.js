@@ -675,7 +675,8 @@ class FilterItem extends React.Component {
     $el.removeClass('is-invalid')
     const v = e.target ? e.target.value : e.val()
     if ($empty(v)) {
-      $el.addClass('is-invalid')
+      // 忽略数组
+      if (typeof v !== 'object') $el.addClass('is-invalid')
     } else {
       if (/^\{@[a-z0-9._]{4,}}$/i.test(v)) {
         // pass: Field var {@FIELD}

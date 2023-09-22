@@ -212,8 +212,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         new UpgradeDatabase().upgradeQuietly();
 
         // 版本升级会清除缓存
-        int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild), 0);
-        if (lastBuild > 0 && lastBuild < BUILD) {
+        int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
+        if (lastBuild > 0 && lastBuild != BUILD) {
             log.warn("Clean up the cache once when upgrading : {}", BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);

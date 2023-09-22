@@ -124,7 +124,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // for `watermark`
   if (window.watermark && self === top) {
     window.watermark.init({
-      watermark_txt: [rb.currentUser ? ('***' + rb.currentUser.substr(7)) : null, rb.appName, rb._rbTempAuth ? 'TEMP.AUTH 临时授权' : null],
+      watermark_txt: [rb.currentUser ? '***' + rb.currentUser.substr(7) : null, rb.appName, rb._rbTempAuth ? 'TEMP.AUTH 临时授权' : null],
       watermark_angle: 30,
       watermark_width: 200,
       watermark_font: 'arial',
@@ -329,7 +329,7 @@ var $regex = {
   },
   clearNumber: function (n) {
     return (n + '').replace(/[^\d|^\\.|^\\-]/g, '')
-  }
+  },
 }
 
 /**
@@ -373,7 +373,9 @@ var $random = function (prefix, alphabetic, maxLength) {
     maxLength = maxLength || 24
     var c = prefix || ''
     while (c.length < maxLength) {
-      c += Math.random().toString(36).replace(/[^a-z1-9]+/g, '')
+      c += Math.random()
+        .toString(36)
+        .replace(/[^a-z1-9]+/g, '')
     }
     return c.substring(0, maxLength)
   } else {
