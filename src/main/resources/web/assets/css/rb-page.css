@@ -5240,6 +5240,10 @@ pre.unstyle {
   padding: 10px 0 10px 165px;
 }
 
+.liteform-wrap .form-text {
+  margin-bottom: 0;
+}
+
 /* fix btn-space compact */
 
 div.dataTables_wrapper div.dataTables_oper {
