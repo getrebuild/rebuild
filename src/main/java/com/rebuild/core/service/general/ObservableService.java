@@ -45,15 +45,21 @@ public abstract class ObservableService extends Observable implements ServiceSpe
     protected ObservableService(PersistManagerFactory aPMFactory) {
         this.delegateService = new BaseService(aPMFactory);
 
-        // 默认监听者
-        addObserver(new RevisionHistoryObserver());
-        addObserver(new AttachmentAwareObserver());
+        for (Observer o : getOrderObservers()) {
+            log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
+            addObserver(o);
+        }
     }
 
-    @Override
-    public synchronized void addObserver(Observer o) {
-        super.addObserver(o);
-        log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
+    /**
+     * @return
+     */
+    protected Observer[] getOrderObservers() {
+        // 默认监听者
+        return new Observer[] {
+            new RevisionHistoryObserver(),  // 2
+            new AttachmentAwareObserver(),  // 1
+        };
     }
 
     @Override
