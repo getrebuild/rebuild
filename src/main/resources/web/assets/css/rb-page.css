@@ -913,6 +913,20 @@ select.form-control:not([disabled]) {
   background-size: 16px;
 }
 
+div.link a:hover,
+p.link a:hover,
+li.link a:hover,
+a.link:hover,
+a.column-url:hover {
+  text-decoration: underline !important;
+}
+
+a.link.link-icon::after {
+  content: '\f1a3';
+  font-family: 'Material-Design-Iconic-Font', serif;
+  margin-left: 3px;
+}
+
 /* rbform */
 
 .form-layout > .row {
@@ -1654,14 +1668,6 @@ i.dividing.ui-draggable-dragging {
 
 .column-main:hover {
   border-bottom: 0 solid;
-}
-
-div.link a:hover,
-p.link a:hover,
-li.link a:hover,
-a.link:hover,
-a.column-url:hover {
-  text-decoration: underline !important;
 }
 
 .column-empty {
