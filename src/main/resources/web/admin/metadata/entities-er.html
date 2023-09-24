@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>REBUILD</title>
+    <style>
+      html,
+      body {
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <pre></pre>
+    </div>
+    <script th:src="@{/assets/lib/jquery.min.js?v=3.6.0}"></script>
+    <script th:src="@{/assets/lib/charts/mermaid.min.js?v=10.4.0}"></script>
+    <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
+    <script type="text/babel">
+      $(document).ready(() => {})
+    </script>
+  </body>
+</html>

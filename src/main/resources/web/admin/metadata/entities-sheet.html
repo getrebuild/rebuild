@@ -68,7 +68,7 @@
           <span th:text="${e[1]}" class="badge ml-1" title="Entity Code"></span>
           <a class="float-right font-weight-normal fs-12" href="#index">top</a>
         </div>
-        <table class="table table-sm table-fixed table-hover">
+        <table class="table table-sm table-hover table-fixed table-btm-line">
           <thead>
             <tr>
               <th>Field Name</th>
@@ -116,7 +116,7 @@
           const opt = $item.text() || ''
           if (opt.length < 10) return
 
-          const $ul = $('<ol class="pl-3 m-0"></ol>').appendTo($item.empty())
+          const $ul = $('<ul class="pl-3 m-0"></ul>').appendTo($item.empty())
           $(opt.split('//')).each(function () {
             const o = this.split(':')
             $(`<li><span>${o[1]}</span> <code>${o[0]}</code></li>`).appendTo($ul)
