@@ -12,13 +12,27 @@
   </head>
   <body>
     <div>
-      <pre></pre>
+      <pre class="mermaid m-p p-0">
+        erDiagram
+          CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+          CUSTOMER ||--o{ ORDER : places
+          CUSTOMER ||--o{ INVOICE : "liable for"
+          DELIVERY-ADDRESS ||--o{ ORDER : receives
+          INVOICE ||--|{ ORDER : covers
+          ORDER ||--|{ ORDER-ITEM : includes
+          PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+          PRODUCT ||--o{ ORDER-ITEM : "ordered in"
+      </pre>
     </div>
     <script th:src="@{/assets/lib/jquery.min.js?v=3.6.0}"></script>
     <script th:src="@{/assets/lib/charts/mermaid.min.js?v=10.4.0}"></script>
     <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
     <script type="text/babel">
-      $(document).ready(() => {})
+      $(document).ready(() => {
+        mermaid.initialize({
+          securityLevel: 'loose',
+        })
+      })
     </script>
   </body>
 </html>

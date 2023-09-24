@@ -42,7 +42,7 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -307,9 +307,9 @@ public class MetaEntityController extends EntityController {
     public ModelAndView pageSheet(HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/entities-sheet");
 
-        String spec = getParameter(request, "e");
+        String spec = getParameter(request, "s");
         Set<String> specList = null;
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(spec)) {
+        if (StringUtils.isNotBlank(spec)) {
             specList = new HashSet<>();
             for (String s : spec.split(",")) specList.add(s.trim().toUpperCase());
         }
@@ -342,7 +342,7 @@ public class MetaEntityController extends EntityController {
                     ConfigBean[] cbs = PickListManager.instance.getPickListRaw(f, Boolean.TRUE);
                     List<String> texts = new ArrayList<>();
                     for (ConfigBean cb : cbs) texts.add(cb.getID("id") + ":" + cb.getString("text"));
-                    opt = org.apache.commons.lang3.StringUtils.join(texts, "//");
+                    opt = StringUtils.join(texts, "//");
                 }
 
                 fields.add(new Object[] {
@@ -354,6 +354,17 @@ public class MetaEntityController extends EntityController {
         }
 
         mv.getModel().put("entities", entities);
+        return mv;
+    }
+
+    @GetMapping("entities/er")
+    public ModelAndView pageEr(HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/admin/metadata/entities-er");
+
+        String spec = getParameter(request, "s");
+        String erData = "";
+
+        mv.getModel().put("data", erData);
         return mv;
     }
 }
