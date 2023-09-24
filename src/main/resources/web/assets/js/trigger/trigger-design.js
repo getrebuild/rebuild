@@ -67,8 +67,10 @@ $(document).ready(() => {
       )
     })
   }
-  $('.on-timers select').on('change', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
-  $('.on-timers input').on('input', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
+  if (rb.commercial >= 10) {
+    $('.on-timers select').on('change', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
+    $('.on-timers input').on('input', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
+  }
 
   let advFilter
   $('.J_whenFilter .btn').on('click', () => {

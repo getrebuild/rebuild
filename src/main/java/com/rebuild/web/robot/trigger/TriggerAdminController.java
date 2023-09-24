@@ -24,7 +24,6 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.rbv.trigger.TriggerByTimerJob;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.ConfigCommons;
@@ -171,12 +170,5 @@ public class TriggerAdminController extends BaseController {
         }
 
         return null;
-    }
-
-    @GetMapping("trigger/eval-trigger-times")
-    public JSON evalTriggerTimes(HttpServletRequest request) {
-        String whenTimer = getParameterNotNull(request, "whenTimer");
-        List<String> s = TriggerByTimerJob.getInTriggerTime(whenTimer);
-        return (JSON) JSON.toJSON(s);
     }
 }
