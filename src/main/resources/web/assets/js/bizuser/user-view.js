@@ -265,6 +265,6 @@ class DlgEnableUser extends RbModalHandler {
 }
 
 const _reload = function (timeout) {
-  setTimeout(() => location.reload(), timeout || 1)
+  setTimeout(() => RbViewPage.reload(), timeout || 1)
   parent && parent.RbListPage && parent.RbListPage.reload()
 }
