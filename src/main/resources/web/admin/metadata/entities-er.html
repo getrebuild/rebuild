@@ -2,36 +2,73 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
     <title>REBUILD</title>
     <style>
       html,
-      body {
+      body,
+      pre {
         background-color: #fff;
+        max-height: 100%;
+        overflow: hidden;
+        text-align: center;
+      }
+      .er.relationshipLabel {
+        background-color: transparent;
       }
     </style>
   </head>
   <body>
     <div>
-      <pre class="mermaid m-p p-0">
-        erDiagram
-          CUSTOMER }|..|{ DELIVERY-ADDRESS : has
-          CUSTOMER ||--o{ ORDER : places
-          CUSTOMER ||--o{ INVOICE : "liable for"
-          DELIVERY-ADDRESS ||--o{ ORDER : receives
-          INVOICE ||--|{ ORDER : covers
-          ORDER ||--|{ ORDER-ITEM : includes
-          PRODUCT-CATEGORY ||--|{ PRODUCT : contains
-          PRODUCT ||--o{ ORDER-ITEM : "ordered in"
+      <pre class="mermaid m-p p-0" style="color: #fff">
+      [(${erData})]
       </pre>
     </div>
+    <div class="zoom hide">
+      <a class="zoom-in">
+        <i class="zmdi zmdi-plus"></i>
+      </a>
+      <span>100%</span>
+      <a class="zoom-out">
+        <i class="zmdi zmdi-minus"></i>
+      </a>
+    </div>
     <script th:src="@{/assets/lib/jquery.min.js?v=3.6.0}"></script>
+    <script th:src="@{/assets/lib/jquery-ui.min.js?v=1.13.1}"></script>
     <script th:src="@{/assets/lib/charts/mermaid.min.js?v=10.4.0}"></script>
     <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
     <script type="text/babel">
       $(document).ready(() => {
+        const $node = $('.mermaid')
+
         mermaid.initialize({
           securityLevel: 'loose',
+          startOnLoad: false,
         })
+        mermaid
+          .run({
+            nodes: $node,
+          })
+          .then(() => {
+            $('.zoom').removeClass('hide')
+          })
+          .catch((err) => {
+            console.error(err)
+          })
+
+        let zoom = 100
+        function setZoom(z) {
+          zoom += z
+          if (zoom < 20) zoom = 20
+          if (zoom > 1000) zoom = 1000
+
+          $('.zoom > span').text(zoom + '%')
+          $node.css('transform', `scale(${zoom / 100})`)
+        }
+        $('.zoom .zoom-in').on('click', () => setZoom(10))
+        $('.zoom .zoom-out').on('click', () => setZoom(-10))
+
+        $node.draggable({ cursor: 'move', scroll: false })
       })
     </script>
   </body>
