@@ -356,15 +356,4 @@ public class MetaEntityController extends EntityController {
         mv.getModel().put("entities", entities);
         return mv;
     }
-
-    @GetMapping("entities/er")
-    public ModelAndView pageEr(HttpServletRequest request) {
-        ModelAndView mv = createModelAndView("/admin/metadata/entities-er");
-
-        String spec = getParameter(request, "s");
-        String erData = "";
-
-        mv.getModel().put("data", erData);
-        return mv;
-    }
 }
