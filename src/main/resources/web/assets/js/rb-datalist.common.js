@@ -220,7 +220,7 @@ const AdvFilters = {
 class BatchOperator extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state.dataRange = 2
+    this.state.dataRange = props.listRef.getSelectedIds(true).length > 0 ? 1 : 2
   }
 
   render() {
