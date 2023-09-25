@@ -130,12 +130,20 @@ public class TriggerAdminController extends BaseController {
             o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
 
             // 目标实体
-            o[10] = tryParseTargetEntity((String) o[10], (String) o[1]);
+            o[10] = tryParseTargetEntity((String) o[10], (String) o[1], true);
         }
         return array;
     }
 
-    private String tryParseTargetEntity(String config, String sourceEntity) {
+    /**
+     * 尝试解析目标实体
+     *
+     * @param config
+     * @param sourceEntity
+     * @param useLabel
+     * @return
+     */
+    public static String tryParseTargetEntity(String config, String sourceEntity, boolean useLabel) {
         if (!JSONUtils.wellFormat(config)) return null;
 
         JSONObject configJson = JSON.parseObject(config);
@@ -146,9 +154,9 @@ public class TriggerAdminController extends BaseController {
             else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return EasyMetaFactory.getLabel(targetEntity);
+                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
             } else {
-                return String.format("[%s]", targetEntity.toUpperCase());
+                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
             }
         }
 
@@ -163,9 +171,9 @@ public class TriggerAdminController extends BaseController {
 
             targetEntity = cb.getString("target");
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return EasyMetaFactory.getLabel(targetEntity);
+                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
             } else {
-                return String.format("[%s]", targetEntity.toUpperCase());
+                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
             }
         }
 

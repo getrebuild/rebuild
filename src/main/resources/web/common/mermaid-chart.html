@@ -13,15 +13,21 @@
         overflow: hidden;
         text-align: center;
       }
-      .er.relationshipLabel {
-        background-color: transparent;
+      pre.mermaid {
+        color: #fff;
+        padding: 0;
+        margin: 0;
+      }
+      .edgeLabel {
+        background-color: #fff !important;
+        font-size: 12px;
       }
     </style>
   </head>
   <body>
     <div>
-      <pre class="mermaid m-p p-0" style="color: #fff">
-      [(${erData})]
+      <pre class="mermaid">
+      [(${mermaidData})]
       </pre>
     </div>
     <div class="zoom hide">
@@ -69,6 +75,12 @@
         $('.zoom .zoom-out').on('click', () => setZoom(-10))
 
         $node.draggable({ cursor: 'move', scroll: false })
+
+        $(document).on('mousewheel', (e) => {
+          const value = e.originalEvent.wheelDelta || -e.originalEvent.detail
+          const delta = Math.max(-1, Math.min(1, value))
+          setZoom(delta < 0 ? -10 : 10)
+        })
       })
     </script>
   </body>
