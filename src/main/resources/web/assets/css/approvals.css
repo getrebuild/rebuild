@@ -651,6 +651,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   z-index: 10;
   opacity: 0.6;
   transition: opacity 0.2s linear;
+  cursor: default;
 }
 
 .zoom:hover {

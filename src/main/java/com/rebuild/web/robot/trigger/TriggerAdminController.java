@@ -120,17 +120,15 @@ public class TriggerAdminController extends BaseController {
     public Object[][] triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,configId,priority,actionContent from RobotTriggerConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,priority,actionContent from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] array = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
-            o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
-
             // 目标实体
-            o[10] = tryParseTargetEntity((String) o[10], (String) o[1], true);
+            o[9] = tryParseTargetEntity((String) o[9], (String) o[1], true);
         }
         return array;
     }
