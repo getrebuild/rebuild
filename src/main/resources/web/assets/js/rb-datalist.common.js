@@ -1172,7 +1172,7 @@ class RbList extends React.Component {
 
   _tryActive($el) {
     if ($el.length === 1) {
-      this._clickRow({ target: $el.find('.custom-checkbox') }, true)
+      this._clickRow({ target: $el.find('td:eq(1)') })
     }
   }
 
