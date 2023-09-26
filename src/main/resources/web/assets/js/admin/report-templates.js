@@ -34,7 +34,7 @@ class ReportList extends ConfigList {
               <td>{item[2] || item[1]}</td>
               <td>
                 <div className="text-break" style={{ maxWidth: 300 }}>
-                  {item[8] || $L('(所有人)')}
+                  {item[8] || $L('所有用户')}
                 </div>
               </td>
               <td>{ShowEnable(item[4])}</td>
