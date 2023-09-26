@@ -7,21 +7,22 @@
     <style>
       html,
       body,
+      .main-content,
       pre {
         background-color: #fff;
         height: 100%;
         overflow: hidden;
         text-align: center;
+        vertical-align: middle;
+      }
+      .main-content,
+      pre.mermaid {
+        min-height: 500px;
       }
       pre.mermaid {
         color: #fff;
         padding: 0;
         margin: 0;
-      }
-      pre.mermaid,
-      .main-content {
-        min-height: 500px;
-        cursor: default;
       }
       pre.mermaid .edgeLabel,
       pre.mermaid .er.relationshipLabel {
@@ -36,11 +37,11 @@
         font-size: 14px;
         color: #222;
       }
-      .node rect {
+      pre.mermaid .node rect {
         fill: #e6eff8 !important;
         stroke: #4285f4 !important;
       }
-      .mermaidTooltip {
+      pre.mermaid .mermaidTooltip {
         display: none;
         font-size: 0;
       }
@@ -61,10 +62,8 @@
         <i class="zmdi zmdi-minus"></i>
       </a>
     </div>
-    <script th:src="@{/assets/lib/jquery.min.js?v=3.6.0}"></script>
-    <script th:src="@{/assets/lib/jquery-ui.min.js?v=1.13.1}"></script>
+    <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/lib/charts/mermaid.min.js?v=10.4.0}"></script>
-    <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
     <script type="text/babel">
       $(document).ready(() => {
         const $node = $('.mermaid')
@@ -89,7 +88,7 @@
         function setZoom(z) {
           zoom += z
           if (zoom < 20) zoom = 20
-          if (zoom > 1000) zoom = 1000
+          if (zoom > 500) zoom = 500
 
           $('.zoom > span').text(zoom + '%')
           $node.css('transform', `scale(${zoom / 100})`)

@@ -37,7 +37,7 @@ class RbModal extends React.Component {
               {props.icon && <i className={`icon zmdi zmdi-${props.icon}`} />}
               <h3 className="modal-title">{props.title || 'UNTITLED'}</h3>
               {props.url && props.urlOpenInNew && (
-                <a className="close s" href={props.url} target="_blank" title={$L('在新页面打开')}>
+                <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
                   <span className="zmdi zmdi-open-in-new" />
                 </a>
               )}
