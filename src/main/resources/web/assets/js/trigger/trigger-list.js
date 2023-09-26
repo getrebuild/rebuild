@@ -88,7 +88,7 @@ class TriggerList extends ConfigList {
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('触发链')} onClick={() => this.handleShowChain(item[0])}>
+                <a className="icon" title={$L('触发过程')} onClick={() => this.handleShowChain(item[0])}>
                   <i className="zmdi mdi mdi-vector-polyline mdi-rotate-180" />
                 </a>
                 <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
@@ -125,7 +125,7 @@ class TriggerList extends ConfigList {
     if (rb.commercial < 10) {
       return RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
     }
-    RbModal.create(`trigger/trigger-chain?id=${id}`, $L('触发链'), { urlOpenInNew: true })
+    RbModal.create(`trigger/trigger-chain?id=${id}`, $L('触发过程'), { urlOpenInNew: true })
   }
 }
 

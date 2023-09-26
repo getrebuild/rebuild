@@ -32,6 +32,11 @@ class ReportList extends ConfigList {
                 {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
               </td>
               <td>{item[2] || item[1]}</td>
+              <td>
+                <div className="text-break" style={{ maxWidth: 300 }}>
+                  {item[8] || $L('(所有人)')}
+                </div>
+              </td>
               <td>{ShowEnable(item[4])}</td>
               <td>
                 <DateShow date={item[5]} />
@@ -176,7 +181,9 @@ class ReportEditor extends ConfigFormDlg {
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('谁能使用这个报表')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">
+            {$L('谁能使用这个报表')} <sup className="rbv" />
+          </label>
           <div className="col-sm-7">
             <UserSelector
               ref={(c) => (this._UserSelector = c)}
