@@ -650,6 +650,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   bottom: 20px;
   z-index: 10;
   opacity: 0.6;
+  transition: opacity 0.2s linear;
+  cursor: default;
 }
 
 .zoom:hover {
@@ -672,6 +674,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .zoom .zoom-out i {
   font-size: 22px;
   color: #777;
+}
+
+.zoom .zoom-in:hover i,
+.zoom .zoom-out:hover i {
+  color: #222;
 }
 
 .fields-table .custom-control {

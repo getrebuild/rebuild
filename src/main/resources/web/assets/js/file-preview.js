@@ -120,7 +120,7 @@ class RbPreview extends React.Component {
             <a className="arrow float-left" onClick={this._rotateImage} title={$L('旋转')}>
               <i className="mdi mdi-rotate-right" />
             </a>
-            <a className="arrow float-right" onClick={this._screenImage} title={$L('放大')}>
+            <a className="arrow float-right" onClick={this._screenImage} title={$L('适合页面')}>
               <i className="mdi mdi-fit-to-screen-outline" />
             </a>
           </div>

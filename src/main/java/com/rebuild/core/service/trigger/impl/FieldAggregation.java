@@ -337,8 +337,7 @@ public class FieldAggregation extends TriggerAction {
     protected boolean isCurrentSame(Record record) {
         if (!ignoreSame) return false;
 
-        Record c = Application.getQueryFactory().recordNoFilter(
-                record.getPrimary(), record.getAvailableFields().toArray(new String[0]));
+        Record c = QueryHelper.querySnap(record);
         return new RecordDifference(record).isSame(c, false);
     }
 

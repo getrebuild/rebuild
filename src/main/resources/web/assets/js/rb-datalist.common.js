@@ -220,7 +220,7 @@ const AdvFilters = {
 class BatchOperator extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state.dataRange = 2
+    this.state.dataRange = props.listRef.getSelectedIds(true).length > 0 ? 1 : 2
   }
 
   render() {
@@ -1094,16 +1094,23 @@ class RbList extends React.Component {
   _clickRow(e) {
     const $target = $(e.target)
     if ($target.hasClass('custom-control-label')) return // ignored
-    const holdSelected = $target.hasClass('custom-checkbox') || $target.parents('.custom-checkbox').hasClass('custom-checkbox')
-    console.log($target)
 
     const $tr = $target.parents('tr')
+    let holdSelected = true
+    if ($target.hasClass('column-checkbox')) {
+      const $chk = $tr.find('.custom-control-input')[0]
+      $chk.checked = !$chk.checked
+      holdSelected = true
+    } else {
+      holdSelected = $target.hasClass('custom-checkbox') || $target.parents('.custom-checkbox').hasClass('custom-checkbox')
+    }
+
     if (holdSelected) {
       if ($tr.find('.custom-control-input')[0].checked) $tr.addClass('active')
       else $tr.removeClass('active')
     } else {
       this._toggleRows({ target: { checked: false } }, true)
-      $tr.addClass('active').find('.custom-control-input').prop('checked', true)
+      $tr.addClass('active').find('.custom-control-input')[0].checked = true
     }
 
     this._checkSelected()
@@ -1165,7 +1172,7 @@ class RbList extends React.Component {
 
   _tryActive($el) {
     if ($el.length === 1) {
-      this._clickRow({ target: $el.find('.custom-checkbox') }, true)
+      this._clickRow({ target: $el.find('td:eq(1)') })
     }
   }
 

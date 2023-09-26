@@ -28,24 +28,6 @@ $(document).ready(() => {
     })
   $('.J_startHour2').val('23')
 
-  $('.on-timers select, .on-timers input').on('change', () => {
-    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
-    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
-      renderRbcomp(
-        <RbAlertBox
-          icon="time"
-          message={
-            <div>
-              <span className="mr-1">{$L('预计执行时间')}</span>
-              <code>{res.data.join(', ')}</code>
-            </div>
-          }
-        />,
-        $('.eval-exec-times')[0]
-      )
-    })
-  })
-
   if (wpc.when > 0) {
     $([1, 2, 4, 16, 32, 64, 128, 256, 512, 1024, 2048]).each(function () {
       let mask = this
@@ -65,6 +47,29 @@ $(document).ready(() => {
         }
       }
     })
+  }
+
+  // 评估具体执行时间
+  function evalTriggerTimes() {
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
+      renderRbcomp(
+        <RbAlertBox
+          icon="time"
+          message={
+            <div>
+              <span className="mr-1">{$L('预计执行时间')}</span>
+              <code>{res.data.join(', ')}</code>
+            </div>
+          }
+        />,
+        $('.eval-exec-times')[0]
+      )
+    })
+  }
+  if (rb.commercial >= 10) {
+    $('.on-timers select').on('change', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
+    $('.on-timers input').on('input', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
   }
 
   let advFilter
@@ -148,11 +153,6 @@ $(document).ready(() => {
       $btn.button('reset')
     })
   })
-
-  if (wpc.lockedUser && wpc.lockedUser[0] !== rb.currentUser) {
-    $('.footer .alert-warning').removeClass('hide').find('.message').text($L('已被 %s 锁定，其他人无法操作', wpc.lockedUser[1]))
-    $('.footer .btn').attr('disabled', true)
-  }
 
   if (LastLogsViewer.renderLog && rb.commercial > 1) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {

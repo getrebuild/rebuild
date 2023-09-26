@@ -2767,18 +2767,23 @@ class RbFormRefform extends React.Component {
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
         const err = res.data.error || res.error_msg
-        this.setState({ formComponent: <div>{err}</div> })
+        this.setState({ formComponent: <div className="text-danger">{err}</div> })
         return
       }
 
       const VFORM = (
-        <div className="row">
-          {res.data.elements.map((item) => {
-            item.$$$parent = this
-            // eslint-disable-next-line no-undef
-            return detectViewElement(item, props.entity)
-          })}
-        </div>
+        <RF>
+          <a title={$L('在新页面打开')} className="close open-in-new" href={`${rb.baseUrl}/app/entity/view?id=${props.id}`} target="_blank">
+            <i className="icon zmdi zmdi-open-in-new" />
+          </a>
+          <div className="row">
+            {res.data.elements.map((item) => {
+              item.$$$parent = this
+              // eslint-disable-next-line no-undef
+              return detectViewElement(item, props.entity)
+            })}
+          </div>
+        </RF>
       )
       this.setState({ formComponent: VFORM })
     })

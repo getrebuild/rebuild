@@ -52,6 +52,13 @@ public class RecordDifference {
         return diffMerge(after, false);
     }
 
+    /**
+     * 获取不同
+     *
+     * @param after
+     * @param diffCommons
+     * @return
+     */
     protected JSON diffMerge(Record after, boolean diffCommons) {
         if (record == null && after == null) {
             throw new RebuildException("Both records cannot be null");
@@ -107,10 +114,10 @@ public class RecordDifference {
     }
 
     /**
-     * 是否不同
+     * 是否相同
      *
      * @param diff
-     * @param diffCommons
+     * @param diffCommons 是否比较系统共用字段
      * @return
      * @see #diffMerge(Record)
      */

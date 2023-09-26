@@ -53,6 +53,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -63,6 +64,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -88,11 +90,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
+    }
 
-        // 通知
-        addObserver(new NotificationObserver());
-        // 触发器
-        addObserver(new RobotTriggerObserver());
+    @Override
+    protected Observer[] getOrderObservers() {
+        Observer[] obs = new Observer[] {
+                // 触发器
+                new RobotTriggerObserver(),
+                // 通知
+                new NotificationObserver(),
+        };
+        obs = ArrayUtils.addAll(obs, super.getOrderObservers());
+        return obs;
     }
 
     @Override

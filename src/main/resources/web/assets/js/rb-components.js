@@ -16,15 +16,16 @@ class RbModal extends React.Component {
   }
 
   render() {
+    const props = this.props
     const style1 = {}
-    if (this.props.zIndex) style1.zIndex = this.props.zIndex
+    if (props.zIndex) style1.zIndex = props.zIndex
 
-    const iframe = !this.props.children // No child
-    const style2 = { maxWidth: ~~(this.props.width || 680) }
+    const iframe = !props.children // No child
+    const style2 = { maxWidth: ~~(props.width || 680) }
 
     return (
       <div
-        className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`}
+        className={`modal rbmodal colored-header colored-header-${props.colored || 'primary'}`}
         style={style1}
         ref={(c) => {
           this._rbmodal = c
@@ -33,14 +34,19 @@ class RbModal extends React.Component {
         <div className="modal-dialog" style={style2}>
           <div className="modal-content" style={style2}>
             <div className="modal-header modal-header-colored">
-              {this.props.icon && <i className={`icon zmdi zmdi-${this.props.icon}`} />}
-              <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
+              {props.icon && <i className={`icon zmdi zmdi-${props.icon}`} />}
+              <h3 className="modal-title">{props.title || 'UNTITLED'}</h3>
+              {props.url && props.urlOpenInNew && (
+                <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
+                  <span className="zmdi zmdi-open-in-new" />
+                </a>
+              )}
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
             <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
-              {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
+              {props.children || <iframe src={props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
               {iframe && <RbSpinner />}
             </div>
           </div>
@@ -97,25 +103,25 @@ class RbModal extends React.Component {
   /**
    * @param {*} url
    * @param {*} title
-   * @param {*} options
+   * @param {*} option
    */
-  static create(url, title, options) {
+  static create(url, title, option) {
     // URL prefix
     if (url.substr(0, 1) === '/' && rb.baseUrl) url = rb.baseUrl + url
 
-    options = options || {}
-    options.disposeOnHide = options.disposeOnHide === true // default false
+    option = option || {}
+    option.disposeOnHide = option.disposeOnHide === true // default false
     this.__HOLDERs = this.__HOLDERs || {}
 
     const that = this
-    if (options.disposeOnHide === false && !!that.__HOLDERs[url]) {
+    if (option.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} zIndex={options.zIndex} />, null, function () {
+      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, null, function () {
         that.__HOLDER = this
-        if (options.disposeOnHide === false) that.__HOLDERs[url] = this
+        if (option.disposeOnHide === false) that.__HOLDERs[url] = this
       })
     }
   }

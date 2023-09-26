@@ -43,17 +43,15 @@ public final class UpgradeDatabase {
         try {
             while (true) {
                 String[] sql = scripts.get(upgradeVer + 1);
-                if (sql == null) {
-                    break;
-                } else if (sql.length == 0) {
-                    upgradeVer++;
-                    continue;
-                }
+                if (sql == null) break;
 
-                log.info("\n>> UPGRADE SQL (#" + (upgradeVer + 1) + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
-                Application.getSqlExecutor().executeBatch(sql, 60 * 2);
                 upgradeVer++;
+                if (sql.length > 0) {
+                    log.info("\n>> UPGRADE SQL (#" + upgradeVer + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
+                    Application.getSqlExecutor().executeBatch(sql, 60 * 2);
+                }
             }
+
         } finally {
             if (currentVer != upgradeVer) {
                 RebuildConfiguration.set(ConfigurationItem.DBVer, upgradeVer);

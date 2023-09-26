@@ -23,7 +23,6 @@ import org.springframework.util.Assert;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -108,7 +107,7 @@ public class QueryHelper {
     }
 
     /**
-     * 获取明细（完整）记录
+     * 获取明细列表记录
      *
      * @param mainId
      * @return
@@ -129,7 +128,7 @@ public class QueryHelper {
     }
 
     /**
-     * 获取明细 ID
+     * 获取明细列表 ID
      *
      * @param mainId
      * @return
@@ -217,12 +216,9 @@ public class QueryHelper {
         final ID primaryId = base.getPrimary();
         Assert.notNull(primaryId, "Record primary cannot be null");
 
-        Set<String> fields = new HashSet<>();
-        for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
-            fields.add(iter.next());
-        }
-
+        Set<String> fields = new HashSet<>(base.getAvailableFields());
         fields.add(base.getEntity().getPrimaryField().getName());
+
         Record snap = Application.getQueryFactory().recordNoFilter(primaryId, fields.toArray(new String[0]));
 
         if (snap == null) throw new NoRecordFoundException(primaryId);

@@ -913,6 +913,20 @@ select.form-control:not([disabled]) {
   background-size: 16px;
 }
 
+div.link a:hover,
+p.link a:hover,
+li.link a:hover,
+a.link:hover,
+a.column-url:hover {
+  text-decoration: underline !important;
+}
+
+a.link.link-icon::after {
+  content: '\f1a3';
+  font-family: 'Material-Design-Iconic-Font', serif;
+  margin-left: 3px;
+}
+
 /* rbform */
 
 .form-layout > .row {
@@ -1279,12 +1293,23 @@ select.form-control:not([disabled]) {
 /* v35 */
 .form-layout.refform {
   display: block;
-  background-color: rgba(230, 230, 230, 0.3);
-  box-shadow: inset 0px 0px 10px rgba(230, 230, 230, 0.6);
-  border-radius: 2px;
+  background-color: rgba(230, 230, 230, 0.2);
+  box-shadow: inset 0 0 10px rgba(230, 230, 230, 0.5);
   width: 100%;
   margin: 10px 15px;
   padding: 15px;
+  border-radius: 6px;
+  position: relative;
+}
+
+.form-layout.refform > .open-in-new {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  font-size: 1.45rem;
+  padding: 5px;
+  display: inline-block;
+  z-index: 1;
 }
 
 .input-group.has-append {
@@ -1643,14 +1668,6 @@ i.dividing.ui-draggable-dragging {
 
 .column-main:hover {
   border-bottom: 0 solid;
-}
-
-div.link a:hover,
-p.link a:hover,
-li.link a:hover,
-a.link:hover,
-a.column-url:hover {
-  text-decoration: underline !important;
 }
 
 .column-empty {
@@ -2085,8 +2102,9 @@ th.column-fixed {
   width: auto;
   left: 10px;
   margin: -11px 0 0;
-  padding: 3px 5px 3px 5px;
+  padding: 3px 5px 0;
   color: #666;
+  border-radius: 4px;
 }
 
 .form-line.hover fieldset legend {
@@ -2103,12 +2121,11 @@ th.column-fixed {
 
 .form-line.hover fieldset legend::before {
   font-family: 'Material-Design-Iconic-Font', serif;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   content: '\f2f9';
-  width: 10px;
+  width: 13px;
   display: inline-block;
   float: left;
-  margin-right: 3px;
   text-align: center;
   line-height: 1;
   transform: translateY(-1px);

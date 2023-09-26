@@ -696,6 +696,7 @@ public class AdvFilterParser extends SetUser {
     private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
     // `当前`变量（当前日期、时间、用户）
     private static final String CURRENT_ANY = "CURRENT";
+    private static final String CURRENT_DATE = "NOW";
 
     private String useValueOfVarRecord(String value, Field queryField) {
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
@@ -706,7 +707,7 @@ public class AdvFilterParser extends SetUser {
         Object useValue = null;
 
         // {@CURRENT} DATE
-        if (CURRENT_ANY.equals(fieldName)) {
+        if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
                 useValue = CalendarUtils.now();
