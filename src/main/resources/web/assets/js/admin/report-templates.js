@@ -333,7 +333,7 @@ class ReportEditor extends ConfigFormDlg {
       outputType: output.length === 0 ? 'excel' : output.join(','),
       templateVersion: (this.props.extraDefinition || {}).templateVersion || 2,
       // v3.5
-      visibleUsers: this._UserSelector.val().join(','),
+      visibleUsers: rb.commercial < 1 ? null : this._UserSelector.val().join(','),
     }
 
     if (this.props.id) {
