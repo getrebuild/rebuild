@@ -219,9 +219,7 @@ public class UserService extends BaseService {
         }
 
         int policy = RebuildConfiguration.getInt(ConfigurationItem.PasswordPolicy);
-        if (policy <= 1) {
-            return;
-        }
+        if (policy <= 1) return;
 
         int countUpper = 0;
         int countLower = 0;
@@ -242,8 +240,8 @@ public class UserService extends BaseService {
         if (countUpper == 0 || countLower == 0 || countDigit == 0) {
             throw new DataSpecificationException(Language.L("密码不能小于 6 位，且必须包含数字和大小写字母"));
         }
-        if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {
-            throw new DataSpecificationException(Language.L("密码不能小于 8 位，且必须包含数字和大小写字母及特殊字符"));
+        if (policy >= 3 && (countSpecial == 0 || password.length() < 10)) {
+            throw new DataSpecificationException(Language.L("密码不能小于 10 位，且必须包含数字和大小写字母及特殊字符"));
         }
     }
 

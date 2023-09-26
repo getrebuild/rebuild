@@ -83,7 +83,7 @@ useEditComp = function (name) {
       <select className="form-control form-control-sm">
         <option value="1">{$L('低 (最低6位，无字符类型限制)')}</option>
         <option value="2">{$L('中 (最低6位，必须同时包含数字、字母)')}</option>
-        <option value="3">{$L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}</option>
+        <option value="3">{$L('高 (最低10位，必须同时包含数字、字母、特殊字符)')}</option>
       </select>
     )
   } else if ('DefaultLanguage' === name) {

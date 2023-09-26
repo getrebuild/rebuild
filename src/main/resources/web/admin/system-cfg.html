@@ -184,7 +184,7 @@
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
                           <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('低 (最低6位，无字符类型限制)')}]]</th:block>
                           <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.L('中 (最低6位，必须同时包含数字、字母)')}]]</th:block>
-                          <th:block th:if="${PasswordPolicy == '3'}">[[${bundle.L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '3'}">[[${bundle.L('高 (最低10位，必须同时包含数字、字母、特殊字符)')}]]</th:block>
                         </td>
                       </tr>
                       <tr>
