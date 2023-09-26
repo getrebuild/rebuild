@@ -2,9 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
-    <title>REBUILD</title>
+    <title>[[${title ?:'REBUILD'}]]</title>
     <style>
       html,
       body,
@@ -24,22 +23,26 @@
         min-height: 500px;
         cursor: default;
       }
-      .edgeLabel,
-      .er.relationshipLabel {
+      pre.mermaid .edgeLabel,
+      pre.mermaid .er.relationshipLabel {
         background-color: #fff !important;
         font-size: 14px;
       }
-      .relationshipLabelBox {
+      pre.mermaid .relationshipLabelBox {
         fill: none !important;
         opacity: 1 !important;
       }
-      .nodeLabel {
+      pre.mermaid .nodeLabel {
         font-size: 14px;
         color: #222;
       }
       .node rect {
         fill: #e6eff8 !important;
         stroke: #4285f4 !important;
+      }
+      .mermaidTooltip {
+        display: none;
+        font-size: 0;
       }
     </style>
   </head>
@@ -64,10 +67,6 @@
     <script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
     <script type="text/babel">
       $(document).ready(() => {
-        debugger
-        if (location.href.includes('/trigger-chain')) document.title = 'TRIGGER CHAIN - REBUILD'
-        else if (location.href.includes('/er')) document.title = 'ER - REBUILD'
-
         const $node = $('.mermaid')
 
         mermaid.initialize({
@@ -106,6 +105,10 @@
           setZoom(delta < 0 ? -10 : 10)
         })
       })
+
+      function nodeClick(a) {
+        window.open(`../../entity/${a}/base`)
+      }
     </script>
   </body>
 </html>

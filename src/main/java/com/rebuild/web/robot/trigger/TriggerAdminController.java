@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -87,7 +86,6 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("actionContent", config[4]);
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
-        mv.getModel().put("lockedUser", JSON.toJSONString(CommonsLock.getLockedUserFormat(configId)));
         mv.getModel().put("isDisabled", config[8] == null ? false : config[8]);
 
         return mv;

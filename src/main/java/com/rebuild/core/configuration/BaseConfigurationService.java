@@ -18,7 +18,6 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -43,11 +42,6 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     @Override
     public Record update(Record record) {
-        ID locked = hasLock() ? CommonsLock.getLockedUser(record.getPrimary()) : null;
-        if (locked != null && !locked.equals(UserContextHolder.getUser())) {
-            throw new DataSpecificationException(Language.L("操作失败 (已被锁定)"));
-        }
-
         throwIfNotSelf(record.getPrimary());
         cleanCache(record.getPrimary());
         return super.update(putCreateBy4ShareTo(record));
@@ -55,11 +49,6 @@ public abstract class BaseConfigurationService extends InternalPersistService {
 
     @Override
     public int delete(ID recordId) {
-        ID locked = hasLock() ? CommonsLock.getLockedUser(recordId) : null;
-        if (locked != null && !locked.equals(UserContextHolder.getUser())) {
-            throw new DataSpecificationException(Language.L("操作失败 (已被锁定)"));
-        }
-
         throwIfNotSelf(recordId);
         cleanCache(recordId);
         return super.delete(recordId);
