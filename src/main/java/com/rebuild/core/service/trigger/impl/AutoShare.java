@@ -8,10 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.EntityService;
@@ -19,6 +21,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +36,7 @@ import java.util.Set;
  * @since 2019/8/23
  */
 @Slf4j
-public class AutoShare extends AutoAssign {
+public class AutoShare extends TriggerAction {
 
     public AutoShare(ActionContext context) {
         super(context);
@@ -42,6 +45,12 @@ public class AutoShare extends AutoAssign {
     @Override
     public ActionType getType() {
         return ActionType.AUTOSHARE;
+    }
+
+    @Override
+    public boolean isUsableSourceEntity(int entityCode) {
+        Entity e = MetadataHelper.getEntity(entityCode);
+        return MetadataHelper.hasPrivilegesField(e) || e.getMainEntity() != null;
     }
 
     @Override
