@@ -335,26 +335,32 @@ public class AdvFilterParser extends SetUser {
                     int x = NumberUtils.toInt(value);
                     value = formatDate(addDay(x), 0);
                 } else if (ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)) {
-                    Calendar c = CalendarUtils.getInstance();
+                    final Calendar today = CalendarUtils.getInstance();
+
                     int x = NumberUtils.toInt(value);
                     if (ParseHelper.EVW.equalsIgnoreCase(op)) {
-                        boolean isSunday = c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
-                        if (isSunday) c.add(Calendar.DAY_OF_WEEK, -1);
+                        boolean isSunday = today.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+                        if (isSunday) today.add(Calendar.DAY_OF_WEEK, -1);
                         if (x < 1) x = 1;
                         if (x > 7) x = 7;
                         x += 1;
                         if (x <= 7) {
-                            c.set(Calendar.DAY_OF_WEEK, x);
+                            today.set(Calendar.DAY_OF_WEEK, x);
                         } else {
-                            c.set(Calendar.DAY_OF_WEEK, 7);
-                            c.add(Calendar.DAY_OF_WEEK, 1);
+                            today.set(Calendar.DAY_OF_WEEK, 7);
+                            today.add(Calendar.DAY_OF_WEEK, 1);
                         }
                     } else {
                         if (x < 1) x = 1;
                         if (x > 31) x = 31;
-                        c.set(Calendar.DAY_OF_MONTH, x);
+
+                        // v3.4.4 每月最后一天
+                        int maxDayOfMonth = today.getActualMaximum(Calendar.DAY_OF_MONTH);
+                        if (x > maxDayOfMonth) x = maxDayOfMonth;
+
+                        today.set(Calendar.DAY_OF_MONTH, x);
                     }
-                    value = formatDate(c.getTime(), 0);
+                    value = formatDate(today.getTime(), 0);
                 }
                 else if (ParseHelper.YTA.equalsIgnoreCase(op)) {
                     value = formatDate(addDay(-1), 0);
