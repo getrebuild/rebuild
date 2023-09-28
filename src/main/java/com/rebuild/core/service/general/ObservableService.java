@@ -93,7 +93,8 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
     @Override
     public int delete(ID recordId) {
-        final ID currentUser = UserContextHolder.getUser();
+        ID currentUser = UserContextHolder.getRestoreUser();
+        if (currentUser == null) currentUser = UserContextHolder.getUser();
 
         Record deleted = null;
         if (countObservers() > 0) {

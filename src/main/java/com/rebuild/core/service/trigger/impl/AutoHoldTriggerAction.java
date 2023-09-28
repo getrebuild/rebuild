@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
+import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.OperatingContext;
@@ -122,7 +123,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
         }
 
         for (Field refto : fieldsRefto) {
-            Entity ownEntity = refto.getOwnEntity();
+            final Entity ownEntity = refto.getOwnEntity();
             String sql = String.format("select %s from %s where ",
                     ownEntity.getPrimaryField().getName(), ownEntity.getName());
 
@@ -153,8 +154,13 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
      * @see ApprovalHelper#getApprovalState(ID)
      */
     protected static ApprovalState getApprovalState(ID recordId) {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        if (MetadataHelper.hasApprovalField(entity)) return ApprovalHelper.getApprovalState(recordId);
-        else return null;
+        if (MetadataHelper.hasApprovalField(MetadataHelper.getEntity(recordId.getEntityCode()))) {
+            try {
+                return ApprovalHelper.getApprovalState(recordId);
+            } catch (NoRecordFoundException ignored) {
+                return null;
+            }
+        }
+        return null;
     }
 }
