@@ -14,7 +14,14 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 流程解析
@@ -102,10 +109,13 @@ public class FlowParser {
             return Collections.emptyList();
         }
 
-        // 非条件分支，只会有一个节点
+        // 非条件分支只会有一个节点
         if (!FlowNode.TYPE_BRANCH.equals(next.get(0).getType())) {
             return next;
         }
+
+        // fix:Gitee#I8326Z 移除非条件节点
+        next.removeIf(flowNode -> !flowNode.getType().equals(FlowNode.TYPE_BRANCH));
 
         // 条件节点优先级排序
         next.sort((o1, o2) -> {
