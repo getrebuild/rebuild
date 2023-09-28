@@ -229,6 +229,9 @@ public class ParseHelper {
                 || dt == DisplayType.LOCATION) {
             return StringUtils.defaultIfEmpty(fieldPath, field.getName());
 
+        } else if (dt == DisplayType.ANYREFERENCE) {
+            return fieldPath;
+
         } else {
             return null;
         }

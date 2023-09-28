@@ -557,3 +557,10 @@ textarea.formula-code + .fields-vars {
   margin-bottom: 0;
   width: auto;
 }
+
+.tech-details {
+  margin: 1px 0 0;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-left: 4px solid #e0e0e0;
+}
