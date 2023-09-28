@@ -2687,7 +2687,24 @@ class RbFormTag extends RbFormElement {
     }
   }
 
-  // isValueUnchanged() {}
+  setValue(val) {
+    if (typeof val === 'object') val = val.join('$$$$')
+    super.setValue(val)
+
+    // fix: v3.4.4
+    if ($empty(val)) {
+      this.__select2.val(null).trigger('change')
+    } else {
+      const names = []
+      val.split('$$$$').forEach((name) => {
+        if (!names.includes(name)) {
+          const o = new Option(name, name, true, true)
+          this.__select2.append(o)
+          names.push(name)
+        }
+      })
+    }
+  }
 }
 
 // 不支持/未开放的字段

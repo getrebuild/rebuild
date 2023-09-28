@@ -539,8 +539,6 @@ public class Installer implements InstallState {
      * 清除所有缓存
      */
     public static void clearAllCache() {
-        Application.getCommonsCache().getEhcacheCache().clear();
-
         if (isUseRedis()) {
             try (Jedis jedis = Application.getCommonsCache().getJedisPool().getResource()) {
                 // https://redis.io/commands/flushdb/
@@ -550,6 +548,8 @@ public class Installer implements InstallState {
                     jedis.flushDB();
                 }
             }
+        } else {
+            Application.getCommonsCache().getEhcacheCache().clear();
         }
     }
 }
