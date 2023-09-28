@@ -149,7 +149,8 @@ public class BaseService extends InternalPersistService {
         for (Field n2nField : n2nFields) {
             ID[] newRefs;
             if (isNew) {
-                newRefs = record.getIDArray(n2nField.getName());
+                Object maybeNull = record.getObjectValue(n2nField.getName());
+                newRefs = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
                 if (newRefs == null || newRefs.length == 0) continue;
             } else {
                 if (record.hasValue(n2nField.getName())) {
