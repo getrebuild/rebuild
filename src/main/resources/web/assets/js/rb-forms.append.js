@@ -414,10 +414,6 @@ class BaiduMap extends React.Component {
 }
 
 class BaiduMapModal extends RbModal {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     const ss = this.state.suggestion || []
 

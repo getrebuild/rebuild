@@ -4,6 +4,29 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis" />
     <title>[[${bundle.L('API 密钥')}]]</title>
+    <style>
+      .logs {
+        border-top: 1px solid #dee2e6;
+        padding: 20px;
+        min-height: 230px;
+      }
+      .logs .list-group-item {
+        padding: 6px 10px;
+      }
+      .logs .list-group-item.active > div {
+        color: #fff;
+      }
+      .logs .list-group-item.active > div > .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+      .logs dt {
+        margin-bottom: 8px;
+      }
+      .logs-detail {
+        position: sticky;
+        top: 20px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -60,5 +83,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/apis-manager.js}" type="text/babel"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   </body>
 </html>
