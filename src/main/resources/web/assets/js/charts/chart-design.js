@@ -22,7 +22,7 @@ $(document).ready(() => {
     const $item = $(item)
     let dims = _clear2($item.data('allow-dims'))
     let nums = _clear2($item.data('allow-nums'))
-    const title2 = $L('%s 个维度 %s 个数值', dims, nums)
+    const title2 = $L('%s个维度 %s个数值', dims, nums)
     $item.attr('title', $item.attr('title') + '<br/>' + title2)
   })
   $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })

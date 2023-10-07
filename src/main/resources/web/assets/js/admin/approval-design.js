@@ -308,10 +308,6 @@ class ConditionNode extends NodeSpec {
 
 // 条件节点序列
 class ConditionBranch extends NodeGroupSpec {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     const data = this.state.data || {}
     const filters = data.filter ? data.filter.items.length : 0
@@ -776,7 +772,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       RbHighbar.error(WrapHtml($L('免费版不支持转审/加签功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
-    if (rb.commercial < 1 && (d.allowBatch)) {
+    if (rb.commercial < 1 && d.allowBatch) {
       RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
@@ -883,10 +879,6 @@ class CCNodeConfig extends StartNodeConfig {
 
 // 条件
 class ConditionBranchConfig extends StartNodeConfig {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div>
@@ -909,10 +901,6 @@ class ConditionBranchConfig extends StartNodeConfig {
 
 // 画布
 class RbFlowCanvas extends NodeGroupSpec {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div>
