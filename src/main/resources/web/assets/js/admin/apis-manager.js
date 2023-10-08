@@ -163,7 +163,7 @@ class ApiLogsViewer extends RbModalWhite {
       <div className="logs">
         <div className="row">
           <div className="col-3 logs-list">
-            <div className="search-logs">
+            <div className="search-logs position-relative">
               <input
                 type="text"
                 placeholder={$L('查询')}
@@ -172,6 +172,7 @@ class ApiLogsViewer extends RbModalWhite {
                     this._loadNext(true, e.target.value)
                   }
                 }}
+                maxLength="40"
               />
             </div>
             <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>

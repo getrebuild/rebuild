@@ -40,9 +40,19 @@
         padding: 5px 8px;
         width: 100%;
         border-radius: 2px;
+        display: block;
       }
       .search-logs > input:focus {
-        background-color: rgba(0, 0, 0, 0.125);
+        background-color: #ccc;
+      }
+      .search-logs::after {
+        font-family: 'Material Design Icons', serif;
+        content: '\F0311';
+        font-size: 1.2rem;
+        position: absolute;
+        top: 3px;
+        right: 6px;
+        color: #fff;
       }
     </style>
   </head>
