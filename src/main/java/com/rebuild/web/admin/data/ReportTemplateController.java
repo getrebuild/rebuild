@@ -62,7 +62,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
 @RequestMapping("/admin/data/")
 public class ReportTemplateController extends BaseController {
 
-    @RequestMapping("/report-templates")
+    @GetMapping("/report-templates")
     public ModelAndView page() {
         return createModelAndView("/admin/data/report-templates");
     }
