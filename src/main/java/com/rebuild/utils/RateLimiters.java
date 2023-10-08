@@ -11,7 +11,6 @@ import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import org.springframework.util.Assert;
-import oshi.annotation.concurrent.NotThreadSafe;
 
 import java.time.Duration;
 import java.util.Collections;
