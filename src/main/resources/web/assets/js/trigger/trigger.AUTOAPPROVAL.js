@@ -91,7 +91,7 @@ LastLogsViewer.renderLog = function (log) {
       <dd className="mb-0">
         {log.affected.map((a, idx) => {
           return (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
               {a}
             </a>
           )

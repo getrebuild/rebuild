@@ -147,6 +147,14 @@ public class UserContextHolder {
         return false;
     }
 
+    /**
+     * @return
+     * @see #replaceUser(ID)
+     */
+    public static ID getRestoreUser() {
+        return CALLER_PREV.get();
+    }
+
     // --
 
     /**

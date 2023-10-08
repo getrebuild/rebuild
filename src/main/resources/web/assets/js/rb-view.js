@@ -603,7 +603,7 @@ const RbViewPage = {
 
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
-    $('.J_newpage').attr({ target: '_blank', href: `${rb.baseUrl}/app/entity/view?id=${id}` })
+    $('.J_newpage').attr({ target: '_blank', href: location.href })
     if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
 
     const that = this

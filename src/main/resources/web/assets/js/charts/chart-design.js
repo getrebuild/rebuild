@@ -10,8 +10,22 @@ const wpc = window.__PageConfig
 let dataFilter
 
 $(document).ready(() => {
-  $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
   if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
+
+  function _clear2(n) {
+    let x = n.split('|')
+    if (x[0] === x[1]) return x[0]
+    if (~~x[0] === 0 && ~~x[1] === 0) return 0
+    return x[0] + '~' + x[1]
+  }
+  $('.chart-type>a').each((idx, item) => {
+    const $item = $(item)
+    let dims = _clear2($item.data('allow-dims'))
+    let nums = _clear2($item.data('allow-nums'))
+    const title2 = $L('%s个维度 %s个数值', dims, nums)
+    $item.attr('title', $item.attr('title') + '<br/>' + title2)
+  })
+  $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
 
   $('.fields>li>a').each(function () {
     const $this = $(this)

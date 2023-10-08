@@ -4,6 +4,57 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis" />
     <title>[[${bundle.L('API 密钥')}]]</title>
+    <style>
+      .logs {
+        border-top: 1px solid #dee2e6;
+        padding: 20px;
+      }
+      .logs-list {
+        border-right: 1px solid rgba(0, 0, 0, 0.125);
+      }
+      .logs-list .list-group-item {
+        padding: 6px 8px;
+      }
+      .logs-list .list-group-item.active > div {
+        color: #fff;
+      }
+      .logs-list .list-group-item.active > div > .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+      .logs-detail {
+        position: sticky;
+        top: 20px;
+      }
+      .logs-detail dt {
+        margin-bottom: 10px;
+        font-weight: normal;
+        color: #666;
+      }
+      .logs-detail dd {
+        color: #222;
+      }
+      .search-logs > input {
+        appearance: none !important;
+        outline: none !important;
+        border: 0 none;
+        padding: 5px 8px;
+        width: 100%;
+        border-radius: 2px;
+        display: block;
+      }
+      .search-logs > input:focus {
+        background-color: #ccc;
+      }
+      .search-logs::after {
+        font-family: 'Material Design Icons', serif;
+        content: '\F0311';
+        font-size: 1.2rem;
+        position: absolute;
+        top: 3px;
+        right: 6px;
+        color: #fff;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -60,5 +111,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/apis-manager.js}" type="text/babel"></script>
+    <script th:src="@{/assets/lib/prettier/standalone.js}"></script>
+    <script th:src="@{/assets/lib/prettier/parser-babel.js}"></script>
   </body>
 </html>

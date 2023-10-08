@@ -52,14 +52,16 @@ import java.io.IOException;
 @RequestMapping("/user/")
 public class SignUpController extends BaseController {
 
+    private static final Object RRL_LOCK = new Object();
+
     // 基于邮箱的限流
-    private static final RequestRateLimiter RRL_EMAIL = RateLimiters.createRateLimiter(
+    private static final RequestRateLimiter RRL_4EMAIL = RateLimiters.createRateLimiter(
             new int[] { 60, 600, 3600 },
-            new int[] { 3, 5, 10 });
+            new int[] { 2, 6, 12 });
     // 基于IP的限流
-    private static final RequestRateLimiter RRL_IP = RateLimiters.createRateLimiter(
+    private static final RequestRateLimiter RRL_4IP = RateLimiters.createRateLimiter(
             new int[] { 60, 600, 3600 },
-            new int[] { 15, 50, 100 });
+            new int[] { 20, 60, 120 });
 
     // 注册
 
@@ -86,12 +88,14 @@ public class SignUpController extends BaseController {
             return RespBody.errorl("邮箱已存在");
         }
 
-        if (RRL_EMAIL.overLimitWhenIncremented("email:" + email)) {
-            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
-        }
-        String remoteIp = ServletUtils.getRemoteAddr(request);
-        if (RRL_IP.overLimitWhenIncremented("ip:" + remoteIp)) {
-            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+        synchronized (RRL_LOCK) {
+            if (RRL_4EMAIL.overLimitWhenIncremented("email:" + email)) {
+                throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+            }
+            String remoteIp = ServletUtils.getRemoteAddr(request);
+            if (RRL_4IP.overLimitWhenIncremented("ip:" + remoteIp)) {
+                throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+            }
         }
 
         String vcode = VerfiyCode.generate(email, 1);
@@ -188,8 +192,10 @@ public class SignUpController extends BaseController {
             return RespBody.errorl("无效邮箱地址");
         }
 
-        if (RRL_EMAIL.overLimitWhenIncremented("email:" + email)) {
-            throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+        synchronized (RRL_LOCK) {
+            if (RRL_4EMAIL.overLimitWhenIncremented("email:" + email)) {
+                throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
+            }
         }
 
         String vcode = VerfiyCode.generate(email, 2);

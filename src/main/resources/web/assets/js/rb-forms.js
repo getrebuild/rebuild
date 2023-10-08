@@ -2790,7 +2790,7 @@ class RbFormRefform extends React.Component {
 
       const VFORM = (
         <RF>
-          <a title={$L('在新页面打开')} className="close open-in-new" href={`${rb.baseUrl}/app/entity/view?id=${props.id}`} target="_blank">
+          <a title={$L('在新页面打开')} className="close open-in-new" href={`${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`} target="_blank">
             <i className="icon zmdi zmdi-open-in-new" />
           </a>
           <div className="row">

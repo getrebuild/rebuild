@@ -190,7 +190,7 @@ class LastLogsViewer extends RbAlert {
         <table className="table table-hover">
           <thead>
             <tr>
-              <th>{$L('执行内容')}</th>
+              <th>{$L('执行内容/结果')}</th>
               <th width="150">{$L('执行时间')}</th>
             </tr>
           </thead>
@@ -239,7 +239,7 @@ class LastLogsViewer extends RbAlert {
             <dd className="mb-0">
               {log.affected.map((a, idx) => {
                 return (
-                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
                     {a}
                   </a>
                 )
@@ -249,17 +249,18 @@ class LastLogsViewer extends RbAlert {
         )}
         {log.chain && (
           <RF>
-            <dt
-              className="mt-2 pointer font-weight-normal"
-              onClick={(e) => {
-                $(e.target).find('i.mdi').toggleClass('mdi-chevron-double-up')
-                $(e.target).next().toggleClass('hide')
-              }}>
-              {$L('执行细节')}
-              <i className="mdi mdi-chevron-double-down" />
+            <dt className="mt-2 font-weight-normal">
+              <a
+                onClick={(e) => {
+                  $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
+                  $(e.currentTarget).parent().next().toggleClass('hide')
+                }}>
+                {$L('技术细节')}
+                <i className="mdi mdi-chevron-double-down" />
+              </a>
             </dt>
             <dd className="mb-0 hide">
-              <code>{log.chain}</code>
+              <blockquote className="tech-details code">{log.chain}</blockquote>
             </dd>
           </RF>
         )}
