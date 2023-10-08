@@ -155,7 +155,11 @@ class AppEdit extends ConfigFormDlg {
 class ApiLogsViewer extends RbModalWhite {
   renderContent() {
     if (!this.state.dataLogs) {
-      return <RbSpinner />
+      return (
+        <div className="rb-loading rb-loading-active mt-8">
+          <RbSpinner />
+        </div>
+      )
     }
 
     const dataShow = this.state.dataShow
