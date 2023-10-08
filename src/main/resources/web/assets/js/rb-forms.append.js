@@ -413,91 +413,83 @@ class BaiduMap extends React.Component {
   }
 }
 
-class BaiduMapModal extends RbModal {
+class BaiduMapModal extends RbModalWhite {
   render() {
-    const ss = this.state.suggestion || []
+    if (this.state.destroy) return null
+    return super.render()
+  }
 
-    return this.state.destroy === true ? null : (
-      <div className="modal" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{this.props.title || $L('位置')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body p-0">
-              {this.props.canPin && (
-                <div className="map-pin">
-                  <div className="row">
-                    <div className="col-6">
-                      <div className="dropdown">
-                        <div className="input-group w-100">
-                          <input
-                            type="text"
-                            ref={(c) => (this._$searchValue = c)}
-                            className="form-control form-control-sm dropdown-toggle"
-                            placeholder={$L('查找位置')}
-                            defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
-                            onKeyDown={(e) => {
-                              if (e.which === 38 || e.which === 40) {
-                                $stopEvent(e, true)
-                                this._suggestUpDown(e.which)
-                              } else if (e.which === 13) {
-                                const $active = $(this._$suggestion).find('.active')
-                                if ($active[0] && $active.text()) {
-                                  this._suggestSelect({ address: $active.text(), location: $active.data('location') })
-                                }
-                                setTimeout(() => this._search(), 10)
-                              } else {
-                                this._suggest()
-                              }
-                            }}
-                            onFocus={() => this._suggest()}
-                          />
-                          <div className="input-group-append">
-                            <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                              <i className="icon zmdi zmdi-search" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
-                          {ss.map((item) => {
-                            return (
-                              <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
-                                {item.address}
-                              </a>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-6 text-right">
-                      <button className="btn btn-primary btn-outline" type="button" onClick={() => this._onConfirm()}>
-                        <i className="icon zmdi zmdi-check" /> {$L('确定')}
+  renderContent() {
+    const ss = this.state.suggestion || []
+    return (
+      <RF>
+        {this.props.canPin && (
+          <div className="map-pin">
+            <div className="row">
+              <div className="col-6">
+                <div className="dropdown">
+                  <div className="input-group w-100">
+                    <input
+                      type="text"
+                      ref={(c) => (this._$searchValue = c)}
+                      className="form-control form-control-sm dropdown-toggle"
+                      placeholder={$L('查找位置')}
+                      defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
+                      onKeyDown={(e) => {
+                        if (e.which === 38 || e.which === 40) {
+                          $stopEvent(e, true)
+                          this._suggestUpDown(e.which)
+                        } else if (e.which === 13) {
+                          const $active = $(this._$suggestion).find('.active')
+                          if ($active[0] && $active.text()) {
+                            this._suggestSelect({ address: $active.text(), location: $active.data('location') })
+                          }
+                          setTimeout(() => this._search(), 10)
+                        } else {
+                          this._suggest()
+                        }
+                      }}
+                      onFocus={() => this._suggest()}
+                    />
+                    <div className="input-group-append">
+                      <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                        <i className="icon zmdi zmdi-search" />
                       </button>
                     </div>
                   </div>
+                  <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
+                    {ss.map((item) => {
+                      return (
+                        <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
+                          {item.address}
+                        </a>
+                      )
+                    })}
+                  </div>
                 </div>
-              )}
-              <div style={{ height: 500 }}>
-                <BaiduMap
-                  ref={(c) => (this._BaiduMap = c)}
-                  lnglat={this.props.lnglat}
-                  canPin={this.props.canPin}
-                  onPin={(latlng) => {
-                    if (this._$searchValue) {
-                      this._latlngValue = latlng
-                      $(this._$searchValue).val(latlng.text)
-                    }
-                  }}
-                />
+              </div>
+              <div className="col-6 text-right">
+                <button className="btn btn-primary btn-outline" type="button" onClick={() => this._onConfirm()}>
+                  <i className="icon zmdi zmdi-check" /> {$L('确定')}
+                </button>
               </div>
             </div>
           </div>
+        )}
+        <div style={{ height: 500 }}>
+          <BaiduMap
+            ref={(c) => (this._BaiduMap = c)}
+            lnglat={this.props.lnglat}
+            canPin={this.props.canPin}
+            onPin={(latlng) => {
+              if (this._$searchValue) {
+                this._latlngValue = latlng
+                $(this._$searchValue).val(latlng.text)
+              }
+            }}
+          />
         </div>
-      </div>
+      </RF>
     )
   }
 
@@ -511,13 +503,6 @@ class BaiduMapModal extends RbModal {
       }, 100)
     })
   }
-
-  // show(lnglat) {
-  //   $(this._$modal).modal('show')
-  //   if (lnglat) {
-  //     setTimeout(() => this._BaiduMap.center(lnglat), 100)
-  //   }
-  // }
 
   destroy() {
     this.setState({ destroy: true })

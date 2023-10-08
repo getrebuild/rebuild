@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global dlgActionAfter hljs */
+/* global dlgActionAfter */
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<AppEdit />))
@@ -37,7 +37,13 @@ class AppList extends ConfigList {
               <td>{item[4] || $L('无 (拥有全部权限)')}</td>
               <td>{item[7] || $L('无 (不限制)')}</td>
               <td>
-                <a onClick={() => renderRbcomp(<ApiLogsViewer width="1001" appid={item[1]} />)}>{item[6] || 0}</a>
+                {item[6] > 0 ? (
+                  <a title={$L('API 调用日志')} onClick={() => renderRbcomp(<ApiLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize />)}>
+                    {item[6]}
+                  </a>
+                ) : (
+                  <span className="text-muted">0</span>
+                )}
               </td>
               <td>
                 <DateShow date={item[5]} />
@@ -146,95 +152,95 @@ class AppEdit extends ConfigFormDlg {
 }
 
 // ~~ LOG 查看
-class ApiLogsViewer extends RbModal {
-  render() {
-    return (
-      <div
-        className="modal rbmodal"
-        ref={(c) => {
-          this._rbmodal = c
-          this._element = c
-        }}>
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{$L('API 调用日志')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body p-0">
-              <div className="logs">{this.renderLogs()}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  renderLogs() {
+class ApiLogsViewer extends RbModalWhite {
+  renderContent() {
     if (!this.state.dataLogs) {
       return <RbSpinner />
     }
-    if (this.state.dataLogs.length <= 0) {
-      return <div className="list-nodata">{$L('暂无数据')}</div>
-    }
 
-    const dataShow = this.state.dataShow || []
+    const dataShow = this.state.dataShow
     return (
-      <div className="row">
-        <div className="col-3">
-          <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>
-            {this.state.dataLogs.map((item) => {
-              const respOk = this._isRespOk(item[5])
-              return (
+      <div className="logs">
+        <div className="row">
+          <div className="col-3 logs-list">
+            <div className="search-logs">
+              <input
+                type="text"
+                placeholder={$L('查询')}
+                onKeyDown={(e) => {
+                  if (e.keyCode === 13) {
+                    this._loadNext(true, e.target.value)
+                  }
+                }}
+              />
+            </div>
+            <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>
+              {this.state.dataLogs.map((item) => {
+                const respOk = this._isRespOk(item[5])
+                return (
+                  <a
+                    key={item[6]}
+                    className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${dataShow && dataShow[6] === item[6] && 'active'}`}
+                    onClick={() => {
+                      this.setState({ dataShow: item })
+                    }}>
+                    <div>
+                      {item[3].split('?')[0]}
+                      <br />
+                      <span className="text-muted fs-12">{item[1].split('UTC')[0]}</span>
+                    </div>
+                    <span className={`badge badge-${respOk ? 'success' : 'danger'} badge-pill`}>{respOk ? $L('成功') : $L('失败')}</span>
+                  </a>
+                )
+              })}
+            </div>
+            {this.state.showMore && (
+              <div className="text-center mt-3">
                 <a
-                  key={item[6]}
-                  className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${dataShow[6] === item[6] && 'active'}`}
-                  onClick={() => {
-                    this.setState({ dataShow: item })
+                  href="###"
+                  onClick={(e) => {
+                    $stopEvent(e, true)
+                    this._loadNext()
                   }}>
-                  <div>
-                    {item[3].split('?')[0]}
-                    <br />
-                    <span className="text-muted fs-12">{$fromNow(dataShow[1])}</span>
-                  </div>
-                  <span className={`badge badge-${respOk ? 'success' : 'danger'} badge-pill`}>{respOk ? $L('成功') : $L('失败')}</span>
+                  {$L('加载更多')}
                 </a>
-              )
-            })}
+              </div>
+            )}
           </div>
-        </div>
-        <div className="col-9">
-          <div className="logs-detail">
-            <dl className="row">
-              <dt className="col-sm-3">{$L('编号')}</dt>
-              <dd className="col-sm-9">{dataShow[6]}</dd>
-              <dt className="col-sm-3">{$L('来源 IP')}</dt>
-              <dd className="col-sm-9">{dataShow[0]}</dd>
-              <dt className="col-sm-3">{$L('请求时间')}</dt>
-              <dd className="col-sm-9">{dataShow[1]}</dd>
-              <dt className="col-sm-3">{$L('响应时间')}</dt>
-              <dd className="col-sm-9">{dataShow[2]}</dd>
-              <dt className="col-sm-3">{$L('请求地址')}</dt>
-              <dd className="col-sm-9">{dataShow[3]}</dd>
-            </dl>
-            <dl className="row">
-              <dt className="col-sm-12">{$L('请求数据')}</dt>
-              <dd className="col-sm-12">
-                <pre>
-                  <code ref={(c) => (this._$code1 = c)}>{JSON.stringify(dataShow[4])}</code>
-                </pre>
-              </dd>
-            </dl>
-            <dl className="row">
-              <dt className="col-sm-12">{$L('响应数据')}</dt>
-              <dd className="col-sm-12">
-                <pre>
-                  <code ref={(c) => (this._$code2 = c)}>{JSON.stringify(dataShow[5])}</code>
-                </pre>
-              </dd>
-            </dl>
+          <div className="col-9">
+            {dataShow ? (
+              <div className="logs-detail">
+                <dl className="row">
+                  <dt className="col-sm-3">{$L('编号')}</dt>
+                  <dd className="col-sm-9">{dataShow[6]}</dd>
+                  <dt className="col-sm-3">{$L('来源 IP')}</dt>
+                  <dd className="col-sm-9">{dataShow[0]}</dd>
+                  <dt className="col-sm-3">{$L('请求时间')}</dt>
+                  <dd className="col-sm-9">{dataShow[1].substr(0, 19)}</dd>
+                  <dt className="col-sm-3">{$L('响应时间')}</dt>
+                  <dd className="col-sm-9">
+                    {dataShow[2].substr(0, 19)}
+                    <span className="badge badge-light ml-1 up-1">{$moment(dataShow[2]).diff($moment(dataShow[1]), 'seconds')}s</span>
+                  </dd>
+                  <dt className="col-sm-3">{$L('请求地址')}</dt>
+                  <dd className="col-sm-9">{dataShow[3]}</dd>
+                  <dt className="col-sm-12">{$L('请求数据')}</dt>
+                  <dd className="col-sm-12">
+                    <pre className="code p-3" ref={(c) => (this._$codeReq = c)}>
+                      {JSON.stringify(dataShow[4])}
+                    </pre>
+                  </dd>
+                  <dt className="col-sm-12">{$L('响应数据')}</dt>
+                  <dd className="col-sm-12">
+                    <pre className="code p-3" ref={(c) => (this._$codeResp = c)}>
+                      {JSON.stringify(dataShow[5])}
+                    </pre>
+                  </dd>
+                </dl>
+              </div>
+            ) : (
+              <div className="text-muted pt-8 pb-8 text-center">{$L('暂无数据')}</div>
+            )}
           </div>
         </div>
       </div>
@@ -247,23 +253,24 @@ class ApiLogsViewer extends RbModal {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if ((this.state.dataShow || [])[6] !== (prevState || [])[6]) {
-      let c1 = hljs.highlight(JSON.stringify(this.state.dataShow[4]), { language: 'json' })
-      $(this._$code1).html(c1.value)
-      let c2 = hljs.highlight(JSON.stringify(this.state.dataShow[5]), { language: 'json' })
-      $(this._$code2).html(c2.value)
+    if (this._$codeReq && this._$codeResp && (this.state.dataShow || [])[6] !== (prevState || [])[6]) {
+      this._$codeReq.innerHTML = this._formattedCode(JSON.stringify(this.state.dataShow[4]))
+      this._$codeResp.innerHTML = this._formattedCode(JSON.stringify(this.state.dataShow[5]))
     }
   }
 
-  _loadNext() {
+  _loadNext(reset, q) {
     this.__pageNo = (this.__pageNo || 0) + 1
-    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}`, (res) => {
+    this.__q = q || this.__q
+    if (reset) this.__pageNo = 1
+
+    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(q)}`, (res) => {
       const _data = res.data || []
-      const dataLogs = (this.state.dataLogs || []).concat(_data)
+      const dataLogs = reset ? _data : (this.state.dataLogs || []).concat(_data)
       this.setState(
         {
           dataLogs: dataLogs,
-          dataShow: this.state.dataShow || _data[0],
+          dataShow: reset ? _data[0] : this.state.dataShow || _data[0],
           showMore: _data.length >= 40,
         },
         () => {}
@@ -282,5 +289,19 @@ class ApiLogsViewer extends RbModal {
       }
     }
     return false
+  }
+
+  _formattedCode(c) {
+    try {
+      // eslint-disable-next-line no-undef
+      return prettier.format(c, {
+        parser: 'json',
+        // eslint-disable-next-line no-undef
+        plugins: prettierPlugins,
+      })
+    } catch (err) {
+      console.log('Cannot format :', err)
+      return c
+    }
   }
 }

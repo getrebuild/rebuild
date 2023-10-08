@@ -217,6 +217,49 @@ class RbFormHandler extends RbModalHandler {
   }
 }
 
+// ~~
+class RbModalWhite extends RbModal {
+  render() {
+    const style2 = { maxWidth: this.state._maximize ? $(window).width() - 60 : null }
+    return (
+      <div
+        className="modal rbmodal"
+        ref={(c) => {
+          this._rbmodal = c
+          this._element = c
+        }}>
+        <div className="modal-dialog modal-xl" style={style2}>
+          <div className="modal-content" style={style2}>
+            <div className="modal-header">
+              <h3 className="modal-title">{this.props.title}</h3>
+              {this.props.maximize && (
+                <button
+                  className="close md-close J_maximize"
+                  type="button"
+                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
+                  onClick={() => {
+                    this.setState({ _maximize: !this.state._maximize })
+                  }}
+                  style={{ marginTop: -9 }}>
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                </button>
+              )}
+              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')} style={{ marginTop: -9 }}>
+                <span className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body p-0">{this.renderContent()}</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderContent() {
+    return 'TODO'
+  }
+}
+
 // ~~ 提示框
 class RbAlert extends React.Component {
   constructor(props) {

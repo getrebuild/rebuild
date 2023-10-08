@@ -8,23 +8,41 @@
       .logs {
         border-top: 1px solid #dee2e6;
         padding: 20px;
-        min-height: 230px;
       }
-      .logs .list-group-item {
-        padding: 6px 10px;
+      .logs-list {
+        border-right: 1px solid rgba(0, 0, 0, 0.125);
       }
-      .logs .list-group-item.active > div {
+      .logs-list .list-group-item {
+        padding: 6px 8px;
+      }
+      .logs-list .list-group-item.active > div {
         color: #fff;
       }
-      .logs .list-group-item.active > div > .text-muted {
+      .logs-list .list-group-item.active > div > .text-muted {
         color: rgba(255, 255, 255, 0.6) !important;
-      }
-      .logs dt {
-        margin-bottom: 8px;
       }
       .logs-detail {
         position: sticky;
         top: 20px;
+      }
+      .logs-detail dt {
+        margin-bottom: 10px;
+        font-weight: normal;
+        color: #666;
+      }
+      .logs-detail dd {
+        color: #222;
+      }
+      .search-logs > input {
+        appearance: none !important;
+        outline: none !important;
+        border: 0 none;
+        padding: 5px 8px;
+        width: 100%;
+        border-radius: 2px;
+      }
+      .search-logs > input:focus {
+        background-color: rgba(0, 0, 0, 0.125);
       }
     </style>
   </head>
@@ -83,7 +101,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/apis-manager.js}" type="text/babel"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script th:src="@{/assets/lib/prettier/standalone.js}"></script>
+    <script th:src="@{/assets/lib/prettier/parser-babel.js}"></script>
   </body>
 </html>

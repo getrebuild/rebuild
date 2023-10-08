@@ -84,14 +84,15 @@ public class ApisManagerController extends BaseController {
         int pageSize = 40;
 
         String sql = "select remoteIp,requestTime,responseTime,requestUrl,requestBody,responseBody,requestId from RebuildApiRequest" +
-                " where appId = ? and (1=1) order by requestTime desc";
+                " where appId = ? and requestTime > ? and (1=1) order by requestTime desc";
         if (StringUtils.isNotBlank(q)) {
             q = StringEscapeUtils.escapeSql(q);
-            sql = sql.replace("(1=1)", String.format("(requestBody like '%%s%' or responseBody like '%%s%')", q, q));
+            sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
         }
 
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, appid)
+                .setParameter(2, CalendarUtils.addDay(-30))
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
