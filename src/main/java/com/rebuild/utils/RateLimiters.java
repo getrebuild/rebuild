@@ -11,6 +11,7 @@ import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import org.springframework.util.Assert;
+import oshi.annotation.concurrent.NotThreadSafe;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -18,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 限流工具
+ * 限流工具（NotThreadSafe）
  *
  * @author ZHAO
  * @since 2020/4/29
