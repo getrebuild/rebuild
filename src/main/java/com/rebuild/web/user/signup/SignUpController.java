@@ -92,7 +92,8 @@ public class SignUpController extends BaseController {
             if (RRL_4EMAIL.overLimitWhenIncremented("email:" + email)) {
                 throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
             }
-            if (RRL_4IP.overLimitWhenIncremented("ip:" + ServletUtils.getRemoteAddr(request))) {
+            String remoteIp = ServletUtils.getRemoteAddr(request);
+            if (RRL_4IP.overLimitWhenIncremented("ip:" + remoteIp)) {
                 throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
             }
         }
