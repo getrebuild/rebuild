@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.DataTruncation;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 
 /**
  * @author devezhao
@@ -47,11 +48,14 @@ public class KnownExceptionConverter {
         } else if (cause instanceof SQLException && StringUtils.countMatches(exMsg, "\\x") >= 4) {  // mb4
             log.error("DBERR: {}", exMsg);
             return Language.L("数据库编码不支持 4 字节编码");
+        } else if (cause instanceof SQLTimeoutException) {
+            log.error("DBERR: {}", exMsg);
+            return Language.L("数据库语句执行超时");
         } else if (ex instanceof ConstraintViolationException) {
             log.error("DBERR: {}", exMsg);
             return Language.L("数据库字段违反唯一性约束");
         }
-
+        
         return null;
     }
 }

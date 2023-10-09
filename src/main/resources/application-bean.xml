@@ -29,6 +29,7 @@
         <property name="maxOpenPreparedStatements" value="100"/>
         <property name="asyncInit" value="false"/>
         <property name="filters" value="mergeStat"/>
+        <property name="socketTimeout" value="0"/>
     </bean>
 
     <bean name="mysql5Dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect"/>
