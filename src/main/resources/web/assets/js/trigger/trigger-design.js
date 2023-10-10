@@ -58,8 +58,8 @@ $(document).ready(() => {
           icon="time"
           message={
             <div>
-              <span className="mr-1">{$L('预计执行时间')}</span>
-              <code>{res.data.join(', ')}</code>
+              <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
+              <code>{res.data.slice(0, 10).join(', ')}</code>
             </div>
           }
         />,
