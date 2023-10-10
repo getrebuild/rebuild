@@ -38,7 +38,7 @@ import java.io.IOException;
 @Controller
 public class CommonPageView extends BaseController {
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (AppUtils.isMobile(request) && License.isRbvAttached()) {
             response.sendRedirect(RebuildConfiguration.getMobileUrl("/"));
@@ -88,7 +88,7 @@ public class CommonPageView extends BaseController {
     }
 
     @GetMapping("/app/home")
-    public void home(@IdParam(name = "n", required = false) ID useNav, @IdParam(name = "d", required = false) ID useDash,
+    public void appHome(@IdParam(name = "n", required = false) ID useNav, @IdParam(name = "d", required = false) ID useDash,
                      HttpServletResponse response) throws IOException {
         addCookie("AppHome.Nav", useNav, response);
         addCookie("AppHome.Dash", useDash, response);

@@ -45,6 +45,7 @@ public class DataReportManager implements ConfigManager {
 
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
+    public static final int TYPE_HTML = 3;
 
     /**
      * 获取报表列表
@@ -150,15 +151,12 @@ public class DataReportManager implements ConfigManager {
      * @see #getTemplateFile(Entity, ID) 性能好
      */
     public TemplateFile getTemplateFile(ID reportId) {
-        Object[] report = Application.createQueryNoFilter(
-                "select belongEntity from DataReportConfig where configId = ?")
-                .setParameter(1, reportId)
-                .unique();
-        if (report == null || !MetadataHelper.containsEntity((String) report[0])) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
+        if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
             throw new ConfigurationException("No config of report found : " + reportId);
         }
 
-        return getTemplateFile(MetadataHelper.getEntity((String) report[0]), reportId);
+        return getTemplateFile(MetadataHelper.getEntity((String) o[0]), reportId);
     }
 
     @Override
@@ -166,6 +164,8 @@ public class DataReportManager implements ConfigManager {
         final String cKey = "DataReportManager35-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
+
+    // --
 
     /**
      * 获取报表名称
