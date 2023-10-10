@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
+  $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
+
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -21,12 +23,22 @@ class ReportList extends ConfigList {
     return (
       <RF>
         {(this.state.data || []).map((item) => {
-          const outputType = (item[7] || {}).outputType || 'excel'
+          let outputType = (item[7] || {}).outputType || 'excel'
+          const isHtml5 = item[6] === 3
+          if (isHtml5) outputType = ''
+
           return (
             <tr key={item[0]}>
               <td>
-                {item[3]}
+                {isHtml5 ? (
+                  <a title={$L('在线模板编辑器')} href={`report-template/design?id=${item[0]}`}>
+                    {item[3]}
+                  </a>
+                ) : (
+                  item[3]
+                )}
                 {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
+                {isHtml5 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('在线模板')}</span>}
                 {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
                 {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
@@ -63,7 +75,7 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} />)
+    renderRbcomp(<ReportEditor id={item[0]} name={item[3]} isDisabled={item[4]} extraDefinition={item[7]} isHtml5={item[6] === 3} />)
   }
 
   handleDelete(id) {
@@ -87,6 +99,8 @@ class ReportEditor extends ConfigFormDlg {
   }
 
   renderFrom() {
+    const isHtml5Style = this.props.isHtml5 ? { display: 'none' } : {}
+
     return (
       <RF>
         {!this.props.id && (
@@ -105,12 +119,12 @@ class ReportEditor extends ConfigFormDlg {
                 </select>
               </div>
             </div>
-            <div className="form-group row">
+            <div className="form-group row" style={isHtml5Style}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板类型')}</label>
               <div className="col-sm-7 pt-1">
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                   <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={() => this.checkTemplate()} />
-                  <span className="custom-control-label">{$L('记录模板')}</span>
+                  <span className="custom-control-label">{$L('标准')}</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                   <input className="custom-control-input" type="radio" value="2" name="reportType" ref={(c) => (this._$listType = c)} onChange={() => this.checkTemplate()} />
@@ -120,7 +134,7 @@ class ReportEditor extends ConfigFormDlg {
             </div>
           </RF>
         )}
-        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''}`}>
+        <div className={`form-group row ${this.props.id ? 'bosskey-show' : ''}`} style={isHtml5Style}>
           <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
           <div className="col-sm-9">
             <div className="float-left">
@@ -157,7 +171,7 @@ class ReportEditor extends ConfigFormDlg {
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row" style={isHtml5Style}>
           <label className="col-sm-3 col-form-label text-sm-right">{$L('报表导出格式')}</label>
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -256,6 +270,8 @@ class ReportEditor extends ConfigFormDlg {
       if (outputType.includes('pdf')) $(this._$outputType).find('input:eq(1)').attr('checked', true)
       if (outputType.includes('html')) $(this._$outputType).find('input:eq(2)').attr('checked', true)
     } else {
+      if (this.props.isHtml5) return
+
       $(this._$outputType).find('input:eq(0)').attr('checked', true)
 
       const $pw = $(`<a class="btn btn-secondary ml-2"><i class="icon zmdi zmdi-eye mr-1"></i>${$L('预览')}</a>`)
@@ -344,7 +360,11 @@ class ReportEditor extends ConfigFormDlg {
       post.templateFile = this.state.templateFile
       post.templateType = $(this._$listType).prop('checked') ? 2 : 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
-      if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
+      if (this.props.isHtml5) {
+        post.templateType = 3
+      } else {
+        if (!post.templateFile) return RbHighbar.create($L('请上传模板文件'))
+      }
       post.extraDefinition.templateVersion = 3
     }
 
@@ -355,8 +375,12 @@ class ReportEditor extends ConfigFormDlg {
 
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
-      if (res.error_code === 0) dlgActionAfter(this)
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        if (this.props.isHtml5 && !this.props.id) location.href = `report-template/design?id=${res.data.id}`
+        else dlgActionAfter(this)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
       this.disabled()
     })
   }

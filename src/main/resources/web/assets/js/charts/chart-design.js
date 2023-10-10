@@ -105,7 +105,7 @@ $(document).ready(() => {
 
   // 保存按钮
   $('.rb-toggle-left-sidebar')
-    .attr('title', $L('保存'))
+    .attr('title', $L('保存并返回'))
     .off('click')
     .on('click', () => {
       const cfg = build_config()
