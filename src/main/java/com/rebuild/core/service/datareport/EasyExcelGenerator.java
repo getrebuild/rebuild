@@ -79,7 +79,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 @Slf4j
 public class EasyExcelGenerator extends SetUser {
 
-    protected File template;
+    protected File templateFile;
     protected Integer writeSheetAt = null;
     protected ID recordId;
 
@@ -92,7 +92,7 @@ public class EasyExcelGenerator extends SetUser {
      * @param recordId
      */
     protected EasyExcelGenerator(File template, ID recordId) {
-        this.template = getFixTemplate(template);
+        this.templateFile = getFixTemplate(template);
         this.recordId = recordId;
     }
 
@@ -116,7 +116,7 @@ public class EasyExcelGenerator extends SetUser {
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
 
-        try (ExcelWriter excelWriter = EasyExcel.write(target).withTemplate(template).build()) {
+        try (ExcelWriter excelWriter = EasyExcel.write(target).withTemplate(templateFile).build()) {
             WriteSheet writeSheet = EasyExcel.writerSheet(writeSheetAt)
                     .registerWriteHandler(new FixsMergeStrategy())
                     .registerWriteHandler(new FormulaCellWriteHandler())
@@ -151,7 +151,7 @@ public class EasyExcelGenerator extends SetUser {
      */
     protected File getTargetFile() {
         return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s",
-                System.currentTimeMillis(), template.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
+                System.currentTimeMillis(), templateFile.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
     }
 
     /**
@@ -160,9 +160,9 @@ public class EasyExcelGenerator extends SetUser {
      * @return 第一个为主记录（若有）
      */
     protected List<Map<String, Object>> buildData() {
-        Entity entity = MetadataHelper.getEntity(this.recordId.getEntityCode());
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        TemplateExtractor templateExtractor = new TemplateExtractor(this.template);
+        TemplateExtractor templateExtractor = new TemplateExtractor(templateFile);
         Map<String, String> varsMap = templateExtractor.transformVars(entity);
 
         Map<String, String> varsMapOfMain = new HashMap<>();
@@ -193,7 +193,7 @@ public class EasyExcelGenerator extends SetUser {
             }
             // 无效字段
             else if (validField == null) {
-                log.warn("Invalid field `{}` in template : {}", e.getKey(), this.template);
+                log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
                 continue;
             }
 
@@ -219,9 +219,9 @@ public class EasyExcelGenerator extends SetUser {
                     entity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName());
 
             Record record = Application.createQuery(sql, this.getUser())
-                    .setParameter(1, this.recordId)
+                    .setParameter(1, recordId)
                     .record();
-            Assert.notNull(record, "No record found : " + this.recordId);
+            Assert.notNull(record, "No record found : " + recordId);
 
             datas.add(buildData(record, varsMapOfMain));
             this.hasMain = true;
@@ -236,7 +236,7 @@ public class EasyExcelGenerator extends SetUser {
                     MetadataHelper.getDetailToMainField(entity.getDetailEntity()).getName());
 
             List<Record> list = Application.createQuery(sql, this.getUser())
-                    .setParameter(1, this.recordId)
+                    .setParameter(1, recordId)
                     .list();
 
             phNumber = 1;
@@ -253,7 +253,7 @@ public class EasyExcelGenerator extends SetUser {
                     StringUtils.join(fieldsOfApproval, ","));
 
             List<Record> list = Application.createQueryNoFilter(sql)
-                    .setParameter(1, this.recordId)
+                    .setParameter(1, recordId)
                     .list();
 
             phNumber = 1;

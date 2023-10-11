@@ -34,10 +34,10 @@ public class TemplateExtractor33 extends TemplateExtractor {
     private Map<String, String> sortFields = new HashMap<>();
 
     /**
-     * @param template
+     * @param templateFile
      */
-    public TemplateExtractor33(File template) {
-        super(template, Boolean.FALSE);
+    public TemplateExtractor33(File templateFile) {
+        super(templateFile, Boolean.FALSE);
     }
 
     /**

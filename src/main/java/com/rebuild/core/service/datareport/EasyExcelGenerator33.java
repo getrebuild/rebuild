@@ -45,23 +45,23 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PRE
 @Slf4j
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
-    final private List<ID> recordIds;
+    final private List<ID> recordIdMultiple;
 
-    protected EasyExcelGenerator33(File template, ID recordId) {
-        super(template, recordId);
-        this.recordIds = null;
+    protected EasyExcelGenerator33(File templateFile, ID recordId) {
+        super(templateFile, recordId);
+        this.recordIdMultiple = null;
     }
 
     protected EasyExcelGenerator33(File template, List<ID> recordIds) {
         super(template, recordIds.get(0));
-        this.recordIds = recordIds;
+        this.recordIdMultiple = recordIds;
     }
 
     @Override
     protected List<Map<String, Object>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(template);
+        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(templateFile);
         final Map<String, String> varsMap = templateExtractor33.transformVars(entity);
 
         // 变量
@@ -102,7 +102,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             if (TemplateExtractor33.isPlaceholder(varName)) continue;
             // 无效字段
             if (fieldName == null) {
-                log.warn("Invalid field `{}` in template : {}", e.getKey(), template);
+                log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
                 continue;
             }
 
@@ -182,21 +182,21 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         return datas;
     }
 
-    // -- V34 多个
+    // -- V34 支持多记录导出
 
     @Override
     public File generate() {
-        if (recordIds == null) return super.generate();
+        if (recordIdMultiple == null) return super.generate();
 
         // init
         File targetFile = super.getTargetFile();
         try {
-            FileUtils.copyFile(this.template, targetFile);
+            FileUtils.copyFile(templateFile, targetFile);
         } catch (IOException e) {
             throw new ReportsException(e);
         }
 
-        for (ID recordId : this.recordIds) {
+        for (ID recordId : recordIdMultiple) {
             int newSheetAt;
             try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
                 // 1.复制模板
@@ -220,7 +220,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
             // 生成报表
-            this.template = targetFile;
+            this.templateFile = targetFile;
             this.writeSheetAt = newSheetAt;
             this.recordId = recordId;
             this.hasMain = false;

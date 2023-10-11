@@ -53,7 +53,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
     @Override
     protected List<Map<String, Object>> buildData() {
         Entity entity = MetadataHelper.getEntity(queryData.getString("entity"));
-        TemplateExtractor varsExtractor = new TemplateExtractor(this.template, Boolean.TRUE);
+        TemplateExtractor varsExtractor = new TemplateExtractor(templateFile, Boolean.TRUE);
         Map<String, String> varsMap = varsExtractor.transformVars(entity);
 
         List<String> validFields = new ArrayList<>();
@@ -68,7 +68,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
             if (validField != null && e.getKey().startsWith(NROW_PREFIX)) {
                 validFields.add(validField);
             } else {
-                log.warn("Invalid field `{}` in template : {}", e.getKey(), this.template);
+                log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
             }
         }
 

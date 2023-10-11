@@ -55,11 +55,11 @@ public class TemplateExtractor {
     // 当前日期时间
     protected static final String PH__CURRENTDATETIME = PLACEHOLDER + "CURRENTDATETIME";
 
-    // v2:{xxx} v1:${xxx}
+    // 变量匹配 v2:{xxx} v1:${xxx}
     protected static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
-    final protected File template;
-    final private boolean isList;
+    final protected File templateFile;
+    final private boolean isListType;
 
     /**
      * @param template
@@ -69,12 +69,12 @@ public class TemplateExtractor {
     }
 
     /**
-     * @param template
+     * @param templateFile
      * @param isList 列表模板
      */
-    public TemplateExtractor(File template, boolean isList) {
-        this.template = template;
-        this.isList = isList;
+    public TemplateExtractor(File templateFile, boolean isList) {
+        this.templateFile = templateFile;
+        this.isListType = isList;
     }
 
     /**
@@ -86,7 +86,7 @@ public class TemplateExtractor {
     public Map<String, String> transformVars(Entity entity) {
         final Set<String> vars = extractVars();
 
-        Entity detailEntity = this.isList ? null : entity.getDetailEntity();
+        Entity detailEntity = this.isListType ? null : entity.getDetailEntity();
         Entity approvalEntity = MetadataHelper.hasApprovalField(entity)
                 ? MetadataHelper.getEntity(EntityHelper.RobotApprovalStep) : null;
 
@@ -135,7 +135,7 @@ public class TemplateExtractor {
      * @return
      */
     protected Set<String> extractVars() {
-        List<Cell[]> rows = ExcelUtils.readExcel(this.template);
+        List<Cell[]> rows = ExcelUtils.readExcel(templateFile);
 
         Set<String> vars = new HashSet<>();
         for (Cell[] row : rows) {
