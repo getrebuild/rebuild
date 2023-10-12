@@ -6,6 +6,7 @@
   <link rel="manifest" th:href="@{/assets/manifest.json}" />
   <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
   <link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}" />
+  <th:block th:if="${noCss == null}">
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/mdi7/css/materialdesignicons.min-rb.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" />
@@ -18,6 +19,7 @@
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 1}" />
+  </th:block>
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />

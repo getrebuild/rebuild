@@ -150,8 +150,11 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     protected File getTargetFile() {
-        return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s",
-                System.currentTimeMillis(), templateFile.getName().endsWith(".xlsx") ? "xlsx" : "xls"));
+        String suffix = "xls";
+        if (templateFile.getName().endsWith(".xlsx")) suffix = "xlsx";
+        if (templateFile.getName().endsWith(".html")) suffix = "html";
+
+        return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s", System.currentTimeMillis(), suffix));
     }
 
     /**

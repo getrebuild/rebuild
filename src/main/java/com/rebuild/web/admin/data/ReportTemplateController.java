@@ -146,8 +146,8 @@ public class ReportTemplateController extends BaseController {
         if (reportId == null) {
             String entity = getParameter(request, "entity");
             String template = getParameter(request, "file");
-            boolean isList = getBoolParameter(request, "list");
-            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), isList, true);
+            boolean isListType = getBoolParameter(request, "list");
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), isListType, true);
         } else {
             // 使用配置
             tt = DataReportManager.instance.getTemplateFile(reportId);
@@ -164,7 +164,7 @@ public class ReportTemplateController extends BaseController {
         File output;
         try {
             // 列表报表
-            if (tt.isList) {
+            if (tt.isListType) {
                 JSONObject queryData = JSONUtils.toJSONObject(
                         new String[] { "pageSize", "entity" },
                         new Object[] { 2, tt.entity.getName() });

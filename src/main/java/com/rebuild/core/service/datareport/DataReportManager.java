@@ -45,7 +45,7 @@ public class DataReportManager implements ConfigManager {
 
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
-    public static final int TYPE_HTML = 3;
+    public static final int TYPE_HTML5 = 3;
 
     /**
      * 获取报表列表
@@ -86,7 +86,7 @@ public class DataReportManager implements ConfigManager {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,templateFile,templateType,extraDefinition from DataReportConfig where belongEntity = ?")
+                "select configId,name,isDisabled,templateFile,templateType,extraDefinition,templateContent from DataReportConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
                 .array();
 
@@ -105,7 +105,8 @@ public class DataReportManager implements ConfigManager {
                     .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
                     .set("outputType", outputType)
                     .set("templateVersion", templateVersion)
-                    .set("visibleUsers", visibleUsersDef);
+                    .set("visibleUsers", visibleUsersDef)
+                    .set("templateContent", o[6]);
             alist.add(cb);
         }
 
@@ -120,24 +121,31 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public TemplateFile getTemplateFile(Entity entity, ID reportId) {
-        String template = null;
+        String templateFile = null;
+        String templateContent = null;
         boolean isList = false;
         boolean isV33 = false;
 
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getID("id").equals(reportId)) {
-                template = e.getString("template");
+                templateFile = e.getString("template");
+                templateContent = e.getString("templateContent");
                 isList = e.getInteger("type") == TYPE_LIST;
                 isV33 = e.getInteger("templateVersion") == 3;
                 break;
             }
         }
 
-        if (template == null) {
+        // v35 HTML5
+        if (templateContent != null) {
+            return new TemplateFile(templateContent, entity);
+        }
+
+        if (templateFile == null) {
             throw new ConfigurationException("No template of report found : " + reportId);
         }
 
-        File file = RebuildConfiguration.getFileOfData(template);
+        File file = RebuildConfiguration.getFileOfData(templateFile);
         if (!file.exists()) {
             throw new ConfigurationException("File of template not extsts : " + file);
         }
@@ -176,7 +184,8 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public static String getReportName(ID reportId, Object idOrEntity, String fileName) {
-        Entity be = idOrEntity instanceof ID ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
+        final Entity be = idOrEntity instanceof ID
+                ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
                 : MetadataHelper.getEntity((String) idOrEntity);
 
         String name = null;
