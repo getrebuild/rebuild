@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
-  $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
+  // $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
 
   renderRbcomp(<ReportList />, 'dataList')
 })
@@ -165,14 +165,8 @@ class ReportEditor extends ConfigFormDlg {
           </div>
         </div>
 
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
-          <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
-          </div>
-        </div>
         <div className="form-group row" style={isHtml5Style}>
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('报表导出格式')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('导出格式')}</label>
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="excel" />
@@ -192,6 +186,12 @@ class ReportEditor extends ConfigFormDlg {
                 <i className="zmdi zmdi-help zicon down-1" />
               </a>
             </label>
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+          <div className="col-sm-7">
+            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
         <div className="form-group row">
