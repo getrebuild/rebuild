@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -66,8 +67,13 @@ public class CommonOperatingController extends BaseController {
         // 为空则返回全部
         String fields = getParameter(request, "fields", "");
 
-        Record record = Application.getQueryFactory().recordNoFilter(recordId, fields.split(","));
-        return RespBody.ok(record);
+        // 仅限业务实体
+        if (MetadataHelper.isBusinessEntity(MetadataHelper.getEntity(recordId.getEntityCode()))) {
+            Record record = Application.getQueryFactory().record(recordId, fields.split(","));
+            return RespBody.ok(record);
+        } else {
+            return RespBody.error("UNSUPPORTTED ENTITY/ID");
+        }
     }
 
     /**
