@@ -10,14 +10,30 @@ const wpc = window.__PageConfig
 $(document).ready(() => {
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
 
-  const $size = $('.preview-tools select').on('change', function () {
-    const s = $(this).val()
-    $('.preview-content').css('font-size', (13 * ~~s) / 10)
-    $storage.set('PRINTSIZE', s)
-  })
-  const s = $storage.get('PRINTSIZE')
-  if (s) $size.val(s).trigger('change')
+  setDefaultStyle('fontSize')
+  setDefaultStyle('fontFamily')
+  setDefaultStyle('fontBold')
 })
+
+function setDefaultStyle(id) {
+  const $el = $(`#${id}`).on('change', function () {
+    const v = $(this).val()
+    $storage.set(id, v)
+
+    if (id === 'fontSize') {
+      $('.preview-content').css('font-size', (13 * ~~v) / 10)
+    }
+    if (id === 'fontFamily') {
+      $('.preview-content').css('font-family', v === '-' ? '' : v)
+    }
+    if (id === 'fontBold') {
+      $('.preview-content').attr('data-bold', v)
+    }
+  })
+
+  const d = $storage.get(id)
+  if (d) $el.val(d).trigger('change')
+}
 
 class PreviewTable extends React.Component {
   render() {
@@ -62,6 +78,8 @@ class PreviewTable extends React.Component {
             })}
           </tr>
           {rows.map((row, idx) => {
+            if (row[0].field === '$REFFORM$') return null
+
             const k = `row-${idx}-`
             return <tr key={k}>{this._renderRow(row).map((c, idx2) => React.cloneElement(c, { key: `${k}${idx2}` }))}</tr>
           })}
@@ -104,7 +122,7 @@ class PreviewTable extends React.Component {
   }
 
   componentDidMount() {
-    $('.J_print-meta.hide').removeClass('hide')
+    $('.preview-content.hide').removeClass('hide')
     if (~~$urlp('mode') === 1) setTimeout(() => window.print(), 100)
   }
 
@@ -123,7 +141,7 @@ class PreviewTable extends React.Component {
 
     if (item.type === 'FILE') {
       return (
-        <ul className="m-0 p-0 pl-3">
+        <ul className="m-0 p-0 pl-4">
           {item.value.map((x) => {
             return <li key={x}>{$fileCutName(x)}</li>
           })}
@@ -167,7 +185,7 @@ class PreviewTable extends React.Component {
       return item.value ? $L('是') : $L('否')
     } else if (item.type === 'MULTISELECT') {
       return (
-        <ul className="m-0 p-0 pl-3">
+        <ul className="m-0 p-0 pl-4">
           {(item.value.text || []).map((x) => {
             return <li key={x}>{x}</li>
           })}
@@ -186,7 +204,7 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'N2NREFERENCE') {
       return (
-        <ul className="m-0 p-0 pl-3">
+        <ul className="m-0 p-0 pl-4">
           {item.value.map((x) => {
             return <li key={x.id}>{this._findMixValue(x)}</li>
           })}
@@ -202,7 +220,7 @@ class PreviewTable extends React.Component {
       )
     } else if (item.type === 'TAG') {
       return (
-        <ul className="m-0 p-0 pl-3">
+        <ul className="m-0 p-0 pl-4">
           {(item.value || []).map((x) => {
             return <li key={x}>{x}</li>
           })}

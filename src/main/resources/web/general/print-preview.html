@@ -7,6 +7,7 @@
       html,
       body {
         background-color: #fff;
+        color: #000;
       }
       .preview-tools {
         padding: 10px 15px 5px;
@@ -19,14 +20,6 @@
         min-height: 36px;
         margin-right: 6px;
         transform: translateY(-1.5px);
-      }
-      .preview-content {
-        margin: 0 20px 20px;
-      }
-      @media print {
-        .preview-content {
-          margin: 0;
-        }
       }
       .table th {
         background-color: #eee !important;
@@ -42,6 +35,7 @@
         vertical-align: top;
         word-break: break-all;
         word-wrap: break-word;
+        border: 1px solid #000 !important;
       }
       .table th.divider:empty {
         padding: 0;
@@ -59,11 +53,60 @@
         margin: 0;
         line-height: 1.428571;
       }
+
+      .preview-content[data-bold='2'] th {
+        font-weight: normal;
+      }
+      .preview-content[data-bold='2'] td,
+      .preview-content[data-bold='3'] td {
+        font-weight: bold;
+      }
+
+      @media screen {
+        html,
+        body {
+          background-color: #eee;
+        }
+        body {
+          padding-bottom: 10px;
+        }
+        .preview-tools {
+          max-width: 1000px;
+          margin: 0 auto;
+          padding-right: 0;
+        }
+        .preview-content {
+          max-width: 1000px;
+          margin: 0 auto;
+          background-color: #fff;
+          padding: 50px;
+          border: 1px solid #e8e8e8;
+          box-shadow: 0 2px 10px rgb(0 0 0 / 12%);
+        }
+      }
     </style>
   </head>
   <body>
     <div class="preview-tools d-print-none">
-      <select class="form-control form-control-sm">
+      <select class="form-control form-control-sm" id="fontBold">
+        <option value="1">[[${bundle.L('默认粗体')}]]</option>
+        <option value="3">[[${bundle.L('全部粗体')}]]</option>
+        <option value="2">[[${bundle.L('内容粗体')}]]</option>
+      </select>
+      <select class="form-control form-control-sm" id="fontFamily">
+        <option value="-">[[${bundle.L('默认字体')}]]</option>
+        <option value="黑体">黑体</option>
+        <option value="仿宋">仿宋</option>
+        <option value="楷体">楷体</option>
+        <option value="宋体">宋体</option>
+        <option value="微软雅黑">微软雅黑</option>
+        <option value="Arial">Arial</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+      </select>
+      <select class="form-control form-control-sm" id="fontSize">
         <option value="10">[[${bundle.L('默认大小')}]]</option>
         <option value="10">100%</option>
         <option value="11">110%</option>
@@ -80,9 +123,9 @@
       <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
       <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
     </div>
-    <div class="preview-content">
+    <div class="preview-content hide">
       <div id="preview-table"></div>
-      <div class="text-muted J_print-meta hide">
+      <div class="J_print-meta">
         <span>[[${bundle.L('打印时间')}]] : [[${printTime}]]</span>
         &nbsp;<b>·</b>&nbsp;
         <span>[[${bundle.L('打印人')}]] : [[${printUser}]]</span>
