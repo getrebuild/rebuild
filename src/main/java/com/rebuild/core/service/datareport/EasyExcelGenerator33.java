@@ -61,7 +61,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     protected List<Map<String, Object>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(templateFile);
+        final TemplateExtractor33 templateExtractor33 = this.buildTemplateExtractor33();
         final Map<String, String> varsMap = templateExtractor33.transformVars(entity);
 
         // 变量
@@ -180,6 +180,13 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         return datas;
+    }
+
+    /**
+     * @return
+     */
+    protected TemplateExtractor33 buildTemplateExtractor33() {
+        return new TemplateExtractor33(templateFile);
     }
 
     // -- V34 支持多记录导出
