@@ -21,7 +21,7 @@ function setDefaultStyle(id) {
     $storage.set(id, v)
 
     if (id === 'fontSize') {
-      $('.preview-content').css('font-size', (13 * ~~v) / 10)
+      $('.preview-content').css('font-size', (14 * ~~v) / 10)
     }
     if (id === 'fontFamily') {
       $('.preview-content').css('font-family', v === '-' ? '' : v)
