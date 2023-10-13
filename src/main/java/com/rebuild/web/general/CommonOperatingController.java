@@ -17,12 +17,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,16 +64,10 @@ public class CommonOperatingController extends BaseController {
 
     @RequestMapping("common-get")
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
-        // 为空则返回全部
-        String fields = getParameter(request, "fields", "");
-
-        // 仅限业务实体
-        if (MetadataHelper.isBusinessEntity(MetadataHelper.getEntity(recordId.getEntityCode()))) {
-            Record record = Application.getQueryFactory().record(recordId, fields.split(","));
-            return RespBody.ok(record);
-        } else {
-            return RespBody.error("UNSUPPORTTED ENTITY/ID");
-        }
+        final String fields = getParameter(request, "fields");
+        Record record = Application.getQueryFactory()
+                .record(recordId, StringUtils.isBlank(fields) ? new String[0] : fields.split(","));
+        return RespBody.ok(record);
     }
 
     /**
