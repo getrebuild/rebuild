@@ -340,6 +340,13 @@ class ReportEditor extends ConfigFormDlg {
     if (!file || !entity) return false
 
     const type = $(this._$listType).find('input:checked').val() || 1
+    if (~~type === 4 && rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持 WORD 模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      this.setState({ uploadFileName: null })
+      this.__lastFile = null
+      return false
+    }
+
     return `file=${$encode(file)}&entity=${entity}&type=${type}`
   }
 
