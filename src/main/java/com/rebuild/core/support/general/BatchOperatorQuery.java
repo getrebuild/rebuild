@@ -69,7 +69,7 @@ public class BatchOperatorQuery extends SetUser {
     public JSONObject wrapQueryData(int maxRows, boolean clearFields) {
         if (this.dataRange != DR_PAGED) {
             queryData.put("pageNo", 1);
-            queryData.put("pageSize", maxRows);  // Max
+            queryData.put("pageSize", maxRows);
         }
 
         if (this.dataRange == DR_SELECTED || this.dataRange == DR_ALL) {
@@ -134,7 +134,7 @@ public class BatchOperatorQuery extends SetUser {
 
         Object[][] array = Application.createQuery(sql, getUser())
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
-                .setTimeout(60)
+                .setTimeout(180)
                 .array();
 
         Set<ID> ids = new HashSet<>();

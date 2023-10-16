@@ -62,10 +62,10 @@ import java.util.List;
 public class DataExporter extends SetUser {
 
     /**
-     * 最大行数
+     * 最大导出行数
      */
-    public static final int MAX_ROWS = 65535 - 1;
-
+    public static final int MAX_ROWS = 1000000;
+    
     final private JSONObject queryData;
     // 字段
     private List<Field> headFields = new ArrayList<>();
