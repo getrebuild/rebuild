@@ -22,9 +22,11 @@ $(document).ready(() => {
     .val('0')
     .on('change', function () {
       const start = ~~this.value
+      const end = ~~$('.J_startHour2').val()
       $('.J_startHour2 option').each(function () {
         $(this).attr('disabled', ~~$(this).val() < start)
       })
+      if (end < start) $('.J_startHour2').val(start)
     })
   $('.J_startHour2').val('23')
 

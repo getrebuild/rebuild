@@ -160,7 +160,7 @@ public class FileDownloader extends BaseController {
 
         if (QiniuCloud.instance().available() && !temp) {
             String privateUrl = QiniuCloud.instance().makeUrl(filePath);
-            privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
+            if (!INLINE_FORCE.equals(attname)) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         } else {
 
