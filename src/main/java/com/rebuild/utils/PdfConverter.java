@@ -85,15 +85,17 @@ public class PdfConverter {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
         // 打开并保存以便公式生效
-        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(path))) {
-            wb.setForceFormulaRecalculation(true);
-            wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
+        if (path.toString().endsWith(".xls") || path.toString().endsWith(".xlsx")) {
+            try (Workbook wb = WorkbookFactory.create(Files.newInputStream(path))) {
+                wb.setForceFormulaRecalculation(true);
+                wb.getCreationHelper().createFormulaEvaluator().evaluateAll();
 
-            try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-                wb.write(fos);
+                try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
+                    wb.write(fos);
+                }
+            } catch (IOException e) {
+                throw new PdfConverterException(e);
             }
-        } catch (IOException e) {
-            throw new PdfConverterException(e);
         }
 
         final File outdir = RebuildConfiguration.getFileOfTemp(null);

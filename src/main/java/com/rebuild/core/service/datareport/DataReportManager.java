@@ -46,19 +46,30 @@ public class DataReportManager implements ConfigManager {
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
     public static final int TYPE_HTML5 = 3;
+    public static final int TYPE_WORD = 4;
 
     /**
-     * 获取报表列表
+     * 获取可用报表
      *
      * @param entity
-     * @param type
+     * @param type 指定类型
      * @param user
      * @return
      */
     public JSONArray getReports(Entity entity, int type, ID user) {
         JSONArray alist = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
-            if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
+            if (e.getBoolean("disabled")) continue;
+
+            boolean can;
+            int aType = e.getInteger("type");
+            if (type == DataReportManager.TYPE_LIST) {
+                can = aType == type;
+            } else {
+                can = aType == DataReportManager.TYPE_RECORD || aType == DataReportManager.TYPE_WORD;
+            }
+
+            if (can) {
                 // v3.5
                 String vuDef = e.getString("visibleUsers");
                 if (StringUtils.isNotBlank(vuDef)) {
@@ -123,14 +134,14 @@ public class DataReportManager implements ConfigManager {
     public TemplateFile getTemplateFile(Entity entity, ID reportId) {
         String templateFile = null;
         String templateContent = null;
-        boolean isList = false;
+        int type = DataReportManager.TYPE_RECORD;
         boolean isV33 = false;
 
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getID("id").equals(reportId)) {
                 templateFile = e.getString("template");
                 templateContent = e.getString("templateContent");
-                isList = e.getInteger("type") == TYPE_LIST;
+                type = e.getInteger("type");
                 isV33 = e.getInteger("templateVersion") == 3;
                 break;
             }
@@ -150,7 +161,7 @@ public class DataReportManager implements ConfigManager {
             throw new ConfigurationException("File of template not extsts : " + file);
         }
 
-        return new TemplateFile(file, entity, isList, isV33);
+        return new TemplateFile(file, entity, type, isV33);
     }
 
     /**
@@ -200,6 +211,7 @@ public class DataReportManager implements ConfigManager {
 
                 // suffix
                 if (fileName.endsWith(".pdf")) name += ".pdf";
+                else if (fileName.endsWith(".docx")) name += ".docx";
                 else name += fileName.endsWith(".xlsx") ? ".xlsx" : ".xls";
                 break;
             }

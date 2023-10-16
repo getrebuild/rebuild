@@ -37,9 +37,11 @@ class ReportList extends ConfigList {
                 ) : (
                   item[3]
                 )}
-                {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('列表模板')}</span>}
+                {item[6] === 1 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('EXCEL')}</span>}
+                {item[6] === 2 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('EXCEL 列表')}</span>}
                 {isHtml5 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('在线模板')}</span>}
-                {outputType.includes('excel') && <span className="badge badge-secondary badge-sm ml-1">Excel</span>}
+                {item[6] === 4 && <span className="badge badge-secondary badge-arrow3 badge-sm ml-1">{$L('WORD')}</span>}
+
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
                 {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
               </td>
@@ -121,14 +123,20 @@ class ReportEditor extends ConfigFormDlg {
             </div>
             <div className="form-group row" style={isHtml5Style}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('模板类型')}</label>
-              <div className="col-sm-7 pt-1">
+              <div className="col-sm-7 pt-1" ref={(c) => (this._$listType = c)}>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
                   <input className="custom-control-input" type="radio" value="1" name="reportType" defaultChecked onChange={() => this.checkTemplate()} />
-                  <span className="custom-control-label">{$L('标准')}</span>
+                  <span className="custom-control-label">EXCEL</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                  <input className="custom-control-input" type="radio" value="2" name="reportType" ref={(c) => (this._$listType = c)} onChange={() => this.checkTemplate()} />
-                  <span className="custom-control-label">{$L('列表模板')}</span>
+                  <input className="custom-control-input" type="radio" value="2" name="reportType" onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">{$L('EXCEL 列表')}</span>
+                </label>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                  <input className="custom-control-input" type="radio" value="4" name="reportType" onChange={() => this.checkTemplate()} />
+                  <span className="custom-control-label">
+                    WORD <sup className="rbv" />
+                  </span>
                 </label>
               </div>
             </div>
@@ -139,7 +147,7 @@ class ReportEditor extends ConfigFormDlg {
           <div className="col-sm-9">
             <div className="float-left">
               <div className="file-select">
-                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="true" ref={(c) => (this.__upload = c)} />
+                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.docx" data-local="true" ref={(c) => (this._$upload = c)} />
                 <label htmlFor="upload-input" className="btn-secondary">
                   <i className="zmdi zmdi-upload" />
                   <span>{$L('选择文件')}</span>
@@ -170,7 +178,7 @@ class ReportEditor extends ConfigFormDlg {
           <div className="col-sm-7 pt-1" ref={(c) => (this._$outputType = c)}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="excel" />
-              <span className="custom-control-label">Excel</span>
+              <span className="custom-control-label">{$L('默认')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" value="pdf" />
@@ -228,9 +236,9 @@ class ReportEditor extends ConfigFormDlg {
     }, 500)
 
     const that = this
-    if (this.__upload) {
+    if (this._$upload) {
       $createUploader(
-        this.__upload,
+        this._$upload,
         () => {
           that.setState({ uploadFileName: null })
           $mp.start()
@@ -331,8 +339,8 @@ class ReportEditor extends ConfigFormDlg {
     const file = this.__lastFile
     if (!file || !entity) return false
 
-    const list = $(this._$listType).prop('checked')
-    return `file=${$encode(file)}&entity=${entity}&list=${list}`
+    const type = $(this._$listType).find('input:checked').val() || 1
+    return `file=${$encode(file)}&entity=${entity}&type=${type}`
   }
 
   confirm = () => {
@@ -358,7 +366,7 @@ class ReportEditor extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       post.templateFile = this.state.templateFile
-      post.templateType = $(this._$listType).prop('checked') ? 2 : 1
+      post.templateType = $(this._$listType).find('input:checked').val() || 1
       if (!post.belongEntity) return RbHighbar.create($L('请选择应用实体'))
       if (this.props.isHtml5) {
         post.templateType = 3

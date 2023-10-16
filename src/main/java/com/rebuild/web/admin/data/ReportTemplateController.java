@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
+import com.rebuild.core.service.datareport.EasyExcelGenerator33;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.service.datareport.TemplateExtractor33;
@@ -26,6 +27,7 @@ import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
@@ -57,6 +59,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
  *
  * @author devezhao
  * @since 2019/8/13
+ * @see com.rebuild.web.general.ReportsController
  */
 @RestController
 @RequestMapping("/admin/data/")
@@ -99,19 +102,32 @@ public class ReportTemplateController extends BaseController {
 
     @RequestMapping("/report-templates/check-template")
     public RespBody checkTemplate(@EntityParam Entity entity, HttpServletRequest request) {
-        String file = getParameterNotNull(request, "file");
-        boolean isList = getBoolParameter(request, "list");  // 列表模板
+        final String file = getParameterNotNull(request, "file");
+        final int type = getIntParameter(request, "type", DataReportManager.TYPE_RECORD);
 
         File template = RebuildConfiguration.getFileOfData(file);
-        Map<String, String> vars = isList
-                ? new TemplateExtractor(template, Boolean.TRUE).transformVars(entity)
-                : new TemplateExtractor33(template).transformVars(entity);
-        if (vars.isEmpty()) {
+        Map<String, String> vars = null;
+        try {
+            if (type == DataReportManager.TYPE_RECORD) {
+                vars = new TemplateExtractor33(template).transformVars(entity);
+            } else if (type == DataReportManager.TYPE_LIST) {
+                vars = new TemplateExtractor(template, Boolean.TRUE).transformVars(entity);
+            } else if (type == DataReportManager.TYPE_WORD) {
+                //noinspection unchecked
+                vars = (Map<String, String>) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity);
+            }
+
+        } catch (Exception ex) {
+            return RespBody.error(Language.L("无效模板文件 (无法读取模板文件)"));
+        }
+
+        if (vars == null || vars.isEmpty()) {
             return RespBody.error(Language.L("无效模板文件 (未找到有效字段)"));
         }
 
         String invalidMsg = null;
-        if (isList) {
+        if (type == DataReportManager.TYPE_LIST) {
             invalidMsg = Language.L("这可能不是一个有效的列表模板");
             for (String varName : vars.keySet()) {
                 if (varName.startsWith(NROW_PREFIX)) {
@@ -146,8 +162,8 @@ public class ReportTemplateController extends BaseController {
         if (reportId == null) {
             String entity = getParameter(request, "entity");
             String template = getParameter(request, "file");
-            boolean isListType = getBoolParameter(request, "list");
-            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), isListType, true);
+            int type = getIntParameter(request, "type", DataReportManager.TYPE_RECORD);
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true);
         } else {
             // 使用配置
             tt = DataReportManager.instance.getTemplateFile(reportId);
@@ -163,13 +179,21 @@ public class ReportTemplateController extends BaseController {
 
         File output;
         try {
-            // 列表报表
-            if (tt.isListType) {
+            // EXCEL 列表
+            if (tt.type == DataReportManager.TYPE_LIST) {
                 JSONObject queryData = JSONUtils.toJSONObject(
                         new String[] { "pageSize", "entity" },
                         new Object[] { 2, tt.entity.getName() });
                 output = EasyExcelListGenerator.create(tt.templateFile, queryData).generate();
-            } else {
+            }
+            // WORD
+            else if (tt.type == DataReportManager.TYPE_WORD) {
+                EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.WordReportGenerator#create", tt.templateFile, random[0]);
+                output = word.generate();
+            }
+            // EXCEL
+            else {
                 output = EasyExcelGenerator.create(tt.templateFile, (ID) random[0], tt.isV33).generate();
             }
 
@@ -180,7 +204,8 @@ public class ReportTemplateController extends BaseController {
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);;
+        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);
+
         String typeOutput = getParameter(request, "output");
         if (PdfConverter.TYPE_PDF.equalsIgnoreCase(typeOutput) || PdfConverter.TYPE_HTML.equalsIgnoreCase(typeOutput)) {
             output = PdfConverter.convert(output.toPath(), typeOutput).toFile();

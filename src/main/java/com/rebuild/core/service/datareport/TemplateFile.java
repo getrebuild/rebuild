@@ -20,21 +20,22 @@ public class TemplateFile {
     final public File templateFile;
     final public String templateContent;
     final public Entity entity;
-    final public boolean isListType;
+    final public int type;
     final public boolean isV33;
 
-    public TemplateFile(File templateFile, Entity entity, boolean isListType, boolean isV33) {
+    public TemplateFile(File templateFile, Entity entity, int type, boolean isV33) {
         this.templateFile = templateFile;
         this.entity = entity;
-        this.isListType = isListType;
+        this.type = type;
         this.isV33 = isV33;
         this.templateContent = null;
     }
 
+    // HTML5
     public TemplateFile(String templateContent, Entity entity) {
         this.templateContent = templateContent;
         this.entity = entity;
-        this.isListType = false;
+        this.type = DataReportManager.TYPE_HTML5;
         this.isV33 = true;
         this.templateFile = null;
     }

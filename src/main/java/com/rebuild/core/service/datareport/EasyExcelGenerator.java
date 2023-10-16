@@ -524,7 +524,8 @@ public class EasyExcelGenerator extends SetUser {
         if (recordIds.size() == 1) {
             return create(reportId, recordId);
         } else {
-            TemplateFile tt = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+            TemplateFile tt = DataReportManager.instance
+                    .getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
             return new EasyExcelGenerator33(tt.templateFile, recordIds);
         }
     }
@@ -535,7 +536,8 @@ public class EasyExcelGenerator extends SetUser {
      * @return
      */
     public static EasyExcelGenerator create(ID reportId, ID recordId) {
-        TemplateFile tt = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
+        TemplateFile tt = DataReportManager.instance
+                .getTemplateFile(MetadataHelper.getEntity(recordId.getEntityCode()), reportId);
         return create(tt.templateFile, recordId, tt.isV33);
     }
 
