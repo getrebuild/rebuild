@@ -720,6 +720,10 @@ div.dataTables_filter .filter-badge:hover .close {
   z-index: 1051;
 }
 
+.rbview.modal.top60 {
+  top: 61px;
+}
+
 .rbmodal.show,
 .rbview.show .modal-content {
   transition: margin 0.2s;

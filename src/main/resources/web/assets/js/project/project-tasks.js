@@ -636,7 +636,7 @@ class TaskViewModal extends React.Component {
 
   render() {
     return (
-      <div className="modal rbview task" ref={(c) => (this._dlg = c)}>
+      <div className="modal rbview task top60" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
