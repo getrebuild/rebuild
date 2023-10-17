@@ -185,7 +185,6 @@ $(function () {
     })
 
     document.onvisibilitychange = function () {
-      console.log(document.visibilityState)
       if (document.visibilityState !== 'visible') return
 
       var tabHome = sessionStorage.getItem('AppHome._InTab')
@@ -195,7 +194,7 @@ $(function () {
           if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: null })
           if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: null })
         })
-      console.log('Switch Nav ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
+      console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
 
