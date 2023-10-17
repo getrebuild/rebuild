@@ -178,6 +178,27 @@ $(function () {
     })
   })
 
+  // __LAB
+  if (rb.env === 'dev' && window.sessionStorage) {
+    $('.navbar .navbar-collapse>.navbar-nav a').on('click', function (e) {
+      sessionStorage.setItem('AppHome._InTab', e.target.href.split('?')[1])
+    })
+
+    document.onvisibilitychange = function () {
+      console.log(document.visibilityState)
+      if (document.visibilityState !== 'visible') return
+
+      var tabHome = sessionStorage.getItem('AppHome._InTab')
+      tabHome &&
+        $(tabHome.split('&')).each(function () {
+          var nv = this.split('=')
+          if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: null })
+          if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: null })
+        })
+      console.log('Switch Nav ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
+    }
+  }
+
   // if (rb.commercial === 11) {
   //   $('a[target="_blank"]').each(function () {
   //     if (($(this).attr('href') || '').indexOf('getrebuild.com') > -1) $(this).removeAttr('href')
