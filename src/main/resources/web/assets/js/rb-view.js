@@ -939,15 +939,19 @@ const RbViewPage = {
 
   // 通过父级页面打开
   clickView(target) {
+    // `#!/View/{entity}/{id}`
+    const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
+    if (!viewUrl) {
+      console.warn('Bad view target : ', target)
+      return
+    }
+
+    const urlSpec = viewUrl.split('/')
     if (parent && parent.RbViewModal) {
-      // `#!/View/{entity}/{id}`
-      const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
-      if (!viewUrl) {
-        console.warn('Bad view target : ', target)
-        return
-      }
-      const urlSpec = viewUrl.split('/')
       parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
+    } else {
+      // window.open(`${rb.baseUrl}/app/redirect?id=${urlSpec[3]}&type=newtab`)
+      window.open(`${rb.baseUrl}/app/${urlSpec[2]}/view/${urlSpec[3]}`)
     }
     return false
   },
