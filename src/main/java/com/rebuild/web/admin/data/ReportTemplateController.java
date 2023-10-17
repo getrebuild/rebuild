@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.hutool.core.io.file.FileNameUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.minlog.Log;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
@@ -115,10 +116,11 @@ public class ReportTemplateController extends BaseController {
             } else if (type == DataReportManager.TYPE_WORD) {
                 //noinspection unchecked
                 vars = (Map<String, String>) CommonsUtils.invokeMethod(
-                        "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity);
+                        "com.rebuild.rbv.data.WordTemplateExtractor#transformVars", template, entity.getName());
             }
 
         } catch (Exception ex) {
+            Log.error(null, ex);
             return RespBody.error(Language.L("无效模板文件 (无法读取模板文件)"));
         }
 

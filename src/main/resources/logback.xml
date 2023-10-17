@@ -33,6 +33,6 @@
     <!-- <logger name="cn.devezhao.persist4j.query.AjqlResultImpl" level="DEBUG" /> -->
     <!-- <logger name="org.springframework.transaction.support" level="DEBUG" /> -->
     <!-- <logger name="org.springframework.jdbc.datasource" level="DEBUG" /> -->
-    <logger name="com.deepoove.poi" level="WARN" />
+    <!-- <logger name="com.deepoove.poi" level="WARN" /> -->
 
 </configuration>

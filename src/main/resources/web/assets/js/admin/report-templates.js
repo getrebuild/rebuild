@@ -322,13 +322,7 @@ class ReportEditor extends ConfigFormDlg {
           }
         )
       } else {
-        this.setState({
-          templateFile: null,
-          uploadFileName: null,
-          invalidVars: null,
-          invalidMsg: null,
-        })
-        this.__lastFile = null
+        this._clearParams()
         RbHighbar.error(res.error_msg)
       }
     })
@@ -342,12 +336,21 @@ class ReportEditor extends ConfigFormDlg {
     const type = $(this._$listType).find('input:checked').val() || 1
     if (~~type === 4 && rb.commercial < 10) {
       RbHighbar.error(WrapHtml($L('免费版不支持 WORD 模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
-      this.setState({ uploadFileName: null })
-      this.__lastFile = null
+      this._clearParams()
       return false
     }
 
     return `file=${$encode(file)}&entity=${entity}&type=${type}`
+  }
+
+  _clearParams() {
+    this.setState({
+      templateFile: null,
+      uploadFileName: null,
+      invalidVars: null,
+      invalidMsg: null,
+    })
+    this.__lastFile = null
   }
 
   confirm = () => {

@@ -57,7 +57,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
         for (final String varName : vars) {
             // 列表型字段
             if (varName.startsWith(NROW_PREFIX)) {
-                final String listField = varName.substring(1);
+                final String listField = varName.substring(1).replace("$", ".");
 
                 if (isPlaceholder(listField)) {
                     map.put(varName, null);
