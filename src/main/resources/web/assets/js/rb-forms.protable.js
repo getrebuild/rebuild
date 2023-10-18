@@ -143,7 +143,7 @@ class ProTable extends React.Component {
   }
 
   addLine(model) {
-    const key = `form-${model.id ? model.id : $random()}`
+    const key = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
       <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={key} ref={ref}>
@@ -159,6 +159,7 @@ class ProTable extends React.Component {
       const refs = this._inlineFormsRefs || []
       refs.push(ref)
       this._inlineFormsRefs = refs
+      this._onLineUpdated(key)
     })
   }
 
@@ -171,11 +172,11 @@ class ProTable extends React.Component {
       }
       return c.key !== key
     })
-    this.setState({ inlineForms: forms })
+    this.setState({ inlineForms: forms }, () => this._onLineUpdated(key))
   }
 
   copyLine(id) {
-    console.log('TODO :', id)
+    console.log('TODO `copyLine`:', id)
   }
 
   setLines(models = []) {
@@ -197,7 +198,14 @@ class ProTable extends React.Component {
           this._deletes = d
         }
       })
-    this.setState({ inlineForms: [] })
+    this.setState({ inlineForms: [] }, () => this._onLineUpdated())
+  }
+
+  // 新增/删除行时触发
+  _onLineUpdated(lineKey) {
+    if (this.props.$$$main && this.props.$$$main._onProTableLineUpdated) {
+      this.props.$$$main._onProTableLineUpdated(lineKey, this)
+    }
   }
 
   setFieldNull(field) {
@@ -208,14 +216,19 @@ class ProTable extends React.Component {
       })
   }
 
-  buildFormData() {
+  /**
+   * 构建数据
+   * @param {boolean} retAll 是否返回所有数据
+   * @returns
+   */
+  buildFormData(retAll) {
     const datas = []
     let error = null
 
     this._inlineFormsRefs &&
       this._inlineFormsRefs.forEach((item) => {
         if (!item.current) return
-        const d = item.current.buildFormData()
+        const d = item.current.buildFormData(retAll)
 
         if (!d || typeof d === 'string') {
           if (!error) error = d
@@ -252,17 +265,17 @@ class ProTable extends React.Component {
    * 导入明细
    * @param {*} transid
    * @param {*} form
-   * @param {*} callback
+   * @param {*} cb
    * @returns
    */
-  static detailImports(transid, form, callback) {
+  static detailImports(transid, form, cb) {
     const formdata = form.getFormData()
     const mainid = form.props.id || null
 
     $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
       if (res.error_code === 0) {
         if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-        else typeof callback === 'function' && callback(res.data)
+        else typeof cb === 'function' && cb(res.data)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -278,7 +291,7 @@ class InlineForm extends RbForm {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {this.props.children.map((fieldComp) => {
           if (fieldComp.props.field === TYPE_DIVIDER) return null
           const refid = `fieldcomp-${fieldComp.props.field}`
@@ -288,14 +301,24 @@ class InlineForm extends RbForm {
             </td>
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
-  buildFormData() {
+  buildFormData(retAll) {
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
 
     const data = {}
+    if (retAll) {
+      this.props.rawModel.elements.forEach((item) => {
+        let val = item.value
+        if (val) {
+          val = typeof val === 'object' ? val.id || val : val
+          data[item.field] = val || null
+        }
+      })
+    }
+
     let error = null
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error

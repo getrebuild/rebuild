@@ -251,8 +251,10 @@ class RbForm extends React.Component {
     const iv = props.rawModel.initialValue
     if (iv) {
       for (let k in iv) {
-        const val = iv[k]
-        this.__FormData[k] = { value: typeof val === 'object' ? val.id : val, error: null }
+        let val = iv[k]
+        // array, object, simple
+        val = typeof val === 'object' ? val.id || val : val
+        this.__FormData[k] = { value: val, error: null }
       }
     }
 
@@ -261,6 +263,7 @@ class RbForm extends React.Component {
     const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
     this._postBefore = props.postBefore || $$$props.postBefore
     this._postAfter = props.postAfter || $$$props.postAfter
+    this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
 
     this._dividerRefs = []
   }
@@ -372,7 +375,7 @@ class RbForm extends React.Component {
       })
     }
 
-    if (!_ProTable)
+    if (!_ProTable) {
       _ProTable = (
         <ProTable
           entity={detailMeta}
@@ -385,6 +388,7 @@ class RbForm extends React.Component {
           $$$main={this}
         />
       )
+    }
 
     return (
       <div className="detail-form-table">
