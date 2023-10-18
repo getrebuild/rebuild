@@ -16,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.DataTruncation;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author devezhao
@@ -53,9 +55,19 @@ public class KnownExceptionConverter {
             return Language.L("数据库语句执行超时");
         } else if (ex instanceof ConstraintViolationException) {
             log.error("DBERR: {}", exMsg);
-            return Language.L("数据库字段违反唯一性约束");
+            String s = Language.L("数据库字段违反唯一性约束");
+            String key = matchsDuplicateEntry(exMsg);
+            return key == null ? s : s + ":" + key;
         }
-        
+
+        return null;
+    }
+
+    static final Pattern PATT_DE = Pattern.compile("Duplicate entry (.*?) for key", Pattern.CASE_INSENSITIVE);
+    // 提取重复 KEY
+    static String matchsDuplicateEntry(String s) {
+        Matcher m = PATT_DE.matcher(s);
+        if (m.find()) return m.group(1);
         return null;
     }
 }
