@@ -123,7 +123,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (record != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not matchs");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, record)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
@@ -292,13 +292,12 @@ public class FormsBuilder extends FormsManager {
             return RobotApprovalManager.instance.hadApproval(entity, null);
         }
 
-        // 普通实体
+        // 普通实体（非明细）
         if (entity.getMainEntity() == null) {
             return RobotApprovalManager.instance.hadApproval(entity, recordId);
         }
 
         // 明细实体
-
         ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
         if (mainid == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);

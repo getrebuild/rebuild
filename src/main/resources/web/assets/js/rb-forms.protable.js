@@ -117,13 +117,15 @@ class ProTable extends React.Component {
       // 正常编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          this.setLines(res.data)
+          if (res.error_code === 0) this.setLines(res.data)
+          else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
       // 记录转换
       else if (this.props.previewid) {
         $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
-          this.setLines(res.data)
+          if (res.error_code === 0) this.setLines(res.data)
+          else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
     })

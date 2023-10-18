@@ -19,6 +19,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.List;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
+@Slf4j
 public class RobotApprovalManager implements ConfigManager {
 
     public static final RobotApprovalManager instance = new RobotApprovalManager();
@@ -42,16 +45,22 @@ public class RobotApprovalManager implements ConfigManager {
      * 获取实体/记录流程状态
      *
      * @param entity
-     * @param record
+     * @param recordId
      * @return <tt>null</tt> 表示没有流程
      */
-    public ApprovalState hadApproval(Entity entity, ID record) {
+    public ApprovalState hadApproval(Entity entity, ID recordId) {
         if (entity.getMainEntity() != null || !MetadataHelper.hasApprovalField(entity)) return null;
 
         // 记录的
-        if (record != null) {
-            Object[] o = Application.getQueryFactory().unique(
-                    record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
+        if (recordId != null) {
+            if (!recordId.getEntityCode().equals(entity.getEntityCode())) {
+                log.warn("Entity and Record/ID mismatch : {}, {}", entity, recordId);
+                CommonsUtils.printStackTrace();
+                return null;
+            }
+
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(
+                    recordId, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
             if (o != null && o[0] != null) {
                 return (ApprovalState) ApprovalState.valueOf((Integer) o[1]);
             }
@@ -103,17 +112,17 @@ public class RobotApprovalManager implements ConfigManager {
     /**
      * 获取用户可用流程
      *
-     * @param record
+     * @param recordId
      * @param user
      * @return
      */
-    public FlowDefinition[] getFlowDefinitions(ID record, ID user) {
-        FlowDefinition[] defs = getFlowDefinitions(MetadataHelper.getEntity(record.getEntityCode()));
+    public FlowDefinition[] getFlowDefinitions(ID recordId, ID user) {
+        FlowDefinition[] defs = getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()));
         if (defs.length == 0) {
             return new FlowDefinition[0];
         }
 
-        ID owning = Application.getRecordOwningCache().getOwningUser(record);
+        ID owning = Application.getRecordOwningCache().getOwningUser(recordId);
         // 过滤可用的
         List<FlowDefinition> workable = new ArrayList<>();
         for (FlowDefinition def : defs) {
@@ -130,11 +139,11 @@ public class RobotApprovalManager implements ConfigManager {
 
             if (FlowNode.USER_ALL.equals(users.getString(0))
                     || (FlowNode.USER_OWNS.equals(users.getString(0)) && owning.equals(user))
-                    || UserHelper.parseUsers(users, record).contains(user)) {
+                    || UserHelper.parseUsers(users, recordId).contains(user)) {
 
                 // 过滤条件
                 JSONObject filter = root.getDataMap().getJSONObject("filter");
-                if (QueryHelper.isMatchAdvFilter(record, filter)) {
+                if (QueryHelper.isMatchAdvFilter(recordId, filter)) {
                     workable.add(def);
                 }
             }
