@@ -143,10 +143,10 @@ class ProTable extends React.Component {
   }
 
   addLine(model) {
-    const key = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
+    const lineKey = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={key} ref={ref}>
+      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
@@ -159,20 +159,21 @@ class ProTable extends React.Component {
       const refs = this._inlineFormsRefs || []
       refs.push(ref)
       this._inlineFormsRefs = refs
-      this._onLineUpdated(key)
+      this._onLineUpdated(lineKey)
     })
   }
 
-  removeLine(key) {
+  removeLine(lineKey) {
+    if (!this.state.inlineForms) return
     const forms = this.state.inlineForms.filter((c) => {
-      if (c.key === key && c.props.id) {
+      if (c.key === lineKey && c.props.id) {
         const d = this._deletes || []
         d.push(c.props.id)
         this._deletes = d
       }
-      return c.key !== key
+      return c.key !== lineKey
     })
-    this.setState({ inlineForms: forms }, () => this._onLineUpdated(key))
+    this.setState({ inlineForms: forms }, () => this._onLineUpdated(lineKey))
   }
 
   copyLine(id) {
@@ -208,12 +209,27 @@ class ProTable extends React.Component {
     }
   }
 
+  /**
+   * 清空某字段值
+   * @param {string} field
+   */
   setFieldNull(field) {
     this.state.inlineForms &&
       this.state.inlineForms.forEach((c) => {
         const fieldComp = c.ref.current.refs[`fieldcomp-${field}`]
         fieldComp && fieldComp.setValue(null)
       })
+  }
+
+  /**
+   * 获取指定 InlineForm
+   * @param {string} lineKey
+   * @returns
+   */
+  getLineFrom(lineKey) {
+    if (!this.state.inlineForms) return null
+    const f = this.state.inlineForms.find((c) => c.key === lineKey)
+    return f ? f.ref.current || null : null
   }
 
   /**
