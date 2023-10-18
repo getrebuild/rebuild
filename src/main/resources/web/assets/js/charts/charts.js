@@ -94,7 +94,7 @@ class BaseChart extends React.Component {
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
 
         $box.addClass('fullscreen')
-        let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+        let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {

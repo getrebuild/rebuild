@@ -45,19 +45,31 @@ public class DataReportManager implements ConfigManager {
 
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_LIST = 2;
+    public static final int TYPE_HTML5 = 3;
+    public static final int TYPE_WORD = 4;
 
     /**
-     * 获取报表列表
+     * 获取可用报表
      *
      * @param entity
-     * @param type
+     * @param type 指定类型
      * @param user
      * @return
      */
     public JSONArray getReports(Entity entity, int type, ID user) {
         JSONArray alist = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
-            if (!e.getBoolean("disabled") && e.getInteger("type") == type) {
+            if (e.getBoolean("disabled")) continue;
+
+            boolean can;
+            int aType = e.getInteger("type");
+            if (type == DataReportManager.TYPE_LIST) {
+                can = aType == type;
+            } else {
+                can = aType == DataReportManager.TYPE_RECORD || aType == DataReportManager.TYPE_WORD;
+            }
+
+            if (can) {
                 // v3.5
                 String vuDef = e.getString("visibleUsers");
                 if (StringUtils.isNotBlank(vuDef)) {
@@ -85,7 +97,7 @@ public class DataReportManager implements ConfigManager {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,templateFile,templateType,extraDefinition from DataReportConfig where belongEntity = ?")
+                "select configId,name,isDisabled,templateFile,templateType,extraDefinition,templateContent from DataReportConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
                 .array();
 
@@ -104,7 +116,8 @@ public class DataReportManager implements ConfigManager {
                     .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
                     .set("outputType", outputType)
                     .set("templateVersion", templateVersion)
-                    .set("visibleUsers", visibleUsersDef);
+                    .set("visibleUsers", visibleUsersDef)
+                    .set("templateContent", o[6]);
             alist.add(cb);
         }
 
@@ -119,29 +132,36 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public TemplateFile getTemplateFile(Entity entity, ID reportId) {
-        String template = null;
-        boolean isList = false;
+        String templateFile = null;
+        String templateContent = null;
+        int type = DataReportManager.TYPE_RECORD;
         boolean isV33 = false;
 
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getID("id").equals(reportId)) {
-                template = e.getString("template");
-                isList = e.getInteger("type") == TYPE_LIST;
+                templateFile = e.getString("template");
+                templateContent = e.getString("templateContent");
+                type = e.getInteger("type");
                 isV33 = e.getInteger("templateVersion") == 3;
                 break;
             }
         }
 
-        if (template == null) {
+        // v35 HTML5
+        if (templateContent != null) {
+            return new TemplateFile(templateContent, entity);
+        }
+
+        if (templateFile == null) {
             throw new ConfigurationException("No template of report found : " + reportId);
         }
 
-        File file = RebuildConfiguration.getFileOfData(template);
+        File file = RebuildConfiguration.getFileOfData(templateFile);
         if (!file.exists()) {
             throw new ConfigurationException("File of template not extsts : " + file);
         }
 
-        return new TemplateFile(file, entity, isList, isV33);
+        return new TemplateFile(file, entity, type, isV33);
     }
 
     /**
@@ -150,15 +170,12 @@ public class DataReportManager implements ConfigManager {
      * @see #getTemplateFile(Entity, ID) 性能好
      */
     public TemplateFile getTemplateFile(ID reportId) {
-        Object[] report = Application.createQueryNoFilter(
-                "select belongEntity from DataReportConfig where configId = ?")
-                .setParameter(1, reportId)
-                .unique();
-        if (report == null || !MetadataHelper.containsEntity((String) report[0])) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
+        if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
             throw new ConfigurationException("No config of report found : " + reportId);
         }
 
-        return getTemplateFile(MetadataHelper.getEntity((String) report[0]), reportId);
+        return getTemplateFile(MetadataHelper.getEntity((String) o[0]), reportId);
     }
 
     @Override
@@ -166,6 +183,8 @@ public class DataReportManager implements ConfigManager {
         final String cKey = "DataReportManager35-" + ((Entity) entity).getName();
         Application.getCommonsCache().evict(cKey);
     }
+
+    // --
 
     /**
      * 获取报表名称
@@ -176,7 +195,8 @@ public class DataReportManager implements ConfigManager {
      * @return
      */
     public static String getReportName(ID reportId, Object idOrEntity, String fileName) {
-        Entity be = idOrEntity instanceof ID ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
+        final Entity be = idOrEntity instanceof ID
+                ? MetadataHelper.getEntity(((ID) idOrEntity).getEntityCode())
                 : MetadataHelper.getEntity((String) idOrEntity);
 
         String name = null;
@@ -191,6 +211,7 @@ public class DataReportManager implements ConfigManager {
 
                 // suffix
                 if (fileName.endsWith(".pdf")) name += ".pdf";
+                else if (fileName.endsWith(".docx")) name += ".docx";
                 else name += fileName.endsWith(".xlsx") ? ".xlsx" : ".xls";
                 break;
             }

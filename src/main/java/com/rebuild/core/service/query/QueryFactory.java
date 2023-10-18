@@ -37,8 +37,8 @@ import java.util.List;
 @Service
 public class QueryFactory {
 
-    private static final int QUERY_TIMEOUT = 15 * 1000;
-    private static final int SLOW_LOGGER_TIME = 3 * 1000;
+    private static final int QUERY_TIMEOUT = 15;  // s
+    private static final int SLOW_LOGGER_TIME = 3 * 1000;  // ms
 
     private final PersistManagerFactory aPMFactory;
 

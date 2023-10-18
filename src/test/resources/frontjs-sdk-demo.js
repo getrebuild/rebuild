@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // FrontJS 演示
 // 建议将上方匹配路径设置为 `/` 以便观察效果
 
@@ -16,6 +17,18 @@ FrontJS.ready(() => {
   demoForList()
 
   demoForForm()
+
+  // V35
+  _Form.onOpen(() => {
+    _Form.setTopAlert('表单顶部显示提示')
+  })
+
+  // 以下方法为同步请求，建议在 setTimeout 中调用以免堵塞主线程渲染页面
+  setTimeout(() => {
+    console.log(FrontJS.getPageToken())
+    console.log(FrontJS.getRecord(rb.currentUser))
+    console.log(FrontJS.checkPermission(rb.currentUser, 'D'))
+  })
 })
 
 // 添加按钮

@@ -194,17 +194,26 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
-      const ispdf = fileName.toLowerCase().endsWith('.pdf')
-      const setPreviewUrl = function (url) {
-        let previewUrl = ispdf ? url : (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
-        if ($.browser.mobile && ispdf) {
-          previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=${$encode(url)}`
+      const isPdfType = fileName.toLowerCase().endsWith('.pdf')
+      const setPreviewUrl = function (url, fullUrl) {
+        let previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        if (isPdfType) {
+          if ($.browser.mobile) {
+            previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=${$encode(url)}`
+          } else {
+            if (fullUrl) {
+              previewUrl = url
+            } else {
+              // 本地加载PDF
+              previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
+            }
+          }
         }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
       if ($isFullUrl(currentUrl)) {
-        setPreviewUrl(currentUrl)
+        setPreviewUrl(currentUrl, true)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })

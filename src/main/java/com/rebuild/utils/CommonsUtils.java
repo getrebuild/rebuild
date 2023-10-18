@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -247,5 +248,23 @@ public class CommonsUtils {
         if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
         if (NullValue.is(any)) return false;
         return !any.toString().isEmpty();
+    }
+
+    /**
+     * 值相等
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean isSame(Object a, Object b) {
+        boolean e = Objects.equals(a, b);
+        if (!e) {
+            if (a instanceof Number && b instanceof Number) {
+                // FIXME 有精度问题
+                e = ObjectUtils.toDouble(a) == ObjectUtils.toDouble(b);
+            }
+        }
+        return e;
     }
 }

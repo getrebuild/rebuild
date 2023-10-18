@@ -230,16 +230,21 @@ class RbModalWhite extends RbModal {
         }}>
         <div className="modal-dialog modal-xl" style={style2}>
           <div className="modal-content" style={style2}>
-            <div className="modal-header">
+            <div
+              className="modal-header"
+              onDoubleClick={(e) => {
+                if (this.props.maximize) {
+                  $stopEvent(e, true)
+                  this.setState({ _maximize: !this.state._maximize })
+                }
+              }}>
               <h3 className="modal-title">{this.props.title}</h3>
               {this.props.maximize && (
                 <button
                   className="close md-close J_maximize"
                   type="button"
                   title={this.state._maximize ? $L('向下还原') : $L('最大化')}
-                  onClick={() => {
-                    this.setState({ _maximize: !this.state._maximize })
-                  }}
+                  onClick={() => this.setState({ _maximize: !this.state._maximize })}
                   style={{ marginTop: -9 }}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>

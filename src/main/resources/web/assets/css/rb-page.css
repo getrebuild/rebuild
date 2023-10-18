@@ -720,6 +720,10 @@ div.dataTables_filter .filter-badge:hover .close {
   z-index: 1051;
 }
 
+.rbview.modal.top60 {
+  top: 61px;
+}
+
 .rbmodal.show,
 .rbview.show .modal-content {
   transition: margin 0.2s;
@@ -1298,18 +1302,23 @@ a.link.link-icon::after {
   width: 100%;
   margin: 10px 15px;
   padding: 15px;
-  border-radius: 6px;
+  border-radius: 3px;
   position: relative;
 }
 
 .form-layout.refform > .open-in-new {
   position: absolute;
-  right: 3px;
-  top: 3px;
-  font-size: 1.45rem;
+  right: 4px;
+  top: 4px;
+  font-size: 1.25rem;
   padding: 5px;
   display: inline-block;
   z-index: 1;
+  display: none;
+}
+
+.form-layout.refform:hover > .open-in-new {
+  display: block;
 }
 
 .input-group.has-append {

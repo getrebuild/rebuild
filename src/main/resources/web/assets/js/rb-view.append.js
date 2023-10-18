@@ -486,7 +486,7 @@ class SelectReport extends React.Component {
                         </a>
                         <span>
                           {showPdf && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf${window.__LAB_PREVIEWPDFREPORT ? '&preview=yes' : ''}`} title={$L('下载 PDF')}>
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title={$L('查看 PDF')}>
                               <i className="mdi mdi-file-pdf-box fs-18" />
                             </a>
                           )}

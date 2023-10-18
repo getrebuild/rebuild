@@ -26,11 +26,14 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
+import com.rebuild.core.service.datareport.EasyExcelGenerator33;
+import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
@@ -88,15 +91,21 @@ public class ReportsController extends BaseController {
         for (String id : record.split(",")) {
             if (ID.isId(id)) recordIds.add(ID.valueOf(id));
         }
+
         final ID recordId = recordIds.get(0);
+        final TemplateFile tt = DataReportManager.instance.getTemplateFile(reportId);
 
         File output = null;
         try {
-            if (recordIds.size() > 1) {
-                output = EasyExcelGenerator.create(reportId, recordIds).generate();
+            if (tt.type == DataReportManager.TYPE_WORD) {
+                EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
+                output = word.generate();
             } else {
-                output = EasyExcelGenerator.create(reportId, recordId).generate();
+                // 支持多个
+                output = EasyExcelGenerator.create(reportId, recordIds).generate();
             }
+
         } catch (ExcelRuntimeException ex) {
             log.error(null, ex);
         }
@@ -105,8 +114,8 @@ public class ReportsController extends BaseController {
 
         final String typeOutput = getParameter(request, "output");
         final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
-        // PDF
-        if ("PDF".equalsIgnoreCase(typeOutput) || isOnlyPdf(entity, reportId)) {
+        final boolean isPdf = "PDF".equalsIgnoreCase(typeOutput);
+        if (isPdf || isOnlyPdf(entity, reportId)) {
             output = PdfConverter.convertPdf(output.toPath()).toFile();
         } else if (isHtml) {
             output = PdfConverter.convertHtml(output.toPath()).toFile();
@@ -134,7 +143,7 @@ public class ReportsController extends BaseController {
 
         } else {
             // 直接预览
-            boolean forcePreview = isHtml || getBoolParameter(request, "preview");
+            boolean forcePreview = isHtml || isPdf || getBoolParameter(request, "preview");
             FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
         }
     }

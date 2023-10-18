@@ -22,9 +22,11 @@ $(document).ready(() => {
     .val('0')
     .on('change', function () {
       const start = ~~this.value
+      const end = ~~$('.J_startHour2').val()
       $('.J_startHour2 option').each(function () {
         $(this).attr('disabled', ~~$(this).val() < start)
       })
+      if (end < start) $('.J_startHour2').val(start)
     })
   $('.J_startHour2').val('23')
 
@@ -58,8 +60,8 @@ $(document).ready(() => {
           icon="time"
           message={
             <div>
-              <span className="mr-1">{$L('预计执行时间')}</span>
-              <code>{res.data.join(', ')}</code>
+              <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
+              <code>{res.data.slice(0, 10).join(', ')}</code>
             </div>
           }
         />,

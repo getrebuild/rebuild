@@ -41,7 +41,7 @@ body {
   z-index: 1001;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
-  background-color: rgba(230, 230, 230, 0.7);
+  background-color: rgba(230, 230, 230, 0.8);
   border-bottom-color: rgba(230, 230, 230, 1);
 }
 
@@ -167,9 +167,9 @@ body {
 .nav-tabs .vtab-settings {
   position: absolute;
   right: 0;
-  top: 4px;
+  top: 3px;
   padding: 9px 8px;
-  font-size: 15px;
+  font-size: 1.2rem;
   opacity: 0.6;
   display: none !important;
 }

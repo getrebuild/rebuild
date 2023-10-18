@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -19,11 +18,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 两个 Record 的不同
@@ -103,7 +102,7 @@ public class RecordDifference {
         for (Map.Entry<String, Object[]> e : merged.entrySet()) {
             Object[] vals = e.getValue();
             if (vals[0] == null && vals[1] == null) continue;
-            if (isEquals(vals[0], vals[1])) continue;
+            if (CommonsUtils.isSame(vals[0], vals[1])) continue;
 
             JSON item = JSONUtils.toJSONObject(
                     new String[]{"field", "before", "after"},
@@ -141,22 +140,5 @@ public class RecordDifference {
                 || EntityHelper.QuickCode.equalsIgnoreCase((fieldName))
                 || field.getType() == FieldType.PRIMARY
                 || MetadataHelper.isApprovalField(fieldName);
-    }
-
-    /**
-     * 相等
-     *
-     * @param v1
-     * @param v2
-     * @return
-     */
-    private boolean isEquals(Object v1, Object v2) {
-        boolean e = Objects.equals(v1, v2);
-        if (!e) {
-            if (v1 instanceof Number && v2 instanceof Number) {
-                e = ObjectUtils.toDouble(v1) == ObjectUtils.toDouble(v2);
-            }
-        }
-        return e;
     }
 }
