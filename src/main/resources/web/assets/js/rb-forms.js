@@ -41,7 +41,12 @@ class RbFormModal extends React.Component {
         <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
-              <div className="modal-header modal-header-colored">
+              <div
+                className="modal-header modal-header-colored"
+                onDoubleClick={(e) => {
+                  $stopEvent(e, true)
+                  this._handleMaximize()
+                }}>
                 {this.state.icon && <span className={`icon zmdi zmdi-${this.state.icon}`} />}
                 <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                 {rb.isAdminUser && (
@@ -49,15 +54,7 @@ class RbFormModal extends React.Component {
                     <span className="zmdi zmdi-settings up-1" />
                   </a>
                 )}
-                <button
-                  className="close md-close J_maximize"
-                  type="button"
-                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
-                  onClick={() => {
-                    this.setState({ _maximize: !this.state._maximize }, () => {
-                      $storage.set(this.__maximizeKey, this.state._maximize)
-                    })
-                  }}>
+                <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
                 <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
@@ -79,6 +76,12 @@ class RbFormModal extends React.Component {
         </div>
       </div>
     )
+  }
+
+  _handleMaximize() {
+    this.setState({ _maximize: !this.state._maximize }, () => {
+      $storage.set(this.__maximizeKey, this.state._maximize)
+    })
   }
 
   componentDidMount() {

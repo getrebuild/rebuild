@@ -878,7 +878,14 @@ class RbList extends React.Component {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
-                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e)} onDoubleClick={(e) => this._openView(e.currentTarget)}>
+                      <tr
+                        key={rowKey}
+                        data-id={primaryKey.id}
+                        onClick={(e) => this._clickRow(e)}
+                        onDoubleClick={(e) => {
+                          $stopEvent(e, true)
+                          this._openView(e.currentTarget)
+                        }}>
                         {this.props.uncheckbox !== true && (
                           <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                             <div>
