@@ -17,8 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.util.Assert;
 import org.zwobble.mammoth.DocumentConverter;
 import org.zwobble.mammoth.Result;
 
@@ -27,6 +31,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -49,7 +54,7 @@ public class PdfConverter {
      */
     public static Path convert(Path path, String type) throws PdfConverterException {
         try {
-            return convert(path, type, Boolean.FALSE);
+            return convert(path, type, true);
         } catch (IOException e) {
             throw new PdfConverterException(e);
         }
@@ -142,11 +147,12 @@ public class PdfConverter {
         if (TEMPALTE_HTML == null || Application.devMode()) {
             TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
         }
+        Assert.notNull(TEMPALTE_HTML, "TEMPALTE_HTML MISSING");
 
         DocumentConverter converter = new DocumentConverter();
         Result<String> result = converter.convertToHtml(source.toFile());
         String cHtml = result.getValue();
-        Set<String> cWarnings = result.getWarnings(); // Any warnings during conversion
+        Set<String> cWarnings = result.getWarnings();
         if (!cWarnings.isEmpty()) {
             log.warn("HTML convert warnings : {}", cWarnings);
         }
@@ -169,14 +175,21 @@ public class PdfConverter {
         if (TEMPALTE_HTML == null || Application.devMode()) {
             TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
         }
+        Assert.notNull(TEMPALTE_HTML, "TEMPALTE_HTML MISSING");
 
         StringWriter output = new StringWriter();
-        ToHtml toHtml = ToHtml.create(Files.newInputStream(source.toFile().toPath()), output);
-        toHtml.setCompleteHTML(false);
-        toHtml.printPage();
+        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(source))) {
+            ToHtml toHtml = ToHtml.create(wb, output);
+
+            for (Iterator<Sheet> iter = wb.sheetIterator(); iter.hasNext(); ) {
+                output.append("<div class=\"paper excel\">");
+                toHtml.printSheet(iter.next());
+                output.append("</div>");
+            }
+        }
 
         Document html = Jsoup.parse(TEMPALTE_HTML);
-        html.body().append("<div class=\"paper excel\">" + output + "</div>");
+        html.body().append(output.toString());
         html.title(source.getFileName().toString());
 
         FileUtils.writeStringToFile(dest, html.html(), AppUtils.UTF8);

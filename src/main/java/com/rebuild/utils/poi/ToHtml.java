@@ -16,40 +16,16 @@
 ==================================================================== */
 package com.rebuild.utils.poi;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import com.rebuild.utils.CommonsUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.format.CellFormat;
 import org.apache.poi.ss.format.CellFormatResult;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * This example shows how to display a spreadsheet in HTML using the classes for
@@ -79,6 +55,7 @@ public final class ToHtml {
     private static final int IDX_TABLE_WIDTH = -2;
     private static final int IDX_HEADER_COL_WIDTH = -1;
 
+    final private boolean rbPrintHeads = false;
 
     @SuppressWarnings({"unchecked"})
     private static <K, V> Map<K, V> mapFor(Object... mapping) {
@@ -403,6 +380,8 @@ public final class ToHtml {
     }
 
     private void printColumnHeads() {
+        if (!rbPrintHeads) return;
+
         out.format("<thead>%n");
         out.format("  <tr class=%s>%n", COL_HEAD_CLASS);
         out.format("    <th class=%s>&#x25CA;</th>%n", COL_HEAD_CLASS);
@@ -430,7 +409,7 @@ public final class ToHtml {
             Row row = rows.next();
 
             out.format("  <tr>%n");
-            out.format("    <td class=%s>%d</td>%n", ROW_HEAD_CLASS, row.getRowNum() + 1);
+            if (rbPrintHeads) out.format("    <td class=%s>%d</td>%n", ROW_HEAD_CLASS, row.getRowNum() + 1);
             for (int i = firstColumn; i < endColumn; i++) {
                 String content = "&nbsp;";
                 String attrs = "";
