@@ -20,6 +20,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.format.CellFormat;
 import org.apache.poi.ss.format.CellFormatResult;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -204,9 +206,6 @@ public final class ToHtml {
 //        } catch (IOException e) {
 //            throw new IllegalStateException("Reading standard css", e);
 //        }
-
-//        String line = CommonsUtils.getStringOfRes("poi/excelStyle.css");
-//        out.format("%s%n", line);
 
         // now add css for each used style
         Set<CellStyle> seen = new HashSet<>();
@@ -403,6 +402,9 @@ public final class ToHtml {
     private void printSheetContent(Sheet sheet) {
         printColumnHeads();
 
+        // RB 合并单元格
+        final List<CellRangeAddress> merged = sheet.getMergedRegions();
+
         out.format("<tbody>%n");
         Iterator<Row> rows = sheet.rowIterator();
         while (rows.hasNext()) {
@@ -414,6 +416,7 @@ public final class ToHtml {
                 String content = "&nbsp;";
                 String attrs = "";
                 CellStyle style = null;
+                int colspan = 0;
                 if (i >= row.getFirstCellNum() && i < row.getLastCellNum()) {
                     Cell cell = row.getCell(i);
                     if (cell != null) {
@@ -427,9 +430,19 @@ public final class ToHtml {
                         if (content.isEmpty()) {
                             content = "&nbsp;";
                         }
+
+                        for (CellRangeAddress m : merged) {
+                            CellAddress cellAddress = cell.getAddress();
+                            if (m.isInRange(cellAddress)) {
+                                colspan = m.getLastColumn() - cellAddress.getColumn();
+                                i += colspan;
+                                System.out.println("Cell " + cell.getAddress().formatAsString() + " in merged " + m.formatAsString());
+                                break;
+                            }
+                        }
                     }
                 }
-                out.format("    <td class=%s %s>%s</td>%n", styleName(style), attrs, content);
+                out.format("    <td class=%s %s%s>%s</td>%n", styleName(style), attrs, (colspan > 0 ? " colspan=" + (colspan + 1) : ""), content);
             }
             out.format("  </tr>%n");
         }

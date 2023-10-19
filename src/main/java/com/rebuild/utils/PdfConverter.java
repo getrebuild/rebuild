@@ -165,7 +165,8 @@ public class PdfConverter {
     }
 
     /**
-     * Word to HTML
+     * Excel to HTML.
+     * 1. 不能合并
      *
      * @param source
      * @param dest
@@ -180,6 +181,9 @@ public class PdfConverter {
         StringWriter output = new StringWriter();
         try (Workbook wb = WorkbookFactory.create(Files.newInputStream(source))) {
             ToHtml toHtml = ToHtml.create(wb, output);
+            output.append("<style>");
+            toHtml.printStyles();
+            output.append("</style>");
 
             for (Iterator<Sheet> iter = wb.sheetIterator(); iter.hasNext(); ) {
                 output.append("<div class=\"paper excel\">");
