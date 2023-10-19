@@ -119,7 +119,7 @@ class RbFormModal extends React.Component {
 
       const formModel = res.data
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage} ref={(c) => (this._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -217,6 +217,11 @@ class RbFormModal extends React.Component {
       state.previewid = null
     }
     this.setState(state)
+  }
+
+  // 获取当前表单对象
+  getCurrentRbForm() {
+    return this._formComponentRef
   }
 
   // -- Usage
@@ -605,6 +610,11 @@ class RbForm extends React.Component {
     return data
   }
 
+  // 获取明细表
+  getProTables() {
+    return this._ProTables
+  }
+
   // 保存并添加明细
   static NEXT_ADDDETAIL = 102
   // 保存并打开
@@ -654,11 +664,11 @@ class RbForm extends React.Component {
       id: this.state.id,
     }
 
-    if (RbForm.postBefore(data) === false) {
+    if (RbForm.postBefore(data, this) === false) {
       console.log('FrontJS prevented save')
       return
     }
-    if (typeof this._postBefore === 'function' && this._postBefore(data) === false) {
+    if (typeof this._postBefore === 'function' && this._postBefore(data, this) === false) {
       console.log('_postBefore prevented save')
       return
     }
@@ -690,7 +700,7 @@ class RbForm extends React.Component {
           const recordId = res.data.id
 
           if (typeof this._postAfter === 'function') {
-            this._postAfter(recordId)
+            this._postAfter(recordId, next, this)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
@@ -710,7 +720,7 @@ class RbForm extends React.Component {
             window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
+          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
 
           // ...
         }, 200)
@@ -734,7 +744,8 @@ class RbForm extends React.Component {
   // -- HOOK
 
   // 保存前调用（返回 false 则不继续保存）
-  static postBefore(data) {
+  // eslint-disable-next-line no-unused-vars
+  static postBefore(data, from) {
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
       if (ret === false) return false
@@ -743,7 +754,8 @@ class RbForm extends React.Component {
   }
 
   // 保存后调用
-  static postAfter(data, next) {
+  // eslint-disable-next-line no-unused-vars
+  static postAfter(data, next, from) {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
