@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.qiniu.util.Json;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -17,14 +18,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.zwobble.mammoth.DocumentConverter;
+import org.zwobble.mammoth.Result;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.util.Set;
 
 /**
+ * Office 文件转换
+ *
  * @author devezhao
  * @since 2023/2/26
  */
@@ -80,17 +84,26 @@ public class PdfConverter {
     protected static Path convert(Path path, String type, boolean forceRegen) throws IOException {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
-        // 公式生效
-        ExcelUtils.reSaveAndCalcFormula(path);
+        String pathFileName = path.getFileName().toString();
+        boolean isExcel = pathFileName.endsWith(".xlsx") || pathFileName.endsWith(".xls");
+        boolean isWord = pathFileName.endsWith(".docx") || pathFileName.endsWith(".doc");
+        // Excel 公式生效
+        if (isExcel) {
+            ExcelUtils.reSaveAndCalcFormula(path);
+        }
 
         final File outdir = RebuildConfiguration.getFileOfTemp(null);
-        String pdfName = path.getFileName().toString();
-        pdfName = pdfName.substring(0, pdfName.lastIndexOf(".") + 1) + type;
-        final File dest = new File(outdir, pdfName);
+        String outName = pathFileName.substring(0, pathFileName.lastIndexOf(".") + 1) + type;
+        final File dest = new File(outdir, outName);
 
         if (dest.exists()) {
             if (forceRegen) FileUtils.deleteQuietly(dest);
             else return dest.toPath();
+        }
+
+        if (TYPE_HTML.equalsIgnoreCase(type) && isWord) {
+            convertWord2Html(path, dest);
+            return dest.toPath();
         }
 
         // alias
@@ -101,47 +114,36 @@ public class PdfConverter {
         String echo = DatabaseBackup.execFor(cmd);
         if (!echo.isEmpty()) log.info(echo);
 
-        if (dest.exists()) {
-            if (TYPE_HTML.equalsIgnoreCase(type)) fixHtml(dest, null);
-            return dest.toPath();
-        }
+        if (dest.exists()) return dest.toPath();
 
         throw new PdfConverterException("Cannot convert to PDF : " + StringUtils.defaultIfBlank(echo, "<empty>"));
     }
 
     private static String TEMPALTE_HTML;
     /**
-     * @param sourceHtml
-     * @param title
+     * Word to HTML
+     *
+     * @param source
+     * @param dest
      * @throws IOException
      */
-    private static void fixHtml(File sourceHtml, String title) throws IOException {
-        if (TEMPALTE_HTML == null || Application.devMode()) TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
-        if (TEMPALTE_HTML == null) return;
-
-        final Document template = Jsoup.parse(TEMPALTE_HTML);
-        final Element body = template.body();
-
-        final Document source = Jsoup.parse(sourceHtml);
-
-        // 提取表格
-        for (Element table : source.select("body>table")) {
-            Element page = body.appendElement("div").addClass("page");
-            page.appendChild(table);
+    protected static void convertWord2Html(Path source, File dest) throws IOException {
+        if (TEMPALTE_HTML == null || Application.devMode()) {
+            TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
         }
 
-        // 图片添加 temp=yes
-        for (Element img : body.select("img")) {
-            String src = img.attr("src");
-            if (!src.startsWith("data:")) {
-                img.attr("src", src + "?temp=yes");
-            }
+        DocumentConverter converter = new DocumentConverter();
+        Result<String> result = converter.convertToHtml(source.toFile());
+        String cHtml = result.getValue();
+        Set<String> cWarnings = result.getWarnings(); // Any warnings during conversion
+        if (!cWarnings.isEmpty()) {
+            log.warn("HTML convert warnings : {}", cWarnings);
         }
 
-        // TITLE
-        if (title == null) title = sourceHtml.getName();
-        Objects.requireNonNull(template.head().selectFirst("title")).text(title);
+        Document html = Jsoup.parse(TEMPALTE_HTML);
+        html.body().append("<div class=\"paper\">" + cHtml + "</div>");
+        html.title(source.getFileName().toString());
 
-        FileUtils.writeStringToFile(sourceHtml, template.html(), "UTF-8");
+        FileUtils.writeStringToFile(dest, html.html(), AppUtils.UTF8);
     }
 }

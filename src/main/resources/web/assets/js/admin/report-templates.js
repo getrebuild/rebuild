@@ -190,9 +190,6 @@ class ReportEditor extends ConfigFormDlg {
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
               <input className="custom-control-input" type="checkbox" value="html" />
               <span className="custom-control-label">HTML</span>
-              <a title={$L('查看如何使用')} target="_blank" href="https://getrebuild.com/docs/admin/excel-admin#%E6%8A%A5%E8%A1%A8%E5%AF%BC%E5%87%BA%E6%A0%BC%E5%BC%8F">
-                <i className="zmdi zmdi-help zicon down-1" />
-              </a>
             </label>
           </div>
         </div>

@@ -491,12 +491,12 @@ class SelectReport extends React.Component {
                             </a>
                           )}
                           {showHtml && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=html`} title={$L('下载 HTML')}>
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=html`} title={$L('查看 HTML')}>
                               <i className="mdi mdi-language-html5 fs-18" />
                             </a>
                           )}
                           {rb._officePreviewUrl && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=preview`} title={$L('在线查看')}>
+                            <a target="_blank" className="preview" href={`${reportUrl}&output=preview`} title={$L('在线预览')}>
                               <i className="mdi mdi-open-in-new" />
                             </a>
                           )}
