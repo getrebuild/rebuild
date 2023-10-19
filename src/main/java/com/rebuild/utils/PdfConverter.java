@@ -7,11 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import com.qiniu.util.Json;
 import com.rebuild.core.Application;
+import com.rebuild.core.service.datareport.ReportsException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
+import com.rebuild.utils.poi.ToHtml;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,8 @@ import org.zwobble.mammoth.Result;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -101,9 +104,17 @@ public class PdfConverter {
             else return dest.toPath();
         }
 
-        if (TYPE_HTML.equalsIgnoreCase(type) && isWord) {
-            convertWord2Html(path, dest);
-            return dest.toPath();
+        if (TYPE_HTML.equalsIgnoreCase(type)) {
+            if (isWord) {
+                convertWord2Html(path, dest);
+                return dest.toPath();
+            }
+            if (isExcel) {
+                convertExcel2Html(path, dest);
+                return dest.toPath();
+            }
+
+            throw new ReportsException("CANNOT CONVERT TO HTML : " + pathFileName);
         }
 
         // alias
@@ -141,7 +152,31 @@ public class PdfConverter {
         }
 
         Document html = Jsoup.parse(TEMPALTE_HTML);
-        html.body().append("<div class=\"paper\">" + cHtml + "</div>");
+        html.body().append("<div class=\"paper word\">" + cHtml + "</div>");
+        html.title(source.getFileName().toString());
+
+        FileUtils.writeStringToFile(dest, html.html(), AppUtils.UTF8);
+    }
+
+    /**
+     * Word to HTML
+     *
+     * @param source
+     * @param dest
+     * @throws IOException
+     */
+    protected static void convertExcel2Html(Path source, File dest) throws IOException {
+        if (TEMPALTE_HTML == null || Application.devMode()) {
+            TEMPALTE_HTML = CommonsUtils.getStringOfRes("i18n/html-report.html");
+        }
+
+        StringWriter output = new StringWriter();
+        ToHtml toHtml = ToHtml.create(Files.newInputStream(source.toFile().toPath()), output);
+        toHtml.setCompleteHTML(false);
+        toHtml.printPage();
+
+        Document html = Jsoup.parse(TEMPALTE_HTML);
+        html.body().append("<div class=\"paper excel\">" + output + "</div>");
         html.title(source.getFileName().toString());
 
         FileUtils.writeStringToFile(dest, html.html(), AppUtils.UTF8);
