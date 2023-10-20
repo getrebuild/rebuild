@@ -16,6 +16,7 @@ import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -186,7 +187,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                     if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {
-                        String errMsg = ex.getLocalizedMessage();
+                        String errMsg = KnownExceptionConverter.convert2ErrorMsg(ex);
+                        if (errMsg == null) errMsg = ex.getLocalizedMessage();
                         if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
                         if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
 
