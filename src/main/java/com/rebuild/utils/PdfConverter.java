@@ -186,8 +186,12 @@ public class PdfConverter {
             output.append("</style>");
 
             for (Iterator<Sheet> iter = wb.sheetIterator(); iter.hasNext(); ) {
-                output.append("<div class=\"paper excel\">");
-                toHtml.printSheet(iter.next());
+                final Sheet sheet = iter.next();
+                String paperClass = "paper excel";
+                if (sheet.getPrintSetup().getLandscape()) paperClass += " landscape";  // 横向
+
+                output.append("<div class=\"").append(paperClass).append("\">");
+                toHtml.printSheet(sheet);
                 output.append("</div>");
             }
         }
