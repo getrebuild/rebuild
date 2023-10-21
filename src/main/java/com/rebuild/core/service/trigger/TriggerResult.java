@@ -77,6 +77,15 @@ public class TriggerResult implements JSONAware {
 
     /**
      * @param message
+     * @param affected
+     * @return
+     */
+    public static TriggerResult success(String message, Collection<ID> affected) {
+        return new TriggerResult(1, message, affected);
+    }
+
+    /**
+     * @param message
      * @return
      */
     public static TriggerResult wran(String message) {
@@ -143,5 +152,14 @@ public class TriggerResult implements JSONAware {
      */
     public static TriggerResult noUpdateFields() {
         return wran("No update fields");
+    }
+
+    /**
+     * 无效配置
+     *
+     * @return
+     */
+    public static TriggerResult badConfig() {
+        return wran("Bad config");
     }
 }

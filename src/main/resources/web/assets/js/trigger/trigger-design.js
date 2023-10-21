@@ -213,15 +213,15 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
-    if (!log) return <p className="m-0 text-warning">N</p>
+    if (!log) return <p className="m-0 text-warning text-uppercase">Unknown</p>
 
     try {
       return LastLogsViewer.renderLog(JSON.parse(log))
     } catch (err) {
       console.debug(err)
       return (
-        <p className="m-0 text-warning text-overflow" style={{ maxHeight: 295 }}>
-          {(log || 'N').toUpperCase()}
+        <p className="m-0 text-warning text-overflow text-uppercase" style={{ maxHeight: 295 }}>
+          {log || 'Unknown'}
         </p>
       )
     }

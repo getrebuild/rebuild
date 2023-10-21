@@ -302,6 +302,7 @@ class DeleteConfirm extends RbAlert {
         this.hide(true)
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter(res.data.deleted)
       } else {
+        $(this._$dbtn).text($L('删除'))
         RbHighbar.error(res.error_msg)
         this.disabled()
       }
