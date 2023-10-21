@@ -220,7 +220,7 @@ class RbFormModal extends React.Component {
   }
 
   // 获取当前表单对象
-  getCurrentRbForm() {
+  getCurrentForm() {
     return this._formComponentRef
   }
 
@@ -612,7 +612,10 @@ class RbForm extends React.Component {
 
   // 获取明细表
   getProTables() {
-    return this._ProTables
+    return this._ProTables ? Object.values(this._ProTables) : null
+  }
+  getProTable() {
+    return (this.getProTables() || [])[0] || null
   }
 
   // 保存并添加明细
