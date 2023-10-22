@@ -66,7 +66,7 @@ public class AutoApproval extends TriggerAction {
             return "lazy";
         }
 
-        ID recordId = operatingContext.getAnyRecord().getPrimary();
+        ID recordId = operatingContext.getFixedRecordId();
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
         // 优先使用当前用户

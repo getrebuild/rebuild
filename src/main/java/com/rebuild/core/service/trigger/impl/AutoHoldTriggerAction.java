@@ -47,7 +47,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
     protected void prepare(OperatingContext operatingContext) throws TriggerException {
         if (operatingContext.getAction() == InternalPermission.DELETE_BEFORE) {
             willRecords = getRelatedRecords(
-                    actionContext, operatingContext.getAnyRecord().getPrimary());
+                    actionContext, operatingContext.getFixedRecordId());
         }
     }
 
@@ -60,7 +60,7 @@ public abstract class AutoHoldTriggerAction extends TriggerAction {
     protected Set<ID> getWillRecords(OperatingContext operatingContext) {
         if (willRecords == null) {
             willRecords = getRelatedRecords(
-                    actionContext, operatingContext.getAnyRecord().getPrimary());
+                    actionContext, operatingContext.getFixedRecordId());
         }
         return willRecords;
     }

@@ -11,6 +11,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.EntityHelper;
 import org.springframework.util.Assert;
 
 /**
@@ -47,7 +48,7 @@ public class OperatingContext {
         this.action = action;
         this.beforeRecord = beforeRecord;
         this.afterRecord = afterRecord;
-        this.affected = affected == null ? new ID[]{getAnyRecord().getPrimary()} : affected;
+        this.affected = affected == null ? new ID[]{ getFixedRecordId() } : affected;
         this.operationIp = operationIp;
     }
 
@@ -80,10 +81,28 @@ public class OperatingContext {
     }
 
     /**
+     * NOTE!!! 请注意当共享时得到的是共享实体 Record
+     * 如果是为了获取源纪录 ID 推荐使用 {@link #getFixedRecordId()}
+     *
      * @return
      */
     public Record getAnyRecord() {
         return getAfterRecord() != null ? getAfterRecord() : getBeforeRecord();
+    }
+
+    /**
+     * v35 获取实际影响记录ID
+     * 例如在共享时传入的 Record 是 ShareAccess，而实际影响的是其中的 recordId 记录
+     *
+     * @return
+     */
+    public ID getFixedRecordId() {
+        ID recordId = getAnyRecord().getPrimary();
+        if (recordId.getEntityCode() == EntityHelper.ShareAccess) {
+            recordId = getAnyRecord().getID("recordId");
+            Assert.notNull(recordId, "[recordId] in ShareAccess cannot be null");
+        }
+        return recordId;
     }
 
     /**

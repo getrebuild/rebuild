@@ -105,7 +105,7 @@ public class FieldWriteback extends FieldAggregation {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
-                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
+                operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
@@ -130,7 +130,7 @@ public class FieldWriteback extends FieldAggregation {
         for (ID targetRecordId : targetRecordIds) {
             // 删除时无需更新自己
             if (operatingContext.getAction() == BizzPermission.DELETE
-                    && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
+                    && targetRecordId.equals(operatingContext.getFixedRecordId())) {
                 continue;
             }
 
@@ -247,13 +247,13 @@ public class FieldWriteback extends FieldAggregation {
             // N:N v3.1
             Field targetField = targetEntity.getField(targetFieldEntity[0]);
             if (targetField.getType() == FieldType.REFERENCE_LIST) {
-                Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getAnyRecord().getPrimary());
+                Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getFixedRecordId());
                 targetRecordIds.addAll(set);
             } else {
                 String sql = String.format("select %s from %s where %s = ?",
                         targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
                 Object[][] array = Application.createQueryNoFilter(sql)
-                        .setParameter(1, operatingContext.getAnyRecord().getPrimary())
+                        .setParameter(1, operatingContext.getFixedRecordId())
                         .array();
 
                 for (Object[] o : array) {

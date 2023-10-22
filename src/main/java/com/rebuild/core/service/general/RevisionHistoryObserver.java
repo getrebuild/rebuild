@@ -47,7 +47,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
     }
 
     private boolean isIgnore(OperatingContext ctx) {
-        int entity = ctx.getAnyRecord().getEntity().getEntityCode();
+        int entity = ctx.getFixedRecordId().getEntityCode();
         return entity == EntityHelper.FeedsComment || entity == EntityHelper.ProjectTaskComment;
     }
 
