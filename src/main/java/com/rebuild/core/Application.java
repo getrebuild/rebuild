@@ -48,6 +48,7 @@ import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -219,9 +220,14 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }
 
+        StringBuilder logConf = new StringBuilder();
         // 刷新配置缓存
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            RebuildConfiguration.get(item, true);
+            String v = RebuildConfiguration.get(item, true);
+            logConf.append(StringUtils.rightPad(item.name(), 31)).append(" : ").append(v == null ? "" : v).append("\n");
+        }
+        if (log.isDebugEnabled() || Application.devMode()) {
+            log.info("Use RebuildConfiguration :\n----------\n{}----------", logConf);
         }
 
         // 加载自定义实体
