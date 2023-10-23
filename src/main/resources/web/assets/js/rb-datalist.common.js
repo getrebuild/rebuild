@@ -811,6 +811,14 @@ class RbList extends React.Component {
         }
       }
     }
+    // 设置的默认排序
+    this.__defaultSort = props.config.sort
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].sort) {
+        this.__defaultSort = `${fields[i].field}:${fields[i].sort}`
+        break
+      }
+    }
 
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
@@ -1017,6 +1025,8 @@ class RbList extends React.Component {
       fields.push(item.field)
       if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
+    if (!fieldSort && this.__defaultSort) fieldSort = this.__defaultSort
+
     this.lastFilter = filter || this.lastFilter
 
     const reload = this._forceReload || this.pageNo === 1
@@ -1103,7 +1113,7 @@ class RbList extends React.Component {
     if ($target.hasClass('custom-control-label')) return // ignored
 
     const $tr = $target.parents('tr')
-    let holdSelected = true
+    let holdSelected
     if ($target.hasClass('column-checkbox')) {
       const $chk = $tr.find('.custom-control-input')[0]
       $chk.checked = !$chk.checked
@@ -1158,6 +1168,7 @@ class RbList extends React.Component {
   // 排序
   _sortField(field, e) {
     if (this.__columnResizing) return // fix: firefox
+
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {

@@ -142,6 +142,9 @@ public class TemplateExtractor {
             for (Cell cell : row) {
                 if (cell.isEmpty()) continue;
 
+                // 变量套变量无法支持
+                // {.__KEEP:(=IF(ISBLANK({.LimitedCredit}), "", "{.LimitedCredit}天付款"))}
+
                 String cellText = cell.asString();
                 Matcher matcher = PATT_V2.matcher(cellText);
                 while (matcher.find()) {

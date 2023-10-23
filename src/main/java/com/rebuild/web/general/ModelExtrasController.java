@@ -151,7 +151,7 @@ public class ModelExtrasController extends BaseController {
     @GetMapping("record-history")
     public JSONAware fetchRecordHistory(@IdParam ID id) {
         Object[][] array = Application.createQueryNoFilter(
-                "select revisionType,revisionOn,revisionBy from RevisionHistory where recordId = ? order by revisionOn desc")
+                "select revisionType,revisionOn,revisionBy,channelWith from RevisionHistory where recordId = ? order by autoId desc")
                 .setParameter(1, id)
                 .setLimit(100)
                 .array();

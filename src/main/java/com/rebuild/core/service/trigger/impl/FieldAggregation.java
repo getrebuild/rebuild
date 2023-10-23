@@ -142,7 +142,7 @@ public class FieldAggregation extends TriggerAction {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
-                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
+                operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 

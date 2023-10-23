@@ -21,8 +21,12 @@ class PdfConverterTest {
     @Test
     @Disabled
     void convert() throws IOException {
-        Path path = ResourceUtils.getFile("C:\\Users\\devezhao\\Desktop\\F分委托货运单-MT4-20230809 (2).xlsx").toPath();
-        Path pdf = PdfConverter.convert(path, PdfConverter.TYPE_PDF, Boolean.TRUE);
+        Path path = ResourceUtils.getFile("C:\\Users\\devezhao\\Downloads\\F收款结算单-MT5-20231019 (5).xlsx").toPath();
+
+        Path html = PdfConverter.convert(path, PdfConverter.TYPE_HTML, true);
+        System.out.println(path + " > " + html);
+
+        Path pdf = PdfConverter.convert(path, PdfConverter.TYPE_PDF, true);
         System.out.println(path + " > " + pdf);
     }
 }

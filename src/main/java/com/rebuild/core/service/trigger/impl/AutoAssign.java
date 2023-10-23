@@ -56,7 +56,7 @@ public class AutoAssign extends TriggerAction {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-        final ID recordId = operatingContext.getAnyRecord().getPrimary();
+        final ID recordId = operatingContext.getFixedRecordId();
 
         JSONArray assignTo = content.getJSONArray("assignTo");
         Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId, true);

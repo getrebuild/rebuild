@@ -28,7 +28,6 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -137,7 +136,7 @@ public class RecordTransfomer extends SetUser {
             dvMap = Collections.singletonMap(targetDtf.getName(), mainId);
         }
 
-        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false);
+        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false);
         ID newId;
 
         // 有多条（主+明细）
@@ -146,7 +145,7 @@ public class RecordTransfomer extends SetUser {
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
                 detailsList.add(
-                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false));
+                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false));
             }
 
             newId = saveRecord(main, detailsList);
@@ -214,7 +213,7 @@ public class RecordTransfomer extends SetUser {
     }
 
     /**
-     * 转换
+     * 转换 Record
      *
      * @param sourceEntity
      * @param targetEntity
@@ -222,11 +221,12 @@ public class RecordTransfomer extends SetUser {
      * @param sourceRecordId
      * @param defaultValue
      * @param ignoreUncreateable
+     * @param forceNullValue
      * @return
      */
     protected Record transformRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
-            ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable) {
+            ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable, boolean forceNullValue) {
 
         Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
@@ -249,9 +249,13 @@ public class RecordTransfomer extends SetUser {
         ID specOwningUser = null;
 
         for (Map.Entry<String, Object> e : fieldsMapping.entrySet()) {
-            if (e.getValue() == null) continue;
+            final String targetField = e.getKey();
 
-            String targetField = e.getKey();
+            if (e.getValue() == null) {
+                if (forceNullValue) target.setNull(targetField);
+                continue;
+            }
+
             EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
             if (ignoreUncreateable && !targetFieldEasy.isCreatable()) continue;
 
@@ -271,6 +275,9 @@ public class RecordTransfomer extends SetUser {
 
                     Object targetValue = sourceFieldEasy.convertCompatibleValue(sourceValue, targetFieldEasy);
                     target.setObjectValue(targetField, targetValue);
+
+                } else if (forceNullValue) {
+                    target.setNull(targetField);
                 }
             }
 

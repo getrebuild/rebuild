@@ -23,10 +23,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * !!!! 请勿修改或删除本文件
- * !!!! 请严格遵守《REBUILD 用户服务协议》https://getrebuild.com/legal/service-terms
- */
+// !!!! 请勿对本文件做任何改动，否则导致的一切损失由您自行承担！
+// !!!! 请严格遵守《REBUILD 用户服务协议》https://getrebuild.com/legal/service-terms
 @Slf4j
 public final class License {
 

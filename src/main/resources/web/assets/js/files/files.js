@@ -146,7 +146,7 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     return (
                       <tr key={idx}>
-                        <td className="position-relative">
+                        <td className="position-relative" style={{ width: '68%' }}>
                           <a href={item[0]} target="_blank" className="link">
                             {$fileCutName(item[1])}
                           </a>
@@ -155,6 +155,7 @@ class SharedFiles extends RbModalHandler {
                               <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
+                              className="danger-hover"
                               title={$L('取消分享')}
                               onClick={(e) => {
                                 const $tr = $(e.currentTarget).parents('tr')
@@ -174,7 +175,7 @@ class SharedFiles extends RbModalHandler {
                         </td>
                         <td title={item[2]} className="text-right">
                           <span title={item[2]}>{$fromNow(item[2])}</span>
-                          <div className="text-muted" title={item[3]}>
+                          <div className="text-muted fs-12" title={item[3]}>
                             {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
                           </div>
                         </td>

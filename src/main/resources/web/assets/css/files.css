@@ -193,7 +193,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .sharing-list .table th,
 .sharing-list .table td {
-  padding: 12px 6px;
+  padding: 8px 6px;
 }
 
 .sharing-list .table th {
@@ -236,5 +236,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .sharing-list .table tbody tr:hover > td > .fop-action {
-  top: 15px;
+  top: 11px;
+}
+
+.sharing-list .table tbody tr:hover > td > .fop-action a {
+  background-color: #f0f0f0;
 }

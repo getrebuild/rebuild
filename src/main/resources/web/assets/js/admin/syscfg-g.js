@@ -25,7 +25,7 @@ $(document).ready(() => {
     if (bindAccount) {
       $('.J_not-bind').addClass('hide')
       $('.J_has-bind a').text(bindAccount)
-    } else {
+    } else if (rb.commercial > 1) {
       $('.J_has-bind').addClass('hide')
       $('.J_not-bind .btn').on('click', () => {
         if (res.canBind) UCenter.bind()

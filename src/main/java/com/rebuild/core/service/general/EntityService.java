@@ -27,53 +27,53 @@ public interface EntityService extends ServiceSpec {
     /**
      * 删除（带级联）
      *
-     * @param record
+     * @param recordId
      * @param cascades 需要级联删除的实体
      * @return
      */
-    int delete(ID record, String[] cascades);
+    int delete(ID recordId, String[] cascades);
 
     /**
      * 分配
      *
-     * @param record
+     * @param recordId
      * @param to
      * @param cascades 需要级联分配的实体
      * @return
      */
-    int assign(ID record, ID to, String[] cascades);
+    int assign(ID recordId, ID to, String[] cascades);
 
     /**
      * 共享
      *
-     * @param record
+     * @param recordId
      * @param to
      * @param cascades
      * @return
      */
-    default int share(ID record, ID to, String[] cascades) {
-        return share(record, to, cascades, BizzPermission.READ.getMask());
+    default int share(ID recordId, ID to, String[] cascades) {
+        return share(recordId, to, cascades, BizzPermission.READ.getMask());
     }
 
     /**
      * 共享
      *
-     * @param record
+     * @param recordId
      * @param to
      * @param cascades 需要级联分配的实体
      * @param rights 共享权限
      * @return
      */
-    int share(ID record, ID to, String[] cascades, int rights);
+    int share(ID recordId, ID to, String[] cascades, int rights);
 
     /**
      * 取消共享
      *
-     * @param record   主记录
+     * @param recordId   主记录
      * @param accessId 共享的 AccessID
      * @return
      */
-    int unshare(ID record, ID accessId);
+    int unshare(ID recordId, ID accessId);
 
     /**
      * 批量操作
@@ -104,11 +104,11 @@ public interface EntityService extends ServiceSpec {
     /**
      * 审批
      *
-     * @param record
+     * @param recordId
      * @param state 只接受通过或撤销
      * @param approvalUser 审批人
      * @see com.rebuild.core.service.approval.ApprovalStepService
      * @see com.rebuild.core.service.approval.ApprovalProcessor
      */
-    void approve(ID record, ApprovalState state, ID approvalUser);
+    void approve(ID recordId, ApprovalState state, ID approvalUser);
 }

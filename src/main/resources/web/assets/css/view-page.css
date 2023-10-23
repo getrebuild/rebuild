@@ -368,20 +368,20 @@ body {
   line-height: 1;
 }
 
-.sharing-list {
+.shares-list {
   min-height: 60px;
 }
 
-.sharing-list .user-avatar {
+.shares-list .user-avatar {
   line-height: 30px;
   color: #444;
 }
 
-.sharing-list .badge-light {
+.shares-list .badge-light {
   font-weight: normal;
 }
 
-.sharing-list .table > tbody td {
+.shares-list .table > tbody td {
   padding: 8px 10px;
   border-width: 0;
 }

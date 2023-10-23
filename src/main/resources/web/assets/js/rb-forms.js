@@ -119,7 +119,7 @@ class RbFormModal extends React.Component {
 
       const formModel = res.data
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage} ref={(c) => (this._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -219,6 +219,11 @@ class RbFormModal extends React.Component {
     this.setState(state)
   }
 
+  // 获取当前表单对象
+  getCurrentForm() {
+    return this._formComponentRef
+  }
+
   // -- Usage
   /**
    * @param {*} props
@@ -251,8 +256,10 @@ class RbForm extends React.Component {
     const iv = props.rawModel.initialValue
     if (iv) {
       for (let k in iv) {
-        const val = iv[k]
-        this.__FormData[k] = { value: typeof val === 'object' ? val.id : val, error: null }
+        let val = iv[k]
+        // array, object, simple
+        val = typeof val === 'object' ? val.id || val : val
+        this.__FormData[k] = { value: val, error: null }
       }
     }
 
@@ -261,6 +268,7 @@ class RbForm extends React.Component {
     const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
     this._postBefore = props.postBefore || $$$props.postBefore
     this._postAfter = props.postAfter || $$$props.postAfter
+    this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
 
     this._dividerRefs = []
   }
@@ -372,7 +380,7 @@ class RbForm extends React.Component {
       })
     }
 
-    if (!_ProTable)
+    if (!_ProTable) {
       _ProTable = (
         <ProTable
           entity={detailMeta}
@@ -385,6 +393,7 @@ class RbForm extends React.Component {
           $$$main={this}
         />
       )
+    }
 
     return (
       <div className="detail-form-table">
@@ -601,6 +610,14 @@ class RbForm extends React.Component {
     return data
   }
 
+  // 获取明细表
+  getProTables() {
+    return this._ProTables ? Object.values(this._ProTables) : null
+  }
+  getProTable() {
+    return (this.getProTables() || [])[0] || null
+  }
+
   // 保存并添加明细
   static NEXT_ADDDETAIL = 102
   // 保存并打开
@@ -650,11 +667,11 @@ class RbForm extends React.Component {
       id: this.state.id,
     }
 
-    if (RbForm.postBefore(data) === false) {
+    if (RbForm.postBefore(data, this) === false) {
       console.log('FrontJS prevented save')
       return
     }
-    if (typeof this._postBefore === 'function' && this._postBefore(data) === false) {
+    if (typeof this._postBefore === 'function' && this._postBefore(data, this) === false) {
       console.log('_postBefore prevented save')
       return
     }
@@ -686,7 +703,7 @@ class RbForm extends React.Component {
           const recordId = res.data.id
 
           if (typeof this._postAfter === 'function') {
-            this._postAfter(recordId)
+            this._postAfter(recordId, next, this)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
@@ -706,7 +723,7 @@ class RbForm extends React.Component {
             window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
+          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
 
           // ...
         }, 200)
@@ -730,7 +747,8 @@ class RbForm extends React.Component {
   // -- HOOK
 
   // 保存前调用（返回 false 则不继续保存）
-  static postBefore(data) {
+  // eslint-disable-next-line no-unused-vars
+  static postBefore(data, from) {
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
       if (ret === false) return false
@@ -739,7 +757,8 @@ class RbForm extends React.Component {
   }
 
   // 保存后调用
-  static postAfter(data, next) {
+  // eslint-disable-next-line no-unused-vars
+  static postAfter(data, next, from) {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }

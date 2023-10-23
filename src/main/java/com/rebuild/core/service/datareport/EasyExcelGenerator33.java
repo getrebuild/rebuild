@@ -17,6 +17,7 @@ import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -203,6 +204,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             throw new ReportsException(e);
         }
 
+        PrintSetup copyPrintSetup = null;
         for (ID recordId : recordIdMultiple) {
             int newSheetAt;
             try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
@@ -217,7 +219,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     wb.setSheetName(newSheetAt, newSheetName);
                 }
 
-                // 2.保存模板
+                // 2.复制打印设置（POI 不会自己复制???）
+                // https://www.bilibili.com/read/cv15053559/
+                if (copyPrintSetup == null) {
+                    copyPrintSetup = wb.getSheetAt(0).getPrintSetup();
+                }
+                newSheet.getPrintSetup().setLandscape(copyPrintSetup.getLandscape());
+                newSheet.getPrintSetup().setPaperSize(copyPrintSetup.getPaperSize());
+
+                // 3.保存模板
                 try (FileOutputStream fos = new FileOutputStream(targetFile)) {
                     wb.write(fos);
                 }

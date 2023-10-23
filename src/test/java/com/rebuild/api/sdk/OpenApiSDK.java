@@ -72,7 +72,7 @@ public class OpenApiSDK {
         this.okHttpClient = new OkHttpClient().newBuilder()
                 .retryOnConnectionFailure(false)
                 .connectTimeout(30, TimeUnit.SECONDS)
-                .callTimeout(60, TimeUnit.SECONDS)
+                .callTimeout(300, TimeUnit.SECONDS)
                 .build();
     }
 
@@ -261,6 +261,7 @@ public class OpenApiSDK {
         String uploadKey = data.getString("upload_key");
         String uploadToken = data.getString("upload_token");
         if (uploadToken != null) {
+            LOG.info("Uploading file with qiniu token : " + uploadToken);
             if (qiniuUpload(file, uploadKey, uploadToken)) {
                 return uploadKey;
             }
@@ -268,6 +269,7 @@ public class OpenApiSDK {
 
         // 2.2.本地存储
         String uploadUrl = data.getString("upload_url");
+        LOG.info("Uploading file with URL : " + uploadUrl);
 
         MediaType mediaType = MediaType.parse("multipart/form-data");
         MultipartBody multipartBody = new MultipartBody.Builder()

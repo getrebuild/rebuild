@@ -294,7 +294,7 @@ class DlgShareManager extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('共享用户')} ref={(c) => (this._dlg = c)}>
-        <div className="sharing-list ml-1 mr-1">
+        <div className="shares-list ml-1 mr-1">
           <table className="table table-hover">
             <tbody ref={(c) => (this._tbody = c)}>
               {(this.state.sharingList || []).map((item) => {
