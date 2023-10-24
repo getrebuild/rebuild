@@ -525,7 +525,7 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._formulaCode = c)} placeholder="// Support AviatorScript" isCode />
+        <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">

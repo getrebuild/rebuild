@@ -144,6 +144,7 @@ public class FieldWritebackController extends BaseController {
     @PostMapping("verify-formula")
     public RespBody verifyFormula(HttpServletRequest request) {
         String formula = ServletUtils.getRequestString(request);
+        formula = formula.replace("\\n", "\n");
         String sourceEntity = getParameter(request, "entity");
 
         JSONObject item = JSONUtils.toJSONObject(

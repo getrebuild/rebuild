@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.trigger.ActionContext;
 import org.springframework.util.Assert;
 
 /**
@@ -95,6 +96,7 @@ public class OperatingContext {
      * 例如在共享时传入的 Record 是 ShareAccess，而实际影响的是其中的 recordId 记录
      *
      * @return
+     * @see ActionContext#getSourceRecord()
      */
     public ID getFixedRecordId() {
         ID recordId = getAnyRecord().getPrimary();
