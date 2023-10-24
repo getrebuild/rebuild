@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.commons.excel.IRow;
 import cn.hutool.core.io.file.FileWriter;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
@@ -80,13 +81,13 @@ public class ExcelUtils {
                         for (int i = 0; i < dataMap.size(); i++) {
                             row.add(new Cell(dataMap.get(i), rowNo.get(), i));
                         }
+
                         rows.add(row.toArray(new Cell[0]));
                         rowNo.incrementAndGet();
                     }
 
                     @Override
-                    public void doAfterAllAnalysed(AnalysisContext analysisContext) {
-                    }
+                    public void doAfterAllAnalysed(AnalysisContext analysisContext) {}
                 }).sheet().doRead();
             }
 
@@ -94,6 +95,48 @@ public class ExcelUtils {
             throw new RebuildException(e);
         }
         return rows;
+    }
+
+    /**
+     * @param excel
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static IRow[] readExcelRows(File excel) {
+        final List<IRow> rows = new ArrayList<>();
+        final AtomicInteger rowNo = new AtomicInteger(0);
+
+        try (InputStream is = Files.newInputStream(excel.toPath())) {
+            try (BufferedInputStream bis = new BufferedInputStream(is)) {
+                EasyExcel.read(bis, null, new AnalysisEventListener() {
+                    @Override
+                    public void invokeHeadMap(Map headMap, AnalysisContext context) {
+                        this.invoke(headMap, context);
+                    }
+
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void invoke(Object data, AnalysisContext analysisContext) {
+                        Map<Integer, String> dataMap = (Map<Integer, String>) data;
+                        List<Cell> row = new ArrayList<>();
+                        for (int i = 0; i < dataMap.size(); i++) {
+                            row.add(new Cell(dataMap.get(i), rowNo.get(), i));
+                        }
+
+                        rows.add(new IRow(row.toArray(new Cell[0]), rowNo.get()));
+                        rowNo.incrementAndGet();
+                    }
+
+                    @Override
+                    public void doAfterAllAnalysed(AnalysisContext analysisContext) {}
+                }).sheet().doRead();
+            }
+
+        } catch (IOException e) {
+            throw new RebuildException(e);
+        }
+
+        return rows.toArray(new IRow[0]);
     }
 
     /**
