@@ -12,7 +12,7 @@ const CALC_MODES2 = {
   RBJOIN2: $L('去重连接'),
 }
 
-const __LAB_MATCHFIELDS = true
+const __LAB_MATCHFIELDS = false
 
 // ~~ 字段聚合
 class ContentFieldAggregation extends ActionContentSpec {

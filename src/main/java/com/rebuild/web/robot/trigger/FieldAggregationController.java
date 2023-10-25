@@ -62,7 +62,7 @@ public class FieldAggregationController extends BaseController {
         // v35 字段匹配
         if (getBoolParameter(request, "matchfields")) {
             List<String[]> entities2 = new ArrayList<>();
-            for (Entity entity : MetadataSorter.sortEntities()) {
+            for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
                 entities2.add(new String[] {
                         entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
             }

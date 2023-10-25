@@ -15,7 +15,7 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-const __LAB_MATCHFIELDS = true
+const __LAB_MATCHFIELDS = false
 
 // ~~ 字段更新
 // eslint-disable-next-line no-undef
