@@ -51,7 +51,8 @@ import java.util.Set;
 public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
-    public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public List<String[]> getTargetEntities(
+            @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
         List<String[]> temp = new ArrayList<>();
         Set<String> unique = new HashSet<>();
 
@@ -77,7 +78,7 @@ public class FieldWritebackController extends BaseController {
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity, true)) {
             String key = refTo.getOwnEntity().getName() + "." + refTo.getName();
             if (unique.contains(key)) {
-                log.warn("None unique-key in {}", sourceEntity);
+                log.warn("None unique-key in {}, ignored", sourceEntity);
             } else {
                 String entityLabel = String.format("%s (%s) (N)",
                         EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
@@ -94,6 +95,17 @@ public class FieldWritebackController extends BaseController {
         FieldAggregationController.sortEntities(temp, sourceEntity);
         entities.addAll(temp);
         temp.clear();
+
+        // v35 字段匹配
+        if (getBoolParameter(request, "matchfields")) {
+            for (Entity entity : MetadataSorter.sortEntities()) {
+                temp.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
+            }
+
+            FieldAggregationController.sortEntities(temp, null);
+            entities.addAll(temp);
+            temp.clear();
+        }
 
         return entities;
     }

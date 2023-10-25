@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.core.service.trigger.TriggerAction;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,9 +37,7 @@ public class FieldAggregationRefresh {
     /**
      */
     public void refresh() {
-        if (operatingContext.getBeforeRecord() == null || operatingContext.getAfterRecord() == null) {
-            return;
-        }
+        if (operatingContext.getBeforeRecord() == null || operatingContext.getAfterRecord() == null) return;
 
         ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();
@@ -46,6 +45,11 @@ public class FieldAggregationRefresh {
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) parentAc.getActionContent()).getString("targetEntity").split("\\.");
         String followSourceField = targetFieldEntity[0];
+
+        if (TriggerAction.TARGET_ANY.equals(followSourceField)) {
+            log.debug("Use match-fields does not support refresh");
+            return;
+        }
 
         final ID beforeValue = operatingContext.getBeforeRecord().getID(followSourceField);
         final ID afterValue = operatingContext.getAfterRecord().getID(followSourceField);

@@ -42,6 +42,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -200,8 +201,14 @@ public class FieldWriteback extends FieldAggregation {
 
         targetRecordIds = new HashSet<>();
 
-        if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
-            // 自己更新自己
+        // v35
+        if (TARGET_ANY.equals(targetFieldEntity[0])) {
+            TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
+            ID[] ids = targetWithMatchFields.matchMulti(actionContext);
+            CollectionUtils.addAll(targetRecordIds, ids);
+        }
+        // 自己更新自己
+        else if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             targetRecordIds.add(actionContext.getSourceRecord());
         }
         // 1:1

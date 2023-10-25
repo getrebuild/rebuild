@@ -15,6 +15,8 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
+const __LAB_MATCHFIELDS = true
+
 // ~~ 字段更新
 // eslint-disable-next-line no-undef
 class ContentFieldWriteback extends ActionContentSpec {
@@ -24,6 +26,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   render() {
+    const targetEntities2 = []
     return (
       <div className="field-aggregation">
         <form className="simple">
@@ -34,6 +37,10 @@ class ContentFieldWriteback extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
+                      if (item[2] === '$') {
+                        targetEntities2.push(item)
+                        return null
+                      }
                       const val = `${item[2]}.${item[0]}`
                       return (
                         <option key={val} value={val}>
@@ -41,6 +48,19 @@ class ContentFieldWriteback extends ActionContentSpec {
                         </option>
                       )
                     })}
+
+                    {targetEntities2.length > 0 && (
+                      <optgroup label={$L('通过规则匹配')}>
+                        {targetEntities2.map((item) => {
+                          const val = `${item[2]}.${item[0]}`
+                          return (
+                            <option key={val} value={val}>
+                              {item[1]}
+                            </option>
+                          )
+                        })}
+                      </optgroup>
+                    )}
                   </select>
                 </div>
               </div>
@@ -52,6 +72,18 @@ class ContentFieldWriteback extends ActionContentSpec {
               )}
             </div>
           </div>
+
+          {__LAB_MATCHFIELDS && (
+            <div className={`form-group row ${this.state.showMatchFields ? '' : 'hide'}`}>
+              <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
+              <div className="col-md-12 col-lg-9">
+                <div>
+                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')}</h5>
+                  <textarea className="formula-code" style={{ height: 72 }} ref={(c) => (this._$matchFields = c)} placeholder="## [{ sourceField:XXX, targetField:XXX }]" />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('更新规则')}</label>
@@ -188,8 +220,8 @@ class ContentFieldWriteback extends ActionContentSpec {
   componentDidMount() {
     const content = this.props.content
     this.__select2 = []
-    $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}`, (res) => {
-      this.setState({ targetEntities: res.data }, () => {
+    $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}&matchfields=${__LAB_MATCHFIELDS}`, (res) => {
+      this.setState({ targetEntities: res.data || [] }, () => {
         const $s2te = $(this._$targetEntity)
           .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
@@ -211,16 +243,19 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
+      $(this._$matchFields).val(content.targetEntityMatchFields || null)
     }
   }
 
   _changeTargetEntity() {
-    const te = ($(this._$targetEntity).val() || '').split('.')[1]
-    if (!te) return
+    const teSplit = ($(this._$targetEntity).val() || '').split('.')
+    if (!teSplit || !teSplit[1]) return
     // 清空现有规则
-    this.setState({ targetEntity: te, items: [] })
+    this.setState({ items: [], targetEntity: teSplit[1] })
 
-    $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+    if (__LAB_MATCHFIELDS) this.setState({ showMatchFields: teSplit[0] === '$' })
+
+    $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
 
       this.__sourceFieldsCache = res.data.source
@@ -326,6 +361,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   buildContent() {
     const content = {
       targetEntity: $(this._$targetEntity).val(),
+      targetEntityMatchFields: $(this._$matchFields).val() || null,
       items: this.state.items,
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
