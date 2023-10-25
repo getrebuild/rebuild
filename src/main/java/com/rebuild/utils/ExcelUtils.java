@@ -101,8 +101,17 @@ public class ExcelUtils {
      * @param excel
      * @return
      */
-    @SuppressWarnings("rawtypes")
     public static IRow[] readExcelRows(File excel) {
+        return readExcelRows(excel, 0);
+    }
+
+    /**
+     * @param excel
+     * @param sheetNo
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static IRow[] readExcelRows(File excel, int sheetNo) {
         final List<IRow> rows = new ArrayList<>();
         final AtomicInteger rowNo = new AtomicInteger(0);
 
@@ -129,7 +138,7 @@ public class ExcelUtils {
 
                     @Override
                     public void doAfterAllAnalysed(AnalysisContext analysisContext) {}
-                }).sheet().doRead();
+                }).sheet(sheetNo).doRead();
             }
 
         } catch (IOException e) {
