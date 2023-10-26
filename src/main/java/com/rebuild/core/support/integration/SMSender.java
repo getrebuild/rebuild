@@ -85,6 +85,7 @@ public class SMSender {
      * @throws ConfigurationException If mail-account unset
      */
     public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
+        if (Application.devMode()) return null;
         if (specAccount == null || specAccount.length < 5
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
@@ -184,6 +185,7 @@ public class SMSender {
      * @throws ConfigurationException
      */
     protected static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
+        if (Application.devMode()) return null;
         HtmlEmail email = new HtmlEmail();
         email.addTo(to);
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
@@ -258,6 +260,7 @@ public class SMSender {
      * @throws ConfigurationException If sms-account unset
      */
     public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {
+        if (Application.devMode()) return null;
         if (specAccount == null || specAccount.length < 3
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2])) {
