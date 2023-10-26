@@ -60,7 +60,7 @@ public class ApiGateway extends Controller implements Initialization {
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
             new int[] { 10, 60 },
-            new int[] { 600, 6000 });
+            new int[] { 600, 3000 });
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
@@ -277,7 +277,8 @@ public class ApiGateway extends Controller implements Initialization {
         Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
         record.setString("requestUrl", apiName);
         record.setString("remoteIp", remoteIp);
-        record.setString("responseBody", requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 10000)));
+        record.setString("responseBody",
+                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 32767)));
         record.setDate("requestTime", requestTime);
         record.setDate("responseTime", CalendarUtils.now());
 
@@ -285,7 +286,7 @@ public class ApiGateway extends Controller implements Initialization {
             record.setString("appId", context.getAppId());
             if (context.getPostData() != null) {
                 record.setString("requestBody",
-                        CommonsUtils.maxstr(context.getPostData().toJSONString(), 10000));
+                        CommonsUtils.maxstr(context.getPostData().toJSONString(), 32767));
             }
             if (!context.getParameterMap().isEmpty()) {
                 record.setString("requestUrl",

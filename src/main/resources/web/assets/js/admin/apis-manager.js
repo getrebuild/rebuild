@@ -228,23 +228,30 @@ class ApiLogsViewer extends RbModalWhite {
                     <span className="badge badge-light ml-1 up-1">{$moment(dataShow[2]).diff($moment(dataShow[1]), 'seconds')}s</span>
                   </dd>
                   <dt className="col-sm-3">{$L('请求地址')}</dt>
-                  <dd className="col-sm-9">{dataShow[3]}</dd>
+                  <dd className="col-sm-9 text-break">{dataShow[3]}</dd>
                   <dt className="col-sm-12">{$L('请求数据')}</dt>
                   <dd className="col-sm-12">
-                    <pre className="code p-3" ref={(c) => (this._$codeReq = c)}>
-                      {JSON.stringify(dataShow[4])}
-                    </pre>
+                    <div className="code-wrap">
+                      <pre ref={(c) => (this._$codeReq = c)}>{JSON.stringify(dataShow[4])}</pre>
+                    </div>
                   </dd>
                   <dt className="col-sm-12">{$L('响应数据')}</dt>
-                  <dd className="col-sm-12">
-                    <pre className="code p-3" ref={(c) => (this._$codeResp = c)}>
-                      {JSON.stringify(dataShow[5])}
-                    </pre>
+                  <dd className="col-sm-12 mb-0">
+                    <div className="code-wrap">
+                      <pre className="mb-0" ref={(c) => (this._$codeResp = c)}>
+                        {JSON.stringify(dataShow[5])}
+                      </pre>
+                    </div>
                   </dd>
                 </dl>
               </div>
             ) : (
-              <div className="text-muted pt-8 pb-8 text-center">{$L('暂无数据')}</div>
+              <div className="text-muted pt-8 pb-8 text-center">
+                <p style={{ fontSize: 40 }}>
+                  <i className="mdi mdi-script-text-outline text-muted" />
+                </p>
+                {$L('暂无数据')}
+              </div>
             )}
           </div>
         </div>
@@ -288,7 +295,7 @@ class ApiLogsViewer extends RbModalWhite {
       return resp.error_code === 0
     } catch (err) {
       try {
-        return resp.includes('调用成功')
+        return resp.includes('调用成功') || resp.length > 9999
       } catch (ignored) {
         // ignored
       }
@@ -303,6 +310,7 @@ class ApiLogsViewer extends RbModalWhite {
         parser: 'json',
         // eslint-disable-next-line no-undef
         plugins: prettierPlugins,
+        printWidth: 10,
       })
     } catch (err) {
       console.log('Cannot format :', err)
