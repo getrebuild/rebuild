@@ -38,7 +38,7 @@ class AppList extends ConfigList {
               <td>{item[7] || $L('无 (不限制)')}</td>
               <td>
                 {item[6] > 0 ? (
-                  <a title={$L('API 调用日志')} onClick={() => renderRbcomp(<ApiLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize />)}>
+                  <a title={$L('API 调用日志')} onClick={() => renderRbcomp(<ApiLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide />)}>
                     {item[6]}
                   </a>
                 ) : (
