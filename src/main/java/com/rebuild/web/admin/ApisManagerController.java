@@ -38,6 +38,8 @@ import java.util.Date;
 @RequestMapping("/admin/")
 public class ApisManagerController extends BaseController {
 
+    private static final int SHOW_DAYS = 90;
+
     @GetMapping("apis-manager")
     public ModelAndView pageManager() {
         return createModelAndView("/admin/integration/apis-manager");
@@ -55,7 +57,7 @@ public class ApisManagerController extends BaseController {
             Object[] count = Application.createQueryNoFilter(
                     "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
                     .setParameter(1, appid)
-                    .setParameter(2, CalendarUtils.addDay(-30))
+                    .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
                     .unique();
             o[6] = count[0];
             o[5] = I18nUtils.formatDate((Date) o[5]);
@@ -92,7 +94,7 @@ public class ApisManagerController extends BaseController {
 
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, appid)
-                .setParameter(2, CalendarUtils.addDay(-30))
+                .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
