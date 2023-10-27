@@ -96,7 +96,7 @@ public class ApiGateway extends Controller implements Initialization {
         final String requestId = CommonsUtils.randomHex();
 
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
-        response.setHeader("X-Request-Id", requestId);
+        response.setHeader("X-RB-RequestId", requestId);
 
         if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);

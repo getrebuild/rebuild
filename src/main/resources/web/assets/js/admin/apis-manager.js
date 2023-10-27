@@ -216,7 +216,7 @@ class ApiLogsViewer extends RbModalWhite {
             {dataShow ? (
               <div className="logs-detail">
                 <dl className="row">
-                  <dt className="col-sm-3">{$L('编号')}</dt>
+                  <dt className="col-sm-3">{$L('编号')} (X-RB-RequestId)</dt>
                   <dd className="col-sm-9">{dataShow[6]}</dd>
                   <dt className="col-sm-3">{$L('来源 IP')}</dt>
                   <dd className="col-sm-9">{dataShow[0]}</dd>
