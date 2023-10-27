@@ -11,10 +11,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -52,7 +54,7 @@ public class ApiContext {
      * @param bindUser
      */
     public ApiContext(Map<String, String> reqParams, JSON postData, String appId, ID bindUser) {
-        this.reqParams = reqParams;
+        this.reqParams = Collections.unmodifiableMap(reqParams);
         this.postData = postData;
         this.appId = appId;
         this.bindUser = bindUser;
@@ -88,7 +90,7 @@ public class ApiContext {
      * @return
      */
     public JSON getPostData() {
-        return postData == null ? new JSONObject() : postData;
+        return postData == null ? new JSONObject() : JSONUtils.clone(postData);
     }
 
     /**
