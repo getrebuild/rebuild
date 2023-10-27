@@ -1289,7 +1289,7 @@ class DataListSettings extends RbModalHandler {
     const filterLen = state.filterData ? (state.filterData.items || []).length : 0
 
     return (
-      <RbModal title={$L('设置数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('编辑数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>

@@ -85,6 +85,7 @@ function modeAction() {
 
   // Mode-1 Option
   $('.mode-select .J_mode1-option').on('click', () => renderRbcomp(<DlgMode1Option />))
+  $('.mode-select .J_mode2-option').on('click', () => renderRbcomp(<DlgMode2Option />))
 }
 
 function modeSave(newOption, next) {
@@ -109,7 +110,7 @@ class DlgMode1Option extends RbFormHandler {
       <RbModal title={$L('标准模式选项')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('侧栏显示')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
             <div className="col-sm-9">
               <div>
                 <div className="switch-button switch-button-xs">
@@ -173,7 +174,7 @@ class DlgMode1Option extends RbFormHandler {
           </div>
 
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('顶部显示')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶部显示')}</label>
             <div className="col-sm-9">
               <div>
                 <div className="switch-button switch-button-xs">
@@ -310,5 +311,37 @@ class DlgMode1Option extends RbFormHandler {
       this.hide()
       location.reload()
     })
+  }
+}
+
+class DlgMode2Option extends DlgMode1Option {
+  render() {
+    return (
+      <RbModal title={$L('详情模式选项')} ref="dlg" disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('副字段显示')}</label>
+            <div className="col-sm-9">
+              <div>
+                {(this.state.appendFields || []).map((item) => {
+                  return item
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row footer">
+            <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={this.save}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
   }
 }

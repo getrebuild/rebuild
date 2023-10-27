@@ -2255,6 +2255,10 @@ th.column-fixed {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+.aside-tree li > a:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .aside-tree li.active > a {
   background-color: rgba(0, 0, 0, 0.09) !important;
   background-color: #4285f4 !important;
