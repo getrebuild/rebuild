@@ -99,7 +99,7 @@ public class ApiContext {
      * @throws ApiInvokeException
      */
     public String getParameterNotBlank(String name) throws ApiInvokeException {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (StringUtils.isBlank(value)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be null");
         }
@@ -111,7 +111,7 @@ public class ApiContext {
      * @return
      */
     public String getParameter(String name) {
-        return getParameterMap().get(name);
+        return reqParams.get(name);
     }
 
     /**
@@ -130,7 +130,7 @@ public class ApiContext {
      * @return
      */
     public int getParameterAsInt(String name, int defaultValue) {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (NumberUtils.isNumber(value)) return NumberUtils.toInt(value);
         else return defaultValue;
     }
@@ -140,19 +140,8 @@ public class ApiContext {
      * @param defaultValue
      * @return
      */
-    public long getParameterAsLong(String name, long defaultValue) {
-        String value = getParameterMap().get(name);
-        if (NumberUtils.isNumber(value)) return NumberUtils.toLong(value);
-        else return defaultValue;
-    }
-
-    /**
-     * @param name
-     * @param defaultValue
-     * @return
-     */
     public boolean getParameterAsBool(String name, boolean defaultValue) {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (StringUtils.isBlank(value)) return defaultValue;
         else return BooleanUtils.toBoolean(value);
     }

@@ -284,9 +284,9 @@ public class ApiGateway extends Controller implements Initialization {
 
         if (context != null) {
             record.setString("appId", context.getAppId());
-            if (context.getPostData() != null) {
-                record.setString("requestBody",
-                        CommonsUtils.maxstr(context.getPostData().toJSONString(), 32767));
+            JSON post;
+            if ((post = context.getPostData()) != null) {
+                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 32767));
             }
             if (!context.getParameterMap().isEmpty()) {
                 record.setString("requestUrl",
