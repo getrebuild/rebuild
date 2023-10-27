@@ -117,6 +117,6 @@ public class EasyDecimal extends EasyField {
      */
     public static String clearFlaged(Object flagedValue) {
         if (flagedValue == null) return null;
-        return flagedValue.toString().replaceAll("[^\\d^.^-]", "");
+        return flagedValue.toString().replaceAll("[^\\d^.-]", "");
     }
 }

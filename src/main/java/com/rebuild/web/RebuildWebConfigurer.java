@@ -61,6 +61,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     private ThymeleafViewResolver thymeleafViewResolver;
 
     private static String pageFooterHtml;
+    /**
+     * @return
+     */
     public static String getPageFooterHtml() {
         return pageFooterHtml;
     }
