@@ -36,8 +36,7 @@ public class FormsManager extends BaseLayoutManager {
                     .set("elements", JSONUtils.EMPTY_ARRAY);
         } else {
             entry.set("elements", entry.getJSON("config"))
-                    .set("config", null)
-                    .set("shareTo", null);
+                    .remove("config").remove("shareTo");
         }
         return entry.set("entity", entity);
     }

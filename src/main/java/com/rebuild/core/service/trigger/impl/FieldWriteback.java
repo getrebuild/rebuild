@@ -470,6 +470,8 @@ public class FieldWriteback extends FieldAggregation {
                                 targetRecord.setNull(targetField);
                             }
                         }
+                    } else if (clearFields) {
+                        targetRecord.setNull(targetField);
                     }
                 }
             }
