@@ -726,6 +726,10 @@ div.dataTables_filter .filter-badge:hover .close {
   display: block !important;
 }
 
+.rbmodal.use-white .modal-header {
+  border-bottom: 1px solid #dee2e6;
+}
+
 .rbview.modal {
   z-index: 1051;
 }
@@ -4634,7 +4638,6 @@ pre.unstyle {
 .map-pin {
   padding: 10px 15px 10px 19px;
   background-color: #f7f7f7;
-  border-top: 1px solid #dee2e6;
 }
 
 .custom-checkbox.ptask .custom-control-label::before {

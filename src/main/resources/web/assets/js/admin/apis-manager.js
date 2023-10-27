@@ -38,7 +38,7 @@ class AppList extends ConfigList {
               <td>{item[7] || $L('无 (不限制)')}</td>
               <td>
                 {item[6] > 0 ? (
-                  <a title={$L('API 调用日志')} onClick={() => renderRbcomp(<ApiLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide />)}>
+                  <a title={$L('API 调用日志')} className="have-logs" onClick={() => renderRbcomp(<AppLogsViewer title={$L('API 调用日志')} appid={item[1]} maximize disposeOnHide useWhite />)}>
                     {item[6]}
                   </a>
                 ) : (
@@ -152,7 +152,7 @@ class AppEdit extends ConfigFormDlg {
 }
 
 // ~~ LOG 查看
-class ApiLogsViewer extends RbModalWhite {
+class AppLogsViewer extends RbModal {
   renderContent() {
     if (!this.state.dataLogs) {
       return (

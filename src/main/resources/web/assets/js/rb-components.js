@@ -17,40 +17,66 @@ class RbModal extends React.Component {
 
   render() {
     const props = this.props
-    const style1 = {}
-    if (props.zIndex) style1.zIndex = props.zIndex
-
-    const iframe = !props.children // No child
     const style2 = { maxWidth: ~~(props.width || 680) }
+    if (props.useWhite) {
+      style2.maxWidth = this.state._maximize ? $(window).width() - 60 : null
+    }
 
+    const modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
     return (
       <div
-        className={`modal rbmodal colored-header colored-header-${props.colored || 'primary'}`}
-        style={style1}
+        className={modalClazz}
+        style={props.zIndex ? { zIndex: props.zIndex } : null}
         ref={(c) => {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className="modal-dialog" style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'}`} style={style2}>
           <div className="modal-content" style={style2}>
-            <div className="modal-header modal-header-colored">
+            <div
+              className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
+              onDoubleClick={(e) => {
+                if (this.props.maximize) {
+                  $stopEvent(e, true)
+                  this.setState({ _maximize: !this.state._maximize })
+                }
+              }}>
               {props.icon && <i className={`icon zmdi zmdi-${props.icon}`} />}
-              <h3 className="modal-title">{props.title || 'UNTITLED'}</h3>
+              <h3 className="modal-title">{props.title || ''}</h3>
+
               {props.url && props.urlOpenInNew && (
                 <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
                   <span className="zmdi zmdi-open-in-new" />
                 </a>
               )}
+              {this.props.maximize && (
+                <button
+                  className="close md-close J_maximize"
+                  type="button"
+                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
+                  onClick={() => this.setState({ _maximize: !this.state._maximize })}
+                  style={{ marginTop: -9 }}>
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                </button>
+              )}
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
-              {props.children || <iframe src={props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
-              {iframe && <RbSpinner />}
-            </div>
+
+            {this.renderContent()}
           </div>
         </div>
+      </div>
+    )
+  }
+
+  renderContent() {
+    const iframe = !this.props.children // No child
+    return (
+      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
+        {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
+        {iframe && <RbSpinner />}
       </div>
     )
   }
@@ -214,54 +240,6 @@ class RbFormHandler extends RbModalHandler {
     if (!this._btns) return
     if (d === true) $(this._btns).find('.btn').button('loading')
     else $(this._btns).find('.btn').button('reset')
-  }
-}
-
-// ~~
-class RbModalWhite extends RbModal {
-  render() {
-    const style2 = { maxWidth: this.state._maximize ? $(window).width() - 60 : null }
-    return (
-      <div
-        className="modal rbmodal"
-        ref={(c) => {
-          this._rbmodal = c
-          this._element = c
-        }}>
-        <div className="modal-dialog modal-xl" style={style2}>
-          <div className="modal-content" style={style2}>
-            <div
-              className="modal-header"
-              onDoubleClick={(e) => {
-                if (this.props.maximize) {
-                  $stopEvent(e, true)
-                  this.setState({ _maximize: !this.state._maximize })
-                }
-              }}>
-              <h3 className="modal-title">{this.props.title}</h3>
-              {this.props.maximize && (
-                <button
-                  className="close md-close J_maximize"
-                  type="button"
-                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
-                  onClick={() => this.setState({ _maximize: !this.state._maximize })}
-                  style={{ marginTop: -9 }}>
-                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
-                </button>
-              )}
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')} style={{ marginTop: -9 }}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body p-0">{this.renderContent()}</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  renderContent() {
-    return 'TODO'
   }
 }
 

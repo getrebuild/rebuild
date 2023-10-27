@@ -129,6 +129,5 @@ module.exports = {
     $escapeHtml: true,
     $isLight: true,
     RbGritter: true,
-    RbModalWhite: true,
   },
 }
