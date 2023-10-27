@@ -33,6 +33,16 @@ html.commercial .rbv {
   display: none !important;
 }
 
+html.mourning-mode {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -ms-filter: gray(100%);
+  -o-filter: grayscale(100%);
+  filter: grayscale(100%);
+  filter: gray;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+}
+
 .dev-show {
   display: none;
 }

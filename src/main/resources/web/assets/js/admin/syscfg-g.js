@@ -151,7 +151,7 @@ class DlgMM extends RbAlert {
         <div className="form-group">
           <label>{$L('计划维护时间')}</label>
           <div className="input-group">
-            <input type="text" className="form-control form-control-sm bg-white" ref={(c) => (this._$startTime = c)} placeholder={$L('开始时间')} readOnly />
+            <input type="text" className="form-control form-control-sm bg-white J_start" ref={(c) => (this._$startTime = c)} placeholder={$L('开始时间')} readOnly />
             <div className="input-group-prepend input-group-append">
               <span className="input-group-text pt-0 pb-0">{$L('至')}</span>
             </div>
@@ -195,7 +195,15 @@ class DlgMM extends RbAlert {
       .datetimepicker({
         startDate: new Date(),
       })
-      .on('changeDate', calcTakeTime)
+      .on('changeDate', (e) => {
+        if ($(e.target).hasClass('J_start')) {
+          if ($val(this._$startTime) && !$val(this._$endTime)) {
+            const autoEnd = moment($val(this._$startTime)).add('minute', 10).format('YYYY-MM-DD HH:mm')
+            $(this._$endTime).val(autoEnd)
+          }
+        }
+        calcTakeTime()
+      })
   }
 
   _buildPost() {
