@@ -95,9 +95,14 @@ public class OnlineSessionStore implements HttpSessionListener {
      * @param request
      */
     public void storeLastActive(HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        if (requestUri.contains("/filex/access/")) {
+            return;
+        }
+        
         HttpSession s = request.getSession();
         s.setAttribute(SK_LASTACTIVE,
-                new Object[]{System.currentTimeMillis(), request.getRequestURI(), ServletUtils.getRemoteAddr(request)});
+                new Object[]{System.currentTimeMillis(), requestUri, ServletUtils.getRemoteAddr(request)});
     }
 
     /**
