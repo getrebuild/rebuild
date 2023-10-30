@@ -176,7 +176,7 @@ class DlgMode1Option extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶部显示')}</label>
             <div className="col-sm-9">
-              <div>
+              <div className="bosskey-show mb-2">
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
                   <span>
@@ -185,7 +185,7 @@ class DlgMode1Option extends RbFormHandler {
                 </div>
                 <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
-              <div className="mt-2">
+              <div>
                 <div className="switch-button switch-button-xs">
                   <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
                   <span>
