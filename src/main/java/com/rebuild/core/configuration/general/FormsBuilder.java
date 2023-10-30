@@ -345,12 +345,13 @@ public class FormsBuilder extends FormsManager {
             }
 
             // v2.2 高级控制
-            Object displayOnCreate = el.remove("displayOnCreate");
-            Object displayOnUpdate = el.remove("displayOnUpdate");
-            Object requiredOnCreate = el.remove("requiredOnCreate");
-            Object requiredOnUpdate = el.remove("requiredOnUpdate");
             if (viewModel) useAdvControl = false;
             if (useAdvControl) {
+                Object displayOnCreate = el.remove("displayOnCreate");
+                Object displayOnUpdate = el.remove("displayOnUpdate");
+                Object requiredOnCreate = el.remove("requiredOnCreate");
+                Object requiredOnUpdate = el.remove("requiredOnUpdate");
+                
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNew2 = isNew;
                 if (entity.getMainEntity() != null) {
