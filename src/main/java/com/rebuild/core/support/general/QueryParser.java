@@ -226,7 +226,7 @@ public class QueryParser {
         } else if (entity.containsField(EntityHelper.CreatedOn)) {
             sqlSort.append(EntityHelper.CreatedOn + " desc");
         }
-        if (sqlSort.length() >= 18) fullSql.append(sqlSort);
+        if (sqlSort.length() >= 14) fullSql.append(sqlSort);
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + sqlWhere;
@@ -245,10 +245,19 @@ public class QueryParser {
      * @return
      */
     private String parseSort(String sort) {
-        String[] sorts = sort.split(":");
-        if (sorts.length != 2) return null;
-        String sortField = sorts[0];
-        return sortField + ("desc".equalsIgnoreCase(sorts[1]) ? " desc" : " asc");
+        StringBuilder sb = new StringBuilder();
+        String[] sorts = sort.split("[,;]");
+        for (String s : sorts) {
+            String[] split = s.split(":");
+            sb.append(split[0]);
+            if (split.length > 1) sb.append("desc".equalsIgnoreCase(split[1]) ? " desc" : " asc");
+            sb.append(", ");
+        }
+
+        // Remove last ` ,`
+        int len = sb.length();
+        sb.delete(len - 2, len);
+        return sb.toString();
     }
 
     /**
