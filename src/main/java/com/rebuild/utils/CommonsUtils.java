@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -266,5 +267,18 @@ public class CommonsUtils {
             }
         }
         return e;
+    }
+
+    /**
+     * 指定范围的随机数
+     *
+     * @param s
+     * @param e
+     * @return
+     * @see RandomUtils#nextInt(int)
+     */
+    public static int randomInt(int s, int e) {
+        int rnd = RandomUtils.nextInt(e);
+        return rnd < s ? rnd + s : rnd;
     }
 }

@@ -25,9 +25,9 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.NeedRbvException;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomUtils;
 
 /**
  * 创建实体
@@ -74,7 +74,7 @@ public class Entity2Schema extends Field2Schema {
             entityName = toPinyinName(entityLabel);
             for (int i = 0; i < 6; i++) {
                 if (MetadataHelper.containsEntity(entityName)) {
-                    entityName += RandomUtils.nextInt(0, 9);
+                    entityName += CommonsUtils.randomInt(0, 9);
                 } else {
                     break;
                 }

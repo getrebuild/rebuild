@@ -10,7 +10,7 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
-import org.apache.commons.lang3.RandomUtils;
+import com.rebuild.utils.CommonsUtils;
 
 /**
  * 验证码助手
@@ -44,7 +44,7 @@ public class VerfiyCode {
         } else if (level == 2) {
             vcode = CodecUtils.randomCode(8);
         } else {
-            vcode = RandomUtils.nextInt(100000, 999999) + "";
+            vcode = CommonsUtils.randomInt(100000, 999999) + "";
         }
 
         // 缓存 10 分钟
