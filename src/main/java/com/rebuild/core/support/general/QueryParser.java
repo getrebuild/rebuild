@@ -245,6 +245,8 @@ public class QueryParser {
      * @return
      */
     private String parseSort(String sort) {
+        if (sort.length() < 5) return null;
+
         StringBuilder sb = new StringBuilder();
         String[] sorts = sort.split("[,;]");
         for (String s : sorts) {
