@@ -61,8 +61,10 @@ public class DatabaseBackup {
         String destName = "backup_database." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now());
         File dest = new File(backups, destName);
 
+        // https://blog.csdn.net/liaowenxiong/article/details/120587358
+        // --master-data --flush-logs
         String cmd = String.format(
-                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob -R -x %s>%s",
+                "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>%s",
                 SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump",
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
 
