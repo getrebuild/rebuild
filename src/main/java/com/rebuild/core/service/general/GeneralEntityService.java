@@ -75,10 +75,8 @@ import java.util.TreeMap;
  *
  * <p>如有需要，其他实体可根据自身业务继承并复写</p>
  *
- * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
- *
  * @author Zixin (RB)
- * @since 11/06/2017
+ * @since 11/06/2019
  */
 @Slf4j
 @Service
