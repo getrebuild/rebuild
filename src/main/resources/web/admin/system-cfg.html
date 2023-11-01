@@ -280,6 +280,10 @@
                         <td th:data-id="${commercial > 1 ? 'PortalBaiduMapAk' : ''}" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
+                        <td>[[${bundle.L('哀悼模式')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true">[[${MobileNavStyle ?:'34'}]]</td>
                       </tr>

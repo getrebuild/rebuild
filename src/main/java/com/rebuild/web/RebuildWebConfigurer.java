@@ -95,8 +95,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         setStaticVariable(ConfigurationItem.PortalOfficePreviewUrl);
         setStaticVariable(ConfigurationItem.PortalBaiduMapAk);
-        setStaticVariable(ConfigurationItem.PortalUploadMaxSize);  // MB
+        setStaticVariable(ConfigurationItem.PortalUploadMaxSize);
         setStaticVariable(ConfigurationItem.AppBuild);
+        setStaticVariable(ConfigurationItem.PageMourningMode);
 
         // 清理缓存
         thymeleafViewResolver.clearCache();

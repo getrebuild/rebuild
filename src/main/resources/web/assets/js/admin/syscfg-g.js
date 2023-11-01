@@ -67,7 +67,7 @@ $(document).ready(() => {
 })
 
 useEditComp = function (name) {
-  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
+  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory', 'PageMourningMode'].includes(name)) {
     return (
       <select className="form-control form-control-sm">
         <option value="true">{$L('是')}</option>
