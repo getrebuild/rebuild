@@ -147,33 +147,38 @@ public class BaseService extends InternalPersistService {
         final Map<String, ID[]> holdN2NValues = new HashMap<>();
 
         for (Field n2nField : n2nFields) {
-            ID[] newRefs;
+            ID[] newValue;
             if (isNew) {
                 Object maybeNull = record.getObjectValue(n2nField.getName());
-                newRefs = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
-                if (newRefs == null || newRefs.length == 0) continue;
+                if (maybeNull == null) continue;
+
+                newValue = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
+                if (newValue.length == 0) {
+                    record.setNull(n2nField.getName());
+                    continue;
+                }
             } else {
                 if (record.hasValue(n2nField.getName())) {
                     Object maybeNull = record.getObjectValue(n2nField.getName());
-                    newRefs = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
+                    newValue = NullValue.is(maybeNull) ? ID.EMPTY_ID_ARRAY : (ID[]) maybeNull;
                 } else {
                     continue;
                 }
             }
 
             // 保持值
-            holdN2NValues.put(n2nField.getName(), newRefs);
+            holdN2NValues.put(n2nField.getName(), newValue);
 
             // 仅保留第一个用于标识是否为空
-            if (newRefs.length == 0) record.setNull(n2nField.getName());
-            else record.setIDArray(n2nField.getName(), new ID[] { newRefs[0] });
+            if (newValue.length == 0) record.setNull(n2nField.getName());
+            else record.setIDArray(n2nField.getName(), new ID[] { newValue[0] });
 
             // 哪个字段
             n2nRecord.setString("belongField", n2nField.getName());
 
             // 新建
             if (isNew) {
-                for (ID refId : newRefs) {
+                for (ID refId : newValue) {
                     Record clone = n2nRecord.clone();
                     clone.setID("referenceId", refId);
                     addItems.add(clone);
@@ -193,7 +198,7 @@ public class BaseService extends InternalPersistService {
                 }
 
                 Set<ID> afterRefs = new LinkedHashSet<>();
-                CollectionUtils.addAll(afterRefs, newRefs);
+                CollectionUtils.addAll(afterRefs, newValue);
 
                 for (Iterator<ID> iter = afterRefs.iterator(); iter.hasNext(); ) {
                     ID a = iter.next();
@@ -278,31 +283,37 @@ public class BaseService extends InternalPersistService {
         final Map<String, String[]> holdTagValues = new HashMap<>();
 
         for (Field tagField : tagFields) {
-            String[] newTags;
+            String[] newValue;
             if (isNew) {
-                newTags = cleanNameArray(record.getObjectValue(tagField.getName()));
-                if (newTags.length == 0) continue;
+                Object maybeNull = record.getObjectValue(tagField.getName());
+                if (maybeNull == null) continue;
+
+                newValue = cleanNameArray(maybeNull);
+                if (newValue.length == 0) {
+                    record.setNull(tagField.getName());
+                    continue;
+                }
             } else {
                 if (record.hasValue(tagField.getName())) {
-                    newTags = cleanNameArray(record.getObjectValue(tagField.getName()));
+                    newValue = cleanNameArray(record.getObjectValue(tagField.getName()));
                 } else {
                     continue;
                 }
             }
 
             // 保持值
-            holdTagValues.put(tagField.getName(), newTags);
+            holdTagValues.put(tagField.getName(), newValue);
 
             // 仅保留第一个用于标识是否为空
-            if (newTags.length == 0) record.setNull(tagField.getName());
-            else record.setString(tagField.getName(), newTags[0]);
+            if (newValue.length == 0) record.setNull(tagField.getName());
+            else record.setString(tagField.getName(), newValue[0]);
 
             // 哪个字段
             tagRecord.setString("belongField", tagField.getName());
 
             // 新建
             if (isNew) {
-                for (String tagName : newTags) {
+                for (String tagName : newValue) {
                     Record clone = tagRecord.clone();
                     clone.setString("tagName", tagName);
                     addItems.add(clone);
@@ -322,7 +333,7 @@ public class BaseService extends InternalPersistService {
                 }
 
                 Set<String> afterTags = new LinkedHashSet<>();
-                CollectionUtils.addAll(afterTags, newTags);
+                CollectionUtils.addAll(afterTags, newValue);
 
                 for (Iterator<String> iter = afterTags.iterator(); iter.hasNext(); ) {
                     String a = iter.next();

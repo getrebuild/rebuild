@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
@@ -687,10 +686,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 continue;
             }
 
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-
-            Object defaultValue = easyField.exprDefaultValue();
+            Object defaultValue = EasyMetaFactory.valueOf(field).exprDefaultValue();
             if (defaultValue != null) {
                 recordOfNew.setObjectValue(field.getName(), defaultValue);
             }
