@@ -27,35 +27,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 
 /**
+ * 数据库修订
+ *
  * @author devezhao
  * @since 2021/11/18
  */
 @Slf4j
-public class DataMigrator {
+public class DatabaseFixer {
 
     private static final String KEY_41 = "DataMigratorV41";
 
     /**
      * 辅助数据库升级
      */
-    public static void dataMigrateIfNeed() {
+    public static void fixIfNeed() {
         if (RebuildConfiguration.getInt(ConfigurationItem.DBVer) == 41
                 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
-            log.info("Data migrating #41 ...");
+            log.info("Database fixing #41 ...");
             ThreadPool.exec(() -> {
                 try {
-                    v41();
+                    fixV41();
                     KVStorage.setCustomValue(KEY_41, "true");
-                    log.info("Data migrated #41 all succeeded");
+                    log.info("Database fixed #41 all succeeded");
                 } catch (Exception ex) {
-                    log.error("Data migrating #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    log.error("Data fixing #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
                 }
             });
         }
     }
 
     // #41 多引用字段改为三方表
-    private static void v41() {
+    private static void fixV41() {
         for (Entity entity : MetadataHelper.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
 
