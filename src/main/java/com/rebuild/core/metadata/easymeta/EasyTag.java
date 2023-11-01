@@ -10,10 +10,14 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.support.general.TagSupport;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zixin
@@ -45,7 +49,15 @@ public class EasyTag extends EasyField implements MultiValue, MixValue {
 
     @Override
     public Object exprDefaultValue() {
-        return TagSupport.getDefaultValue(this);
+        JSONArray tagList = getExtraAttrs(true).getJSONArray(EasyFieldConfigProps.TAG_LIST);
+        if (tagList == null || tagList.isEmpty()) return null;
+
+        List<String> dv = new ArrayList<>();
+        for (Object o : tagList) {
+            JSONObject tag = (JSONObject) o;
+            if (tag.getBooleanValue("default")) dv.add(tag.getString("name"));
+        }
+        return dv.isEmpty() ? null : dv.toArray(new String[0]);
     }
 
     @Override
