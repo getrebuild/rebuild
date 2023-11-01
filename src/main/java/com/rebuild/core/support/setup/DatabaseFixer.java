@@ -36,27 +36,42 @@ import org.apache.commons.lang.BooleanUtils;
 public class DatabaseFixer {
 
     private static final String KEY_41 = "DataMigratorV41";
+    private static final String KEY_346 = "DatabaseFixerV346";
 
     /**
      * 辅助数据库升级
      */
     public static void fixIfNeed() {
-        if (RebuildConfiguration.getInt(ConfigurationItem.DBVer) == 41
-                && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
-            log.info("Database fixing #41 ...");
+        final int dbVer = RebuildConfiguration.getInt(ConfigurationItem.DBVer);
+
+        if (dbVer == 41 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_41))) {
+            log.info("Database fixing `#41` ...");
             ThreadPool.exec(() -> {
                 try {
                     fixV41();
                     KVStorage.setCustomValue(KEY_41, "true");
-                    log.info("Database fixed #41 all succeeded");
+                    log.info("Database fixed `#41` all succeeded");
                 } catch (Exception ex) {
-                    log.error("Data fixing #41 failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                    log.error("Database fixing `#41` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+                }
+            });
+        }
+
+        if (dbVer <= 52 && !BooleanUtils.toBoolean(KVStorage.getCustomValue(KEY_346))) {
+            log.info("Database fixing `V346` ...");
+            ThreadPool.exec(() -> {
+                try {
+                    fixV346();
+                    KVStorage.setCustomValue(KEY_346, "true");
+                    log.info("Database fixed `V346` all succeeded");
+                } catch (Exception ex) {
+                    log.error("Database fixing `V346` failed : {}", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
                 }
             });
         }
     }
 
-    // #41 多引用字段改为三方表
+    // #41:多引用字段改为三方表
     private static void fixV41() {
         for (Entity entity : MetadataHelper.getEntities()) {
             if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
@@ -89,7 +104,29 @@ public class DatabaseFixer {
             }
 
             if (count > 0) {
-                log.info("Data migrated #41 : {} > {}", entity.getName(), count);
+                log.info("Database fixed `#41` : {} > {}", entity.getName(), count);
+            }
+        }
+    }
+
+    // V346:标签无效值问题
+    private static void fixV346() {
+        for (Entity entity : MetadataHelper.getEntities()) {
+            if (EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
+
+            Field[] tagFields = MetadataSorter.sortFields(entity, DisplayType.TAG);
+            if (tagFields.length == 0) continue;
+
+            int count = 0;
+            for (Field field : tagFields) {
+                String usql = String.format(
+                        "update `%s` set `%s` = NULL where `%s` like '[Ljava.lang.String;@%%'",
+                        entity.getPhysicalName(), field.getPhysicalName(), field.getPhysicalName());
+                count += Application.getSqlExecutor().execute(usql, 120);
+            }
+
+            if (count > 0) {
+                log.info("Database fixed `V346` : {} > {}", entity.getName(), count);
             }
         }
     }
