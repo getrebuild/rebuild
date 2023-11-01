@@ -342,6 +342,7 @@ class RbPreview extends React.Component {
   _screenImage = () => {
     const $img = $(this._$imgZoom).find('img')
     $img.attr('src', ($img.attr('src') || '').split('?imageView2')[0])
+    this._resetImage()
   }
   _zoomImage = (delta) => {
     let v = this._zoomImageValue || 1
