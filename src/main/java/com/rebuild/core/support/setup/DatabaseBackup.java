@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,6 +32,16 @@ import java.io.InputStreamReader;
  */
 @Slf4j
 public class DatabaseBackup {
+
+    final private String[] ignoreTables;
+
+    public DatabaseBackup() {
+        this(null);
+    }
+
+    public DatabaseBackup(String[] ignoreTables) {
+        this.ignoreTables = ignoreTables;
+    }
 
     /**
      * @return
@@ -67,6 +78,12 @@ public class DatabaseBackup {
                 "%s -u%s -p\"%s\" -h%s -P%s --default-character-set=utf8 --opt --extended-insert=true --triggers --hex-blob --single-transaction -R %s>%s",
                 SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump",
                 user, passwd, host, port, dbname, dest.getAbsolutePath());
+
+        if (ignoreTables != null) {
+            String igPrefix = " --ignore-table=" + dbname + ".";
+            String ig = igPrefix + StringUtils.join(ignoreTables, igPrefix);
+            cmd = cmd.replaceFirst(" -R ", " -R" + ig + " ");
+        }
 
         String echo = execFor(cmd);
         boolean isGotError = echo.contains("Got error");
