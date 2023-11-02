@@ -16,6 +16,8 @@ import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.privileges.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -26,6 +28,7 @@ import java.util.Date;
  * @see MetadataHelper
  * @since 1.0, 2018-6-26
  */
+@Slf4j
 public class EntityHelper {
 
     // 虚拟 ID 后缀
@@ -34,19 +37,31 @@ public class EntityHelper {
     public static final ID UNSAVED_ID = ID.valueOf("000" + UNSAVED_ID_SUFFIX);
 
     /**
-     * 解析 JSON 到 Record
+     * 解析 JSON 为 Record
+     *
+     * @param data
+     * @return
+     * @see #parse(JSONObject, ID, boolean, boolean)
+     */
+    public static Record parse(JSONObject data) {
+        log.info("Use SYSTEM_USER do parse");
+        return parse(data, UserService.SYSTEM_USER, true, false);
+    }
+
+    /**
+     * 解析 JSON 为 Record
      *
      * @param data
      * @param user
      * @return
-     * @see EntityRecordCreator
+     * @see #parse(JSONObject, ID, boolean, boolean)
      */
     public static Record parse(JSONObject data, ID user) {
         return parse(data, user, true, false);
     }
 
     /**
-     * 解析 JSON 到 Record
+     * 解析 JSON 为 Record
      *
      * @param data
      * @param user
@@ -92,8 +107,21 @@ public class EntityHelper {
      * 构建更新 Record
      *
      * @param recordId
+     * @return
+     * @see #forUpdate(ID, ID, boolean)
+     */
+    public static Record forUpdate(ID recordId) {
+        log.info("Use SYSTEM_USER do forUpdate");
+        return forUpdate(recordId, UserService.SYSTEM_USER, true);
+    }
+
+    /**
+     * 构建更新 Record
+     *
+     * @param recordId
      * @param user
      * @return
+     * @see #forUpdate(ID, ID, boolean)
      */
     public static Record forUpdate(ID recordId, ID user) {
         return forUpdate(recordId, user, true);
@@ -124,8 +152,21 @@ public class EntityHelper {
      * 构建新建 Record
      *
      * @param entity
+     * @return
+     * @see #forNew(int, ID, boolean)
+     */
+    public static Record forNew(int entity) {
+        log.info("Use SYSTEM_USER do forNew");
+        return forNew(entity, UserService.SYSTEM_USER, true);
+    }
+
+    /**
+     * 构建新建 Record
+     *
+     * @param entity
      * @param user
      * @return
+     * @see #forNew(int, ID, boolean)
      */
     public static Record forNew(int entity, ID user) {
         return forNew(entity, user, true);
@@ -136,24 +177,14 @@ public class EntityHelper {
      *
      * @param entity
      * @param user
+     * @param bindCommons
      * @return
      */
     public static Record forNew(int entity, ID user, boolean bindCommons) {
-        return forNew(MetadataHelper.getEntity(entity), user, bindCommons);
-    }
-
-    /**
-     * 构建新建 Record
-     *
-     * @param entity
-     * @param user
-     * @return
-     */
-    private static Record forNew(Entity entity, ID user, boolean bindCommons) {
-        Assert.notNull(entity, "[entity] cannot be null");
+        Assert.isTrue(MetadataHelper.containsEntity(entity), "[entity] does not exists : " + entity);
         Assert.notNull(user, "[user] cannot be null");
 
-        Record record = new StandardRecord(entity, user);
+        Record record = new StandardRecord(MetadataHelper.getEntity(entity), user);
         if (bindCommons) {
             bindCommonsFieldsValue(record, true);
         }

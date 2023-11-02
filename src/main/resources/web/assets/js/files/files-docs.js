@@ -330,8 +330,8 @@ class FileUploadDlg extends RbFormHandler {
       })
 
     // Ctrl+V 上传
-    document.addEventListener('paste', (e) => {
-      const data = e.clipboardData || window.clipboardData
+    $(document).on('paste.file', (e) => {
+      const data = e.originalEvent.clipboardData || window.clipboardData
       if (data && data.items && data.files && data.files.length > 0) {
         that._$upload.files = data.files
         $(that._$upload).trigger('change')
@@ -341,7 +341,7 @@ class FileUploadDlg extends RbFormHandler {
 
   componentWillUnmount() {
     super.componentWillUnmount()
-    $(document).off('paste')
+    $(document).off('paste.file')
   }
 
   _removeFile(file) {

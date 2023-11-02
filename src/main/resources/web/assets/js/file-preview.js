@@ -241,19 +241,9 @@ class RbPreview extends React.Component {
         this._zoomImage(delta < 0 ? -10 : 10)
       })
       // // Move
-      // const that = this
-      // $(this._$imgZoom)
-      //   .find('>img')
-      //   .draggable({
-      //     cursor: 'move',
-      //     drag: function (e, ui) {
-      //       const zoom = that._zoomImageValue || 1.0
-      //       console.log(zoom, ui.position.top, ui.position.left)
-      //       // zoom fix
-      //       ui.position.top = Math.round((ui.position.top * zoom) / zoom)
-      //       ui.position.left = Math.round((ui.position.left * zoom) / zoom)
-      //     },
-      //   })
+      $(this._$imgZoom).draggable({
+        cursor: 'move',
+      })
     }
 
     $(document).on('keyup.esc-hide', function (e) {
@@ -341,7 +331,9 @@ class RbPreview extends React.Component {
   }
   _screenImage = () => {
     const $img = $(this._$imgZoom).find('img')
-    $img.attr('src', ($img.attr('src') || '').split('?imageView2')[0])
+    const src = $img.attr('src')
+    const srcNew = src.split('?imageView2')[0]
+    if (src !== srcNew) $img.attr('src', srcNew)
     this._resetImage()
   }
   _zoomImage = (delta) => {
@@ -353,9 +345,10 @@ class RbPreview extends React.Component {
     this._zoomImageValue = v
   }
   _resetImage() {
-    $(this._$imgZoom).find('img').css('transform', 'rotate(0deg)')
+    $(this._$imgZoom).find('img').css({ transform: 'rotate(0deg)' })
+    $(this._$imgZoom).css({ transform: 'scale(1)', left: 'auto', top: 'auto' })
     this._zoomImageValue = 1
-    $(this._$imgZoom).css('transform', 'scale(1)')
+    this._rotateImageValue = 0
   }
 
   hide = () => {

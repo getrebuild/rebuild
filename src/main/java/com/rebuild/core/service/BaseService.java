@@ -24,7 +24,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
-import com.rebuild.utils.Callable2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
