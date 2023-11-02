@@ -52,11 +52,22 @@ const _renderStats = function (data, $el) {
 
   const option = {
     grid: { left: 0, right: 0, top: 4, bottom: 4 },
-    animation: false,
+    animation: true,
     tooltip: {
-      trigger: 'item',
-      formatter: '{b} : {c}',
-      textStyle: { fontSize: 12 },
+      trigger: 'axis',
+      formatter: '{b} : <b>{c}</b>',
+      textStyle: {
+        fontSize: 12,
+        lineHeight: 1.3,
+        color: '#333',
+      },
+      axisPointer: {
+        lineStyle: { color: '#ddd' },
+      },
+      backgroundColor: '#fff',
+      extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
+      confine: true,
+      position: 'top',
     },
     textStyle: {
       fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
@@ -70,6 +81,7 @@ const _renderStats = function (data, $el) {
       show: false,
       type: 'value',
       splitLine: { show: false },
+      cursor: 'default',
     },
     series: [
       {
@@ -83,6 +95,8 @@ const _renderStats = function (data, $el) {
           },
         },
         type: 'line',
+        smooth: true,
+        connectNulls: true,
       },
     ],
   }
