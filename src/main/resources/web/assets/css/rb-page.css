@@ -188,7 +188,6 @@ button[disabled] {
   font-style: italic;
 }
 
-.text-dots,
 .text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

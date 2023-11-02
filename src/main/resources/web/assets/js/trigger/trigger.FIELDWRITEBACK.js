@@ -498,6 +498,9 @@ class FormulaCalcWithCode extends FormulaCalc {
             <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
               DATESUB
             </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title="DATEPICKAT($DATE, [Y|Q|M|D|H|I])">
+              DATEPICKAT
+            </a>
             <div className="dropdown-divider" />
             <a className="dropdown-item pointer" target="_blank" href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E4%BD%BF%E7%94%A8%E6%97%A5%E6%9C%9F%E5%87%BD%E6%95%B0">
               <i className="zmdi zmdi-help icon" />
