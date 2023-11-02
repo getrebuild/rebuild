@@ -172,7 +172,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
         if (!notNulls.isEmpty()) {
             throw new DataSpecificationException(
-                    Language.L("%s 不允许为空", StringUtils.join(notNulls, " / ")));
+                    Language.L("%s 不能为空", StringUtils.join(notNulls, " / ")));
         }
         if (!notWells.isEmpty()) {
             throw new DataSpecificationException(
