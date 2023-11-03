@@ -37,7 +37,7 @@ public class MultiSelectManager extends PickListManager {
     public JSONArray getSelectList(Field field) {
         ConfigBean[] entries = getPickListRaw(field, false);
         for (ConfigBean e : entries) {
-            e.set("hide", null).set("id", null);
+            e.remove("hide").remove("id");
         }
         return JSONUtils.toJSONArray(entries);
     }

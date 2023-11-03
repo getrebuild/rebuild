@@ -34,16 +34,22 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
 
     /**
      * @param name
-     * @param value Remove if null
+     * @param value
      * @return
      */
     public ConfigBean set(String name, Object value) {
         Assert.notNull(name, "[name] cannot be null");
-        if (value == null) {
-            data.remove(name);
-        } else {
-            data.put(name, value);
-        }
+        data.put(name, value);
+        return this;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    public ConfigBean remove(String name) {
+        Assert.notNull(name, "[name] cannot be null");
+        data.remove(name);
         return this;
     }
 

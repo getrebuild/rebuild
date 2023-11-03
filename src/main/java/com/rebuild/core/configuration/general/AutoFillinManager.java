@@ -176,7 +176,7 @@ public class AutoFillinManager implements ConfigManager {
             }
 
             ConfigBean clone = e.clone().set("value", value);
-            clone.set("source", null);
+            clone.remove("source");
             fillin.add(clone.toJSON());
         }
         return fillin;

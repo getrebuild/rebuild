@@ -39,8 +39,7 @@ public class PickListManager implements ConfigManager {
     public JSONArray getPickList(Field field) {
         ConfigBean[] entries = getPickListRaw(field, false);
         for (ConfigBean e : entries) {
-            e.set("hide", null);
-            e.set("mask", null);
+            e.remove("hide").remove("mask");
         }
         return JSONUtils.toJSONArray(entries);
     }

@@ -215,7 +215,7 @@ public class DataListManager extends BaseLayoutManager {
         JSONArray charts = (JSONArray) e.getJSON("config");
         ChartManager.instance.richingCharts(charts, null);
         return e.set("config", charts)
-                .set("shareTo", null);
+                .remove("shareTo");
     }
 
     /**

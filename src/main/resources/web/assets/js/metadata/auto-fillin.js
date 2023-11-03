@@ -218,7 +218,9 @@ class DlgRuleEdit extends RbFormHandler {
       }
     })
     this.setState({ targetFields: targetFields }, () => {
-      if (targetFields.length > 0) this.__select2[0].val(targetFields[0].name)
+      if (targetFields.length > 0) {
+        this.__select2[0].val(targetFields[0].name).trigger('change')
+      }
     })
   }
 

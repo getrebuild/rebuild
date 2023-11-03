@@ -268,7 +268,7 @@ public class FormsBuilder extends FormsManager {
                 .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
         model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
 
-        model.set("id", null);  // Clean form's ID of config
+        model.remove("id");  // Clean form's ID of config
         return model.toJSON();
     }
 
