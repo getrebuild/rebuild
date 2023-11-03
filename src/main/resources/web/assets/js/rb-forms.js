@@ -1884,6 +1884,7 @@ class RbFormReference extends RbFormElement {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
         },
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : null,
       })
 
       const val = this.state.value
@@ -2703,7 +2704,7 @@ class RbFormTag extends RbFormElement {
       this._initOptions()
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('输入%s', this.props.label),
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : $L('输入%s', this.props.label),
         maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {

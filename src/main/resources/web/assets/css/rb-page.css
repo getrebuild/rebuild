@@ -3238,6 +3238,11 @@ form {
   padding: 3px 12px;
 }
 
+.select2-tag.select2-container--disabled .select2-search.select2-search--inline,
+.select2-container--disabled .select2-selection--multiple .select2-search.select2-search--inline {
+  display: inline-block;
+}
+
 .rb-color-header .rb-top-header .global-search,
 .rb-color-header .rb-top-header .global-search2,
 .rb-color-header .rb-top-header .global-create2,
