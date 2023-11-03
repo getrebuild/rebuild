@@ -36,7 +36,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.setup.DataMigrator;
+import com.rebuild.core.support.setup.DatabaseFixer;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
 import com.rebuild.utils.JSONable;
@@ -73,11 +73,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.4.5";
+    public static final String VER = "3.4.6";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3040510;
+    public static final int BUILD = 3040611;
 
     static {
         // Driver for DB
@@ -249,7 +249,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         License.isRbvAttached();
 
-        DataMigrator.dataMigrateIfNeed();
+        DatabaseFixer.fixIfNeed();
 
         return true;
     }

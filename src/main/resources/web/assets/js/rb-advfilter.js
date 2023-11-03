@@ -142,7 +142,8 @@ class AdvFilter extends React.Component {
         // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
 
         if (['REFERENCE', 'N2NREFERENCE'].includes(item.type)) {
-          REFENTITY_CACHE[`${this.props.entity}.${item.name}`] = item.ref
+          REFENTITY_CACHE[item.name] = item.ref
+          if ('N2NREFERENCE' === item.type) REFENTITY_CACHE[item.name]._n2n = true
 
           // NOTE: Use `NameField` field-type
           if (!BIZZ_ENTITIES.includes(item.ref[0])) {
@@ -157,12 +158,14 @@ class AdvFilter extends React.Component {
           if (item.type === 'REFERENCE' && item.name === 'approvalLastUser') {
             const item2 = { ...item, name: VF_ACU, label: $L('当前审批人') }
             validFs.push(item2.name)
-            REFENTITY_CACHE[`${this.props.entity}.${item2.name}`] = item2.ref
+            REFENTITY_CACHE[item2.name] = item2.ref
             fields.push(item2)
           }
         }
       })
       this._fields = fields
+
+      console.log(REFENTITY_CACHE)
 
       // init
       if (this.__initItems) {
@@ -551,9 +554,9 @@ class FilterItem extends React.Component {
   // 引用 User/Department/Role/Team
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
-      const ref = REFENTITY_CACHE[`${this._searchEntity}.${this.state.field}`]
-      if (entity) return ref[0] === entity
-      else return BIZZ_ENTITIES.includes(ref[0])
+      const ifRefField = REFENTITY_CACHE[this.state.field]
+      if (entity) return ifRefField[0] === entity
+      else return BIZZ_ENTITIES.includes(ifRefField[0])
     }
     return false
   }
@@ -635,9 +638,9 @@ class FilterItem extends React.Component {
     }
 
     if (this.isBizzField()) {
-      let ref = REFENTITY_CACHE[`${this._searchEntity}.${state.field}`]
-      ref = state.op === 'SFT' ? 'Team' : ref[0]
-      this.renderBizzSearch(ref)
+      let ifRefField = REFENTITY_CACHE[state.field]
+      ifRefField = state.op === 'SFT' ? 'Team' : ifRefField[0]
+      this.renderBizzSearch(ifRefField)
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
@@ -902,9 +905,11 @@ class FilterItem extends React.Component {
     if (s.value2) item.value2 = s.value2
 
     // 引用字段查询名称字段
-    const isRefField = REFENTITY_CACHE[`${this._searchEntity}.${s.field}`]
-    if (isRefField && !BIZZ_ENTITIES.includes(isRefField[0])) {
-      if (!(s.op === 'NL' || s.op === 'NT')) {
+    const ifRefField = REFENTITY_CACHE[s.field]
+    if (ifRefField && !(s.op === 'NL' || s.op === 'NT')) {
+      if (BIZZ_ENTITIES.includes(ifRefField[0])) {
+        if (ifRefField._n2n) item.field = NAME_FLAG + item.field
+      } else {
         item.field = NAME_FLAG + item.field
       }
     }

@@ -1352,7 +1352,7 @@ class RbFormTextarea extends RbFormElement {
 
   setValue(val) {
     super.setValue(val)
-    if (this.props.useMdedit) this._SimpleMDE.value(val)
+    if (this.props.useMdedit) this._SimpleMDE.value(val || '')
   }
 
   _initMde() {
