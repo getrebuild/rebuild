@@ -1155,10 +1155,6 @@ a.link.link-icon::after {
   color: #aaa;
 }
 
-.img-field a.img-upload {
-  cursor: default;
-}
-
 .img-field a.img-upload b,
 .img-field label.img-upload b,
 .file-field .img-thumbnail b {
@@ -1169,7 +1165,7 @@ a.link.link-icon::after {
   right: 0;
   font-size: 1.2rem;
   color: #fff;
-  cursor: pointer;
+  cursor: default;
   background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
   line-height: 18px;
@@ -1255,7 +1251,7 @@ a.link.link-icon::after {
   border-left: 2px solid #ccc;
   border-radius: 2px;
   max-height: 38px;
-  cursor: default;
+  cursor: pointer;
 }
 
 .file-field a.img-thumbnail {
