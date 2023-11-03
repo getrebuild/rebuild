@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
@@ -76,10 +75,8 @@ import java.util.TreeMap;
  *
  * <p>如有需要，其他实体可根据自身业务继承并复写</p>
  *
- * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
- *
  * @author Zixin (RB)
- * @since 11/06/2017
+ * @since 11/06/2019
  */
 @Slf4j
 @Service
@@ -687,10 +684,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 continue;
             }
 
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-
-            Object defaultValue = easyField.exprDefaultValue();
+            Object defaultValue = EasyMetaFactory.valueOf(field).exprDefaultValue();
             if (defaultValue != null) {
                 recordOfNew.setObjectValue(field.getName(), defaultValue);
             }

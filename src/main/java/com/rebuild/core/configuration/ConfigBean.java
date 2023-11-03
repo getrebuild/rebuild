@@ -15,6 +15,7 @@ import com.rebuild.utils.JSONable;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -114,7 +115,7 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
     /**
      * @return
      */
-    public Map<String, Object> toMap() {
-        return data;
+    public Map<String, Object> getRawData() {
+        return Collections.unmodifiableMap(data);
     }
 }

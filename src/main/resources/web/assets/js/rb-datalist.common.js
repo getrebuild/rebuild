@@ -1484,7 +1484,10 @@ const CellRenders = {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
-      if (fn) return fn(value, style, key)
+      if (typeof fn === 'function') {
+        const fnRet = fn(value, style, key)
+        if (fnRet !== false) return fnRet
+      }
     }
 
     if (!value) return this.renderSimple(value, style, key)

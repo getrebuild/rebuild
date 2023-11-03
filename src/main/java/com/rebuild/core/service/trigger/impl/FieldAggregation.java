@@ -302,6 +302,13 @@ public class FieldAggregation extends TriggerAction {
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
         String followSourceField = targetFieldEntity[0];
+        if (TARGET_ANY.equals(followSourceField)) {
+            TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
+            targetRecordId = targetWithMatchFields.match(actionContext);
+            followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow().iterator(), " and ");
+            return;
+        }
+
         if (!sourceEntity.containsField(followSourceField)) {
             throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
         }

@@ -92,9 +92,7 @@ public class DataReportManager implements ConfigManager {
     public ConfigBean[] getReportsRaw(Entity entity) {
         final String cKey = "DataReportManager35-" + entity.getName();
         ConfigBean[] cached = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
-        if (cached != null) {
-            return cached;
-        }
+        if (cached != null) return cached;
 
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,name,isDisabled,templateFile,templateType,extraDefinition,templateContent from DataReportConfig where belongEntity = ?")
@@ -108,12 +106,15 @@ public class DataReportManager implements ConfigManager {
             int templateVersion = extra.containsKey("templateVersion") ? extra.getInteger("templateVersion") : 2;
             String visibleUsersDef = extra.getString("visibleUsers");
 
+            int type = ObjectUtils.toInt(o[4], TYPE_RECORD);
+            if (type == TYPE_WORD && outputType.contains("excel")) outputType += ",word";
+
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
                     .set("name", o[1])
                     .set("disabled", o[2])
                     .set("template", o[3])
-                    .set("type", ObjectUtils.toInt(o[4], TYPE_RECORD))
+                    .set("type", type)
                     .set("outputType", outputType)
                     .set("templateVersion", templateVersion)
                     .set("visibleUsers", visibleUsersDef)

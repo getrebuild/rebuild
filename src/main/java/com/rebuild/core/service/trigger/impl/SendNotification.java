@@ -116,27 +116,29 @@ public class SendNotification extends TriggerAction {
         Set<Object> send = new HashSet<>();
 
         for (ID user : toUsers) {
+            if (send.contains(user)) continue;
+
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (RegexUtils.isEMail(emailAddr) && !send.contains(emailAddr)) {
-                    SMSender.sendMailAsync(emailAddr, message[1], message[0]);
+                if (RegexUtils.isEMail(emailAddr)) {
+                    String mdHtml = MarkdownUtils.render(message[0]);
+                    SMSender.sendMailAsync(emailAddr, message[1], mdHtml);
                     send.add(emailAddr);
                 }
+            }
 
-            } else if (msgType == MTYPE_SMS) {
+            if (msgType == MTYPE_SMS) {
                 String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
-                if (RegexUtils.isCNMobile(mobileAddr) && !send.contains(mobileAddr)) {
+                if (RegexUtils.isCNMobile(mobileAddr)) {
                     SMSender.sendSMSAsync(mobileAddr, message[0]);
                     send.add(mobileAddr);
                 }
+            }
 
-            } else {
-                // TYPE_NOTIFICATION
-                if (!send.contains(user)) {
-                    Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
-                    Application.getNotifications().send(m);
-                    send.add(user);
-                }
+            if (msgType == MTYPE_NOTIFICATION) {
+                Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                Application.getNotifications().send(m);
+                send.add(user);
             }
         }
         return send;

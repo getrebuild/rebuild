@@ -33,7 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 分组聚合，场景 N[+N]>1
@@ -137,6 +141,7 @@ public class GroupAggregation extends FieldAggregation {
                         ? null : operatingContext.getBeforeRecord().getObjectValue(sourceField);
                 Object afterValue = operatingContext.getAfterRecord().getObjectValue(sourceField);
                 if (NullValue.isNull(beforeValue) && NullValue.isNull(afterValue)) {
+                    // All null
                 } else {
                     valueChanged.put(sourceField, new Object[] { beforeValue, afterValue });
                 }
@@ -205,7 +210,7 @@ public class GroupAggregation extends FieldAggregation {
 
                     // 需要匹配等级的值
                     if (sourceFieldLevel != targetFieldLevel) {
-                        ID parent = getItemWithLevel((ID) val, targetFieldLevel);
+                        ID parent = TargetWithMatchFields.getItemWithLevel((ID) val, targetFieldLevel);
                         Assert.isTrue(parent != null, Language.L("分类字段等级不兼容"));
 
                         val = parent;
@@ -231,7 +236,7 @@ public class GroupAggregation extends FieldAggregation {
             if (!valueChanged.isEmpty()) {
                 this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
             } else {
-                log.warn("All group-fields are null, ignored");
+                log.warn("All values of group-fields are null, ignored");
             }
             return;
         }
@@ -282,22 +287,5 @@ public class GroupAggregation extends FieldAggregation {
         }
 
         targetRecordId = newTargetRecord.getPrimary();
-    }
-
-    private ID getItemWithLevel(ID itemId, int specLevel) {
-        ID current = itemId;
-        for (int i = 0; i < 4; i++) {
-            Object[] o = Application.createQueryNoFilter(
-                    "select level,parent from ClassificationData where itemId = ?")
-                    .setParameter(1, current)
-                    .unique();
-
-            if (o == null) break;
-            if ((int) o[0] < specLevel) break;
-
-            if ((int) o[0] == specLevel) return current;
-            else current = (ID) o[1];
-        }
-        return null;
     }
 }

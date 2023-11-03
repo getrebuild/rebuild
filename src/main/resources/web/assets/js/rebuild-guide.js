@@ -138,6 +138,7 @@ class CommonGuide extends React.Component {
     return (
       <ul className="list-unstyled" ref={(c) => (this._$guideItems = c)}>
         {items.map((item) => {
+          const openNew = $isFullUrl(item.url)
           return (
             <li key={item.item} className={`shadow-sm1 ${item.confirm && 'confirm'}`}>
               <div className="d-flex">
@@ -147,13 +148,13 @@ class CommonGuide extends React.Component {
                 </span>
                 <span className="w-50 text-right">
                   {item.confirm ? (
-                    <a href={`${rb.baseUrl}/${item.url}`}>
+                    <a href={openNew ? item.url : `${rb.baseUrl}/${item.url}`} target={openNew ? '_blank' : null} className={openNew ? 'open-new' : null}>
                       {item.num === -1 ? $L('继续使用') : $L('继续完善')}
                       {item.num > 0 && ` (${item.num})`}
                     </a>
                   ) : (
                     <RF>
-                      <a href={`${rb.baseUrl}/${item.url}`}>
+                      <a href={openNew ? item.url : `${rb.baseUrl}/${item.url}`} target={openNew ? '_blank' : null} className={openNew ? 'open-new' : null}>
                         {item.num === -1 ? $L('去使用') : $L('去配置')}
                         {item.num > 0 && ` (${item.num})`}
                       </a>

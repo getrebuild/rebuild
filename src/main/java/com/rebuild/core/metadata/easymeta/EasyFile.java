@@ -37,4 +37,9 @@ public class EasyFile extends EasyField {
         if (value instanceof JSONArray) return value;
         return JSON.parseArray(value.toString());
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        return null;
+    }
 }

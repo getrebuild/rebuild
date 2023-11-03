@@ -60,9 +60,9 @@ public class RebuildGuideController extends BaseController {
     public RespBody featEntityMrg() {
         List<JSON> items = new ArrayList<>();
         items.add(buildItem(Language.L("业务实体"), "admin/entities", MetadataSorter.sortEntities().length - 4));
-        items.add(buildItem(Language.L("审批流程"), "admin/robot/approvals", count(EntityHelper.RobotApprovalConfig)));
+        items.add(buildItem(Language.L("页面布局"), "https://getrebuild.com/docs/admin/entity/layout", -1));
         items.add(buildItem(Language.L("触发器"), "admin/robot/triggers", count(EntityHelper.RobotTriggerConfig)));
-        items.add(buildItem(Language.L("数据导入"), "admin/data/data-imports", -1));
+        items.add(buildItem(Language.L("审批流程"), "admin/robot/approvals", count(EntityHelper.RobotApprovalConfig)));
         items.add(buildItem(Language.L("报表模板"), "admin/data/report-templates", count(EntityHelper.DataReportConfig)));
         return RespBody.ok(items);
     }
@@ -73,6 +73,8 @@ public class RebuildGuideController extends BaseController {
         items.add(buildItem(Language.L("企业微信集成"), "admin/integration/wxwork", 0));
         items.add(buildItem(Language.L("钉钉集成"), "admin/integration/dingtalk", 0));
         items.add(buildItem(Language.L("项目管理"), "admin/projects", count(EntityHelper.ProjectConfig)));
+        items.add(buildItem(Language.L("数据导入"), "admin/data/data-imports", -1));
+        items.add(buildItem(Language.L("记录转换"), "admin/robot/transforms", count(EntityHelper.TransformConfig)));
         items.add(buildItem(Language.L("外部表单"), "admin/extforms", count(EntityHelper.ExtformConfig)));
         return RespBody.ok(items);
     }

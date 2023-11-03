@@ -136,7 +136,7 @@ class ClassificationSelector extends React.Component {
     const last = this._select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
-      RbHighbar.create($L('请选择 %s', this.props.label))
+      RbHighbar.create($L('请选择%s', this.props.label))
     } else {
       const text = []
       $(this._select2).each(function () {
@@ -165,28 +165,8 @@ window.referenceSearch__dlg
 
 // see `reference-search.html`
 class ReferenceSearcher extends RbModal {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return this.state.destroy === true ? null : (
-      <div className="modal" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{this.props.title || $L('查询')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body iframe" style={{ borderTop: '1px solid #dee2e6' }}>
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 497 }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  renderContent() {
+    return this.state.destroy === true ? null : super.renderContent()
   }
 
   componentDidMount() {
@@ -414,14 +394,11 @@ class BaiduMap extends React.Component {
   }
 }
 
-class BaiduMapModal extends RbModalWhite {
-  render() {
-    if (this.state.destroy) return null
-    return super.render()
-  }
-
+class BaiduMapModal extends RbModal {
   renderContent() {
-    const ss = this.state.suggestion || []
+    if (this.state.destroy) return null
+
+    const sug = this.state.suggestion || []
     return (
       <RF>
         {this.props.canPin && (
@@ -458,8 +435,8 @@ class BaiduMapModal extends RbModalWhite {
                       </button>
                     </div>
                   </div>
-                  <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
-                    {ss.map((item) => {
+                  <div className={`dropdown-menu map-suggestion ${sug.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
+                    {sug.map((item) => {
                       return (
                         <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
                           {item.address}
@@ -595,7 +572,7 @@ class BaiduMapModal extends RbModalWhite {
       BaiduMapModal._ViewModal.show()
       if (lnglat) BaiduMapModal._ViewModal._BaiduMap.center(lnglat)
     } else {
-      renderRbcomp(<BaiduMapModal lnglat={lnglat} />, null, function () {
+      renderRbcomp(<BaiduMapModal lnglat={lnglat} title={$L('查看位置')} useWhite />, null, function () {
         BaiduMapModal._ViewModal = this
       })
     }

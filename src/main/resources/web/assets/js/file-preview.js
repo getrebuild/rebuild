@@ -83,24 +83,25 @@ class RbPreview extends React.Component {
   renderImage() {
     return (
       <RF>
-        <div className="img-zoom fp-content">
+        <div className="fp-content">
           {!this.state.imgRendered && (
             <div className="must-center">
               <RbSpinner fully />
             </div>
           )}
-          <img
-            className={!this.state.imgRendered ? 'hide' : ''}
-            src={this._buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
-            alt="Loading"
-            onLoad={() => this.setState({ imgRendered: true })}
-            onError={() => {
-              RbHighbar.error($L('无法读取图片'))
-              setTimeout(() => this.hide(), 1000)
-              // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
-            }}
-            ref={(c) => (this._$image = c)}
-          />
+          <span className="img-zoom" ref={(c) => (this._$imgZoom = c)}>
+            <img
+              className={!this.state.imgRendered ? 'hide' : ''}
+              src={this._buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
+              alt="Loading"
+              onLoad={() => this.setState({ imgRendered: true })}
+              onError={() => {
+                RbHighbar.error($L('无法读取图片'))
+                setTimeout(() => this.hide(), 1000)
+                // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
+              }}
+            />
+          </span>
         </div>
         <div className="oper-box-wrap">
           {this.props.urls.length > 1 && (
@@ -233,14 +234,22 @@ class RbPreview extends React.Component {
           that.hide()
         },
       })
+    } else if (this._isImage(fileName)) {
+      $(document).on('mousewheel.image-zoom', (e) => {
+        const value = e.originalEvent.wheelDelta || -e.originalEvent.detail
+        const delta = Math.max(-1, Math.min(1, value))
+        this._zoomImage(delta < 0 ? -10 : 10)
+      })
+      // // Move
+      $(this._$imgZoom).draggable({
+        cursor: 'move',
+      })
     }
 
-    $(document)
-      .off('keyup')
-      .on('keyup', function (e) {
-        // ESC
-        if (e.keyCode === 27) that.hide()
-      })
+    $(document).on('keyup.esc-hide', function (e) {
+      if (e.keyCode === 27) that.hide() // ESC
+    })
+
     $(that._previewBody)
       .find('>div.fp-content')
       .height($(window).height() - 60)
@@ -256,6 +265,8 @@ class RbPreview extends React.Component {
 
   componentWillUnmount() {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
+
+    $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 
   _buildAbsoluteUrl(url, params) {
@@ -297,25 +308,47 @@ class RbPreview extends React.Component {
     return false
   }
 
+  // IMAGE
+
   _prevImage = () => {
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
     this.setState({ currentIndex: ci - 1, imgRendered: false })
-    $(this._$image).attr('data-rotate', 0)
+    this._resetImage()
   }
   _nextImage = () => {
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
-    $(this._$image).attr('data-rotate', 0)
+    this._resetImage()
   }
   _rotateImage = () => {
-    let r = ~~$(this._$image).attr('data-rotate') || 0
-    if (r >= 270) r = -90
-    $(this._$image).attr('data-rotate', r + 90)
+    this._rotateImageValue = this._rotateImageValue || 0
+    if (this._rotateImageValue >= 270) this._rotateImageValue = -90
+
+    this._rotateImageValue += 90
+    $(this._$imgZoom).find('img').css('transform', `rotate(${this._rotateImageValue}deg)`)
   }
   _screenImage = () => {
-    $(this._$image).attr('src', $(this._$image).attr('src').replace('/1000/', '/2000/'))
+    const $img = $(this._$imgZoom).find('img')
+    const src = $img.attr('src')
+    const srcNew = src.split('?imageView2')[0]
+    if (src !== srcNew) $img.attr('src', srcNew)
+    this._resetImage()
+  }
+  _zoomImage = (delta) => {
+    let v = this._zoomImageValue || 1
+    v += delta > 0 ? 0.1 : -0.1
+    v = Math.max(0.2, Math.min(5, v))
+
+    $(this._$imgZoom).css('transform', `scale(${v})`)
+    this._zoomImageValue = v
+  }
+  _resetImage() {
+    $(this._$imgZoom).find('img').css({ transform: 'rotate(0deg)' })
+    $(this._$imgZoom).css({ transform: 'scale(1)', left: 'auto', top: 'auto' })
+    this._zoomImageValue = 1
+    this._rotateImageValue = 0
   }
 
   hide = () => {

@@ -223,9 +223,7 @@ public class PrivilegesManager {
         if (action == InternalPermission.APPROVAL) return true;
 
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -287,9 +285,7 @@ public class PrivilegesManager {
         }
 
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -494,9 +490,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, ZeroEntry entry) {
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {

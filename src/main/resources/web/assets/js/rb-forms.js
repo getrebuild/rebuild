@@ -2022,7 +2022,7 @@ class RbFormReference extends RbFormElement {
       this._ReferenceSearcher_Url = url
 
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} />, function () {
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} useWhite maximize />, function () {
         that._ReferenceSearcher = this
       })
     }
@@ -2543,6 +2543,7 @@ class RbFormLocation extends RbFormElement {
             const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng || 0},${lnglat.lat || 0}` : null
             that.handleChange({ target: { value: val } }, true)
           }}
+          useWhite
         />,
         null,
         function () {

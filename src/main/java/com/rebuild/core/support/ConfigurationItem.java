@@ -108,7 +108,9 @@ public enum ConfigurationItem {
     PortalBaiduMapAk,
     PortalOfficePreviewUrl,
     PortalUploadMaxSize(200),
-
+    MobileNavStyle(34),
+    PageMourningMode(false),
+    
     // !!! 命令行适用
     DataDirectory,                  // 数据目录
     RedisDatabase(0),     // Redis DB

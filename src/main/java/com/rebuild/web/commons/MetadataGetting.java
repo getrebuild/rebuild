@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -66,7 +65,7 @@ public class MetadataGetting extends BaseController {
         // 返回引用实体的字段
         int appendRefFields = getIntParameter(request, "deep", 0);
 
-        JSONArray res = MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {
@@ -77,17 +76,8 @@ public class MetadataGetting extends BaseController {
                             || field.getName().equals(EntityHelper.ApprovalLastUser));
                 }
             }
-
             return false;
         });
-
-        for (Object o : res) {
-            ((JSONObject) o).remove("creatable");
-            ((JSONObject) o).remove("nullable");
-            ((JSONObject) o).remove("updatable");
-        }
-
-        return res;
     }
 
     // 哪些实体引用了指定实体

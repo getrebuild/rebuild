@@ -17,6 +17,8 @@ import com.rebuild.utils.JSONUtils;
 
 /**
  * 轻量级表单
+ * Issue1. 针对自动只读字段无效
+ * Issue2. 表单高级控制无效
  *
  * @author devezhao
  * @since 2022/12/28

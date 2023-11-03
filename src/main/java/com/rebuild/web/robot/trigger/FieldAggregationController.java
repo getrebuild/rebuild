@@ -44,7 +44,8 @@ import java.util.Locale;
 public class FieldAggregationController extends BaseController {
 
     @RequestMapping("field-aggregation-entities")
-    public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public List<String[]> getTargetEntities(
+            @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
         List<String[]> entities = new ArrayList<>();
 
         // 1. 我引用了谁
@@ -56,6 +57,18 @@ public class FieldAggregationController extends BaseController {
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refFrom));
             entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName() });
+        }
+
+        // v35 字段匹配
+        if (getBoolParameter(request, "matchfields")) {
+            List<String[]> entities2 = new ArrayList<>();
+            for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+                entities2.add(new String[] {
+                        entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
+            }
+
+            FieldAggregationController.sortEntities(entities2, null);
+            entities.addAll(entities2);
         }
 
         // v3.0 字段聚合无需自己

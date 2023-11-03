@@ -33,6 +33,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.PdfConverter;
@@ -124,8 +125,15 @@ public class ReportsController extends BaseController {
         final String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
 
         if (ServletUtils.isAjaxRequest(request)) {
-            JSON data = JSONUtils.toJSONObject(
+            JSONObject data = JSONUtils.toJSONObject(
                     new String[] { "fileKey", "fileName" }, new Object[] { output.getName(), fileName });
+
+            if (AppUtils.isMobile(request)) {
+                String fileUrl = String.format(
+                        "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
+                        CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), fileName);
+                data.put("fileUrl", fileUrl);
+            }
             writeSuccess(response, data);
 
         } else if ("preview".equalsIgnoreCase(typeOutput)) {

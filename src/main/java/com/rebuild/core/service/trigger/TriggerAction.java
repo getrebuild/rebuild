@@ -25,6 +25,10 @@ public abstract class TriggerAction {
      * 自己
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
+    /**
+     * 任意实体（字段匹配）
+     */
+    public static final String TARGET_ANY = "$";
 
     final protected ActionContext actionContext;
 

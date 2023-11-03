@@ -279,6 +279,14 @@
                         <td>[[${bundle.L('百度地图 AK')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'PortalBaiduMapAk' : ''}" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('悼念模式')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true">[[${MobileNavStyle ?:'34'}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">
@@ -309,7 +317,10 @@
               </div>
               <div class="card mt-3 J_maintenanceMode">
                 <div class="card-body pt-4">
-                  <button class="btn btn-danger btn-lg w-100">[[${bundle.L('开启维护计划')}]]</button>
+                  <button class="btn btn-danger btn-lg w-100 btn-outline">
+                    <i class="mdi mdi-message-alert-outline icon fs-18"></i>
+                    [[${bundle.L('开启维护计划')}]]
+                  </button>
                   <div class="note">
                     <dl class="mb-0 mt-1" style="line-height: 1.7">
                       <dt>[[${bundle.L('计划维护时间')}]]</dt>
