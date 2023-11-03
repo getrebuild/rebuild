@@ -900,7 +900,7 @@ class RbFormElement extends React.Component {
   checkValue() {
     const err = this.isValueError()
     this.setState({ hasError: err || null })
-    const errMsg = err ? this.props.label + err : null
+    const errMsg = err ? this.props.label + ' ' + err : null
 
     if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
@@ -1559,13 +1559,18 @@ class RbFormImage extends RbFormElement {
 
     return (
       <div className="img-field">
-        {value.map((item) => {
+        {value.map((item, idx) => {
           return (
             <span key={item}>
-              <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+              <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
-                  <b title={$L('移除')} onClick={() => this.removeItem(item)}>
+                  <b
+                    title={$L('移除')}
+                    onClick={(e) => {
+                      $stopEvent(e)
+                      this.removeItem(item)
+                    }}>
                     <span className="zmdi zmdi-close" />
                   </b>
                 )}
@@ -1574,9 +1579,9 @@ class RbFormImage extends RbFormElement {
           )
         })}
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
-          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
-            <span className="zmdi zmdi-image-alt mt-1" />
+            <span className="zmdi zmdi-image-alt down-2" />
           </label>
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
@@ -1593,7 +1598,7 @@ class RbFormImage extends RbFormElement {
         {value.map((item, idx) => {
           return (
             <span key={item}>
-              <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
+              <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
                 <img src={this._formatUrl(item)} alt="IMG" />
               </a>
             </span>
@@ -1606,6 +1611,11 @@ class RbFormImage extends RbFormElement {
   _formatUrl(urlKey) {
     if (urlKey.startsWith('http://') || urlKey.startsWith('https://')) return urlKey
     else return `${rb.baseUrl}/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100`
+  }
+
+  _filePreview(urlKey, idx) {
+    const p = parent || window
+    p.RbPreview.create(urlKey, idx)
   }
 
   onEditModeChanged(destroy) {
@@ -1637,8 +1647,12 @@ class RbFormImage extends RbFormElement {
         (res) => {
           mp_end()
           const paths = this.state.value || []
-          paths.push(res.key)
-          this.handleChange({ target: { value: paths } }, true)
+          // 最多上传，多余忽略
+          // FIXME 多选时进度条有点不好看
+          if (paths.length < this.__maxUpload) {
+            paths.push(res.key)
+            this.handleChange({ target: { value: paths } }, true)
+          }
         },
         () => mp_end()
       )
@@ -1678,7 +1692,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <div key={item} className="img-thumbnail" title={fileName}>
+            <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
@@ -1690,7 +1704,7 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} />
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
           <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
@@ -1710,7 +1724,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <a key={item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
             </a>
@@ -1870,6 +1884,7 @@ class RbFormReference extends RbFormElement {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
         },
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : null,
       })
 
       const val = this.state.value
@@ -2689,7 +2704,7 @@ class RbFormTag extends RbFormElement {
       this._initOptions()
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('输入%s', this.props.label),
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : $L('输入%s', this.props.label),
         maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {
