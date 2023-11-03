@@ -207,7 +207,7 @@ class RelatedList extends React.Component {
     this.state = { ...props }
 
     // 相关配置
-    this.__searchSort = null
+    this.__searchSort = props.isDetail ? 'autoId:asc' : null
     this.__searchKey = null
     this.__pageNo = 1
 
@@ -779,19 +779,19 @@ const RbViewPage = {
       that.__vtabEntities.push(entity)
       const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
 
+      const listProps = {
+        entity: entity,
+        entity2: [configThat.entityLabel, configThat.icon],
+        mainid: that.__id,
+        autoExpand: $isTrue(wpc.viewTabsAutoExpand),
+        defaultList: $isTrue(wpc.viewTabsDefaultList),
+        isDetail: !!this.showAt2,
+      }
+
       // v3.4 明细显示在下方
-      if (this._showAtBottom) {
+      if (this.showAt2 === 2) {
         $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
-        renderRbcomp(
-          <MixRelatedList
-            entity={entity}
-            entity2={[configThat.entityLabel, configThat.icon]}
-            mainid={that.__id}
-            autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
-            defaultList={$isTrue(wpc.viewTabsDefaultList)}
-          />,
-          tabId
-        )
+        renderRbcomp(<MixRelatedList {...listProps} />, tabId)
         return
       }
 
@@ -799,19 +799,8 @@ const RbViewPage = {
         `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
-
       $tabNav.find('a').on('click', function () {
-        $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(
-            <MixRelatedList
-              entity={entity}
-              entity2={[configThat.entityLabel, configThat.icon]}
-              mainid={that.__id}
-              autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
-              defaultList={$isTrue(wpc.viewTabsDefaultList)}
-            />,
-            $tabPane
-          )
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList {...listProps} />, $tabPane)
       })
     })
     this.updateVTabs()

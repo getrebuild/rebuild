@@ -29,6 +29,10 @@ public class EasyEntityConfigProps {
      * 明细重复判断模式为全部数据（否则为主记录下的）
      */
     public static final String DETAILS_GLOBALREPEAT = "detailsGlobalRepeat";
+    /**
+     * 明细显示位置
+     */
+    public static final String DETAILS_SHOWAT2 = "detailsShowAt2";
 
     /**
      * 隐藏常用查询面板

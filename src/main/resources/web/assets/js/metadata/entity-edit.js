@@ -47,6 +47,8 @@ $(document).ready(() => {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
       // v3.4
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
+      // v3.5
+      extConfig.detailsShowAt2 = $val('#detailsShowAt2')
     }
     // v3.4
     if ($('#repeatFieldsCheckMode')[0]) {
@@ -168,4 +170,6 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
   if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
+  // v3.5
+  if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
 })
