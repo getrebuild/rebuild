@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -57,6 +57,8 @@ $(function () {
   if ($hasNotification.length > 0) {
     $unhideDropdown($hasNotification).on('shown.bs.dropdown', _loadMessages)
     setTimeout(_checkMessage, 2000)
+    // NEED: service-worker.js
+    document.addEventListener('notificationclick', function () {})
   }
 
   var $hasUser = $('.J_top-user')
@@ -386,7 +388,7 @@ var _checkMessage = function () {
       if (_checkMessage__state > 0) {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
-        if (rb.env === 'dev') _showNotification()
+        _showNotification(_checkMessage__state)
       }
       _loadMessages__state = false
     }
@@ -421,19 +423,19 @@ var _loadMessages = function () {
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo($ul)
   })
 }
-var _showNotification = function () {
-  if ($.cookie('grantedNotification')) return
-
+var _showNotification = function (state) {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
-        tag: 'rbNotification',
+      var n = new _Notification($L('你有 %d 条未读消息', state), {
         icon: rb.baseUrl + '/assets/img/favicon.png',
+        tag: 'rbNotification',
+        renotify: true,
+        silent: false,
       })
-      n.onshow = function () {
-        $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
-      }
+      n.onshow = function () {}
+      n.onclose = function () {}
+      n.onerror = function () {}
     } else {
       _Notification.requestPermission()
     }
