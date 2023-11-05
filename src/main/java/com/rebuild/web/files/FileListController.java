@@ -178,6 +178,7 @@ public class FileListController extends BaseController {
             sql += " order by modifiedOn desc";
         }
 
+        // FIXME 会连同路径一起搜索
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, false)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
