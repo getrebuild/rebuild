@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -632,7 +632,7 @@ var $createUploader = function (input, next, complete, error) {
           } else if (msg.contains('EXCEED FSIZELIMIT')) {
             RbHighbar.create($L('超出文件大小限制'))
           } else {
-            RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
+            RbHighbar.error($L('上传失败，请稍后重试' + ': ' + msg))
           }
           console.log('Upload error :', err)
           typeof error === 'function' && error({ error: msg, file: file })
@@ -646,6 +646,17 @@ var $createUploader = function (input, next, complete, error) {
         },
       })
     })
+  }
+
+  function _onH5UploadError(err, file) {
+    console.log('Upload error :', err)
+    if (err && err.status === 413) {
+      RbHighbar.error($L('上传失败，请稍后重试') + ': ' + err.status + '#' + err.statusText)
+    } else {
+      RbHighbar.error($L('上传失败，请稍后重试'))
+    }
+    typeof error === 'function' && error({ error: err, file: file })
+    $input.val(null) // reset
   }
 
   // Qiniu-Cloud
@@ -696,13 +707,10 @@ var $createUploader = function (input, next, complete, error) {
 
         $input.val(null) // reset
       },
-      onClientError: function (e, file) {
-        RbHighbar.error($L('上传失败，请稍后重试'))
-        console.log('Upload error :', e)
-        typeof error === 'function' && error({ error: e, file: file })
-
-        $input.val(null) // reset
-      },
+      onClientError: _onH5UploadError,
+      onClientAbort: _onH5UploadError,
+      onServerError: _onH5UploadError,
+      onServerAbort: _onH5UploadError,
     })
   }
 }
