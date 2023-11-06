@@ -537,9 +537,9 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         const ss = res.data || []
         RbAlert.create(
           <RF>
-            <div>{$L('请选择驳回方式')}</div>
+            <b>{$L('请选择驳回方式')}</b>
             <div className="widget-sm mt-3">
-              <select className="form-control form-control-sm" defaultValue="0">
+              <select className="form-control form-control-sm" defaultValue={ss.length > 0 ? ss[ss.length - 1].node : '0'}>
                 <option value="0">{$L('整体驳回')}</option>
                 {ss.length > 0 && (
                   <optgroup label={$L('退回至')}>
