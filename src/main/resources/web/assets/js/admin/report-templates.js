@@ -37,10 +37,10 @@ class ReportList extends ConfigList {
                 ) : (
                   item[3]
                 )}
-                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('EXCEL')}</span>}
-                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('EXCEL 列表')}</span>}
+                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL')}</span>}
+                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL 列表')}</span>}
                 {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('在线模板')}</span>}
-                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('WORD')}</span>}
+                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 word">{$L('WORD')}</span>}
 
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
                 {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
