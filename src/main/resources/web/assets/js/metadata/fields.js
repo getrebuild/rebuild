@@ -41,7 +41,7 @@ const renderList = function () {
   const $tbody = $('#dataList tbody').empty()
   const q = ($val('.input-search .form-control') || '').toLowerCase()
 
-  $(fields_data).each(function (idx, item) {
+  fields_data.forEach((item) => {
     if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
 
     const $tr = $(`<tr data-id="${item.fieldId || ''}"></tr>`).appendTo($tbody)
