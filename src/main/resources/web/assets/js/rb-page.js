@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -424,6 +424,9 @@ var _loadMessages = function () {
   })
 }
 var _showNotification = function (state) {
+  if (location.href.indexOf('/admin/') > -1 || location.href.indexOf('/notifications') > -1) return
+  if ($.cookie('rb.NotificationShow')) return
+
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
@@ -433,7 +436,14 @@ var _showNotification = function (state) {
         renotify: true,
         silent: false,
       })
-      n.onshow = function () {}
+      n.onshow = function () {
+        var expires = moment()
+          .add(5 * 60, 'seconds')
+          .toDate()
+        $.cookie('rb.NotificationShow', 1, {
+          expires: expires,
+        })
+      }
       n.onclose = function () {}
       n.onerror = function () {}
     } else {
