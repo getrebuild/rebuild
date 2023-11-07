@@ -37,6 +37,13 @@
           max-width: 100%;
         }
       }
+      .rb-error .error-container {
+        background: #fff url(../assets/img/browser-bar.png) 0 0 no-repeat;
+        max-width: 888px;
+        margin: 60px auto;
+        padding: 80px 20px 35px;
+        border-radius: 6px 6px 0 0;
+      }
     </style>
   </head>
   <body class="rb-splash-screen">
@@ -75,7 +82,7 @@
       } else if (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1) {
         $btn.parentNode.removeChild($btn)
       }
-      if (document.getElementsByClassName('err600')) {
+      if (document.getElementsByClassName('err600').length > 0) {
         setTimeout(() => location.reload(), 15000)
       }
     </script>
