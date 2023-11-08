@@ -1159,17 +1159,17 @@ a.link.link-icon::after {
 .img-field label.img-upload b,
 .file-field .img-thumbnail b {
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  left: 0;
   right: 0;
-  font-size: 1.2rem;
+  top: 0;
+  font-size: 1.1rem;
   color: #fff;
   cursor: default;
   background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
   line-height: 18px;
   display: none;
+  width: 18px;
+  height: 18px;
 }
 
 .img-field label.img-upload b .zmdi {

@@ -218,7 +218,7 @@ class RbPreview extends React.Component {
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })
-          else setPreviewUrl(res.data.publicUrl)
+          else setPreviewUrl(res.data.publicUrl, $isFullUrl(res.data.publicUrl))
         })
       }
     } else if (this._isText(fileName)) {
