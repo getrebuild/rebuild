@@ -163,9 +163,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 if (!MetadataHelper.isBusinessEntity(e)) continue;
                 if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
 
-                // 新建项无明细、多引用
+                // 新建项排除明细
                 if (TYPE_ADD.equals(applyType)) {
-                    if (e.getMainEntity() != null || field.getType() != FieldType.REFERENCE) continue;
+                    if (e.getMainEntity() != null) continue;
                 }
 
                 Entity eCheck = ObjectUtils.defaultIfNull(e.getMainEntity(), e);

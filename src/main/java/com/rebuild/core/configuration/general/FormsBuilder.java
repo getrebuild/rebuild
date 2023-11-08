@@ -653,14 +653,10 @@ public class FormsBuilder extends FormsManager {
      * @param initialVal 此值优先级大于字段默认值
      */
     public void setFormInitialValue(Entity entity, JSON formModel, JSONObject initialVal) {
-        if (initialVal == null || initialVal.isEmpty()) {
-            return;
-        }
+        if (initialVal == null || initialVal.isEmpty()) return;
 
         JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
-        if (elements == null || elements.isEmpty()) {
-            return;
-        }
+        if (elements == null || elements.isEmpty()) return;
 
         // 已布局字段。字段是否布局会影响返回值
         Set<String> inFormFields = new HashSet<>();
@@ -705,7 +701,7 @@ public class FormsBuilder extends FormsManager {
             // 其他
             else if (entity.containsField(field)) {
                 EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
-                if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
 
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
                     String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
@@ -723,9 +719,16 @@ public class FormsBuilder extends FormsManager {
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
-                        initialValReady.put(field, mixValue);
+                        if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                            initialValReady.put(field, mixValue);
+                        } else {
+                            // N2N 是数组
+                            initialValReady.put(field,
+                                    inFormFields.contains(field) ? new Object[] { mixValue } : value);
+                        }
                     }
                 }
+
             } else {
                 log.warn("Unknown value pair : " + field + " = " + value);
             }
