@@ -1172,6 +1172,12 @@ a.link.link-icon::after {
   height: 18px;
 }
 
+.img-field.avatar label.img-upload b {
+  width: 100%;
+  top: auto;
+  bottom: 0;
+}
+
 .img-field label.img-upload b .zmdi {
   font-size: 1.2rem;
   color: #fff;

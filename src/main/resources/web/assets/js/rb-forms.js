@@ -2438,7 +2438,7 @@ class RbFormAvatar extends RbFormElement {
   renderViewElement() {
     return (
       <div className="img-field avatar">
-        <a className="img-thumbnail img-upload">
+        <a className="img-thumbnail img-upload" style={{ cursor: 'default' }}>
           <img src={this._formatUrl(this.state.value)} alt="Avatar" />
         </a>
       </div>

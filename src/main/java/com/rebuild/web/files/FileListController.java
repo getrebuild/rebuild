@@ -251,8 +251,8 @@ public class FileListController extends BaseController {
 
     private JSONObject formatEntityJson(Entity entity) {
         return JSONUtils.toJSONObject(
-                new String[] { "id", "text" },
-                new Object[] { entity.getEntityCode(), Language.L(entity) });
+                new String[] { "id", "text", "icon" },
+                new Object[] { entity.getEntityCode(), Language.L(entity), EasyMetaFactory.valueOf(entity).getIcon() });
     }
 
     private boolean hasAttachmentFields(Entity entity) {

@@ -152,7 +152,7 @@ class RbPreview extends React.Component {
           {this.state.previewText || this.state.previewText === '' ? (
             <pre className="mb-0">{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
           ) : (
-            <div className="must-center">
+            <div className="must-center d-inline-block">
               <RbSpinner fully={true} />
             </div>
           )}
