@@ -136,7 +136,7 @@ public class ApiGateway extends Controller implements Initialization {
 
             String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (knownError != null) errorMsg = "Server Internal Error : " + knownError;
-            
+
         } finally {
             UserContextHolder.clear();
         }
