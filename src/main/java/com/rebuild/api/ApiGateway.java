@@ -10,6 +10,7 @@ package com.rebuild.api;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -130,12 +131,12 @@ public class ApiGateway extends Controller implements Initialization {
             errorMsg = ex.getLocalizedMessage();
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
-            errorMsg = ex.getLocalizedMessage();
+            errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
             log.error("Server Internal Error ({})", requestId, ex);
 
             String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
             if (knownError != null) errorMsg = "Server Internal Error : " + knownError;
-
+            
         } finally {
             UserContextHolder.clear();
         }
