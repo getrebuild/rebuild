@@ -10,8 +10,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.svg', '.webp']
 const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
-const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
-const TYPE_VIDEOS = ['.mp4', '.webm']
+const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
+const TYPE_VIDEOS = ['.mp4', '.wmv', '.mov', '.avi', '.mkv', '.webm']
 
 // 点击遮罩关闭预览
 const HIDE_ONCLICK = false
@@ -165,7 +165,7 @@ class RbPreview extends React.Component {
     return (
       <div className="container fp-content">
         <div className="audio must-center">
-          <audio src={this._buildAbsoluteUrl()} controls>
+          <audio src={this._buildAbsoluteUrl()} controls controlsList="nodownload" style={{ width: 500 }}>
             {$L('你的浏览器不支持此功能')}
           </audio>
         </div>
@@ -174,10 +174,11 @@ class RbPreview extends React.Component {
   }
 
   renderVideo() {
+    const ww = $(window).width()
     return (
       <div className="container fp-content">
         <div className="video must-center">
-          <video src={this._buildAbsoluteUrl()} height="500" controls>
+          <video src={this._buildAbsoluteUrl()} height={ww > 1120 ? 618 : 500} width={ww > 1120 ? 1100 : null} controls controlsList="nodownload" className="bg-dark">
             {$L('你的浏览器不支持此功能')}
           </video>
         </div>
