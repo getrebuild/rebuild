@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -28,6 +29,7 @@ import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -94,11 +96,11 @@ public class RecordTransfomer extends SetUser {
 
     /**
      * @param sourceRecordId
-     * @param mainId
+     * @param specMainId 转换明细时需指定主记录 ID
      * @return
      * @see #checkFilter(ID)
      */
-    public ID transform(ID sourceRecordId, ID mainId) {
+    public ID transform(ID sourceRecordId, ID specMainId) {
         // 检查配置
         Entity sourceEntity = MetadataHelper.getEntity(sourceRecordId.getEntityCode());
         Entity sourceDetailEntity = null;
@@ -131,12 +133,17 @@ public class RecordTransfomer extends SetUser {
         }
 
         Map<String, Object> dvMap = null;
-        if (mainId != null) {
+        if (specMainId != null) {
             Field targetDtf = MetadataHelper.getDetailToMainField(targetEntity);
-            dvMap = Collections.singletonMap(targetDtf.getName(), mainId);
+            dvMap = Collections.singletonMap(targetDtf.getName(), specMainId);
         }
 
-        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false);
+        // v3.5 此配置未开放
+        // 在之前的版本中，虽然文档写明非空字段无值会转换失败，但是从来没有做过非空检查
+        // 为保持兼容性，此选项不启用，即入参保持为 false，如有需要可指定为 true
+        final boolean checkNullable = transConfig.getBooleanValue("checkNullable35");
+
+        Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
         ID newId;
 
         // 有多条（主+明细）
@@ -145,7 +152,7 @@ public class RecordTransfomer extends SetUser {
             List<Record> detailsList = new ArrayList<>();
             for (Object[] d : sourceDetails) {
                 detailsList.add(
-                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false));
+                        transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
             }
 
             newId = saveRecord(main, detailsList);
@@ -220,13 +227,14 @@ public class RecordTransfomer extends SetUser {
      * @param fieldsMapping
      * @param sourceRecordId
      * @param defaultValue
-     * @param ignoreUncreateable
-     * @param forceNullValue
+     * @param ignoreUncreateable 忽略不可新建字段
+     * @param forceNullValue v3.5 强制设定空字段值（更新记录时）
+     * @param checkNullable v3.5 检查不允许为空的字段是否都有值
      * @return
      */
     protected Record transformRecord(
             Entity sourceEntity, Entity targetEntity, JSONObject fieldsMapping,
-            ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable, boolean forceNullValue) {
+            ID sourceRecordId, Map<String, Object> defaultValue, boolean ignoreUncreateable, boolean forceNullValue, boolean checkNullable) {
 
         Record target = EntityHelper.forNew(targetEntity.getEntityCode(), getUser());
 
@@ -289,6 +297,10 @@ public class RecordTransfomer extends SetUser {
         if (specOwningUser != null) {
             target.setID(EntityHelper.OwningDept,
                     (ID) Application.getUserStore().getUser(specOwningUser).getOwningDept().getIdentity());
+        }
+
+        if (checkNullable) {
+            new EntityRecordCreator(targetEntity, JSONUtils.EMPTY_OBJECT, getUser()).verify(target);
         }
 
         return target;

@@ -509,7 +509,7 @@ class EditorWithFieldVars extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
-        $(this._$fieldVars).perfectScrollbar({})
+        $(this._$fieldVars).perfectScrollbar()
       })
     })
 

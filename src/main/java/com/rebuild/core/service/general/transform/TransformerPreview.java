@@ -96,7 +96,7 @@ public class TransformerPreview {
             try {
                 for (ID did : ids) {
                     Record targetRecord = transfomer.transformRecord(
-                            sourceEntity, targetEntity, fieldsMapping, did, null, true, false);
+                            sourceEntity, targetEntity, fieldsMapping, did, null, true, false, false);
 
                     fillLabelOfReference(targetRecord);
 
@@ -122,7 +122,7 @@ public class TransformerPreview {
         }
 
         Record targetRecord = transfomer.transformRecord(
-                sourceEntity, targetEntity, fieldsMapping, sourceId, null, true, false);
+                sourceEntity, targetEntity, fieldsMapping, sourceId, null, true, false, false);
         fillLabelOfReference(targetRecord);
 
         // 转为明细
