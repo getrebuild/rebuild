@@ -438,7 +438,7 @@ var _showNotification = function (state) {
       })
       n.onshow = function () {
         var expires = moment()
-          .add(5 * 60, 'seconds')
+          .add(30 * 60, 'seconds')
           .toDate()
         $.cookie('rb.NotificationShow', 1, {
           expires: expires,

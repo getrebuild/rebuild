@@ -380,6 +380,7 @@ const EXPIRES_TIME = [
   [1440, 1 + $L('天')],
   [4320, 3 + $L('天')],
   [10080, 7 + $L('天')],
+  [0, $L('永久')],
 ]
 
 class FileShare extends RbModalHandler {
