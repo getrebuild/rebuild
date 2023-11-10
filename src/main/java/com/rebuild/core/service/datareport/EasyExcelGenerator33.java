@@ -7,13 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.support.general.RecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,7 +150,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             if (isApproval) {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        "stepId", "RobotApprovalStep", "recordId");
+                        "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
 
             } else if (refName.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
@@ -173,8 +178,30 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     .setParameter(1, recordId)
                     .list();
 
+            // 补充提交节点
+            if (isApproval && !list.isEmpty()) {
+                Record firstNode = list.get(0);
+                Record submit = RecordBuilder.builder(EntityHelper.RobotApprovalStep)
+                        .add("approver", ApprovalHelper.getSubmitter(firstNode.getID("recordId")))
+                        .add("approvedTime", CalendarUtils.getUTCDateTimeFormat().format(firstNode.getDate("createdOn")))
+                        .add("state", 0)
+                        .build(UserService.SYSTEM_USER);
+
+                List<Record> list2 = new ArrayList<>();
+                list2.add(submit);
+                list2.addAll(list);
+                list = list2;
+            }
+
             phNumber = 1;
             for (Record c : list) {
+                // 特殊处理
+                if (isApproval) {
+                    int state = c.getInt("state");
+                    Date approvedTime = c.getDate("approvedTime");
+                    if (approvedTime == null && state > 1) c.setDate("approvedTime", c.getDate("createdOn"));
+                }
+                
                 datas.add(buildData(c, varsMapOfRefs.get(refName)));
                 phNumber++;
             }

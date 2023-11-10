@@ -278,6 +278,7 @@ public class EasyExcelGenerator extends SetUser {
      */
     protected Map<String, Object> buildData(Record record, Map<String, String> varsMap) {
         final Entity entity = record.getEntity();
+        final boolean isApproval = entity.getEntityCode() == EntityHelper.RobotApprovalStep;
 
         final String invalidFieldTip = Language.L("[无效字段]");
         final String unsupportFieldTip = Language.L("[暂不支持]");
@@ -352,8 +353,11 @@ public class EasyExcelGenerator extends SetUser {
                         fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
                     }
 
-                    if (record.getEntity().getEntityCode() == EntityHelper.RobotApprovalStep && "state".equalsIgnoreCase(fieldName)) {
-                        fieldValue = Language.L(ApprovalState.valueOf(ObjectUtils.toInt(fieldValue)));
+                    if (isApproval && "state".equalsIgnoreCase(fieldName)) {
+                        int state = ObjectUtils.toInt(fieldValue);
+                        if (state < 1) fieldValue = Language.L("提交");
+                        else fieldValue = Language.L(ApprovalState.valueOf(state));
+
                     } else if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
                         fieldValue = FieldValueHelper.desensitized(easyField, fieldValue);
                     }
@@ -376,6 +380,7 @@ public class EasyExcelGenerator extends SetUser {
                         }
                     }
                 }
+
                 data.put(varName, fieldValue);
             }
         }
