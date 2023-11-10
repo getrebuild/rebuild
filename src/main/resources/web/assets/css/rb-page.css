@@ -1313,6 +1313,19 @@ a.link.link-icon::after {
   background-color: #eee;
 }
 
+.rbform .type-NTEXT .editor-toolbar.fullscreen {
+  top: 69px;
+}
+
+.rbform .type-NTEXT .CodeMirror-fullscreen {
+  top: 119px;
+}
+
+.editor-toolbar.fullscreen::before,
+.editor-toolbar.fullscreen::after {
+  display: none;
+}
+
 /* v35 */
 .form-layout.refform {
   display: block;
