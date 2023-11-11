@@ -165,16 +165,7 @@ const loadRoles = function () {
         extrasAction={(item) => {
           return (
             <RF>
-              <span
-                className="action"
-                onClick={() => {
-                  RbFormModal.create({
-                    title: $L('编辑角色'),
-                    entity: 'Role',
-                    icon: 'lock',
-                    id: item.id,
-                  })
-                }}>
+              <span className="action" onClick={() => RbFormModal.create({ title: $L('编辑角色'), entity: 'Role', icon: 'lock', id: item.id }, true)}>
                 <i className="zmdi zmdi-edit" />
               </span>
               <span

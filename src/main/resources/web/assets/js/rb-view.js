@@ -475,12 +475,7 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    RbFormModal.create({
-      id: id,
-      entity: this.__entity,
-      title: $L('编辑%s', this.props.entity2[0]),
-      icon: this.props.entity2[1],
-    })
+    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
   }
 
   _handleView(e) {
@@ -630,12 +625,7 @@ const RbViewPage = {
     $('.J_edit').on('click', () => {
       // 优先父页面打开?
       // const m = window.parent && window.parent.RbFormModal ? window.parent.RbFormModal : RbFormModal
-      RbFormModal.create({
-        id: id,
-        title: $L('编辑%s', entity[1]),
-        entity: entity[0],
-        icon: entity[2],
-      })
+      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
     })
 
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
@@ -645,13 +635,7 @@ const RbViewPage = {
     $('.J_add-details>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
-      RbFormModal.create({
-        title: $L('添加%s', $this.data('label')),
-        entity: $this.data('entity'),
-        icon: $this.data('icon'),
-        initialValue: iv,
-        _nextAddDetail: true,
-      })
+      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, _nextAddDetail: true })
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {
@@ -864,6 +848,7 @@ const RbViewPage = {
           const entity = item.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
+
           RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv })
         }
       })
@@ -892,11 +877,11 @@ const RbViewPage = {
                 if (mainid === false) return
 
                 this.hide()
-                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` })
+                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` }, true)
               },
             })
           } else {
-            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid }, true)
           }
 
           // end: previewMode

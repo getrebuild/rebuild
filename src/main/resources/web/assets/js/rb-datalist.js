@@ -32,7 +32,7 @@ const RbListPage = {
     $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] })
+        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
       }
     })
 

@@ -708,12 +708,7 @@ class RbForm extends React.Component {
           } else if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
             const dm = this.props.rawModel.entityMeta
-            RbFormModal.create({
-              title: $L('添加%s', dm.entityLabel),
-              entity: dm.entity,
-              icon: dm.icon,
-              initialValue: iv,
-            })
+            RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
             if (window.RbListPage) {
@@ -2077,15 +2072,7 @@ class RbFormReference extends RbFormElement {
 
   quickNew() {
     const e = this.props.referenceEntity
-    RbFormModal.create(
-      {
-        title: $L('新建%s', e.entityLabel),
-        entity: e.entity,
-        icon: e.icon,
-        postAfter: (id) => this.showSearcher_call([id], this),
-      },
-      true
-    )
+    RbFormModal.create({ title: $L('新建%s', e.entityLabel), entity: e.entity, icon: e.icon, postAfter: (id) => this.showSearcher_call([id], this) }, true)
   }
 }
 
