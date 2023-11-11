@@ -89,7 +89,7 @@ public class FileShareController extends BaseController {
     @GetMapping("/filex/all-make-share")
     public RespBody allShareFiles(HttpServletRequest request) {
         String sql = "select shortKey,longUrl,expireTime,createdOn,createdBy,shortId" +
-                " from ShortUrl where expireTime > ? and (1=1) order by createdOn desc";
+                " from ShortUrl where (expireTime > ? or expireTime is null) and (1=1) order by createdOn desc";
 
         // 管理员可见全部
         final ID user = getRequestUser(request);

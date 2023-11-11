@@ -37,10 +37,10 @@ class ReportList extends ConfigList {
                 ) : (
                   item[3]
                 )}
-                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('EXCEL')}</span>}
-                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('EXCEL 列表')}</span>}
+                {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL')}</span>}
+                {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL 列表')}</span>}
                 {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('在线模板')}</span>}
-                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('WORD')}</span>}
+                {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 word">{$L('WORD')}</span>}
 
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
                 {outputType.includes('html') && <span className="badge badge-secondary badge-sm ml-1">HTML</span>}
@@ -199,7 +199,7 @@ class ReportEditor extends ConfigFormDlg {
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row bosskey-show">
           <label className="col-sm-3 col-form-label text-sm-right">
             {$L('谁能使用这个报表')} <sup className="rbv" />
           </label>

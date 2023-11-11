@@ -178,6 +178,7 @@ public class FileListController extends BaseController {
             sql += " order by modifiedOn desc";
         }
 
+        // FIXME 会连同路径一起搜索
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, false)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -250,8 +251,8 @@ public class FileListController extends BaseController {
 
     private JSONObject formatEntityJson(Entity entity) {
         return JSONUtils.toJSONObject(
-                new String[] { "id", "text" },
-                new Object[] { entity.getEntityCode(), Language.L(entity) });
+                new String[] { "id", "text", "icon" },
+                new Object[] { entity.getEntityCode(), Language.L(entity), EasyMetaFactory.valueOf(entity).getIcon() });
     }
 
     private boolean hasAttachmentFields(Entity entity) {

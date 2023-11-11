@@ -147,6 +147,9 @@
         if (settings.onSuccess && xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
           settings.onSuccess(e, file, xmlHttpRequest.responseText)
         }
+        if (settings.onServerError && xmlHttpRequest.readyState == 4 && xmlHttpRequest.status === 413) {
+          settings.onServerError(xmlHttpRequest, file)
+        }
       }
       xmlHttpRequest.open('POST', settings.postUrl, true)
       if (file.getAsBinary) {

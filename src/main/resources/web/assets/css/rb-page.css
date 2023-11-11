@@ -1159,17 +1159,23 @@ a.link.link-icon::after {
 .img-field label.img-upload b,
 .file-field .img-thumbnail b {
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  left: 0;
   right: 0;
-  font-size: 1.2rem;
+  top: 0;
+  font-size: 1.1rem;
   color: #fff;
   cursor: default;
   background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
   line-height: 18px;
   display: none;
+  width: 18px;
+  height: 18px;
+}
+
+.img-field.avatar label.img-upload b {
+  width: 100%;
+  top: auto;
+  bottom: 0;
 }
 
 .img-field label.img-upload b .zmdi {
@@ -1305,6 +1311,19 @@ a.link.link-icon::after {
 .img-field.sign.sign-edit {
   border-radius: 2px;
   background-color: #eee;
+}
+
+.rbform .type-NTEXT .editor-toolbar.fullscreen {
+  top: 69px;
+}
+
+.rbform .type-NTEXT .CodeMirror-fullscreen {
+  top: 119px;
+}
+
+.editor-toolbar.fullscreen::before,
+.editor-toolbar.fullscreen::after {
+  display: none;
 }
 
 /* v35 */
@@ -3366,7 +3385,7 @@ form {
 .preview-modal .preview-header {
   background: rgba(0, 0, 0, 0.9);
   color: #fff;
-  padding: 0 25px;
+  padding: 0 20px;
   height: 61px;
 }
 

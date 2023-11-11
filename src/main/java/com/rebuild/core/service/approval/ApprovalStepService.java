@@ -265,6 +265,10 @@ public class ApprovalStepService extends InternalPersistService {
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
             super.update(recordOfMain);
 
+            String approvedMsg = Language.L("你提交的 %s 已审批通过", entityLabel);
+            if (StringUtils.isNotBlank(remark)) approvedMsg += "\n > " + remark;
+            sendNotification(submitter, approvedMsg, recordId);
+
             Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, approver);
             return;
         }
@@ -459,6 +463,8 @@ public class ApprovalStepService extends InternalPersistService {
         recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
         setApprovalLastX(recordOfMain, useApprover, Language.L("自动审批"));
         super.update(recordOfMain);
+
+        // NOTE 自动审批不会给提交人发通知
 
         Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED, useApprover);
         return true;
