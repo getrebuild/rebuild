@@ -5008,6 +5008,20 @@ pre.unstyle {
 .tablesort thead th.sorted {
   cursor: pointer;
   background-color: #dee2e6;
+  position: relative;
+}
+
+.tablesort thead th.sorted.ascending::after,
+.tablesort thead th.sorted.descending::after {
+  font: normal normal normal 20px/1 "Material Design Icons";
+  content: '\F0140';
+  position: absolute;
+  right: 10px;
+  top: 9px;
+}
+
+.tablesort thead th.sorted.descending::after {
+  content: '\F0143';
 }
 
 .map-suggestion.dropdown-menu {

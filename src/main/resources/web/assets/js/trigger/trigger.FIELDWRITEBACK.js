@@ -608,7 +608,7 @@ class FormulaCode extends React.Component {
   static textCode(code) {
     code = code.substr(4, code.length - 8) // Remove {{{{ xxx }}}}
     code = code.replace(/\n/gi, '<br/>').replace(/( )/gi, '&nbsp;')
-    return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
+    return <code style={{ lineHeight: 1.2 }} className="code-view" dangerouslySetInnerHTML={{ __html: code }} />
   }
 }
 
