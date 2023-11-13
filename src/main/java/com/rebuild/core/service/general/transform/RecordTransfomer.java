@@ -144,9 +144,9 @@ public class RecordTransfomer extends SetUser {
         final boolean checkNullable = transConfig.getBooleanValue("checkNullable35");
 
         Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
-        ID newId;
+        ID theNewId;
 
-        // v3.5 先回填
+        // v3.5 需要先回填
         // 因为可能以回填字段作为条件进行转换一次判断
         final boolean fillbackFix = fillback(sourceRecordId, EntityHelper.newUnsavedId(main.getEntity().getEntityCode()));
 
@@ -159,15 +159,15 @@ public class RecordTransfomer extends SetUser {
                         transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
             }
 
-            newId = saveRecord(main, detailsList);
+            theNewId = saveRecord(main, detailsList);
         } else {
-            newId = saveRecord(main, null);
+            theNewId = saveRecord(main, null);
         }
 
         // 回填修正
-        if (fillbackFix) fillback(sourceRecordId, newId);
+        if (fillbackFix) fillback(sourceRecordId, theNewId);
 
-        return newId;
+        return theNewId;
     }
 
     private ID saveRecord(Record record, List<Record> detailsList) {
