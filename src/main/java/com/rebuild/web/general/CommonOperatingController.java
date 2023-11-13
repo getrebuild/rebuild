@@ -66,7 +66,10 @@ public class CommonOperatingController extends BaseController {
     public RespBody get(@IdParam ID recordId, HttpServletRequest request) {
         final String fields = getParameter(request, "fields");
         Record record = Application.getQueryFactory()
-                .record(recordId, StringUtils.isBlank(fields) ? new String[0] : fields.split(","));
+                .record(recordId, StringUtils.isBlank(fields) ? new String[0] : fields.split("[,;]"));
+        if (record == null) {
+            return RespBody.error("无权读取此记录或记录已被删除");
+        }
         return RespBody.ok(record);
     }
 
