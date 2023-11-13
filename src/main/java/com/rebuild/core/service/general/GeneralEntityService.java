@@ -170,19 +170,24 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
 
-            // 主记录+明细记录处理
+            // 明细记录处理
 
-            final String dtfField = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+            final Entity detailEntity = record.getEntity().getDetailEntity();
+            final String dtfField = MetadataHelper.getDetailToMainField(detailEntity).getName();
             final ID mainid = record.getPrimary();
 
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
+            // 明细可能有自己的 Service
+            EntityService des = Application.getEntityService(detailEntity.getEntityCode());
+            if (des.getEntityCode() == 0) des = this;
+
             // 先删除
             for (int i = 0; i < details.size(); i++) {
                 Record d = details.get(i);
                 if (d instanceof DeleteRecord) {
-                    delete(d.getPrimary());
+                    des.delete(d.getPrimary());
                     detaileds.put(i, d.getPrimary());
                 }
             }
@@ -195,7 +200,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (checkDetailsRepeated) {
                     d.setID(dtfField, mainid);  // for check
 
-                    List<Record> repeated = getAndCheckRepeated(d, 20);
+                    List<Record> repeated = des.getAndCheckRepeated(d, 20);
                     if (!repeated.isEmpty()) {
                         throw new RepeatedRecordsException(repeated);
                     }
@@ -203,9 +208,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (d.getPrimary() == null) {
                     d.setID(dtfField, mainid);
-                    create(d);
+                    des.create(d);
                 } else {
-                    update(d);
+                    des.update(d);
                 }
                 detaileds.put(i, d.getPrimary());
             }
@@ -849,5 +854,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (t.getType() == specType) specTriggers.add(t);
         }
         return specTriggers.toArray(new TriggerAction[0]);
+    }
+
+    @Override
+    public String toString() {
+        return getEntityCode() + "#" + super.toString();
     }
 }

@@ -73,26 +73,28 @@ public class RecordDifference {
         if (record != null) {
             JSONObject recordSerialize = (JSONObject) record.serialize();
             for (Map.Entry<String, Object> e : recordSerialize.entrySet()) {
-                String field = e.getKey();
-                if (!diffCommons && isIgnoreField(entity.getField(field))) continue;
+                String fieldName = e.getKey();
+                if (!entity.containsField(fieldName)) continue;
+                if (!diffCommons && isIgnoreField(entity.getField(fieldName))) continue;
 
                 Object beforeVal = e.getValue();
                 if (NullValue.is(beforeVal)) beforeVal = null;
 
-                merged.put(field, new Object[]{beforeVal, null});
+                merged.put(fieldName, new Object[]{beforeVal, null});
             }
         }
 
         if (after != null) {
             JSONObject afterSerialize = (JSONObject) after.serialize();
             for (Map.Entry<String, Object> e : afterSerialize.entrySet()) {
-                String field = e.getKey();
-                if (!diffCommons && isIgnoreField(entity.getField(field))) continue;
+                String fieldName = e.getKey();
+                if (!entity.containsField(fieldName)) continue;
+                if (!diffCommons && isIgnoreField(entity.getField(fieldName))) continue;
 
                 Object afterVal = e.getValue();
                 if (NullValue.is(afterVal)) continue;
 
-                Object[] mergedValue = merged.computeIfAbsent(field, k -> new Object[]{null, null});
+                Object[] mergedValue = merged.computeIfAbsent(fieldName, k -> new Object[]{null, null});
                 mergedValue[1] = afterVal;
             }
         }
