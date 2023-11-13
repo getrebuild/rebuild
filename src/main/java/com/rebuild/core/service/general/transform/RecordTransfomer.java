@@ -144,7 +144,11 @@ public class RecordTransfomer extends SetUser {
         final boolean checkNullable = transConfig.getBooleanValue("checkNullable35");
 
         Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
-        ID newId;
+        ID theNewId;
+
+        // v3.5 需要先回填
+        // 因为可能以回填字段作为条件进行转换一次判断
+        final boolean fillbackFix = fillback(sourceRecordId, EntityHelper.newUnsavedId(main.getEntity().getEntityCode()));
 
         // 有多条（主+明细）
         if (sourceDetails != null && sourceDetails.length > 0) {
@@ -155,15 +159,15 @@ public class RecordTransfomer extends SetUser {
                         transformRecord(sourceDetailEntity, targetDetailEntity, fieldsMappingDetail, (ID) d[0], null, false, false, checkNullable));
             }
 
-            newId = saveRecord(main, detailsList);
+            theNewId = saveRecord(main, detailsList);
         } else {
-            newId = saveRecord(main, null);
+            theNewId = saveRecord(main, null);
         }
 
-        // 回填
-        fillback(sourceRecordId, newId);
+        // 回填修正
+        if (fillbackFix) fillback(sourceRecordId, theNewId);
 
-        return newId;
+        return theNewId;
     }
 
     private ID saveRecord(Record record, List<Record> detailsList) {
@@ -204,7 +208,7 @@ public class RecordTransfomer extends SetUser {
 
         // 此配置未开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2) {
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId)) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
@@ -212,7 +216,7 @@ public class RecordTransfomer extends SetUser {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         } else {
-            // FIXME 回填仅更新，无业务规则
+            // 无传播更新
             Application.getCommonsService().update(updateSource, false);
         }
 

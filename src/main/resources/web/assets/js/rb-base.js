@@ -390,12 +390,11 @@ var $random = function (prefix, alphabetic, maxLength) {
 var $same = function (a, b) {
   if (Object.is(a, b)) return true
   if (a && b) {
-    if ($.type(a) === 'object' && $.type(b) === 'object') {
+    var aType = $.type(a)
+    var bType = $.type(b)
+    if ((aType === 'object' && bType === 'object') || (aType === 'array' && bType === 'array')) {
       a = JSON.stringify(a)
       b = JSON.stringify(b)
-    } else if ($.type(a) === 'array' && $.type(b) === 'array') {
-      a = a.join(',')
-      b = b.join(',')
     }
   }
   if (a === b) return true
