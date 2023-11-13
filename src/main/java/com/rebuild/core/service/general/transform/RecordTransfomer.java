@@ -146,6 +146,10 @@ public class RecordTransfomer extends SetUser {
         Record main = transformRecord(sourceEntity, targetEntity, fieldsMapping, sourceRecordId, dvMap, false, false, checkNullable);
         ID newId;
 
+        // v3.5 先回填
+        // 因为可能以回填字段作为条件进行转换一次判断
+        final boolean fillbackFix = fillback(sourceRecordId, EntityHelper.newUnsavedId(main.getEntity().getEntityCode()));
+
         // 有多条（主+明细）
         if (sourceDetails != null && sourceDetails.length > 0) {
             Entity targetDetailEntity = targetEntity.getDetailEntity();
@@ -160,8 +164,8 @@ public class RecordTransfomer extends SetUser {
             newId = saveRecord(main, null);
         }
 
-        // 回填
-        fillback(sourceRecordId, newId);
+        // 回填修正
+        if (fillbackFix) fillback(sourceRecordId, newId);
 
         return newId;
     }
@@ -204,7 +208,7 @@ public class RecordTransfomer extends SetUser {
 
         // 此配置未开放
         int fillbackMode = transConfig.getIntValue("fillbackMode");
-        if (fillbackMode == 2) {
+        if (fillbackMode == 2 && !EntityHelper.isUnsavedId(newId)) {
             GeneralEntityServiceContextHolder.setAllowForceUpdate(updateSource.getPrimary());
             try {
                 Application.getEntityService(sourceEntity.getEntityCode()).update(updateSource);
@@ -212,7 +216,7 @@ public class RecordTransfomer extends SetUser {
                 GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
             }
         } else {
-            // FIXME 回填仅更新，无业务规则
+            // 无传播更新
             Application.getCommonsService().update(updateSource, false);
         }
 

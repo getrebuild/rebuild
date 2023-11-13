@@ -35,7 +35,8 @@ $(document).ready(() => {
 
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
-    if (!item.name.includes('.') && item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) {
+    if (item.name.includes('.')) return
+    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
       fillbackFields.push({ id: item.name, text: item.label })
     }
   })
