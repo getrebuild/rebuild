@@ -5010,11 +5010,11 @@ pre.unstyle {
 
 .tablesort thead th.sorted.ascending::after,
 .tablesort thead th.sorted.descending::after {
-  font: normal normal normal 20px/1 "Material Design Icons";
+  font: normal normal normal 18px/1 "Material Design Icons";
   content: '\F0140';
   position: absolute;
   right: 10px;
-  top: 9px;
+  top: 9.5px;
 }
 
 .tablesort thead th.sorted.descending::after {
