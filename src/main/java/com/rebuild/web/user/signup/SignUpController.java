@@ -113,6 +113,10 @@ public class SignUpController extends BaseController {
 
     @PostMapping("signup-confirm")
     public RespBody signupConfirm(HttpServletRequest request) {
+        if (!RebuildConfiguration.getBool(ConfigurationItem.OpenSignUp)) {
+            return RespBody.errorl("管理员未开放公开注册");
+        }
+
         JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 
         String email = data.getString("email");
