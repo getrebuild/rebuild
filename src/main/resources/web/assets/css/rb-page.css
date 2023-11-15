@@ -64,9 +64,6 @@ button[disabled] {
 
 code {
   color: #e83e8c;
-}
-
-.code-view {
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
 }
 
