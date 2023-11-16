@@ -339,7 +339,7 @@ public class FileDownloader extends BaseController {
 
         // 火狐 Safari 中文名乱码问题
         String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
-        if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {
+        if (UA.contains("FIREFOX") || UA.contains("SAFARI") || UA.contains("APPLEWEBKIT")) {
             attname = CodecUtils.urlDecode(attname);
             attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         }
