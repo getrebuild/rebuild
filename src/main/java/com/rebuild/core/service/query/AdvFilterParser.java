@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -108,12 +109,12 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * @param filterExpr
-     * @param varRecord 条件中包含字段变量，将从此记录中提取实际值。注意如果包括字段变量但是字段无值，则过滤项会被忽略，应在配置条件时考虑此问题（设置不允许为空）
+     * @param varRecord 条件中包含字段变量，将从该记录中提取实际值替换
      */
     public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
         this.filterExpr = filterExpr;
         this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
-        this.varRecord = varRecord;
+        this.varRecord = License.isRbvAttached() ? varRecord : null;
     }
 
     /**
