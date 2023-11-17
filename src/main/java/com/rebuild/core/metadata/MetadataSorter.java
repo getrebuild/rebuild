@@ -109,10 +109,14 @@ public class MetadataSorter {
     public static Entity[] sortDetailEntities(Entity mainEntity) {
         Assert.notNull(mainEntity.getDetailEntity(), "None main entity : " + mainEntity);
 
-        List<BaseMeta> entities = new ArrayList<>();
-        CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
-        sortByLabel(entities);
-        return entities.toArray(new Entity[0]);
+        // SORT:CODE
+        return mainEntity.getDetialEntities();
+
+//        // SORT: 名称
+//        List<BaseMeta> entities = new ArrayList<>();
+//        CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
+//        sortByLabel(entities);
+//        return entities.toArray(new Entity[0]);
     }
 
     /**

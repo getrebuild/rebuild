@@ -5365,3 +5365,12 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .table.table-btm-line tbody {
   border-bottom: 1px solid #dee2e6;
 }
+
+.dataTables_oper.invisible2 > .btn,
+.dataTables_oper.invisible2 > .btn-group {
+  display: none;
+}
+
+.dataTables_oper.invisible2 > .btn.J_view {
+  display: inline-block;
+}
