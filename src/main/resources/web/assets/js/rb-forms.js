@@ -220,7 +220,7 @@ class RbFormModal extends React.Component {
   }
 
   // 获取当前表单对象
-  getCurrentForm() {
+  getFormComp() {
     return this._formComponentRef
   }
 
@@ -230,17 +230,20 @@ class RbFormModal extends React.Component {
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    const that = this
     if (forceNew === true) {
-      renderRbcomp(<RbFormModal {...props} disposeOnHide />)
+      renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
+        that.__CURRENT35 = this
+      })
       return
     }
 
     if (this.__HOLDER) {
       this.__HOLDER.show(props)
     } else {
-      const that = this
       renderRbcomp(<RbFormModal {...props} />, null, function () {
         that.__HOLDER = this
+        that.__CURRENT35 = this
       })
     }
   }
@@ -648,6 +651,9 @@ class RbForm extends React.Component {
       const keys = Object.keys(this._ProTables)
       for (let i = 0; i < keys.length; i++) {
         const _ProTable = this._ProTables[keys[i]]
+        // 明细未配置或出错
+        if (!_ProTable._initModel) continue
+
         const details = _ProTable.buildFormData()
         if (!details) return
 

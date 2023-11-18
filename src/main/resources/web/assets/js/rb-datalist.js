@@ -91,7 +91,7 @@ const RbListPage = {
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
-      $('.dataTables_oper.invisible').removeClass('invisible')
+      $('.dataTables_oper.invisible2').removeClass('invisible2')
     }
 
     // Filter Pane

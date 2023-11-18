@@ -119,7 +119,7 @@ $(document).ready(() => {
             $item.addClass('hide')
           }
         })
-      })
+      }, 200)
     })
 
     setTimeout(() => $input[0].focus(), 20)

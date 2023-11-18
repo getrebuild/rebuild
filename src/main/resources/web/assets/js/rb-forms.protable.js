@@ -22,7 +22,7 @@ class ProTable extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      $('.detail-form-table .btn-group .btn').attr('disabled', true)
+      // $('.detail-form-table .btn-group .btn').attr('disabled', true)
       return <RbAlertBox message={this.state.hasError} />
     }
 
@@ -143,6 +143,12 @@ class ProTable extends React.Component {
   }
 
   addLine(model) {
+    // 明细未配置或出错
+    if (!model) {
+      if (this.state.hasError) RbHighbar.create(this.state.hasError)
+      return
+    }
+
     const lineKey = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (

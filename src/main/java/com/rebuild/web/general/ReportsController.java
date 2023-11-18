@@ -130,8 +130,8 @@ public class ReportsController extends BaseController {
 
             if (AppUtils.isMobile(request)) {
                 String fileUrl = String.format(
-                        "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
-                        CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), fileName);
+                        "/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
+                        CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateCsrfToken(90), CodecUtils.urlEncode(fileName));
                 data.put("fileUrl", fileUrl);
             }
             writeSuccess(response, data);
@@ -139,12 +139,11 @@ public class ReportsController extends BaseController {
         } else if ("preview".equalsIgnoreCase(typeOutput)) {
             String fileUrl = String.format(
                     "/filex/download/%s?temp=yes&_onceToken=%s&attname=%s",
-                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), fileName);
+                    CodecUtils.urlEncode(output.getName()), AuthTokenManager.generateOnceToken(null), CodecUtils.urlEncode(fileName));
             fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
 
             String previewUrl = StringUtils.defaultIfBlank(
-                    RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl),
-                    "https://view.officeapps.live.com/op/embed.aspx?src=");
+                    RebuildConfiguration.get(ConfigurationItem.PortalOfficePreviewUrl), "https://view.officeapps.live.com/op/embed.aspx?src=");
 
             previewUrl += CodecUtils.urlEncode(fileUrl);
             response.sendRedirect(previewUrl);

@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.robot.approval;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -79,7 +80,8 @@ public class ApprovalController extends BaseController {
 
     @GetMapping("state")
     public RespBody getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
-        if (!MetadataHelper.hasApprovalField(MetadataHelper.getEntity(recordId.getEntityCode()))) {
+        final Entity approvalEntity = MetadataHelper.getEntity(recordId.getEntityCode());
+        if (!MetadataHelper.hasApprovalField(approvalEntity)) {
             return RespBody.error("NOT AN APPROVAL ENTITY");
         }
 
@@ -87,6 +89,7 @@ public class ApprovalController extends BaseController {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
         JSONObject data = new JSONObject();
+        data.put("entityName", approvalEntity.getName());
 
         int stateVal = status.getCurrentState().getState();
         data.put("state", stateVal);

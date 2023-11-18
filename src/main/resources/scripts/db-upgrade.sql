@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #54 (v3.5)
+alter table `feeds`
+  add column `AUTO_LOCATION` varchar(100) comment '发布位置';
+
 -- #53 (v3.5)
 alter table `revision_history`
   add column `AUTO_ID` bigint(20) not null auto_increment comment '保证顺序',

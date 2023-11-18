@@ -618,6 +618,7 @@ create table if not exists `feeds` (
   `RELATED_RECORD`     char(20) comment '相关记录',
   `SCHEDULE_TIME`      timestamp null default null comment '日程时间',
   `SCOPE`              varchar(20) default 'ALL' comment '可见范围 (ALL/SELF/$TeamID)',
+  `AUTO_LOCATION`      varchar(100) comment '发布位置',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -885,4 +886,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 53);
+  values ('021-9000000000000001', 'DBVer', 54);

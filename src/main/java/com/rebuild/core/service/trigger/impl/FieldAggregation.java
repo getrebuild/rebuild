@@ -162,7 +162,7 @@ public class FieldAggregation extends TriggerAction {
         JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
         if (dataFilter != null && !dataFilter.isEmpty()) {
-            dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
+            dataFilterSql = new AdvFilterParser(dataFilter, operatingContext.getFixedRecordId()).toSqlWhere();
         }
 
         String filterSql = followSourceWhere;

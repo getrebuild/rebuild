@@ -7,6 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global InitModels */
 
 window.__LAB_SHOWNDETAIL = false
+window.bosskeyTrigger = function () {
+  window.__LAB_SHOWNDETAIL = true
+}
 
 $(document).ready(() => {
   const $bnew = $('.btn-primary.new').on('click', () => {

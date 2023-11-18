@@ -96,7 +96,7 @@ public interface EntityService extends ServiceSpec {
      * 检查并获取（如有）重复记录
      *
      * @param checkRecord
-     * @param limit
+     * @param limit 最大查重返回数量
      * @return
      */
     List<Record> getAndCheckRepeated(Record checkRecord, int limit);

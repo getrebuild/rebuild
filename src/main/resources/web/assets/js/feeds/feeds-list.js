@@ -588,10 +588,29 @@ function __renderRichContent(e) {
     }
   }
 
+  let AL = e.autoLocation ? e.autoLocation.split('$$$$') : false
+  if (AL) {
+    AL = {
+      lng: AL[1].split(',')[0],
+      lat: AL[1].split(',')[1],
+      text: AL[0],
+    }
+  }
+
   return (
     <div className="rich-content">
       <div className="texts text-break" dangerouslySetInnerHTML={{ __html: contentHtml }} />
       <div className="appends">
+        {AL && (
+          <div>
+            <span>
+              <i className="icon mdi mdi-cellphone-marker mr-1" />
+            </span>
+            <a title={$L('查看位置')} onClick={() => BaiduMapModal.view(AL)}>
+              {AL.text}
+            </a>
+          </div>
+        )}
         {e.type === 4 && (
           <div>
             <div>
@@ -616,7 +635,7 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}`} title={$L('查看记录')}>
+            <a href={`${rb.baseUrl}/app/redirect?id=${e.relatedRecord.id}&type=newtab`} target="_blank" title={$L('查看记录')}>
               {e.relatedRecord.text}
             </a>
           </div>

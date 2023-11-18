@@ -468,7 +468,13 @@ public class FieldWriteback extends FieldAggregation {
                         } else if (dt == DisplayType.DECIMAL) {
                             targetRecord.setDouble(targetField, ObjectUtils.toDouble(newValue));
                         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                            targetRecord.setDate(targetField, (Date) newValue);
+                            if (newValue instanceof Date) {
+                                targetRecord.setDate(targetField, (Date) newValue);
+                            } else {
+                                Date newValueCast = CalendarUtils.parse(newValue.toString());
+                                if (newValueCast == null) log.warn("Cannot cast string to date : {}", newValue);
+                                else targetRecord.setDate(targetField, newValueCast);
+                            }
                         } else {
                             newValue = checkoutFieldValue(newValue, targetFieldEasy);
                             if (newValue != null) {
