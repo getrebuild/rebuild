@@ -680,7 +680,7 @@ class ApprovalList extends BaseChart {
             <tbody>
               {data.data.map((item, idx) => {
                 return (
-                  <tr key={'approval-' + idx}>
+                  <tr key={`approval-${idx}`}>
                     <td className="user-avatar cell-detail user-info">
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
@@ -689,7 +689,9 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}`}>{item[4]}</a>
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}&type=newtab`} target="_blank">
+                        {item[4]}
+                      </a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
@@ -795,7 +797,7 @@ class FeedsSchedule extends BaseChart {
                 }
 
                 return (
-                  <tr key={'schedule-' + idx}>
+                  <tr key={`schedule-${idx}`}>
                     <td>
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
@@ -1118,10 +1120,7 @@ class ProjectTasks extends BaseChart {
 
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code > 0) return RbHighbar.error(res.error_msg)
-      $target
-        .parents('tr')
-        .removeClass('status-0 status-1')
-        .addClass('status-' + data.status)
+      $target.parents('tr').removeClass('status-0 status-1').addClass(`status-${data.status}`)
     })
   }
 }
@@ -1231,7 +1230,7 @@ class DataList extends BaseChart {
                   data-id={lastCell.id}
                   onDoubleClick={(e) => {
                     $stopEvent(e, true)
-                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}`)
+                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`)
                   }}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
