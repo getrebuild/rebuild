@@ -431,6 +431,7 @@
         <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
         <field name="scheduleTime" type="timestamp" description="日程时间"/>
         <field name="scope" type="string" max-length="20" default-value="ALL" description="可见范围 (ALL/SELF/$TeamID)" queryable="false"/>
+        <field name="autoLocation" type="string" max-length="100" description="发布位置" extra-attrs="{displayType:'LOCATION'}"/>
         <index field-list="createdOn,scope,type,createdBy"/>
         <index field-list="relatedRecord"/>
         <index field-list="type,scheduleTime,createdBy"/>

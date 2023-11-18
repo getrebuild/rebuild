@@ -210,7 +210,7 @@ public class FeedsListController extends BaseController {
     }
 
     private static final String ITEM_SQL = "select" +
-            " feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore" +
+            " feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore,autoLocation" +
             " from Feeds where ";
 
     private JSONObject buildItem(Object[] o, ID user) {
@@ -226,6 +226,8 @@ public class FeedsListController extends BaseController {
         }
         item.put("type", o[8]);
         item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
+        // v35
+        item.put("autoLocation", o[11]);
 
         // 相关记录
         ID related = (ID) o[9];
