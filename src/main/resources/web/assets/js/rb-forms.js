@@ -651,6 +651,9 @@ class RbForm extends React.Component {
       const keys = Object.keys(this._ProTables)
       for (let i = 0; i < keys.length; i++) {
         const _ProTable = this._ProTables[keys[i]]
+        // 明细未配置或出错
+        if (!_ProTable._initModel) continue
+
         const details = _ProTable.buildFormData()
         if (!details) return
 
