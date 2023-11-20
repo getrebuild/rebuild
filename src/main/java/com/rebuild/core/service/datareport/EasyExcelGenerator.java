@@ -356,6 +356,7 @@ public class EasyExcelGenerator extends SetUser {
                     if (isApproval && "state".equalsIgnoreCase(fieldName)) {
                         int state = ObjectUtils.toInt(fieldValue);
                         if (state < 1) fieldValue = Language.L("提交");
+                        else if (state == ApprovalState.DRAFT.getState()) fieldValue = Language.L("待审批");
                         else fieldValue = Language.L(ApprovalState.valueOf(state));
 
                     } else if (FieldValueHelper.isUseDesensitized(easyField, this.getUser())) {
