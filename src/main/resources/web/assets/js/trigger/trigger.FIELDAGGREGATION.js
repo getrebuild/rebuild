@@ -10,6 +10,7 @@ const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
   RBJOIN2: $L('去重连接'),
+  // RBJOIN3: $L('去重连接*'),
 }
 
 const __LAB_MATCHFIELDS = false
@@ -262,9 +263,9 @@ class ContentFieldAggregation extends ActionContentSpec {
 
               let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
               if (['DATE', 'DATETIME'].includes(sf.type)) {
-                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'FORMULA']
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'RBJOIN3', 'FORMULA']
               } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
-                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'FORMULA']
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'RBJOIN3', 'FORMULA']
               }
 
               this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
@@ -281,7 +282,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               if (!sf) return
 
               let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
-              if ('RBJOIN' === cm || 'RBJOIN2' === cm) {
+              if ('RBJOIN' === cm || 'RBJOIN2' === cm || 'RBJOIN3' === cm) {
                 tfAllow = this.__targetFieldsCache.filter((x) => {
                   if ('NTEXT' === x.type) return true
                   if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]

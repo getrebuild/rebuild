@@ -72,8 +72,10 @@ public class AggregationEvaluator {
             return evalFormula();
         }
         // for FieldAggregation/GroupAggregation
-        else if ("RBJOIN".equalsIgnoreCase(calcMode) || "RBJOIN2".equalsIgnoreCase(calcMode)) {
-            return evalRbJoin("RBJOIN2".equalsIgnoreCase(calcMode));
+        else if ("RBJOIN".equalsIgnoreCase(calcMode)
+                || "RBJOIN2".equalsIgnoreCase(calcMode) || "RBJOIN3".equalsIgnoreCase(calcMode)) {
+            int mode = "RBJOIN2".equalsIgnoreCase(calcMode) ? 2 : ("RBJOIN3".equalsIgnoreCase(calcMode) ? 3 : 1);
+            return evalRbJoin(mode);
         }
 
         String sourceField = item.getString("sourceField");
@@ -195,10 +197,10 @@ public class AggregationEvaluator {
     /**
      * 智能连接
      *
-     * @param distinct 去重
+     * @param mode 去重模式
      * @return
      */
-    private Object evalRbJoin(boolean distinct) {
+    private Object evalRbJoin(int mode) {
         String sourceField = item.getString("sourceField");
         Field field;
         if ((field = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) == null) {
@@ -213,8 +215,13 @@ public class AggregationEvaluator {
         EasyField easyField = EasyMetaFactory.valueOf(field);
 
         Collection<Object> nvList;
-        if (distinct) nvList = new LinkedHashSet<>();
-        else nvList = new ArrayList<>();
+        Map<Object, Integer> countList = null;
+        if (mode == 2 || mode == 3) {
+            nvList = new LinkedHashSet<>();
+            if (mode == 3) countList = new HashMap<>();  // 针对文本
+        } else {
+            nvList = new ArrayList<>();
+        }
 
         for (Object[] o : array) {
             Object n = o[0];
@@ -237,15 +244,41 @@ public class AggregationEvaluator {
                 if (dt == DisplayType.MULTISELECT) {
                     JSONArray a = ((JSONObject) v).getJSONArray("text");
                     CollectionUtils.addAll(nvList, a);
+
+                    // TEXT*N
+                    if (countList != null) {
+                        for (Object item : a) {
+                            Integer c = countList.get(item);
+                            if (c == null) c = 0;
+                            countList.put(item, ++c);
+                        }
+                    }
                 } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
                     nvList.addAll((JSONArray) v);
                 } else {
+                    // TEXT
                     nvList.add(v);
+
+                    // TEXT*N
+                    if (countList != null) {
+                        Integer c = countList.get(v);
+                        if (c == null) c = 0;
+                        countList.put(v, ++c);
+                    }
                 }
             }
         }
 
+        if (countList == null || countList.isEmpty()) {
+            // Use array
+            return nvList.toArray(new Object[0]);
+        }
+
+        Collection<Object> nvList2 = new LinkedHashSet<>();
+        for (Object v : nvList) {
+            nvList2.add(v + "*" + countList.getOrDefault(v, 1));
+        }
         // Use array
-        return nvList.toArray(new Object[0]);
+        return nvList2.toArray(new Object[0]);
     }
 }
