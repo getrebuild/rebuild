@@ -112,7 +112,9 @@ public class ApiGateway extends Controller implements Initialization {
         ApiContext context = null;
         try {
             final BaseApi api = createApi(apiName);
-            context = verfiy(request, api);
+
+            context = buildBaseApiContext(request);
+            context = verfiy(request, context, api);
 
             UserContextHolder.setReqip(remoteIp);
             UserContextHolder.setUser(context.getBindUser());
@@ -155,16 +157,12 @@ public class ApiGateway extends Controller implements Initialization {
      * 验证请求并构建请求上下文
      *
      * @param request
+     * @param base
      * @param useApi
      * @return
      */
-    protected ApiContext verfiy(HttpServletRequest request, @SuppressWarnings("unused") BaseApi useApi) {
-        final Map<String, String> sortedMap = new TreeMap<>();
-        for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
-            String[] vv = e.getValue();
-            sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
-        }
-
+    protected ApiContext verfiy(HttpServletRequest request, ApiContext base, @SuppressWarnings("unused") BaseApi useApi) {
+        final Map<String, String> sortedMap = new TreeMap<>(base.getParameterMap());
         final String appid = getParameterNotNull(sortedMap, "appid");
         final String sign = getParameterNotNull(sortedMap, "sign");
 
@@ -229,15 +227,40 @@ public class ApiGateway extends Controller implements Initialization {
             }
         }
 
-        // 组合请求数据
-
-        String postData = ServletUtils.getRequestString(request);
-        JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
         ID bindUser = apiConfig.getID("bindUser");
         // 默认绑定系统用户
         if (bindUser == null) bindUser = UserService.SYSTEM_USER;
 
-        return new ApiContext(sortedMap, postJson, appid, bindUser);
+        return new ApiContext(sortedMap, base.getPostData(), appid, bindUser);
+    }
+
+    /**
+     * @param apiName
+     * @return
+     */
+    private BaseApi createApi(String apiName) {
+        if (!API_CLASSES.containsKey(apiName)) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
+        }
+        return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    private ApiContext buildBaseApiContext(HttpServletRequest request) {
+        Map<String, String> sortedMap = new TreeMap<>();
+        for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
+            String[] item = e.getValue();
+            sortedMap.put(e.getKey(), item == null || item.length == 0 ? null : item[0]);
+        }
+
+        String appid = getParameterNotNull(sortedMap, "appid");
+        String postData = ServletUtils.getRequestString(request);
+        JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
+
+        return new ApiContext(sortedMap, postJson, appid, null);
     }
 
     /**
@@ -251,17 +274,6 @@ public class ApiGateway extends Controller implements Initialization {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be null");
         }
         return v;
-    }
-
-    /**
-     * @param apiName
-     * @return
-     */
-    private BaseApi createApi(String apiName) {
-        if (!API_CLASSES.containsKey(apiName)) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
-        }
-        return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
     }
 
     /**
