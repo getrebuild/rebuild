@@ -62,6 +62,10 @@ button[disabled] {
   cursor: not-allowed !important;
 }
 
+a[disabled] {
+  color: #aaa !important;
+}
+
 code {
   color: #e83e8c;
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;

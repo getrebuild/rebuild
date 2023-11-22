@@ -237,7 +237,7 @@ const COLOR_LABEL = '#555'
 
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
-  animation: false,
+  animation: window.__LAB_CHARTANIMATION || false,
   tooltip: {
     trigger: 'item',
     textStyle: {

@@ -156,8 +156,9 @@ class AppLogsViewer extends RbModal {
   renderContent() {
     if (!this.state.dataLogs) {
       return (
-        <div className="rb-loading rb-loading-active mt-8">
+        <div className="rb-loading rb-loading-active">
           <RbSpinner />
+          <div style={{ minHeight: 230 }} />
         </div>
       )
     }
@@ -272,10 +273,12 @@ class AppLogsViewer extends RbModal {
   }
 
   _loadNext(reset, q) {
+    if (this.__inLoading) return
     this.__pageNo = (this.__pageNo || 0) + 1
     this.__q = q || this.__q
     if (reset) this.__pageNo = 1
 
+    this.__inLoading = true
     $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(q)}`, (res) => {
       const _data = res.data || []
       const dataLogs = reset ? _data : (this.state.dataLogs || []).concat(_data)
@@ -287,6 +290,7 @@ class AppLogsViewer extends RbModal {
         },
         () => {}
       )
+      this.__inLoading = false
     })
   }
 

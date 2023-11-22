@@ -65,6 +65,7 @@ class RebuildGuide extends React.Component {
     const p = ~~((t2 * 100) / t1)
 
     let option = {
+      animation: true,
       series: {
         type: 'pie',
         radius: ['80%', '100%'],
