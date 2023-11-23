@@ -219,6 +219,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 14px;
 }
 
+.form-preview .refform .dd-handle {
+  border-color: #b3d4ff;
+}
+
 .form-preview .dd-item,
 .form-preview .dd-handle {
   cursor: move !important;
