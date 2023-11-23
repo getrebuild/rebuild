@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global SelectReport TransformRich */
 
 const wpc = window.__PageConfig || {}
+
 const TYPE_DIVIDER = '$DIVIDER$'
+const TYPE_REFFORM = '$REFFORM$'
 
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -59,7 +61,8 @@ class RbViewForm extends React.Component {
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
-              if (item.field !== TYPE_DIVIDER) this.__ViewData[item.field] = item.value
+              if (!(item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM)) this.__ViewData[item.field] = item.value
+              if (item.field === TYPE_REFFORM) this.__hasRefform = true
               item.$$$parent = this
               return detectViewElement(item, this.props.entity)
             })}
@@ -165,7 +168,7 @@ class RbViewForm extends React.Component {
         parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
 
         // 刷新本页
-        if (res.data && res.data.forceReload) {
+        if ((res.data && res.data.forceReload) || this.__hasRefform) {
           setTimeout(() => RbViewPage.reload(), 200)
         }
       } else if (res.error_code === 499) {
@@ -204,7 +207,7 @@ class RelatedList extends React.Component {
     this.state = { ...props }
 
     // 相关配置
-    this.__searchSort = null
+    this.__searchSort = props.isDetail ? 'autoId:asc' : null
     this.__searchKey = null
     this.__pageNo = 1
 
@@ -472,12 +475,7 @@ class EntityRelatedList extends RelatedList {
 
   _handleEdit(e, id) {
     $stopEvent(e, true)
-    RbFormModal.create({
-      id: id,
-      entity: this.__entity,
-      title: $L('编辑%s', this.props.entity2[0]),
-      icon: this.props.entity2[1],
-    })
+    RbFormModal.create({ id: id, entity: this.__entity, title: $L('编辑%s', this.props.entity2[0]), icon: this.props.entity2[1] }, true)
   }
 
   _handleView(e) {
@@ -600,7 +598,7 @@ const RbViewPage = {
 
     $('.J_close').on('click', () => this.hide())
     $('.J_reload').on('click', () => this.reload())
-    $('.J_newpage').attr({ target: '_blank', href: `${rb.baseUrl}/app/entity/view?id=${id}` })
+    $('.J_newpage').attr({ target: '_blank', href: location.href })
     if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
 
     const that = this
@@ -627,12 +625,7 @@ const RbViewPage = {
     $('.J_edit').on('click', () => {
       // 优先父页面打开?
       // const m = window.parent && window.parent.RbFormModal ? window.parent.RbFormModal : RbFormModal
-      RbFormModal.create({
-        id: id,
-        title: $L('编辑%s', entity[1]),
-        entity: entity[0],
-        icon: entity[2],
-      })
+      RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
     })
 
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
@@ -642,13 +635,7 @@ const RbViewPage = {
     $('.J_add-details>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
-      RbFormModal.create({
-        title: $L('添加%s', $this.data('label')),
-        entity: $this.data('entity'),
-        icon: $this.data('icon'),
-        initialValue: iv,
-        _nextAddDetail: true,
-      })
+      RbFormModal.create({ title: $L('添加%s', $this.data('label')), entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv, _nextAddDetail: true })
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {
@@ -776,19 +763,19 @@ const RbViewPage = {
       that.__vtabEntities.push(entity)
       const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
 
+      const listProps = {
+        entity: entity,
+        entity2: [configThat.entityLabel, configThat.icon],
+        mainid: that.__id,
+        autoExpand: $isTrue(wpc.viewTabsAutoExpand),
+        defaultList: $isTrue(wpc.viewTabsDefaultList),
+        isDetail: !!this.showAt2,
+      }
+
       // v3.4 明细显示在下方
-      if (this._showAtBottom) {
+      if (this.showAt2 === 2) {
         $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
-        renderRbcomp(
-          <MixRelatedList
-            entity={entity}
-            entity2={[configThat.entityLabel, configThat.icon]}
-            mainid={that.__id}
-            autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
-            defaultList={$isTrue(wpc.viewTabsDefaultList)}
-          />,
-          tabId
-        )
+        renderRbcomp(<MixRelatedList {...listProps} />, tabId)
         return
       }
 
@@ -796,19 +783,8 @@ const RbViewPage = {
         `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
-
       $tabNav.find('a').on('click', function () {
-        $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(
-            <MixRelatedList
-              entity={entity}
-              entity2={[configThat.entityLabel, configThat.icon]}
-              mainid={that.__id}
-              autoExpand={$isTrue(wpc.viewTabsAutoExpand)}
-              defaultList={$isTrue(wpc.viewTabsDefaultList)}
-            />,
-            $tabPane
-          )
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList {...listProps} />, $tabPane)
       })
     })
     this.updateVTabs()
@@ -872,6 +848,7 @@ const RbViewPage = {
           const entity = item.entity.split('.')
           if (entity.length > 1) iv[entity[1]] = that.__id
           else iv[`&${that.__entity[0]}`] = that.__id
+
           RbFormModal.create({ title: $L('新建%s', item._entityLabel || item.entityLabel), entity: entity[0], icon: item.icon, initialValue: iv })
         }
       })
@@ -900,11 +877,11 @@ const RbViewPage = {
                 if (mainid === false) return
 
                 this.hide()
-                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` })
+                RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: `${previewid}.${mainid}` }, true)
               },
             })
           } else {
-            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid })
+            RbFormModal.create({ title: $L('新建%s', item.entityLabel), entity: entity[0], icon: item.icon, previewid: previewid }, true)
           }
 
           // end: previewMode
@@ -919,7 +896,7 @@ const RbViewPage = {
               $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}&mainid=${mainid === true ? '' : mainid}`, (res) => {
                 if (res.error_code === 0) {
                   this.hide(true)
-                  setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+                  setTimeout(() => that.clickView(`#!/View/${item.entity}/${res.data}`), 200)
                 } else {
                   this.disabled()
                   res.error_code === 400 ? RbHighbar.create(res.error_msg) : RbHighbar.error(res.error_msg)
@@ -936,15 +913,19 @@ const RbViewPage = {
 
   // 通过父级页面打开
   clickView(target) {
+    // `#!/View/{entity}/{id}`
+    const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
+    if (!viewUrl) {
+      console.warn('Bad view target : ', target)
+      return
+    }
+
+    const urlSpec = viewUrl.split('/')
     if (parent && parent.RbViewModal) {
-      // `#!/View/{entity}/{id}`
-      const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
-      if (!viewUrl) {
-        console.warn('Bad view target : ', target)
-        return
-      }
-      const urlSpec = viewUrl.split('/')
       parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
+    } else {
+      // window.open(`${rb.baseUrl}/app/redirect?id=${urlSpec[3]}&type=newtab`)
+      window.open(`${rb.baseUrl}/app/${urlSpec[2]}/view/${urlSpec[3]}`)
     }
     return false
   },
@@ -1005,10 +986,13 @@ $(document).ready(function () {
   if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
     $('.J_back')
       .removeClass('hide')
-      .on('click', () => {
-        // parent.RbViewModal.holder(this.__id, 'LOADING')
-        history.back()
-      })
+      .on('click', () => history.back())
+  }
+  // 返回列表
+  if (parent && parent.location.href.includes('/app/entity/view')) {
+    $('.J_list')
+      .removeClass('hide')
+      .on('click', () => (parent.location.href = '../list'))
   }
 
   // iframe 点击穿透

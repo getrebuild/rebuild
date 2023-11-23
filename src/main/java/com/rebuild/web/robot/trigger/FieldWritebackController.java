@@ -51,7 +51,8 @@ import java.util.Set;
 public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-entities")
-    public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public List<String[]> getTargetEntities(
+            @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
         List<String[]> temp = new ArrayList<>();
         Set<String> unique = new HashSet<>();
 
@@ -72,12 +73,12 @@ public class FieldWritebackController extends BaseController {
         List<String[]> entities = new ArrayList<>(temp);
         temp.clear();
 
-        // 2.谁引用了我
+        // 2.谁引用了我 (N)
 
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity, true)) {
             String key = refTo.getOwnEntity().getName() + "." + refTo.getName();
             if (unique.contains(key)) {
-                log.warn("None unique-key in {}", sourceEntity);
+                log.warn("None unique-key in {}, ignored", sourceEntity);
             } else {
                 String entityLabel = String.format("%s (%s) (N)",
                         EasyMetaFactory.getLabel(refTo.getOwnEntity()), EasyMetaFactory.getLabel(refTo));
@@ -95,6 +96,17 @@ public class FieldWritebackController extends BaseController {
         entities.addAll(temp);
         temp.clear();
 
+        // v35 字段匹配
+        if (getBoolParameter(request, "matchfields")) {
+            for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+                temp.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
+            }
+
+            FieldAggregationController.sortEntities(temp, null);
+            entities.addAll(temp);
+            temp.clear();
+        }
+
         return entities;
     }
 
@@ -103,41 +115,31 @@ public class FieldWritebackController extends BaseController {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        JSONArray sourceFields = new JSONArray();
-        JSONArray targetFields = new JSONArray();
-
         // 源字段
 
-        // 本实体
-        sourceFields.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
-        for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+            if (field instanceof EasyField) {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.BARCODE;
+            }
+            return false;
+        });
 
-            sourceFields.add(easyField.toJSON());
-        }
-
-        // 关联实体的
-        for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            // FIXME 是否过滤系统级引用实体 ???
-            if (MetadataHelper.isCommonsField(fieldRef)) continue;
-
-            JSONArray res = MetaFormatter.buildFields(fieldRef);
-            if (res != null) sourceFields.addAll(res);
-        }
+        JSONArray tmp = new JSONArray();
+        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
+        tmp.addAll(sourceFields);
+        sourceFields = tmp;
 
         // 目标字段
 
+        JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
-            for (Field field : MetadataSorter.sortFields(targetEntity)) {
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                DisplayType dt = easyField.getDisplayType();
-                if (dt == DisplayType.SERIES || dt == DisplayType.BARCODE || easyField.isBuiltin()) {
-                    continue;
-                }
-
-                targetFields.add(MetaFormatter.buildRichField(easyField));
-            }
+            targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, field -> {
+                EasyField easyField = (EasyField) field;
+                return easyField.getDisplayType() == DisplayType.SERIES
+                        || easyField.getDisplayType() == DisplayType.BARCODE
+                        || easyField.isBuiltin();
+            });
         }
 
         // 审批流程启用
@@ -154,6 +156,7 @@ public class FieldWritebackController extends BaseController {
     @PostMapping("verify-formula")
     public RespBody verifyFormula(HttpServletRequest request) {
         String formula = ServletUtils.getRequestString(request);
+        formula = formula.replace("\\n", "\n");
         String sourceEntity = getParameter(request, "entity");
 
         JSONObject item = JSONUtils.toJSONObject(

@@ -64,7 +64,7 @@ public class ApprovalHelper {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
                 EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
         if (o == null) {
-            throw new NoRecordFoundException(recordId, Boolean.TRUE);
+            throw new NoRecordFoundException(recordId, true);
         }
         return new ApprovalStatus((ID) o[0], (String) o[1], (Integer) o[2], (String) o[3], recordId);
     }

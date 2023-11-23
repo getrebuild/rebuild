@@ -9,6 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
+  RBJOIN2: $L('去重连接'),
+  // RBJOIN3: $L('去重连接*'),
 }
 
 // ~~ 分组聚合
@@ -51,9 +53,9 @@ class ContentGroupAggregation extends ActionContentSpec {
                     return (
                       <span className="mt-1 d-inline-block" key={item.targetField}>
                         <span className="badge badge-primary badge-close m-0 mr-1">
-                          <span>{_getFieldLabel(item.targetField, this.__targetGroupFieldsCache)}</span>
+                          <span>{FormulaAggregation.getLabel(item.targetField, this.__targetGroupFieldsCache)}</span>
                           <i className="mdi mdi-arrow-left-right ml-2 mr-2" />
-                          <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
+                          <span>{FormulaAggregation.getLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
                           <a className="close down-1" title={$L('移除')} onClick={(e) => this.delGroupField(item.targetField, e)}>
                             <i className="mdi mdi-close" />
                           </a>
@@ -67,11 +69,11 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetGroupField = c)}>
                     {(this.state.targetGroupFields || []).map((item) => {
-                      if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item[0]) || item[2] === 'DATETIME') return null
+                      if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item.name) || item.type === 'DATETIME') return null
 
                       return (
-                        <option key={item[0]} value={item[0]}>
-                          {item[1]}
+                        <option key={item.name} value={item.name}>
+                          {item.label}
                         </option>
                       )
                     })}
@@ -83,8 +85,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                   <select className="form-control form-control-sm" ref={(c) => (this._$sourceGroupField = c)}>
                     {(this.state.sourceGroupFields || []).map((item) => {
                       return (
-                        <option key={item[0]} value={item[0]}>
-                          {item[1]}
+                        <option key={item.name} value={item.name}>
+                          {item.label}
                         </option>
                       )
                     })}
@@ -110,7 +112,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                       <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.__targetFieldsCache)}</span>
+                            <span className="badge badge-warning">{FormulaAggregation.getLabel(item.targetField, this.__targetFieldsCache)}</span>
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
@@ -118,7 +120,9 @@ class ContentGroupAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA' ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
+                              {item.calcMode === 'FORMULA'
+                                ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
+                                : FormulaAggregation.getLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <i className="zmdi zmdi-close" />
@@ -134,8 +138,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
-                        <option key={item[0]} value={item[0]}>
-                          {item[1]}
+                        <option key={item.name} value={item.name}>
+                          {item.label}
                         </option>
                       )
                     })}
@@ -164,8 +168,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                     <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
-                          <option key={item[0]} value={item[0]}>
-                            {item[1]}
+                          <option key={item.name} value={item.name}>
+                            {item.label}
                           </option>
                         )
                       })}
@@ -188,7 +192,7 @@ class ContentGroupAggregation extends ActionContentSpec {
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.dataAdvFilter()}>
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
-              <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
+              <div className="form-text mt-0">{$L('符合聚合数据条件的记录才会被聚合')}</div>
             </div>
           </div>
 
@@ -217,6 +221,12 @@ class ContentGroupAggregation extends ActionContentSpec {
                   </span>
                 </label>
               </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
+                  <span className="custom-control-label">{$L('禁用传播')}</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -227,8 +237,8 @@ class ContentGroupAggregation extends ActionContentSpec {
                 <select className="form-control form-control-sm" style={{ maxWidth: 300 }} ref={(c) => (this._$fillbackField = c)}>
                   {(this.state.fillbackFields || []).map((item) => {
                     return (
-                      <option key={item[0]} value={item[0]}>
-                        {item[1]}
+                      <option key={item.name} value={item.name}>
+                        {item.label}
                       </option>
                     )
                   })}
@@ -270,6 +280,9 @@ class ContentGroupAggregation extends ActionContentSpec {
       $(this._$autoCreate).attr('checked', content.autoCreate === true)
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       $(this._$forceUpdate).attr('checked', content.forceUpdate === true)
+      if (content.stopPropagation === true) {
+        $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
+      }
       this.saveAdvFilter(content.dataFilter)
     } else {
       $(this._$autoCreate).attr('checked', true)
@@ -288,7 +301,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       this.__targetFieldsCache = res.data.targetFields
       this.__targetGroupFieldsCache = res.data.targetGroupFields
 
-      const fb = this.__sourceGroupFieldsCache.filter((x) => x[2] === `REFERENCE:${te}`)
+      const fb = this.__sourceGroupFieldsCache.filter((x) => x.type === `REFERENCE:${te}`)
       this.setState({ fillbackFields: fb }, () => {
         $(this._$fillbackField).val(null).trigger('change')
       })
@@ -302,24 +315,27 @@ class ContentGroupAggregation extends ActionContentSpec {
         // init
         this.setState({ ...res.data }, () => {
           // 分组字段关联
+          let $s2tgf, $s2sgf
 
-          const $s2tgf = $(this._$targetGroupField)
+          $s2tgf = $(this._$targetGroupField)
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => {
-              let stf = $s2tgf.val()
-              if (!stf) return
-              stf = this.state.targetGroupFields.find((x) => x[0] === stf)
+              let tgf = $s2tgf.val()
+              if (!tgf) return
+              tgf = this.state.targetGroupFields.find((x) => x.name === tgf)
 
-              // 仅同类型的字段
-              // DATE DATETIME 兼容
-              const fs = this.__sourceGroupFieldsCache.filter((x) => {
-                if (stf[2] === 'DATE' && x[2] === 'DATETIME') return true
-                if (stf[2] === 'DATETIME' && x[2] === 'DATE') return true
-                return x[2] === stf[2]
+              // 仅同类型的字段（DATE DATETIME 兼容）
+              const sgfAllow = this.__sourceGroupFieldsCache.filter((x) => {
+                if (tgf.type === 'DATE' && x.type === 'DATETIME') return true
+                if (tgf.type === 'DATETIME' && x.type === 'DATE') return true
+                return x.type === tgf.type
               })
-              this.setState({ sourceGroupFields: fs })
+              this.setState({ sourceGroupFields: sgfAllow })
             })
-          const $s2sgf = $(this._$sourceGroupField).select2({ placeholder: $L('选择源字段') })
+
+          $s2sgf = $(this._$sourceGroupField)
+            .select2({ placeholder: $L('选择源字段') })
+            .on('change', () => {})
 
           $s2tgf.trigger('change')
 
@@ -334,14 +350,17 @@ class ContentGroupAggregation extends ActionContentSpec {
             .select2({ placeholder: $L('选择聚合字段') })
             .on('change', (e) => {
               let sf = e.target.value
-              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let cm = Object.keys(FormulaAggregation.CALC_MODES)
-              if (!['NUMBER', 'DECIMAL'].includes(sf[2])) {
-                cm = ['COUNT', 'COUNT2', 'RBJOIN']
+              let cmAllow = Object.keys(FormulaAggregation.CALC_MODES)
+              if (['DATE', 'DATETIME'].includes(sf.type)) {
+                cmAllow = ['MAX', 'MIN', 'COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'RBJOIN3', 'FORMULA']
+              } else if (!['DATE', 'DATETIME', 'NUMBER', 'DECIMAL'].includes(sf.type)) {
+                cmAllow = ['COUNT', 'COUNT2', 'RBJOIN', 'RBJOIN2', 'RBJOIN3', 'FORMULA']
               }
-              this.setState({ calcModes: cm }, () => $s2cm.trigger('change'))
+
+              this.setState({ calcModes: cmAllow }, () => $s2cm.trigger('change'))
             })
 
           $s2cm = $(this._$calcMode)
@@ -351,23 +370,36 @@ class ContentGroupAggregation extends ActionContentSpec {
               this.setState({ calcMode: cm })
 
               let sf = $s2sf.val()
-              sf = this.__sourceFieldsCache.find((x) => x[0] === sf)
+              sf = this.__sourceFieldsCache.find((x) => x.name === sf)
               if (!sf) return
 
-              let fs
-              if ('RBJOIN' === cm) {
-                fs = this.__targetFieldsCache.filter((x) => {
-                  if ('NTEXT' === x[2]) return true
-                  else return 'N2NREFERENCE' === x[2] && x[3] === sf[3]
+              let tfAllow = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+              if ('RBJOIN' === cm || 'RBJOIN2' === cm || 'RBJOIN3' === cm) {
+                tfAllow = this.__targetFieldsCache.filter((x) => {
+                  if ('NTEXT' === x.type) return true
+                  if ('N2NREFERENCE' === x.type) return x.ref[0] === sf.ref[0]
+                  if ('FILE' === x.type) return true
+                  return false
                 })
-              } else {
-                fs = this.__targetFieldsCache.filter((x) => ['NUMBER', 'DECIMAL'].includes(x[2]))
+              } else if (['DATE', 'DATETIME'].includes(sf.type) && !['COUNT', 'COUNT2', 'FORMULA'].includes(cm)) {
+                tfAllow = this.__targetFieldsCache.filter((x) => ['DATE', 'DATETIME'].includes(x.type))
               }
 
-              this.setState({ targetFields: fs })
+              this.setState({ targetFields: tfAllow })
             })
 
-          $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
+          $s2tf = $(this._$targetField)
+            .select2({ placeholder: $L('选择目标字段') })
+            .on('change', () => {})
+
+          // 优先显示
+          const useNum = this.__sourceFieldsCache.find((x) => ['NUMBER', 'DECIMAL'].includes(x.type))
+          if (useNum) {
+            $s2sf.val(useNum.name)
+          } else {
+            const useDate = this.__sourceFieldsCache.find((x) => ['DATE', 'DATETIME'].includes(x.type))
+            if (useDate) $s2sf.val(useDate.name)
+          }
 
           $s2sf.trigger('change')
 
@@ -397,10 +429,10 @@ class ContentGroupAggregation extends ActionContentSpec {
   }
 
   showFormula() {
-    const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
+    const sfAllow = this.__sourceFieldsCache.filter((x) => x.type === 'NUMBER' || x.type === 'DECIMAL')
     renderRbcomp(
       <FormulaAggregation
-        fields={fs}
+        fields={sfAllow}
         onConfirm={(v) => {
           $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
@@ -415,7 +447,7 @@ class ContentGroupAggregation extends ActionContentSpec {
     } else {
       const that = this
       renderRbcomp(
-        <AdvFilter title={$L('数据过滤条件')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
+        <AdvFilter title={$L('聚合数据条件')} inModal canNoFilters entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={(f) => that.saveAdvFilter(f)} />,
         null,
         function () {
           that._advFilter = this
@@ -484,6 +516,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       autoCreate: $(this._$autoCreate).prop('checked'),
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
+      stopPropagation: $(this._$stopPropagation).prop('checked'),
       groupFields: this.state.groupFields || [],
       fillbackField: $(this._$fillbackField).val() || null,
     }
@@ -503,11 +536,6 @@ class ContentGroupAggregation extends ActionContentSpec {
 
     return content
   }
-}
-
-const _getFieldLabel = function (field, fields) {
-  const x = fields.find((x) => x[0] === field)
-  return x ? x[1] : `[${field.toUpperCase()}]`
 }
 
 // eslint-disable-next-line no-undef

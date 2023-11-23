@@ -17,6 +17,7 @@ import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.LazyWaitDetailsFinished;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.service.trigger.TriggerResult;
@@ -37,10 +38,11 @@ import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
  * @since 2020/7/31
  */
 @Slf4j
-public class AutoApproval extends TriggerAction {
+public class AutoApproval extends TriggerAction implements LazyWaitDetailsFinished {
 
+    // 延迟执行
     private static final ThreadLocal<List<AutoApproval>> LAZY_AUTOAPPROVAL = new NamedThreadLocal<>("Lazy AutoApproval");
-    private OperatingContext operatingContext;
+    private OperatingContext keepOperatingContext;
 
     public AutoApproval(ActionContext context) {
         super(context);
@@ -58,19 +60,19 @@ public class AutoApproval extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
-        this.operatingContext = operatingContext;
+        this.keepOperatingContext = operatingContext;
         List<AutoApproval> lazyed;
-        if ((lazyed = isLazyAutoApproval(Boolean.FALSE)) != null) {
+        if ((lazyed = isLazy(false)) != null) {
             lazyed.add(this);
             log.info("Lazy AutoApproval : {}", lazyed);
-            return "lazy";
+            return FLAG_LAZY;
         }
 
-        ID recordId = operatingContext.getAnyRecord().getPrimary();
+        ID recordId = operatingContext.getFixedRecordId();
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
         // 优先使用当前用户
-        ID approver = ObjectUtils.defaultIfNull(UserContextHolder.getUser(Boolean.TRUE), UserService.SYSTEM_USER);
+        ID approver = ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
         ID approvalId = ID.isId(useApproval) ? ID.valueOf(useApproval) : null;
 
         // v2.10
@@ -89,24 +91,23 @@ public class AutoApproval extends TriggerAction {
     @Override
     public String toString() {
         String s = super.toString();
-        if (operatingContext != null) s += "#OperatingContext:" + operatingContext;
+        if (keepOperatingContext != null) s += "#OperatingContext:" + keepOperatingContext;
         return s;
     }
 
     // --
 
     /**
-     * 跳过自动审批
-     * @see #isLazyAutoApproval(boolean)
      */
-    public static void setLazyAutoApproval() {
+    public static void setLazy() {
         LAZY_AUTOAPPROVAL.set(new ArrayList<>());
     }
 
     /**
+     * @param once
      * @return
      */
-    public static List<AutoApproval> isLazyAutoApproval(boolean once) {
+    public static List<AutoApproval> isLazy(boolean once) {
         List<AutoApproval> lazyed = LAZY_AUTOAPPROVAL.get();
         if (lazyed != null && once) LAZY_AUTOAPPROVAL.remove();
         return lazyed;
@@ -115,12 +116,12 @@ public class AutoApproval extends TriggerAction {
     /**
      * @return
      */
-    public static int executeLazyAutoApproval() {
-        List<AutoApproval> lazyed = isLazyAutoApproval(Boolean.TRUE);
+    public static int executeLazy() {
+        List<AutoApproval> lazyed = isLazy(true);
         if (lazyed != null) {
             for (AutoApproval a : lazyed) {
                 log.info("Lazy AutoApproval execute : {}", a);
-                Object res = a.execute(a.operatingContext);
+                Object res = a.execute(a.keepOperatingContext);
 
                 CommonsLog.createLog(TYPE_TRIGGER,
                         UserService.SYSTEM_USER, a.getActionContext().getConfigId(), res.toString());

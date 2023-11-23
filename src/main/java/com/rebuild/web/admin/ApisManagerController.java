@@ -11,12 +11,16 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.web.BaseController;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +37,8 @@ import java.util.Date;
 @RestController
 @RequestMapping("/admin/")
 public class ApisManagerController extends BaseController {
+
+    private static final int SHOW_DAYS = 90;
 
     @GetMapping("apis-manager")
     public ModelAndView pageManager() {
@@ -51,7 +57,7 @@ public class ApisManagerController extends BaseController {
             Object[] count = Application.createQueryNoFilter(
                     "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
                     .setParameter(1, appid)
-                    .setParameter(2, CalendarUtils.addDay(-30))
+                    .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
                     .unique();
             o[6] = count[0];
             o[5] = I18nUtils.formatDate((Date) o[5]);
@@ -70,5 +76,42 @@ public class ApisManagerController extends BaseController {
         // cache
         Application.getBean(RebuildApiService.class).update(record);
         return RespBody.ok();
+    }
+
+    @GetMapping("apis-manager/request-logs")
+    public RespBody requestLogs(HttpServletRequest request) {
+        String appid = getParameterNotNull(request, "appid");
+        String q = getParameter(request, "q");
+        int pageNo = getIntParameter(request, "pn", 1);
+        int pageSize = 40;
+
+        String sql = "select remoteIp,requestTime,responseTime,requestUrl,requestBody,responseBody,requestId from RebuildApiRequest" +
+                " where appId = ? and requestTime > ? and (1=1) order by requestTime desc";
+        if (StringUtils.isNotBlank(q)) {
+            q = StringEscapeUtils.escapeSql(q);
+            sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
+        }
+
+        Object[][] array = Application.createQueryNoFilter(sql)
+                .setParameter(1, appid)
+                .setParameter(2, CalendarUtils.addDay(-SHOW_DAYS))
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        for (Object[] o : array) {
+            o[1] = I18nUtils.formatDate((Date) o[1]);
+            o[2] = I18nUtils.formatDate((Date) o[2]);
+
+            final String resp = (String) o[5];
+            try {
+                o[4] = JSON.parse((String) o[4]);
+                o[5] = JSON.parse(resp.substring(37));
+            } catch (JSONException ignored) {
+                o[5] = resp.substring(37);
+            }
+            o[6] = resp.substring(0, 36);  // request-id
+        }
+
+        return RespBody.ok(array);
     }
 }

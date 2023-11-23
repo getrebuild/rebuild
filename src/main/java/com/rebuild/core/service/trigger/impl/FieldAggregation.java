@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -43,7 +44,9 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 字段聚合，场景 N>1
@@ -139,7 +142,7 @@ public class FieldAggregation extends TriggerAction {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
-                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
+                operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
@@ -159,7 +162,7 @@ public class FieldAggregation extends TriggerAction {
         JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
         if (dataFilter != null && !dataFilter.isEmpty()) {
-            dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
+            dataFilterSql = new AdvFilterParser(dataFilter, operatingContext.getFixedRecordId()).toSqlWhere();
         }
 
         String filterSql = followSourceWhere;
@@ -190,13 +193,13 @@ public class FieldAggregation extends TriggerAction {
                 if (evalValue instanceof Date) targetRecord.setDate(targetField, (Date) evalValue);
                 else targetRecord.setNull(targetField);
 
-            } else if (dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
+            } else if (dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE || dt == DisplayType.FILE) {
                 Object[] oArray = (Object[]) evalValue;
 
                 if (oArray.length == 0) {
                     targetRecord.setNull(targetField);
                 } else if (dt == DisplayType.NTEXT) {
-                    // 使用文本
+                    // ID 则使用文本
                     if (oArray[0] instanceof ID) {
                         List<String> labelList = new ArrayList<>();
                         for (Object id : oArray) {
@@ -207,10 +210,16 @@ public class FieldAggregation extends TriggerAction {
 
                     String join = StringUtils.join(oArray, ", ");
                     targetRecord.setString(targetField, join);
+
+                } else if (dt == DisplayType.N2NREFERENCE) {
+                    // 强制去重
+                    Set<ID> idSet = new LinkedHashSet<>();
+                    for (Object id : oArray) idSet.add((ID) id);
+                    targetRecord.setIDArray(targetField, idSet.toArray(new ID[0]));
+
                 } else {
-                    List<ID> idList = new ArrayList<>();
-                    for (Object id : oArray) idList.add((ID) id);
-                    targetRecord.setIDArray(targetField, idList.toArray(new ID[0]));
+                    String join = JSON.toJSONString(oArray);
+                    targetRecord.setString(targetField, join);
                 }
 
             } else {
@@ -293,6 +302,13 @@ public class FieldAggregation extends TriggerAction {
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
         String followSourceField = targetFieldEntity[0];
+        if (TARGET_ANY.equals(followSourceField)) {
+            TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
+            targetRecordId = targetWithMatchFields.match(actionContext);
+            followSourceWhere = StringUtils.join(targetWithMatchFields.getQFieldsFollow().iterator(), " and ");
+            return;
+        }
+
         if (!sourceEntity.containsField(followSourceField)) {
             throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
         }
@@ -328,8 +344,7 @@ public class FieldAggregation extends TriggerAction {
     protected boolean isCurrentSame(Record record) {
         if (!ignoreSame) return false;
 
-        Record c = Application.getQueryFactory().recordNoFilter(
-                record.getPrimary(), record.getAvailableFields().toArray(new String[0]));
+        Record c = QueryHelper.querySnap(record);
         return new RecordDifference(record).isSame(c, false);
     }
 

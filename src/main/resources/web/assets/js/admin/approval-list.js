@@ -272,7 +272,7 @@ class ApprovalReferral extends RbModalHandler {
           $mp.end()
 
           if (res.error_code === 0) {
-            RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录') : $L('批量转审完成'))
+            RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录', res.data) : $L('批量转审完成'))
             setTimeout(() => that.hide(), 1500)
           } else {
             RbHighbar.error(res.error_msg)

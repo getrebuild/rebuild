@@ -18,7 +18,16 @@ $(document).ready(() => {
     $(`<option value="${i}">${H1}:00</option>`).appendTo('.J_startHour1')
     $(`<option value="${i}">${H2}:00</option>`).appendTo('.J_startHour2')
   }
-  $('.J_startHour1').val('0')
+  $('.J_startHour1')
+    .val('0')
+    .on('change', function () {
+      const start = ~~this.value
+      const end = ~~$('.J_startHour2').val()
+      $('.J_startHour2 option').each(function () {
+        $(this).attr('disabled', ~~$(this).val() < start)
+      })
+      if (end < start) $('.J_startHour2').val(start)
+    })
   $('.J_startHour2').val('23')
 
   if (wpc.when > 0) {
@@ -40,6 +49,29 @@ $(document).ready(() => {
         }
       }
     })
+  }
+
+  // 评估具体执行时间
+  function evalTriggerTimes() {
+    const whenTimer = `${$('.J_whenTimer1').val() || 'D'}:${$('.J_whenTimer2').val() || 1}:${$('.J_startHour1').val() || 0}:${$('.J_startHour2').val() || 23}`
+    $.get(`/admin/robot/trigger/eval-trigger-times?whenTimer=${whenTimer}`, (res) => {
+      renderRbcomp(
+        <RbAlertBox
+          icon="time"
+          message={
+            <div>
+              <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
+              <code>{res.data.slice(0, 10).join(', ')}</code>
+            </div>
+          }
+        />,
+        $('.eval-exec-times')[0]
+      )
+    })
+  }
+  if (rb.commercial >= 10) {
+    $('.on-timers select').on('change', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
+    $('.on-timers input').on('input', () => $setTimeout(evalTriggerTimes, 500, 'eval-trigger-times'))
   }
 
   let advFilter
@@ -124,11 +156,6 @@ $(document).ready(() => {
     })
   })
 
-  if (wpc.lockedUser && wpc.lockedUser[0] !== rb.currentUser) {
-    $('.footer .alert-warning').removeClass('hide').find('.message').text($L('已被 %s 锁定，其他人无法操作', wpc.lockedUser[1]))
-    $('.footer .btn').attr('disabled', true)
-  }
-
   if (LastLogsViewer.renderLog && rb.commercial > 1) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
       const _data = res.data || []
@@ -165,7 +192,7 @@ class LastLogsViewer extends RbAlert {
         <table className="table table-hover">
           <thead>
             <tr>
-              <th>{$L('执行内容')}</th>
+              <th>{$L('执行内容/结果')}</th>
               <th width="150">{$L('执行时间')}</th>
             </tr>
           </thead>
@@ -186,15 +213,15 @@ class LastLogsViewer extends RbAlert {
   }
 
   _renderLog(log) {
-    if (!log) return <p className="m-0 text-warning">N</p>
+    if (!log) return <p className="m-0 text-warning text-uppercase">Unknown</p>
 
     try {
       return LastLogsViewer.renderLog(JSON.parse(log))
     } catch (err) {
       console.debug(err)
       return (
-        <p className="m-0 text-warning text-overflow" style={{ maxHeight: 295 }}>
-          {(log || 'N').toUpperCase()}
+        <p className="m-0 text-warning text-overflow text-uppercase" style={{ maxHeight: 295 }}>
+          {log || 'Unknown'}
         </p>
       )
     }
@@ -214,7 +241,7 @@ class LastLogsViewer extends RbAlert {
             <dd className="mb-0">
               {log.affected.map((a, idx) => {
                 return (
-                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/entity/view?id=${a}`} target="_blank">
+                  <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
                     {a}
                   </a>
                 )
@@ -224,17 +251,18 @@ class LastLogsViewer extends RbAlert {
         )}
         {log.chain && (
           <RF>
-            <dt
-              className="mt-2 pointer font-weight-normal"
-              onClick={(e) => {
-                $(e.target).find('i.mdi').toggleClass('mdi-chevron-double-up')
-                $(e.target).next().toggleClass('hide')
-              }}>
-              {$L('执行细节')}
-              <i className="mdi mdi-chevron-double-down" />
+            <dt className="mt-2 font-weight-normal">
+              <a
+                onClick={(e) => {
+                  $(e.currentTarget).find('i.mdi').toggleClass('mdi-chevron-double-up')
+                  $(e.currentTarget).parent().next().toggleClass('hide')
+                }}>
+                {$L('技术细节')}
+                <i className="mdi mdi-chevron-double-down" />
+              </a>
             </dt>
             <dd className="mb-0 hide">
-              <code>{log.chain}</code>
+              <blockquote className="tech-details code">{log.chain}</blockquote>
             </dd>
           </RF>
         )}
@@ -354,7 +382,7 @@ class DlgSpecFields extends RbModalHandler {
     const _selected = this.props.selected || []
 
     return (
-      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide>
+      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide width="780">
         <div className="p-1">
           <div className="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm">
             <div className="icon">
@@ -384,7 +412,7 @@ class DlgSpecFields extends RbModalHandler {
         </div>
 
         <div className="dialog-footer">
-          <button className="btn btn-primary btn-space" type="button" onClick={this.handleConfirm}>
+          <button className="btn btn-primary btn-space mr-2" type="button" onClick={this.handleConfirm}>
             {$L('确定')}
           </button>
           <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
@@ -481,7 +509,7 @@ class EditorWithFieldVars extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=2`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
-        $(this._$fieldVars).perfectScrollbar({})
+        $(this._$fieldVars).perfectScrollbar()
       })
     })
 
@@ -497,5 +525,9 @@ class EditorWithFieldVars extends React.Component {
     } else {
       return $(this._$content).val()
     }
+  }
+
+  focus() {
+    setTimeout(() => this._$content.focus(), 20)
   }
 }

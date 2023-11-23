@@ -135,10 +135,8 @@ class SharedFiles extends RbModalHandler {
             <table className="table table-hover">
               <thead>
                 <tr>
-                  <th>{$L('分享文件')}</th>
-                  <th width="260" className="text-right">
-                    {$L('过期时间')}
-                  </th>
+                  <th colSpan="2">{$L('分享文件')}</th>
+                  <th className="text-right">{$L('过期时间')}</th>
                 </tr>
               </thead>
               <tbody ref={(c) => (this._$tbody = c)}>
@@ -146,6 +144,9 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     return (
                       <tr key={idx}>
+                        <td width="26" style={{ paddingBottom: 3 }}>
+                          <i className="file-icon" data-type={$fileExtName(item[1])} />
+                        </td>
                         <td className="position-relative">
                           <a href={item[0]} target="_blank" className="link">
                             {$fileCutName(item[1])}
@@ -155,6 +156,7 @@ class SharedFiles extends RbModalHandler {
                               <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
+                              className="danger-hover"
                               title={$L('取消分享')}
                               onClick={(e) => {
                                 const $tr = $(e.currentTarget).parents('tr')
@@ -173,9 +175,11 @@ class SharedFiles extends RbModalHandler {
                           </div>
                         </td>
                         <td title={item[2]} className="text-right">
-                          <span title={item[2]}>{$fromNow(item[2])}</span>
-                          <div className="text-muted" title={item[3]}>
-                            {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
+                          <div style={{ lineHeight: 1.2 }}>
+                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
+                            <div className="text-muted fs-12" title={item[3]}>
+                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
+                            </div>
                           </div>
                         </td>
                       </tr>

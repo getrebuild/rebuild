@@ -52,6 +52,7 @@ public class SendNotification extends TriggerAction {
     private static final int MTYPE_DINGTALK = 5;        // 钉钉群
     private static final int UTYPE_USER = 1;            // 内部用户
     private static final int UTYPE_ACCOUNT = 2;         // 外部人员
+    private static final int UTYPE_ACCOUNT20 = 20;      // 外部人员-输入
     private static final int UTYPE_WXWORK = 4;          // 企微群
     private static final int UTYPE_DINGTALK = 5;        // 钉钉群
 
@@ -87,8 +88,8 @@ public class SendNotification extends TriggerAction {
         }
 
         Set<Object> s;
-        if (userType == UTYPE_ACCOUNT) {
-            s = sendToAccounts(operatingContext);
+        if (userType == UTYPE_ACCOUNT || userType == UTYPE_ACCOUNT20) {
+            s = sendToAccounts(operatingContext, userType);
         } else if (userType == UTYPE_WXWORK) {
             s = sendToWxwork(operatingContext);
         } else if (userType == UTYPE_DINGTALK) {
@@ -115,62 +116,68 @@ public class SendNotification extends TriggerAction {
         Set<Object> send = new HashSet<>();
 
         for (ID user : toUsers) {
+            if (send.contains(user)) continue;
+
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
-                if (RegexUtils.isEMail(emailAddr) && !send.contains(emailAddr)) {
-                    SMSender.sendMailAsync(emailAddr, message[1], message[0]);
+                if (RegexUtils.isEMail(emailAddr)) {
+                    String mdHtml = MarkdownUtils.render(message[0]);
+                    SMSender.sendMailAsync(emailAddr, message[1], mdHtml);
                     send.add(emailAddr);
                 }
+            }
 
-            } else if (msgType == MTYPE_SMS) {
+            if (msgType == MTYPE_SMS) {
                 String mobileAddr = Application.getUserStore().getUser(user).getWorkphone();
-                if (RegexUtils.isCNMobile(mobileAddr) && !send.contains(mobileAddr)) {
+                if (RegexUtils.isCNMobile(mobileAddr)) {
                     SMSender.sendSMSAsync(mobileAddr, message[0]);
                     send.add(mobileAddr);
                 }
+            }
 
-            } else {
-                // TYPE_NOTIFICATION
-                if (!send.contains(user)) {
-                    Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
-                    Application.getNotifications().send(m);
-                    send.add(user);
-                }
+            if (msgType == MTYPE_NOTIFICATION) {
+                Message m = MessageBuilder.createMessage(user, message[0], Message.TYPE_DEFAULT, actionContext.getSourceRecord());
+                Application.getNotifications().send(m);
+                send.add(user);
             }
         }
         return send;
     }
 
-    private Set<Object> sendToAccounts(OperatingContext operatingContext) {
+    private Set<Object> sendToAccounts(OperatingContext operatingContext, int userType) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
         final int msgType = content.getIntValue("type");
 
-        JSONArray fieldsDef = content.getJSONArray("sendTo");
-        if (fieldsDef == null || fieldsDef.isEmpty()) return null;
-
-        List<String> validFields = new ArrayList<>();
-        for (Object field : fieldsDef) {
-            if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString()) != null) {
-                validFields.add(field.toString());
-            }
-        }
-        if (validFields.isEmpty()) return null;
-
         Object[] to = null;
-        // v3.4 删除就尝试从快照中取
-        if (operatingContext.getAction() == BizzPermission.DELETE) {
-            Record beforeRecord = operatingContext.getBeforeRecord();
-            if (beforeRecord != null) {
-                List<String> toList = new ArrayList<>();
-                for (String s : validFields) {
-                    Object v;
-                    if ((v = beforeRecord.getObjectValue(s)) != null) toList.add(v.toString());
-                }
-                to = toList.toArray(new String[0]);
-            }
+        if (userType == UTYPE_ACCOUNT20) {
+            to = content.getString("sendTo").split("[，,;；]");
         } else {
-            to = Application.getQueryFactory().uniqueNoFilter(
-                    actionContext.getSourceRecord(), validFields.toArray(new String[0]));
+            JSONArray fieldsDef = content.getJSONArray("sendTo");
+            if (fieldsDef == null || fieldsDef.isEmpty()) return null;
+
+            List<String> validFields = new ArrayList<>();
+            for (Object field : fieldsDef) {
+                if (MetadataHelper.getLastJoinField(actionContext.getSourceEntity(), field.toString()) != null) {
+                    validFields.add(field.toString());
+                }
+            }
+            if (validFields.isEmpty()) return null;
+
+            // v3.4 删除就尝试从快照中取
+            if (operatingContext.getAction() == BizzPermission.DELETE) {
+                Record beforeRecord = operatingContext.getBeforeRecord();
+                if (beforeRecord != null) {
+                    List<String> toList = new ArrayList<>();
+                    for (String s : validFields) {
+                        Object v;
+                        if ((v = beforeRecord.getObjectValue(s)) != null) toList.add(v.toString());
+                    }
+                    to = toList.toArray(new String[0]);
+                }
+            } else {
+                to = Application.getQueryFactory().uniqueNoFilter(
+                        actionContext.getSourceRecord(), validFields.toArray(new String[0]));
+            }
         }
         if (to == null) return null;
 
@@ -180,7 +187,7 @@ public class SendNotification extends TriggerAction {
         for (Object item : to) {
             if (item == null) continue;
 
-            String mobileOrEmail = item.toString();
+            String mobileOrEmail = item.toString().trim();
             if (send.contains(mobileOrEmail)) continue;
 
             if (msgType == MTYPE_SMS && RegexUtils.isCNMobile(mobileOrEmail)) {

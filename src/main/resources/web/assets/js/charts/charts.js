@@ -94,7 +94,7 @@ class BaseChart extends React.Component {
         if (!this.__chartStackHeight) this.__chartStackHeight = $stack.height()
 
         $box.addClass('fullscreen')
-        let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+        let height = $(window).height() - ($(document.body).hasClass('fullscreen') ? 75 : 135)
         height -= $('.announcement-wrapper').height() || 0
         $stack.css({ height: Math.max(height, 300), overflow: 'hidden' })
       } else {
@@ -237,7 +237,7 @@ const COLOR_LABEL = '#555'
 
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
-  animation: false,
+  animation: window.__LAB_CHARTANIMATION || false,
   tooltip: {
     trigger: 'item',
     textStyle: {
@@ -680,7 +680,7 @@ class ApprovalList extends BaseChart {
             <tbody>
               {data.data.map((item, idx) => {
                 return (
-                  <tr key={'approval-' + idx}>
+                  <tr key={`approval-${idx}`}>
                     <td className="user-avatar cell-detail user-info">
                       <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
@@ -689,7 +689,9 @@ class ApprovalList extends BaseChart {
                       </span>
                     </td>
                     <td className="cell-detail">
-                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}`}>{item[4]}</a>
+                      <a href={`${rb.baseUrl}/app/redirect?id=${item[3]}&type=newtab`} target="_blank">
+                        {item[4]}
+                      </a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
@@ -795,7 +797,7 @@ class FeedsSchedule extends BaseChart {
                 }
 
                 return (
-                  <tr key={'schedule-' + idx}>
+                  <tr key={`schedule-${idx}`}>
                     <td>
                       <a href={`${rb.baseUrl}/app/redirect?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
@@ -1118,10 +1120,7 @@ class ProjectTasks extends BaseChart {
 
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code > 0) return RbHighbar.error(res.error_msg)
-      $target
-        .parents('tr')
-        .removeClass('status-0 status-1')
-        .addClass('status-' + data.status)
+      $target.parents('tr').removeClass('status-0 status-1').addClass(`status-${data.status}`)
     })
   }
 }
@@ -1231,7 +1230,7 @@ class DataList extends BaseChart {
                   data-id={lastCell.id}
                   onDoubleClick={(e) => {
                     $stopEvent(e, true)
-                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}`)
+                    window.open(`${rb.baseUrl}/app/redirect?id=${lastCell.id}&type=newtab`)
                   }}>
                   {row.map((c, idx) => {
                     if (idx === lastIndex) return null // Last is ID
@@ -1289,7 +1288,7 @@ class DataListSettings extends RbModalHandler {
     const filterLen = state.filterData ? (state.filterData.items || []).length : 0
 
     return (
-      <RbModal title={$L('设置数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('编辑数据列表')} disposeOnHide ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>

@@ -13,6 +13,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * 手动事物管理。默认事务管理见 `application-bean.xml`
@@ -27,20 +28,13 @@ public class TransactionManual {
      * 开启一个事物
      *
      * @return
+     * @see #commit(TransactionStatus)
+     * @see #rollback(TransactionStatus)
      */
     public static TransactionStatus newTransaction() {
         DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
         attr.setName("rb-txm-" + RandomStringUtils.randomNumeric(12));
         return getTxManager().getTransaction(attr);
-    }
-
-    /**
-     * Shadow for TransactionAspectSupport#currentTransactionStatus
-     *
-     * @return
-     */
-    public static TransactionStatus currentTransaction() {
-        return TransactionAspectSupport.currentTransactionStatus();
     }
 
     /**
@@ -72,4 +66,21 @@ public class TransactionManual {
         return Application.getBean(DataSourceTransactionManager.class);
     }
 
+    /**
+     * Shadow for <tt>TransactionAspectSupport#currentTransactionStatus</tt>
+     *
+     * @return
+     */
+    public static TransactionStatus currentTransactionStatus() {
+        return TransactionAspectSupport.currentTransactionStatus();
+    }
+
+    /**
+     * Shadow for <tt>TransactionSynchronizationManager.getCurrentTransactionName</tt>
+     *
+     * @return
+     */
+    public static String currentTransactionName() {
+        return TransactionSynchronizationManager.getCurrentTransactionName();
+    }
 }

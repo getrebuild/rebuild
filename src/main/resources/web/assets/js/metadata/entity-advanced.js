@@ -85,6 +85,7 @@ function modeAction() {
 
   // Mode-1 Option
   $('.mode-select .J_mode1-option').on('click', () => renderRbcomp(<DlgMode1Option />))
+  $('.mode-select .J_mode2-option').on('click', () => renderRbcomp(<DlgMode2Option />))
 }
 
 function modeSave(newOption, next) {
@@ -109,91 +110,93 @@ class DlgMode1Option extends RbFormHandler {
       <RbModal title={$L('标准模式选项')} ref="dlg" disposeOnHide>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“常用查询”')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在侧栏显示')}</label>
             <div className="col-sm-9">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
-                <span>
-                  <label htmlFor="advListHideFilters" />
-                </span>
+              <div>
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListHideFilters" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideFilters} />
+                  <span>
+                    <label htmlFor="advListHideFilters" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
               </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“分组”')}</label>
-            <div className="col-sm-9">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
-                <span>
-                  <label htmlFor="advListShowCategory" />
-                </span>
-              </div>
-              <div className="clearfix"></div>
-              <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
-                <div className="row">
-                  <div className="col-8">
-                    <label className="mb-1">{$L('分组字段')}</label>
-                    <select className="form-control form-control-sm">
-                      {this.state.advListShowCategoryFields &&
-                        this.state.advListShowCategoryFields.map((item) => {
-                          return (
-                            <option key={item.name} value={item.name}>
-                              {item.label}
-                            </option>
-                          )
-                        })}
-                    </select>
-                  </div>
-                  <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
-                    <label className="mb-1">{$L('字段格式')}</label>
-                    <select className="form-control form-control-sm">
-                      {this.state.advListShowCategoryFormats &&
-                        this.state.advListShowCategoryFormats.map((item) => {
-                          return (
-                            <option key={item[0]} value={item[0]}>
-                              {item[1]}
-                            </option>
-                          )
-                        })}
-                    </select>
+              <div className="mt-2">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListShowCategory" defaultChecked={wpc.extConfig && wpc.extConfig.advListShowCategory} />
+                  <span>
+                    <label htmlFor="advListShowCategory" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('分组')}</span>
+                <div className="clearfix"></div>
+                <div className={`advListShowCategory-set ${this.state.advListShowCategory ? '' : 'hide'}`}>
+                  <div className="row">
+                    <div className="col-8">
+                      <label className="mb-1">{$L('分组字段')}</label>
+                      <select className="form-control form-control-sm">
+                        {this.state.advListShowCategoryFields &&
+                          this.state.advListShowCategoryFields.map((item) => {
+                            return (
+                              <option key={item.name} value={item.name}>
+                                {item.label}
+                              </option>
+                            )
+                          })}
+                      </select>
+                    </div>
+                    <div className={`col-4 pl-0 ${this.state.advListShowCategoryFormats ? '' : 'hide'}`}>
+                      <label className="mb-1">{$L('字段格式')}</label>
+                      <select className="form-control form-control-sm">
+                        {this.state.advListShowCategoryFormats &&
+                          this.state.advListShowCategoryFormats.map((item) => {
+                            return (
+                              <option key={item[0]} value={item[0]}>
+                                {item[1]}
+                              </option>
+                            )
+                          })}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="mt-2">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
+                  <span>
+                    <label htmlFor="advListHideCharts" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('图表')}</span>
+              </div>
             </div>
           </div>
+
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示侧栏“图表”')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('在顶部显示')}</label>
             <div className="col-sm-9">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListHideCharts" defaultChecked={wpc.extConfig && !wpc.extConfig.advListHideCharts} />
-                <span>
-                  <label htmlFor="advListHideCharts" />
-                </span>
+              <div className="bosskey-show mb-2">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
+                  <span>
+                    <label htmlFor="advListFilterTabs" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+              </div>
+              <div>
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
+                  <span>
+                    <label htmlFor="advListFilterPane" />
+                  </span>
+                </div>
+                <span className="ml-2 down-5 d-inline-block">{$L('查询面板')}</span>
               </div>
             </div>
           </div>
-          <div className="form-group row bosskey-show">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部“常用查询”')}</label>
-            <div className="col-sm-9">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListFilterTabs" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterTabs} />
-                <span>
-                  <label htmlFor="advListFilterTabs" />
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顶部“查询面板”')}</label>
-            <div className="col-sm-9">
-              <div className="switch-button switch-button-xs">
-                <input type="checkbox" id="advListFilterPane" defaultChecked={wpc.extConfig && wpc.extConfig.advListFilterPane} />
-                <span>
-                  <label htmlFor="advListFilterPane" />
-                </span>
-              </div>
-            </div>
-          </div>
+
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -255,7 +258,7 @@ class DlgMode1Option extends RbFormHandler {
                     [2, $L('%d 级分类', 3)],
                     [3, $L('%d 级分类', 4)],
                   ]
-                  formats = null  // FIXME 无法区分几级
+                  formats = null // FIXME 无法区分几级
                 } else if (found && (found.type === 'DATE' || found.type === 'DATETIME')) {
                   formats = [
                     ['yyyy', 'YYYY'],
@@ -308,5 +311,37 @@ class DlgMode1Option extends RbFormHandler {
       this.hide()
       location.reload()
     })
+  }
+}
+
+class DlgMode2Option extends DlgMode1Option {
+  render() {
+    return (
+      <RbModal title={$L('详情模式选项')} ref="dlg" disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('副字段显示')}</label>
+            <div className="col-sm-9">
+              <div>
+                {(this.state.appendFields || []).map((item) => {
+                  return item
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group row footer">
+            <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
+              <button className="btn btn-primary" type="button" onClick={this.save}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
   }
 }

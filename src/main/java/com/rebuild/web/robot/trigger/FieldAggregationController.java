@@ -9,8 +9,9 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -21,6 +22,7 @@ import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
+import com.rebuild.web.general.MetaFormatter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +44,8 @@ import java.util.Locale;
 public class FieldAggregationController extends BaseController {
 
     @RequestMapping("field-aggregation-entities")
-    public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
+    public List<String[]> getTargetEntities(
+            @EntityParam(name = "source") Entity sourceEntity, HttpServletRequest request) {
         List<String[]> entities = new ArrayList<>();
 
         // 1. 我引用了谁
@@ -56,6 +59,18 @@ public class FieldAggregationController extends BaseController {
             entities.add(new String[] { refEntity.getName(), entityLabel, refFrom.getName() });
         }
 
+        // v35 字段匹配
+        if (getBoolParameter(request, "matchfields")) {
+            List<String[]> entities2 = new ArrayList<>();
+            for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+                entities2.add(new String[] {
+                        entity.getName(), EasyMetaFactory.getLabel(entity), "$" });
+            }
+
+            FieldAggregationController.sortEntities(entities2, null);
+            entities.addAll(entities2);
+        }
+
         // v3.0 字段聚合无需自己
         sortEntities(entities, null);
         return entities;
@@ -67,44 +82,38 @@ public class FieldAggregationController extends BaseController {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        List<String[]> sourceFields = new ArrayList<>();
-        List<String[]> targetFields = new ArrayList<>();
-
         // 源字段
 
-        // 本实体
-        sourceFields.add(buildField(sourceEntity.getPrimaryField()));
-        for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            if (isAllowSourceField(field)) {
-                sourceFields.add(buildField(field));
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+            if (field instanceof EasyField) {
+                EasyField easyField = (EasyField) field;
+                return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
             }
-        }
+            return MetadataHelper.isApprovalField(field.getName());
+        });
 
-        // 关联实体
-        for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isCommonsField(fieldRef)) continue;
-
-            String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
-
-            for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity())) {
-                if (isAllowSourceField(field)) {
-                    String[] build = buildField(field);
-                    build[0] = fieldRefName + build[0];
-                    build[1] = fieldRefLabel + build[1];
-                    sourceFields.add(build);
-                }
-            }
-        }
+        JSONArray tmp = new JSONArray();
+        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
+        tmp.addAll(sourceFields);
+        sourceFields = tmp;
 
         // 目标字段
 
+        JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity,
                     DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
-                    DisplayType.N2NREFERENCE, DisplayType.NTEXT)) {
-                if (EasyMetaFactory.valueOf(field).isBuiltin()) continue;
-                targetFields.add(buildField(field));
+                    DisplayType.N2NREFERENCE, DisplayType.NTEXT, DisplayType.FILE)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (easyField.isBuiltin()) continue;
+
+                JSONObject item = (JSONObject) easyField.toJSON();
+                if (easyField.getDisplayType() == DisplayType.ID) {
+                    item.put("ref", new String[] {
+                            targetEntity.getName(), EasyMetaFactory.getDisplayType(targetEntity.getNameField()).name() });
+                }
+
+                targetFields.add(item);
             }
         }
 
@@ -114,24 +123,7 @@ public class FieldAggregationController extends BaseController {
 
         return JSONUtils.toJSONObject(
                 new String[] { "source", "target", "hadApproval" },
-                new Object[] {
-                        sourceFields.toArray(new String[sourceFields.size()][]),
-                        targetFields.toArray(new String[targetFields.size()][]),
-                        hadApproval });
-    }
-
-    /**
-     * 允许作为源字段
-     *
-     * @param field
-     * @return
-     */
-    protected static boolean isAllowSourceField(Field field) {
-        String fieldName = field.getName();
-        if (MetadataHelper.isApprovalField(fieldName)) return false;
-
-        EasyField easyField = EasyMetaFactory.valueOf(field);
-        return easyField.isQueryable() && easyField.getDisplayType() != DisplayType.BARCODE;
+                new Object[] { sourceFields, targetFields, hadApproval });
     }
 
     /**
@@ -149,22 +141,5 @@ public class FieldAggregationController extends BaseController {
             entities.add(new String[] {
                     selfEntity.getName(), EasyMetaFactory.getLabel(selfEntity), TriggerAction.SOURCE_SELF });
         }
-    }
-
-    /**
-     * @param field
-     * @return
-     */
-    protected static String[] buildField(Field field) {
-        String refEntity = null;
-        if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
-            refEntity = field.getReferenceEntity().getName();
-        } else if (field.getType() == FieldType.PRIMARY) {
-            refEntity = field.getOwnEntity().getName();
-        }
-
-        EasyField easyField = EasyMetaFactory.valueOf(field);
-        return new String[] {
-                field.getName(), easyField.getLabel(), easyField.getDisplayType().name(), refEntity };
     }
 }

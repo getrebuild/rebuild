@@ -14,14 +14,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,24 +67,6 @@ public class TagSupport {
     public static String[] items(String fieldPath, ID recordId) {
         Object[] last = N2NReferenceSupport.getLastObject(fieldPath, recordId);
         return items((Field) last[0], (ID) last[1]);
-    }
-
-    /**
-     * 默认值
-     *
-     * @param field
-     * @return
-     */
-    public static String[] getDefaultValue(EasyTag field) {
-        JSONArray tagList = field.getExtraAttrs(Boolean.TRUE).getJSONArray(EasyFieldConfigProps.TAG_LIST);
-        if (tagList == null || tagList.isEmpty()) return ArrayUtils.EMPTY_STRING_ARRAY;
-
-        List<String> dv = new ArrayList<>();
-        for (Object o : tagList) {
-            JSONObject tag = (JSONObject) o;
-            if (tag.getBooleanValue("default")) dv.add(tag.getString("name"));
-        }
-        return dv.toArray(new String[0]);
     }
 
     /**

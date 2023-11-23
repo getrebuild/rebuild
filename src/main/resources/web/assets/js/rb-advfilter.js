@@ -131,7 +131,8 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity}`, (res) => {
+    const deep = this.props.deep3 || location.href.includes('/admin/') ? 3 : 2
+    $.get(`/commons/metadata/fields?deep=${deep}&entity=${this.props.entity}`, (res) => {
       const validFs = []
       const fields = []
 
@@ -584,6 +585,7 @@ class FilterItem extends React.Component {
     const $s2field = $(this._filterField)
       .select2({
         allowClear: false,
+        matcher: $select2MatcherAll,
       })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)

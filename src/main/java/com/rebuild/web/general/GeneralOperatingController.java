@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
@@ -355,7 +356,7 @@ public class GeneralOperatingController extends BaseController {
             if (accessIds.length == 1) {
                 affected = ies.unshare(recordId, accessIds[0]);
             } else {
-                BulkContext context = new BulkContext(user, EntityService.UNSHARE, accessIds, recordId);
+                BulkContext context = new BulkContext(user, InternalPermission.UNSHARE, accessIds, recordId);
                 affected = ies.bulk(context);
             }
 
@@ -415,7 +416,7 @@ public class GeneralOperatingController extends BaseController {
                 ID record = e.getKey();
                 Set<ID> accessList = e.getValue();
                 BulkContext context = new BulkContext(
-                        user, EntityService.UNSHARE, accessList.toArray(new ID[0]), record);
+                        user, InternalPermission.UNSHARE, accessList.toArray(new ID[0]), record);
                 // 每条记录一个事物
                 affected += ies.bulk(context);
             }

@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -60,7 +62,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/")
+@RequestMapping("/admin")
 public class ConfigurationController extends BaseController {
 
     public static final String ETAG_DIMGLOGOTIME = "dimgLogoTime";

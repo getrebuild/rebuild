@@ -47,6 +47,8 @@ $(document).ready(() => {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
       // v3.4
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
+      // v3.5
+      extConfig.detailsShowAt2 = $val('#detailsShowAt2')
     }
     // v3.4
     if ($('#repeatFieldsCheckMode')[0]) {
@@ -77,62 +79,51 @@ $(document).ready(() => {
 
   $('#entityIcon').on('click', () => RbModal.create('/p/common/search-icon', $L('选择图标')))
 
-  // 排序
-  function sortFields(fields) {
-    const ss = []
-    fields.forEach((item) => {
-      if (item.disabled === false) ss.push(item)
-    })
-    // fields.forEach((item) => {
-    //   if (item.disabled === true) ss.push(item)
-    // })
-    return ss
-  }
-
   const SYS_FIELDS = ['approvalId', 'approvalLastUser']
   const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
   const CAN_QUICK = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'REFERENCE']
 
-  $.get(`/commons/metadata/fields?deep=1&entity=${wpc.entity}`, function (d) {
+  $.get(`/commons/metadata/fields?deep=2&entity=${wpc.entity}`, (res) => {
     // 名称字段
-    const canNameFields = d.data.map((item) => {
+    const canNameFields = []
+    res.data.forEach((item) => {
       let canName = CAN_NAME.includes(item.type) && !SYS_FIELDS.includes(item.name)
       if (canName && item.type === 'REFERENCE') canName = item.ref[0] !== wpc.entity
+      if (canName && item.name.includes('.')) canName = false
 
-      return {
-        id: item.name,
-        text: item.label,
-        disabled: canName === false,
-        title: canName === false ? $L('字段 (类型) 不适用') : item.label,
+      if (canName) {
+        canNameFields.push({
+          id: item.name,
+          text: item.label,
+        })
       }
     })
-
     $('#nameField')
       .select2({
         placeholder: $L('选择字段'),
         allowClear: false,
-        data: sortFields(canNameFields),
+        data: canNameFields,
       })
       .val(wpc.nameField || null)
       .trigger('change')
 
     // 快速查询
-    const canQuickFields = d.data.map((item) => {
+    const canQuickFields = []
+    res.data.forEach((item) => {
       let canQuick = CAN_QUICK.includes(item.type)
       if (canQuick && item.type === 'REFERENCE') canQuick = item.ref[0] !== wpc.entity
 
-      return {
-        id: item.name,
-        text: item.label,
-        disabled: canQuick === false,
-        title: canQuick === false ? $L('字段 (类型) 不适用') : item.label,
+      if (canQuick) {
+        canQuickFields.push({
+          id: item.name,
+          text: item.label,
+        })
       }
     })
-
     $('#quickFields').select2({
       placeholder: $L('默认'),
       allowClear: true,
-      data: sortFields(canQuickFields),
+      data: canQuickFields,
       multiple: true,
       maximumSelectionLength: 9,
     })
@@ -179,4 +170,6 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
   if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
+  // v3.5
+  if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
 })

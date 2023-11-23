@@ -113,13 +113,13 @@ $(document).ready(() => {
         const q = $.trim(e.target.value).toLowerCase()
         $('.unset-list .dd-item').each(function () {
           const $item = $(this)
-          if (!q || $item.text().toLowerCase().includes(q)) {
+          if (!q || $item.text().toLowerCase().includes(q) || $item.data('key').toLowerCase().includes(q)) {
             $item.removeClass('hide')
           } else {
             $item.addClass('hide')
           }
         })
-      })
+      }, 200)
     })
 
     setTimeout(() => $input[0].focus(), 20)

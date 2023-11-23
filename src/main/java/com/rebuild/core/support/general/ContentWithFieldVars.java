@@ -10,12 +10,24 @@ package com.rebuild.core.support.general;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,9 +90,11 @@ public class ContentWithFieldVars {
         content = content.replace("{ID}",
                 String.format("{%s}", record.getEntity().getPrimaryField().getName()));
 
+        final Entity entity = record.getEntity();
+
         Map<String, String> fieldVars = new HashMap<>();
         for (String field : matchsVars(content)) {
-            if (MetadataHelper.getLastJoinField(record.getEntity(), field) != null) {
+            if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 fieldVars.put(field, null);
             }
         }
@@ -90,15 +104,44 @@ public class ContentWithFieldVars {
             Object value = record.getObjectValue(field);
 
             value = FieldValueHelper.wrapFieldValue(value,
-                    MetadataHelper.getLastJoinField(record.getEntity(), field), true);
+                    MetadataHelper.getLastJoinField(entity, field), true);
             if (value != null) {
                 fieldVars.put(field, value.toString());
             }
         }
 
         for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-            content = content.replace("{" + e.getKey() + "}",
-                    StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
+            final String field = e.getKey();
+            String value = e.getValue();
+
+            if (value != null) {
+                DisplayType dt = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, field)).getDisplayType();
+                if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
+                    // 处理图片 UnsafeImgAccess
+                    if (dt == DisplayType.IMAGE && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
+                        StringBuilder value4Image = new StringBuilder();
+                        for (Object img : JSON.parseArray(value)) {
+                            String path = img.toString();
+                            if (!CommonsUtils.isExternalUrl(path)) {
+                                path = RebuildConfiguration.getHomeUrl("/filex/img/" + path);
+                                path += "?_UNSAFEIMGACCESS=" + System.currentTimeMillis();
+                            }
+                            value4Image.append(String.format("![](%s)\n", path));
+                        }
+                        value = value4Image.toString();
+
+                    } else {
+                        StringBuilder value4Files = new StringBuilder();
+                        for (Object file : JSON.parseArray(value)) {
+                            String fileName = QiniuCloud.parseFileName(file.toString());
+                            value4Files.append(String.format("[%s] %s; ", Language.L(dt.getDisplayName()), fileName));
+                        }
+                        value = value4Files.toString().trim();
+                    }
+                }
+            }
+
+            content = content.replace("{" + field + "}", StringUtils.defaultIfBlank(value, StringUtils.EMPTY));
         }
         return content;
     }

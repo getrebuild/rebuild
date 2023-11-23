@@ -56,7 +56,7 @@ public class AutoShare extends TriggerAction {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final JSONObject content = (JSONObject) actionContext.getActionContent();
-        final ID recordId = operatingContext.getAnyRecord().getPrimary();
+        final ID recordId = operatingContext.getFixedRecordId();
 
         JSONArray shareTo = content.getJSONArray("shareTo");
         Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId, true);

@@ -230,7 +230,7 @@ class PlanBoxes extends React.Component {
 }
 
 // 任务面板
-const __DEFAULT_PAGE_SIZE = 40
+const __DEFAULT_PAGE_SIZE = 100
 class PlanBox extends React.Component {
   state = { ...this.props }
 
@@ -312,7 +312,7 @@ class PlanBox extends React.Component {
 
   componentDidMount() {
     __PlanRefs[this.props.id] = this
-    this.refreshTasks(true)
+    this.refreshTasks()
 
     const $scroller = $(this._scroller).perfectScrollbar()
     // 滚动加载
@@ -342,12 +342,12 @@ class PlanBox extends React.Component {
   }
 
   // 加载任务列表
-  refreshTasks(isAppend) {
+  refreshTasks(isAppend, scrollBtm) {
     if (isAppend) {
       this.pageNo++
     } else {
       this.pageNo = 1
-      this.pageSize = Math.max(this.state.tasks.length + 1, __DEFAULT_PAGE_SIZE)
+      this.pageSize = Math.max((this.state.tasks || []).length + 1, __DEFAULT_PAGE_SIZE)
     }
 
     $.post(
@@ -363,7 +363,7 @@ class PlanBox extends React.Component {
 
           this.setState(_state, () => {
             $(this._scroller).perfectScrollbar('update')
-            // this._scroller.scrollTop = 99999
+            if (scrollBtm) this._scroller.scrollTop = 99999
           })
         } else {
           RbHighbar.error(res.error_msg)
@@ -427,7 +427,7 @@ class PlanBox extends React.Component {
     const $btn = $(this._btn).button('loading')
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this.refreshTasks()
+        this.refreshTasks(null, true)
 
         // reset
         this._executor.clearSelection()
@@ -636,7 +636,7 @@ class TaskViewModal extends React.Component {
 
   render() {
     return (
-      <div className="modal rbview task" ref={(c) => (this._dlg = c)}>
+      <div className="modal rbview task top60" ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>

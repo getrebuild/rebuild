@@ -42,12 +42,12 @@ public class RobotTriggerManager implements ConfigManager {
     }
 
     /**
-     * @param record
+     * @param recordId
      * @param when
      * @return
      */
-    public TriggerAction[] getActions(ID record, TriggerWhen... when) {
-        return filterActions(MetadataHelper.getEntity(record.getEntityCode()), record, when);
+    public TriggerAction[] getActions(ID recordId, TriggerWhen... when) {
+        return filterActions(MetadataHelper.getEntity(recordId.getEntityCode()), recordId, when);
     }
 
     /**
@@ -61,21 +61,21 @@ public class RobotTriggerManager implements ConfigManager {
 
     private static final ThreadLocal<List<String>> TRIGGERS_CHAIN_4DEBUG = ThreadLocal.withInitial(ArrayList::new);
     /**
-     * @param record
+     * @param recordId
      * @param entity
      * @param when
      * @return
      */
-    private TriggerAction[] filterActions(Entity entity, ID record, TriggerWhen... when) {
+    private TriggerAction[] filterActions(Entity entity, ID recordId, TriggerWhen... when) {
         List<TriggerAction> actions = new ArrayList<>();
         for (ConfigBean cb : getConfig(entity)) {
             // 发生动作
             if (allowedWhen(cb, when)) {
                 // 附加过滤条件
-                if (record == null
-                        || QueryHelper.isMatchAdvFilter(record, (JSONObject) cb.getJSON("whenFilter"), Boolean.TRUE)) {
+                if (recordId == null
+                        || QueryHelper.isMatchAdvFilter(recordId, (JSONObject) cb.getJSON("whenFilter"), true)) {
 
-                    ActionContext ctx = new ActionContext(record, entity, cb.getJSON("actionContent"), cb.getID("id"));
+                    ActionContext ctx = new ActionContext(recordId, entity, cb.getJSON("actionContent"), cb.getID("id"));
                     TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
                     if (o.getClass().getName().contains("NoRbv")) {
                         log.warn("Trigger action {} is RBV", cb.getString("actionType"));
@@ -86,7 +86,7 @@ public class RobotTriggerManager implements ConfigManager {
 
                     if (log.isDebugEnabled()) {
                         TRIGGERS_CHAIN_4DEBUG.get().add(
-                                String.format("%s (%s) on %s %s (%s)", o.getType(), ctx.getConfigId(), when[0], entity.getName(), record));
+                                String.format("%s (%s) on %s %s (%s)", o.getType(), ctx.getConfigId(), when[0], entity.getName(), recordId));
                     }
                 }
             }
@@ -94,7 +94,7 @@ public class RobotTriggerManager implements ConfigManager {
 
         if (!TRIGGERS_CHAIN_4DEBUG.get().isEmpty()) {
             log.info("Record ({}) triggers chain : \n  > {}",
-                    record, StringUtils.join(TRIGGERS_CHAIN_4DEBUG.get(), "\n  > "));
+                    recordId, StringUtils.join(TRIGGERS_CHAIN_4DEBUG.get(), "\n  > "));
         }
 
         return actions.toArray(new TriggerAction[0]);

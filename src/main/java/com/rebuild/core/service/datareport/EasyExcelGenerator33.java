@@ -7,16 +7,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.datareport;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.support.general.RecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -28,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,23 +51,23 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PRE
 @Slf4j
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
-    final private List<ID> recordIds;
+    final private List<ID> recordIdMultiple;
 
-    protected EasyExcelGenerator33(File template, ID recordId) {
-        super(template, recordId);
-        this.recordIds = null;
+    protected EasyExcelGenerator33(File templateFile, ID recordId) {
+        super(templateFile, recordId);
+        this.recordIdMultiple = null;
     }
 
     protected EasyExcelGenerator33(File template, List<ID> recordIds) {
         super(template, recordIds.get(0));
-        this.recordIds = recordIds;
+        this.recordIdMultiple = recordIds;
     }
 
     @Override
     protected List<Map<String, Object>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        final TemplateExtractor33 templateExtractor33 = new TemplateExtractor33(template);
+        final TemplateExtractor33 templateExtractor33 = this.buildTemplateExtractor33();
         final Map<String, String> varsMap = templateExtractor33.transformVars(entity);
 
         // 变量
@@ -102,7 +108,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             if (TemplateExtractor33.isPlaceholder(varName)) continue;
             // 无效字段
             if (fieldName == null) {
-                log.warn("Invalid field `{}` in template : {}", e.getKey(), template);
+                log.warn("Invalid field `{}` in template : {}", e.getKey(), templateFile);
                 continue;
             }
 
@@ -144,7 +150,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             if (isApproval) {
                 querySql += " and isWaiting = 'F' and isCanceled = 'F' order by createdOn";
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        "stepId", "RobotApprovalStep", "recordId");
+                        "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
 
             } else if (refName.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
@@ -172,8 +178,30 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     .setParameter(1, recordId)
                     .list();
 
+            // 补充提交节点
+            if (isApproval && !list.isEmpty()) {
+                Record firstNode = list.get(0);
+                Record submit = RecordBuilder.builder(EntityHelper.RobotApprovalStep)
+                        .add("approver", ApprovalHelper.getSubmitter(firstNode.getID("recordId")))
+                        .add("approvedTime", CalendarUtils.getUTCDateTimeFormat().format(firstNode.getDate("createdOn")))
+                        .add("state", 0)
+                        .build(UserService.SYSTEM_USER);
+
+                List<Record> list2 = new ArrayList<>();
+                list2.add(submit);
+                list2.addAll(list);
+                list = list2;
+            }
+
             phNumber = 1;
             for (Record c : list) {
+                // 特殊处理
+                if (isApproval) {
+                    int state = c.getInt("state");
+                    Date approvedTime = c.getDate("approvedTime");
+                    if (approvedTime == null && state > 1) c.setDate("approvedTime", c.getDate("createdOn"));
+                }
+                
                 datas.add(buildData(c, varsMapOfRefs.get(refName)));
                 phNumber++;
             }
@@ -182,21 +210,29 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         return datas;
     }
 
-    // -- V34 多个
+    /**
+     * @return
+     */
+    protected TemplateExtractor33 buildTemplateExtractor33() {
+        return new TemplateExtractor33(templateFile);
+    }
+
+    // -- V34 支持多记录导出
 
     @Override
     public File generate() {
-        if (recordIds == null) return super.generate();
+        if (recordIdMultiple == null) return super.generate();
 
         // init
         File targetFile = super.getTargetFile();
         try {
-            FileUtils.copyFile(this.template, targetFile);
+            FileUtils.copyFile(templateFile, targetFile);
         } catch (IOException e) {
             throw new ReportsException(e);
         }
 
-        for (ID recordId : this.recordIds) {
+        PrintSetup copyPrintSetup = null;
+        for (ID recordId : recordIdMultiple) {
             int newSheetAt;
             try (Workbook wb = WorkbookFactory.create(Files.newInputStream(targetFile.toPath()))) {
                 // 1.复制模板
@@ -210,7 +246,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     wb.setSheetName(newSheetAt, newSheetName);
                 }
 
-                // 2.保存模板
+                // 2.复制打印设置（POI 不会自己复制???）
+                // https://www.bilibili.com/read/cv15053559/
+                if (copyPrintSetup == null) {
+                    copyPrintSetup = wb.getSheetAt(0).getPrintSetup();
+                }
+                newSheet.getPrintSetup().setLandscape(copyPrintSetup.getLandscape());
+                newSheet.getPrintSetup().setPaperSize(copyPrintSetup.getPaperSize());
+
+                // 3.保存模板
                 try (FileOutputStream fos = new FileOutputStream(targetFile)) {
                     wb.write(fos);
                 }
@@ -220,7 +264,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             }
 
             // 生成报表
-            this.template = targetFile;
+            this.templateFile = targetFile;
             this.writeSheetAt = newSheetAt;
             this.recordId = recordId;
             this.hasMain = false;

@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 const DIVIDER_LINE = '$DIVIDER$'
+const REFFORM_LINE = '$REFFORM$'
+
 const COLSPANS = {
   1: 'w-25',
   2: 'w-50',
@@ -19,26 +21,28 @@ const COLSPANS = {
 
 const _FieldLabelChanged = {}
 const _FieldNullableChanged = {}
+const _ValidFields = {}
 
 $(document).ready(() => {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
-    const validFields = {},
-      configFields = []
+    const configFields = []
     $(wpc.formConfig.elements).each(function () {
       configFields.push(this.field)
     })
 
     $(res.data).each(function () {
-      validFields[this.fieldName] = this
+      _ValidFields[this.fieldName] = this
       if (!configFields.includes(this.fieldName)) render_unset(this)
     })
 
     AdvControl.init()
 
     $(wpc.formConfig.elements).each(function () {
-      const field = validFields[this.field]
+      const field = _ValidFields[this.field]
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, collapsed: this.collapsed, breaked: this.breaked })
+      } else if (this.field === REFFORM_LINE) {
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', colspan: 4, reffield: this.reffield })
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
           '.form-preview'
@@ -60,7 +64,7 @@ $(document).ready(() => {
         start: function (e, ui) {
           const wc = ui.item.attr('class').match(/\w-([0-9]{2,3})/gi)
           if (wc) ui.placeholder.addClass((wc[0] || '') + ' dd-item')
-        }
+        },
       })
       .disableSelection()
   })
@@ -68,6 +72,16 @@ $(document).ready(() => {
   $('.J_add-divider').on('click', () => {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', colspan: 4 })
+  })
+
+  $('.J_add-refform').on('click', () => {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持引用表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    $('.nav-tabs-classic a[href="#form-design"]').tab('show')
+    render_item({ fieldName: REFFORM_LINE, fieldLabel: '', colspan: 4 })
   })
 
   // @see field-new.html
@@ -112,6 +126,10 @@ $(document).ready(() => {
         item.label = $this.find('span').text() || ''
         item.collapsed = $isTrue($this.attr('data-collapsed'))
         item.breaked = $isTrue($this.attr('data-breaked'))
+      } else if (item.field === REFFORM_LINE) {
+        item.colspan = 4
+        item.label = $this.find('span').text() || ''
+        item.reffield = $this.attr('data-reffield') || ''
       } else {
         item.colspan = 2 // default
         if ($this.parent().hasClass('w-100')) item.colspan = 4
@@ -217,11 +235,12 @@ const render_item = function (data) {
   $item.addClass(COLSPANS[colspan])
 
   const isDivider = data.fieldName === DIVIDER_LINE
+  const isRefform = data.fieldName === REFFORM_LINE
+  const _title1 = isDivider ? $L('分栏') : isRefform ? $L('表单引用') : ''
+  const _title2 = isDivider ? $L('断行') : ''
 
   const $handle = $(
-    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${isDivider ? $L('分栏') : ''}" _title2="${isDivider ? $L('断行') : ''}">${
-      data.fieldLabel
-    }</span></div>`
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${_title1}" _title2="${_title2}">${data.fieldLabel}</span></div>`
   ).appendTo($item)
 
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
@@ -323,6 +342,32 @@ const render_item = function (data) {
           breaked: $handle.attr('data-breaked'),
         }
         renderRbcomp(<DlgEditDivider onConfirm={_onConfirm} {...ov} />)
+      })
+
+    $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
+      .appendTo($action)
+      .on('click', () => $item.remove())
+  }
+
+  // v35
+  if (isRefform) {
+    $item.addClass('refform')
+    const $handle = $item.find('.dd-handle').attr({
+      'data-reffield': data.reffield,
+    })
+
+    $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
+      .appendTo($action)
+      .on('click', () => {
+        const _onConfirm = function (nv) {
+          $item.find('.dd-handle span').text(nv.reffield ? _ValidFields[nv.reffield].fieldLabel : '')
+          $handle.attr('data-reffield', nv.reffield || '')
+        }
+
+        const ov = {
+          reffield: $handle.attr('data-reffield'),
+        }
+        renderRbcomp(<DlgEditRefform onConfirm={_onConfirm} {...ov} />)
       })
 
     $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
@@ -458,6 +503,37 @@ class DlgEditDivider extends DlgEditField {
   }
 }
 
+// 引用属性
+class DlgEditRefform extends DlgEditField {
+  renderContent() {
+    return (
+      <form className="field-attr">
+        <div className="form-group">
+          <label>{$L('引用字段')}</label>
+          <select className="form-control form-control-sm" name="reffield" onChange={this.handleChange} defaultValue={this.props.reffield || null}>
+            <option value="">{$L('无')}</option>
+            {Object.keys(_ValidFields).map((k) => {
+              const field = _ValidFields[k]
+              if (field.displayTypeName === 'REFERENCE' && !(field.fieldName === 'approvalId'))
+                return (
+                  <option key={field.fieldName} value={field.fieldName}>
+                    {field.fieldLabel}
+                  </option>
+                )
+              return null
+            })}
+          </select>
+        </div>
+        <div className="form-group mb-2">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('确定')}
+          </button>
+        </div>
+      </form>
+    )
+  }
+}
+
 // 追加到布局
 // eslint-disable-next-line no-unused-vars
 const add2Layout = function (fieldName) {
@@ -465,6 +541,8 @@ const add2Layout = function (fieldName) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
         render_item({ ...this, tip: this.tip || null })
+        _ValidFields[fieldName] = this
+        console.log(JSON.stringify(_ValidFields))
         return false
       }
     })

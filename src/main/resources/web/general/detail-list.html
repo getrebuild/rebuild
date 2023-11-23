@@ -90,7 +90,7 @@
                     </div>
                   </div>
                   <div class="col-12 col-md-6">
-                    <div class="dataTables_oper">
+                    <div class="dataTables_oper invisible2">
                       <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
                       <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('编辑')}]]</button>
                       <div class="btn-group btn-space J_action">
@@ -102,7 +102,7 @@
                           <a th:if="${AllowDataImport}" class="dropdown-item" th:href="|${baseUrl}/app/entity/data-imports?entity=${entityName}|">
                             <i class="icon mdi mdi-database-import-outline"></i> [[${bundle.L('数据导入')}]]
                           </a>
-                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
+                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>

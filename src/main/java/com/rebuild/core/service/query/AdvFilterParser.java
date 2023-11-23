@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -108,12 +109,12 @@ public class AdvFilterParser extends SetUser {
 
     /**
      * @param filterExpr
-     * @param varRecord 条件中包含字段变量，将从此记录中提取实际值。注意如果包括字段变量但是字段无值，则过滤项会被忽略，应在配置条件时考虑此问题（设置不允许为空）
+     * @param varRecord 条件中包含字段变量，将从该记录中提取实际值替换
      */
     public AdvFilterParser(JSONObject filterExpr, ID varRecord) {
         this.filterExpr = filterExpr;
         this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
-        this.varRecord = varRecord;
+        this.varRecord = License.isRbvAttached() ? varRecord : null;
     }
 
     /**
@@ -702,6 +703,7 @@ public class AdvFilterParser extends SetUser {
     private static final String PATT_FIELDVAR = "\\{@([\\w.]+)}";
     // `当前`变量（当前日期、时间、用户）
     private static final String CURRENT_ANY = "CURRENT";
+    private static final String CURRENT_DATE = "NOW";
 
     private String useValueOfVarRecord(String value, Field queryField) {
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
@@ -712,7 +714,7 @@ public class AdvFilterParser extends SetUser {
         Object useValue = null;
 
         // {@CURRENT} DATE
-        if (CURRENT_ANY.equals(fieldName)) {
+        if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
                 useValue = CalendarUtils.now();

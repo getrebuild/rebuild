@@ -111,7 +111,8 @@ public class MetadataSorter {
 
         List<BaseMeta> entities = new ArrayList<>();
         CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
-        sortByLabel(entities);
+        // SORT: 名称。默认是返回按CODE大小
+        if (entities.size() > 1) sortByLabel(entities);
         return entities.toArray(new Entity[0]);
     }
 

@@ -28,4 +28,5 @@ public class EasySign extends EasyField {
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
         return value;
     }
+
 }

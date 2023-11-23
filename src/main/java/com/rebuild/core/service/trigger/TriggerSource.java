@@ -57,7 +57,7 @@ public class TriggerSource {
     }
 
     public ID getOriginRecord() {
-        return getOrigin().getAnyRecord().getPrimary();
+        return getOrigin().getFixedRecordId();
     }
 
     public OperatingContext getLast() {
@@ -66,7 +66,7 @@ public class TriggerSource {
 
     public String getLastSourceKey() {
         Object[] last = sources.get(sources.size() - 1);
-        return ((OperatingContext) last[0]).getAnyRecord().getPrimary() + ":" + ((TriggerWhen) last[1]).name().charAt(0);
+        return ((OperatingContext) last[0]).getFixedRecordId() + ":" + ((TriggerWhen) last[1]).name().charAt(0);
     }
 
     public void setSkipOnce() {

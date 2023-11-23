@@ -7,7 +7,7 @@
     <style>
       .avatar-wrap {
         height: 256px;
-        padding-top: 55px;
+        padding-top: 45px;
         background-color: rgb(245, 247, 249);
         border-radius: 4px;
         margin-bottom: 10px;
@@ -15,8 +15,8 @@
       }
       .avatar {
         position: relative;
-        width: 140px;
-        height: 140px;
+        width: 160px;
+        height: 160px;
         line-height: 1;
         font-size: 0;
         background-color: #eee;
@@ -26,6 +26,7 @@
       }
       .avatar > img {
         width: 100%;
+        height: 100%;
       }
       .avatar > label {
         position: absolute;
@@ -198,6 +199,17 @@
                         </div>
                         <div class="col-3 text-right">
                           <button class="btn btn-primary btn-outline J_temp-auth" type="button">[[${bundle.L('获取')}]]</button>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-2 col-form-label">[[${bundle.L('客户端权限')}]]</label>
+                        <div class="col-5 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${bundle.L('包括获取您的位置信息，以及通知推送')}]]</div>
+                        </div>
+                        <div class="col-5 text-right">
+                          <button class="btn btn-primary btn-outline J_location" type="button">[[${bundle.L('获取位置')}]]</button>
+                          <button class="btn btn-primary btn-outline ml-1 J_notification" type="button">[[${bundle.L('推送通知')}]]</button>
+                          <button class="btn btn-primary btn-outline ml-1 J_clearcache bosskey-show" type="button">[[${bundle.L('清除缓存')}]]</button>
                         </div>
                       </div>
                     </form>

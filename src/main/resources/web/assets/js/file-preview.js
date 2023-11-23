@@ -10,8 +10,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.svg', '.webp']
 const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
-const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
-const TYPE_VIDEOS = ['.mp4', '.webm']
+const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
+const TYPE_VIDEOS = ['.mp4', '.wmv', '.mov', '.avi', '.mkv', '.webm']
 
 // 点击遮罩关闭预览
 const HIDE_ONCLICK = false
@@ -83,24 +83,25 @@ class RbPreview extends React.Component {
   renderImage() {
     return (
       <RF>
-        <div className="img-zoom fp-content">
+        <div className="fp-content">
           {!this.state.imgRendered && (
             <div className="must-center">
               <RbSpinner fully />
             </div>
           )}
-          <img
-            className={!this.state.imgRendered ? 'hide' : ''}
-            src={this._buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
-            alt="Loading"
-            onLoad={() => this.setState({ imgRendered: true })}
-            onError={() => {
-              RbHighbar.error($L('无法读取图片'))
-              setTimeout(() => this.hide(), 1000)
-              // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
-            }}
-            ref={(c) => (this._$image = c)}
-          />
+          <span className="img-zoom" ref={(c) => (this._$imgZoom = c)}>
+            <img
+              className={!this.state.imgRendered ? 'hide' : ''}
+              src={this._buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
+              alt="Loading"
+              onLoad={() => this.setState({ imgRendered: true })}
+              onError={() => {
+                RbHighbar.error($L('无法读取图片'))
+                setTimeout(() => this.hide(), 1000)
+                // Qiniu: {"error":"xxx is not within the limit, area is out of range [1, 24999999]"}
+              }}
+            />
+          </span>
         </div>
         <div className="oper-box-wrap">
           {this.props.urls.length > 1 && (
@@ -120,7 +121,7 @@ class RbPreview extends React.Component {
             <a className="arrow float-left" onClick={this._rotateImage} title={$L('旋转')}>
               <i className="mdi mdi-rotate-right" />
             </a>
-            <a className="arrow float-right" onClick={this._screenImage} title={$L('放大')}>
+            <a className="arrow float-right" onClick={this._screenImage} title={$L('适合页面')}>
               <i className="mdi mdi-fit-to-screen-outline" />
             </a>
           </div>
@@ -151,7 +152,7 @@ class RbPreview extends React.Component {
           {this.state.previewText || this.state.previewText === '' ? (
             <pre className="mb-0">{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
           ) : (
-            <div className="must-center">
+            <div className="must-center d-inline-block">
               <RbSpinner fully={true} />
             </div>
           )}
@@ -164,7 +165,7 @@ class RbPreview extends React.Component {
     return (
       <div className="container fp-content">
         <div className="audio must-center">
-          <audio src={this._buildAbsoluteUrl()} controls>
+          <audio src={this._buildAbsoluteUrl()} controls controlsList="nodownload" style={{ width: 500 }}>
             {$L('你的浏览器不支持此功能')}
           </audio>
         </div>
@@ -173,10 +174,11 @@ class RbPreview extends React.Component {
   }
 
   renderVideo() {
+    const ww = $(window).width()
     return (
       <div className="container fp-content">
         <div className="video must-center">
-          <video src={this._buildAbsoluteUrl()} height="500" controls>
+          <video src={this._buildAbsoluteUrl()} height={ww > 1120 ? 618 : 500} width={ww > 1120 ? 1100 : null} controls controlsList="nodownload" className="bg-dark">
             {$L('你的浏览器不支持此功能')}
           </video>
         </div>
@@ -194,18 +196,30 @@ class RbPreview extends React.Component {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
-      const ispdf = fileName.toLowerCase().endsWith('.pdf')
-      const setPreviewUrl = function (url) {
-        const previewUrl = ispdf ? url : (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+      const isPdfType = fileName.toLowerCase().endsWith('.pdf')
+      const setPreviewUrl = function (url, fullUrl) {
+        let previewUrl = (rb._officePreviewUrl || 'https://view.officeapps.live.com/op/embed.aspx?src=') + $encode(url)
+        if (isPdfType) {
+          if ($.browser.mobile) {
+            previewUrl = `${rb.baseUrl}/assets/lib/pdfjs/web/viewer.html?src=${$encode(url)}`
+          } else {
+            if (fullUrl) {
+              previewUrl = url
+            } else {
+              // 本地加载PDF
+              previewUrl = `${rb.baseUrl}/filex/` + url.split('/filex/')[1]
+            }
+          }
+        }
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
       if ($isFullUrl(currentUrl)) {
-        setPreviewUrl(currentUrl)
+        setPreviewUrl(currentUrl, true)
       } else {
         $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })
-          else setPreviewUrl(res.data.publicUrl)
+          else setPreviewUrl(res.data.publicUrl, $isFullUrl(res.data.publicUrl))
         })
       }
     } else if (this._isText(fileName)) {
@@ -221,14 +235,22 @@ class RbPreview extends React.Component {
           that.hide()
         },
       })
+    } else if (this._isImage(fileName)) {
+      $(document).on('mousewheel.image-zoom', (e) => {
+        const value = e.originalEvent.wheelDelta || -e.originalEvent.detail
+        const delta = Math.max(-1, Math.min(1, value))
+        this._zoomImage(delta < 0 ? -10 : 10)
+      })
+      // // Move
+      $(this._$imgZoom).draggable({
+        cursor: 'move',
+      })
     }
 
-    $(document)
-      .off('keyup')
-      .on('keyup', function (e) {
-        // ESC
-        if (e.keyCode === 27) that.hide()
-      })
+    $(document).on('keyup.esc-hide', function (e) {
+      if (e.keyCode === 27) that.hide() // ESC
+    })
+
     $(that._previewBody)
       .find('>div.fp-content')
       .height($(window).height() - 60)
@@ -244,6 +266,8 @@ class RbPreview extends React.Component {
 
   componentWillUnmount() {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
+
+    $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 
   _buildAbsoluteUrl(url, params) {
@@ -285,25 +309,47 @@ class RbPreview extends React.Component {
     return false
   }
 
+  // IMAGE
+
   _prevImage = () => {
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
     this.setState({ currentIndex: ci - 1, imgRendered: false })
-    $(this._$image).attr('data-rotate', 0)
+    this._resetImage()
   }
   _nextImage = () => {
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
-    $(this._$image).attr('data-rotate', 0)
+    this._resetImage()
   }
   _rotateImage = () => {
-    let r = ~~$(this._$image).attr('data-rotate') || 0
-    if (r >= 270) r = -90
-    $(this._$image).attr('data-rotate', r + 90)
+    this._rotateImageValue = this._rotateImageValue || 0
+    if (this._rotateImageValue >= 270) this._rotateImageValue = -90
+
+    this._rotateImageValue += 90
+    $(this._$imgZoom).find('img').css('transform', `rotate(${this._rotateImageValue}deg)`)
   }
   _screenImage = () => {
-    $(this._$image).attr('src', $(this._$image).attr('src').replace('/1000/', '/2000/'))
+    const $img = $(this._$imgZoom).find('img')
+    const src = $img.attr('src')
+    const srcNew = src.split('?imageView2')[0]
+    if (src !== srcNew) $img.attr('src', srcNew)
+    this._resetImage()
+  }
+  _zoomImage = (delta) => {
+    let v = this._zoomImageValue || 1
+    v += delta > 0 ? 0.1 : -0.1
+    v = Math.max(0.2, Math.min(5, v))
+
+    $(this._$imgZoom).css('transform', `scale(${v})`)
+    this._zoomImageValue = v
+  }
+  _resetImage() {
+    $(this._$imgZoom).find('img').css({ transform: 'rotate(0deg)' })
+    $(this._$imgZoom).css({ transform: 'scale(1)', left: 'auto', top: 'auto' })
+    this._zoomImageValue = 1
+    this._rotateImageValue = 0
   }
 
   hide = () => {
@@ -334,6 +380,7 @@ const EXPIRES_TIME = [
   [1440, 1 + $L('天')],
   [4320, 3 + $L('天')],
   [10080, 7 + $L('天')],
+  [0, $L('永久')],
 ]
 
 class FileShare extends RbModalHandler {

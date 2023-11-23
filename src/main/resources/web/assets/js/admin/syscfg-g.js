@@ -25,7 +25,7 @@ $(document).ready(() => {
     if (bindAccount) {
       $('.J_not-bind').addClass('hide')
       $('.J_has-bind a').text(bindAccount)
-    } else {
+    } else if (rb.commercial === 10 || rb.commercial === 20) {
       $('.J_has-bind').addClass('hide')
       $('.J_not-bind .btn').on('click', () => {
         if (res.canBind) UCenter.bind()
@@ -67,7 +67,7 @@ $(document).ready(() => {
 })
 
 useEditComp = function (name) {
-  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
+  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory', 'PageMourningMode'].includes(name)) {
     return (
       <select className="form-control form-control-sm">
         <option value="true">{$L('是')}</option>
@@ -83,7 +83,7 @@ useEditComp = function (name) {
       <select className="form-control form-control-sm">
         <option value="1">{$L('低 (最低6位，无字符类型限制)')}</option>
         <option value="2">{$L('中 (最低6位，必须同时包含数字、字母)')}</option>
-        <option value="3">{$L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}</option>
+        <option value="3">{$L('高 (最低10位，必须同时包含数字、字母、特殊字符)')}</option>
       </select>
     )
   } else if ('DefaultLanguage' === name) {
@@ -151,7 +151,7 @@ class DlgMM extends RbAlert {
         <div className="form-group">
           <label>{$L('计划维护时间')}</label>
           <div className="input-group">
-            <input type="text" className="form-control form-control-sm bg-white" ref={(c) => (this._$startTime = c)} placeholder={$L('开始时间')} readOnly />
+            <input type="text" className="form-control form-control-sm bg-white J_start" ref={(c) => (this._$startTime = c)} placeholder={$L('开始时间')} readOnly />
             <div className="input-group-prepend input-group-append">
               <span className="input-group-text pt-0 pb-0">{$L('至')}</span>
             </div>
@@ -195,7 +195,15 @@ class DlgMM extends RbAlert {
       .datetimepicker({
         startDate: new Date(),
       })
-      .on('changeDate', calcTakeTime)
+      .on('changeDate', (e) => {
+        if ($(e.target).hasClass('J_start')) {
+          if ($val(this._$startTime) && !$val(this._$endTime)) {
+            const autoEnd = moment($val(this._$startTime)).add('minute', 10).format('YYYY-MM-DD HH:mm')
+            $(this._$endTime).val(autoEnd)
+          }
+        }
+        calcTakeTime()
+      })
   }
 
   _buildPost() {

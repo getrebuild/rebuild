@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 限流工具
+ * 限流工具（NotThreadSafe）
  *
  * @author ZHAO
  * @since 2020/4/29

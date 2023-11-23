@@ -22,7 +22,7 @@ class ProTable extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      $('.detail-form-table .btn-group .btn').attr('disabled', true)
+      // $('.detail-form-table .btn-group .btn').attr('disabled', true)
       return <RbAlertBox message={this.state.hasError} />
     }
 
@@ -37,8 +37,6 @@ class ProTable extends React.Component {
     const fw = ww > 1064 ? 994 : ww - 70
     const fixed = COL_WIDTH * formFields.length + (38 + 48) > fw
 
-    const colStyle = { minWidth: COL_WIDTH }
-
     return (
       <div className={`protable rb-scroller ${fixed && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
         <table className={`table table-sm ${!fixed && 'table-fixed'}`}>
@@ -48,8 +46,13 @@ class ProTable extends React.Component {
               {formFields.map((item) => {
                 if (item.field === TYPE_DIVIDER) return null
 
-                let colStyle2 = { ...colStyle }
-                if (fixed && COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                let colStyle2 = { minWidth: COL_WIDTH }
+                if (fixed) {
+                  // v35
+                  if (item.colspan) colStyle2.minWidth = (COL_WIDTH / 2) * ~~item.colspan
+                  if (COL_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
+                  if (colStyle2.minWidth > COL_WIDTH * 2) colStyle2.minWidth = COL_WIDTH * 2
+                }
 
                 return (
                   <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
@@ -114,13 +117,15 @@ class ProTable extends React.Component {
       // 正常编辑
       if (this.props.mainid) {
         $.get(`/app/${entity.entity}/detail-models?mainid=${this.props.mainid}`, (res) => {
-          this.setLines(res.data)
+          if (res.error_code === 0) this.setLines(res.data)
+          else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
       // 记录转换
       else if (this.props.previewid) {
         $.get(`/app/${entity.entity}/detail-models?previewid=${this.props.previewid}`, (res) => {
-          this.setLines(res.data)
+          if (res.error_code === 0) this.setLines(res.data)
+          else RbHighbar.error($L('明细加载失败，请稍后重试'))
         })
       }
     })
@@ -138,10 +143,16 @@ class ProTable extends React.Component {
   }
 
   addLine(model) {
-    const key = `form-${model.id ? model.id : $random()}`
+    // 明细未配置或出错
+    if (!model) {
+      if (this.state.hasError) RbHighbar.create(this.state.hasError)
+      return
+    }
+
+    const lineKey = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={key} ref={ref}>
+      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
@@ -154,23 +165,25 @@ class ProTable extends React.Component {
       const refs = this._inlineFormsRefs || []
       refs.push(ref)
       this._inlineFormsRefs = refs
+      this._onLineUpdated(lineKey)
     })
   }
 
-  removeLine(key) {
+  removeLine(lineKey) {
+    if (!this.state.inlineForms) return
     const forms = this.state.inlineForms.filter((c) => {
-      if (c.key === key && c.props.id) {
+      if (c.key === lineKey && c.props.id) {
         const d = this._deletes || []
         d.push(c.props.id)
         this._deletes = d
       }
-      return c.key !== key
+      return c.key !== lineKey
     })
-    this.setState({ inlineForms: forms })
+    this.setState({ inlineForms: forms }, () => this._onLineUpdated(lineKey))
   }
 
   copyLine(id) {
-    console.log('TODO :', id)
+    console.log('TODO `copyLine`:', id)
   }
 
   setLines(models = []) {
@@ -192,9 +205,20 @@ class ProTable extends React.Component {
           this._deletes = d
         }
       })
-    this.setState({ inlineForms: [] })
+    this.setState({ inlineForms: [] }, () => this._onLineUpdated())
   }
 
+  // 新增/删除行时触发
+  _onLineUpdated(lineKey) {
+    if (this.props.$$$main && this.props.$$$main._onProTableLineUpdated) {
+      this.props.$$$main._onProTableLineUpdated(lineKey, this)
+    }
+  }
+
+  /**
+   * 清空某字段值
+   * @param {string} field
+   */
   setFieldNull(field) {
     this.state.inlineForms &&
       this.state.inlineForms.forEach((c) => {
@@ -203,14 +227,30 @@ class ProTable extends React.Component {
       })
   }
 
-  buildFormData() {
+  /**
+   * 获取指定 InlineForm
+   * @param {string} lineKey
+   * @returns
+   */
+  getLineFrom(lineKey) {
+    if (!this.state.inlineForms) return null
+    const f = this.state.inlineForms.find((c) => c.key === lineKey)
+    return f ? f.ref.current || null : null
+  }
+
+  /**
+   * 构建数据
+   * @param {boolean} retAll 是否返回所有数据
+   * @returns
+   */
+  buildFormData(retAll) {
     const datas = []
     let error = null
 
     this._inlineFormsRefs &&
       this._inlineFormsRefs.forEach((item) => {
         if (!item.current) return
-        const d = item.current.buildFormData()
+        const d = item.current.buildFormData(retAll)
 
         if (!d || typeof d === 'string') {
           if (!error) error = d
@@ -247,17 +287,17 @@ class ProTable extends React.Component {
    * 导入明细
    * @param {*} transid
    * @param {*} form
-   * @param {*} callback
+   * @param {*} cb
    * @returns
    */
-  static detailImports(transid, form, callback) {
+  static detailImports(transid, form, cb) {
     const formdata = form.getFormData()
     const mainid = form.props.id || null
 
     $.post(`/app/entity/extras/detail-imports?transid=${transid}&mainid=${mainid}`, JSON.stringify(formdata), (res) => {
       if (res.error_code === 0) {
         if ((res.data || []).length === 0) RbHighbar.create($L('没有可导入的明细记录'))
-        else typeof callback === 'function' && callback(res.data)
+        else typeof cb === 'function' && cb(res.data)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -273,7 +313,7 @@ class InlineForm extends RbForm {
 
   render() {
     return (
-      <React.Fragment>
+      <RF>
         {this.props.children.map((fieldComp) => {
           if (fieldComp.props.field === TYPE_DIVIDER) return null
           const refid = `fieldcomp-${fieldComp.props.field}`
@@ -283,14 +323,24 @@ class InlineForm extends RbForm {
             </td>
           )
         })}
-      </React.Fragment>
+      </RF>
     )
   }
 
-  buildFormData() {
+  buildFormData(retAll) {
     const $idx = $(this._$ref).parent().find('th.col-index').removeAttr('title')
 
     const data = {}
+    if (retAll) {
+      this.props.rawModel.elements.forEach((item) => {
+        let val = item.value
+        if (val) {
+          val = typeof val === 'object' ? val.id || val : val
+          data[item.field] = val || null
+        }
+      })
+    }
+
     let error = null
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error

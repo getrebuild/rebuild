@@ -12,9 +12,11 @@ RbForm.postAfter = function (data, next) {
   if (parent && parent.loadDeptTree) parent.loadDeptTree()
 }
 
+const deptId = window.__PageConfig.recordId
+
 const deleteDept = function (_alert) {
   _alert && _alert.disabled(true)
-  $.post(`/admin/bizuser/dept-delete?transfer=&id=${dept_id}`, (res) => {
+  $.post(`/admin/bizuser/dept-delete?transfer=&id=${deptId}`, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'
       parent.location.reload()
@@ -25,10 +27,70 @@ const deleteDept = function (_alert) {
   })
 }
 
-const dept_id = window.__PageConfig.recordId
+// ~ 成员列表
+class MemberList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    if (this.state.members && this.state.members.length === 0) {
+      return (
+        <div className="list-nodata">
+          <span className="zmdi zmdi-info-outline"></span>
+          <p>{$L('暂无成员')}</p>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        <table className="table table-striped table-hover table-btm-line">
+          <tbody>
+            {(this.state.members || []).map((item) => {
+              return (
+                <tr key={item[0]}>
+                  <td className="user-avatar cell-detail user-info">
+                    <a
+                      onClick={() => {
+                        window.RbViewPage && window.RbViewPage.clickView(`#!/View/User/${item[0]}`)
+                      }}>
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
+                      <span>{item[1]}</span>
+                      <span className="cell-detail-description">{item[2] || '-'}</span>
+                    </a>
+                  </td>
+                  <td className="cell-detail text-right">
+                    <div>{!item[3] && <em className="badge badge-warning badge-pill">{$L('未激活')}</em>}</div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  componentDidMount = () => this.loadMembers()
+
+  loadMembers() {
+    $.get(`/admin/bizuser/group-members?id=${this.props.id}`, (res) => {
+      const data = res.data || []
+      this.setState({ members: data })
+
+      if (data.length > 0) {
+        $(`<span class="badge badge-pill badge-primary">${data.length}</span>`).appendTo($('.nav-tabs a:eq(1)'))
+      }
+    })
+  }
+}
+
 $(document).ready(function () {
-  $('.J_delete-dept').click(() => {
-    $.get(`/admin/bizuser/delete-checks?id=${dept_id}`, (res) => {
+  if (rb.isAdminUser) {
+    renderRbcomp(<MemberList id={deptId} />, 'tab-members', function () {})
+  }
+
+  $('.J_delete-dept').on('click', () => {
+    $.get(`/admin/bizuser/delete-checks?id=${deptId}`, (res) => {
       const limits = []
       if (res.data.hasMember > 0) limits.push($L('**%d** 个用户', res.data.hasMember))
       if (res.data.hasChild > 0) limits.push($L('**%d** 个子部门', res.data.hasChild))

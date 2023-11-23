@@ -31,7 +31,6 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 表单/视图 功能扩展
@@ -75,8 +75,8 @@ public class ModelExtrasController extends BaseController {
         }
 
         try {
-            ID newId = transfomer.transform(sourceRecord, mainid);
-            return RespBody.ok(newId);
+            ID theNewId = transfomer.transform(sourceRecord, mainid);
+            return RespBody.ok(theNewId);
         } catch (Exception ex) {
             log.warn(">>>>> {}", ex.getLocalizedMessage());
 
@@ -86,7 +86,7 @@ public class ModelExtrasController extends BaseController {
             }
 
             return RespBody.errorl("记录转换失败 (%s)",
-                    StringUtils.defaultString(error, ex.getClass().getSimpleName()));
+                    Objects.toString(error, ex.getClass().getSimpleName()));
         }
     }
 
@@ -151,7 +151,7 @@ public class ModelExtrasController extends BaseController {
     @GetMapping("record-history")
     public JSONAware fetchRecordHistory(@IdParam ID id) {
         Object[][] array = Application.createQueryNoFilter(
-                "select revisionType,revisionOn,revisionBy from RevisionHistory where recordId = ? order by revisionOn desc")
+                "select revisionType,revisionOn,revisionBy,channelWith from RevisionHistory where recordId = ? order by autoId desc")
                 .setParameter(1, id)
                 .setLimit(100)
                 .array();

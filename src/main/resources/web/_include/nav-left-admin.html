@@ -61,10 +61,13 @@
               <li th:class="${active == 'data-imports'} ? 'active'">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon mdi mdi-database-import"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
-              <li th:class="${active == 'extforms'} ? 'active'">
-                <a th:href="@{/admin/extforms}"><i class="icon mdi mdi-format-list-group-plus"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup> </a>
+              <li th:class="${active == 'data-syncer'} ? 'active'" th:classappend="hide">
+                <a th:href="@{/admin/data/data-syncer}"><i class="icon mdi mdi-database-sync"></i><span>[[${bundle.L('数据同步')}]]</span> <sup class="rbv"></sup></a>
               </li>
-              <li class="divider">[[${bundle.L('高级功能')}]]</li>
+              <li th:class="${active == 'extforms'} ? 'active'">
+                <a th:href="@{/admin/extforms}"><i class="icon mdi mdi-format-list-group-plus"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
+              </li>
+              <li class="divider">[[${bundle.L('更多功能')}]]</li>
               <li th:class="${active == 'projects'} ? 'active'">
                 <a th:href="@{/admin/projects}"><i class="icon mdi mdi-shape-outline"></i><span>[[${bundle.L('项目')}]]</span></a>
               </li>

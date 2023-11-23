@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
@@ -190,7 +191,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         } else if (action.startsWith("share")) {
             return BizzPermission.SHARE;
         } else if (action.startsWith("unshare")) {
-            return EntityService.UNSHARE;
+            return InternalPermission.UNSHARE;
         }
         throw new PrivilegesException("No such Permission found : " + action);
     }
@@ -213,8 +214,10 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             actionHuman = Language.L("分配");
         } else if (action == BizzPermission.SHARE) {
             actionHuman = Language.L("共享");
-        } else if (action == EntityService.UNSHARE) {
+        } else if (action == InternalPermission.UNSHARE) {
             actionHuman = Language.L("取消共享");
+        } else if (action == InternalPermission.APPROVAL) {
+            actionHuman = Language.L("审批");
         }
 
         if (target == null) {

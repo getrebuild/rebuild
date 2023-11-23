@@ -79,6 +79,68 @@ $(document).ready(function () {
     })
   })
 
+  $('.J_location').on('click', function () {
+    const $btn = $(this).button('loading')
+    $useMap(() => {
+      const geo = new window.BMapGL.Geolocation()
+      geo.enableSDKLocation()
+      geo.getCurrentPosition(
+        function (e) {
+          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
+            let addr = e.address || {}
+            addr = [addr.country || '', addr.province || '', addr.city || '', addr.district || '', addr.street || '', addr.street_number || '']
+            RbHighbar.success($L('已允许获取位置') + ': ' + addr.join(''))
+          } else {
+            RbHighbar.create($L('无法获取位置'))
+          }
+          $btn.button('reset')
+        },
+        function () {
+          RbHighbar.create($L('无法获取位置'))
+          $(this).button('reset')
+        }
+      )
+    })
+  })
+
+  $('.J_notification').on('click', function () {
+    // https://notifications.spec.whatwg.org/#dom-notification-requestpermission
+    const _Notification = window.Notification || window.mozNotification || window.webkitNotification
+    if (_Notification) {
+      if (_Notification.permission === 'granted') {
+        const n = new _Notification($L('已允许推送通知'), {
+          icon: rb.baseUrl + '/assets/img/favicon.png',
+          tag: 'rbNotificationTest',
+          renotify: true,
+          silent: false,
+        })
+        n.onshow = function () {}
+        n.onerror = function () {
+          RbHighbar.create($L('未被允许推送通知'))
+        }
+      } else {
+        _Notification.requestPermission().then((res) => {
+          if (res === 'granted') {
+            $(this).trigger('click')
+          } else {
+            RbHighbar.create($L('未被允许推送通知'))
+          }
+        })
+      }
+    } else {
+      RbHighbar.error('BROWSER DOES NOT SUPPORT')
+    }
+  })
+
+  $('.J_clearcache').on('click', function () {
+    document.cookie.split(';').forEach(function (c) {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+    })
+    localStorage.clear()
+    sessionStorage.clear()
+    RbHighbar.success('清除缓存成功')
+  })
+
   // load log
 
   $('a.nav-link[href="#logs"]').click(() => {
@@ -317,15 +379,17 @@ class DlgCropper extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('修改头像')} ref={(c) => (this._dlg = c)} width="500" onHide={() => (__cropper = null)}>
-        <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
-          {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => (this._avatar = c)} style={{ maxWidth: '100%' }} />}
-          {this.state.inLoad && <RbSpinner />}
-        </div>
-        <div className="mt-3">
-          <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => (this._btn = c)}>
-            {$L('修改')}
-          </button>
+      <RbModal title={$L('修改头像')} ref={(c) => (this._dlg = c)} width="550" onHide={() => (__cropper = null)}>
+        <div className="m-1">
+          <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
+            {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => (this._avatar = c)} style={{ maxWidth: '100%' }} />}
+            {this.state.inLoad && <RbSpinner />}
+          </div>
+          <div className="mt-3">
+            <button className="btn btn-primary w-100 btn-lg" onClick={this.post} ref={(c) => (this._btn = c)}>
+              {$L('修改')}
+            </button>
+          </div>
         </div>
       </RbModal>
     )

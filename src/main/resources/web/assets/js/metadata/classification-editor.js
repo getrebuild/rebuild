@@ -377,7 +377,7 @@ class DlgImports extends RbModalHandler {
                     <div
                       className="form-text link"
                       dangerouslySetInnerHTML={{
-                        __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/entity/field-classification#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE)'),
+                        __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/entity/field-classification#%E4%BB%8E%E6%96%87%E4%BB%B6%E5%AF%BC%E5%85%A5)'),
                       }}
                     />
                   </div>
@@ -482,7 +482,7 @@ class DlgImports extends RbModalHandler {
   _checkState(taskid) {
     if (!this.__mp) {
       const mp_parent = $(this._dlg._element).find('.modal-body').attr('id')
-      this.__mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
+      this.__mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
     }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {

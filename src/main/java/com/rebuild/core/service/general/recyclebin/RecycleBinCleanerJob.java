@@ -16,6 +16,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NamedThreadLocal;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -109,19 +110,52 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
         Application.getSqlExecutor().execute(delSql, 60 * 3);
     }
 
+    // --
+
+    private static final ThreadLocal<Boolean> SKIP_RECYCLEBIN = new NamedThreadLocal<>("Skip recycle-bin");
+    private static final ThreadLocal<Boolean> SKIP_REVISIONHISTORY = new NamedThreadLocal<>("Skip revision history");
+
     /**
-     * 回收站激活
+     * 回收站是否激活
      * @return
+     * @see #setSkipRecyclebinOnce()
      */
     public static boolean isEnableRecycleBin() {
-        return RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0;
+        boolean enable = RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0;
+        if (enable) {
+            Boolean skip = SKIP_RECYCLEBIN.get();
+            SKIP_RECYCLEBIN.remove();
+            if (skip != null && skip) return false;
+        }
+        return enable;
     }
 
     /**
-     * 修改历史激活
+     * 变更历史是否激活
      * @return
+     * @see #setSkipRevisionHistoryOnce()
      */
     public static boolean isEnableRevisionHistory() {
-        return RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0;
+        boolean enable = RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0;
+        if (enable) {
+            Boolean skip = SKIP_REVISIONHISTORY.get();
+            SKIP_REVISIONHISTORY.remove();
+            if (skip != null && skip) return false;
+        }
+        return enable;
+    }
+
+    /**
+     * 跳过一次回收站
+     */
+    public static void setSkipRecyclebinOnce() {
+        SKIP_RECYCLEBIN.set(true);
+    }
+
+    /**
+     * 跳过一次变更历史
+     */
+    public static void setSkipRevisionHistoryOnce() {
+        SKIP_REVISIONHISTORY.set(true);
     }
 }

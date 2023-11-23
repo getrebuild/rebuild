@@ -22,10 +22,15 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -49,8 +54,7 @@ public class BatchUpdateController extends BaseController {
                 Language.L("无操作权限"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
-
-        requestData.put("_dataRange", getIntParameter(request, "dr", 2));
+        requestData.put("_dataRange", getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED));
         requestData.put("entity", entity);
         BulkContext bulkContext = new BulkContext(user, BizzPermission.UPDATE, requestData);
 

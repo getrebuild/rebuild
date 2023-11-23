@@ -75,6 +75,9 @@
       } else if (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1) {
         $btn.parentNode.removeChild($btn)
       }
+      if (document.getElementsByClassName('err600').length > 0) {
+        setTimeout(() => location.reload(), 15000)
+      }
     </script>
   </body>
 </html>

@@ -103,18 +103,30 @@ public class QiniuCloud {
      * 文件上传
      *
      * @param file
+     * @param fops
      * @return
      * @throws IOException
      */
-    public String upload(File file) throws IOException {
-        String key = formatFileKey(file.getName());
-        Response resp = UPLOAD_MANAGER.put(file, key, getAuth().uploadToken(bucketName));
+    public String upload(File file, String fops) throws IOException {
+        String fileKey = formatFileKey(file.getName());
+        Response resp = UPLOAD_MANAGER.put(file, fileKey, getUploadToken(fileKey, fops));
         if (resp.isOK()) {
-            return key;
+            return fileKey;
         } else {
             log.error("Cannot upload file : {}. Resp: {}", file.getName(), resp);
             return null;
         }
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public String upload(File file) throws IOException {
+        return upload(file, null);
     }
 
     /**
@@ -218,7 +230,8 @@ public class QiniuCloud {
     @SuppressWarnings("deprecation")
     public long stats() {
         String time = CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
-        String url = String.format("%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day",
+        String url = String.format(
+                "%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day",
                 CONFIGURATION.apiHost(), bucketName, time, time);
         StringMap headers = getAuth().authorization(url);
 
@@ -237,15 +250,30 @@ public class QiniuCloud {
     }
 
     /**
+     * 获取上传 Token
+     *
      * @param fileKey
+     * @param fops 异步预处理
      * @return
      * @see #formatFileKey(String)
      */
-    public String getUploadToken(String fileKey) {
+    public String getUploadToken(String fileKey, String fops) {
         // 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
         int maxSize = RebuildConfiguration.getInt(ConfigurationItem.PortalUploadMaxSize);
         StringMap policy = new StringMap().put("fsizeLimit", FileUtils.ONE_MB * maxSize);
-        return getAuth().uploadToken(bucketName, fileKey, 60 * 10, policy);
+        if (fops != null) policy.put("persistentOps", fops).put("persistentNotifyUrl", "https://webhook.site/e2784dd3-cf2c-49ce-8d53-05666e7f5bd0");
+
+        return getAuth().uploadToken(bucketName, fileKey, 3600L, policy, true);
+    }
+
+    /**
+     * 获取上传 Token
+     *
+     * @param fileKey
+     * @return
+     */
+    public String getUploadToken(String fileKey) {
+        return getUploadToken(fileKey, null);
     }
 
     /**

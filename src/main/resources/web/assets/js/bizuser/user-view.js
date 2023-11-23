@@ -62,6 +62,7 @@ $(document).ready(function () {
       },
       onRendered: function () {
         const $b = $(this._element).find('.modal-body b').addClass('newpwd').attr('title', $L('点击复制'))
+        $b.tooltip()
         // eslint-disable-next-line no-undef
         new ClipboardJS($b[0], {
           text: function () {
@@ -129,7 +130,7 @@ $(document).ready(function () {
         $.get(`/commons/search/read-labels?ids=${res.data.roleAppends.join(',')}`, (res) => {
           const $p = $('.J_roleAppends').empty()
           for (let k in res.data) {
-            $(`<span class="badge badge-light up-2">${res.data[k]}</span>`).appendTo($p)
+            $(`<span class="badge badge-info up-2"><i class="icon mdi mdi-account-lock"></i> ${res.data[k]}</span>`).appendTo($p)
           }
         })
       }
@@ -265,6 +266,6 @@ class DlgEnableUser extends RbModalHandler {
 }
 
 const _reload = function (timeout) {
-  setTimeout(() => location.reload(), timeout || 1)
+  setTimeout(() => RbViewPage.reload(), timeout || 1)
   parent && parent.RbListPage && parent.RbListPage.reload()
 }

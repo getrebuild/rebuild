@@ -9,6 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
@@ -24,7 +25,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
@@ -52,6 +52,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -62,6 +63,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -73,10 +75,8 @@ import java.util.TreeMap;
  *
  * <p>如有需要，其他实体可根据自身业务继承并复写</p>
  *
- * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
- *
  * @author Zixin (RB)
- * @since 11/06/2017
+ * @since 11/06/2019
  */
 @Slf4j
 @Service
@@ -87,11 +87,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
+    }
 
-        // 通知
-        addObserver(new NotificationObserver());
-        // 触发器
-        addObserver(new RobotTriggerObserver());
+    @Override
+    protected Observer[] getOrderObservers() {
+        Observer[] obs = new Observer[] {
+                // 触发器
+                new RobotTriggerObserver(),
+                // 通知
+                new NotificationObserver(),
+        };
+        obs = ArrayUtils.addAll(obs, super.getOrderObservers());
+        return obs;
     }
 
     @Override
@@ -119,49 +126,68 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         // 含明细
         final boolean hasDetails = details != null && !details.isEmpty();
 
-        boolean lazyAutoApprovalForDetails = false;
-        boolean lazyAutoTransformForDetails = false;
+        // 延迟执行触发器，因为明细尚未保存好
+        boolean lazyAutoApproval4Details = false;
+        boolean lazyAutoTransform4Details = false;
+        boolean lazyHookUrl4Details = false;
         if (hasDetails) {
-            // fix: v3.2.2
+
+            // 自动审批 fix: v3.2.2
+
             TriggerAction[] hasAutoApprovalTriggers = getSpecTriggers(
                     record.getEntity(), ActionType.AUTOAPPROVAL, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoApprovalForDetails = hasAutoApprovalTriggers.length > 0;
+            lazyAutoApproval4Details = hasAutoApprovalTriggers.length > 0;
             // FIXME 此判断可能无意义，待进一步测试后确定是否保留
-            if (!lazyAutoApprovalForDetails) {
+            if (!lazyAutoApproval4Details) {
                 TriggerAction[] hasOnApprovedTriggers = getSpecTriggers(
                         record.getEntity().getDetailEntity(), null, TriggerWhen.APPROVED);
-                lazyAutoApprovalForDetails = hasOnApprovedTriggers.length > 0;
+                lazyAutoApproval4Details = hasOnApprovedTriggers.length > 0;
             }
             // 自动审批延迟执行，因为明细尚未保存好
-            if (lazyAutoApprovalForDetails) AutoApproval.setLazyAutoApproval();
+            if (lazyAutoApproval4Details) AutoApproval.setLazy();
+
+            // 自动转换
 
             TriggerAction[] hasAutoTransformTriggers = getSpecTriggers(
                     record.getEntity(), ActionType.AUTOTRANSFORM, TriggerWhen.CREATE, TriggerWhen.UPDATE);
-            lazyAutoTransformForDetails = hasAutoTransformTriggers.length > 0;
+            lazyAutoTransform4Details = hasAutoTransformTriggers.length > 0;
             // 记录转换延迟执行，因为明细尚未保存好
-            if (lazyAutoTransformForDetails) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazyAutoTransform");
+            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#setLazy");
+
+            // URL 回调 v3.5
+
+            TriggerAction[] hasHookUrlTriggers = getSpecTriggers(
+                    record.getEntity(), ActionType.HOOKURL, TriggerWhen.CREATE, TriggerWhen.UPDATE, TriggerWhen.DELETE);
+            lazyHookUrl4Details = hasHookUrlTriggers.length > 0;
+            // 对于全量推送，明细尚未保存好
+            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#setLazy");
         }
 
-        // 保证顺序
+        // 保证执行顺序
         Map<Integer, ID> detaileds = new TreeMap<>();
 
         try {
             record = record.getPrimary() == null ? create(record) : update(record);
             if (!hasDetails) return record;
 
-            // 主记录+明细记录处理
+            // 明细记录处理
 
-            final String dtfField = MetadataHelper.getDetailToMainField(record.getEntity().getDetailEntity()).getName();
+            final Entity detailEntity = record.getEntity().getDetailEntity();
+            final String dtfField = MetadataHelper.getDetailToMainField(detailEntity).getName();
             final ID mainid = record.getPrimary();
 
             final boolean checkDetailsRepeated = rcm == GeneralEntityServiceContextHolder.RCM_CHECK_DETAILS
                     || rcm == GeneralEntityServiceContextHolder.RCM_CHECK_ALL;
 
+            // 明细可能有自己的 Service
+            EntityService des = Application.getEntityService(detailEntity.getEntityCode());
+            if (des.getEntityCode() == 0) des = this;
+
             // 先删除
             for (int i = 0; i < details.size(); i++) {
                 Record d = details.get(i);
                 if (d instanceof DeleteRecord) {
-                    delete(d.getPrimary());
+                    des.delete(d.getPrimary());
                     detaileds.put(i, d.getPrimary());
                 }
             }
@@ -174,7 +200,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (checkDetailsRepeated) {
                     d.setID(dtfField, mainid);  // for check
 
-                    List<Record> repeated = getAndCheckRepeated(d, 20);
+                    List<Record> repeated = des.getAndCheckRepeated(d, 20);
                     if (!repeated.isEmpty()) {
                         throw new RepeatedRecordsException(repeated);
                     }
@@ -182,9 +208,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (d.getPrimary() == null) {
                     d.setID(dtfField, mainid);
-                    create(d);
+                    des.create(d);
                 } else {
-                    update(d);
+                    des.update(d);
                 }
                 detaileds.put(i, d.getPrimary());
             }
@@ -193,12 +219,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (lazyAutoApprovalForDetails) {
-                AutoApproval.executeLazyAutoApproval();
-            }
-            if (lazyAutoTransformForDetails) {
-                CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazyAutoTransform");
-            }
+            if (lazyAutoApproval4Details) AutoApproval.executeLazy();
+            if (lazyAutoTransform4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.AutoTransform#executeLazy");
+            if (lazyHookUrl4Details) CommonsUtils.invokeMethod("com.rebuild.rbv.trigger.HookUrl#executeLazy");
         }
     }
 
@@ -454,7 +477,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(currentUser, UNSHARE, unsharedBefore, null));
+            notifyObservers(OperatingContext.create(currentUser, InternalPermission.UNSHARE, unsharedBefore, null));
         }
         return 1;
     }
@@ -550,11 +573,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return new BulkAssign(context, this);
         } else if (context.getAction() == BizzPermission.SHARE) {
             return new BulkShare(context, this);
-        } else if (context.getAction() == UNSHARE) {
+        } else if (context.getAction() == InternalPermission.UNSHARE) {
             return new BulkUnshare(context, this);
         } else if (context.getAction() == BizzPermission.UPDATE) {
-            return new BulkBacthUpdate(context, this);
+            return new BulkBatchUpdate(context, this);
+        } else if (context.getAction() == InternalPermission.APPROVAL) {
+            return (BulkOperator) ReflectUtils.newObject(
+                    "com.rebuild.rbv.approval.BulkBatchApprove", context, this);
         }
+
         throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
     }
 
@@ -673,10 +700,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 continue;
             }
 
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (easyField.getDisplayType() == DisplayType.SERIES) continue;
-
-            Object defaultValue = easyField.exprDefaultValue();
+            Object defaultValue = EasyMetaFactory.valueOf(field).exprDefaultValue();
             if (defaultValue != null) {
                 recordOfNew.setObjectValue(field.getName(), defaultValue);
             }
@@ -830,5 +854,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             if (t.getType() == specType) specTriggers.add(t);
         }
         return specTriggers.toArray(new TriggerAction[0]);
+    }
+
+    @Override
+    public String toString() {
+        return getEntityCode() + "#" + super.toString();
     }
 }

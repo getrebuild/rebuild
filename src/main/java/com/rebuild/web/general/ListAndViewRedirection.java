@@ -38,11 +38,12 @@ public class ListAndViewRedirection extends BaseController {
 
     // compatible: v3.1 "/app/list-and-view"
     @GetMapping({ "/app/list-and-view", "/app/redirect" })
-    public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
+    public void redirect(@IdParam ID anyId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String url = null;
 
         if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
-            Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
+            final String type = getParameter(request, "type");
+            final Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 
             if (entity.getEntityCode() == EntityHelper.Feeds) {
                 url = "../feeds/home#s=" + anyId;
@@ -64,7 +65,13 @@ public class ListAndViewRedirection extends BaseController {
                         "../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), anyId);
 
             } else if (MetadataHelper.isBusinessEntity(entity)) {
-                url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), anyId);
+                if ("dock".equalsIgnoreCase(type)) {
+                    url = String.format("entity/view/{%s", anyId);
+                } else if ("newtab".equalsIgnoreCase(type)) {
+                    url = String.format("%s/view/%s", entity.getName(), anyId);
+                } else {
+                    url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), anyId);
+                }
             }
         }
 

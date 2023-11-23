@@ -335,8 +335,7 @@ public class RecordCheckout {
         while (num >= 0) {
             int remainder = num % 26;
             name.insert(0, (char) (remainder + 65));
-            //noinspection IntegerDivisionInFloatingPointContext
-            num = (int) Math.floor(num / 26) - 1;
+            num = (int) (double) (num / 26) - 1;
         }
         name.append(cell.getRowNo() + 1);
 

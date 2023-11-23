@@ -7,22 +7,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorJavaType;
+import com.googlecode.aviator.runtime.type.AviatorNil;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorString;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.web.commons.MetadataGetting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Usage: TEXT($id|$id[], [$defaultValue], [$separator])
+ * Usage: TEXT($id|$id[], [$defaultValue], [$separator], [$fieldName])
  * Return: String
  *
  * @author RB
@@ -37,37 +45,62 @@ public class TextFunction extends AbstractFunction {
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1) {
-        return call(env, arg1, BLANK, SEPARATOR);
+        return call(env, arg1, BLANK, SEPARATOR, AviatorNil.NIL);
     }
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
-        return call(env, arg1, BLANK, SEPARATOR);
+        return call(env, arg1, arg2, SEPARATOR, AviatorNil.NIL);
     }
 
     @Override
     public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2, AviatorObject arg3) {
+        return call(env, arg1, arg2, arg3, AviatorNil.NIL);
+    }
+
+    @Override
+    public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2, AviatorObject arg3, AviatorObject arg4) {
         final Object $id = arg1.getValue(env);
+        final Object $defaultValue = arg2.getValue(env);
+        final String sep = ObjectUtils.defaultIfNull(arg3.getValue(env), ", ").toString();
+        final String fieldName = arg4.getValue(env) == null ? null : arg4.getValue(env).toString();
 
         // 引用 ID
         if (ID.isId($id)) {
             ID anyid = $id instanceof ID ? (ID) $id : ID.valueOf($id.toString());
-            String text = FieldValueHelper.getLabel(anyid, null);
-            return text == null ? arg2 : new AviatorString(text);
+            String text = getLabel(anyid, fieldName);
+
+            if (text == null && $defaultValue != null) text = $defaultValue.toString();
+            return new AviatorString(text);
         }
 
         // 多引用 ID[]
-        if ($id instanceof ID[]) {
-            List<String> texts = new ArrayList<>();
-            for (ID anyid : (ID[]) $id) {
-                String t = FieldValueHelper.getLabel(anyid, null);
-                if (t != null) texts.add(t);
+
+        Object idArray = $id;
+        if ($id instanceof Collection) {
+            List<ID> list = null;
+            for (Object o : (Collection<?>) $id) {
+                if (o instanceof ID) {
+                    if (list == null) list = new ArrayList<>();
+                    list.add((ID) o);
+                }
             }
 
-            if (texts.isEmpty()) return arg2;
+            if (list != null) idArray = list.toArray(new ID[0]);
+        }
 
-            String sep = ObjectUtils.defaultIfNull(arg3.getValue(env), ", ").toString();
-            return new AviatorString(StringUtils.join(texts, sep));
+        if (idArray instanceof ID[]) {
+            List<String> text = new ArrayList<>();
+            for (ID anyid : (ID[]) idArray) {
+                String item = getLabel(anyid, fieldName);
+
+                if (item == null && $defaultValue != null) item = $defaultValue.toString();
+                if (item != null) text.add(item);
+            }
+
+            if (text.isEmpty()) return arg2;
+
+            return new AviatorString(StringUtils.join(text, sep));
         }
 
         if (arg1 instanceof AviatorJavaType) {
@@ -79,6 +112,20 @@ public class TextFunction extends AbstractFunction {
         // TODO 更多字段类型支持
 
         return arg2;
+    }
+
+    // 获取字段内容
+    private String getLabel(ID id, String fieldName) {
+        if (fieldName == null) return FieldValueHelper.getLabelNotry(id);
+
+        Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+        Field field = MetadataHelper.getLastJoinField(entity, fieldName);
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(id, fieldName);
+        if (o == null || o[0] == null) return null;
+
+        Object label = FieldValueHelper.wrapFieldValue(o[0], field, true);
+        return label == null ? null : label.toString();
     }
 
     @Override

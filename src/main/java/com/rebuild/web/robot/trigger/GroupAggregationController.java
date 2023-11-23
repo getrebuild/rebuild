@@ -9,7 +9,10 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -20,15 +23,14 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
+import com.rebuild.web.general.MetaFormatter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.rebuild.web.robot.trigger.FieldAggregationController.buildField;
-import static com.rebuild.web.robot.trigger.FieldAggregationController.isAllowSourceField;
+import java.util.function.Predicate;
 
 /**
  * @author devezhao
@@ -40,44 +42,30 @@ public class GroupAggregationController extends BaseController {
 
     @RequestMapping("group-aggregation-entities")
     public JSON getSourceEntities(@EntityParam(name = "source") Entity sourceEntity) {
-        // 目标实体
+        // 任意目标实体
         List<String[]> entities = new ArrayList<>();
-        // 任意
         for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
             if (entity.equals(sourceEntity)) continue;
             entities.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
         }
 
         // 源-分组字段
-        List<String[]> sourceGroupFields = new ArrayList<>();
+        JSONArray sourceGroupFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, GF_FILTER);
+        paddingType2(sourceGroupFields, sourceEntity);
+
         // 源-聚合字段
-        List<String[]> sourceFields = new ArrayList<>();
-
-        for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            String[] build = buildIfGroupField(easyField);
-            if (build != null) sourceGroupFields.add(build);
-
-            if (isAllowSourceField(field)) {
-                sourceFields.add(buildField(field));
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+            if (field instanceof EasyField) {
+                EasyField easyField = (EasyField) field;
+                return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
             }
-        }
+            return MetadataHelper.isApprovalField(field.getName());
+        });
 
-        // 明细实体则包括主实体
-        if (sourceEntity.getMainEntity() != null) {
-            String prefixName = MetadataHelper.getDetailToMainField(sourceEntity).getName() + ".";
-            String prefixLabel = EasyMetaFactory.getLabel(sourceEntity.getMainEntity()) + ".";
-
-            for (Field field : MetadataSorter.sortFields(sourceEntity.getMainEntity())) {
-                EasyField easyField = EasyMetaFactory.valueOf(field);
-                String[] build = buildIfGroupField(easyField);
-                if (build != null) {
-                    build[0] = prefixName + build[0];
-                    build[1] = prefixLabel + build[1];
-                    sourceGroupFields.add(build);
-                }
-            }
-        }
+        JSONArray tmp = new JSONArray();
+        tmp.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
+        tmp.addAll(sourceFields);
+        sourceFields = tmp;
 
         return JSONUtils.toJSONObject(
                 new String[] { "targetEntities", "sourceGroupFields", "sourceFields" },
@@ -87,21 +75,15 @@ public class GroupAggregationController extends BaseController {
     @RequestMapping("group-aggregation-fields")
     public JSON getTargetFields(@EntityParam(name = "target") Entity targetEntity) {
         // 目标-分组字段
-        List<String[]> targetGroupFields = new ArrayList<>();
+        JSONArray targetGroupFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, GF_FILTER);
+        paddingType2(targetGroupFields, targetEntity);
+
         // 目标字段
-        List<String[]> targetFields = new ArrayList<>();
-
-        for (Field field : MetadataSorter.sortFields(targetEntity)) {
-            EasyField easyField = EasyMetaFactory.valueOf(field);
-            String[] build = buildIfGroupField(easyField);
-            if (build != null) targetGroupFields.add(build);
-
-            DisplayType dt = easyField.getDisplayType();
-            if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
-                    || dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE) {
-                targetFields.add(buildField(field));
-            }
-        }
+        JSONArray targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, field -> {
+            DisplayType dt = ((EasyField) field).getDisplayType();
+            return !(dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
+                    || dt == DisplayType.NTEXT || dt == DisplayType.N2NREFERENCE);
+        });
 
         // 审批流程启用
         boolean hadApproval = RobotApprovalManager.instance.hadApproval(
@@ -111,23 +93,31 @@ public class GroupAggregationController extends BaseController {
                 new String[] { "targetGroupFields", "targetFields", "hadApproval" },
                 new Object[] { targetGroupFields, targetFields, hadApproval });
     }
-    
-    private String[] buildIfGroupField(EasyField field) {
-        if (MetadataHelper.isApprovalField(field.getName())) return null;
 
-        DisplayType dt = field.getDisplayType();
-        // 分组字段类型的支持
-        boolean allow = dt == DisplayType.TEXT
-                || dt == DisplayType.DATE || dt == DisplayType.DATETIME
-                || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE;
-        if (!allow) return null;
-
-        String[] build = buildField(field.getRawMeta());
-        if (dt == DisplayType.CLASSIFICATION) {
-            build[2] += ":" + field.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
-        } else if (dt == DisplayType.REFERENCE) {
-            build[2] += ":" + field.getRawMeta().getReferenceEntity().getName();
+    // 分组字段类型的支持
+    private static Predicate<BaseMeta> GF_FILTER = field -> {
+        if (field instanceof EasyField) {
+            DisplayType dt = ((EasyField) field).getDisplayType();
+            return !(dt == DisplayType.TEXT
+                    || dt == DisplayType.DATE || dt == DisplayType.DATETIME
+                    || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE);
         }
-        return build;
+        return false;
+    };
+
+    // type = type+REF
+    private static void paddingType2(JSONArray fields, Entity entity) {
+        for (Object o : fields) {
+            JSONObject item = (JSONObject) o;
+            String type = item.getString("type");
+            if (DisplayType.REFERENCE.name().equals(type)) {
+                String type2 = type + ":" + item.getJSONArray("ref").get(0);
+                item.put("type", type2);
+            } else if (DisplayType.CLASSIFICATION.name().equals(type)) {
+                Field clazz = MetadataHelper.getLastJoinField(entity, item.getString("name"));
+                String type2 = type + ":" + EasyMetaFactory.valueOf(clazz).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
+                item.put("type", type2);
+            }
+        }
     }
 }

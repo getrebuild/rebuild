@@ -14,7 +14,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('转换条件')} inModal canNoFilters entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
         advFilter = this
       })
     }
@@ -35,7 +35,8 @@ $(document).ready(() => {
 
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
-    if (!item.name.includes('.') && item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) {
+    if (item.name.includes('.')) return
+    if ((item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) || item.type === 'ANYREFERENCE') {
       fillbackFields.push({ id: item.name, text: item.label })
     }
   })

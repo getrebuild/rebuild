@@ -47,7 +47,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
     }
 
     private boolean isIgnore(OperatingContext ctx) {
-        int entity = ctx.getAnyRecord().getEntity().getEntityCode();
+        int entity = ctx.getFixedRecordId().getEntityCode();
         return entity == EntityHelper.FeedsComment || entity == EntityHelper.ProjectTaskComment;
     }
 
@@ -130,6 +130,8 @@ public class RevisionHistoryObserver extends OperatingObserver {
         TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
         if (triggerSource != null) {
             record.setID("channelWith", triggerSource.getOriginRecord());
+            // v35 系统用户
+            record.setID("revisionBy", UserService.SYSTEM_USER);
         }
 
         if (context.getOperationIp() != null) {

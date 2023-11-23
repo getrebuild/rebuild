@@ -42,6 +42,7 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.N2NReferenceSupport;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -105,7 +106,7 @@ public class FieldWriteback extends FieldAggregation {
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
-                operatingContext.getAnyRecord().getPrimary(), operatingContext.getAction().getName());
+                operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
@@ -130,7 +131,7 @@ public class FieldWriteback extends FieldAggregation {
         for (ID targetRecordId : targetRecordIds) {
             // 删除时无需更新自己
             if (operatingContext.getAction() == BizzPermission.DELETE
-                    && targetRecordId.equals(operatingContext.getAnyRecord().getPrimary())) {
+                    && targetRecordId.equals(operatingContext.getFixedRecordId())) {
                 continue;
             }
 
@@ -200,8 +201,14 @@ public class FieldWriteback extends FieldAggregation {
 
         targetRecordIds = new HashSet<>();
 
-        if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
-            // 自己更新自己
+        // v35
+        if (TARGET_ANY.equals(targetFieldEntity[0])) {
+            TargetWithMatchFields targetWithMatchFields = new TargetWithMatchFields();
+            ID[] ids = targetWithMatchFields.matchMulti(actionContext);
+            CollectionUtils.addAll(targetRecordIds, ids);
+        }
+        // 自己更新自己
+        else if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             targetRecordIds.add(actionContext.getSourceRecord());
         }
         // 1:1
@@ -247,13 +254,13 @@ public class FieldWriteback extends FieldAggregation {
             // N:N v3.1
             Field targetField = targetEntity.getField(targetFieldEntity[0]);
             if (targetField.getType() == FieldType.REFERENCE_LIST) {
-                Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getAnyRecord().getPrimary());
+                Set<ID> set = N2NReferenceSupport.findReferences(targetField, operatingContext.getFixedRecordId());
                 targetRecordIds.addAll(set);
             } else {
                 String sql = String.format("select %s from %s where %s = ?",
                         targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
                 Object[][] array = Application.createQueryNoFilter(sql)
-                        .setParameter(1, operatingContext.getAnyRecord().getPrimary())
+                        .setParameter(1, operatingContext.getFixedRecordId())
                         .array();
 
                 for (Object[] o : array) {
@@ -461,7 +468,13 @@ public class FieldWriteback extends FieldAggregation {
                         } else if (dt == DisplayType.DECIMAL) {
                             targetRecord.setDouble(targetField, ObjectUtils.toDouble(newValue));
                         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-                            targetRecord.setDate(targetField, (Date) newValue);
+                            if (newValue instanceof Date) {
+                                targetRecord.setDate(targetField, (Date) newValue);
+                            } else {
+                                Date newValueCast = CalendarUtils.parse(newValue.toString());
+                                if (newValueCast == null) log.warn("Cannot cast string to date : {}", newValue);
+                                else targetRecord.setDate(targetField, newValueCast);
+                            }
                         } else {
                             newValue = checkoutFieldValue(newValue, targetFieldEasy);
                             if (newValue != null) {

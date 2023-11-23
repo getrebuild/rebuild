@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -58,7 +57,7 @@ public class TriggerAdminController extends BaseController {
                                    HttpServletResponse response) throws IOException {
         ID configId = ID.valueOf(id);
         Object[] config = Application.createQuery(
-                "select belongEntity,actionType,when,whenFilter,actionContent,priority,name,whenTimer from RobotTriggerConfig where configId = ?")
+                "select belongEntity,actionType,when,whenFilter,actionContent,priority,name,whenTimer,isDisabled from RobotTriggerConfig where configId = ?")
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
@@ -87,7 +86,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("actionContent", config[4]);
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
-        mv.getModel().put("lockedUser", JSON.toJSONString(CommonsLock.getLockedUserFormat(configId)));
+        mv.getModel().put("isDisabled", config[8] == null ? false : config[8]);
 
         return mv;
     }
@@ -119,22 +118,28 @@ public class TriggerAdminController extends BaseController {
     public Object[][] triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
-        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,configId,priority,actionContent from RobotTriggerConfig" +
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType,priority,actionContent from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] array = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
             o[7] = Language.L(ActionType.valueOf((String) o[7]));
-            o[8] = CommonsLock.getLockedUserFormat((ID) o[8]);
-
             // 目标实体
-            o[10] = tryParseTargetEntity((String) o[10], (String) o[1]);
+            o[9] = tryParseTargetEntity((String) o[9], (String) o[1], true);
         }
         return array;
     }
 
-    private String tryParseTargetEntity(String config, String sourceEntity) {
+    /**
+     * 尝试解析目标实体
+     *
+     * @param config
+     * @param sourceEntity
+     * @param useLabel
+     * @return
+     */
+    public static String tryParseTargetEntity(String config, String sourceEntity, boolean useLabel) {
         if (!JSONUtils.wellFormat(config)) return null;
 
         JSONObject configJson = JSON.parseObject(config);
@@ -145,9 +150,9 @@ public class TriggerAdminController extends BaseController {
             else if (targetEntity.contains(".")) targetEntity = targetEntity.split("\\.")[1];
 
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return EasyMetaFactory.getLabel(targetEntity);
+                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
             } else {
-                return String.format("[%s]", targetEntity.toUpperCase());
+                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
             }
         }
 
@@ -162,9 +167,9 @@ public class TriggerAdminController extends BaseController {
 
             targetEntity = cb.getString("target");
             if (MetadataHelper.containsEntity(targetEntity)) {
-                return EasyMetaFactory.getLabel(targetEntity);
+                return useLabel ? EasyMetaFactory.getLabel(targetEntity) : targetEntity;
             } else {
-                return String.format("[%s]", targetEntity.toUpperCase());
+                return useLabel ? String.format("[%s]", targetEntity.toUpperCase()) : null;
             }
         }
 

@@ -16,35 +16,67 @@ class RbModal extends React.Component {
   }
 
   render() {
-    const style1 = {}
-    if (this.props.zIndex) style1.zIndex = this.props.zIndex
+    const props = this.props
+    const style2 = { maxWidth: ~~(props.width || 680) }
+    if (props.useWhite) {
+      style2.maxWidth = this.state._maximize ? $(window).width() - 60 : null
+    }
 
-    const iframe = !this.props.children // No child
-    const style2 = { maxWidth: this.props.width || 680 }
-
+    const modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
     return (
       <div
-        className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`}
-        style={style1}
+        className={modalClazz}
+        style={props.zIndex ? { zIndex: props.zIndex } : null}
         ref={(c) => {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className="modal-dialog" style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'}`} style={style2}>
           <div className="modal-content" style={style2}>
-            <div className="modal-header modal-header-colored">
-              {this.props.icon && <i className={`icon zmdi zmdi-${this.props.icon}`} />}
-              <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
+            <div
+              className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
+              onDoubleClick={(e) => {
+                if (this.props.maximize) {
+                  $stopEvent(e, true)
+                  this.setState({ _maximize: !this.state._maximize })
+                }
+              }}>
+              {props.icon && <i className={`icon zmdi zmdi-${props.icon}`} />}
+              <h3 className="modal-title">{props.title || ''}</h3>
+
+              {props.url && props.urlOpenInNew && (
+                <a className="close s fs-18" href={props.url} target="_blank" title={$L('在新页面打开')}>
+                  <span className="zmdi zmdi-open-in-new" />
+                </a>
+              )}
+              {this.props.maximize && (
+                <button
+                  className="close md-close J_maximize"
+                  type="button"
+                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
+                  onClick={() => this.setState({ _maximize: !this.state._maximize })}
+                  style={{ marginTop: -9 }}>
+                  <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
+                </button>
+              )}
               <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
-              {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
-              {iframe && <RbSpinner />}
-            </div>
+
+            {this.renderContent()}
           </div>
         </div>
+      </div>
+    )
+  }
+
+  renderContent() {
+    const iframe = !this.props.children // No child
+    return (
+      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
+        {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
+        {iframe && <RbSpinner />}
       </div>
     )
   }
@@ -97,25 +129,25 @@ class RbModal extends React.Component {
   /**
    * @param {*} url
    * @param {*} title
-   * @param {*} options
+   * @param {*} option
    */
-  static create(url, title, options) {
+  static create(url, title, option) {
     // URL prefix
     if (url.substr(0, 1) === '/' && rb.baseUrl) url = rb.baseUrl + url
 
-    options = options || {}
-    options.disposeOnHide = options.disposeOnHide === true // default false
+    option = option || {}
+    option.disposeOnHide = option.disposeOnHide === true // default false
     this.__HOLDERs = this.__HOLDERs || {}
 
     const that = this
-    if (options.disposeOnHide === false && !!that.__HOLDERs[url]) {
+    if (option.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} zIndex={options.zIndex} />, null, function () {
+      renderRbcomp(<RbModal url={url} urlOpenInNew={option.urlOpenInNew} title={title} width={option.width} disposeOnHide={option.disposeOnHide} zIndex={option.zIndex} />, null, function () {
         that.__HOLDER = this
-        if (options.disposeOnHide === false) that.__HOLDERs[url] = this
+        if (option.disposeOnHide === false) that.__HOLDERs[url] = this
       })
     }
   }
@@ -406,23 +438,32 @@ class RbHighbar extends React.Component {
 }
 
 // ~~ 提示条
-function RbAlertBox(props) {
-  const type = (props || {}).type || 'warning'
-  const icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+class RbAlertBox extends React.Component {
+  render() {
+    const props = this.props
+    const type = (props || {}).type || 'warning'
+    let icon = props.icon
+    if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
 
-  return (
-    <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
-      <div className="icon">
-        <i className={`zmdi zmdi-${icon}`} />
+    return (
+      <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`} ref={(c) => (this._element = c)}>
+        <div className="icon">
+          <i className={`zmdi zmdi-${icon}`} />
+        </div>
+        <div className="message">
+          <a className="close" onClick={() => this._handleClose()} title={$L('关闭')}>
+            <i className="zmdi zmdi-close" />
+          </a>
+          <div>{props.message || 'INMESSAGE'}</div>
+        </div>
       </div>
-      <div className="message">
-        <a className="close" data-dismiss="alert" onClick={() => typeof props.onClose === 'function' && props.onClose()} title={$L('关闭')}>
-          <i className="zmdi zmdi-close" />
-        </a>
-        <p>{props.message || 'INMESSAGE'}</p>
-      </div>
-    </div>
-  )
+    )
+  }
+
+  _handleClose() {
+    $unmount($(this._element).parent(), 10, true)
+    typeof this.props.onClose === 'function' && this.props.onClose()
+  }
 }
 
 // ~~ 加载动画 @see spinner.html

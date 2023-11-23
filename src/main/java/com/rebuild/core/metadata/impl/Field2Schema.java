@@ -37,7 +37,6 @@ import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -109,7 +108,7 @@ public class Field2Schema extends SetUser {
 
         for (int i = 0; i < 6; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
-                fieldName += RandomUtils.nextInt(1, 99);
+                fieldName += CommonsUtils.randomInt(1, 99);
             } else {
                 break;
             }
@@ -396,7 +395,7 @@ public class Field2Schema extends SetUser {
         identifier = HanLP.convertToPinyinString(identifier, "", false);
         identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
         if (StringUtils.isBlank(identifier)) {
-            identifier = "rb" + RandomUtils.nextInt(1000, 9999);
+            identifier = "rb" + CommonsUtils.randomInt(1000, 9999);
         }
 
         if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0))) {
@@ -407,7 +406,7 @@ public class Field2Schema extends SetUser {
         if (identifier.length() > 40) {
             identifier = identifier.substring(0, 40);
         } else if (identifier.length() < 4) {
-            identifier += RandomUtils.nextInt(1000, 9999);
+            identifier += CommonsUtils.randomInt(1000, 9999);
         }
 
         return identifier;

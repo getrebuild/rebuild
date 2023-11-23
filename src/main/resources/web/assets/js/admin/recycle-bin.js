@@ -17,6 +17,9 @@ $(document).ready(() => {
       $(`<option value="${name}">${_ENTITIES[name]}</option>`).appendTo('#belongEntity')
     }
 
+    const s = $urlp('s', location.hash)
+    $('.input-search input').val(s || '')
+
     renderRbcomp(<DataList />, 'react-list', function () {
       RbListPage._RbList = this._List
     })
@@ -125,12 +128,12 @@ const CellRenders_renderSimple = CellRenders.renderSimple
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
     v = v ? (
-      <React.Fragment>
+      <RF>
         {$L('关联删除')}
         <span className="badge text-id ml-1" title={$L('关联主记录 ID')}>
           {v.id}
         </span>
-      </React.Fragment>
+      </RF>
     ) : (
       $L('直接删除')
     )

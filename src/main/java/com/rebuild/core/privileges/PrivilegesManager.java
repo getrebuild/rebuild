@@ -30,7 +30,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
 import com.rebuild.core.service.NoRecordFoundException;
-import com.rebuild.core.service.general.EntityService;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -220,10 +219,11 @@ public class PrivilegesManager {
             return true;
         }
 
+        // FIXME v35 批量审批无权限
+        if (action == InternalPermission.APPROVAL) return true;
+
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -233,7 +233,7 @@ public class PrivilegesManager {
         }
 
         // 取消共享与共享共用权限
-        if (action == EntityService.UNSHARE) {
+        if (action == InternalPermission.UNSHARE) {
             action = BizzPermission.SHARE;
         }
 
@@ -285,9 +285,7 @@ public class PrivilegesManager {
         }
 
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -305,7 +303,7 @@ public class PrivilegesManager {
         }
 
         // 取消共享与共享共用权限
-        if (action == EntityService.UNSHARE) {
+        if (action == InternalPermission.UNSHARE) {
             action = BizzPermission.SHARE;
         }
 
@@ -492,9 +490,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, ZeroEntry entry) {
         Boolean a = userAllow(user);
-        if (a != null) {
-            return a;
-        }
+        if (a != null) return a;
 
         Role role = theUserStore.getUser(user).getOwningRole();
         if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -543,7 +539,7 @@ public class PrivilegesManager {
             BizzPermission.READ,
             BizzPermission.ASSIGN,
             BizzPermission.SHARE,
-            EntityService.UNSHARE
+            InternalPermission.UNSHARE
     };
 
     /**

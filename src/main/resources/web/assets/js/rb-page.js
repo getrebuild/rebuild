@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   const gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -57,6 +57,8 @@ $(function () {
   if ($hasNotification.length > 0) {
     $unhideDropdown($hasNotification).on('shown.bs.dropdown', _loadMessages)
     setTimeout(_checkMessage, 2000)
+    // NEED: service-worker.js
+    document.addEventListener('notificationclick', function () {})
   }
 
   var $hasUser = $('.J_top-user')
@@ -177,6 +179,25 @@ $(function () {
       location.reload(true)
     })
   })
+
+  if (window.sessionStorage) {
+    $('.navbar .navbar-collapse>.navbar-nav a').on('click', function (e) {
+      sessionStorage.setItem('AppHome._InTab', e.target.href.split('?')[1])
+    })
+
+    document.onvisibilitychange = function () {
+      if (document.visibilityState !== 'visible') return
+
+      var tabHome = sessionStorage.getItem('AppHome._InTab')
+      tabHome &&
+        $(tabHome.split('&')).each(function () {
+          var nv = this.split('=')
+          if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: null })
+          if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: null })
+        })
+      console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
+    }
+  }
 
   // if (rb.commercial === 11) {
   //   $('a[target="_blank"]').each(function () {
@@ -366,7 +387,7 @@ var _checkMessage = function () {
       if (_checkMessage__state > 0) {
         if (!window.__title) window.__title = document.title
         document.title = '(' + _checkMessage__state + ') ' + window.__title
-        if (rb.env === 'dev') _showNotification()
+        _showNotification(_checkMessage__state)
       }
       _loadMessages__state = false
     }
@@ -401,19 +422,29 @@ var _loadMessages = function () {
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo($ul)
   })
 }
-var _showNotification = function () {
-  if ($.cookie('grantedNotification')) return
+var _showNotification = function (state) {
+  if (location.href.indexOf('/admin/') > -1 || location.href.indexOf('/notifications') > -1) return
+  if ($.cookie('rb.NotificationShow')) return
 
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      var n = new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
-        tag: 'rbNotification',
+      var n = new _Notification($L('你有 %d 条未读消息', state), {
         icon: rb.baseUrl + '/assets/img/favicon.png',
+        tag: 'rbNotification',
+        renotify: true,
+        silent: false,
       })
       n.onshow = function () {
-        $.cookie('grantedNotification', 666, { expires: null, httpOnly: true }) // session cookie
+        var expires = moment()
+          .add(30 * 60, 'seconds')
+          .toDate()
+        $.cookie('rb.NotificationShow', 1, {
+          expires: expires,
+        })
       }
+      n.onclose = function () {}
+      n.onerror = function () {}
     } else {
       _Notification.requestPermission()
     }
@@ -612,7 +643,7 @@ var $createUploader = function (input, next, complete, error) {
           } else if (msg.contains('EXCEED FSIZELIMIT')) {
             RbHighbar.create($L('超出文件大小限制'))
           } else {
-            RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
+            RbHighbar.error($L('上传失败，请稍后重试' + ': ' + msg))
           }
           console.log('Upload error :', err)
           typeof error === 'function' && error({ error: msg, file: file })
@@ -626,6 +657,17 @@ var $createUploader = function (input, next, complete, error) {
         },
       })
     })
+  }
+
+  function _onH5UploadError(err, file) {
+    console.log('Upload error :', err)
+    if (err && err.status === 413) {
+      RbHighbar.error($L('上传失败，请稍后重试') + ': ' + err.status + '#' + err.statusText)
+    } else {
+      RbHighbar.error($L('上传失败，请稍后重试'))
+    }
+    typeof error === 'function' && error({ error: err, file: file })
+    $input.val(null) // reset
   }
 
   // Qiniu-Cloud
@@ -676,13 +718,10 @@ var $createUploader = function (input, next, complete, error) {
 
         $input.val(null) // reset
       },
-      onClientError: function (e, file) {
-        RbHighbar.error($L('上传失败，请稍后重试'))
-        console.log('Upload error :', e)
-        typeof error === 'function' && error({ error: e, file: file })
-
-        $input.val(null) // reset
-      },
+      onClientError: _onH5UploadError,
+      onClientAbort: _onH5UploadError,
+      onServerError: _onH5UploadError,
+      onServerAbort: _onH5UploadError,
     })
   }
 }
@@ -1052,3 +1091,31 @@ var $isSysMask = function (label) {
 
 // 颜色
 var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335', '#7500ea', '#eb2f96']
+
+// 分页计算
+var $pages = function (tp, cp) {
+  var pages = []
+  if (tp <= 8) {
+    for (var i = 1; i <= tp; i++) pages.push(i)
+    return pages
+  }
+  if (tp - cp <= 5) {
+    pages.push(1)
+    pages.push('.')
+    for (var i = tp - 5; i <= tp; i++) pages.push(i)
+    return pages
+  }
+
+  if (cp > tp) cp = tp
+  if (cp <= 4) cp = 4
+  var begin = cp - 2,
+    end = cp + 3
+  if (begin < 1) begin = 1
+  if (end > tp) end = tp
+  if (begin > 1) pages.push(1)
+  if (begin > 2) pages.push('.')
+  for (var j = begin; j < end; j++) pages.push(j)
+  if (end <= tp - 1) pages.push('.')
+  if (end <= tp) pages.push(tp)
+  return pages
+}

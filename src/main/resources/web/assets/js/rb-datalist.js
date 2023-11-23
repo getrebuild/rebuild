@@ -32,7 +32,7 @@ const RbListPage = {
     $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] })
+        RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
       }
     })
 
@@ -87,10 +87,11 @@ const RbListPage = {
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit, .J_batch').remove()
+      if (ep.U === false) $('.J_edit, .J_batch-update').remove()
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
+      $('.dataTables_oper.invisible2').removeClass('invisible2')
     }
 
     // Filter Pane
@@ -217,7 +218,7 @@ class RbViewModal extends React.Component {
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
     if (subView) {
-      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide={true} subView={true} />, null, function () {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, null, function () {
         that.__HOLDERs[props.id] = this
         that.__HOLDERsStack.push(this)
       })

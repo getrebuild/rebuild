@@ -13,6 +13,7 @@ const _Config = {
   repeat_fields: null,
   owning_user: null,
   fields_mapping: null,
+  only_update: false,
 }
 
 let fields_cached
@@ -58,10 +59,17 @@ $(document).ready(() => {
     }
   )
 
-  $('input[name=repeatOpt]').click(function () {
+  $('input[name=repeatOpt]').on('click', function () {
     _Config.repeat_opt = ~~$(this).val()
     if (_Config.repeat_opt === 3) $('.J_repeatFields').hide()
     else $('.J_repeatFields').show()
+
+    if (_Config.repeat_opt === 1) $('.J_onlyUpdate').show()
+    else $('.J_onlyUpdate').hide()
+  })
+
+  $('#onlyUpdate').on('click', function (e) {
+    _Config.only_update = $val(e.target)
   })
 
   if ($('#toUser')[0]) {
@@ -86,10 +94,10 @@ $(document).ready(() => {
     })
   }
 
-  $('.J_step1-btn').click(step2_mapping)
-  $('.J_step2-btn').click(step3_import)
-  $('.J_step2-return').click(step1_upload)
-  $('.J_step3-cancel').click(step3_import_cancel)
+  $('.J_step1-btn').on('click', step2_mapping)
+  $('.J_step2-btn').on('click', step3_import)
+  $('.J_step2-return').on('click', step1_upload)
+  $('.J_step3-cancel').on('click', step3_import_cancel)
 
   import_taskid = $urlp('task', location.hash)
   if (import_taskid) {

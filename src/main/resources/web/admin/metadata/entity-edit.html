@@ -96,23 +96,37 @@
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <a href="javascript:;" class="J_more-options-btn">[[${bundle.L('更多选项')}]] <i class="mdi mdi-chevron-double-down"></i></a>
                     <div class="J_more-options hide">
-                      <label class="custom-control custom-control-sm custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
-                        <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
-                        <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
-                      </label>
+                      <div>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
+                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
+                        </label>
+                      </div>
+                      <div class="mt-2">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="repeatFieldsCheckMode" />
+                          <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部字段')}]]</span>
+                        </label>
+                      </div>
                       <th:block th:if="${currentEntity == detailEntity}">
-                        <label class="custom-control custom-control-sm custom-checkbox">
-                          <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
-                          <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
-                        </label>
-                        <label class="custom-control custom-control-sm custom-checkbox">
-                          <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />
-                          <span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
-                        </label>
+                        <div class="mt-2">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
+                            <span class="custom-control-label">[[${bundle.L('“允许重复”检查全部数据')}]]</span>
+                          </label>
+                        </div>
+                        <div class="mt-2">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" id="detailsNotEmpty" />
+                            <span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
+                          </label>
+                        </div>
+                        <div class="mt-2">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" id="detailsShowAt2" />
+                            <span class="custom-control-label">[[${bundle.L('明细显示在下方')}]]</span>
+                          </label>
+                        </div>
                       </th:block>
                     </div>
                   </div>

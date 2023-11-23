@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
@@ -16,6 +15,7 @@ import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.web.KnownExceptionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -76,7 +76,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     @Override
     protected void onDeleteBefore(OperatingContext context) {
-        final ID primary = context.getAnyRecord().getPrimary();
+        final ID primary = context.getFixedRecordId();
 
         TriggerAction[] deleteActions = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
         for (TriggerAction action : deleteActions) {
@@ -94,7 +94,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
     @Override
     protected void onDelete(OperatingContext context) {
-        final ID primary = context.getAnyRecord().getPrimary();
+        final ID primary = context.getFixedRecordId();
         try {
             execAction(context, TriggerWhen.DELETE);
         } finally {
@@ -109,11 +109,11 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        final ID primaryId = context.getAnyRecord().getPrimary();
+        final ID primaryId = context.getFixedRecordId();
 
         TriggerAction[] beExecuted = when == TriggerWhen.DELETE
                 ? DELETE_BEFORE_HOLD.get(primaryId)
-                : RobotTriggerManager.instance.getActions(getRealRecordId(context), when);
+                : RobotTriggerManager.instance.getActions(context.getFixedRecordId(), when);
         if (beExecuted == null || beExecuted.length == 0) return;
 
         TriggerSource triggerSource = getTriggerSource();
@@ -186,7 +186,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                     if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {
-                        String errMsg = ex.getLocalizedMessage();
+                        String errMsg = KnownExceptionConverter.convert2ErrorMsg(ex);
+                        if (errMsg == null) errMsg = ex.getLocalizedMessage();
                         if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
                         if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
 
@@ -215,20 +216,6 @@ public class RobotTriggerObserver extends OperatingObserver {
                 TRIGGER_SOURCE.remove();
             }
         }
-    }
-
-    /**
-     * 获取实际影响的记录。
-     * 例如在共享时传入的 Record 是 ShareAccess，而实际影响的是其中的 recordId 记录
-     *
-     * @return
-     */
-    private ID getRealRecordId(OperatingContext context) {
-        ID recordId = context.getAnyRecord().getPrimary();
-        if (recordId.getEntityCode() == EntityHelper.ShareAccess) {
-            recordId = context.getAnyRecord().getID("recordId");
-        }
-        return recordId;
     }
 
     // --

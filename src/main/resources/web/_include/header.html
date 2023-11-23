@@ -6,18 +6,20 @@
   <link rel="manifest" th:href="@{/assets/manifest.json}" />
   <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
   <link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/mdi7/css/materialdesignicons.min-rb.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/animate.min.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/select2.min.css?v=4.0.13}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/mprogress.min.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/jquery-ui.min.css?v=1.13.1}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/simplemde.min.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
-  <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 1}" />
+  <th:block th:if="${noCss == null}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/mdi7/css/materialdesignicons.min-rb.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/animate.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/select2.min.css?v=4.0.13}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/mprogress.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/jquery-ui.min.css?v=1.13.2}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/simplemde.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 1}" />
+  </th:block>
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />
@@ -29,7 +31,7 @@
   <meta name="rb.authToken" th:content="${authToken}" />
   <th:block th:if="${user != null}">
     <meta name="rb.currentUser" th:content="${user.getId()}" />
-    <meta name="rb.currentRoles" th:content="${T(com.rebuild.core.privileges.UserHelper).getUserRoles(user.getId())}" />
+    <meta name="rb.currentUserRoles" th:content="${T(com.rebuild.core.privileges.UserHelper).getUserRoles(user.getId())}" />
     <meta name="rb.isAdminUser" th:content="${user.isAdmin()}" />
     <meta name="rb.isAdminVerified" th:content="${T(com.rebuild.utils.AppUtils).isAdminVerified(#request)}" />
   </th:block>
@@ -40,4 +42,15 @@
   <!--[if lt IE 10]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
   <script th:if="${T(com.rebuild.utils.AppUtils).isIE11(#request)}" th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
   <script th:if="${markWatermark == 'true' || session.rbTempAuth != null}" th:src="@{/assets/lib/watermark.js?v=310}"></script>
+  <style th:if="${PageMourningMode}">
+    html {
+      -webkit-filter: grayscale(100%);
+      -moz-filter: grayscale(100%);
+      -ms-filter: gray(100%);
+      -o-filter: grayscale(100%);
+      filter: grayscale(100%);
+      filter: gray;
+      filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+    }
+  </style>
 </th:block>

@@ -18,14 +18,25 @@ import java.io.File;
 public class TemplateFile {
 
     final public File templateFile;
+    final public String templateContent;
     final public Entity entity;
-    final public boolean isList;
+    final public int type;
     final public boolean isV33;
 
-    public TemplateFile(File templateFile, Entity entity, boolean isList, boolean isV33) {
+    public TemplateFile(File templateFile, Entity entity, int type, boolean isV33) {
         this.templateFile = templateFile;
         this.entity = entity;
-        this.isList = isList;
+        this.type = type;
         this.isV33 = isV33;
+        this.templateContent = null;
+    }
+
+    // HTML5
+    public TemplateFile(String templateContent, Entity entity) {
+        this.templateContent = templateContent;
+        this.entity = entity;
+        this.type = DataReportManager.TYPE_HTML5;
+        this.isV33 = true;
+        this.templateFile = null;
     }
 }

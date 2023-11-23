@@ -521,9 +521,11 @@ create table if not exists `revision_history` (
   `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
   `IP_ADDR`            varchar(100) comment 'IP 地址',
+  `AUTO_ID`            bigint(20) not null auto_increment comment '保证顺序',
   primary key  (`REVISION_ID`),
-  index IX0_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
-  index IX1_revision_history (`RECORD_ID`, `CHANNEL_WITH`)
+  unique index AIX0_revision_history (`AUTO_ID`),
+  index IX1_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
+  index IX2_revision_history (`RECORD_ID`, `CHANNEL_WITH`)
 )Engine=InnoDB;
 
 -- ************ Entity [SmsendLog] DDL ************
@@ -616,6 +618,7 @@ create table if not exists `feeds` (
   `RELATED_RECORD`     char(20) comment '相关记录',
   `SCHEDULE_TIME`      timestamp null default null comment '日程时间',
   `SCOPE`              varchar(20) default 'ALL' comment '可见范围 (ALL/SELF/$TeamID)',
+  `AUTO_LOCATION`      varchar(100) comment '发布位置',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -883,4 +886,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 52);
+  values ('021-9000000000000001', 'DBVer', 54);

@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -209,7 +212,7 @@ public class CommonsUtils {
     public static Object invokeMethod(String desc, Object... args) {
         String[] classAndMethod = desc.split("#");
         try {
-            Class<?> clazz = Class.forName(classAndMethod[0]);
+            Class<?> clazz = ReflectUtils.classForName(classAndMethod[0]);
 
             Class<?>[] paramTypes = new Class<?>[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -245,6 +248,37 @@ public class CommonsUtils {
         if (any.getClass().isArray()) return ((Object[]) any).length > 0;
         if (any instanceof Collection) return !((Collection<?>) any).isEmpty();
         if (NullValue.is(any)) return false;
-        return any.toString().length() > 0;
+        return !any.toString().isEmpty();
+    }
+
+    /**
+     * 值相等
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean isSame(Object a, Object b) {
+        boolean e = Objects.equals(a, b);
+        if (!e) {
+            if (a instanceof Number && b instanceof Number) {
+                // FIXME 有精度问题
+                e = ObjectUtils.toDouble(a) == ObjectUtils.toDouble(b);
+            }
+        }
+        return e;
+    }
+
+    /**
+     * 指定范围的随机数
+     *
+     * @param s
+     * @param e
+     * @return
+     * @see RandomUtils#nextInt(int)
+     */
+    public static int randomInt(int s, int e) {
+        int rnd = RandomUtils.nextInt(e);
+        return rnd < s ? rnd + s : rnd;
     }
 }

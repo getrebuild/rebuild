@@ -11,10 +11,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -52,7 +54,7 @@ public class ApiContext {
      * @param bindUser
      */
     public ApiContext(Map<String, String> reqParams, JSON postData, String appId, ID bindUser) {
-        this.reqParams = reqParams;
+        this.reqParams = Collections.unmodifiableMap(reqParams);
         this.postData = postData;
         this.appId = appId;
         this.bindUser = bindUser;
@@ -88,7 +90,7 @@ public class ApiContext {
      * @return
      */
     public JSON getPostData() {
-        return postData == null ? new JSONObject() : postData;
+        return postData == null ? new JSONObject() : JSONUtils.clone(postData);
     }
 
     /**
@@ -97,7 +99,7 @@ public class ApiContext {
      * @throws ApiInvokeException
      */
     public String getParameterNotBlank(String name) throws ApiInvokeException {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (StringUtils.isBlank(value)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be null");
         }
@@ -109,7 +111,7 @@ public class ApiContext {
      * @return
      */
     public String getParameter(String name) {
-        return getParameterMap().get(name);
+        return reqParams.get(name);
     }
 
     /**
@@ -128,7 +130,7 @@ public class ApiContext {
      * @return
      */
     public int getParameterAsInt(String name, int defaultValue) {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (NumberUtils.isNumber(value)) return NumberUtils.toInt(value);
         else return defaultValue;
     }
@@ -138,19 +140,8 @@ public class ApiContext {
      * @param defaultValue
      * @return
      */
-    public long getParameterAsLong(String name, long defaultValue) {
-        String value = getParameterMap().get(name);
-        if (NumberUtils.isNumber(value)) return NumberUtils.toLong(value);
-        else return defaultValue;
-    }
-
-    /**
-     * @param name
-     * @param defaultValue
-     * @return
-     */
     public boolean getParameterAsBool(String name, boolean defaultValue) {
-        String value = getParameterMap().get(name);
+        String value = reqParams.get(name);
         if (StringUtils.isBlank(value)) return defaultValue;
         else return BooleanUtils.toBoolean(value);
     }

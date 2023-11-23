@@ -71,6 +71,8 @@ public class FormsBuilder extends FormsManager {
 
     // 分割线
     public static final String DIVIDER_LINE = "$DIVIDER$";
+    // 引用
+    public static final String REFFORM_LINE = "$REFFORM$";
 
     // 引用主记录
     public static final String DV_MAINID = "$MAINID$";
@@ -121,7 +123,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (record != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not matchs");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, record)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
@@ -290,13 +292,12 @@ public class FormsBuilder extends FormsManager {
             return RobotApprovalManager.instance.hadApproval(entity, null);
         }
 
-        // 普通实体
+        // 普通实体（非明细）
         if (entity.getMainEntity() == null) {
             return RobotApprovalManager.instance.hadApproval(entity, recordId);
         }
 
         // 明细实体
-
         ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
         if (mainid == null) {
             Field dtmField = MetadataHelper.getDetailToMainField(entity);
@@ -335,6 +336,7 @@ public class FormsBuilder extends FormsManager {
             JSONObject el = (JSONObject) iter.next();
             String fieldName = el.getString("field");
             if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
+            if (REFFORM_LINE.equalsIgnoreCase(fieldName)) continue;
 
             // 已删除字段
             if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
@@ -343,12 +345,13 @@ public class FormsBuilder extends FormsManager {
             }
 
             // v2.2 高级控制
-            Object displayOnCreate = el.remove("displayOnCreate");
-            Object displayOnUpdate = el.remove("displayOnUpdate");
-            Object requiredOnCreate = el.remove("requiredOnCreate");
-            Object requiredOnUpdate = el.remove("requiredOnUpdate");
             if (viewModel) useAdvControl = false;
             if (useAdvControl) {
+                Object displayOnCreate = el.remove("displayOnCreate");
+                Object displayOnUpdate = el.remove("displayOnUpdate");
+                Object requiredOnCreate = el.remove("requiredOnCreate");
+                Object requiredOnUpdate = el.remove("requiredOnUpdate");
+                
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNew2 = isNew;
                 if (entity.getMainEntity() != null) {
@@ -650,14 +653,10 @@ public class FormsBuilder extends FormsManager {
      * @param initialVal 此值优先级大于字段默认值
      */
     public void setFormInitialValue(Entity entity, JSON formModel, JSONObject initialVal) {
-        if (initialVal == null || initialVal.isEmpty()) {
-            return;
-        }
+        if (initialVal == null || initialVal.isEmpty()) return;
 
         JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
-        if (elements == null || elements.isEmpty()) {
-            return;
-        }
+        if (elements == null || elements.isEmpty()) return;
 
         // 已布局字段。字段是否布局会影响返回值
         Set<String> inFormFields = new HashSet<>();
@@ -702,7 +701,7 @@ public class FormsBuilder extends FormsManager {
             // 其他
             else if (entity.containsField(field)) {
                 EasyField easyField = EasyMetaFactory.valueOf(entity.getField(field));
-                if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                if (easyField.getDisplayType() == DisplayType.REFERENCE || easyField.getDisplayType() == DisplayType.N2NREFERENCE) {
 
                     // v3.4 如果字段设置了附加过滤条件，从相关项新建时要检查是否符合
                     String dataFilter = easyField.getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
@@ -720,9 +719,16 @@ public class FormsBuilder extends FormsManager {
 
                     Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
-                        initialValReady.put(field, mixValue);
+                        if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+                            initialValReady.put(field, mixValue);
+                        } else {
+                            // N2N 是数组
+                            initialValReady.put(field,
+                                    inFormFields.contains(field) ? new Object[] { mixValue } : value);
+                        }
                     }
                 }
+
             } else {
                 log.warn("Unknown value pair : " + field + " = " + value);
             }

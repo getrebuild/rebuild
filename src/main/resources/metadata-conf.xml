@@ -358,6 +358,7 @@
         <field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
         <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="变更渠道 (空为直接, 否则为关联)"/>
         <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
+        <field name="autoId" type="long" auto-value="true" description="执行顺序" />
         <index field-list="belongEntity,revisionType,revisionBy,revisionOn"/>
         <index field-list="recordId,channelWith"/>
     </entity>
@@ -430,6 +431,7 @@
         <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
         <field name="scheduleTime" type="timestamp" description="日程时间"/>
         <field name="scope" type="string" max-length="20" default-value="ALL" description="可见范围 (ALL/SELF/$TeamID)" queryable="false"/>
+        <field name="autoLocation" type="string" max-length="100" description="发布位置" extra-attrs="{displayType:'LOCATION'}"/>
         <index field-list="createdOn,scope,type,createdBy"/>
         <index field-list="relatedRecord"/>
         <index field-list="type,scheduleTime,createdBy"/>

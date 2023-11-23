@@ -1,6 +1,15 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #54 (v3.5)
+alter table `feeds`
+  add column `AUTO_LOCATION` varchar(100) comment '发布位置';
+
+-- #53 (v3.5)
+alter table `revision_history`
+  add column `AUTO_ID` bigint(20) not null auto_increment comment '保证顺序',
+  add unique index AIX90_revision_history (`AUTO_ID`);
+
 -- #52 (v3.4)
 -- ************ Entity [ShortUrl] DDL ************
 create table if not exists `short_url` (

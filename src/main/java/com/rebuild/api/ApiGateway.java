@@ -10,6 +10,7 @@ package com.rebuild.api;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -60,7 +61,7 @@ public class ApiGateway extends Controller implements Initialization {
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
             new int[] { 10, 60 },
-            new int[] { 600, 6000 });
+            new int[] { 600, 3000 });
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
@@ -96,7 +97,7 @@ public class ApiGateway extends Controller implements Initialization {
         final String requestId = CommonsUtils.randomHex();
 
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
-        response.setHeader("X-Request-Id", requestId);
+        response.setHeader("X-RB-RequestId", requestId);
 
         if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
@@ -111,7 +112,9 @@ public class ApiGateway extends Controller implements Initialization {
         ApiContext context = null;
         try {
             final BaseApi api = createApi(apiName);
-            context = verfiy(request, api);
+
+            context = buildBaseApiContext(request);
+            context = verfiy(request, context, api);
 
             UserContextHolder.setReqip(remoteIp);
             UserContextHolder.setUser(context.getBindUser());
@@ -130,7 +133,7 @@ public class ApiGateway extends Controller implements Initialization {
             errorMsg = ex.getLocalizedMessage();
         } catch (Throwable ex) {
             errorCode = Controller.CODE_SERV_ERROR;
-            errorMsg = ex.getLocalizedMessage();
+            errorMsg = ThrowableUtils.getRootCause(ex).getLocalizedMessage();
             log.error("Server Internal Error ({})", requestId, ex);
 
             String knownError = KnownExceptionConverter.convert2ErrorMsg(ex);
@@ -154,16 +157,12 @@ public class ApiGateway extends Controller implements Initialization {
      * 验证请求并构建请求上下文
      *
      * @param request
+     * @param base
      * @param useApi
      * @return
      */
-    protected ApiContext verfiy(HttpServletRequest request, @SuppressWarnings("unused") BaseApi useApi) {
-        final Map<String, String> sortedMap = new TreeMap<>();
-        for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
-            String[] vv = e.getValue();
-            sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
-        }
-
+    protected ApiContext verfiy(HttpServletRequest request, ApiContext base, @SuppressWarnings("unused") BaseApi useApi) {
+        final Map<String, String> sortedMap = new TreeMap<>(base.getParameterMap());
         final String appid = getParameterNotNull(sortedMap, "appid");
         final String sign = getParameterNotNull(sortedMap, "sign");
 
@@ -228,15 +227,40 @@ public class ApiGateway extends Controller implements Initialization {
             }
         }
 
-        // 组合请求数据
-
-        String postData = ServletUtils.getRequestString(request);
-        JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
         ID bindUser = apiConfig.getID("bindUser");
         // 默认绑定系统用户
         if (bindUser == null) bindUser = UserService.SYSTEM_USER;
 
-        return new ApiContext(sortedMap, postJson, appid, bindUser);
+        return new ApiContext(sortedMap, base.getPostData(), appid, bindUser);
+    }
+
+    /**
+     * @param apiName
+     * @return
+     */
+    private BaseApi createApi(String apiName) {
+        if (!API_CLASSES.containsKey(apiName)) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
+        }
+        return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    private ApiContext buildBaseApiContext(HttpServletRequest request) {
+        Map<String, String> sortedMap = new TreeMap<>();
+        for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
+            String[] item = e.getValue();
+            sortedMap.put(e.getKey(), item == null || item.length == 0 ? null : item[0]);
+        }
+
+        String appid = getParameterNotNull(sortedMap, "appid");
+        String postData = ServletUtils.getRequestString(request);
+        JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
+
+        return new ApiContext(sortedMap, postJson, appid, null);
     }
 
     /**
@@ -253,17 +277,6 @@ public class ApiGateway extends Controller implements Initialization {
     }
 
     /**
-     * @param apiName
-     * @return
-     */
-    private BaseApi createApi(String apiName) {
-        if (!API_CLASSES.containsKey(apiName)) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
-        }
-        return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
-    }
-
-    /**
      * 记录请求日志
      *
      * @param requestTime
@@ -277,15 +290,16 @@ public class ApiGateway extends Controller implements Initialization {
         Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
         record.setString("requestUrl", apiName);
         record.setString("remoteIp", remoteIp);
-        record.setString("responseBody", requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 10000)));
+        record.setString("responseBody",
+                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 32767)));
         record.setDate("requestTime", requestTime);
         record.setDate("responseTime", CalendarUtils.now());
 
         if (context != null) {
             record.setString("appId", context.getAppId());
-            if (context.getPostData() != null) {
-                record.setString("requestBody",
-                        CommonsUtils.maxstr(context.getPostData().toJSONString(), 10000));
+            JSON post;
+            if ((post = context.getPostData()) != null) {
+                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 32767));
             }
             if (!context.getParameterMap().isEmpty()) {
                 record.setString("requestUrl",

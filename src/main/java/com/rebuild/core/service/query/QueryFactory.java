@@ -30,15 +30,15 @@ import java.util.List;
  * 查询服务
  *
  * @author Zixin (RB)
- * @since 05/21/2017
+ * @since 05/21/2019
  * @see RoleBaseQueryFilter
  * @see QueryHelper
  */
 @Service
 public class QueryFactory {
 
-    private static final int QUERY_TIMEOUT = 10 * 1000;
-    private static final int SLOW_LOGGER_TIME = 1000;
+    private static final int QUERY_TIMEOUT = 15;  // s
+    private static final int SLOW_LOGGER_TIME = 3 * 1000;  // ms
 
     private final PersistManagerFactory aPMFactory;
 

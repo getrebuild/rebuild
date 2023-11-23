@@ -29,6 +29,9 @@
         <property name="maxOpenPreparedStatements" value="100"/>
         <property name="asyncInit" value="false"/>
         <property name="filters" value="mergeStat"/>
+        <!-- Fix Druid: https://github.com/alibaba/druid/issues/5451 -->
+        <property name="socketTimeout" value="1000001"/>
+        <property name="connectTimeout" value="1000001"/>
     </bean>
 
     <bean name="mysql5Dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect"/>

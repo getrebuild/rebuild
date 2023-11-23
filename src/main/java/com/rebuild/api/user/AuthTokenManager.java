@@ -49,11 +49,11 @@ public class AuthTokenManager {
      * 生成 Token
      *
      * @param user
-     * @param expires
+     * @param seconds
      * @param type
      * @return
      */
-    protected static String generateToken(ID user, int expires, String type) {
+    protected static String generateToken(ID user, int seconds, String type) {
         // Type,User,Time,Version
         String desc = String.format("%s,%s,%d,v2",
                 ObjectUtils.defaultIfNull(type, TYPE_ACCESS_TOKEN),
@@ -61,7 +61,7 @@ public class AuthTokenManager {
                 System.nanoTime());
         String token = EncryptUtils.toSHA1Hex(desc);
 
-        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, expires);
+        Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, seconds);
         return token;
     }
 
@@ -84,12 +84,12 @@ public class AuthTokenManager {
     }
 
     /**
-     * @param expires
+     * @param seconds
      * @return
      * @see #TYPE_CSRF_TOKEN
      */
-    public static String generateCsrfToken(int expires) {
-        return generateToken(null, expires, TYPE_CSRF_TOKEN);
+    public static String generateCsrfToken(int seconds) {
+        return generateToken(null, seconds, TYPE_CSRF_TOKEN);
     }
 
     /**

@@ -220,7 +220,7 @@ const AdvFilters = {
 class BatchOperator extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state.dataRange = 2
+    this.state.dataRange = props.listRef.getSelectedIds(true).length > 0 ? 1 : 2
   }
 
   render() {
@@ -442,21 +442,23 @@ class BatchUpdate extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
+    RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
             const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 2, start: true, parent: `#${mp_parent}` })
-
+            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
             that._checkState(res.data, mp)
           } else {
             that.disabled(false)
             RbHighbar.error(res.error_msg)
           }
         })
+      },
+      onRendered: function () {
+        $countdownButton($(this._dlg).find('.btn-primary'))
       },
     })
   }
@@ -465,10 +467,7 @@ class BatchUpdate extends BatchOperator {
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          setTimeout(() => {
-            if (mp) mp.end()
-          }, 510)
-
+          mp && mp.end()
           RbHighbar.error(res.data.hasError)
           return
         }
@@ -478,6 +477,7 @@ class BatchUpdate extends BatchOperator {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text($L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
+
           setTimeout(() => {
             RbListPage.reload()
             setTimeout(() => this.hide(), 1000)
@@ -599,6 +599,116 @@ class BatchUpdateEditor extends React.Component {
   }
 }
 
+// ~ 批量审批
+
+// eslint-disable-next-line no-unused-vars
+class BatchApprove extends BatchOperator {
+  constructor(props) {
+    super(props)
+    this._title = (
+      <RF>
+        {$L('批量审批')}
+        <sup className="rbv" />
+      </RF>
+    )
+    this._confirmText = $L('审批')
+  }
+
+  renderOperator() {
+    return (
+      <div>
+        <div className="form-group">
+          <label className="text-bold">{$L('审批结果')}</label>
+          <div>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="10" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('通过')}</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+              <input className="custom-control-input" type="radio" name="approveState" value="11" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('驳回')}</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="text-bold">{$L('批注')}</label>
+          <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
+        </div>
+        <div className="alert-mb-0">
+          <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} />
+        </div>
+      </div>
+    )
+  }
+
+  handleConfirm() {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
+    if (!this.state.approveState) return RbHighbar.create($L('请选择审批结果'))
+
+    const _data = {
+      queryData: this.getQueryData(),
+      approveContent: {
+        state: this.state.approveState,
+        remark: this.state.approveRemark,
+      },
+    }
+    if (rb.env === 'dev') console.log(JSON.stringify(_data))
+
+    const that = this
+    RbAlert.create($L('请再次确认审批数据范围和审批结果。开始审批吗？'), {
+      onConfirm: function () {
+        this.hide()
+        that.disabled(true)
+        $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
+          if (res.error_code === 0) {
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
+            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            that._checkState(res.data, mp)
+          } else {
+            that.disabled(false)
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  }
+
+  _checkState(taskid, mp) {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.hasError) {
+          mp && mp.end()
+          RbHighbar.error(res.data.hasError)
+          return
+        }
+
+        const cp = res.data.progress
+        if (cp >= 1) {
+          mp && mp.end()
+          $(this._btns).find('.btn-primary').text($L('已完成'))
+          if (res.data.succeeded > 0) {
+            RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
+          } else {
+            RbHighbar.create($L('没有任何符合批量审批条件的记录'))
+          }
+
+          setTimeout(() => {
+            RbListPage.reload()
+            setTimeout(() => this.hide(), 1000)
+          }, 500)
+        } else {
+          mp && mp.set(cp)
+          setTimeout(() => this._checkState(taskid, mp), 1500)
+        }
+      }
+    })
+  }
+}
+
 // ~ 通用操作
 
 // eslint-disable-next-line no-unused-vars
@@ -652,7 +762,9 @@ const RbListCommon = {
     // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     // 批量修改
-    $('.J_batch').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
+    $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
+    // 批量审批
+    $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
 
     // 自动打开新建
     if (location.hash === '#!/New') {
@@ -699,6 +811,14 @@ class RbList extends React.Component {
         }
       }
     }
+    // 设置的默认排序
+    this.__defaultSort = props.config.sort
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].sort) {
+        this.__defaultSort = `${fields[i].field}:${fields[i].sort}`
+        break
+      }
+    }
 
     for (let i = 0; i < fields.length; i++) {
       const cw = $storage.get(this.__columnWidthKey + fields[i].field)
@@ -723,6 +843,7 @@ class RbList extends React.Component {
 
   render() {
     const lastIndex = this.state.fields.length
+    const rowActions = window.FrontJS ? window.FrontJS.DataList.__rowActions : []
 
     return (
       <RF>
@@ -757,6 +878,7 @@ class RbList extends React.Component {
                       )
                     })}
                     <th className="column-empty" />
+                    {rowActions.length > 0 && <th className="col-action column-fixed" />}
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._$tbody = c)}>
@@ -764,12 +886,19 @@ class RbList extends React.Component {
                     const primaryKey = item[lastIndex]
                     const rowKey = `row-${primaryKey.id}`
                     return (
-                      <tr key={rowKey} data-id={primaryKey.id} onClick={(e) => this._clickRow(e, true)} onDoubleClick={(e) => this._openView(e.currentTarget)}>
+                      <tr
+                        key={rowKey}
+                        data-id={primaryKey.id}
+                        onClick={(e) => this._clickRow(e)}
+                        onDoubleClick={(e) => {
+                          $stopEvent(e, true)
+                          this._openView(e.currentTarget)
+                        }}>
                         {this.props.uncheckbox !== true && (
                           <td key={`${rowKey}-checkbox`} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
-                                <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
+                                <input className="custom-control-input" type="checkbox" />
                                 <i className="custom-control-label" />
                               </label>
                             </div>
@@ -779,6 +908,25 @@ class RbList extends React.Component {
                           return this.renderCell(cell, index, primaryKey)
                         })}
                         <td className="column-empty" />
+                        {rowActions.length > 0 && (
+                          <td className="col-action column-fixed">
+                            {rowActions.map((btn, idx) => {
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  className="btn btn-sm btn-link w-auto"
+                                  title={btn.title || null}
+                                  onClick={() => {
+                                    typeof btn.onClick === 'function' && btn.onClick(primaryKey.id)
+                                  }}>
+                                  {btn.icon && <i className={`icon zmdi zmdi-${btn.icon}`} />}
+                                  {btn.text}
+                                </button>
+                              )
+                            })}
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
@@ -877,6 +1025,8 @@ class RbList extends React.Component {
       fields.push(item.field)
       if (item.sort) fieldSort = `${item.field}:${item.sort.replace('sort-', '')}`
     })
+    if (!fieldSort && this.__defaultSort) fieldSort = this.__defaultSort
+
     this.lastFilter = filter || this.lastFilter
 
     const reload = this._forceReload || this.pageNo === 1
@@ -958,18 +1108,26 @@ class RbList extends React.Component {
   }
 
   // 单选
-  _clickRow(e, unhold) {
+  _clickRow(e) {
     const $target = $(e.target)
-    if ($target.hasClass('custom-control-label')) return
-    if ($target.hasClass('custom-control-input') && unhold) return
+    if ($target.hasClass('custom-control-label')) return // ignored
 
     const $tr = $target.parents('tr')
-    if (unhold) {
-      this._toggleRows({ target: { checked: false } }, true)
-      $tr.addClass('active').find('.custom-control-input').prop('checked', true)
+    let holdSelected
+    if ($target.hasClass('column-checkbox')) {
+      const $chk = $tr.find('.custom-control-input')[0]
+      $chk.checked = !$chk.checked
+      holdSelected = true
     } else {
-      if (e.target.checked) $tr.addClass('active')
+      holdSelected = $target.hasClass('custom-checkbox') || $target.parents('.custom-checkbox').hasClass('custom-checkbox')
+    }
+
+    if (holdSelected) {
+      if ($tr.find('.custom-control-input')[0].checked) $tr.addClass('active')
       else $tr.removeClass('active')
+    } else {
+      this._toggleRows({ target: { checked: false } }, true)
+      $tr.addClass('active').find('.custom-control-input')[0].checked = true
     }
 
     this._checkSelected()
@@ -1010,6 +1168,7 @@ class RbList extends React.Component {
   // 排序
   _sortField(field, e) {
     if (this.__columnResizing) return // fix: firefox
+
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
@@ -1031,7 +1190,7 @@ class RbList extends React.Component {
 
   _tryActive($el) {
     if ($el.length === 1) {
-      this._clickRow({ target: $el.find('.custom-checkbox') }, true)
+      this._clickRow({ target: $el.find('td:eq(1)') })
     }
   }
 
@@ -1325,7 +1484,10 @@ const CellRenders = {
       let fieldKey = key.split('.').slice(1)
       fieldKey = `${wpc.entity[0]}.${fieldKey.join('.')}`
       const fn = window.FrontJS.DataList.__cellRenders[fieldKey]
-      if (fn) return fn(value, style, key)
+      if (typeof fn === 'function') {
+        const fnRet = fn(value, style, key)
+        if (fnRet !== false) return fnRet
+      }
     }
 
     if (!value) return this.renderSimple(value, style, key)

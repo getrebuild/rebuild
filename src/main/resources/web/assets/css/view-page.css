@@ -41,7 +41,7 @@ body {
   z-index: 1001;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
-  background-color: rgba(230, 230, 230, 0.7);
+  background-color: rgba(230, 230, 230, 0.8);
   border-bottom-color: rgba(230, 230, 230, 1);
 }
 
@@ -167,9 +167,9 @@ body {
 .nav-tabs .vtab-settings {
   position: absolute;
   right: 0;
-  top: 4px;
+  top: 3px;
   padding: 9px 8px;
-  font-size: 15px;
+  font-size: 1.2rem;
   opacity: 0.6;
   display: none !important;
 }
@@ -368,20 +368,20 @@ body {
   line-height: 1;
 }
 
-.sharing-list {
+.shares-list {
   min-height: 60px;
 }
 
-.sharing-list .user-avatar {
+.shares-list .user-avatar {
   line-height: 30px;
   color: #444;
 }
 
-.sharing-list .badge-light {
+.shares-list .badge-light {
   font-weight: normal;
 }
 
-.sharing-list .table > tbody td {
+.shares-list .table > tbody td {
   padding: 8px 10px;
   border-width: 0;
 }
@@ -1040,4 +1040,9 @@ body {
 
 .tab-content-bottom .related-list {
   min-height: auto;
+}
+
+.view-header > span > .close.J_list,
+.view-header > span > .close.J_back {
+  font-size: 1.6rem;
 }

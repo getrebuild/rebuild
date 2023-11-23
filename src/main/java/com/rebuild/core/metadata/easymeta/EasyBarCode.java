@@ -40,4 +40,9 @@ public class EasyBarCode extends EasyField {
         if (value != null) log.warn("Cannot wrap value of EasyBarCode : " + value);
         return null;
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        return null;
+    }
 }

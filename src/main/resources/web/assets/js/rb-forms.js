@@ -14,6 +14,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
  */
 
 const TYPE_DIVIDER = '$DIVIDER$'
+const TYPE_REFFORM = '$REFFORM$'
 const MODAL_MAXWIDTH = 1064
 
 // ~~ 表单窗口
@@ -40,7 +41,12 @@ class RbFormModal extends React.Component {
         <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
           <div className="modal-dialog" style={style2}>
             <div className="modal-content" style={style2}>
-              <div className="modal-header modal-header-colored">
+              <div
+                className="modal-header modal-header-colored"
+                onDoubleClick={(e) => {
+                  $stopEvent(e, true)
+                  this._handleMaximize()
+                }}>
                 {this.state.icon && <span className={`icon zmdi zmdi-${this.state.icon}`} />}
                 <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                 {rb.isAdminUser && (
@@ -48,15 +54,7 @@ class RbFormModal extends React.Component {
                     <span className="zmdi zmdi-settings up-1" />
                   </a>
                 )}
-                <button
-                  className="close md-close J_maximize"
-                  type="button"
-                  title={this.state._maximize ? $L('向下还原') : $L('最大化')}
-                  onClick={() => {
-                    this.setState({ _maximize: !this.state._maximize }, () => {
-                      $storage.set(this.__maximizeKey, this.state._maximize)
-                    })
-                  }}>
+                <button className="close md-close J_maximize" type="button" title={this.state._maximize ? $L('向下还原') : $L('最大化')} onClick={() => this._handleMaximize()}>
                   <span className={`mdi ${this.state._maximize ? 'mdi mdi-window-restore' : 'mdi mdi-window-maximize'}`} />
                 </button>
                 <button className="close md-close" type="button" title={$L('关闭')} onClick={() => this.hide()}>
@@ -78,6 +76,12 @@ class RbFormModal extends React.Component {
         </div>
       </div>
     )
+  }
+
+  _handleMaximize() {
+    this.setState({ _maximize: !this.state._maximize }, () => {
+      $storage.set(this.__maximizeKey, this.state._maximize)
+    })
   }
 
   componentDidMount() {
@@ -115,7 +119,7 @@ class RbFormModal extends React.Component {
 
       const formModel = res.data
       const FORM = (
-        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage}>
+        <RbForm entity={entity} id={id} rawModel={formModel} $$$parent={this} readonly={!!formModel.readonlyMessage} ref={(c) => (this._formComponentRef = c)}>
           {formModel.elements.map((item) => {
             return detectElement(item, entity)
           })}
@@ -215,23 +219,31 @@ class RbFormModal extends React.Component {
     this.setState(state)
   }
 
+  // 获取当前表单对象
+  getFormComp() {
+    return this._formComponentRef
+  }
+
   // -- Usage
   /**
    * @param {*} props
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    const that = this
     if (forceNew === true) {
-      renderRbcomp(<RbFormModal {...props} disposeOnHide />)
+      renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
+        that.__CURRENT35 = this
+      })
       return
     }
 
     if (this.__HOLDER) {
       this.__HOLDER.show(props)
     } else {
-      const that = this
       renderRbcomp(<RbFormModal {...props} />, null, function () {
         that.__HOLDER = this
+        that.__CURRENT35 = this
       })
     }
   }
@@ -247,8 +259,10 @@ class RbForm extends React.Component {
     const iv = props.rawModel.initialValue
     if (iv) {
       for (let k in iv) {
-        const val = iv[k]
-        this.__FormData[k] = { value: typeof val === 'object' ? val.id : val, error: null }
+        let val = iv[k]
+        // array, object, simple
+        val = typeof val === 'object' ? val.id || val : val
+        this.__FormData[k] = { value: val, error: null }
       }
     }
 
@@ -257,6 +271,7 @@ class RbForm extends React.Component {
     const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
     this._postBefore = props.postBefore || $$$props.postBefore
     this._postAfter = props.postAfter || $$$props.postAfter
+    this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
 
     this._dividerRefs = []
   }
@@ -368,7 +383,7 @@ class RbForm extends React.Component {
       })
     }
 
-    if (!_ProTable)
+    if (!_ProTable) {
       _ProTable = (
         <ProTable
           entity={detailMeta}
@@ -381,6 +396,7 @@ class RbForm extends React.Component {
           $$$main={this}
         />
       )
+    }
 
     return (
       <div className="detail-form-table">
@@ -597,6 +613,14 @@ class RbForm extends React.Component {
     return data
   }
 
+  // 获取明细表
+  getProTables() {
+    return this._ProTables ? Object.values(this._ProTables) : null
+  }
+  getProTable() {
+    return (this.getProTables() || [])[0] || null
+  }
+
   // 保存并添加明细
   static NEXT_ADDDETAIL = 102
   // 保存并打开
@@ -627,6 +651,9 @@ class RbForm extends React.Component {
       const keys = Object.keys(this._ProTables)
       for (let i = 0; i < keys.length; i++) {
         const _ProTable = this._ProTables[keys[i]]
+        // 明细未配置或出错
+        if (!_ProTable._initModel) continue
+
         const details = _ProTable.buildFormData()
         if (!details) return
 
@@ -646,11 +673,11 @@ class RbForm extends React.Component {
       id: this.state.id,
     }
 
-    if (RbForm.postBefore(data) === false) {
+    if (RbForm.postBefore(data, this) === false) {
       console.log('FrontJS prevented save')
       return
     }
-    if (typeof this._postBefore === 'function' && this._postBefore(data) === false) {
+    if (typeof this._postBefore === 'function' && this._postBefore(data, this) === false) {
       console.log('_postBefore prevented save')
       return
     }
@@ -682,24 +709,22 @@ class RbForm extends React.Component {
           const recordId = res.data.id
 
           if (typeof this._postAfter === 'function') {
-            this._postAfter(recordId)
+            this._postAfter(recordId, next, this)
             return
           } else if (next === RbForm.NEXT_ADDDETAIL) {
             const iv = $$$parent.props.initialValue
             const dm = this.props.rawModel.entityMeta
-            RbFormModal.create({
-              title: $L('添加%s', dm.entityLabel),
-              entity: dm.entity,
-              icon: dm.icon,
-              initialValue: iv,
-            })
+            RbFormModal.create({ title: $L('添加%s', dm.entityLabel), entity: dm.entity, icon: dm.icon, initialValue: iv })
           } else if (next === RbForm.NEXT_VIEW && window.RbViewModal) {
             window.RbViewModal.create({ id: recordId, entity: this.state.entity })
+            if (window.RbListPage) {
+              location.hash = `!/View/${this.state.entity}/${recordId}`
+            }
           } else if (previewid && window.RbViewPage) {
-            window.RbViewPage.clickView(`!#/View/${this.state.entity}/${recordId}`)
+            window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
 
-          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next)
+          RbForm.postAfter({ ...res.data, isNew: !this.state.id }, next, this)
 
           // ...
         }, 200)
@@ -723,7 +748,8 @@ class RbForm extends React.Component {
   // -- HOOK
 
   // 保存前调用（返回 false 则不继续保存）
-  static postBefore(data) {
+  // eslint-disable-next-line no-unused-vars
+  static postBefore(data, from) {
     if (window.FrontJS) {
       const ret = window.FrontJS.Form._trigger('saveBefore', [data])
       if (ret === false) return false
@@ -732,7 +758,8 @@ class RbForm extends React.Component {
   }
 
   // 保存后调用
-  static postAfter(data, next) {
+  // eslint-disable-next-line no-unused-vars
+  static postAfter(data, next, from) {
     if (window.FrontJS) {
       window.FrontJS.Form._trigger('saveAfter', [data, next])
     }
@@ -874,7 +901,7 @@ class RbFormElement extends React.Component {
   checkValue() {
     const err = this.isValueError()
     this.setState({ hasError: err || null })
-    const errMsg = err ? this.props.label + err : null
+    const errMsg = err ? this.props.label + ' ' + err : null
 
     if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
@@ -1533,13 +1560,18 @@ class RbFormImage extends RbFormElement {
 
     return (
       <div className="img-field">
-        {value.map((item) => {
+        {value.map((item, idx) => {
           return (
             <span key={item}>
-              <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+              <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
-                  <b title={$L('移除')} onClick={() => this.removeItem(item)}>
+                  <b
+                    title={$L('移除')}
+                    onClick={(e) => {
+                      $stopEvent(e)
+                      this.removeItem(item)
+                    }}>
                     <span className="zmdi zmdi-close" />
                   </b>
                 )}
@@ -1548,9 +1580,9 @@ class RbFormImage extends RbFormElement {
           )
         })}
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
-          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" />
+          <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
           <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
-            <span className="zmdi zmdi-image-alt mt-1" />
+            <span className="zmdi zmdi-image-alt down-2" />
           </label>
         </span>
         <input ref={(c) => (this._fieldValue = c)} type="hidden" value={value} />
@@ -1567,7 +1599,7 @@ class RbFormImage extends RbFormElement {
         {value.map((item, idx) => {
           return (
             <span key={item}>
-              <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
+              <a title={$fileCutName(item)} onClick={() => this._filePreview(value, idx)} className="img-thumbnail img-upload zoom-in">
                 <img src={this._formatUrl(item)} alt="IMG" />
               </a>
             </span>
@@ -1580,6 +1612,11 @@ class RbFormImage extends RbFormElement {
   _formatUrl(urlKey) {
     if (urlKey.startsWith('http://') || urlKey.startsWith('https://')) return urlKey
     else return `${rb.baseUrl}/filex/img/${urlKey}?imageView2/2/w/100/interlace/1/q/100`
+  }
+
+  _filePreview(urlKey, idx) {
+    const p = parent || window
+    p.RbPreview.create(urlKey, idx)
   }
 
   onEditModeChanged(destroy) {
@@ -1611,8 +1648,12 @@ class RbFormImage extends RbFormElement {
         (res) => {
           mp_end()
           const paths = this.state.value || []
-          paths.push(res.key)
-          this.handleChange({ target: { value: paths } }, true)
+          // 最多上传，多余忽略
+          // FIXME 多选时进度条有点不好看
+          if (paths.length < this.__maxUpload) {
+            paths.push(res.key)
+            this.handleChange({ target: { value: paths } }, true)
+          }
         },
         () => mp_end()
       )
@@ -1652,7 +1693,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <div key={item} className="img-thumbnail" title={fileName}>
+            <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
@@ -1664,7 +1705,7 @@ class RbFormFile extends RbFormImage {
           )
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
-          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} />
+          <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
           <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
@@ -1684,7 +1725,7 @@ class RbFormFile extends RbFormImage {
         {value.map((item) => {
           let fileName = $fileCutName(item)
           return (
-            <a key={item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
             </a>
@@ -1844,6 +1885,7 @@ class RbFormReference extends RbFormElement {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
         },
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : null,
       })
 
       const val = this.state.value
@@ -1996,7 +2038,7 @@ class RbFormReference extends RbFormElement {
       this._ReferenceSearcher_Url = url
 
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} />, function () {
+      renderRbcomp(<ReferenceSearcher url={url} title={$L('选择%s', this.props.label)} useWhite maximize />, function () {
         that._ReferenceSearcher = this
       })
     }
@@ -2036,15 +2078,7 @@ class RbFormReference extends RbFormElement {
 
   quickNew() {
     const e = this.props.referenceEntity
-    RbFormModal.create(
-      {
-        title: $L('新建%s', e.entityLabel),
-        entity: e.entity,
-        icon: e.icon,
-        postAfter: (id) => this.showSearcher_call([id], this),
-      },
-      true
-    )
+    RbFormModal.create({ title: $L('新建%s', e.entityLabel), entity: e.entity, icon: e.icon, postAfter: (id) => this.showSearcher_call([id], this) }, true)
   }
 }
 
@@ -2397,7 +2431,7 @@ class RbFormAvatar extends RbFormElement {
   renderViewElement() {
     return (
       <div className="img-field avatar">
-        <a className="img-thumbnail img-upload">
+        <a className="img-thumbnail img-upload" style={{ cursor: 'default' }}>
           <img src={this._formatUrl(this.state.value)} alt="Avatar" />
         </a>
       </div>
@@ -2517,6 +2551,7 @@ class RbFormLocation extends RbFormElement {
             const val = lnglat && lnglat.text ? `${lnglat.text}$$$$${lnglat.lng || 0},${lnglat.lat || 0}` : null
             that.handleChange({ target: { value: val } }, true)
           }}
+          useWhite
         />,
         null,
         function () {
@@ -2662,7 +2697,7 @@ class RbFormTag extends RbFormElement {
       this._initOptions()
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('输入%s', this.props.label),
+        placeholder: this.props.readonlyw === 3 ? $L('自动值') : $L('输入%s', this.props.label),
         maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {
@@ -2729,7 +2764,7 @@ class RbFormDivider extends React.Component {
     return (
       <div className={`form-line hover -v33 ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
         <fieldset>
-          <legend onClick={() => this.toggle()} title={$L('展开/收起')}>
+          <legend onClick={() => this._toggle()} title={$L('展开/收起')}>
             {this.props.label || ''}
           </legend>
         </fieldset>
@@ -2737,7 +2772,7 @@ class RbFormDivider extends React.Component {
     )
   }
 
-  toggle() {
+  _toggle() {
     let collapsed = null
     let $next = $(this._$formLine)
     while (($next = $next.next()).length > 0) {
@@ -2746,6 +2781,60 @@ class RbFormDivider extends React.Component {
       if (collapsed === null) collapsed = $next.hasClass('hide')
     }
     this.setState({ collapsed })
+  }
+}
+
+// 表单引用（仅视图）
+class RbFormRefform extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    if (!this.state.formComponent) return null
+    return (
+      <div className="rbview-form form-layout refform" ref={(c) => (this._viewForm = c)}>
+        {this.state.formComponent || 'Loading'}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    if (!this.props.reffield) return
+
+    const $$$parent = this.props.$$$parent
+    if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
+      const s = $$$parent.__ViewData[this.props.reffield]
+      this._renderViewFrom({ ...s })
+    }
+  }
+
+  _renderViewFrom(props) {
+    $.get(`/app/${props.entity}/view-model?id=${props.id}`, (res) => {
+      // 有错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const err = res.data.error || res.error_msg
+        this.setState({ formComponent: <div className="text-danger">{err}</div> })
+        return
+      }
+
+      const VFORM = (
+        <RF>
+          <a title={$L('在新页面打开')} className="close open-in-new" href={`${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`} target="_blank">
+            <i className="icon zmdi zmdi-open-in-new" />
+          </a>
+          <div className="row">
+            {res.data.elements.map((item) => {
+              item.$$$parent = this
+              // eslint-disable-next-line no-undef
+              return detectViewElement(item, props.entity)
+            })}
+          </div>
+        </RF>
+      )
+      this.setState({ formComponent: VFORM })
+    })
   }
 }
 
@@ -2808,6 +2897,8 @@ var detectElement = function (item, entity) {
     return <RbFormTag {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
+  } else if (item.field === TYPE_REFFORM) {
+    return <RbFormRefform {...item} />
   } else {
     return <RbFormUnsupportted {...item} />
   }

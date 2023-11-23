@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * <br>- 有权限的实体使用此类需要指定 <tt>strictMode=false</tt>
  *
  * @author Zixin (RB)
- * @since 11/06/2017
+ * @since 11/06/2019
  */
 @Service
 public class CommonsService extends InternalPersistService {

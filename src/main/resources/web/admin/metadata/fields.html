@@ -48,8 +48,14 @@
                   </div>
                   <div class="col-sm-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-primary btn-space J_new-field" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
-                      <button class="btn btn-primary btn-space J_new2-field bosskey-show" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('批量添加')}]]</button>
+                      <button class="btn btn-primary J_new-field" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+                      <div class="btn-group bosskey-show">
+                        <button class="btn btn-light w-auto dropdown-toggle ml-2" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                          <a class="dropdown-item J_new2-field">[[${bundle.L('批量添加')}]]</a>
+                          <a class="dropdown-item J_export-fields">[[${bundle.L('导出')}]] (CSV)</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -94,63 +100,6 @@
       }
     </script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
-    <script type="text/babel">
-      const wpc = window.__PageConfig
-      $(document).ready(() => {
-        loadFields()
-
-        $('.input-search .btn').on('click', () => renderList())
-        $('.input-search .form-control').keydown((e) => {
-          if (e.which === 13) $('.input-search .btn').trigger('click')
-        })
-        $('.J_new-field').on('click', () => {
-          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
-          else RbHighbar.error($L('仅超级管理员可添加字段'))
-        })
-        $('.J_new2-field').on('click', () => {
-          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new2?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
-          else RbHighbar.error($L('仅超级管理员可添加字段'))
-        })
-      })
-
-      let fields_data = []
-      const loadFields = function () {
-        $.get(`../list-field?entity=${wpc.entityName}&refname=true`, function (res) {
-          fields_data = res.data || []
-          renderList()
-
-          $('.tablesort').tablesort()
-        })
-      }
-
-      const renderList = function () {
-        const $tbody = $('#dataList tbody').empty()
-        const q = ($val('.input-search .form-control') || '').toLowerCase()
-
-        $(fields_data).each(function (idx, item) {
-          if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
-
-          const $tr = $(`<tr data-id="${item.fieldId || ''}"></tr>`).appendTo($tbody)
-          const $name = $(`<td><a href="field/${item.fieldName}" class="column-main">${item.fieldLabel}</a></td>`).appendTo($tr)
-          if (item.fieldName === wpc.nameField) {
-            $tr.addClass('primary')
-            $(`<span class="badge badge-pill badge-secondary font-weight-light ml-1 pb-0">${$L('名称')}</span>`).appendTo($name)
-          } else if (!item.creatable) {
-            $tr.addClass('muted')
-          } else if (!item.nullable) {
-            $tr.addClass('danger')
-          }
-          $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)
-          let dt = item.displayType
-          if (item.displayTypeRef) dt += ` (${item.displayTypeRef[1]})`
-          $(`<td><div class="text-muted">${dt}</div></td>`).appendTo($tr)
-          $(`<td><div class="text-none" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
-          $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
-        })
-
-        $('.dataTables_info').text($L('共 %d 个字段', $tbody.find('tr').length))
-        $('#dataList').parent().removeClass('rb-loading-active')
-      }
-    </script>
+    <script th:src="@{/assets/js/metadata/fields.js}" type="text/babel"></script>
   </body>
 </html>

@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -22,12 +23,15 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
+import com.rebuild.web.KnownExceptionConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +54,7 @@ import java.util.Set;
  * @author Zixin (RB)
  * @since 08/22/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/{entity}/")
 public class GeneralListController extends EntityController {
@@ -86,6 +91,10 @@ public class GeneralListController extends EntityController {
         }
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
+
+        // v3.5
+        boolean hadApproval = RobotApprovalManager.instance.hadApproval(listEntity, null) != null;
+        mv.getModel().put("_HadApproval", hadApproval);
 
         JSON listConfig = null;
 
@@ -145,13 +154,28 @@ public class GeneralListController extends EntityController {
     }
 
     @PostMapping("data-list")
-    public JSON dataList(@PathVariable String entity, HttpServletRequest request) {
+    public RespBody dataList(@PathVariable String entity, HttpServletRequest request) {
         JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
         DataListBuilder builder = new DataListBuilderImpl(query, getRequestUser(request));
-        return builder.getJSONResult();
+
+        try {
+            return RespBody.ok(builder.getJSONResult());
+
+        } catch (Exception ex) {
+            String known = KnownExceptionConverter.convert2ErrorMsg(ex);
+            if (known != null) return RespBody.error(known);
+
+            log.error(null, ex);
+            return RespBody.error(ex.getLocalizedMessage());
+        }
     }
 
-    // 快速查询
+    /**
+     * 快速查询字段
+     *
+     * @param entity
+     * @return
+     */
     static String getQuickFieldsLabel(Entity entity) {
         Set<String> quickFields = ParseHelper.buildQuickFields(entity, null);
 

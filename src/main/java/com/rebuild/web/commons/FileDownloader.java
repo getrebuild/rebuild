@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.qiniu.storage.model.FileInfo;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -25,6 +27,7 @@ import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -157,7 +160,7 @@ public class FileDownloader extends BaseController {
 
         if (QiniuCloud.instance().available() && !temp) {
             String privateUrl = QiniuCloud.instance().makeUrl(filePath);
-            privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
+            if (!INLINE_FORCE.equals(attname)) privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         } else {
 
@@ -171,45 +174,54 @@ public class FileDownloader extends BaseController {
     }
 
     @GetMapping(value = "read-raw")
-    public void readRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void readRawText(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filePath = getParameterNotNull(request, "url");
-        boolean fullUrl = CommonsUtils.isExternalUrl(filePath);
         final String charset = getParameter(request, "charset", AppUtils.UTF8);
         final int cut = getIntParameter(request, "cut");  // MB
 
-        String content;
+        if (CommonsUtils.isExternalUrl(filePath)) {
+            String text = OkHttpUtils.get(filePath, null, charset);
+            ServletUtils.write(response, text);
+            return;
+        }
+
+        RbAssert.isAllow(checkUser(request), "Unauthorized access");
+
+        String text;
         if (QiniuCloud.instance().available()) {
             FileInfo fi = QiniuCloud.instance().stat(filePath);
             if (fi == null) {
-                content = "ERROR:FILE_NOT_EXISTS";
+                text = "ERROR:FILE_NOT_EXISTS";
             } else if (cut > 0 && fi.fsize / 1024 / 1024 > cut) {
-                content = "ERROR:FILE_TOO_LARGE";
+                text = "ERROR:FILE_TOO_LARGE";
             } else {
-                String privateUrl = fullUrl ? filePath : QiniuCloud.instance().makeUrl(filePath);
-                content = OkHttpUtils.get(privateUrl, null, charset);
+                text = OkHttpUtils.get(QiniuCloud.instance().makeUrl(filePath), null, charset);
             }
 
         } else {
-            if (fullUrl) {
-                String e = filePath.split("\\?e=")[1];
-                RbAssert.is(checkEsign(e), "Unauthorized access");
-                filePath = filePath.split("/filex/access/")[1].split("\\?")[0];
-            }
-
             // Local storage
             filePath = checkFilePath(filePath);
             File file = RebuildConfiguration.getFileOfData(filePath);
 
             if (!file.exists()) {
-                content = "ERROR:FILE_NOT_EXISTS";
+                text = "ERROR:FILE_NOT_EXISTS";
             } else if (cut > 0 && FileUtils.sizeOf(file) / 1024 / 1024 > cut) {
-                content = "ERROR:FILE_TOO_LARGE";
+                text = "ERROR:FILE_TOO_LARGE";
             } else {
-                content = FileUtils.readFileToString(file, charset);
+                text = FileUtils.readFileToString(file, charset);
             }
         }
 
-        ServletUtils.write(response, content);
+        ServletUtils.write(response, text);
+    }
+
+    @GetMapping(value = "proxy-download")
+    public void proxyDownload(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String fileUrl = request.getParameter("url");
+        fileUrl = CodecUtils.urlDecode(fileUrl);
+
+        File tmp = QiniuCloud.getStorageFile(fileUrl);
+        writeLocalFile(tmp, response);
     }
 
     /**
@@ -236,6 +248,11 @@ public class FileDownloader extends BaseController {
         if (user == null) {
             String onceToken = request.getParameter(AppUtils.URL_ONCETOKEN);
             user = onceToken == null ? null : AuthTokenManager.verifyToken(onceToken);
+        }
+        // 5. UnsafeImgAccess
+        if (user == null && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
+            String unsafe = request.getParameter("_UNSAFEIMGACCESS");
+            user = NumberUtils.isNumber(unsafe) ? UserService.SYSTEM_USER : null;
         }
 
         return user != null;
@@ -322,7 +339,7 @@ public class FileDownloader extends BaseController {
 
         // 火狐 Safari 中文名乱码问题
         String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
-        if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {
+        if (UA.contains("FIREFOX") || UA.contains("SAFARI") || UA.contains("APPLEWEBKIT")) {
             attname = CodecUtils.urlDecode(attname);
             attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         }

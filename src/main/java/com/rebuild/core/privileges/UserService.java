@@ -132,9 +132,14 @@ public class UserService extends BaseService {
         String dsql = String.format("delete from `layout_config` where `CREATED_BY` = '%s'", recordId);
         Application.getSqlExecutor().execute(dsql);
 
-        // 2.删除并刷新缓存
+        // 2.删除三方
+        String dsql2 = String.format("delete from `external_user` where `BIND_USER` = '%s'", recordId);
+        Application.getSqlExecutor().execute(dsql2);
+
+        // 3.删除并刷新缓存
         super.delete(recordId);
         Application.getUserStore().removeUser(recordId);
+
         return 1;
     }
 
@@ -214,9 +219,7 @@ public class UserService extends BaseService {
         }
 
         int policy = RebuildConfiguration.getInt(ConfigurationItem.PasswordPolicy);
-        if (policy <= 1) {
-            return;
-        }
+        if (policy <= 1) return;
 
         int countUpper = 0;
         int countLower = 0;
@@ -237,8 +240,8 @@ public class UserService extends BaseService {
         if (countUpper == 0 || countLower == 0 || countDigit == 0) {
             throw new DataSpecificationException(Language.L("密码不能小于 6 位，且必须包含数字和大小写字母"));
         }
-        if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {
-            throw new DataSpecificationException(Language.L("密码不能小于 8 位，且必须包含数字和大小写字母及特殊字符"));
+        if (policy >= 3 && (countSpecial == 0 || password.length() < 10)) {
+            throw new DataSpecificationException(Language.L("密码不能小于 10 位，且必须包含数字和大小写字母及特殊字符"));
         }
     }
 
@@ -489,13 +492,6 @@ public class UserService extends BaseService {
                 "select user from LoginLog where user = ?")
                 .setParameter(1, user)
                 .unique();
-        if (hasLogin != null) return true;
-
-        // 绑定
-        Object[] hasBind = Application.createQueryNoFilter(
-                "select bindUser from ExternalUser where bindUser = ?")
-                .setParameter(1, user)
-                .unique();
-        return hasBind != null;
+        return hasLogin != null;
     }
 }

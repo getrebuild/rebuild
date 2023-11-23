@@ -136,7 +136,7 @@ class ClassificationSelector extends React.Component {
     const last = this._select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
-      RbHighbar.create($L('请选择 %s', this.props.label))
+      RbHighbar.create($L('请选择%s', this.props.label))
     } else {
       const text = []
       $(this._select2).each(function () {
@@ -165,28 +165,8 @@ window.referenceSearch__dlg
 
 // see `reference-search.html`
 class ReferenceSearcher extends RbModal {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return this.state.destroy === true ? null : (
-      <div className="modal" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{this.props.title || $L('查询')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body iframe" style={{ borderTop: '1px solid #dee2e6' }}>
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 497 }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  renderContent() {
+    return this.state.destroy === true ? null : super.renderContent()
   }
 
   componentDidMount() {
@@ -302,6 +282,7 @@ class DeleteConfirm extends RbAlert {
         this.hide(true)
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter(res.data.deleted)
       } else {
+        $(this._$dbtn).text($L('删除'))
         RbHighbar.error(res.error_msg)
         this.disabled()
       }
@@ -414,94 +395,79 @@ class BaiduMap extends React.Component {
 }
 
 class BaiduMapModal extends RbModal {
-  constructor(props) {
-    super(props)
-  }
+  renderContent() {
+    if (this.state.destroy) return null
 
-  render() {
-    const ss = this.state.suggestion || []
-
-    return this.state.destroy === true ? null : (
-      <div className="modal" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{this.props.title || $L('位置')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body p-0">
-              {this.props.canPin && (
-                <div className="map-pin">
-                  <div className="row">
-                    <div className="col-6">
-                      <div className="dropdown">
-                        <div className="input-group w-100">
-                          <input
-                            type="text"
-                            ref={(c) => (this._$searchValue = c)}
-                            className="form-control form-control-sm dropdown-toggle"
-                            placeholder={$L('查找位置')}
-                            defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
-                            onKeyDown={(e) => {
-                              if (e.which === 38 || e.which === 40) {
-                                $stopEvent(e, true)
-                                this._suggestUpDown(e.which)
-                              } else if (e.which === 13) {
-                                const $active = $(this._$suggestion).find('.active')
-                                if ($active[0] && $active.text()) {
-                                  this._suggestSelect({ address: $active.text(), location: $active.data('location') })
-                                }
-                                setTimeout(() => this._search(), 10)
-                              } else {
-                                this._suggest()
-                              }
-                            }}
-                            onFocus={() => this._suggest()}
-                          />
-                          <div className="input-group-append">
-                            <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                              <i className="icon zmdi zmdi-search" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className={`dropdown-menu map-suggestion ${ss.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
-                          {ss.map((item) => {
-                            return (
-                              <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
-                                {item.address}
-                              </a>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-6 text-right">
-                      <button className="btn btn-primary btn-outline" type="button" onClick={() => this._onConfirm()}>
-                        <i className="icon zmdi zmdi-check" /> {$L('确定')}
+    const sug = this.state.suggestion || []
+    return (
+      <RF>
+        {this.props.canPin && (
+          <div className="map-pin">
+            <div className="row">
+              <div className="col-6">
+                <div className="dropdown">
+                  <div className="input-group w-100">
+                    <input
+                      type="text"
+                      ref={(c) => (this._$searchValue = c)}
+                      className="form-control form-control-sm dropdown-toggle"
+                      placeholder={$L('查找位置')}
+                      defaultValue={this.props.lnglat ? this.props.lnglat.text || '' : ''}
+                      onKeyDown={(e) => {
+                        if (e.which === 38 || e.which === 40) {
+                          $stopEvent(e, true)
+                          this._suggestUpDown(e.which)
+                        } else if (e.which === 13) {
+                          const $active = $(this._$suggestion).find('.active')
+                          if ($active[0] && $active.text()) {
+                            this._suggestSelect({ address: $active.text(), location: $active.data('location') })
+                          }
+                          setTimeout(() => this._search(), 10)
+                        } else {
+                          this._suggest()
+                        }
+                      }}
+                      onFocus={() => this._suggest()}
+                    />
+                    <div className="input-group-append">
+                      <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                        <i className="icon zmdi zmdi-search" />
                       </button>
                     </div>
                   </div>
+                  <div className={`dropdown-menu map-suggestion ${sug.length > 0 && 'show'}`} ref={(c) => (this._$suggestion = c)}>
+                    {sug.map((item) => {
+                      return (
+                        <a key={$random()} className="dropdown-item" title={item.address} data-location={item.location} onClick={(e) => this._suggestSelect(item, e)}>
+                          {item.address}
+                        </a>
+                      )
+                    })}
+                  </div>
                 </div>
-              )}
-              <div style={{ height: 500 }}>
-                <BaiduMap
-                  ref={(c) => (this._BaiduMap = c)}
-                  lnglat={this.props.lnglat}
-                  canPin={this.props.canPin}
-                  onPin={(latlng) => {
-                    if (this._$searchValue) {
-                      this._latlngValue = latlng
-                      $(this._$searchValue).val(latlng.text)
-                    }
-                  }}
-                />
+              </div>
+              <div className="col-6 text-right">
+                <button className="btn btn-primary btn-outline" type="button" onClick={() => this._onConfirm()}>
+                  <i className="icon zmdi zmdi-check" /> {$L('确定')}
+                </button>
               </div>
             </div>
           </div>
+        )}
+        <div style={{ height: 500 }}>
+          <BaiduMap
+            ref={(c) => (this._BaiduMap = c)}
+            lnglat={this.props.lnglat}
+            canPin={this.props.canPin}
+            onPin={(latlng) => {
+              if (this._$searchValue) {
+                this._latlngValue = latlng
+                $(this._$searchValue).val(latlng.text)
+              }
+            }}
+          />
         </div>
-      </div>
+      </RF>
     )
   }
 
@@ -515,13 +481,6 @@ class BaiduMapModal extends RbModal {
       }, 100)
     })
   }
-
-  // show(lnglat) {
-  //   $(this._$modal).modal('show')
-  //   if (lnglat) {
-  //     setTimeout(() => this._BaiduMap.center(lnglat), 100)
-  //   }
-  // }
 
   destroy() {
     this.setState({ destroy: true })
@@ -613,7 +572,7 @@ class BaiduMapModal extends RbModal {
       BaiduMapModal._ViewModal.show()
       if (lnglat) BaiduMapModal._ViewModal._BaiduMap.center(lnglat)
     } else {
-      renderRbcomp(<BaiduMapModal lnglat={lnglat} />, null, function () {
+      renderRbcomp(<BaiduMapModal lnglat={lnglat} title={$L('查看位置')} useWhite />, null, function () {
         BaiduMapModal._ViewModal = this
       })
     }
@@ -867,9 +826,14 @@ class LiteFormModal extends RbModalHandler {
       },
     }
 
-    const $btn = $(this._$formAction).find('.btn').button('loading')
+    if (typeof this.props.onHandleSave === 'function') {
+      const s = this.props.onHandleSave(data2, this)
+      if (s === false) return
+    }
+
+    this.disabled(true)
     $.post('/app/entity/liteform/record-save', JSON.stringify(data2), (res) => {
-      $btn.button('reset')
+      this.disabled()
       if (res.error_code === 0) {
         RbHighbar.success($L('保存成功'))
 
@@ -886,15 +850,21 @@ class LiteFormModal extends RbModalHandler {
     })
   }
 
+  disabled(d) {
+    if (!this._$formAction) return
+    if (d === true) $(this._$formAction).find('.btn').button('loading')
+    else $(this._$formAction).find('.btn').button('reset')
+  }
+
   // -- Usage
 
   /**
    * @param {*} entityOrId
    * @param {*} fields
    * @param {*} title
-   * @param {*} _callback
+   * @param {*} onHandleSave
    */
-  static create(entityOrId, fields, title, _callback) {
+  static create(entityOrId, fields, title, onHandleSave) {
     const post = {
       id: entityOrId,
       fields: fields,
@@ -902,7 +872,7 @@ class LiteFormModal extends RbModalHandler {
 
     $.post('/app/entity/liteform/form-model', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        renderRbcomp(<LiteFormModal title={title} {...res.data} />, null, _callback)
+        renderRbcomp(<LiteFormModal title={title} onHandleSave={onHandleSave} {...res.data} />)
       } else {
         RbHighbar.error(res.error_msg)
       }

@@ -28,9 +28,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,9 +71,11 @@ public class AggregationEvaluator {
         if ("FORMULA".equalsIgnoreCase(calcMode)) {
             return evalFormula();
         }
-        // ONLY FieldAggregation
-        else if ("RBJOIN".equalsIgnoreCase(calcMode)) {
-            return evalRbJoin();
+        // for FieldAggregation/GroupAggregation
+        else if ("RBJOIN".equalsIgnoreCase(calcMode)
+                || "RBJOIN2".equalsIgnoreCase(calcMode) || "RBJOIN3".equalsIgnoreCase(calcMode)) {
+            int mode = "RBJOIN2".equalsIgnoreCase(calcMode) ? 2 : ("RBJOIN3".equalsIgnoreCase(calcMode) ? 3 : 1);
+            return evalRbJoin(mode);
         }
 
         String sourceField = item.getString("sourceField");
@@ -193,9 +197,10 @@ public class AggregationEvaluator {
     /**
      * 智能连接
      *
+     * @param mode 去重模式
      * @return
      */
-    private Object evalRbJoin() {
+    private Object evalRbJoin(int mode) {
         String sourceField = item.getString("sourceField");
         Field field;
         if ((field = MetadataHelper.getLastJoinField(sourceEntity, sourceField)) == null) {
@@ -205,9 +210,19 @@ public class AggregationEvaluator {
         String ql = String.format("select %s,%s from %s where %s",
                 sourceField, sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
         Object[][] array = Application.createQueryNoFilter(ql).array();
+        if (array.length == 0) return new Object[0];
 
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        List<Object> nvList = new ArrayList<>();
+
+        Collection<Object> nvList;
+        Map<Object, Integer> countList = null;
+        if (mode == 2 || mode == 3) {
+            nvList = new LinkedHashSet<>();
+            if (mode == 3) countList = new HashMap<>();  // 针对文本
+        } else {
+            nvList = new ArrayList<>();
+        }
+
         for (Object[] o : array) {
             Object n = o[0];
             if (n == null) continue;
@@ -216,21 +231,54 @@ public class AggregationEvaluator {
             if (n instanceof ID[]) {
                 CollectionUtils.addAll(nvList, (ID[]) n);
             } else if (n instanceof ID) {
-                nvList.add(n);
+                if (field.getType() == FieldType.PRIMARY) {
+                    nvList.add(n.toString());  // 保持主键
+                } else {
+                    nvList.add(n);
+                }
             } else {
                 Object v = easyField.wrapValue(n);
                 if (v == null) continue;
 
-                if (easyField.getDisplayType() == DisplayType.MULTISELECT) {
+                DisplayType dt = easyField.getDisplayType();
+                if (dt == DisplayType.MULTISELECT) {
                     JSONArray a = ((JSONObject) v).getJSONArray("text");
                     CollectionUtils.addAll(nvList, a);
+
+                    // TEXT*N
+                    if (countList != null) {
+                        for (Object item : a) {
+                            Integer c = countList.get(item);
+                            if (c == null) c = 0;
+                            countList.put(item, ++c);
+                        }
+                    }
+                } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+                    nvList.addAll((JSONArray) v);
                 } else {
+                    // TEXT
                     nvList.add(v);
+
+                    // TEXT*N
+                    if (countList != null) {
+                        Integer c = countList.get(v);
+                        if (c == null) c = 0;
+                        countList.put(v, ++c);
+                    }
                 }
             }
         }
 
+        if (countList == null || countList.isEmpty()) {
+            // Use array
+            return nvList.toArray(new Object[0]);
+        }
+
+        Collection<Object> nvList2 = new LinkedHashSet<>();
+        for (Object v : nvList) {
+            nvList2.add(v + "*" + countList.getOrDefault(v, 1));
+        }
         // Use array
-        return nvList.toArray(new Object[0]);
+        return nvList2.toArray(new Object[0]);
     }
 }
