@@ -2840,7 +2840,7 @@ class RbFormRefform extends React.Component {
 
 // 确定元素类型
 var detectElement = function (item, entity) {
-  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+  if (!item.key) item.key = `field-${(item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) ? $random() : item.field}`
 
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)

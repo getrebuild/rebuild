@@ -10,7 +10,7 @@ const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
   RBJOIN2: $L('去重连接'),
-  // RBJOIN3: $L('去重连接*'),
+  // RBJOIN3: $L('去重连接*N'),
 }
 
 const __LAB_MATCHFIELDS = false
@@ -70,7 +70,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
                 <div>
-                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')}</h5>
+                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')} (LAB)</h5>
                   <textarea className="formula-code" style={{ height: 72 }} ref={(c) => (this._$matchFields = c)} placeholder="## [{ sourceField:XXX, targetField:XXX }]" />
                 </div>
               </div>
@@ -404,6 +404,22 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (content.items.length === 0) {
       RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
+    }
+
+    if (this.state.showMatchFields) {
+      let badFormat = !content.targetEntityMatchFields
+      if (!badFormat) {
+        try {
+          badFormat = JSON.parse(content.targetEntityMatchFields)
+          badFormat = !$.isArray(badFormat)
+        } catch (err) {
+          badFormat = true
+        }
+      }
+      if (badFormat) {
+        RbHighbar.create($L('请正确填写目标实体/记录匹配规则'))
+        return false
+      }
     }
 
     return content

@@ -10,7 +10,7 @@ const CALC_MODES2 = {
   ...FormulaAggregation.CALC_MODES,
   RBJOIN: $L('连接'),
   RBJOIN2: $L('去重连接'),
-  // RBJOIN3: $L('去重连接*'),
+  // RBJOIN3: $L('去重连接*N'),
 }
 
 // ~~ 分组聚合

@@ -56,13 +56,17 @@ public class ListAndViewRedirection extends BaseController {
                     || entity.getEntityCode() == EntityHelper.ProjectTaskComment) {
                 Object[] found = findProjectAndTaskId(anyId);
                 if (found != null) {
-                    url = MessageFormat.format(
-                            "../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
+                    url = MessageFormat.format("../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
                 }
 
             } else if (entity.getEntityCode() == EntityHelper.User) {
-                url = MessageFormat.format(
-                        "../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), anyId);
+                url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), anyId);
+            } else if (entity.getEntityCode() == EntityHelper.Department) {
+                url = MessageFormat.format("../admin/bizuser/departments#!/View/{0}/{1}", entity.getName(), anyId);
+            } else if (entity.getEntityCode() == EntityHelper.Team) {
+                url = MessageFormat.format("../admin/bizuser/teams#!/View/{0}/{1}", entity.getName(), anyId);
+            } else if (entity.getEntityCode() == EntityHelper.Role) {
+                url = MessageFormat.format("../admin/bizuser/role/{0}", anyId);
 
             } else if (MetadataHelper.isBusinessEntity(entity)) {
                 if ("dock".equalsIgnoreCase(type)) {
