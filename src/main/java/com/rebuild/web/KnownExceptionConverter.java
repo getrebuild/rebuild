@@ -61,9 +61,12 @@ public class KnownExceptionConverter {
 
         } else if (ex instanceof ConstraintViolationException) {
             log.error("DBERR: {}", exMsg);
-            String s = Language.L("数据库字段违反唯一性约束");
-            String key = matchsDuplicateEntry(exMsg);
-            return key == null ? s : s + ":" + key;
+            if (ex.getLocalizedMessage().contains("Duplicate entry")) {
+                String s = Language.L("数据库字段违反唯一性约束");
+                String key = matchsDuplicateEntry(exMsg);
+                return key == null ? s : s + ":" + key;
+            }
+            return Language.L("数据库字段违反约束");
         }
 
         return null;

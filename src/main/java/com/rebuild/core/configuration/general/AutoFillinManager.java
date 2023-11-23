@@ -186,6 +186,16 @@ public class AutoFillinManager implements ConfigManager {
      * 表单后端回填
      *
      * @param record
+     * @return
+     */
+    public int fillinRecord(Record record) {
+        return fillinRecord(record, false);
+    }
+
+    /**
+     * 表单后端回填
+     *
+     * @param record
      * @param fillinForce 是否强制（无视配置）
      * @return
      */

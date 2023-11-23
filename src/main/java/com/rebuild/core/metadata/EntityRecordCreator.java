@@ -68,7 +68,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
     @Override
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
         // 非业务实体
-        if (MetadataHelper.isBusinessEntity(field.getOwnEntity())) return true;
+        if (!MetadataHelper.isBusinessEntity(field.getOwnEntity())) return true;
 
         final boolean isNew = record.getPrimary() == null;
 
@@ -76,15 +76,15 @@ public class EntityRecordCreator extends JsonRecordCreator {
         if (isNew && isDtmField(field)) return true;
 
         // 公共字段前台可能会布局出来
-        // 此处忽略检查没问题，因为最后还会复写，即 #bindCommonsFieldsValue
+        // 此处忽略检查没问题，因为最后还会复写，即 EntityHelper#bindCommonsFieldsValue
         boolean isCommonField = MetadataHelper.isCommonsField(field);
         if (!isCommonField) return false;
 
-        String fieldName = field.getName();
-        return isNew || (!EntityHelper.OwningUser.equalsIgnoreCase(fieldName)
-                && !EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
-                && !EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
-                && !EntityHelper.CreatedOn.equalsIgnoreCase(fieldName));
+        if (isNew) return true;
+
+        String n = field.getName();
+        return !(EntityHelper.OwningUser.equalsIgnoreCase(n) || EntityHelper.OwningDept.equalsIgnoreCase(n)
+                || EntityHelper.CreatedBy.equalsIgnoreCase(n) || EntityHelper.CreatedOn.equalsIgnoreCase(n));
     }
 
     @Override
@@ -212,6 +212,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         return patt == null || patt.matcher((CharSequence) val).matches();
     }
 
+    // 是否需要去除外链
     private void keepFieldValueSafe(Record record) {
         for (String fieldName : record.getAvailableFields()) {
             final Object value = record.getObjectValue(fieldName);
