@@ -84,7 +84,7 @@ public class FieldAggregationController extends BaseController {
 
         // 源字段
 
-        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, true, field -> {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
                 return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
@@ -104,6 +104,7 @@ public class FieldAggregationController extends BaseController {
             for (Field field : MetadataSorter.sortFields(targetEntity,
                     DisplayType.NUMBER, DisplayType.DECIMAL, DisplayType.DATE, DisplayType.DATETIME,
                     DisplayType.N2NREFERENCE, DisplayType.NTEXT, DisplayType.FILE)) {
+
                 EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (easyField.isBuiltin()) continue;
 

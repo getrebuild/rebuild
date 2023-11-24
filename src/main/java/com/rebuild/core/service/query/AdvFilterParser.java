@@ -105,6 +105,12 @@ public class AdvFilterParser extends SetUser {
         this.filterExpr = filterExpr;
         this.rootEntity = rootEntity;
         this.varRecord = null;
+
+        String entityName = filterExpr.getString("entity");
+        if (entityName != null) {
+            Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
+                    "Filter#2 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+        }
     }
 
     /**
@@ -115,6 +121,12 @@ public class AdvFilterParser extends SetUser {
         this.filterExpr = filterExpr;
         this.rootEntity = MetadataHelper.getEntity(varRecord.getEntityCode());
         this.varRecord = License.isRbvAttached() ? varRecord : null;
+
+        String entityName = filterExpr.getString("entity");
+        if (entityName != null) {
+            Assert.isTrue(entityName.equalsIgnoreCase(this.rootEntity.getName()),
+                    "Filter#3 uses different entities : " + entityName + "/" + this.rootEntity.getName());
+        }
     }
 
     /**

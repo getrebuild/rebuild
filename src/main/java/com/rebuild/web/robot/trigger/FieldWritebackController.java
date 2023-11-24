@@ -117,7 +117,7 @@ public class FieldWritebackController extends BaseController {
 
         // 源字段
 
-        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, true, field -> {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
                 return easyField.getDisplayType() == DisplayType.BARCODE;
@@ -134,7 +134,7 @@ public class FieldWritebackController extends BaseController {
 
         JSONArray targetFields = new JSONArray();
         if (targetEntity != null) {
-            targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, field -> {
+            targetFields = MetaFormatter.buildFieldsWithRefs(targetEntity, 1, true, field -> {
                 EasyField easyField = (EasyField) field;
                 return easyField.getDisplayType() == DisplayType.SERIES
                         || easyField.getDisplayType() == DisplayType.BARCODE

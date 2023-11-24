@@ -227,7 +227,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             }
             return StringUtils.defaultIfBlank(sqlWhere, "(1=1)");
         }
-        
+
         return previewFilter + "(1=1)";
     }
 

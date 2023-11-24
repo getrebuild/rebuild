@@ -49,6 +49,7 @@ import java.util.Map;
 public class GroupAggregation extends FieldAggregation {
 
     private GroupAggregationRefresh groupAggregationRefresh;
+    protected OperatingContext operatingContext;
 
     public GroupAggregation(ActionContext context) {
         this(context, Boolean.FALSE);
@@ -76,6 +77,7 @@ public class GroupAggregation extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
+        this.operatingContext = operatingContext;  // for Refresh
         return super.execute(operatingContext);
     }
 
@@ -232,11 +234,11 @@ public class GroupAggregation extends FieldAggregation {
         }
 
         if (allNull) {
-            // 如果分组字段值全空将会触发全量更新
-            if (!valueChanged.isEmpty()) {
-                this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
-            } else {
+            if (valueChanged.isEmpty()) {
                 log.warn("All values of group-fields are null, ignored");
+            } else {
+                // 如果分组字段值全空将会触发全量更新
+                this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
             }
             return;
         }
