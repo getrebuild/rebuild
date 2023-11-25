@@ -51,10 +51,10 @@ const enableEditMode = function () {
     if (!c) c = <input className="form-control form-control-sm" />
 
     renderRbcomp(
-      <React.Fragment>
+      <RF>
         {React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null })}
         {formText && <p className="mt-2 text-dark" dangerouslySetInnerHTML={{ __html: formText }} />}
-      </React.Fragment>,
+      </RF>,
       $item
     )
   })

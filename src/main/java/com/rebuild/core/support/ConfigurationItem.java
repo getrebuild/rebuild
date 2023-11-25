@@ -91,6 +91,9 @@ public enum ConfigurationItem {
     // 2FA
     Login2FAMode(0),
 
+    // App
+    MobileAppPath,
+
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,

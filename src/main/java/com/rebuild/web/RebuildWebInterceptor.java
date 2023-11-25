@@ -256,7 +256,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/barcode/render")
                 || requestUri.startsWith("/commons/theme/")
                 || requestUri.startsWith("/account/user-avatar/")
-                || requestUri.startsWith("/rbmob/env");
+                || requestUri.startsWith("/rbmob/env")
+                || requestUri.startsWith("/h5app-download");
     }
 
     private boolean isHtmlRequest(String requestUri, HttpServletRequest request) {

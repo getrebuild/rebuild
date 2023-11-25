@@ -105,7 +105,6 @@
                             <i class="logo-img white"></i>
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
-                          <input type="file" class="hide" accept="image/*" data-maxsize="10485760" data-local="true" />
                           <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，建议尺寸 300 × 60')}]]</p>
                         </td>
                       </tr>
@@ -145,7 +144,6 @@
                             <i class="bgimg-img"></i>
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
-                          <input type="file" class="hide" accept="image/*" data-maxsize="10485760" data-local="true" />
                           <p class="mt-2 text-dark hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
                         </td>
                       </tr>
@@ -287,8 +285,14 @@
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true">[[${MobileNavStyle ?:'34'}]]</td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 1 ? 'MobileAppPath' : ''}" th:data-value="${MobileAppPath}" data-optional="true" id="_MobileAppPath">[[${MobileAppPath ?:bundle.L('无')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
+                  <input type="file" class="hide file_4image" accept="image/*" data-maxsize="10485760" data-local="true" data-noname="true" />
+                  <input type="file" class="hide file_MobileAppPath" accept=".apk,.ipa" />
                   <div class="edit-footer">
                     <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
                     <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
