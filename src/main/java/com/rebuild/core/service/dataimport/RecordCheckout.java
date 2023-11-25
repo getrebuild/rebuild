@@ -231,7 +231,7 @@ public class RecordCheckout {
         if (refEntity.getEntityCode() == EntityHelper.User) {
             String sql = MessageFormat.format(
                     "select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",
-                    CommonsUtils.escapeSql(val2Text.toString()));
+                    CommonsUtils.escapeSql(val2Text));
             query = Application.createQueryNoFilter(sql);
         } else {
             // 查找引用实体的名称字段和自动编号字段
@@ -248,7 +248,7 @@ public class RecordCheckout {
                     String.format("select %s from %s where ", refEntity.getPrimaryField().getName(), refEntity.getName()));
             for (String qf : queryFields) {
                 sql.append(
-                        String.format("%s = '%s' or ", qf, CommonsUtils.escapeSql(val2Text.toString())));
+                        String.format("%s = '%s' or ", qf, CommonsUtils.escapeSql(val2Text)));
             }
             sql = new StringBuilder(sql.substring(0, sql.length() - 4));
 

@@ -16,7 +16,9 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -42,15 +44,17 @@ public class GroupAggregationRefresh {
 
     final private GroupAggregation parent;
     final private List<String[]> fieldsRefresh;
+    final private ID originSourceId;
 
     // fieldsRefresh = [TargetField, SourceField, Value]
-    protected GroupAggregationRefresh(GroupAggregation parent, List<String[]> fieldsRefresh) {
+    protected GroupAggregationRefresh(GroupAggregation parent, List<String[]> fieldsRefresh, ID originSourceId) {
         this.parent = parent;
         this.fieldsRefresh = fieldsRefresh;
+        this.originSourceId = originSourceId;
     }
 
     /**
-     * TODO 存在性能问题（可能刷新过多）
+     * NOTE 存在性能问题，因为可能刷新过多
      */
     public void refresh() {
         List<String> targetFields = new ArrayList<>();
@@ -58,17 +62,18 @@ public class GroupAggregationRefresh {
         for (String[] s : fieldsRefresh) {
             targetFields.add(s[0]);
             if (s[2] != null) {
-                targetWhere.add(String.format("%s = '%s'", s[0], s[2]));
+                targetWhere.add(String.format("%s = '%s'", s[0], CommonsUtils.escapeSql(s[2])));
             }
         }
 
-        // 只有 1 个字段会全量刷新，性能较低
+        // 只有1个字段会全量刷新，性能较低
         if (targetWhere.size() <= 1) {
             targetWhere.clear();
             targetWhere.add("(1=1)");
             log.warn("Force refresh all aggregation target(s)");
         }
 
+        // 1.获取待刷新的目标
         Entity targetEntity = this.parent.targetEntity;
         String sql = String.format("select %s,%s from %s where ( %s )",
                 StringUtils.join(targetFields, ","),
@@ -86,6 +91,7 @@ public class GroupAggregationRefresh {
         // NOTE 220905 更新时不能忽略触发源本身的更新
         Set<ID> refreshedIds = new HashSet<>();
 
+        // 2.逐一刷新目标
         for (Object[] o : targetRecords4Refresh) {
             final ID targetRecordId = (ID) o[o.length - 1];
             // 排重
@@ -98,7 +104,7 @@ public class GroupAggregationRefresh {
                 if (o[i] == null) {
                     qFieldsFollow.add(String.format("%s is null", source[1]));
                 } else {
-                    qFieldsFollow.add(String.format("%s = '%s'", source[1], o[i]));
+                    qFieldsFollow.add(String.format("%s = '%s'", source[1], StringEscapeUtils.escapeSql(o[i].toString())));
                 }
             }
 
@@ -112,8 +118,7 @@ public class GroupAggregationRefresh {
             ga.followSourceWhere = StringUtils.join(qFieldsFollow, " and ");
 
             // FIXME v35 可能导致数据聚合条件中的字段变量不准
-            ID fakeSourceId = this.parent.operatingContext.getFixedRecordId();
-            Record fakeSourceRecord = EntityHelper.forUpdate(fakeSourceId, triggerUser, false);
+            Record fakeSourceRecord = EntityHelper.forUpdate(originSourceId, triggerUser, false);
             OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
             try {

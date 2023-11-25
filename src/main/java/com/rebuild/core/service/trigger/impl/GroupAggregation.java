@@ -29,6 +29,7 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -49,7 +50,6 @@ import java.util.Map;
 public class GroupAggregation extends FieldAggregation {
 
     private GroupAggregationRefresh groupAggregationRefresh;
-    protected OperatingContext operatingContext;
 
     public GroupAggregation(ActionContext context) {
         this(context, Boolean.FALSE);
@@ -77,7 +77,6 @@ public class GroupAggregation extends FieldAggregation {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
-        this.operatingContext = operatingContext;  // for Refresh
         return super.execute(operatingContext);
     }
 
@@ -225,8 +224,8 @@ public class GroupAggregation extends FieldAggregation {
                     }
                 }
 
-                qFields.add(String.format("%s = '%s'", targetField, val));
-                qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
+                qFields.add(String.format("%s = '%s'", targetField, CommonsUtils.escapeSql(val)));
+                qFieldsFollow.add(String.format("%s = '%s'", sourceField, CommonsUtils.escapeSql(val)));
                 allNull = false;
             }
 
@@ -238,7 +237,7 @@ public class GroupAggregation extends FieldAggregation {
                 log.warn("All values of group-fields are null, ignored");
             } else {
                 // 如果分组字段值全空将会触发全量更新
-                this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
+                this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh, operatingContext.getFixedRecordId());
             }
             return;
         }
@@ -246,7 +245,7 @@ public class GroupAggregation extends FieldAggregation {
         this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
 
         if (isGroupUpdate) {
-            this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh);
+            this.groupAggregationRefresh = new GroupAggregationRefresh(this, qFieldsRefresh, operatingContext.getFixedRecordId());
         }
 
         sql = String.format("select %s from %s where ( %s )",
