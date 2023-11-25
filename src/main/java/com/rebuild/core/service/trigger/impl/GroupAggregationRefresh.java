@@ -18,7 +18,6 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -104,7 +103,7 @@ public class GroupAggregationRefresh {
                 if (o[i] == null) {
                     qFieldsFollow.add(String.format("%s is null", source[1]));
                 } else {
-                    qFieldsFollow.add(String.format("%s = '%s'", source[1], StringEscapeUtils.escapeSql(o[i].toString())));
+                    qFieldsFollow.add(String.format("%s = '%s'", source[1], CommonsUtils.escapeSql(o[i])));
                 }
             }
 
