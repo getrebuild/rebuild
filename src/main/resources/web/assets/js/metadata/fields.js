@@ -67,11 +67,12 @@ const renderList = function () {
 }
 
 function exportFields() {
-  const rows = [[$L('内部标识'), $L('字段名称'), $L('类型'), $L('必填'), $L('备注')].join(', ')]
+  const rows = [[$L('内部标识'), $L('字段名称'), $L('类型'), $L('必填'), $L('只读'), $L('备注')].join(', ')]
+  rows.push([`${wpc.entityName}Id`, $L('主键'), 'ID', 'N', 'Y', ''].join(', '))
   fields_data.forEach((item) => {
     let type = item.displayType
     if (item.displayTypeRef) type += ` (${item.displayTypeRef[1]})`
-    rows.push([item.fieldName, item.fieldLabel, type, item.nullable ? 'N' : 'Y', item.comments ? item.comments.replace(/[,;]/, ' ') : ''].join(', '))
+    rows.push([item.fieldName, item.fieldLabel, type, item.nullable ? 'N' : 'Y', item.creatable ? 'N' : 'Y', item.comments ? item.comments.replace(/[,;]/, ' ') : ''].join(', '))
   })
 
   const encodedUri = encodeURI('data:text/csv;charset=utf-8,\ufeff' + rows.join('\n'))

@@ -24,6 +24,7 @@ import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -106,7 +107,7 @@ public class ProjectTaskController extends BaseController {
 
         // 高级查询
         JSON advFilter = ServletUtils.getRequestJson(request);
-        if (advFilter != null) {
+        if (ParseHelper.validAdvFilter((JSONObject) advFilter)) {
             String filterSql = new AdvFilterParser((JSONObject) advFilter).toSqlWhere();
             if (filterSql != null) {
                 queryWhere += " and (" + filterSql + ")";

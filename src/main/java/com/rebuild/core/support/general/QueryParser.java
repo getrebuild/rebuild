@@ -18,11 +18,18 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 列表查询解析
@@ -200,13 +207,13 @@ public class QueryParser {
 
         // append: QuickQuery
         JSONObject quickFilter = queryExpr.getJSONObject("filter");
-        if (quickFilter != null) {
+        if (ParseHelper.validAdvFilter(quickFilter)) {
             String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
         // v3.3
         JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
-        if (quickFilterAnd != null) {
+        if (ParseHelper.validAdvFilter(quickFilterAnd)) {
             String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
@@ -270,7 +277,9 @@ public class QueryParser {
         ConfigBean advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
         if (advFilter != null) {
             JSONObject filterExpr = (JSONObject) advFilter.getJSON("filter");
-            return new AdvFilterParser(filterExpr, entity).toSqlWhere();
+            if (ParseHelper.validAdvFilter(filterExpr)) {
+                return new AdvFilterParser(filterExpr, entity).toSqlWhere();
+            }
         }
         return null;
     }

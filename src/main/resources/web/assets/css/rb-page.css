@@ -2177,6 +2177,10 @@ th.column-fixed {
   content: '\f2fb';
 }
 
+.form-line.hover fieldset legend > span {
+  margin-left: 3px;
+}
+
 .form-line.v33 {
   background-color: #ebebeb;
   border-radius: 2px;
@@ -5014,7 +5018,7 @@ pre.unstyle {
 
 .tablesort thead th.sorted.ascending::after,
 .tablesort thead th.sorted.descending::after {
-  font: normal normal normal 18px/1 "Material Design Icons";
+  font: normal normal normal 18px/1 'Material Design Icons';
   content: '\F0140';
   position: absolute;
   right: 10px;

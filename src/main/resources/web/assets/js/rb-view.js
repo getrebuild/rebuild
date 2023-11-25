@@ -61,7 +61,7 @@ class RbViewForm extends React.Component {
           {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
           <div className="row">
             {res.data.elements.map((item) => {
-              if (!(item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM)) this.__ViewData[item.field] = item.value
+              if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
               if (item.field === TYPE_REFFORM) this.__hasRefform = true
               item.$$$parent = this
               return detectViewElement(item, this.props.entity)

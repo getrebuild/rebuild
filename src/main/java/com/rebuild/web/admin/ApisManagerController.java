@@ -18,8 +18,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,7 +88,7 @@ public class ApisManagerController extends BaseController {
         String sql = "select remoteIp,requestTime,responseTime,requestUrl,requestBody,responseBody,requestId from RebuildApiRequest" +
                 " where appId = ? and requestTime > ? and (1=1) order by requestTime desc";
         if (StringUtils.isNotBlank(q)) {
-            q = StringEscapeUtils.escapeSql(q);
+            q = CommonsUtils.escapeSql(q);
             sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
         }
 

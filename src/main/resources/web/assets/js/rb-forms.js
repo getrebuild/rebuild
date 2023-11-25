@@ -2765,7 +2765,7 @@ class RbFormDivider extends React.Component {
       <div className={`form-line hover -v33 ${this.state.collapsed && 'collapsed'}`} ref={(c) => (this._$formLine = c)}>
         <fieldset>
           <legend onClick={() => this._toggle()} title={$L('展开/收起')}>
-            {this.props.label || ''}
+            {this.props.label && <span>{this.props.label}</span>}
           </legend>
         </fieldset>
       </div>
@@ -2805,8 +2805,11 @@ class RbFormRefform extends React.Component {
 
     const $$$parent = this.props.$$$parent
     if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
-      const s = $$$parent.__ViewData[this.props.reffield]
-      this._renderViewFrom({ ...s })
+      // 避免循环嵌套死循环
+      if (($$$parent.__nestDepth || 0) < 3) {
+        const s = $$$parent.__ViewData[this.props.reffield]
+        this._renderViewFrom({ ...s })
+      }
     }
   }
 
@@ -2819,6 +2822,10 @@ class RbFormRefform extends React.Component {
         return
       }
 
+      // 支持嵌套
+      this.__ViewData = {}
+      this.__nestDepth = (this.props.$$$parent.__nestDepth || 0) + 1
+
       const VFORM = (
         <RF>
           <a title={$L('在新页面打开')} className="close open-in-new" href={`${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`} target="_blank">
@@ -2826,6 +2833,7 @@ class RbFormRefform extends React.Component {
           </a>
           <div className="row">
             {res.data.elements.map((item) => {
+              if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
               item.$$$parent = this
               // eslint-disable-next-line no-undef
               return detectViewElement(item, props.entity)
@@ -2840,7 +2848,7 @@ class RbFormRefform extends React.Component {
 
 // 确定元素类型
 var detectElement = function (item, entity) {
-  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER ? $random() : item.field}`
+  if (!item.key) item.key = `field-${item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM ? $random() : item.field}`
 
   if (entity && window._CustomizedForms) {
     const c = window._CustomizedForms.useFormElement(entity, item)
@@ -2898,6 +2906,7 @@ var detectElement = function (item, entity) {
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else if (item.field === TYPE_REFFORM) {
+    console.log(item)
     return <RbFormRefform {...item} />
   } else {
     return <RbFormUnsupportted {...item} />

@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -217,17 +218,17 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             }
         }
 
-        JSONObject filterExp = config.getJSONObject("filter");
-        if (filterExp == null || filterExp.isEmpty()) {
-            return previewFilter + "(1=1)";
+        JSONObject filterExpr = config.getJSONObject("filter");
+        if (ParseHelper.validAdvFilter(filterExpr)) {
+            AdvFilterParser filterParser = new AdvFilterParser(filterExpr);
+            String sqlWhere = filterParser.toSqlWhere();
+            if (sqlWhere != null) {
+                sqlWhere = previewFilter + sqlWhere;
+            }
+            return StringUtils.defaultIfBlank(sqlWhere, "(1=1)");
         }
 
-        AdvFilterParser filterParser = new AdvFilterParser(filterExp);
-        String sqlWhere = filterParser.toSqlWhere();
-        if (sqlWhere != null) {
-            sqlWhere = previewFilter + sqlWhere;
-        }
-        return StringUtils.defaultIfBlank(sqlWhere, "(1=1)");
+        return previewFilter + "(1=1)";
     }
 
     /**
