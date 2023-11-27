@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+let val_MobileAppPath
+
 $(document).ready(() => {
   const $dl = $('#_DefaultLanguage')
   $dl.text(wpc._LANGS[$dl.text()] || '中文')
@@ -17,6 +19,10 @@ $(document).ready(() => {
     const $d = $(`td[data-id=${item}]`)
     if (~~$d.attr('data-value') <= 0) $d.text($L('不启用'))
   })
+
+  // v35
+  val_MobileAppPath = $('#_MobileAppPath').data('value')
+  if (val_MobileAppPath) $(`<a href="${rb.baseUrl}/h5app-download" target="_blank">${$fileCutName(val_MobileAppPath)}</a>`).appendTo($('#_MobileAppPath').empty())
 
   // UC
   UCenter.query((res) => {
@@ -76,7 +82,7 @@ useEditComp = function (name) {
     )
   } else if ('PasswordPolicy' === name) {
     // 借用贵宝地
-    _toggleImage('.applogo')
+    _toggleImage('.applogo', true)
     _toggleImage('.bgimg')
 
     return (
@@ -114,33 +120,64 @@ useEditComp = function (name) {
         <option value="3">{$L('仅邮箱')}</option>
       </select>
     )
+  } else if ('MobileAppPath' === name) {
+    setTimeout(() => {
+      $initUploader($('.file_MobileAppPath'), null, (res) => {
+        $('#_MobileAppPath a').text($fileCutName(res.key))
+        changeValue({ target: { name: 'MobileAppPath', value: res.key } })
+      })
+    }, 1000)
+
+    return (
+      <RF>
+        <button className="btn btn-light btn-sm btn_MobileAppPath" type="button" onClick={() => $('.file_MobileAppPath')[0].click()}>
+          <i className="icon zmdi zmdi-upload"></i> {$L('上传')}
+        </button>
+        <a className="ml-1" href={`${rb.baseUrl}/h5app-download`} target="_blank">
+          {val_MobileAppPath ? $fileCutName(val_MobileAppPath) : null}
+        </a>
+        {val_MobileAppPath && (
+          <a
+            title={$L('移除')}
+            className="ml-1"
+            onClick={() => {
+              $('#_MobileAppPath a').text('')
+              changeValue({ target: { name: 'MobileAppPath', value: null } })
+            }}>
+            <i className="mdi mdi-close" />
+          </a>
+        )}
+      </RF>
+    )
   }
 }
 
-const _toggleImage = function (el) {
+let _$imgCurrent
+const _toggleImage = function (el, init) {
+  const $file = $('.file_4image')
+  if (init) {
+    $initUploader($file, null, (res) => {
+      _$imgCurrent.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
+      changeValue({ target: { name: _$imgCurrent.data('id'), value: res.key } })
+    })
+  }
+
   const $img = $(el).addClass('edit')
   $img.find('p').removeClass('hide')
-
-  let $current
-  const $input = $img.find('input')
-  $initUploader($input, null, (res) => {
-    $current.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key.replace(/ /g, '%20')}?local=true)`)
-    changeValue({ target: { name: $current.data('id'), value: res.key } })
-  })
 
   $img
     .find('a')
     .attr('title', $L('点击上传'))
     .on('click', function () {
-      $current = $(this)
-      $input[0].click()
+      _$imgCurrent = $(this)
+      $file[0].click()
     })
   $img.find('a>b').on('click', function (e) {
     $stopEvent(e, true)
-    $current = $(this).parent()
+    _$imgCurrent = $(this).parent()
 
-    $current.find('>i').css('background-image', `url(${rb.baseUrl}/assets/img/s.gif)`)
-    changeValue({ target: { name: $current.data('id'), value: '' } })
+    _$imgCurrent.find('>i').css('background-image', `url(${rb.baseUrl}/assets/img/s.gif)`)
+    changeValue({ target: { name: _$imgCurrent.data('id'), value: '' } })
   })
 }
 
