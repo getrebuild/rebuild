@@ -79,7 +79,7 @@
         if (parent && parent.RbViewModal && parent.RbViewModal.mode === 1) {
           parent.RbViewModal.create({ id: v.id, entity: v.entity })
         } else {
-          const openUrl = `${rb.baseUrl}/app/redirect?id=${v.id}&type=dock`
+          const openUrl = `${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`
           window.open(openUrl, '_blank')
         }
         e && $stopEvent(e)
