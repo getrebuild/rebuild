@@ -72,8 +72,8 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
         final boolean isNew = record.getPrimary() == null;
 
-        // 明细关联主记录
-        if (isNew && isDtmField(field)) return true;
+        // 明细关联主记录 + 位置定位
+        if (isNew && isForceCreateable(field)) return true;
 
         // 公共字段前台可能会布局出来
         // 此处忽略检查没问题，因为最后还会复写，即 EntityHelper#bindCommonsFieldsValue
@@ -182,20 +182,14 @@ public class EntityRecordCreator extends JsonRecordCreator {
         keepFieldValueSafe(record);
     }
 
-    // 明细关联主记录字段
-    private boolean isDtmField(Field field) {
+    // 强制可新建的字段
+    private boolean isForceCreateable(Field field) {
+        // DTF 字段（明细关联主记录字段）
         if (field.getType() == FieldType.REFERENCE && entity.getMainEntity() != null) {
             return field.equals(MetadataHelper.getDetailToMainField(entity));
         }
-        return false;
-    }
 
-    // 强制可新建的字段
-    private boolean isForceCreateable(Field field) {
-        // DTF 字段
-        if (isDtmField(field)) return true;
-
-        // 自动定位的
+        // 启用自动定位的
         EasyField easyField = EasyMetaFactory.valueOf(field);
         if (easyField.getDisplayType() == DisplayType.LOCATION) {
             return BooleanUtils.toBoolean(easyField.getExtraAttr(EasyFieldConfigProps.LOCATION_AUTOLOCATION));
