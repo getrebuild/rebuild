@@ -207,13 +207,13 @@ public class QueryParser {
 
         // append: QuickQuery
         JSONObject quickFilter = queryExpr.getJSONObject("filter");
-        if (ParseHelper.validAdvFilter(quickFilter)) {
+        if (quickFilter != null) {
             String where = new AdvFilterParser(quickFilter, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
         // v3.3
         JSONObject quickFilterAnd = queryExpr.getJSONObject("filterAnd");
-        if (ParseHelper.validAdvFilter(quickFilterAnd)) {
+        if (quickFilterAnd != null) {
             String where = new AdvFilterParser(quickFilterAnd, entity).toSqlWhere();
             if (StringUtils.isNotBlank(where)) wheres.add(where);
         }
