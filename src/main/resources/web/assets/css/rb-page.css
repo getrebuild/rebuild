@@ -3136,6 +3136,7 @@ form {
   margin-left: 10px;
   font-weight: bold;
   line-height: 20px;
+  text-transform: none;
 }
 
 .page-head-title .sub-title::before {
