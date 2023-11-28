@@ -165,6 +165,8 @@ public class ProtocolFilterParser {
             // 可能同时存在父子级
             String cascadingFieldParent = field.getExtraAttrs().getString("_cascadingFieldParent");
             String cascadingFieldChild = field.getExtraAttrs().getString("_cascadingFieldChild");
+            // v35 多个使用第一个
+            if (cascadingFieldChild != null) cascadingFieldChild = cascadingFieldChild.split(";")[0];
 
             ID cascadingValueId = ID.valueOf(cascadingValue);
             List<String> parentAndChind = new ArrayList<>();

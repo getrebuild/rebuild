@@ -1098,7 +1098,8 @@ a.link.link-icon::after {
   margin-right: -1px !important;
 }
 
-.type-DECIMAL em.vflag {
+.type-DECIMAL em.vflag,
+.type-LOCATION em.vflag {
   position: absolute;
   right: 10px;
   top: 10px;
@@ -3136,6 +3137,7 @@ form {
   margin-left: 10px;
   font-weight: bold;
   line-height: 20px;
+  text-transform: none;
 }
 
 .page-head-title .sub-title::before {

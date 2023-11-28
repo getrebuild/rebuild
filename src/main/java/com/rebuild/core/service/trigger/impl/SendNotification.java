@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * FIXME 异步发送可能失败，日志表未记录
+ *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/25
  */

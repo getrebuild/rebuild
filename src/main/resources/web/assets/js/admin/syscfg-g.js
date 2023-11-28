@@ -122,10 +122,19 @@ useEditComp = function (name) {
     )
   } else if ('MobileAppPath' === name) {
     setTimeout(() => {
-      $initUploader($('.file_MobileAppPath'), null, (res) => {
-        $('#_MobileAppPath a').text($fileCutName(res.key))
-        changeValue({ target: { name: 'MobileAppPath', value: res.key } })
-      })
+      $initUploader(
+        $('.file_MobileAppPath'),
+        (res) => {
+          let $span = $('.btn_MobileAppPath span')
+          if (!$span[0]) $span = $('<span></span>').appendTo('.btn_MobileAppPath')
+          $span.text(` (${res.percent.toFixed(0)}%)`)
+        },
+        (res) => {
+          $('#_MobileAppPath a:eq(0)').text($fileCutName(res.key))
+          changeValue({ target: { name: 'MobileAppPath', value: res.key } })
+          setTimeout(() => $('.btn_MobileAppPath span').remove(), 1000)
+        }
+      )
     }, 1000)
 
     return (
@@ -133,20 +142,22 @@ useEditComp = function (name) {
         <button className="btn btn-light btn-sm btn_MobileAppPath" type="button" onClick={() => $('.file_MobileAppPath')[0].click()}>
           <i className="icon zmdi zmdi-upload"></i> {$L('上传')}
         </button>
-        <a className="ml-1" href={`${rb.baseUrl}/h5app-download`} target="_blank">
-          {val_MobileAppPath ? $fileCutName(val_MobileAppPath) : null}
-        </a>
-        {val_MobileAppPath && (
-          <a
-            title={$L('移除')}
-            className="ml-1"
-            onClick={() => {
-              $('#_MobileAppPath a').text('')
-              changeValue({ target: { name: 'MobileAppPath', value: null } })
-            }}>
-            <i className="mdi mdi-close" />
+        <span className="d-inline-block down-2">
+          <a className="ml-1" href={`${rb.baseUrl}/h5app-download`} target="_blank">
+            {val_MobileAppPath ? $fileCutName(val_MobileAppPath) : null}
           </a>
-        )}
+          {val_MobileAppPath && (
+            <a
+              title={$L('移除')}
+              className="ml-1"
+              onClick={() => {
+                $('#_MobileAppPath a').text('')
+                changeValue({ target: { name: 'MobileAppPath', value: null } })
+              }}>
+              <i className="mdi mdi-close" />
+            </a>
+          )}
+        </span>
       </RF>
     )
   }

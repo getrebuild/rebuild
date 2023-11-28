@@ -2472,9 +2472,25 @@ class RbFormAvatar extends RbFormElement {
 }
 
 class RbFormLocation extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this._autoLocation = props.locationAutoLocation && props.$$$parent.isNew && !props.value
+  }
+
   renderElement() {
     const lnglat = this._parseLnglat(this.state.value)
-    if (this.props.readonly) return super.renderElement(lnglat ? lnglat.text : null)
+    if (this.props.readonly) {
+      return (
+        <RF>
+          {super.renderElement(lnglat ? lnglat.text : null)}
+          {this._autoLocation && (
+            <em className="vflag">
+              <i className="zmdi zmdi-pin-drop flash infinite slow fs-14" ref={(c) => (this._$icon = c)} />
+            </em>
+          )}
+        </RF>
+      )
+    }
 
     return (
       <div className="input-group has-append">
@@ -2489,6 +2505,7 @@ class RbFormLocation extends RbFormElement {
           placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
           onClick={() => this._showMap(lnglat)}
         />
+
         <span className={`zmdi zmdi-close clean ${this.state.value ? '' : 'hide'}`} onClick={() => this.handleClear()} title={$L('清除')} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" onClick={() => this._showMap(lnglat)}>
@@ -2570,14 +2587,15 @@ class RbFormLocation extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
 
-    const props = this.props
-    if (props.locationAutoLocation && props.$$$parent.isNew && !props.value) {
+    if (this._autoLocation) {
       $(this._$icon).addClass('animated')
       // eslint-disable-next-line no-undef
       $autoLocation((v) => {
-        $(this._$icon).removeClass('animated')
         v = v && v.text ? `${v.text}$$$$${v.lng},${v.lat}` : null
         v && this.handleChange({ target: { value: v } }, true)
+
+        if (this.props.readonly) $(this._$icon).remove()
+        else $(this._$icon).removeClass('animated')
       })
     }
   }

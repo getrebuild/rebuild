@@ -70,7 +70,7 @@ public class ListAndViewRedirection extends BaseController {
 
             } else if (MetadataHelper.isBusinessEntity(entity)) {
                 if ("dock".equalsIgnoreCase(type)) {
-                    url = String.format("entity/view/{%s", anyId);
+                    url = String.format("entity/view?id=%s", anyId);
                 } else if ("newtab".equalsIgnoreCase(type)) {
                     url = String.format("%s/view/%s", entity.getName(), anyId);
                 } else {
