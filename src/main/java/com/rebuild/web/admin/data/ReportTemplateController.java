@@ -121,7 +121,7 @@ public class ReportTemplateController extends BaseController {
 
         } catch (Exception ex) {
             Log.error(null, ex);
-            return RespBody.error(Language.L("无效模板文件 (无法读取模板文件)"));
+            return RespBody.error(Language.L("无效模板文件 (无法读取文件内容)"));
         }
 
         if (vars == null || vars.isEmpty()) {

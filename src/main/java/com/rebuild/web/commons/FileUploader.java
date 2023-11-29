@@ -56,7 +56,7 @@ public class FileUploader extends BaseController {
             break;
         }
 
-        if (file == null || file.isEmpty()) {
+        if (file == null) {
             writeFailure(response, "No file found");
             return;
         }

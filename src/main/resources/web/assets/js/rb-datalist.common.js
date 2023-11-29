@@ -1408,7 +1408,7 @@ class RbListPagination extends React.Component {
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
                 <RF>
                   {$L('配置统计列')}
-                  <sup className="rbv" title={$L('增值功能')} />
+                  <sup className="rbv" />
                 </RF>
               )
             }>
