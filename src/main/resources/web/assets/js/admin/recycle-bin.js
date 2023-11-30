@@ -64,6 +64,7 @@ class DataList extends React.Component {
     this._$recordName = $input
 
     $('.J_restore').on('click', () => this.restore())
+    $('.J_details').on('click', () => this.showDetails())
   }
 
   queryList() {
@@ -93,13 +94,13 @@ class DataList extends React.Component {
     if (!ids || ids.length === 0) return
 
     const alertMsg = (
-      <React.Fragment>
+      <RF>
         <div className="text-bold mb-2">{$L('是否恢复选中的 %d 条记录？', ids.length)}</div>
         <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
           <input className="custom-control-input" type="checkbox" />
           <span className="custom-control-label">{$L('同时恢复关联删除的记录 (如有)')}</span>
         </label>
-      </React.Fragment>
+      </RF>
     )
 
     const that = this
@@ -120,6 +121,13 @@ class DataList extends React.Component {
         })
       },
     })
+  }
+
+  showDetails() {
+    const ids = this._List.getSelectedIds()
+    if (!ids || ids.length === 0) return
+
+    renderRbcomp(<DlgDetails id={ids[0]} width="681" />)
   }
 }
 
@@ -144,4 +152,18 @@ CellRenders.renderSimple = function (v, s, k) {
   }
 
   return CellRenders_renderSimple(v, s, k)
+}
+
+// ~~ 数据详情
+class DlgDetails extends RbAlert {
+  renderContent() {
+    return this.state.code && <CodeViewport code={this.state.code} />
+  }
+
+  componentDidMount() {
+    $.get(`/admin/audit/recycle-bin/details?id=${this.props.id}`, (res) => {
+      super.componentDidMount()
+      this.setState({ code: res.data })
+    })
+  }
 }

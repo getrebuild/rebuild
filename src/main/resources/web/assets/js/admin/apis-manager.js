@@ -231,19 +231,9 @@ class AppLogsViewer extends RbModal {
                   <dt className="col-sm-3">{$L('请求地址')}</dt>
                   <dd className="col-sm-9 text-break">{dataShow[3]}</dd>
                   <dt className="col-sm-12">{$L('请求数据')}</dt>
-                  <dd className="col-sm-12">
-                    <div className="code-wrap">
-                      <pre ref={(c) => (this._$codeReq = c)}>{JSON.stringify(dataShow[4])}</pre>
-                    </div>
-                  </dd>
+                  <dd className="col-sm-12">{dataShow[4] && <CodeViewport code={dataShow[4]} />}</dd>
                   <dt className="col-sm-12">{$L('响应数据')}</dt>
-                  <dd className="col-sm-12 mb-0">
-                    <div className="code-wrap">
-                      <pre className="mb-0" ref={(c) => (this._$codeResp = c)}>
-                        {JSON.stringify(dataShow[5])}
-                      </pre>
-                    </div>
-                  </dd>
+                  <dd className="col-sm-12 mb-0">{dataShow[5] && <CodeViewport code={dataShow[5]} />}</dd>
                 </dl>
               </div>
             ) : (
@@ -265,12 +255,12 @@ class AppLogsViewer extends RbModal {
     this._loadNext()
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this._$codeReq && this._$codeResp && (this.state.dataShow || [])[6] !== (prevState || [])[6]) {
-      this._$codeReq.innerHTML = this._formattedCode(JSON.stringify(this.state.dataShow[4]))
-      this._$codeResp.innerHTML = this._formattedCode(JSON.stringify(this.state.dataShow[5]))
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this._$codeReq && this._$codeResp && (this.state.dataShow || [])[6] !== (prevState || [])[6]) {
+  //     this._$codeReq.innerHTML = $formattedCode(this.state.dataShow[4])
+  //     this._$codeResp.innerHTML = $formattedCode(this.state.dataShow[5])
+  //   }
+  // }
 
   _loadNext(reset, q) {
     if (this.__inLoading) return
@@ -305,20 +295,5 @@ class AppLogsViewer extends RbModal {
       }
     }
     return false
-  }
-
-  _formattedCode(c) {
-    try {
-      // eslint-disable-next-line no-undef
-      return prettier.format(c, {
-        parser: 'json',
-        // eslint-disable-next-line no-undef
-        plugins: prettierPlugins,
-        printWidth: 10,
-      })
-    } catch (err) {
-      console.log('Cannot format :', err)
-      return c
-    }
   }
 }

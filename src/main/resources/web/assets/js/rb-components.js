@@ -1182,6 +1182,41 @@ class RbGritter extends React.Component {
   }
 }
 
+// 代码
+class CodeViewport extends React.Component {
+  render() {
+    return (
+      <div className="code-viewport">
+        <pre ref={(c) => (this._$code = c)}>Loading</pre>
+        {window.ClipboardJS && (
+          <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
+            <i className="icon zmdi zmdi-copy" />
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._$code.innerHTML = $formattedCode(this.props.code || '')
+
+    if (this._$copy) {
+      const that = this
+      const $copy = $(this._$copy).on('mouseenter', () => $(this._$copy).removeClass('copied-check'))
+      // eslint-disable-next-line no-undef
+      new ClipboardJS($copy[0], {
+        text: function () {
+          return $(that._$code).text()
+        },
+      }).on('success', () => $copy.addClass('copied-check'))
+    }
+  }
+
+  UNSAFE_componentWillReceiveProps(newProps) {
+    if (newProps.code) this._$code.innerHTML = $formattedCode(newProps.code)
+  }
+}
+
 /**
  * JSX 组件渲染
  *

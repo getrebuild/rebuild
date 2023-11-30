@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -1118,4 +1118,23 @@ var $pages = function (tp, cp) {
   if (end <= tp - 1) pages.push('.')
   if (end <= tp) pages.push(tp)
   return pages
+}
+
+// 格式化代码
+var $formattedCode = function (c, type) {
+  if (typeof c === 'object') c = JSON.stringify(c)
+  if (!window.prettier) return c
+
+  try {
+    // eslint-disable-next-line no-undef
+    return prettier.format(c, {
+      parser: type || 'json',
+      // eslint-disable-next-line no-undef
+      plugins: prettierPlugins,
+      printWidth: 10,
+    })
+  } catch (err) {
+    console.log('Cannot format code :', err)
+    return c
+  }
 }

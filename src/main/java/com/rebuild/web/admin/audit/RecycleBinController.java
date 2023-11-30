@@ -8,13 +8,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.audit;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.RespBody;
+import com.rebuild.core.Application;
 import com.rebuild.core.service.general.recyclebin.RecycleRestore;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 2019-08-20
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/admin/audit/")
 public class RecycleBinController extends BaseController {
 
@@ -37,7 +40,7 @@ public class RecycleBinController extends BaseController {
     }
 
     @RequestMapping("recycle-bin/restore")
-    public void dataList(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody dataList(HttpServletRequest request) {
         boolean cascade = getBoolParameter(request, "cascade");
         String ids = getParameterNotNull(request, "ids");
 
@@ -60,9 +63,14 @@ public class RecycleBinController extends BaseController {
         }
 
         if (lastError != null && restored == 0) {
-            writeFailure(response, lastError);
-        } else {
-            writeSuccess(response, JSONUtils.toJSONObject("restored", restored));
+            return RespBody.error(lastError);
         }
+        return RespBody.ok(JSONUtils.toJSONObject("restored", restored));
+    }
+
+    @GetMapping("recycle-bin/details")
+    public RespBody details(@IdParam ID id) {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(id, "recordContent");
+        return RespBody.ok(o[0]);
     }
 }
