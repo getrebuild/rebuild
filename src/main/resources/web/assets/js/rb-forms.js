@@ -1566,12 +1566,7 @@ class RbFormImage extends RbFormElement {
               <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
-                  <b
-                    title={$L('移除')}
-                    onClick={(e) => {
-                      $stopEvent(e)
-                      this.removeItem(item)
-                    }}>
+                  <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                     <span className="zmdi zmdi-close" />
                   </b>
                 )}
@@ -1660,7 +1655,8 @@ class RbFormImage extends RbFormElement {
     }
   }
 
-  removeItem(item) {
+  removeItem(item, e) {
+    e && $stopEvent(e, true)
     const paths = this.state.value || []
     paths.remove(item)
     this.handleChange({ target: { value: paths } }, true)
@@ -1697,7 +1693,7 @@ class RbFormFile extends RbFormImage {
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
-                <b title={$L('移除')} onClick={() => this.removeItem(item)}>
+                <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                   <span className="zmdi zmdi-close" />
                 </b>
               )}
