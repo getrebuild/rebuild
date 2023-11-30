@@ -27,12 +27,13 @@ $(document).ready(() => {
   // UC
   UCenter.query((res) => {
     const bindAccount = res.bindAccount
-    $('.J_cloudAccount').removeClass('hide')
     if (bindAccount) {
-      $('.J_not-bind').addClass('hide')
+      $('.J_cloudAccount').removeClass('hide')
+      $('.J_has-bind').removeClass('hide')
       $('.J_has-bind a').text(bindAccount)
     } else if (rb.commercial === 10 || rb.commercial === 20) {
-      $('.J_has-bind').addClass('hide')
+      $('.J_cloudAccount').removeClass('hide')
+      $('.J_not-bind').removeClass('hide')
       $('.J_not-bind .btn').on('click', () => {
         if (res.canBind) UCenter.bind()
         else RbHighbar.create($L('仅超级管理员可操作'))
