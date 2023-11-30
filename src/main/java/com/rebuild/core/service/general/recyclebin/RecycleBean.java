@@ -63,19 +63,21 @@ public class RecycleBean implements Serializable {
         JSONObject s = (JSONObject) queryed.serialize();
 
         Entity detailEntity = entity.getDetailEntity();
-        if (detailEntity == null) {
-            return s;
-        }
+        if (detailEntity == null) return s;
 
-        // 明细
-        String detailSql = buildBaseSql(detailEntity)
-                .append(MetadataHelper.getDetailToMainField(detailEntity).getName())
-                .append(" = ?")
-                .toString();
-        List<Record> detailQueryed = Application.createQueryNoFilter(detailSql).setParameter(1, this.recordId).list();
+        // v36 多明细
         JSONArray detailList = new JSONArray();
-        for (Record r : detailQueryed) {
-            detailList.add(r.serialize());
+        for (Entity de : entity.getDetialEntities()) {
+            String detailSql = buildBaseSql(de)
+                    .append(MetadataHelper.getDetailToMainField(de).getName())
+                    .append(" = ?")
+                    .toString();
+            List<Record> detailQueryed = Application.createQueryNoFilter(detailSql).setParameter(1, this.recordId).list();
+            for (Record r : detailQueryed) {
+                JSONObject item = (JSONObject) r.serialize();
+                item.put(RestoreRecordCreator.META_FIELD, de.getName());
+                detailList.add(item);
+            }
         }
         s.put(NAME_DETAILLIST, detailList);
 
