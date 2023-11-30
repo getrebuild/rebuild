@@ -32,10 +32,7 @@ public class FilterRecordChecker {
      * @return
      */
     public boolean check(ID recordId) {
-        if (filterExpr == null || filterExpr.isEmpty()
-                || filterExpr.getJSONArray("items") == null || filterExpr.getJSONArray("items").isEmpty()) {
-            return true;
-        }
+        if (!ParseHelper.validAdvFilter(filterExpr)) return true;
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 

@@ -40,7 +40,7 @@ public class ConfigCommons {
         Object[][] array = Application.createQuery(sql).setLimit(500).array();
         for (Object[] o : array) {
             o[2] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[2]));
-            o[5] = I18nUtils.formatDate((Date) o[5]);
+            if (o[5] instanceof Date) o[5] = I18nUtils.formatDate((Date) o[5]);
         }
         return array;
     }

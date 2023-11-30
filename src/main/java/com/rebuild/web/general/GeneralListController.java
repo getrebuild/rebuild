@@ -130,7 +130,8 @@ public class GeneralListController extends EntityController {
                         paneFields.add(EasyMetaFactory.valueOf(listEntity.getField(field)).toJSON());
                     }
                 }
-                mv.getModel().put("paneFields", paneFields);
+
+                if (!paneFields.isEmpty()) mv.getModel().put("paneFields", paneFields);
             }
 
             // 查询页签 v3.3

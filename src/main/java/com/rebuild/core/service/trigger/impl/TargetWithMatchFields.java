@@ -20,8 +20,10 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -70,6 +72,12 @@ public class TargetWithMatchFields {
         return o == null ? new ID[0] : (ID[]) o;
     }
 
+    /**
+     * @param actionContext
+     * @param m
+     * @return
+     * @see GroupAggregation#prepare(OperatingContext)
+     */
     private Object match(ActionContext actionContext, boolean m) {
         if (sourceEntity != null) return targetRecordId;  // 已做匹配
 
@@ -186,6 +194,7 @@ public class TargetWithMatchFields {
                     }
                 }
 
+                val = CommonsUtils.escapeSql(val);
                 qFields.add(String.format("%s = '%s'", targetField, val));
                 qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
                 allNull = false;

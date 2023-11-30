@@ -14,8 +14,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Calendar;
@@ -63,7 +63,7 @@ public class ShortUrls {
      */
     public static boolean invalid(String shortKey) {
         String dsql = String.format(
-                "delete from `short_url` where SHORT_KEY = '%s'", StringEscapeUtils.escapeSql(shortKey));
+                "delete from `short_url` where SHORT_KEY = '%s'", CommonsUtils.escapeSql(shortKey));
         int a = Application.getSqlExecutor().execute(dsql);
         return a > 0;
     }

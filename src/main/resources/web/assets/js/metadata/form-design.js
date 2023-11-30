@@ -514,12 +514,13 @@ class DlgEditRefform extends DlgEditField {
             <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
-              if (field.displayTypeName === 'REFERENCE' && !(field.fieldName === 'approvalId'))
+              if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName)  && field.fieldName !== 'approvalId') {
                 return (
                   <option key={field.fieldName} value={field.fieldName}>
                     {field.fieldLabel}
                   </option>
                 )
+              }
               return null
             })}
           </select>

@@ -1459,7 +1459,7 @@ const CellRenders = {
     } else if (parent && parent.RbViewModal) {
       parent.RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
     } else {
-      window.open(`${rb.baseUrl}/app/redirect?id=${v.id}`)
+      window.open(`${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`)
     }
     e && $stopEvent(e, true)
     return false

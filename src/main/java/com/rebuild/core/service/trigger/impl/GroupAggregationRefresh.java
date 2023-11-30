@@ -16,10 +16,14 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 分组聚合目标数据刷新
@@ -39,15 +43,17 @@ public class GroupAggregationRefresh {
 
     final private GroupAggregation parent;
     final private List<String[]> fieldsRefresh;
+    final private ID originSourceId;
 
     // fieldsRefresh = [TargetField, SourceField, Value]
-    protected GroupAggregationRefresh(GroupAggregation parent, List<String[]> fieldsRefresh) {
+    protected GroupAggregationRefresh(GroupAggregation parent, List<String[]> fieldsRefresh, ID originSourceId) {
         this.parent = parent;
         this.fieldsRefresh = fieldsRefresh;
+        this.originSourceId = originSourceId;
     }
 
     /**
-     * TODO 存在性能问题（可能刷新过多）
+     * NOTE 存在性能问题，因为可能刷新过多
      */
     public void refresh() {
         List<String> targetFields = new ArrayList<>();
@@ -55,77 +61,50 @@ public class GroupAggregationRefresh {
         for (String[] s : fieldsRefresh) {
             targetFields.add(s[0]);
             if (s[2] != null) {
-                targetWhere.add(String.format("%s = '%s'", s[0], s[2]));
+                targetWhere.add(String.format("%s = '%s'", s[0], CommonsUtils.escapeSql(s[2])));
             }
         }
 
-        // 全量刷新，性能较低
+        // 只有1个字段会全量刷新，性能较低
         if (targetWhere.size() <= 1) {
             targetWhere.clear();
             targetWhere.add("(1=1)");
             log.warn("Force refresh all aggregation target(s)");
         }
 
-        Entity entity = this.parent.targetEntity;
+        // 1.获取待刷新的目标
+        Entity targetEntity = this.parent.targetEntity;
         String sql = String.format("select %s,%s from %s where ( %s )",
                 StringUtils.join(targetFields, ","),
-                entity.getPrimaryField().getName(),
-                entity.getName(),
+                targetEntity.getPrimaryField().getName(),
+                targetEntity.getName(),
                 StringUtils.join(targetWhere, " or "));
 
-        Object[][] targetArray = Application.createQueryNoFilter(sql).array();
-        log.info("Maybe refresh target record(s) : {}", targetArray.length);
+        Object[][] targetRecords4Refresh = Application.createQueryNoFilter(sql).array();
+        log.info("Maybe refresh target record(s) : {}", targetRecords4Refresh.length);
 
         ID triggerUser = UserService.SYSTEM_USER;
         ActionContext parentAc = parent.getActionContext();
 
         // 避免重复的无意义更新
-        // NOTE 220905 不能忽略触发源本身
+        // NOTE 220905 更新时不能忽略触发源本身的更新
         Set<ID> refreshedIds = new HashSet<>();
 
-        for (Object[] o : targetArray) {
+        // 2.逐一刷新目标
+        for (Object[] o : targetRecords4Refresh) {
             final ID targetRecordId = (ID) o[o.length - 1];
+            // 排重
+            if (refreshedIds.contains(targetRecordId)) continue;
+            else refreshedIds.add(targetRecordId);
 
             List<String> qFieldsFollow = new ArrayList<>();
-            List<String> qFieldsFollow2 = new ArrayList<>();
             for (int i = 0; i < o.length - 1; i++) {
                 String[] source = fieldsRefresh.get(i);
                 if (o[i] == null) {
                     qFieldsFollow.add(String.format("%s is null", source[1]));
                 } else {
-                    qFieldsFollow.add(String.format("%s = '%s'", source[1], o[i]));
-                    qFieldsFollow2.add(String.format("%s = '%s'", source[1], o[i]));
+                    qFieldsFollow.add(String.format("%s = '%s'", source[1], CommonsUtils.escapeSql(o[i])));
                 }
-            }
-
-            ID fakeUpdateReferenceId = null;
-
-            // 1.尝试获取触发源
-            for (int i = 0; i < o.length - 1; i++) {
-                Object mayId = o[i];
-                if (ID.isId(mayId) && ((ID) mayId).getEntityCode() > 100) {
-                    fakeUpdateReferenceId = (ID) mayId;
-                    break;
-                }
-            }
-            // 2.强制获取
-            if (fakeUpdateReferenceId == null) {
-                sql = String.format("select %s from %s where %s",
-                        parent.sourceEntity.getPrimaryField().getName(),
-                        parent.sourceEntity.getName(),
-                        StringUtils.join(qFieldsFollow2, " or "));
-                Object[] found = Application.getQueryFactory().unique(sql);
-                fakeUpdateReferenceId = found == null ? null : (ID) found[0];
-            } else {
-
-                // 1.1.排重
-                if (refreshedIds.contains(targetRecordId)) continue;
-                else refreshedIds.add(fakeUpdateReferenceId);
-            }
-
-            if (fakeUpdateReferenceId == null) {
-                log.warn("No any source-id found, ignored : {}", Arrays.toString(o));
-                continue;
             }
 
             ActionContext actionContext = new ActionContext(null,
@@ -137,7 +116,8 @@ public class GroupAggregationRefresh {
             ga.targetRecordId = targetRecordId;
             ga.followSourceWhere = StringUtils.join(qFieldsFollow, " and ");
 
-            Record fakeSourceRecord = EntityHelper.forUpdate(fakeUpdateReferenceId, triggerUser, false);
+            // FIXME v35 可能导致数据聚合条件中的字段变量不准
+            Record fakeSourceRecord = EntityHelper.forUpdate(originSourceId, triggerUser, false);
             OperatingContext oCtx = OperatingContext.create(triggerUser, BizzPermission.NONE, fakeSourceRecord, fakeSourceRecord);
 
             try {

@@ -214,12 +214,14 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             }
 
             JSONObject extraAttrs = JSON.parseObject(fieldElement.valueOf("@extra-attrs"));
-            if (extraAttrs.containsKey("_cascadingFieldChild") && extraAttrs.getString("_cascadingFieldChild").contains(".")) {
-                // 优先明细>主实体
+            String _cascadingFieldChild = extraAttrs.getString("_cascadingFieldChild");
+            if (_cascadingFieldChild != null && _cascadingFieldChild.contains(".")) {
+                // 优先使用明细>主实体
             } else {
                 extraAttrs.put("_cascadingFieldChild", fs[2] + SPLITER + fs[3]);
                 fieldElement.addAttribute("extra-attrs", extraAttrs.toJSONString());
             }
+            // FIXME v35 多个子级（使用 ; 分割）
         }
 
         if (log.isDebugEnabled()) XmlHelper.dump(rootElement);

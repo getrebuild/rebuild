@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
-  const gaScript = document.createElement('script')
+(function () {
+  var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
   gaScript.onload = function () {
@@ -20,7 +20,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
     gtag('js', new Date())
     gtag('config', 'G-ZCZHJPMEG7')
   }
-  const s = document.getElementsByTagName('script')[0]
+  var s = document.getElementsByTagName('script')[0]
   s.parentNode.insertBefore(gaScript, s)
 })()
 
@@ -259,7 +259,7 @@ var _initNav = function () {
       $sidebar.toggleClass('rb-collapsible-sidebar-collapsed')
       $('.sidebar-elements>li>a').tooltip('toggleEnabled')
 
-      const collapsed = $sidebar.hasClass('rb-collapsible-sidebar-collapsed')
+      var collapsed = $sidebar.hasClass('rb-collapsible-sidebar-collapsed')
       $.cookie('rb.sidebarCollapsed', collapsed, { expires: 180 })
 
       if (collapsed) {

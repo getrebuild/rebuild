@@ -29,6 +29,7 @@ import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -161,7 +162,7 @@ public class FieldAggregation extends TriggerAction {
         // 聚合数据过滤
         JSONObject dataFilter = ((JSONObject) actionContext.getActionContent()).getJSONObject("dataFilter");
         String dataFilterSql = null;
-        if (dataFilter != null && !dataFilter.isEmpty()) {
+        if (ParseHelper.validAdvFilter(dataFilter)) {
             dataFilterSql = new AdvFilterParser(dataFilter, operatingContext.getFixedRecordId()).toSqlWhere();
         }
 

@@ -118,6 +118,10 @@ public class LoginController extends LoginAction {
         // H5
         String mobileUrl = RebuildConfiguration.getMobileUrl("/");
         mv.getModel().put("mobileUrl", mobileUrl);
+        // App
+        if (RebuildConfiguration.get(ConfigurationItem.MobileAppPath) != null) {
+            mv.getModel().put("mobileUrl", RebuildConfiguration.getHomeUrl("h5app-download"));
+        }
 
         if (License.isCommercial()) {
             // DingTalk

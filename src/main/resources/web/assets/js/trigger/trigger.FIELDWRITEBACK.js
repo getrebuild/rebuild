@@ -78,7 +78,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
                 <div>
-                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')}</h5>
+                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')} (LAB)</h5>
                   <textarea className="formula-code" style={{ height: 72 }} ref={(c) => (this._$matchFields = c)} placeholder="## [{ sourceField:XXX, targetField:XXX }]" />
                 </div>
               </div>
@@ -375,6 +375,22 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (content.items.length === 0) {
       RbHighbar.create($L('请至少添加 1 个更新规则'))
       return false
+    }
+
+    if (this.state.showMatchFields) {
+      let badFormat = !content.targetEntityMatchFields
+      if (!badFormat) {
+        try {
+          badFormat = JSON.parse(content.targetEntityMatchFields)
+          badFormat = !$.isArray(badFormat)
+        } catch (err) {
+          badFormat = true
+        }
+      }
+      if (badFormat) {
+        RbHighbar.create($L('请正确填写目标实体/记录匹配规则'))
+        return false
+      }
     }
 
     const one2one = this.state.targetEntities.find((x) => `${x[2]}.${x[0]}` === content.targetEntity)

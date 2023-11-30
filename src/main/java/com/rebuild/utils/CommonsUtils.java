@@ -110,10 +110,10 @@ public class CommonsUtils {
      * @return
      * @see StringEscapeUtils#escapeSql(String)
      */
-    public static String escapeSql(String text) {
+    public static String escapeSql(Object text) {
         // https://github.com/getrebuild/rebuild/issues/594
-        text = text.replace("\\'", "'");
-        return StringEscapeUtils.escapeSql(text);
+        text = text.toString().replace("\\'", "'");
+        return StringEscapeUtils.escapeSql((String) text);
     }
 
     /**

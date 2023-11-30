@@ -275,7 +275,13 @@ public class DataListManager extends BaseLayoutManager {
 
             for (String s : quickFields) {
                 if (s.startsWith("&")) s = s.substring(1);
-                paneFields.add(s);
+
+                if (entityMeta.containsField(s)) {
+                    paneFields.add(s);
+                } else {
+                    // 不支持二级
+                    if (!s.contains(".")) log.warn("No field in filter pane : {}#{}", entity, s);
+                }
             }
         }
 

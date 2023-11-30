@@ -54,7 +54,7 @@ public class GroupAggregationController extends BaseController {
         paddingType2(sourceGroupFields, sourceEntity);
 
         // 源-聚合字段
-        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, field -> {
+        JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, true, field -> {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
                 return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
