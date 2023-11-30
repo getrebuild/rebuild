@@ -171,7 +171,7 @@ class AppLogsViewer extends RbModal {
             <div className="search-logs position-relative">
               <input
                 type="text"
-                placeholder={$L('查询')}
+                placeholder={$L('搜索')}
                 onKeyDown={(e) => {
                   if (e.keyCode === 13) {
                     this._loadNext(true, e.target.value)
@@ -202,12 +202,7 @@ class AppLogsViewer extends RbModal {
             </div>
             {this.state.showMore && (
               <div className="text-center mt-3">
-                <a
-                  href="###"
-                  onClick={(e) => {
-                    $stopEvent(e, true)
-                    this._loadNext()
-                  }}>
+                <a className="text-primary" onClick={() => this._loadNext()}>
                   {$L('加载更多')}
                 </a>
               </div>
