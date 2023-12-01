@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.RecordHelper;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
@@ -285,11 +286,8 @@ public class FieldAggregation extends TriggerAction {
             Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
 
             for (Object[] to : fillbacks) {
-                Record fbRecord = EntityHelper.forUpdate((ID) to[0], UserService.SYSTEM_USER, false);
-                fbRecord.setID(fillbackField, targetRecordId);
-
                 // FIXME 回填仅更新，无业务规则
-                Application.getCommonsService().update(fbRecord, false);
+                RecordHelper.setValue((ID) to[0], fillbackField, targetRecordId);
             }
         }
 
