@@ -215,7 +215,10 @@ public class FieldAggregation extends TriggerAction {
                 } else if (dt == DisplayType.N2NREFERENCE) {
                     // 强制去重
                     Set<ID> idSet = new LinkedHashSet<>();
-                    for (Object id : oArray) idSet.add((ID) id);
+                    for (Object id : oArray) {
+                        if (id instanceof ID) idSet.add((ID) id);
+                        else idSet.add(ID.valueOf((String) id));  // 主键会保持文本
+                    }
                     targetRecord.setIDArray(targetField, idSet.toArray(new ID[0]));
 
                 } else {
