@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -46,6 +47,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
@@ -251,8 +253,7 @@ public class AdvFilterParser extends SetUser {
 
         DisplayType dt = EasyMetaFactory.getDisplayType(lastFieldMeta);
 
-        if (dt == DisplayType.CLASSIFICATION
-                || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
+        if (dt == DisplayType.CLASSIFICATION || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
             field = NAME_FIELD_PREFIX + field;
         } else if (hasNameFlag) {
             if (!(dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
@@ -717,6 +718,7 @@ public class AdvFilterParser extends SetUser {
     private static final String CURRENT_ANY = "CURRENT";
     private static final String CURRENT_DATE = "NOW";
 
+    // 获取字段变量值
     private String useValueOfVarRecord(String value, Field queryField) {
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
 
@@ -730,6 +732,15 @@ public class AdvFilterParser extends SetUser {
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
                 useValue = CalendarUtils.now();
+
+            } else if (dt == DisplayType.REFERENCE) {
+                if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.User) {
+                    useValue = UserContextHolder.getUser();
+                } else if (queryField.getReferenceEntity().getEntityCode() == EntityHelper.Department) {
+                    Department dept = UserHelper.getDepartment(UserContextHolder.getUser());
+                    if (dept != null) useValue = dept.getIdentity();
+                }
+
             } else {
                 log.warn("Cannot use `CURRENT` in `{}` (None date fields)", queryField);
                 return StringUtils.EMPTY;
