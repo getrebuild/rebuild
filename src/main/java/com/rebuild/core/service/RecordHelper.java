@@ -23,7 +23,7 @@ import com.rebuild.utils.CommonsUtils;
 public class RecordHelper {
 
     /**
-     * 更新指定字段值（无传播，一致不更新）
+     * 更新指定字段值（无规则、无传播，一致则不更新）
      *
      * @param recordId
      * @param field
