@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.service.RecordHelper;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.RecordDifference;
@@ -86,7 +85,7 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.FALSE);
+        this(context, Boolean.TRUE);
     }
 
     protected FieldAggregation(ActionContext context, boolean ignoreSame) {
@@ -278,16 +277,19 @@ public class FieldAggregation extends TriggerAction {
 
         // 回填 (v3.1)
         // 仅分组聚合有此配置
-
         String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
         if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
-            String sql = String.format("select %s from %s where %s",
-                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
+            String sql = String.format("select %s,%s from %s where %s",
+                    sourceEntity.getPrimaryField().getName(), fillbackField, sourceEntity.getName(), filterSql);
             Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
 
-            for (Object[] to : fillbacks) {
+            for (Object[] o : fillbacks) {
+                if (CommonsUtils.isSame(o[1], targetRecordId)) continue;
+
                 // FIXME 回填仅更新，无业务规则
-                RecordHelper.setValue((ID) to[0], fillbackField, targetRecordId);
+                Record r = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+                r.setID(fillbackField, targetRecordId);
+                Application.getCommonsService().update(r, false);
             }
         }
 

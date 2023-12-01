@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
@@ -258,17 +260,37 @@ public class CommonsUtils {
      * @param b
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static boolean isSame(Object a, Object b) {
-        boolean e = Objects.equals(a, b);
-        if (!e) {
-            if (a instanceof Number && b instanceof Number) {
-                // FIXME 有精度问题
-                e = ObjectUtils.toDouble(a) == ObjectUtils.toDouble(b);
-            }
-        }
-        return e;
-    }
+        if (a == null && b != null) return false;
+        if (a != null && b == null) return false;
+        if (Objects.equals(a, b)) return true;
 
+        // 数字
+        if (a instanceof Number && b instanceof Number) {
+            // FIXME 有精度问题
+            return ObjectUtils.toDouble(a) == ObjectUtils.toDouble(b);
+        }
+
+        // 集合/数组
+        if ((a instanceof Collection || a instanceof Object[]) && (b instanceof Collection || b instanceof Object[])) {
+            Collection<Object> aColl;
+            if (a instanceof Object[]) aColl = Arrays.asList((Object[]) a);
+            else aColl = (Collection<Object>) a;
+            Collection<Object> bColl;
+            if (b instanceof Object[]) bColl = Arrays.asList((Object[]) b);
+            else bColl = (Collection<Object>) b;
+
+            if (aColl.size() != bColl.size()) return false;
+            if (aColl.isEmpty()) return true;
+            return CollectionUtils.containsAll(aColl, bColl) && CollectionUtils.containsAll(bColl, aColl);
+        }
+
+        // 其他
+        // FIXME 完善不同值类型的比较
+        return StringUtils.equals(a.toString(), b.toString());
+    }
+    
     /**
      * 指定范围的随机数
      *

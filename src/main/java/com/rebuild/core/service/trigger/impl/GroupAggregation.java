@@ -55,6 +55,7 @@ public class GroupAggregation extends FieldAggregation {
         this(context, Boolean.FALSE);
     }
 
+    // ignoreSame 本触发器有回填，忽略同值会导致无法回填
     public GroupAggregation(ActionContext context, boolean ignoreSame) {
         super(context, ignoreSame);
     }
