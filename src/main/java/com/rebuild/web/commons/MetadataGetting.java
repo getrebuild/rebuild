@@ -62,10 +62,12 @@ public class MetadataGetting extends BaseController {
     @GetMapping("fields")
     public JSON fields(HttpServletRequest request) {
         Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
-        // 返回引用实体的字段
+        // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep", 0);
+        // 返回ID主键字段
+        boolean forceWithId = getBoolParameter(request, "withid");
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, true, forceWithId, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {

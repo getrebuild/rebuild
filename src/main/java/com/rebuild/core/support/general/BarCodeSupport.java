@@ -146,7 +146,7 @@ public class BarCodeSupport {
     protected static BitMatrix createBarCodeImage(String content, BarcodeFormat format, int width, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, AppUtils.UTF8);
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);  // 高级别导致空白边框???
         hints.put(EncodeHintType.MARGIN, 0);
 
         try {

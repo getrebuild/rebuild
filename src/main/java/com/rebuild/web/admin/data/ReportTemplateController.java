@@ -106,6 +106,13 @@ public class ReportTemplateController extends BaseController {
         final String file = getParameterNotNull(request, "file");
         final int type = getIntParameter(request, "type", DataReportManager.TYPE_RECORD);
 
+        boolean isDocx = file.toLowerCase().endsWith(".docx");
+        if (type == DataReportManager.TYPE_WORD) {
+            if (!isDocx) return RespBody.errorl("上传 WORD 文件请选择 WORD 模板类型");
+        } else {
+            if (isDocx) return RespBody.errorl("上传 EXCEL 文件请选择 EXCEL 模板类型");
+        }
+
         File template = RebuildConfiguration.getFileOfData(file);
         Map<String, String> vars = null;
         try {
@@ -121,7 +128,7 @@ public class ReportTemplateController extends BaseController {
 
         } catch (Exception ex) {
             Log.error(null, ex);
-            return RespBody.error(Language.L("无效模板文件 (无法读取模板文件)"));
+            return RespBody.error(Language.L("无效模板文件 (无法读取文件内容)"));
         }
 
         if (vars == null || vars.isEmpty()) {
