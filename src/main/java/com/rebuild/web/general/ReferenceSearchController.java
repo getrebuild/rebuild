@@ -60,6 +60,8 @@ import java.util.Set;
 @RequestMapping({"/commons/search/","/app/entity/"})
 public class ReferenceSearchController extends EntityController {
 
+    private static final String _SELF = "{@CURRENT}";
+
     // 引用字段-快速搜索
     @GetMapping({"reference", "quick"})
     public JSON referenceSearch(@EntityParam Entity entity, HttpServletRequest request) {
@@ -153,6 +155,14 @@ public class ReferenceSearchController extends EntityController {
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
+        // v35 本人/本部门
+        if ("self".equals(q)) {
+            if (sec == EntityHelper.User || sec == EntityHelper.Department) {
+                result.add(JSONUtils.toJSONObject(
+                        new String[]{ "id", "text" }, new Object[] { _SELF, Language.L("本人/本部门") }));
+            }
+        }
+
         return (JSON) JSON.toJSON(result);
     }
 
@@ -240,17 +250,20 @@ public class ReferenceSearchController extends EntityController {
 
         Map<String, String> labels = new HashMap<>();
         for (String id : ids.split("[|,]")) {
-            if (!ID.isId(id)) continue;
+            if (!ID.isId(id)) {
+                if (_SELF.equals(id)) {
+                    labels.put(_SELF, Language.L("本人/本部门"));
+                }
+                continue;
+            }
 
-            ID recordId = ID.valueOf(id);
+            final ID recordId = ID.valueOf(id);
             if (checkPrivileges && !Application.getPrivilegesManager().allowRead(user, recordId)) continue;
 
             if (ignoreMiss) {
                 try {
                     labels.put(id, FieldValueHelper.getLabel(recordId));
-                } catch (NoRecordFoundException ignored) {
-                }
-
+                } catch (NoRecordFoundException ignored) {}
             } else {
                 labels.put(id, FieldValueHelper.getLabelNotry(recordId));
             }

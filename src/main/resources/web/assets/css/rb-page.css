@@ -1163,7 +1163,7 @@ a.link.link-icon::after {
   position: absolute;
   right: 0;
   top: 0;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #fff;
   cursor: default;
   background-color: rgba(0, 0, 0, 0.3);

@@ -21,8 +21,10 @@ import org.springframework.util.Assert;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 元数据辅助类，注意此类返回的数据会过滤和排序
@@ -159,14 +161,14 @@ public class MetadataSorter {
      */
     static Field[] sortByLevel(List<BaseMeta> fields) {
         List<BaseMeta> othersFields = new ArrayList<>();
-        List<BaseMeta> commonsFields = new ArrayList<>();
         List<BaseMeta> approvalFields = new ArrayList<>();
+        Map<String, BaseMeta> commonsFieldsMap = new HashMap<>();
 
         for (BaseMeta field : fields) {
             if (MetadataHelper.isApprovalField(field.getName())) {
                 approvalFields.add(field);
             } else if (MetadataHelper.isCommonsField((Field) field)) {
-                commonsFields.add(field);
+                commonsFieldsMap.put(field.getName(), field);
             } else {
                 othersFields.add(field);
             }
@@ -175,11 +177,19 @@ public class MetadataSorter {
         sortByLabel(othersFields);
         List<BaseMeta> allFields = new ArrayList<>(othersFields);
 
-        sortByLabel(commonsFields);
-        allFields.addAll(commonsFields);
-
         sortByLabel(approvalFields);
         allFields.addAll(approvalFields);
+
+        // v35 特殊排序
+        final String[] SPEC_SORTS = new String[] {
+                EntityHelper.CreatedBy, EntityHelper.CreatedOn, EntityHelper.ModifiedBy, EntityHelper.ModifiedOn, EntityHelper.OwningUser, EntityHelper.OwningDept
+        };
+        List<BaseMeta> commonsFields = new ArrayList<>();
+        for (String s : SPEC_SORTS) {
+            BaseMeta b = commonsFieldsMap.get(s);
+            if (b != null) commonsFields.add(b);
+        }
+        allFields.addAll(commonsFields);
 
         return allFields.toArray(new Field[0]);
     }

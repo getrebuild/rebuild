@@ -25,9 +25,12 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyFile;
+import com.rebuild.core.metadata.easymeta.EasyID;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasyN2NReference;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
@@ -294,6 +297,8 @@ public class AutoFillinManager implements ConfigManager {
             if (!(newValue instanceof String) || sourceEasy instanceof EasyFile) {
                 newValue = sourceEasy.wrapValue(newValue);
             }
+        } else if (sourceEasy instanceof EasyID && targetEasy instanceof EasyN2NReference) {
+            newValue = FieldValueHelper.wrapFieldValue(newValue, targetEasy);
         }
 
         return newValue;

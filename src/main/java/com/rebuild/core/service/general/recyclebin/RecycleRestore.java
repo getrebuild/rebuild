@@ -187,10 +187,22 @@ public class RecycleRestore {
         Record record = new RestoreRecordCreator(entity, content).create(true);
         records.add(record);
 
+        // v36 多明细
         Entity detailEntity = entity.getDetailEntity();
         if (detailList != null && detailEntity != null) {
             for (Object o : detailList) {
-                Record detail = new RestoreRecordCreator(detailEntity, (JSONObject) o).create(true);
+                JSONObject item = (JSONObject) o;
+                Entity de = detailEntity;
+                if (item.containsKey(RestoreRecordCreator.META_FIELD)) {
+                    String _entity = (String) item.remove(RestoreRecordCreator.META_FIELD);
+                    if (!MetadataHelper.containsEntity(_entity)) {
+                        log.warn("Detail entity not longer exists : {}", _entity);
+                        continue;
+                    }
+                    de = MetadataHelper.getEntity(_entity);
+                }
+
+                Record detail = new RestoreRecordCreator(de, item).create(true);
                 records.add(detail);
             }
         }

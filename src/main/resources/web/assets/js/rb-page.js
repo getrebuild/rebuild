@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -180,21 +180,20 @@ $(function () {
     })
   })
 
-  if (window.sessionStorage) {
-    $('.navbar .navbar-collapse>.navbar-nav a').on('click', function (e) {
-      sessionStorage.setItem('AppHome._InTab', e.target.href.split('?')[1])
-    })
-
+  var $topNavs = $('.navbar .navbar-collapse>.navbar-nav a')
+  if ($topNavs.length > 1) {
     document.onvisibilitychange = function () {
       if (document.visibilityState !== 'visible') return
 
-      var tabHome = sessionStorage.getItem('AppHome._InTab')
-      tabHome &&
-        $(tabHome.split('&')).each(function () {
+      var active = $('.navbar .navbar-collapse>.navbar-nav li.active>a').attr('href')
+      if (active) {
+        active = active.split('?')[1].split('&')
+        $(active).each(function () {
           var nv = this.split('=')
-          if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: null })
-          if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: null })
+          if (nv[0] === 'n') $.cookie('AppHome.Nav', nv[1], { expires: 30 })
+          if (nv[0] === 'd') $.cookie('AppHome.Dash', nv[1], { expires: 30 })
         })
+      }
       console.log('Switch on visibilityState ...', $.cookie('AppHome.Nav'), $.cookie('AppHome.Dash'))
     }
   }
@@ -742,23 +741,24 @@ var $unmount = function (container, delay, keepContainer) {
 /**
  * 初始化引用字段（搜索）
  */
-var $initReferenceSelect2 = function (el, options) {
+var $initReferenceSelect2 = function (el, option) {
+  console.log(option)
   var search_input = null
   var $el = $(el).select2({
-    placeholder: options.placeholder || $L('选择%s', options.label),
+    placeholder: option.placeholder || $L('选择%s', option.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
-      url: '/commons/search/' + (options.searchType || 'reference'),
+      url: '/commons/search/' + (option.searchType || 'reference'),
       delay: 300,
       data: function (params) {
         search_input = params.term
         var query = {
-          entity: options.entity,
-          field: options.name,
+          entity: option.entity,
+          field: option.name,
           q: params.term,
         }
-        if (options && typeof options.wrapQuery === 'function') return options.wrapQuery(query)
+        if (option && typeof option.wrapQuery === 'function') return option.wrapQuery(query)
         else return query
       },
       processResults: function (data) {
@@ -782,7 +782,7 @@ var $initReferenceSelect2 = function (el, options) {
         return $L('清除')
       },
     },
-    theme: 'default ' + (options.appendClass || ''),
+    theme: 'default ' + (option.appendClass || ''),
   })
 
   return $el
@@ -1118,4 +1118,23 @@ var $pages = function (tp, cp) {
   if (end <= tp - 1) pages.push('.')
   if (end <= tp) pages.push(tp)
   return pages
+}
+
+// 格式化代码
+var $formattedCode = function (c, type) {
+  if (typeof c === 'object') c = JSON.stringify(c)
+  if (!window.prettier) return c
+
+  try {
+    // eslint-disable-next-line no-undef
+    return prettier.format(c, {
+      parser: type || 'json',
+      // eslint-disable-next-line no-undef
+      plugins: prettierPlugins,
+      printWidth: 10,
+    })
+  } catch (err) {
+    console.log('Cannot format code :', err)
+    return c
+  }
 }

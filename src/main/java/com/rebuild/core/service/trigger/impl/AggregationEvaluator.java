@@ -232,7 +232,7 @@ public class AggregationEvaluator {
                 CollectionUtils.addAll(nvList, (ID[]) n);
             } else if (n instanceof ID) {
                 if (field.getType() == FieldType.PRIMARY) {
-                    nvList.add(n.toString());  // 保持主键
+                    nvList.add(n.toString());  // 保持主键为文本
                 } else {
                     nvList.add(n);
                 }
