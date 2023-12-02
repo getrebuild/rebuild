@@ -218,6 +218,7 @@ code {
 .badge {
   font-weight: normal !important;
   font-style: normal !important;
+  text-transform: uppercase;
 }
 
 .badge.badge-light,
