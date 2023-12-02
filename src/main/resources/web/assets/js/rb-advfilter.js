@@ -469,7 +469,7 @@ class FilterItem extends React.Component {
       ]
     } else if (fieldType === 'TIME') {
       op = ['GT', 'LT', 'EQ', 'BW']
-    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN') {
+    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR' || fieldType === 'SIGN' || fieldType === 'ANYREFERENCE') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
       op = ['IN', 'NIN']

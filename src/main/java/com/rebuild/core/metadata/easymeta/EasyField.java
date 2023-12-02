@@ -140,7 +140,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
     /**
      * 转换返回值，输出用（默认实现为原值返回）
      *
-     * @param value 原值
+     * @param value 原值，必须符合值类型
      * @return
      * @see com.rebuild.core.support.general.FieldValueHelper
      */

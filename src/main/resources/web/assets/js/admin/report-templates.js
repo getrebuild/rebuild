@@ -133,7 +133,7 @@ class ReportEditor extends ConfigFormDlg {
                   <span className="custom-control-label">{$L('EXCEL 列表')}</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                  <input className="custom-control-input" type="radio" value="4" name="reportType" onChange={() => this.checkTemplate()} />
+                  <input className="custom-control-input J_word4" type="radio" value="4" name="reportType" onChange={() => this.checkTemplate()} />
                   <span className="custom-control-label">
                     WORD <sup className="rbv" />
                   </span>
@@ -244,6 +244,8 @@ class ReportEditor extends ConfigFormDlg {
           $mp.end()
           that.__lastFile = res.key
           if (this.__select2) {
+            // 自动选择 WORD
+            if (that.__lastFile.toLowerCase().endsWith('.docx')) $('.J_word4').attr('checked', true)
             that.checkTemplate()
           } else {
             const fileName = $fileCutName(this.__lastFile)

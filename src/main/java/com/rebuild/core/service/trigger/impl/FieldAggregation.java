@@ -85,7 +85,7 @@ public class FieldAggregation extends TriggerAction {
     protected String followSourceWhere;
 
     public FieldAggregation(ActionContext context) {
-        this(context, Boolean.FALSE);
+        this(context, Boolean.TRUE);
     }
 
     protected FieldAggregation(ActionContext context, boolean ignoreSame) {
@@ -215,7 +215,10 @@ public class FieldAggregation extends TriggerAction {
                 } else if (dt == DisplayType.N2NREFERENCE) {
                     // 强制去重
                     Set<ID> idSet = new LinkedHashSet<>();
-                    for (Object id : oArray) idSet.add((ID) id);
+                    for (Object id : oArray) {
+                        if (id instanceof ID) idSet.add((ID) id);
+                        else idSet.add(ID.valueOf((String) id));  // 主键会保持文本
+                    }
                     targetRecord.setIDArray(targetField, idSet.toArray(new ID[0]));
 
                 } else {
@@ -274,19 +277,19 @@ public class FieldAggregation extends TriggerAction {
 
         // 回填 (v3.1)
         // 仅分组聚合有此配置
-
         String fillbackField = ((JSONObject) actionContext.getActionContent()).getString("fillbackField");
         if (fillbackField != null && MetadataHelper.checkAndWarnField(sourceEntity, fillbackField)) {
-            String sql = String.format("select %s from %s where %s",
-                    sourceEntity.getPrimaryField().getName(), sourceEntity.getName(), filterSql);
+            String sql = String.format("select %s,%s from %s where %s",
+                    sourceEntity.getPrimaryField().getName(), fillbackField, sourceEntity.getName(), filterSql);
             Object[][] fillbacks = Application.createQueryNoFilter(sql).array();
 
-            for (Object[] to : fillbacks) {
-                Record fbRecord = EntityHelper.forUpdate((ID) to[0], UserService.SYSTEM_USER, false);
-                fbRecord.setID(fillbackField, targetRecordId);
+            for (Object[] o : fillbacks) {
+                if (CommonsUtils.isSame(o[1], targetRecordId)) continue;
 
                 // FIXME 回填仅更新，无业务规则
-                Application.getCommonsService().update(fbRecord, false);
+                Record r = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+                r.setID(fillbackField, targetRecordId);
+                Application.getCommonsService().update(r, false);
             }
         }
 

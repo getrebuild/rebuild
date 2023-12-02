@@ -261,7 +261,7 @@ class RbForm extends React.Component {
       for (let k in iv) {
         let val = iv[k]
         // array, object, simple
-        val = typeof val === 'object' ? val.id || val : val
+        val = val && typeof val === 'object' ? val.id || val : val
         this.__FormData[k] = { value: val, error: null }
       }
     }
@@ -783,6 +783,16 @@ class RbFormElement extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+
+    // v35
+    this._isNew = props.$$$parent.isNew
+    if (props.readonly) {
+      if (this._isNew) {
+        this._placeholderw = props.readonlyw >= 2 ? $L('自动值') : null
+      } else if (!this.state.value) {
+        this._placeholderw = $L('无')
+      }
+    }
   }
 
   render() {
@@ -855,7 +865,7 @@ class RbFormElement extends React.Component {
         onChange={(e) => this.handleChange(e, this.props.readonly ? false : true)}
         // onBlur={this.props.readonly ? null : () => this.checkValue()}
         readOnly={this.props.readonly}
-        placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+        placeholder={this._placeholderw}
         maxLength={this.props.maxLength || 200}
       />
     )
@@ -903,7 +913,7 @@ class RbFormElement extends React.Component {
     this.setState({ hasError: err || null })
     const errMsg = err ? this.props.label + ' ' + err : null
 
-    if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
+    if (this.isValueUnchanged() && !this._isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
       else this.props.$$$parent.setFieldUnchanged(this.props.field, this.state.value)
     } else {
@@ -1135,7 +1145,7 @@ class RbFormNumber extends RbFormText {
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
-          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+          placeholder={this._placeholderw}
           maxLength="29"
         />
         {this.__valueFlag && <em className="vflag">{this.__valueFlag}</em>}
@@ -1287,7 +1297,7 @@ class RbFormTextarea extends RbFormElement {
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
           readOnly={this.props.readonly}
-          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+          placeholder={this._placeholderw}
           maxLength="6000"
         />
         {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
@@ -1435,7 +1445,7 @@ class RbFormDateTime extends RbFormElement {
           value={this.state.value || ''}
           onChange={(e) => this.handleChange(e, !this.props.readonly)}
           // onBlur={this.props.readonly ? null : () => this.checkValue()}
-          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+          placeholder={this._placeholderw}
           maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={() => this.handleClear()} />
@@ -1566,12 +1576,7 @@ class RbFormImage extends RbFormElement {
               <a title={$fileCutName(item)} className="img-thumbnail img-upload" onClick={() => this._filePreview(value, idx)}>
                 <img src={this._formatUrl(item)} alt="IMG" />
                 {!this.props.readonly && (
-                  <b
-                    title={$L('移除')}
-                    onClick={(e) => {
-                      $stopEvent(e)
-                      this.removeItem(item)
-                    }}>
+                  <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                     <span className="zmdi zmdi-close" />
                   </b>
                 )}
@@ -1660,7 +1665,8 @@ class RbFormImage extends RbFormElement {
     }
   }
 
-  removeItem(item) {
+  removeItem(item, e) {
+    e && $stopEvent(e, true)
     const paths = this.state.value || []
     paths.remove(item)
     this.handleChange({ target: { value: paths } }, true)
@@ -1697,7 +1703,7 @@ class RbFormFile extends RbFormImage {
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
-                <b title={$L('移除')} onClick={() => this.removeItem(item)}>
+                <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                   <span className="zmdi zmdi-close" />
                 </b>
               )}
@@ -1802,12 +1808,12 @@ class RbFormPickList extends RbFormElement {
   }
 
   isValueUnchanged() {
-    if (this.props.$$$parent.isNew === true) return false
+    if (this._isNew === true) return false
     return super.isValueUnchanged()
   }
 
   setValue(val) {
-    if (typeof val === 'object') val = val.id
+    if (val && typeof val === 'object') val = val.id
     this.__select2.val(val).trigger('change')
   }
 }
@@ -1866,7 +1872,7 @@ class RbFormReference extends RbFormElement {
 
     // 新建记录时触发回填
     const props = this.props
-    if (props.$$$parent.isNew && props.value && props.value.id) {
+    if (this._isNew && props.value && props.value.id) {
       setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
     }
   }
@@ -1885,7 +1891,7 @@ class RbFormReference extends RbFormElement {
           const cascadingValue = this._getCascadingFieldValue()
           return cascadingValue ? { cascadingValue, ...query } : query
         },
-        placeholder: this.props.readonlyw === 3 ? $L('自动值') : null,
+        placeholder: this._placeholderw,
       })
 
       const val = this.state.value
@@ -2115,7 +2121,7 @@ class RbFormN2NReference extends RbFormReference {
 
   handleChange(e, checkValue) {
     let val = e.target.value
-    if (typeof val === 'object') val = val.join(',')
+    if (val && typeof val === 'object') val = val.join(',')
     this.setState({ value: val }, () => checkValue === true && this.checkValue())
   }
 
@@ -2315,9 +2321,9 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   _getMaskValue() {
-    const value = this.state.value
-    if (!value) return 0
-    return typeof value === 'object' ? value.id : value
+    const val = this.state.value
+    if (!val) return 0
+    return typeof val === 'object' ? val.id : val
   }
 }
 
@@ -2474,7 +2480,7 @@ class RbFormAvatar extends RbFormElement {
 class RbFormLocation extends RbFormElement {
   constructor(props) {
     super(props)
-    this._autoLocation = props.locationAutoLocation && props.$$$parent.isNew && !props.value
+    this._autoLocation = props.locationAutoLocation && this._isNew && !props.value
   }
 
   renderElement() {
@@ -2502,7 +2508,7 @@ class RbFormLocation extends RbFormElement {
           value={lnglat ? lnglat.text || '' : ''}
           onChange={(e) => this.handleChange(e)}
           readOnly
-          placeholder={this.props.readonlyw > 0 ? $L('自动值') : null}
+          placeholder={this._placeholderw}
           onClick={() => this._showMap(lnglat)}
         />
 
@@ -2541,11 +2547,11 @@ class RbFormLocation extends RbFormElement {
     )
   }
 
-  _parseLnglat(value) {
-    if (!value) return null
-    if (typeof value === 'object') return value
+  _parseLnglat(val) {
+    if (!val) return null
+    if (typeof val === 'object') return val
 
-    const vals = value.split('$$$$')
+    const vals = val.split('$$$$')
     const lnglat = vals[1] ? vals[1].split(',') : null // 无坐标
     return {
       text: vals[0],
@@ -2691,7 +2697,7 @@ class RbFormTag extends RbFormElement {
 
     let options = [...props.options]
     let selected = []
-    if (props.$$$parent.isNew) {
+    if (this._isNew) {
       props.options.forEach((item) => {
         if (item.default) selected.push(item.name)
       })
@@ -2715,7 +2721,7 @@ class RbFormTag extends RbFormElement {
       this._initOptions()
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: this.props.readonlyw === 3 ? $L('自动值') : $L('输入%s', this.props.label),
+        placeholder: this.props.readonlyw > 0 ? this._placeholderw : $L('输入%s', this.props.label),
         maximumSelectionLength: this.__maxSelect,
         tags: true,
         language: {
@@ -2737,7 +2743,7 @@ class RbFormTag extends RbFormElement {
   }
 
   setValue(val) {
-    if (typeof val === 'object') val = val.join('$$$$')
+    if (val && typeof val === 'object') val = val.join('$$$$')
     super.setValue(val)
 
     // fix: v3.4.4
