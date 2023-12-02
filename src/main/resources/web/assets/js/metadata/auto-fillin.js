@@ -177,18 +177,9 @@ class DlgRuleEdit extends RbFormHandler {
       this.__select2.push($s2target)
 
       // #2
-      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}&deep=2`, (res) => {
-        const _data = []
-        res.data.forEach((item) => {
-          _data.push(item)
-          // v35 Last insert a ID
-          if (item.name === 'owningDept') {
-            _data.push({ name: `${wpc.referenceEntity}Id`, label: 'ID', type: 'REFERENCE', ref: [wpc.referenceEntity, 'ID'] })
-          }
-        })
-
-        this.__sourceFieldsCache = _data
-        this.setState({ sourceFields: _data }, () => {
+      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}&deep=2&withid=true`, (res) => {
+        this.__sourceFieldsCache = res.data
+        this.setState({ sourceFields: res.data }, () => {
           const $s2source = $(this._sourceField)
             .select2({
               placeholder: $L('选择字段'),

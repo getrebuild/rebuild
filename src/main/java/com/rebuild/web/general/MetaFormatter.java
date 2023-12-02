@@ -79,6 +79,7 @@ public class MetaFormatter {
      * @param deep
      * @param filter
      * @return
+     * @see #buildFieldsWithRefs(Entity, int, boolean, boolean, Predicate)
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, Predicate<BaseMeta> filter) {
         return buildFieldsWithRefs(entity, deep, false, filter);
@@ -90,8 +91,23 @@ public class MetaFormatter {
      * @param riching
      * @param filter
      * @return
+     * @see #buildFieldsWithRefs(Entity, int, boolean, boolean, Predicate)
      */
     public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, Predicate<BaseMeta> filter) {
+        return buildFieldsWithRefs(entity, deep, riching, false, filter);
+    }
+
+    /**
+     * 获取字段列表
+     *
+     * @param entity
+     * @param deep 几级
+     * @param riching
+     * @param forceWithId 带有主键ID
+     * @param filter
+     * @return
+     */
+    public static JSONArray buildFieldsWithRefs(Entity entity, int deep, boolean riching, boolean forceWithId, Predicate<BaseMeta> filter) {
         JSONArray res = new JSONArray();
 
         // 一级
@@ -101,6 +117,10 @@ public class MetaFormatter {
 
             res.add(buildField(easyField, null, riching));
         }
+        if (forceWithId) {
+            res.add(buildField(EasyMetaFactory.valueOf(entity.getPrimaryField()), null, false));
+        }
+
         if (deep < 2) return res;
 
         List<Object[]> deep3Refs = new ArrayList<>();

@@ -261,7 +261,7 @@ class RbForm extends React.Component {
       for (let k in iv) {
         let val = iv[k]
         // array, object, simple
-        val = typeof val === 'object' ? val.id || val : val
+        val = val && typeof val === 'object' ? val.id || val : val
         this.__FormData[k] = { value: val, error: null }
       }
     }
@@ -1803,7 +1803,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   setValue(val) {
-    if (typeof val === 'object') val = val.id
+    if (val && typeof val === 'object') val = val.id
     this.__select2.val(val).trigger('change')
   }
 }
@@ -2111,7 +2111,7 @@ class RbFormN2NReference extends RbFormReference {
 
   handleChange(e, checkValue) {
     let val = e.target.value
-    if (typeof val === 'object') val = val.join(',')
+    if (val && typeof val === 'object') val = val.join(',')
     this.setState({ value: val }, () => checkValue === true && this.checkValue())
   }
 
@@ -2733,7 +2733,7 @@ class RbFormTag extends RbFormElement {
   }
 
   setValue(val) {
-    if (typeof val === 'object') val = val.join('$$$$')
+    if (val && typeof val === 'object') val = val.join('$$$$')
     super.setValue(val)
 
     // fix: v3.4.4
