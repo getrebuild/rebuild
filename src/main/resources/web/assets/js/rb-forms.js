@@ -2311,9 +2311,9 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   _getMaskValue() {
-    const value = this.state.value
-    if (!value) return 0
-    return typeof value === 'object' ? value.id : value
+    const val = this.state.value
+    if (!val) return 0
+    return typeof val === 'object' ? val.id : val
   }
 }
 
@@ -2537,11 +2537,11 @@ class RbFormLocation extends RbFormElement {
     )
   }
 
-  _parseLnglat(value) {
-    if (!value) return null
-    if (typeof value === 'object') return value
+  _parseLnglat(val) {
+    if (!val) return null
+    if (typeof val === 'object') return val
 
-    const vals = value.split('$$$$')
+    const vals = val.split('$$$$')
     const lnglat = vals[1] ? vals[1].split(',') : null // 无坐标
     return {
       text: vals[0],
