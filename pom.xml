@@ -497,6 +497,11 @@
             <artifactId>mammoth</artifactId>
             <version>1.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.getui.push</groupId>
+            <artifactId>restful-sdk</artifactId>
+            <version>1.0.0.15</version>
+        </dependency>
 
         <!-- fix: CVEs -->
         <dependency>

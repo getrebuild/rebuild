@@ -82,7 +82,7 @@ public class MarkdownUtils {
      * @param md
      * @return
      */
-    public static String cleanMd(String md) {
+    public static String cleanMarks(String md) {
         String html = render(md);
         return Jsoup.parse(html).body().text();
     }
