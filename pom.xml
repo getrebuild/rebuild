@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.17</version>
+        <version>2.7.18</version>
         <relativePath/>
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>3.5.0-beta3</version>
+    <version>3.6.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -335,7 +335,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.4.3</version>
+            <version>4.4.6</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
@@ -496,6 +496,11 @@
             <groupId>org.zwobble.mammoth</groupId>
             <artifactId>mammoth</artifactId>
             <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.getui.push</groupId>
+            <artifactId>restful-sdk</artifactId>
+            <version>1.0.0.15</version>
         </dependency>
 
         <!-- fix: CVEs -->

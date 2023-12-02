@@ -218,6 +218,7 @@ code {
 .badge {
   font-weight: normal !important;
   font-style: normal !important;
+  text-transform: uppercase;
 }
 
 .badge.badge-light,
@@ -5382,5 +5383,30 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 }
 
 .dataTables_oper.invisible2 > .btn.J_view {
+  display: inline-block;
+}
+
+.code-viewport {
+  position: relative;
+}
+
+.code-viewport > pre {
+  background-color: #f5f2f0;
+  color: #905;
+  text-shadow: 0 1px #fff;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 0;
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace !important;
+}
+
+.code-viewport > a.copy {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: none;
+}
+
+.code-viewport:hover > a.copy {
   display: inline-block;
 }

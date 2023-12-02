@@ -9,6 +9,7 @@ package com.rebuild.core.service.notification;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.i18n.Language;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -56,5 +57,18 @@ public class Message {
         this.message = message;
         this.type = type;
         this.relatedRecord = relatedRecord;
+    }
+
+    /**
+     * 获取通知标题
+     * @return
+     */
+    public String getTitle4Type() {
+        if (this.type == TYPE_ASSIGN) return Language.L("记录分配通知");
+        else if (this.type == TYPE_SAHRE) return Language.L("记录共享通知");
+        else if (this.type == TYPE_APPROVAL) return Language.L("记录审核通知");
+        else if (this.type == TYPE_FEEDS) return Language.L("动态通知");
+        else if (this.type == TYPE_PROJECT) return Language.L("项目任务通知");
+        else return Language.L("新通知");
     }
 }

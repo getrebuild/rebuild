@@ -134,8 +134,9 @@ CellRenders.renderSimple = function (v, s, k) {
 // ~~ 变更详情
 class DlgDetails extends RbAlert {
   renderContent() {
-    const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
-    if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('无变更详情')}</div>
+    if (this.state.viewAll) {
+      return <HistoryViewport id={this.props.id} />
+    }
 
     return (
       <table className="table table-fixed">
@@ -147,17 +148,63 @@ class DlgDetails extends RbAlert {
           </tr>
         </thead>
         <tbody>
-          {_data.map((item) => {
+          <ContentsGroup contents={this.state.data} />
+          <tr>
+            <td colSpan="3" className="text-center pb-0">
+              <a className="text-primary" onClick={() => this.setState({ viewAll: true })}>
+                {$L('查看全部')}
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
+      super.componentDidMount()
+      this.setState({ data: res.data || [] })
+    })
+  }
+}
+
+class HistoryViewport extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    if (!this.state.dataList) {
+      return (
+        <div className="rb-loading rb-loading-active">
+          <RbSpinner />
+          <div style={{ minHeight: 132 }} />
+        </div>
+      )
+    }
+
+    return (
+      <table className="table table-fixed group">
+        <thead>
+          <tr>
+            <th width="25%">{$L('字段')}</th>
+            <th>{$L('变更前')}</th>
+            <th>{$L('变更后')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.dataList.map((item, idx) => {
             return (
-              <tr key={item.field}>
-                <td>{item.field}</td>
-                <td>
-                  <div>{this._formatValue(item.before)}</div>
-                </td>
-                <td>
-                  <div>{this._formatValue(item.after)}</div>
-                </td>
-              </tr>
+              <RF key={idx}>
+                <tr className="group">
+                  <td colSpan="3">
+                    <h5>{WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}</h5>
+                  </td>
+                </tr>
+                <ContentsGroup contents={item[0]} />
+              </RF>
             )
           })}
         </tbody>
@@ -166,22 +213,46 @@ class DlgDetails extends RbAlert {
   }
 
   componentDidMount() {
-    $.get(`/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
-      if (res.data.length === 0) {
-        RbHighbar.create($L('无变更详情'))
-        this.hide()
-      } else {
-        super.componentDidMount()
-        this.setState({ data: res.data })
-      }
+    $.get(`/admin/audit/revision-history/details-list?id=${this.props.id}`, (res) => {
+      this.setState({ dataList: res.data || [] })
     })
   }
+}
 
-  _formatValue(v) {
+function ContentsGroup({ contents }) {
+  const f = function (v) {
     if (v) {
       return typeof v === 'object' ? v.join(', ') : v
     } else {
       return <span className="text-muted">{$L('空')}</span>
     }
   }
+
+  // 排除相同
+  const notSame = (contents || []).filter((item) => !$same(item.after, item.before))
+  return (
+    <RF>
+      {(notSame || []).length === 0 ? (
+        <tr>
+          <td colSpan="3">
+            <div className="text-muted">{$L('无变更详情')}</div>
+          </td>
+        </tr>
+      ) : (
+        notSame.map((item) => {
+          return (
+            <tr key={item.field}>
+              <td>{item.field}</td>
+              <td>
+                <div>{f(item.before)}</div>
+              </td>
+              <td>
+                <div>{f(item.after)}</div>
+              </td>
+            </tr>
+          )
+        })
+      )}
+    </RF>
+  )
 }
