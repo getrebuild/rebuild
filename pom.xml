@@ -13,6 +13,7 @@
     <version>3.5.0-beta4</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
+    <url>https://getrebuild.com/</url>
     <!-- UNCOMMENT USE TOMCAT -->
     <!-- <packaging>war</packaging> -->
 
