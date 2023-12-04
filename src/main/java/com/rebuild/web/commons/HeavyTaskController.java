@@ -60,13 +60,13 @@ public class HeavyTaskController extends BaseController {
 
         task.setInterruptState();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 4; i++) {
+            ThreadPool.waitFor(i * 500);
+
             if (task.isInterruptState()) {
                 return formatTaskState(task);
             }
-            ThreadPool.waitFor(500);
         }
-
         return RespBody.errorl("无法终止任务");
     }
 
