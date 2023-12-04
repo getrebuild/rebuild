@@ -181,7 +181,7 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
             log.warn("Current thread is interrupted(vm) : {}", Thread.currentThread());
             setInterruptState();
         }
-        return true;
+        return interruptState;
     }
 
     @Override
