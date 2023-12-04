@@ -39,6 +39,8 @@ public class BulkAssign extends BulkOperator {
         ID firstAssigned = null;
         NotificationOnce.begin();
         for (ID id : records) {
+            if (isInterruptState()) break;
+
             if (Application.getPrivilegesManager().allowAssign(context.getOpUser(), id)) {
                 int a = ges.assign(id, context.getToUser(), context.getCascades());
                 if (a > 0) {

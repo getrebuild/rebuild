@@ -30,7 +30,6 @@ import java.util.Date;
 @Slf4j
 public abstract class HeavyTask<T> extends SetUser implements Runnable {
 
-    volatile private boolean interrupt = false;
     volatile private boolean interruptState = false;
 
     /**
@@ -164,20 +163,25 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
 
     // 中断处理。是否允许中断由子类决定（实现）
 
-    public void interrupt() {
-        this.interrupt = true;
-    }
-
-    protected boolean isInterrupt() {
-        return interrupt;
-    }
-
-    protected void setInterrupted() {
+    /**
+     * 设置中断
+     */
+    public void setInterruptState() {
         this.interruptState = true;
     }
 
-    public boolean isInterrupted() {
-        return interruptState;
+    /**
+     * 是否中断（含手动中断与VM中断）
+     *
+     * @return
+     */
+    public boolean isInterruptState() {
+        if (this.interruptState) return true;
+        if (Thread.currentThread().isInterrupted()) {
+            log.warn("Current thread is interrupted(vm) : {}", Thread.currentThread());
+            setInterruptState();
+        }
+        return true;
     }
 
     @Override
@@ -217,6 +221,6 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
 
     @Override
     public String toString() {
-        return "HeavyTask#" + getClass().getSimpleName();
+        return "HeavyTask#" + getClass();
     }
 }

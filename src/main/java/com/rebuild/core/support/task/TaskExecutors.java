@@ -76,12 +76,13 @@ public class TaskExecutors extends DistributedJobLock {
         if (task == null) {
             throw new RebuildException("No Task found : " + taskid);
         }
-        task.interrupt();
+
+        task.setInterruptState();
 
         boolean interrupted = false;
         for (int i = 1; i <= 3; i++) {
             ThreadPool.waitFor(i * 500);
-            if (task.isInterrupted()) {
+            if (task.isInterruptState()) {
                 interrupted = true;
                 break;
             }
@@ -149,11 +150,11 @@ public class TaskExecutors extends DistributedJobLock {
                 long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
                 if (leftTime > 60 * 120) {
                     TASKS.remove(e.getKey());
-                    log.info("HeavyTask clean up : " + e.getKey());
+                    log.info("HeavyTask clean-up : {}", e.getKey());
                 }
                 completed++;
             }
-            log.info("{} task(s) in the queue. {} are completed (will clean up later)", TASKS.size(), completed);
+            log.info("{} task(s) in the queue. {} are completed (will clean-up later)", TASKS.size(), completed);
         }
         
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();

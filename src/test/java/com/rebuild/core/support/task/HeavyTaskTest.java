@@ -34,7 +34,7 @@ public class HeavyTaskTest extends TestSupport {
         System.out.println("getElapsedTime " + task.getElapsedTime());
         System.out.println("getCompletedPercent " + task.getCompletedPercent());
         System.out.println("getErrorMessage " + task.getErrorMessage());
-        System.out.println("isInterrupted " + task.isInterrupted());
+        System.out.println("isInterrupted " + task.isInterruptState());
 
         new TaskExecutors().executeJob();
     }
@@ -80,7 +80,7 @@ public class HeavyTaskTest extends TestSupport {
         public Void exec() {
             this.setTotal(this.number);
             for (int i = 0; i < this.number; i++) {
-                if (this.isInterrupted()) {
+                if (this.isInterruptState()) {
                     System.err.println(this.name + "Interrupted : " + this.getCompleted() + " / " + this.getTotal());
                     break;
                 }

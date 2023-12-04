@@ -58,9 +58,10 @@ public class HeavyTaskController extends BaseController {
             return RespBody.errorl("无法终止，因为任务已经完成");
         }
 
-        task.interrupt();
+        task.setInterruptState();
+
         for (int i = 0; i < 10; i++) {
-            if (task.isInterrupted()) {
+            if (task.isInterruptState()) {
                 return formatTaskState(task);
             }
             ThreadPool.waitFor(200);
@@ -82,10 +83,10 @@ public class HeavyTaskController extends BaseController {
         state.put("completed", task.getCompleted());
         state.put("succeeded", task.getSucceeded());
         state.put("isCompleted", task.isCompleted());
-        state.put("isInterrupted", task.isInterrupted());
+        state.put("isInterrupted", task.isInterruptState());
         state.put("elapsedTime", task.getElapsedTime());
         state.put("hasError", task.getErrorMessage());
-        if (task.isCompleted() || task.isInterrupted()) state.put("execResults", task.getExecResults());
+        if (task.isCompleted() || task.isInterruptState()) state.put("execResults", task.getExecResults());
         return state;
     }
 }

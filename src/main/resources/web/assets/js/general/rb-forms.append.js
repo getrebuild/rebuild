@@ -319,7 +319,7 @@ class BaiduMap extends React.Component {
       if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
         that.center(that.props.lnglat)
       } else {
-        const geo = new window.BMapGL.Geolocation()
+        const geo = new _BMapGL.Geolocation()
         geo.enableSDKLocation()
         geo.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {

@@ -73,10 +73,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 
             this.setTotal(records.size() + this.getTotal() + 1);
             for (Record o : records) {
-                if (this.isInterrupt()) {
-                    this.setInterrupted();
-                    break;
-                }
+                if (this.isInterruptState()) break;
 
                 try {
                     String quickCodeNew = generateQuickCode(o);
@@ -97,7 +94,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
                 }
             }
 
-            if (records.size() < PAGE_SIZE || this.isInterrupted()) break;
+            if (records.size() < PAGE_SIZE || this.isInterruptState()) break;
         }
 
         this.setTotal(this.getTotal() - 1);

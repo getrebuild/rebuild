@@ -44,6 +44,8 @@ public class BulkShare extends BulkOperator {
         ID firstShared = null;
         NotificationOnce.begin();
         for (ID id : records) {
+            if (isInterruptState()) break;
+
             if (Application.getPrivilegesManager().allowShare(context.getOpUser(), id)) {
                 int a = ges.share(id, context.getToUser(), context.getCascades(), shareRights);
                 if (a > 0) {
