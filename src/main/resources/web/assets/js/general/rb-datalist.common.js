@@ -474,8 +474,8 @@ class BatchUpdate extends BatchOperator {
         that.disabled(true, true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
 
             // v36 终止
@@ -699,8 +699,8 @@ class BatchApprove extends BatchOperator {
         that.disabled(true, true)
         $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
 
             // v36 终止

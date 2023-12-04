@@ -194,7 +194,7 @@ $(document).ready(() => {
   window.onbeforeunload = function () {
     const cfg = build_config()
     if ((!cfg && !wpc.chartId) || $same(cfg, wpc.chartConfig)) return undefined
-    return 'CLOSE CONFIRM'
+    return 'SHOW-CLOSE-CONFIRM'
   }
 })
 

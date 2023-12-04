@@ -107,7 +107,7 @@ $(document).ready(() => {
   }
 
   window.onbeforeunload = function () {
-    if (import_inprogress === true) return false
+    if (import_inprogress === true) return 'SHOW-CLOSE-CONFIRM'
   }
 
   $('.J_step3-trace').on('click', () => {
