@@ -73,7 +73,7 @@ public class TaskExecutors extends DistributedJobLock {
     public static boolean cancel(String taskid) {
         HeavyTask<?> task = TASKS.get(taskid);
         if (task == null) {
-            log.warn("No task found : {}", task);
+            log.warn("No task found : {}", taskid);
             return false;
         }
 
