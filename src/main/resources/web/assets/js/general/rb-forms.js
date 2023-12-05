@@ -1198,7 +1198,7 @@ class RbFormNumber extends RbFormText {
           if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
           } else {
-            calcFormulaValues[s.name] = this._removeComma(s.value)
+            calcFormulaValues[s.name] = s.value
           }
 
           if (_timer) {
@@ -1210,6 +1210,8 @@ class RbFormNumber extends RbFormText {
           _timer = setTimeout(() => {
             $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
               console.log(res)
+              if (res.data) this.setValue(res.data)
+              else this.setValue(null)
             })
           }, 200)
 

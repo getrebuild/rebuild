@@ -15,16 +15,21 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -200,13 +205,30 @@ public class ModelExtrasController extends BaseController {
 
     @PostMapping("eval-calc-formula")
     public RespBody evalCalcFormula(@EntityParam Entity entity, HttpServletRequest request) {
-        String fieldName = getParameterNotNull(request, "field");
-        if (!entity.containsField(fieldName)) return RespBody.error();
+        String targetField = getParameterNotNull(request, "field");
+        if (!entity.containsField(targetField)) return RespBody.error();
 
-        JSON data = ServletUtils.getRequestJson(request);
+        JSONObject vars = (JSONObject) ServletUtils.getRequestJson(request);
 
-        System.out.println(data.toJSONString());
+        EasyField easyField = EasyMetaFactory.valueOf(entity.getField(targetField));
+        String formula = easyField.getExtraAttr(EasyFieldConfigProps.DATE_CALCFORMULA);
+        Object evalVal = AviatorUtils.eval(formula, vars.getInnerMap(), true);
+        if (evalVal == null) return RespBody.ok();
 
+        DisplayType dt = easyField.getDisplayType();
+        if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+            if (evalVal instanceof Date) {
+                evalVal = easyField.wrapValue(evalVal);
+                return RespBody.ok(evalVal);
+            }
+        } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
+            if (evalVal instanceof Number) {
+                evalVal = easyField.wrapValue(evalVal);
+                return RespBody.ok(evalVal);
+            }
+        }
+
+        log.warn("Bad eval value : {}", evalVal);
         return RespBody.ok();
     }
 }
