@@ -89,7 +89,7 @@ code {
 }
 
 .dropdown-menu.auto-scroller {
-  max-height: 487px;
+  max-height: 488px;
   overflow-x: auto;
 }
 
@@ -3340,6 +3340,21 @@ form {
   margin-right: -60px;
   padding-top: 7px;
   padding-bottom: 7px;
+}
+
+@media (max-width: 575.98px) {
+  .rb-icons-nav > li.dropdown.global-create2 .dropdown-menu {
+    position: fixed;
+    top: 60px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ebebeb;
+  }
+  .rb-icons-nav > li.dropdown.global-create2 > a:after {
+    bottom: 0;
+  }
 }
 
 .rb-icons-nav > li.dropdown.global-create2 > a .icon {
