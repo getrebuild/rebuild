@@ -266,7 +266,7 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={() => this.handleCancel()}>
             {$L('取消')}
           </button>
           <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
@@ -288,6 +288,32 @@ class BatchOperator extends RbFormHandler {
   renderOperator() {}
 
   handleConfirm() {}
+
+  handleCancel() {
+    if (!this._taskid) {
+      this.hide()
+      return
+    }
+
+    const that = this
+    RbAlert.create($L('是否取消/终止当前操作？'), {
+      onConfirm: function () {
+        if (!that._taskid) {
+          this.hide()
+          return
+        }
+
+        $.post(`/commons/task/cancel?taskid=${that._taskid}`, (res) => {
+          if (res.error_code !== 0) {
+            RbHighbar.error(res.error_msg)
+          } else {
+            $(that._btns).find('.btn-secondary').button('loading')
+            this.hide()
+          }
+        })
+      },
+    })
+  }
 }
 
 // ~ 数据导出
@@ -445,21 +471,25 @@ class BatchUpdate extends BatchOperator {
     RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
       onConfirm: function () {
         this.hide()
-        that.disabled(true)
+        that.disabled(true, true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
+
+            // v36 终止
+            that._taskid = res.data
+            $(that._btns).find('.btn-secondary').button('reset')
           } else {
             that.disabled(false)
             RbHighbar.error(res.error_msg)
           }
         })
       },
-      onRendered: function () {
-        $countdownButton($(this._dlg).find('.btn-primary'))
-      },
+      // onRendered: function () {
+      //   $countdownButton($(this._dlg).find('.btn-primary'))
+      // },
     })
   }
 
@@ -473,15 +503,19 @@ class BatchUpdate extends BatchOperator {
         }
 
         const cp = res.data.progress
-        if (cp >= 1) {
+        if (res.data.isCompleted) {
           mp && mp.end()
-          $(this._btns).find('.btn-primary').text($L('已完成'))
+          $(this._btns)
+            .find('.btn-primary')
+            .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
 
+          RbListPage.reload()
+          this._taskid = null
           setTimeout(() => {
-            RbListPage.reload()
-            setTimeout(() => this.hide(), 1000)
-          }, 500)
+            this.disabled(false)
+            this.hide()
+          }, 2000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
@@ -659,15 +693,19 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create($L('请再次确认审批数据范围和审批结果。开始审批吗？'), {
+    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批结果。开始审批吗？')}</b>, {
       onConfirm: function () {
         this.hide()
-        that.disabled(true)
+        that.disabled(true, true)
         $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
+
+            // v36 终止
+            that._taskid = res.data
+            $(that._btns).find('.btn-secondary').button('reset')
           } else {
             that.disabled(false)
             RbHighbar.error(res.error_msg)
@@ -687,19 +725,22 @@ class BatchApprove extends BatchOperator {
         }
 
         const cp = res.data.progress
-        if (cp >= 1) {
+        if (res.data.isCompleted) {
           mp && mp.end()
-          $(this._btns).find('.btn-primary').text($L('已完成'))
+          $(this._btns)
+            .find('.btn-primary')
+            .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           if (res.data.succeeded > 0) {
             RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
           } else {
             RbHighbar.create($L('没有任何符合批量审批条件的记录'))
           }
 
+          RbListPage.reload()
           setTimeout(() => {
-            RbListPage.reload()
-            setTimeout(() => this.hide(), 1000)
-          }, 500)
+            this.disabled(false)
+            this.hide()
+          }, 2000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)

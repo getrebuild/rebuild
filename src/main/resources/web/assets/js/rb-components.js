@@ -12,7 +12,6 @@ class RbModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._htmlid = $random('modal-body-', true, 20)
   }
 
   render() {
@@ -74,7 +73,7 @@ class RbModal extends React.Component {
   renderContent() {
     const iframe = !this.props.children // No child
     return (
-      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
+      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
         {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
         {iframe && <RbSpinner />}
       </div>
@@ -236,8 +235,9 @@ class RbFormHandler extends RbModalHandler {
     }
   }
 
-  disabled(d) {
-    if (!this._btns) return
+  disabled(d, preventHide) {
+    this._dlg && _preventHide(d, preventHide, this._dlg._element)
+
     if (d === true) $(this._btns).find('.btn').button('loading')
     else $(this._btns).find('.btn').button('reset')
   }
@@ -248,7 +248,6 @@ class RbAlert extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._htmlid = $random('alert-body-', true, 20)
   }
 
   render() {
@@ -269,9 +268,7 @@ class RbAlert extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body" id={this._htmlid}>
-              {this.renderContent()}
-            </div>
+            <div className="modal-body">{this.renderContent()}</div>
           </div>
         </div>
       </div>
@@ -337,25 +334,7 @@ class RbAlert extends React.Component {
   disabled(d, preventHide) {
     d = d === true
     // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
-    this.setState({ disable: d }, () => {
-      if (d && preventHide) {
-        $(this._dlg).find('.close').attr('disabled', true)
-        $(this._dlg)
-          .off('hide.bs.modal')
-          .on('hide.bs.modal', function () {
-            if ($(event.target).hasClass('zmdi-close')) RbHighbar.create($L('请等待请求执行完毕'))
-            return false
-          })
-      }
-      if (!d) {
-        $(this._dlg).find('.close').attr('disabled', false)
-        $(this._dlg)
-          .off('hide.bs.modal')
-          .on('hide.bs.modal', function () {
-            return true
-          })
-      }
-    })
+    this.setState({ disable: d }, () => _preventHide(d, preventHide, this._dlg))
   }
 
   // -- Usage
@@ -373,6 +352,27 @@ class RbAlert extends React.Component {
     option = option || {}
     const props = { ...option, title: titleOrOption, message: message }
     renderRbcomp(<RbAlert {...props} />, null, option.onRendered || option.call)
+  }
+}
+
+function _preventHide(d, preventHide, dlg) {
+  if (d && preventHide) {
+    $(dlg).find('.close').attr('disabled', true)
+    $(dlg)
+      .off('hide.bs.modal')
+      .on('hide.bs.modal', function () {
+        if (event && event.target && $(event.target).hasClass('zmdi-close')) {
+          RbHighbar.create($L('请等待请求执行完毕'))
+        }
+        return false
+      })
+  } else if (!d) {
+    $(dlg).find('.close').attr('disabled', false)
+    $(dlg)
+      .off('hide.bs.modal')
+      .on('hide.bs.modal', function () {
+        return true
+      })
   }
 }
 

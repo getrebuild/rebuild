@@ -351,27 +351,29 @@ function useExecManual() {
         return
       }
 
-      RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
+      RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
         onConfirm: function () {
           this.disabled(true, true)
-          $mp.start()
-
           $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-            useExecManual_checkState(res.data, this)
+            const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
+            useExecManual_checkState(res.data, mp, this)
           })
         },
       })
     })
 }
 // 检查状态
-function useExecManual_checkState(taskid, _alert) {
-  $.get('/commons/task/state?taskid=' + taskid, (res) => {
-    if ((res.data || {}).isCompleted) {
+function useExecManual_checkState(taskid, mp, _alert) {
+  $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+    const cp = res.data.progress
+    if (res.data.isCompleted) {
+      mp && mp.end()
       _alert && _alert.hide(true)
-      $mp.end()
       RbHighbar.success($L('执行成功'))
     } else {
-      setTimeout(() => useExecManual_checkState(taskid, _alert), 1000)
+      mp && mp.set(cp)
+      setTimeout(() => useExecManual_checkState(taskid, mp, _alert), 1000)
     }
   })
 }

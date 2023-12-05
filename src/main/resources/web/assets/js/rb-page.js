@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-;(function () {
+(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -433,14 +433,19 @@ var _showNotification = function (state) {
         tag: 'rbNotification',
         renotify: true,
         silent: false,
+        requireInteraction: true,
       })
       n.onshow = function () {
+        // 30m
         var expires = moment()
           .add(30 * 60, 'seconds')
           .toDate()
         $.cookie('rb.NotificationShow', 1, {
           expires: expires,
         })
+      }
+      n.onclick = function () {
+        location.href = rb.baseUrl + '/notifications'
       }
       n.onclose = function () {}
       n.onerror = function () {}

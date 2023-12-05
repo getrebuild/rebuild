@@ -37,6 +37,8 @@ public class BulkUnshare extends BulkOperator {
 
         // 这里的取消实际是删除了共享表记录
         for (ID id : records) {
+            if (isInterruptState()) break;
+
             int a = ges.unshare(realTarget, id);
             if (a > 0) this.addSucceeded();
 

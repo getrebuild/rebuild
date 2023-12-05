@@ -498,7 +498,7 @@ class DlgImports extends RbModalHandler {
         }
 
         const cp = res.data.progress
-        if (cp >= 1) {
+        if (res.data.isCompleted) {
           RbHighbar.success($L('导入成功'))
           this.__mp.end()
           setTimeout(() => location.reload(), 1500)

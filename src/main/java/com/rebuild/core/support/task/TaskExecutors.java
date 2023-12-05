@@ -10,7 +10,6 @@ package com.rebuild.core.support.task;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -74,14 +73,17 @@ public class TaskExecutors extends DistributedJobLock {
     public static boolean cancel(String taskid) {
         HeavyTask<?> task = TASKS.get(taskid);
         if (task == null) {
-            throw new RebuildException("No Task found : " + taskid);
+            log.warn("No task found : {}", taskid);
+            return false;
         }
-        task.interrupt();
+
+        task.setInterruptState();
 
         boolean interrupted = false;
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 4; i++) {
             ThreadPool.waitFor(i * 500);
-            if (task.isInterrupted()) {
+
+            if (task.isInterruptState()) {
                 interrupted = true;
                 break;
             }
@@ -149,11 +151,11 @@ public class TaskExecutors extends DistributedJobLock {
                 long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
                 if (leftTime > 60 * 120) {
                     TASKS.remove(e.getKey());
-                    log.info("HeavyTask clean up : " + e.getKey());
+                    log.info("HeavyTask clean-up : {}", e.getKey());
                 }
                 completed++;
             }
-            log.info("{} task(s) in the queue. {} are completed (will clean up later)", TASKS.size(), completed);
+            log.info("{} task(s) in the queue. {} are completed (will clean-up later)", TASKS.size(), completed);
         }
         
         Queue<Runnable> queue = ((ThreadPoolExecutor) SINGLE_QUEUE).getQueue();

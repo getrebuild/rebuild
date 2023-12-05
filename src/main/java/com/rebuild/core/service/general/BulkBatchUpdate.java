@@ -46,6 +46,8 @@ public class BulkBatchUpdate extends BulkOperator {
         final ID[] willUpdates = prepareRecords();
         this.setTotal(willUpdates.length);
 
+        if (isInterruptState()) return getSucceeded();
+
         JSONArray updateContents = ((JSONObject) context.getExtraParams().get("customData"))
                 .getJSONArray("updateContents");
 
@@ -73,6 +75,8 @@ public class BulkBatchUpdate extends BulkOperator {
 
         GeneralEntityServiceContextHolder.setRepeatedCheckMode(GeneralEntityServiceContextHolder.RCM_CHECK_ALL);
         for (ID id : willUpdates) {
+            if (isInterruptState()) break;
+
             if (Application.getPrivilegesManager().allowUpdate(context.getOpUser(), id)) {
                 // 更新记录
                 formJson.getJSONObject(JsonRecordCreator.META_FIELD).put("id", id.toLiteral());

@@ -53,10 +53,7 @@ public class SeriesReindexTask extends HeavyTask<Integer> {
 
         setTotal(array.length);
         for (Object[] o : array) {
-            if (this.isInterrupt()) {
-                this.setInterrupted();
-                break;
-            }
+            if (this.isInterruptState()) break;
 
             try {
                 String series = SeriesGeneratorFactory.generate(
