@@ -627,6 +627,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已转审'))
+              typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
             }
@@ -650,6 +651,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已加签'))
+              typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
             }
