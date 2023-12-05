@@ -1186,6 +1186,7 @@ class RbFormNumber extends RbFormText {
 
         // 表单计算
         let _timer
+        const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${this.props.$$$parent.props.entity}&field=${this.props.field}`
         this.props.$$$parent.onFieldValueChange((s) => {
           if (!watchFields.includes(`{${s.name}}`)) {
             if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, this.props.field)
@@ -1194,23 +1195,10 @@ class RbFormNumber extends RbFormText {
             console.log('onFieldValueChange for calcFormula :', s, this.props.field)
           }
 
-          // // fix: 3.2 字段相互使用导致死循环
-          // this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
-          // if (this.__fixUpdateDepth > 9) {
-          //   console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
-          //   setTimeout(() => (this.__fixUpdateDepth = 0), 100)
-          //   return false
-          // }
-
           if ($emptyNum(s.value)) {
             delete calcFormulaValues[s.name]
           } else {
             calcFormulaValues[s.name] = this._removeComma(s.value)
-          }
-
-          let formula = calcFormula
-          for (let key in calcFormulaValues) {
-            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
           }
 
           if (_timer) {
@@ -1218,23 +1206,35 @@ class RbFormNumber extends RbFormText {
             _timer = null
           }
 
-          // v34 延迟执行
+          // v36
           _timer = setTimeout(() => {
-            // 还有变量无值
-            if (formula.includes('{')) {
-              this.setValue(null)
-              return false
-            }
-
-            try {
-              let calcv = null
-              eval(`calcv = ${formula}`)
-              if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-            } catch (err) {
-              if (rb.env === 'dev') console.log(err)
-            }
-            return true
+            $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
+              console.log(res)
+            })
           }, 200)
+
+          // let formula = calcFormula
+          // for (let key in calcFormulaValues) {
+          //   formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
+          // }
+
+          // // v34 延迟执行
+          // _timer = setTimeout(() => {
+          //   // 还有变量无值
+          //   if (formula.includes('{')) {
+          //     this.setValue(null)
+          //     return false
+          //   }
+
+          //   try {
+          //     let calcv = null
+          //     eval(`calcv = ${formula}`)
+          //     if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+          //   } catch (err) {
+          //     if (rb.env === 'dev') console.log(err)
+          //   }
+          //   return true
+          // }, 200)
           // _timer end
         })
       }, 200) // init

@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -32,6 +33,7 @@ import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -194,5 +196,17 @@ public class ModelExtrasController extends BaseController {
             }
         }
         return allowed;
+    }
+
+    @PostMapping("eval-calc-formula")
+    public RespBody evalCalcFormula(@EntityParam Entity entity, HttpServletRequest request) {
+        String fieldName = getParameterNotNull(request, "field");
+        if (!entity.containsField(fieldName)) return RespBody.error();
+
+        JSON data = ServletUtils.getRequestJson(request);
+
+        System.out.println(data.toJSONString());
+
+        return RespBody.ok();
     }
 }
