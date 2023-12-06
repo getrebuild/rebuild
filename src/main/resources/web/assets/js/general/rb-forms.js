@@ -1166,7 +1166,7 @@ class RbFormNumber extends RbFormText {
   componentDidMount() {
     super.componentDidMount()
     // 表单计算
-    if (this.props.calcFormula && !this.props.onView) setTimeout(() => __calcFormula(this), 200)
+    if (this.props.calcFormula && !this.props.onView) __calcFormula(this)
   }
 
   // 移除千分为位
@@ -1428,7 +1428,7 @@ class RbFormDateTime extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     // 表单计算
-    if (this.props.calcFormula && !this.props.onView) setTimeout(() => __calcFormula(this), 200)
+    if (this.props.calcFormula && !this.props.onView) __calcFormula(this)
   }
 }
 
@@ -2939,47 +2939,56 @@ const __addRecentlyUse = function (id) {
 
 // 表单计算（视图下无效）
 const __calcFormula = function (_this) {
-  // init
   const watchFields = _this.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
-  const calcFormulaValues = {}
   const $$$parent = _this.props.$$$parent
-  watchFields.forEach((item) => {
-    const name = item.substr(1, item.length - 2)
-    const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
-    if (fieldComp && !$empty(fieldComp.state.value)) {
-      calcFormulaValues[name] = fieldComp.state.value
-    }
-  })
 
   const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${_this.props.field}`
-  // calc
-  let _timer
-  $$$parent.onFieldValueChange((s) => {
-    if (!watchFields.includes(`{${s.name}}`)) {
-      if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, _this.props.field)
-      return false
-    } else if (rb.env === 'dev') {
-      console.log('onFieldValueChange for calcFormula :', s, _this.props.field)
-    }
+  setTimeout(() => {
+    const calcFormulaValues = {}
+    let _timer
 
-    if ($empty(s.value)) {
-      delete calcFormulaValues[s.name]
-    } else {
-      calcFormulaValues[s.name] = s.value
-    }
+    // init
+    watchFields.forEach((item) => {
+      const name = item.substr(1, item.length - 2)
+      const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
+      if (fieldComp && !$empty(fieldComp.state.value)) {
+        calcFormulaValues[name] = fieldComp.state.value
+      }
+    })
 
-    if (_timer) {
-      clearTimeout(_timer)
-      _timer = null
-    }
+    // onchange
+    $$$parent.onFieldValueChange((s) => {
+      if (!watchFields.includes(`{${s.name}}`)) {
+        if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, _this.props.field)
+        return false
+      } else if (rb.env === 'dev') {
+        console.log('onFieldValueChange for calcFormula :', s, _this.props.field)
+      }
 
-    // v36
-    _timer = setTimeout(() => {
+      if ($empty(s.value)) delete calcFormulaValues[s.name]
+      else calcFormulaValues[s.name] = s.value
+
+      if (_timer) {
+        clearTimeout(_timer)
+        _timer = null
+      }
+
+      // v36
+      _timer = setTimeout(() => {
+        $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
+          if (res.data) _this.setValue(res.data)
+          else _this.setValue(null)
+        })
+      }, 400)
+      return true
+    })
+
+    // 新建时
+    if (_this._isNew) {
       $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
         if (res.data) _this.setValue(res.data)
         else _this.setValue(null)
       })
-    }, 500)
-    return true
-  })
+    }
+  }, 400) // delay for init
 }
