@@ -92,7 +92,7 @@ public class AviatorUtils {
                 throw new AssertFailedException((AssertFunction.AssertFailed) ex);
             }
 
-            log.error("Bad aviator expression : \n{}\n<< {}", expression, env, ex);
+            log.error("Bad aviator expression : \n>> {}\n>> {}\n>> {}", expression, env, ex.getLocalizedMessage());
             if (!quietly) throw ex;
         }
         return null;

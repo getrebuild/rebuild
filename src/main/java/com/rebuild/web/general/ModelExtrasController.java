@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -21,6 +23,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -30,6 +33,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -37,6 +41,7 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +51,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 表单/视图 功能扩展
@@ -208,11 +215,58 @@ public class ModelExtrasController extends BaseController {
         String targetField = getParameterNotNull(request, "field");
         if (!entity.containsField(targetField)) return RespBody.error();
 
-        JSONObject vars = (JSONObject) ServletUtils.getRequestJson(request);
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        Map<String, Object> varsInFormula = post.getInnerMap();
+        for (Object value : varsInFormula.values()) {
+            if (value == null || StringUtils.isBlank(value.toString())) {
+                return RespBody.ok();
+            }
+        }
 
         EasyField easyField = EasyMetaFactory.valueOf(entity.getField(targetField));
         String formula = easyField.getExtraAttr(EasyFieldConfigProps.DATE_CALCFORMULA);
-        Object evalVal = AviatorUtils.eval(formula, vars.getInnerMap(), true);
+
+        boolean canCalc = true;
+        Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
+        for (String field : fieldVars) {
+            if (!entity.containsField(field)) {
+                canCalc = false;
+                break;
+            }
+
+            Object fieldValue = varsInFormula.get(field);
+            if (fieldValue == null) {
+                canCalc = false;
+                break;
+            }
+
+            String fieldValue2 = fieldValue.toString();
+            DisplayType dt = EasyMetaFactory.valueOf(entity.getField(field)).getDisplayType();
+            if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                fieldValue = CalendarUtils.parse(fieldValue2, CalendarUtils.UTC_DATETIME_FORMAT.substring(0, fieldValue2.length()));
+            } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
+                fieldValue = EasyDecimal.clearFlaged(fieldValue2);
+                if (StringUtils.isNotBlank((String) fieldValue)) {
+                    if (dt == DisplayType.NUMBER) fieldValue = ObjectUtils.toLong(fieldValue);
+                    else fieldValue = ObjectUtils.toDouble(fieldValue);
+                } else {
+                    fieldValue = null;
+                }
+            }
+
+            if (fieldValue == null) {
+                canCalc = false;
+                break;
+            }
+            varsInFormula.put(field, fieldValue);
+        }
+        if (!canCalc) return RespBody.ok();
+
+        formula = formula
+                .replace("{", "").replace("}", "")
+                .replace("×", "*").replace("÷", "/");
+
+        Object evalVal = AviatorUtils.eval(formula, varsInFormula, true);
         if (evalVal == null) return RespBody.ok();
 
         DisplayType dt = easyField.getDisplayType();
@@ -228,7 +282,7 @@ public class ModelExtrasController extends BaseController {
             }
         }
 
-        log.warn("Bad eval value : {}", evalVal);
+        log.warn("Bad eval value `{}` for field : {}", evalVal, easyField.getRawMeta());
         return RespBody.ok();
     }
 }
