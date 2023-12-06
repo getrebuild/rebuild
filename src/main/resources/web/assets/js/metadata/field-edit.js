@@ -232,6 +232,7 @@ $(document).ready(function () {
   } else if (dt === 'SERIES') {
     _handleSeries()
   } else if (dt === 'DATE' || dt === 'DATETIME' || dt === 'TIME') {
+    if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
     _handleFile(extConfig.uploadNumber)
@@ -247,8 +248,7 @@ $(document).ready(function () {
   } else if (dt === 'BARCODE') {
     $('.J_fieldAttrs input').attr('disabled', true)
   } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
-    _handleNumber(extConfig.calcFormula)
-
+    _handleCalcFormula(extConfig.calcFormula)
     if (dt === 'DECIMAL') {
       if (!extConfig.decimalType || extConfig.decimalType === 0 || extConfig.decimalType === '0' || extConfig.decimalType === '%') {
         // 数字、百分比
@@ -580,7 +580,7 @@ const _loadRefsLabel = function ($dv, $dvClear) {
 }
 
 let FIELDS_CACHE
-const _handleNumber = function (calcFormula) {
+const _handleCalcFormula = function (formula) {
   const $el = $('#calcFormula2')
   function _call(s) {
     $('#calcFormula').val(s || '')
@@ -591,13 +591,13 @@ const _handleNumber = function (calcFormula) {
     $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
       const fs = []
       res.data.forEach((item) => {
-        if ((item.type === 'NUMBER' || item.type === 'DECIMAL') && item.name !== wpc.fieldName) {
+        if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type) && !['approvalLastTime', 'modifiedOn'].includes(item.name) && item.name !== wpc.fieldName) {
           fs.push(item)
         }
       })
 
       FIELDS_CACHE = fs
-      if (calcFormula) _call(calcFormula)
+      if (formula) _call(formula)
     })
   }
 

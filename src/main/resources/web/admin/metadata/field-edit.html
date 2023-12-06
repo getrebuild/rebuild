@@ -83,7 +83,7 @@
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0 mr-1">
                         <input class="custom-control-input" type="radio" name="decimalType" value="¥" />
-                        <span class="custom-control-label">[[${bundle.L('货币')}]]</span>
+                        <span class="custom-control-label">[[${bundle.L('符号')}]]</span>
                       </label>
                       <span>
                         <select class="underline-sm J_decimalTypeFlag">
@@ -359,14 +359,17 @@
                     </div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
+                <div
+                  th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER' or fieldType == 'DATE' or fieldType == 'DATETIME'}"
+                  class="form-group row J_for-DECIMAL J_for-NUMBER J_for-DATE J_for-DATETIME"
+                >
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('表单计算公式')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="hidden" class="form-control" id="calcFormula" />
                     <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
                     <p
                       class="form-text"
-                      th:utext="${bundle.L('本公式仅做前端计算，如公式中所用字段未布局/未显示，则无法进行计算。你也可以通过 [触发器 (字段更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
+                      th:utext="${bundle.L('如公式中所用字段未布局/未显示，则无法进行计算。本公式适用前端简单计算，你可以通过 [触发器 (字段更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
                     ></p>
                   </div>
                 </div>

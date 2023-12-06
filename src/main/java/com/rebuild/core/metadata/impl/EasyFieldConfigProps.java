@@ -49,11 +49,19 @@ public class EasyFieldConfigProps {
      * 日期格式
      */
     public static final String DATE_FORMAT = "dateFormat";
+    /**
+     * 表单公式
+     */
+    public static final String DATE_CALCFORMULA = NUMBER_CALCFORMULA;
 
     /**
      * 日期格式
      */
     public static final String DATETIME_FORMAT = "datetimeFormat";
+    /**
+     * 表单公式
+     */
+    public static final String DATETIME_CALCFORMULA = NUMBER_CALCFORMULA;
 
     /**
      * 时间格式
