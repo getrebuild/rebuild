@@ -232,6 +232,7 @@ $(document).ready(function () {
   } else if (dt === 'SERIES') {
     _handleSeries()
   } else if (dt === 'DATE' || dt === 'DATETIME' || dt === 'TIME') {
+    // 暂不支持 TIME
     if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
