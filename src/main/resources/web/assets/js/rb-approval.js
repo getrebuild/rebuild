@@ -517,6 +517,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
+            delete item.referenceQuickNew // v35
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}
