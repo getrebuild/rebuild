@@ -336,6 +336,12 @@
                     </div>
                   </div>
                 </div>
+                <div th:if="${fieldType == 'ANYREFERENCE'}" class="form-group row J_for-ANYREFERENCE">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('引用实体')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="anyreferenceEntities" multiple></select>
+                  </div>
+                </div>
                 <div th:if="${!fieldBuildin}" class="form-group row" id="defaultValue">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('默认值')}]]</label>
                   <div th:switch="${fieldType}" class="col-md-12 col-xl-6 col-lg-8">
