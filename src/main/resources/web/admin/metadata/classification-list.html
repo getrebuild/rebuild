@@ -4,6 +4,11 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/field-classification#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE" />
     <title>[[${bundle.L('分类数据')}]]</title>
+    <style>
+      .modal.rbmodal .modal-dialog .modal-body {
+        min-height: auto;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">

@@ -18,8 +18,6 @@ import com.googlecode.aviator.runtime.type.AviatorString;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.utils.CommonsUtils;
-import com.rebuild.web.commons.MetadataGetting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +62,9 @@ public class TextFunction extends AbstractFunction {
         final Object $defaultValue = arg2.getValue(env);
         final String sep = ObjectUtils.defaultIfNull(arg3.getValue(env), ", ").toString();
         final String fieldName = arg4.getValue(env) == null ? null : arg4.getValue(env).toString();
+
+        // No value
+        if ($id == null) return arg2;
 
         // 引用 ID
         if (ID.isId($id)) {
