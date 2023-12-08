@@ -181,7 +181,6 @@ code {
 
 .text-disabled {
   color: #aaa !important;
-  font-style: italic;
   cursor: default;
 }
 
@@ -2264,11 +2263,6 @@ th.column-fixed {
   display: block;
   padding: 8px 10px;
   color: #444;
-}
-
-.aside-tree li > a.text-disabled {
-  color: #aaa;
-  cursor: default;
 }
 
 .aside-tree > ul > li > a {
