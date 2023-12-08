@@ -248,7 +248,9 @@ public class EntityHelper {
      * @see #newUnsavedId(int)
      */
     public static boolean isUnsavedId(Object id) {
-        return ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
+        boolean s = ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
+        if (!s) return false;
+        return !UserService.SYSTEM_USER.equals(id);
     }
     
     // 公共字段/保留字段

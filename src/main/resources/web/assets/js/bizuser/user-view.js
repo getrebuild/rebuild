@@ -91,8 +91,16 @@ $(document).ready(function () {
       }
 
       if (res.data.system === true) {
-        $('.view-action').remove()
-        $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用'))
+        // v35
+        if (userId === '001-0000000000000000') {
+          $('.view-action').remove()
+        } else {
+          $('.J_mores .dropdown-menu>*').each(function () {
+            if (!$(this).hasClass('J_resetpwd')) $(this).remove()
+          })
+        }
+
+        $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员。此用户拥有最高级系统权限，请谨慎使用'))
         return
       }
 

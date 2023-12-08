@@ -118,11 +118,11 @@ public class UserService extends BaseService {
 
     @Override
     public int delete(ID recordId) {
-        checkAdminGuard(BizzPermission.DELETE, null);
-
         if (ADMIN_USER.equals(recordId) || SYSTEM_USER.equals(recordId)) {
             throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
+
+        checkAdminGuard(BizzPermission.DELETE, null);
 
         if (checkHasUsed(recordId)) {
             throw new OperationDeniedException(Language.L("已使用过的用户禁止删除"));
