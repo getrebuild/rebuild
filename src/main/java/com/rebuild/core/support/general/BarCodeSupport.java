@@ -146,13 +146,13 @@ public class BarCodeSupport {
     protected static BitMatrix createBarCodeImage(String content, BarcodeFormat format, int width, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, AppUtils.UTF8);
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);  // 高级别导致空白边框???
-        hints.put(EncodeHintType.MARGIN, 0);
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+        hints.put(EncodeHintType.MARGIN, 1);
 
         try {
             if (format == BarcodeFormat.QR_CODE) {
                 width = height = Math.max(width, height);
-                if (width <= 0) width = height = 80;
+                if (width <= 0) width = height = 120;
 
             } else {
                 final int base = 64;
