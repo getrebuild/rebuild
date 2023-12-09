@@ -384,17 +384,7 @@ class DlgSpecFields extends RbModalHandler {
     return (
       <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide width="780">
         <div className="p-1">
-          <div className="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm">
-            <div className="icon">
-              <span className="zmdi zmdi-info-outline" />
-            </div>
-            <div className="message">
-              <a className="close" data-dismiss="alert">
-                <span className="zmdi zmdi-close" />
-              </a>
-              <p>{$L('指定字段被更新时触发，默认为全部字段')}</p>
-            </div>
-          </div>
+          <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
 
           <div className="row " ref={(c) => (this._fields = c)}>
             {(this.state.fields || []).map((item) => {
