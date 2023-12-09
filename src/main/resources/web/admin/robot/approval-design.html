@@ -18,7 +18,11 @@
       <div class="rb-content">
         <div class="page-head">
           <div class="float-left">
-            <div class="page-head-title">[[${bundle.L('审批流程')}]]<span class="sub-title">[[${name}]]</span></div>
+            <div class="page-head-title">
+              [[${bundle.L('审批流程')}]]
+              <span class="sub-title">[[${name}]]</span>
+              <span th:if="${isDisabled}" class="badge badge-grey badge-pill up-1 ml-1">[[${bundle.L('未启用')}]]</span>
+            </div>
           </div>
           <div class="float-right pt-1">
             <div class="btn-group">

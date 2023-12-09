@@ -56,7 +56,7 @@ public class ApprovalAdminController extends BaseController {
     public ModelAndView page(@PathVariable String id, HttpServletResponse response) throws IOException {
         ID configId = ID.valueOf(id);
         Object[] config = Application.createQuery(
-                "select belongEntity,name,flowDefinition from RobotApprovalConfig where configId = ?")
+                "select belongEntity,name,flowDefinition,isDisabled from RobotApprovalConfig where configId = ?")
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
@@ -71,6 +71,7 @@ public class ApprovalAdminController extends BaseController {
         mv.getModel().put("name", config[1]);
         mv.getModel().put("applyEntity", applyEntity.getName());
         mv.getModel().put("flowDefinition", config[2]);
+        mv.getModel().put("isDisabled", config[3]);
         return mv;
     }
 

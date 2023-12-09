@@ -62,16 +62,14 @@ public class UserController extends EntityController {
     }
 
     @RequestMapping("check-user-status")
-    public RespBody checkUserStatus(@IdParam ID userId) {
-        if (!Application.getUserStore().existsUser(userId)) {
-            return RespBody.error();
-        }
+    public RespBody checkUserStatus(@IdParam ID uid) {
+        if (!Application.getUserStore().existsUser(uid)) return RespBody.error();
 
-        User checkedUser = Application.getUserStore().getUser(userId);
+        final User checkedUser = Application.getUserStore().getUser(uid);
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("active", checkedUser.isActive());
-        ret.put("system", "system".equals(checkedUser.getName()) || "admin".equals(checkedUser.getName()));
+        ret.put("system", uid.equals(UserService.ADMIN_USER) || uid.equals(UserService.SYSTEM_USER));
         ret.put("disabled", checkedUser.isDisabled());
 
         if (checkedUser.getOwningRole() != null) {
@@ -79,7 +77,7 @@ public class UserController extends EntityController {
             ret.put("roleDisabled", checkedUser.getOwningRole().isDisabled());
 
             // 附加角色
-            ret.put("roleAppends", UserHelper.getRoleAppends(userId));
+            ret.put("roleAppends", UserHelper.getRoleAppends(uid));
         }
 
         if (checkedUser.getOwningDept() != null) {
@@ -89,7 +87,7 @@ public class UserController extends EntityController {
 
         Object[] lastLogin = Application.createQueryNoFilter(
                 "select loginTime,ipAddr from LoginLog where user = ? order by loginTime desc")
-                .setParameter(1, userId)
+                .setParameter(1, uid)
                 .unique();
         if (lastLogin != null) {
             ret.put("lastLogin",

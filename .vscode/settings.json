@@ -2,7 +2,7 @@
   "editor.fontSize": 12,
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "eslint.codeAction.showDocumentation": {
     "enable": true
@@ -15,12 +15,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
-  "LineCount.excludes": [
-    "**/.vscode/**",
-    "**/.idea/**",
-    "**/node_modules/**",
-    "**/target/**",
-    "**/assets/lib/**"
-  ],
+  "LineCount.excludes": ["**/.vscode/**", "**/.idea/**", "**/node_modules/**", "**/target/**", "**/assets/lib/**"],
   "editor.formatOnSave": true
 }

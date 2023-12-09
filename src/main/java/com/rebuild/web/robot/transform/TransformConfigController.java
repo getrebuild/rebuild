@@ -92,6 +92,7 @@ public class TransformConfigController extends BaseController {
         }
 
         mv.getModelMap().put("name", config.getString("name"));
+        mv.getModelMap().put("isDisabled", config.getBoolean("disabled"));
 
         // v3.1 明细导入
         if (targetEntity.getMainEntity() != null) {
