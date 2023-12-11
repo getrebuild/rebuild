@@ -92,12 +92,12 @@ $(document).ready(function () {
 
     const extConfigNew = { ...extConfig, ...__gExtConfig }
 
-    // 不同类型的配置
+    // 不同类型的扩展配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
       if (k) extConfigNew[k] = $val(this)
     })
-    // 单选型
+    // 单选类型
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
       const k = $(this).attr('name')
       if (k) extConfigNew[k] = $val(this)
@@ -232,6 +232,7 @@ $(document).ready(function () {
   } else if (dt === 'SERIES') {
     _handleSeries()
   } else if (dt === 'DATE' || dt === 'DATETIME' || dt === 'TIME') {
+    // 暂不支持 TIME
     if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
@@ -263,6 +264,8 @@ $(document).ready(function () {
     }
   } else if (dt === 'TAG') {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
+  } else if (dt === 'ANYREFERENCE') {
+    _handleAnyReference(extConfig.anyreferenceEntities)
   }
 
   // 只读属性
@@ -712,4 +715,20 @@ class TagEditor extends RbAlert {
     const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
     ok && this.hide()
   }
+}
+
+const _handleAnyReference = function (es) {
+  $.get('/commons/metadata/entities?bizz=true&detail=true', (res) => {
+    res.data &&
+      res.data.forEach((item) => {
+        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#anyreferenceEntities')
+      })
+
+    const $s2 = $('#anyreferenceEntities').select2({
+      placeholder: $L('不限'),
+      tag: true,
+    })
+    // init
+    if (es) $s2.val(es.split(',')).trigger('change')
+  })
 }

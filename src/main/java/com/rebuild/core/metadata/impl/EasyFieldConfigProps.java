@@ -16,6 +16,25 @@ package com.rebuild.core.metadata.impl;
 public class EasyFieldConfigProps {
 
     /**
+     * 信息脱敏
+     */
+    public static final String ADV_DESENSITIZED = "advDesensitized";
+
+    /**
+     * 正则表达式
+     */
+    public static final String ADV_PATTERN = "advPattern";
+
+    /**
+     * 扫码
+     */
+    public static final String TEXT_SCANCODE = "textScanCode";
+    /**
+     * 常用值
+     */
+    public static final String TEXT_COMMON = "textCommon";
+
+    /**
      * 是否允许负数
      */
     public static final String NUMBER_NOTNEGATIVE = "notNegative";
@@ -123,6 +142,10 @@ public class EasyFieldConfigProps {
      * 快速新建
      */
     public static final String REFERENCE_QUICKNEW = "referenceQuickNew";
+    /**
+     * 引用字段扫码
+     */
+    public static final String REFERENCE_SCANCODE = TEXT_SCANCODE;
 
     /**
      * @see #REFERENCE_DATAFILTER
@@ -138,20 +161,14 @@ public class EasyFieldConfigProps {
     public static final String N2NREFERENCE_QUICKNEW = REFERENCE_QUICKNEW;
 
     /**
+     * 任意引用字段可引用实体
+     */
+    public static final String ANYREFERENCE_ENTITIES = "anyreferenceEntities";
+
+    /**
      * 多行文本使用 MD 编辑器
      */
     public static final String NTEXT_USEMDEDIT = "useMdedit";
-
-    /**
-     * 信息脱敏
-     */
-
-    public static final String ADV_DESENSITIZED = "advDesensitized";
-
-    /**
-     * 正则表达式
-     */
-    public static final String ADV_PATTERN = "advPattern";
 
     /**
      * 视图直接显示地图
@@ -163,15 +180,6 @@ public class EasyFieldConfigProps {
     public static final String LOCATION_AUTOLOCATION = "locationAutoLocation";
 
     /**
-     * 扫码
-     */
-    public static final String TEXT_SCANCODE = "textScanCode";
-    /**
-     * 常用值
-     */
-    public static final String TEXT_COMMON = "textCommon";
-
-    /**
      * 标签列表
      */
     public static final String TAG_LIST = "tagList";
@@ -180,8 +188,4 @@ public class EasyFieldConfigProps {
      */
     public static final String TAG_MAXSELECT = "tagMaxSelect";
 
-    /**
-     * 引用字段扫码
-     */
-    public static final String REFERENCE_SCANCODE = TEXT_SCANCODE;
 }

@@ -150,11 +150,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                 field.addAttribute("decimal-scale", "8");
             }
 
-            if (dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.N2NREFERENCE
-                    || dt == DisplayType.REFERENCE
-                    || dt == DisplayType.PICKLIST
-                    || dt == DisplayType.CLASSIFICATION) {
+            if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
                 field.addAttribute("ref-entity", (String) c[10])
                         .addAttribute("cascade", (String) c[11]);
             }
@@ -187,6 +184,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                 cascadingFieldsChild.add(entityName + SPLITER + fs[0] + SPLITER + fieldName + SPLITER + fs[1]);
             }
 
+            String anyRefEs = extraAttrs.getString(EasyFieldConfigProps.ANYREFERENCE_ENTITIES);
+            if (StringUtils.isNotBlank(anyRefEs)) {
+                field.addAttribute("ref-entity", anyRefEs);
+            }
+            
             field.addAttribute("extra-attrs", extraAttrs.toJSONString());
         }
 
