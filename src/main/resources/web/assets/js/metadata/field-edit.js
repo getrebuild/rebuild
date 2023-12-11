@@ -511,7 +511,7 @@ const _handleReference = function (isN2N) {
     } else {
       const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} />, function () {
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} useWhite />, function () {
         _ReferenceSearcher = this
       })
     }
