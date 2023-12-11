@@ -13,6 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -68,7 +70,13 @@ public class AutoApproval extends TriggerAction implements LazyWaitDetailsFinish
             return FLAG_LAZY;
         }
 
-        ID recordId = operatingContext.getFixedRecordId();
+        final ID recordId = operatingContext.getFixedRecordId();
+
+        ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
+        if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
+            return TriggerResult.wran("Ignored state");
+        }
+
         String useApproval = ((JSONObject) actionContext.getActionContent()).getString("useApproval");
 
         // 优先使用当前用户

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -219,7 +220,11 @@ public class EntityHelper {
                 r.setID(EntityHelper.OwningUser, r.getEditor());
             }
             if (entity.containsField(EntityHelper.OwningDept)) {
-                com.rebuild.core.privileges.bizz.User user = Application.getUserStore().getUser(r.getEditor());
+                com.rebuild.core.privileges.bizz.User user = r.getEditor() == null
+                        ? null : Application.getUserStore().getUser(r.getEditor());
+                if (user == null || user.getOwningDept() == null) {
+                    throw new PrivilegesException("Bad member! No dept found in user : " + r.getEditor());
+                }
                 r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
             }
         }
@@ -243,7 +248,9 @@ public class EntityHelper {
      * @see #newUnsavedId(int)
      */
     public static boolean isUnsavedId(Object id) {
-        return ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
+        boolean s = ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
+        if (!s) return false;
+        return !UserService.SYSTEM_USER.equals(id);
     }
     
     // 公共字段/保留字段

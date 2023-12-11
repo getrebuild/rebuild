@@ -668,9 +668,7 @@ class BatchApprove extends BatchOperator {
           <label className="text-bold">{$L('批注')}</label>
           <textarea className="form-control form-control-sm row2x" name="approveRemark" placeholder={$L('输入批注 (可选)')} maxLength="600" onChange={this.handleChange} />
         </div>
-        <div className="alert-mb-0">
-          <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} />
-        </div>
+        <RbAlertBox message={$L('仅处于待你审批，且允许批量审批的记录才能审批成功')} className="mb-0" />
       </div>
     )
   }

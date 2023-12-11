@@ -517,6 +517,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         <LiteForm entity={this.props.entity} id={this.props.id} rawModel={{}} $$$parent={fake} ref={(c) => (this._LiteForm = c)}>
           {this.state.aform.map((item) => {
             item.isFull = true
+            delete item.referenceQuickNew // v35
             // eslint-disable-next-line no-undef
             return detectElement(item)
           })}
@@ -627,6 +628,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已转审'))
+              typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
             }
@@ -650,6 +652,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             if (res.error_code === 0) {
               _alert.hide()
               _reload(this, $L('已加签'))
+              typeof this.props.call === 'function' && this.props.call()
             } else {
               RbHighbar.error(res.error_msg)
             }

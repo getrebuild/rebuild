@@ -91,6 +91,10 @@ public class DepartmentService extends BaseService {
      * @param transferTo
      */
     public void deleteAndTransfer(ID deptId, ID transferTo) {
+        if (ROOT_DEPT.equals(deptId)) {
+            throw new OperationDeniedException(Language.L("内置部门禁止删除"));
+        }
+        
         checkAdminGuard(BizzPermission.DELETE, null);
 
         Department dept = Application.getUserStore().getDepartment(deptId);

@@ -85,6 +85,7 @@ class DlgEdit extends RbFormHandler {
   }
 
   render() {
+    // v35 取消禁用设置
     return (
       <RbModal title={this.props.id ? $L('修改分类数据') : $L('添加分类数据')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
@@ -94,7 +95,7 @@ class DlgEdit extends RbFormHandler {
               <input className="form-control form-control-sm" value={this.state.name || ''} data-id="name" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
-          {this.props.id && (
+          {this.props.id && this.state.isDisabled === true && (
             <div className="form-group row">
               <div className="col-sm-7 offset-sm-3">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">

@@ -278,7 +278,7 @@ class AccountSelectorWithField extends UserSelector {
 LastLogsViewer.renderLog = function (log) {
   return log.level === 1 && log.message ? (
     <dl className="m-0">
-      <dt>{$L('已发送给')}</dt>
+      <dt>{$L('已发送至')}</dt>
       <dd className="mb-0">
         {log.message.split(',').map((a, idx) => {
           return $regex.isId(a) ? (
@@ -286,7 +286,7 @@ LastLogsViewer.renderLog = function (log) {
               {a}
             </a>
           ) : (
-            <span key={idx} className="badge text-id">
+            <span key={idx} className="badge text-id text-break">
               {a}
             </span>
           )

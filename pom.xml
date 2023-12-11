@@ -13,6 +13,7 @@
     <version>3.6.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
+    <url>https://getrebuild.com/</url>
     <!-- UNCOMMENT USE TOMCAT -->
     <!-- <packaging>war</packaging> -->
 
@@ -290,7 +291,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.6</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>

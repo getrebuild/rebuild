@@ -446,12 +446,12 @@ class RbAlertBox extends React.Component {
     if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
 
     return (
-      <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`} ref={(c) => (this._element = c)}>
+      <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type} ${props.className || ''}`} ref={(c) => (this._element = c)}>
         <div className="icon">
           <i className={`zmdi zmdi-${icon}`} />
         </div>
         <div className="message">
-          <a className="close" onClick={() => this._handleClose()} title={$L('关闭')}>
+          <a className="close" onClick={() => this._handleClose()} title={$L('关闭')} data-dismiss="alert">
             <i className="zmdi zmdi-close" />
           </a>
           <div>{props.message || 'INMESSAGE'}</div>
@@ -461,7 +461,7 @@ class RbAlertBox extends React.Component {
   }
 
   _handleClose() {
-    $unmount($(this._element).parent(), 10, true)
+    // $unmount($(this._element).parent(), 10, true)
     typeof this.props.onClose === 'function' && this.props.onClose()
   }
 }
