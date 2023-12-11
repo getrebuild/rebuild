@@ -725,7 +725,7 @@ const _handleAnyReference = function (es) {
       })
 
     const $s2 = $('#anyreferenceEntities').select2({
-      placeholder: $L('无限制'),
+      placeholder: $L('不限'),
       tag: true,
     })
     // init
