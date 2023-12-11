@@ -533,7 +533,7 @@ class RbForm extends React.Component {
     // v3.2 默认收起
     this._dividerRefs.forEach((d) => {
       // eslint-disable-next-line react/no-string-refs
-      this.refs[d].toggle()
+      this.refs[d]._toggle()
     })
 
     setTimeout(() => RbForm.renderAfter(this), 0)
