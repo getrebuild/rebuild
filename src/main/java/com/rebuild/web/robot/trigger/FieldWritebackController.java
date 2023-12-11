@@ -173,6 +173,8 @@ public class FieldWritebackController extends BaseController {
             if (ex instanceof AssertFailedException) return RespBody.ok();
 
             String errMsg = ex.getLocalizedMessage();
+            if (errMsg == null) errMsg = "UNABLE TO EVALUATE";
+
             log.warn("Verify formula error : {} >> {} >> {}", sourceEntity, formula, errMsg);
             return RespBody.error(errMsg);
         }
