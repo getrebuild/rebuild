@@ -727,13 +727,13 @@ var $createUploader = function (input, next, complete, error) {
 var $initUploader = $createUploader
 
 /**
- * 卸载 React 组件
+ * 卸载 React 组件（顶级组件才能卸载）
  */
 var $unmount = function (container, delay, keepContainer) {
   if (!container) return
   var $c = $(container)
   setTimeout(function () {
-    ReactDOM.unmountComponentAtNode($c[0])
+    ReactDOM.unmountComponentAtNode($c[0]) // return is unmounted
     if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
   }, delay || 1000)
 }

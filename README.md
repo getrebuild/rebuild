@@ -7,9 +7,9 @@
 
 ## 项目特色
 
-**_REBUILD 通过创新的业务流程引擎帮助你快速搭建各类企业管理系统，全图形化配置无需了解技术。_**
+**_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
 
-REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模板，通过 REBUILD 可以真正实现零代码快速搭建！无需编程、无需编译代码，甚至无需了解任何技术。
+「开放式设计」是 REBUILD 的重要设计理念。得益于研发团队成熟的 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理。全图形化系统设计搭建，所见即所得。
 
 更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
 
@@ -89,7 +89,7 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 
 ## 授权 License
 
-REBUILD 使用 GPL-3.0 开源许可和商业授权双重授权协议，使用将被视为你自愿承诺接受 [协议](https://getrebuild.com/legal/service-terms) 之所有条款。
+REBUILD 使用 GPL-3.0 开源许可和商业授权双重授权协议，使用将被视为你自愿承诺接受 [用户服务协议](https://getrebuild.com/legal/service-terms) 之所有条款。
 
 REBUILD uses the GPL-3.0 open source license and commercial license dual license agreement. Use will be deemed your voluntary commitment to accept all terms of the [Agreement](https://getrebuild.com/legal/service-terms).
 
