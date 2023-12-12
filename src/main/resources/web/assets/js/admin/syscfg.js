@@ -23,13 +23,7 @@ $(document).ready(() => {
     post(__data)
   })
 
-  if (window.ClipboardJS) {
-    $('a[data-clipboard-text]').each(function () {
-      const $copy = $(this).on('mouseenter', () => $(this).removeClass('copied-check'))
-      // eslint-disable-next-line no-undef
-      new ClipboardJS(this).on('success', () => $copy.addClass('copied-check'))
-    })
-  }
+  $('a[data-clipboard-text]').each((idx, item) => $clipboard($(item)))
 })
 
 const __data = {}

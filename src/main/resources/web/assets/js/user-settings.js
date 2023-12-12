@@ -334,7 +334,7 @@ class DlgTempAuth extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
@@ -346,26 +346,19 @@ class DlgTempAuth extends RbModalHandler {
   }
 
   componentDidMount() {
-    const that = this
-    const initCopy = function () {
-      // eslint-disable-next-line no-undef
-      new ClipboardJS(that._$copy, {
-        text: function () {
-          return that.state.tempUrl
-        },
-      }).on('success', () => $(that._$copy).addClass('copied-check'))
-      $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
-    }
-
-    if (window.ClipboardJS) {
-      initCopy()
-    } else {
-      // eslint-disable-next-line no-undef
-      $getScript('/assets/lib/clipboard.min.js', initCopy)
-    }
-
     $.post('/settings/user/temp-auth', (res) => {
       this.setState({ tempUrl: res.data || 'ERROR' })
+
+      // copy
+      const that = this
+      const initCopy = function () {
+        $clipboard($(that._$copy), that.state.tempUrl)
+      }
+      if (window.ClipboardJS) {
+        initCopy()
+      } else {
+        $getScript('/assets/lib/clipboard.min.js', initCopy)
+      }
     })
   }
 }

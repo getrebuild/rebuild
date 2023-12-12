@@ -129,5 +129,7 @@ module.exports = {
     $escapeHtml: true,
     $isLight: true,
     RbGritter: true,
+    $clipboard: true,
+    $getScript: true,
   },
 }

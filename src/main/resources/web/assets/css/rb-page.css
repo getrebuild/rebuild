@@ -5393,3 +5393,7 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .dataTables_oper.invisible2 > .btn.J_view {
   display: inline-block;
 }
+
+.tooltip {
+  z-index: 1100;
+}
