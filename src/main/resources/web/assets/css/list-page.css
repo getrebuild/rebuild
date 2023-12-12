@@ -122,12 +122,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   left: 0;
   width: 100%;
   border-bottom: 1px solid #e6e6e6;
-  height: 43px;
+  height: 44px;
 }
 
 .quick-filter-tabs > div {
   font-size: 0;
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 .quick-filter-tabs > div .dropdown-item {
@@ -157,12 +157,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .page-aside.widgets .nav.nav-tabs {
-  min-height: 43px;
-  border-width: 1px;
-}
-
-.page-aside.widgets .nav.nav-tabs > li.nav-item {
-  margin-top: -1px;
+  min-height: 44px;
 }
 
 .page-aside.widgets .nav.nav-tabs > li.nav-item > .nav-link {
@@ -173,5 +168,5 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .quick-filter-tabs + .quick-filter-pane,
 .quick-filter-tabs + .card-table,
 .quick-filter-tabs + .nav-tabs {
-  margin-top: 43px;
+  margin-top: 44px;
 }

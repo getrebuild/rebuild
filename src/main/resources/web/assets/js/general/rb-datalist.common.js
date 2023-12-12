@@ -1005,7 +1005,7 @@ class RbList extends React.Component {
         let mh = $(window).height() - (61 + 20 + 61 + 60 + 2) /* Nav, MarginTop20, TableHeader, TableFooter */
         if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
         if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
-        if ($('.main-content .quick-filter-tabs')[0]) mh -= 43 // Has query-tabs
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // Has query-tabs
 
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
