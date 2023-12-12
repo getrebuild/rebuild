@@ -3711,7 +3711,6 @@ form {
 }
 
 .page-aside.widgets .tab-container {
-  margin-top: 2px;
   min-width: 279px;
   overflow: hidden;
 }
@@ -3806,6 +3805,7 @@ form {
 #asideFilters .dropdown-item.active,
 #asideCategory .dropdown-item.active {
   background-color: #4285f4;
+  background-color: var(--rb-theme-color);
   color: #fff;
 }
 

@@ -116,22 +116,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-tabs {
   background-color: #fff;
-  padding: 0 18px;
-  margin-bottom: 12px;
-  border-radius: 2px;
+  padding: 0 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid #e6e6e6;
+  height: 43px;
 }
 
 .quick-filter-tabs > div {
   font-size: 0;
+  margin-top: 5px;
 }
 
 .quick-filter-tabs > div .dropdown-item {
   display: inline-block;
   width: auto;
   line-height: 1;
-  padding: 15px 18px;
+  padding: 9px 20px;
   font-size: 1rem;
   cursor: pointer;
+  border-radius: 6px !important;
+  min-width: 60px;
+  text-align: center;
 }
 
 .quick-filter-tabs > div .dropdown-item:active {
@@ -146,4 +154,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .quick-filter-tabs > div .dropdown-item.active:active {
   color: #fff;
+}
+
+.page-aside.widgets .nav.nav-tabs {
+  min-height: 43px;
+  border-width: 1px;
+}
+
+.page-aside.widgets .nav.nav-tabs > li.nav-item {
+  margin-top: -1px;
+}
+
+.page-aside.widgets .nav.nav-tabs > li.nav-item > .nav-link {
+  padding-top: 12px;
+  padding-bottom: 10px;
+}
+
+.quick-filter-tabs + .quick-filter-pane,
+.quick-filter-tabs + .card-table,
+.quick-filter-tabs + .nav-tabs {
+  margin-top: 43px;
 }

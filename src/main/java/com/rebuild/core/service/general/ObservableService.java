@@ -100,6 +100,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         if (countObservers() > 0) {
             deleted = EntityHelper.forUpdate(recordId, currentUser, Boolean.FALSE);
             deleted = recordSnap(deleted, true);
+            if (deleted == null) return 0;
 
             // 删除前触发，做一些状态保持
             setChanged();

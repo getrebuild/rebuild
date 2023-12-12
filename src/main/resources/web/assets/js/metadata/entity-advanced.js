@@ -183,7 +183,7 @@ class DlgMode1Option extends RbFormHandler {
                     <label htmlFor="advListFilterTabs" />
                   </span>
                 </div>
-                <span className="ml-2 down-5 d-inline-block">{$L('常用查询')}</span>
+                <span className="ml-2 down-5 d-inline-block">{$L('列表视图')}</span>
               </div>
               <div>
                 <div className="switch-button switch-button-xs">
