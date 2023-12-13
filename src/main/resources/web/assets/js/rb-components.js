@@ -30,7 +30,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={`modal-dialog ${props.useWhite && 'modal-xl'}`} style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''}`} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}

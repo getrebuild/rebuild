@@ -70,6 +70,33 @@
       .new-entity .card.entity .card-body .ml-7 .text-muted {
         display: none;
       }
+      .entity-new2 .dialog-footer {
+        margin: 15px -35px 10px;
+        padding-top: 25px;
+      }
+
+      .entity-new2 .init-models {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+      .table.table-excel th,
+      .table.table-excel td {
+        padding: 3px;
+        border-width: 1px;
+        color: #222;
+        max-width: 200px;
+      }
+      .table.table-excel th {
+        text-align: center;
+        background-color: #dee2e6;
+        color: #444;
+      }
+      .table.table-excel .form-control {
+        width: 100%;
+        min-width: 150px;
+        padding: 5px;
+        height: auto !important;
+      }
     </style>
   </head>
   <body>
@@ -113,6 +140,9 @@
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
       }
     </script>
+    <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/entity-new2.js}" type="text/babel"></script>
     <script type="text/babel">
       $(document).ready(function () {
         const NO_TAG = '__'
@@ -138,6 +168,7 @@
             if (!this.builtin) render_entity(this)
           })
 
+          let _EntityNew2
           const $new = render_entity({
             icon: 'plus',
             entityLabel: $L('添加实体'),
@@ -147,8 +178,19 @@
             .find('a.card')
             .attr('href', 'javascript:;')
             .click(function () {
-              if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $L('添加实体'))
-              else RbHighbar.error('仅超级管理员可添加实体')
+              if (window.__PageConfig.isSuperAdmin) {
+                // RbModal.create('/p/admin/metadata/entity-new', $L('添加实体'))
+
+                if (_EntityNew2) {
+                  _EntityNew2.show()
+                } else {
+                  renderRbcomp(<EntityNew2 />, null, function () {
+                    _EntityNew2 = this
+                  })
+                }
+              } else {
+                RbHighbar.error('仅超级管理员可添加实体')
+              }
             })
 
           delete groups[NO_TAG]

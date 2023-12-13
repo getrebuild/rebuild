@@ -165,80 +165,82 @@ class AppLogsViewer extends RbModal {
 
     const dataShow = this.state.dataShow
     return (
-      <div className="logs">
-        <div className="row">
-          <div className="col-3 logs-list">
-            <div className="search-logs position-relative">
-              <input
-                type="text"
-                placeholder={$L('搜索')}
-                onKeyDown={(e) => {
-                  if (e.keyCode === 13) {
-                    this._loadNext(true, e.target.value)
-                  }
-                }}
-                maxLength="40"
-              />
-            </div>
-            <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>
-              {this.state.dataLogs.map((item) => {
-                const respOk = this._isRespOk(item[5])
-                return (
-                  <a
-                    key={item[6]}
-                    className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${dataShow && dataShow[6] === item[6] && 'active'}`}
-                    onClick={() => {
-                      this.setState({ dataShow: item })
-                    }}>
-                    <div>
-                      {item[3].split('?')[0]}
-                      <br />
-                      <span className="text-muted fs-12">{item[1].split('UTC')[0]}</span>
-                    </div>
-                    <span className={`badge badge-${respOk ? 'success' : 'danger'} badge-pill`}>{respOk ? $L('成功') : $L('失败')}</span>
+      <div className="modal-body m-0 p-0">
+        <div className="logs">
+          <div className="row">
+            <div className="col-3 logs-list">
+              <div className="search-logs position-relative">
+                <input
+                  type="text"
+                  placeholder={$L('搜索')}
+                  onKeyDown={(e) => {
+                    if (e.keyCode === 13) {
+                      this._loadNext(true, e.target.value)
+                    }
+                  }}
+                  maxLength="40"
+                />
+              </div>
+              <div className="list-group list-group-flush" ref={(c) => (this._$list = c)}>
+                {this.state.dataLogs.map((item) => {
+                  const respOk = this._isRespOk(item[5])
+                  return (
+                    <a
+                      key={item[6]}
+                      className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${dataShow && dataShow[6] === item[6] && 'active'}`}
+                      onClick={() => {
+                        this.setState({ dataShow: item })
+                      }}>
+                      <div>
+                        {item[3].split('?')[0]}
+                        <br />
+                        <span className="text-muted fs-12">{item[1].split('UTC')[0]}</span>
+                      </div>
+                      <span className={`badge badge-${respOk ? 'success' : 'danger'} badge-pill`}>{respOk ? $L('成功') : $L('失败')}</span>
+                    </a>
+                  )
+                })}
+              </div>
+              {this.state.showMore && (
+                <div className="text-center mt-3">
+                  <a className="text-primary" onClick={() => this._loadNext()}>
+                    {$L('加载更多')}
                   </a>
-                )
-              })}
+                </div>
+              )}
             </div>
-            {this.state.showMore && (
-              <div className="text-center mt-3">
-                <a className="text-primary" onClick={() => this._loadNext()}>
-                  {$L('加载更多')}
-                </a>
-              </div>
-            )}
-          </div>
-          <div className="col-9">
-            {dataShow ? (
-              <div className="logs-detail">
-                <dl className="row">
-                  <dt className="col-sm-3">{$L('编号')} (X-RB-RequestId)</dt>
-                  <dd className="col-sm-9">{dataShow[6]}</dd>
-                  <dt className="col-sm-3">{$L('来源 IP')}</dt>
-                  <dd className="col-sm-9">{dataShow[0]}</dd>
-                  <dt className="col-sm-3">{$L('请求时间')}</dt>
-                  <dd className="col-sm-9">{dataShow[1].substr(0, 19)}</dd>
-                  <dt className="col-sm-3">{$L('响应时间')}</dt>
-                  <dd className="col-sm-9">
-                    {dataShow[2].substr(0, 19)}
-                    <span className="badge badge-light ml-1 up-1">{$moment(dataShow[2]).diff($moment(dataShow[1]), 'seconds')}s</span>
-                  </dd>
-                  <dt className="col-sm-3">{$L('请求地址')}</dt>
-                  <dd className="col-sm-9 text-break">{dataShow[3]}</dd>
-                  <dt className="col-sm-12">{$L('请求数据')}</dt>
-                  <dd className="col-sm-12">{dataShow[4] && <CodeViewport code={dataShow[4]} />}</dd>
-                  <dt className="col-sm-12">{$L('响应数据')}</dt>
-                  <dd className="col-sm-12 mb-0">{dataShow[5] && <CodeViewport code={dataShow[5]} />}</dd>
-                </dl>
-              </div>
-            ) : (
-              <div className="text-muted pt-8 pb-8 text-center">
-                <p style={{ fontSize: 40 }}>
-                  <i className="mdi mdi-script-text-outline text-muted" />
-                </p>
-                {$L('暂无数据')}
-              </div>
-            )}
+            <div className="col-9">
+              {dataShow ? (
+                <div className="logs-detail">
+                  <dl className="row">
+                    <dt className="col-sm-3">{$L('编号')} (X-RB-RequestId)</dt>
+                    <dd className="col-sm-9">{dataShow[6]}</dd>
+                    <dt className="col-sm-3">{$L('来源 IP')}</dt>
+                    <dd className="col-sm-9">{dataShow[0]}</dd>
+                    <dt className="col-sm-3">{$L('请求时间')}</dt>
+                    <dd className="col-sm-9">{dataShow[1].substr(0, 19)}</dd>
+                    <dt className="col-sm-3">{$L('响应时间')}</dt>
+                    <dd className="col-sm-9">
+                      {dataShow[2].substr(0, 19)}
+                      <span className="badge badge-light ml-1 up-1">{$moment(dataShow[2]).diff($moment(dataShow[1]), 'seconds')}s</span>
+                    </dd>
+                    <dt className="col-sm-3">{$L('请求地址')}</dt>
+                    <dd className="col-sm-9 text-break">{dataShow[3]}</dd>
+                    <dt className="col-sm-12">{$L('请求数据')}</dt>
+                    <dd className="col-sm-12">{dataShow[4] && <CodeViewport code={dataShow[4]} />}</dd>
+                    <dt className="col-sm-12">{$L('响应数据')}</dt>
+                    <dd className="col-sm-12 mb-0">{dataShow[5] && <CodeViewport code={dataShow[5]} />}</dd>
+                  </dl>
+                </div>
+              ) : (
+                <div className="text-muted pt-8 pb-8 text-center">
+                  <p style={{ fontSize: 40 }}>
+                    <i className="mdi mdi-script-text-outline text-muted" />
+                  </p>
+                  {$L('暂无数据')}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -288,7 +288,6 @@ const step3_import_cancel = () => {
 }
 
 const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
 // 渲染字段映射
 const _fieldsMapping = (columns, fields) => {
   const canNullText = ` [${$L('必填')}]`

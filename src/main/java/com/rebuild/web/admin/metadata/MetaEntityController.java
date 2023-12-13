@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -355,5 +356,13 @@ public class MetaEntityController extends EntityController {
 
         mv.getModel().put("entities", entities);
         return mv;
+    }
+
+    @PostMapping("entity/entity-excel-evalft")
+    public RespBody entityExcelEvalft(HttpServletRequest request) {
+        final JSONArray table = (JSONArray) ServletUtils.getRequestJson(request);
+
+        // TODO
+        return null;
     }
 }
