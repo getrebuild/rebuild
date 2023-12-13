@@ -246,8 +246,8 @@ const render_item = function (data) {
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
   // 字段
   if (data.displayType) {
+    if (data.nullable === false) $handle.addClass('not-nullable')
     if (data.creatable === false) $handle.addClass('readonly')
-    else if (data.nullable === false) $handle.addClass('not-nullable')
 
     // 填写提示
     if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
@@ -514,7 +514,7 @@ class DlgEditRefform extends DlgEditField {
             <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
-              if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName)  && field.fieldName !== 'approvalId') {
+              if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName) && field.fieldName !== 'approvalId') {
                 return (
                   <option key={field.fieldName} value={field.fieldName}>
                     {field.fieldLabel}

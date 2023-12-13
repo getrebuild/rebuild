@@ -194,7 +194,7 @@ $(document).ready(function () {
     }
 
     if (!$('#fieldNullable').prop('disabled') && !$('#fieldNullable').prop('checked') && !$('#fieldCreatable').prop('checked')) {
-      RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法创建记录。是否仍要保存？'), {
+      RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法新建记录。是否仍要保存？'), {
         onConfirm: function () {
           this.disabled(true)
           save()
