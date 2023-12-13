@@ -127,7 +127,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
                 if (NullValue.isNull(hasVal)) {
                     if (!canNull) {
-                        notNulls.add(easyField.getLabel());
+                        // fix3.5.1: 有默认值
+                        if (easyField.exprDefaultValue() == null) {
+                            notNulls.add(easyField.getLabel());
+                        }
                     }
                 } else {
                     if (field.isCreatable()) {
