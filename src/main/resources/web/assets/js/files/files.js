@@ -152,7 +152,7 @@ class SharedFiles extends RbModalHandler {
                             {$fileCutName(item[1])}
                           </a>
                           <div className="fop-action">
-                            <a className="link J_copy" title={$L('复制分享链接')} data-url={item[0]}>
+                            <a className="link J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
                               <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
@@ -198,21 +198,11 @@ class SharedFiles extends RbModalHandler {
       this.setState({ data: res.data || [] }, () => {
         const $tbody = $(this._$tbody)
         const initCopy = function () {
-          $tbody.find('.J_copy').each(function () {
-            const $copy = $(this)
-            // eslint-disable-next-line no-undef
-            new ClipboardJS($copy[0], {
-              text: function () {
-                return $copy.data('url')
-              },
-            }).on('success', () => $copy.addClass('copied-check'))
-            $copy.on('mouseenter', () => $copy.removeClass('copied-check'))
-          })
+          $tbody.find('.J_copy').each((idx, item) => $clipboard($(item)))
         }
         if (window.ClipboardJS) {
           initCopy()
         } else {
-          // eslint-disable-next-line no-undef
           $getScript('/assets/lib/clipboard.min.js', initCopy)
         }
       })

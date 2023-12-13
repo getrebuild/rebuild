@@ -733,6 +733,10 @@ div.dataTables_filter .filter-badge:hover .close {
   border-bottom: 1px solid #dee2e6;
 }
 
+.rbmodal.use-white .modal-body.iframe iframe {
+  min-height: 497px;
+}
+
 .rbview.modal {
   z-index: 1051;
 }
@@ -5388,4 +5392,8 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 
 .dataTables_oper.invisible2 > .btn.J_view {
   display: inline-block;
+}
+
+.tooltip {
+  z-index: 1100;
 }

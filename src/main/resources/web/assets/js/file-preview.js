@@ -392,7 +392,7 @@ class FileShare extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
@@ -428,23 +428,6 @@ class FileShare extends RbModalHandler {
   componentDidMount() {
     $(this._dlg._rbmodal).css({ zIndex: 1099 })
     this._changeTime()
-
-    const that = this
-    const initCopy = function () {
-      // eslint-disable-next-line no-undef
-      new ClipboardJS(that._$copy, {
-        text: function () {
-          return that.state.shareUrl
-        },
-      }).on('success', () => $(that._$copy).addClass('copied-check'))
-      $(that._$copy).on('mouseenter', () => $(that._$copy).removeClass('copied-check'))
-    }
-    if (window.ClipboardJS) {
-      initCopy()
-    } else {
-      // eslint-disable-next-line no-undef
-      $getScript('/assets/lib/clipboard.min.js', initCopy)
-    }
   }
 
   _changeTime = (e) => {
@@ -454,6 +437,17 @@ class FileShare extends RbModalHandler {
       $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
+
+        // copy
+        const that = this
+        const initCopy = function () {
+          $clipboard($(that._$copy), that.__shareUrl)
+        }
+        if (window.ClipboardJS) {
+          initCopy()
+        } else {
+          $getScript('/assets/lib/clipboard.min.js', initCopy)
+        }
       })
     })
   }

@@ -47,7 +47,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
@@ -104,6 +103,7 @@ public class AdvFilterParser extends SetUser {
      * @param rootEntity
      */
     public AdvFilterParser(JSONObject filterExpr, Entity rootEntity) {
+        Assert.notNull(filterExpr, "[filterExpr] cannot be null");
         this.filterExpr = filterExpr;
         this.rootEntity = rootEntity;
         this.varRecord = null;

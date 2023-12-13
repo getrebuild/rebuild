@@ -156,10 +156,10 @@ public class GeneralModelController extends EntityController {
                     for (ConfigBean cb : imports) {
                         JSONObject trans = (JSONObject) EasyMetaFactory.valueOf(cb.getString("source")).toJSON();
                         trans.put("transid", cb.getID("id"));
-                        trans.put("transName", cb.getID("name"));
+                        trans.put("transName", cb.getString("name"));
                         detailImports.add(trans);
                     }
-
+                    
                     ((JSONObject) model).put("detailImports", detailImports);
                 }
             }

@@ -1138,3 +1138,28 @@ var $formattedCode = function (c, type) {
     return c
   }
 }
+
+// 复制
+var $clipboard = function ($el, text) {
+  if (!window.ClipboardJS) {
+    console.log('No `ClipboardJS` defined')
+    return
+  }
+
+  var oTitle = $el.attr('title') || $L('点击复制')
+  var $b = $el.attr('title', oTitle).on('mouseleave', function () {
+    $b.attr('data-original-title', oTitle)
+  })
+  $b.tooltip()
+  new window.ClipboardJS($b[0], {
+    text: function () {
+      return text || $el.data('clipboard-text')
+    },
+  }).on('success', function () {
+    $b.attr('data-original-title', $L('已复制'))
+    $b.tooltip('hide')
+    setTimeout(function () {
+      $b.tooltip('show')
+    }, 20)
+  })
+}
