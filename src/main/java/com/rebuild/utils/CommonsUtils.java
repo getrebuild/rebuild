@@ -82,9 +82,8 @@ public class CommonsUtils {
      * @return
      */
     public static String maxstr(String text, int maxLength) {
-        if (text.length() > maxLength) {
-            return text.substring(0, maxLength);
-        }
+        if (text == null) return null;
+        if (text.length() > maxLength) return text.substring(0, maxLength);
         return text;
     }
 

@@ -31,6 +31,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.Entity2Schema;
+import com.rebuild.core.metadata.impl.ExcelEntity;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
@@ -358,11 +359,13 @@ public class MetaEntityController extends EntityController {
         return mv;
     }
 
-    @PostMapping("entity/entity-excel-evalft")
+    @PostMapping("entity/entity-excel")
     public RespBody entityExcelEvalft(HttpServletRequest request) {
-        final JSONArray table = (JSONArray) ServletUtils.getRequestJson(request);
+        final JSON post = ServletUtils.getRequestJson(request);
+        String entityLabel = ((JSONObject) post).getString("entityLabel");
+        JSONArray fields = ((JSONObject) post).getJSONArray("fields");
 
-        // TODO
-        return null;
+        String entityName = new ExcelEntity().imports(entityLabel, fields);
+        return RespBody.ok(entityName);
     }
 }

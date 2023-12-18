@@ -17,7 +17,7 @@ class EntityNew2 extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.state.excelfile = '141930232__IUI000008390352CNY23100100N.xls'
+    // this.state.excelfile = '133654136__副本IUI000008390352CNY23100100N-111.xls'
   }
 
   render() {
@@ -180,7 +180,13 @@ class EntityNew2 extends RbModalHandler {
                         <u className="text-bold">{$fileCutName(this.state.excelfile)}</u>
                       </div>
                     )}
-                    <p className="form-text">{$L('[点击查看](https://getrebuild.com/docs/admin/entity/) 数据文件格式要求')}</p>
+                    <p className="form-text">{$L('[点击查看](https://getrebuild.com/docs/admin/entity/#%E4%BB%8E%20EXCEL%20%E5%AF%BC%E5%85%A5) 数据文件格式要求')}</p>
+                  </div>
+                </div>
+                <div className="form-group row">
+                  <label className="col-sm-3 col-form-label text-sm-right">{$L('实体名称')}</label>
+                  <div className="col-sm-7">
+                    <input className="form-control form-control-sm" type="text" ref={(c) => (this._$excelEntityLabel = c)} maxLength="40" />
                   </div>
                 </div>
                 <div className="form-group row footer">
@@ -248,6 +254,7 @@ class EntityNew2 extends RbModalHandler {
       (res) => {
         this.setState({ excelfile: res.key })
         $(this._$uploadbtn).text($L('上传文件'))
+        $(this._$excelEntityLabel).val($fileCutName(res.key))
       }
     )
     $(this._$uploadbtn).on('click', () => this._$uploadfile.click())
@@ -298,7 +305,10 @@ class EntityNew2 extends RbModalHandler {
   }
 
   postExcel() {
-    $.get(`/app/entity/data-imports/check-file?file=${$encode(this.state.excelfile)}`, (res) => {
+    const excelfile = this.state.excelfile
+    if (!excelfile) return RbHighbar.create($L('请上传数据文件'))
+
+    $.get(`/app/entity/data-imports/check-file?file=${$encode(excelfile)}`, (res) => {
       if (res.error_code > 0) {
         this.setState({ excelfile: null })
         RbHighbar.create(res.error_msg)
@@ -306,12 +316,12 @@ class EntityNew2 extends RbModalHandler {
       }
 
       const _data = res.data
-      if (_data.preview.length < 1 || _data.preview[0].length === 0) {
-        RbHighbar.create($L('上传的文件无有效数据'))
-        return
-      }
+      if (_data.preview.length < 1 || _data.preview[0].length === 0) return RbHighbar.create($L('上传的文件无有效数据'))
 
-      renderRbcomp(<ExcelPreview datas={_data.preview} title={$L('确认导入字段')} maximize disposeOnHide useWhite />)
+      const entityLabel = $val(this._$excelEntityLabel)
+      if (!entityLabel) return RbHighbar.create($L('请输入实体名称'))
+
+      renderRbcomp(<ExcelPreview datas={_data.preview} entityLabel={entityLabel} excelfile={excelfile} title={$L('导入字段配置')} maximize _maximize disposeOnHide useWhite />)
     })
   }
 
@@ -354,6 +364,9 @@ class ExcelPreview extends RbModal {
     const ftKeys = Object.keys(FIELD_TYPES)
     const dataHead = this.props.datas[0]
 
+    this.__colNames = colNames
+    this.__colDatas = {}
+
     return (
       <div className="modal-body m-0 p-0">
         <div style={{ overflow: 'auto' }}>
@@ -367,16 +380,16 @@ class ExcelPreview extends RbModal {
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr ref={(c) => (this._$dataHead = c)}>
                 <th>1</th>
                 {colNames.map((item, idx) => {
                   return (
-                    <td key={item}>
+                    <td key={item} className="align-text-top">
                       <div>
                         <label className="mb-0">{$L('字段名称')}</label>
-                        <input className="form-control form-control-sm" defaultValue={dataHead[idx]} />
+                        <input className="form-control form-control-sm" defaultValue={dataHead[idx]} placeholder={$L('不导入')} />
                       </div>
-                      <div className="mt-1">
+                      <div className="mt-1 J_type">
                         <label className="mb-0">{$L('字段类型')}</label>
                         <select className="form-control form-control-sm" defaultValue={$empty(dataHead[idx]) ? '-' : 'TEXT'}>
                           <option value="-">{$L('不导入')}</option>
@@ -390,16 +403,46 @@ class ExcelPreview extends RbModal {
                           })}
                         </select>
                       </div>
+                      <div className="mt-1 J_refEntity hide">
+                        <label className="mb-0">{$L('选择引用实体')}</label>
+                        <select className="form-control form-control-sm">
+                          {this.state.refEntities &&
+                            this.state.refEntities.map((item) => {
+                              return (
+                                <option key={item.entityName} value={item.entityName}>
+                                  {item.entityLabel}
+                                </option>
+                              )
+                            })}
+                        </select>
+                      </div>
+                      <div className="mt-1 J_refClass hide">
+                        <label className="mb-0">{$L('选择分类数据')}</label>
+                        <select className="form-control form-control-sm">
+                          {this.state.refClasses &&
+                            this.state.refClasses.map((item) => {
+                              return (
+                                <option key={item[0]} value={item[0]}>
+                                  {item[1]}
+                                </option>
+                              )
+                            })}
+                        </select>
+                      </div>
                     </td>
                   )
                 })}
               </tr>
               {this.props.datas.map((d, idx) => {
-                if (idx === 0) return null
+                if (idx === 0 || idx > 20) return null
                 return (
                   <tr key={idx}>
                     <th>{idx + 1}</th>
                     {colNames.map((item, idx2) => {
+                      const r = this.__colDatas[idx2] || []
+                      r.push(d[idx2])
+                      this.__colDatas[idx2] = r
+
                       return (
                         <td key={`${idx}-${idx2}`} className="text-break">
                           {d[idx2] || ''}
@@ -412,7 +455,128 @@ class ExcelPreview extends RbModal {
             </tbody>
           </table>
         </div>
+        <div className="float-left">
+          <p className="text-muted m-0 p-3">{$L('预览数据最多显示前 %d 行', 20)}</p>
+        </div>
+        <div className="text-right p-2" ref={(c) => (this._$btns = c)}>
+          <button className="btn btn-link btn-space" type="button" onClick={() => this.hide()}>
+            {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.post2()}>
+            {$L('确定')}
+          </button>
+        </div>
       </div>
     )
   }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    $.get('/admin/entity/entity-list?detail=true', (res) => {
+      const d = res.data || []
+      d.push({ entityName: 'User', entityLabel: $L('用户') })
+      d.push({ entityName: 'Department', entityLabel: $L('部门') })
+      d.push({ entityName: 'Team', entityLabel: $L('团队') })
+      this.setState({ refEntities: d })
+
+      $.get('/admin/metadata/classification/list', (res2) => {
+        this.setState({ refClasses: res2.data || [] })
+      })
+
+      setTimeout(() => {
+        this.__colNames.forEach((item, idx) => {
+          const type = _evalFieldType(this.__colDatas[idx])
+          type && $(this._$dataHead).find('td').eq(idx).find('.J_type select').val(type)
+        })
+
+        $(this._$dataHead)
+          .find('.J_type select')
+          .on('change', function () {
+            const $td = $(this).parents('td')
+            $td.find('.J_refEntity, .J_refClass').addClass('hide')
+
+            const t = $(this).val()
+            if (t === 'REFERENCE' || t === 'N2NREFERENCE') {
+              $td.find('.J_refEntity').removeClass('hide')
+            } else if (t === 'CLASSIFICATION') {
+              $td.find('.J_refClass').removeClass('hide')
+            }
+          })
+
+        $(this._$dataHead).find('select').select2({
+          allowClear: false,
+        })
+      }, 1000)
+    })
+  }
+
+  post2() {
+    const fieldsNew = []
+    $(this._$dataHead)
+      .find('td')
+      .each(function () {
+        const name = $(this).find('input').val()
+        const type = $(this).find('.J_type select').val()
+        if (name && type && type !== '-') {
+          let ref2 = null
+          if (type === 'REFERENCE' || type === 'N2NREFERENCE') {
+            ref2 = $(this).find('.J_refEntity select').val()
+            if (!ref2) return RbHighbar.create('请选择引用实体')
+          } else if (type === 'CLASSIFICATION') {
+            ref2 = $(this).find('.J_refClass select').val()
+            if (!ref2) return RbHighbar.create('请选择分类数据')
+          }
+
+          fieldsNew.push([name, type, ref2])
+        }
+      })
+    if (fieldsNew.length === 0) return RbHighbar.create($L('没有配置任何导入字段'))
+
+    const that = this
+    const post = {
+      entityLabel: this.props.entityLabel,
+      fields: fieldsNew,
+    }
+    console.log(JSON.stringify(post))
+
+    RbAlert.create($L('请确认导入字段配置。开始导入吗？'), {
+      onConfirm: function () {
+        this.hide()
+
+        const $btn = $(that._$btns).find('.btn').button('loading')
+        $.post('/admin/entity/entity-excel', JSON.stringify(post), (res) => {
+          if (res.error_code === 0) {
+            RbAlert.create($L('实体导入成功。是否需要进行数据导入？'), {
+              onConfirm: function () {
+                location.href = `${rb.baseUrl}/admin/data/data-imports?entity=${res.data}&file=${$encode(that.props.excelfile)}`
+              },
+              onCancel: function () {
+                location.href = `${rb.baseUrl}/admin/entity/${res.data}/fields`
+              },
+            })
+          } else {
+            $btn.button('reset')
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  }
+}
+
+function _evalFieldType(cols) {
+  let isNumber = undefined
+  let isDecimal = undefined
+  cols.forEach((item) => {
+    if ($empty(item)) return
+
+    if (isNumber || isNumber === undefined) isNumber = !isNaN(item)
+    if (isDecimal || isDecimal === undefined) {
+      isDecimal = isNumber && /\./g.test(item)
+    }
+  })
+  if (isDecimal) return 'DECIMAL'
+  if (isNumber) return 'NUMBER'
+  return null
 }
