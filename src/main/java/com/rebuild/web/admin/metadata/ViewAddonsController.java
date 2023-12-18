@@ -11,7 +11,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -92,9 +91,9 @@ public class ViewAddonsController extends BaseController {
             if (!MetadataHelper.isBusinessEntity(e)) continue;
             if (ArrayUtils.contains(entityMeta.getDetialEntities(), e)) continue;
 
-            // 新建项无明细、多引用
+            // 新建项无明细
             if (ViewAddonsManager.TYPE_ADD.equals(applyType)) {
-                if (e.getMainEntity() != null || field.getType() != FieldType.REFERENCE) continue;
+                if (e.getMainEntity() != null) continue;
             }
 
             String label = EasyMetaFactory.getLabel(e);
