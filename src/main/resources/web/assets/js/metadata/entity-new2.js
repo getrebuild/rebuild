@@ -51,13 +51,13 @@ class EntityNew2 extends RbModalHandler {
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('实体名称')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" type="text" ref={(c) => (this._$entityLabel = c)} maxLength="40" />
+                    <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$entityLabel = c)} />
                   </div>
                 </div>
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('备注')}</label>
                   <div className="col-sm-7">
-                    <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$comments = c)} maxLength="100" placeholder={$L('(选填)')}></textarea>
+                    <textarea className="form-control form-control-sm row2x" maxLength="100" placeholder={$L('(选填)')} ref={(c) => (this._$comments = c)} />
                   </div>
                 </div>
                 <div className="form-group row pt-2">
@@ -82,7 +82,7 @@ class EntityNew2 extends RbModalHandler {
                   <label className="col-sm-3 col-form-label text-sm-right"></label>
                   <div className="col-sm-7">
                     <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input className="custom-control-input" type="checkbox" ref={(c) => (this._$newIsDetail = c)} onClick={(e) => this.setState({ newIsDetail: $val(e.target) })} />
+                      <input className="custom-control-input" type="checkbox" onClick={(e) => this.setState({ newIsDetail: $val(e.target) })} ref={(c) => (this._$newIsDetail = c)} />
                       <span className="custom-control-label">
                         {$L('这是明细实体')}
                         <i className="zmdi zmdi-help zicon" data-toggle="tooltip" title={$L('通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在')}></i>
@@ -110,7 +110,7 @@ class EntityNew2 extends RbModalHandler {
                 </div>
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
-                    <button className="btn btn-primary J_new" type="button" onClick={() => this.postNew()}>
+                    <button className="btn btn-primary" type="button" onClick={() => this.postNew()}>
                       {$L('确定')}
                     </button>
                     <button className="btn btn-link" type="button" onClick={() => this.hide()}>
@@ -140,19 +140,19 @@ class EntityNew2 extends RbModalHandler {
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('实体名称')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" type="text" ref={(c) => (this._$copyEntityLabel = c)} maxLength="40" />
+                    <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$copyEntityLabel = c)} />
                   </div>
                 </div>
                 <div className={`form-group row ${this.state.copyHasDetail ? '' : 'hide'}`}>
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('明细实体名称')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" type="text" ref={(c) => (this._$copyDetailLabel = c)} maxLength="40" placeholder={$L('(选填)')} />
+                    <input className="form-control form-control-sm" type="text" maxLength="40" placeholder={$L('(选填)')} ref={(c) => (this._$copyDetailLabel = c)} />
                     <p className="form-text">{$L('不填写则不复制明细实体')}</p>
                   </div>
                 </div>
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
-                    <button className="btn btn-primary J_copy" type="button" onClick={() => this.postCopy()}>
+                    <button className="btn btn-primary" type="button" onClick={() => this.postCopy()}>
                       {$L('确定')}
                     </button>
                     <button className="btn btn-link" type="button" onClick={() => this.hide()}>
@@ -185,12 +185,12 @@ class EntityNew2 extends RbModalHandler {
                 <div className="form-group row">
                   <label className="col-sm-3 col-form-label text-sm-right">{$L('实体名称')}</label>
                   <div className="col-sm-7">
-                    <input className="form-control form-control-sm" type="text" ref={(c) => (this._$excelEntityLabel = c)} maxLength="40" />
+                    <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$excelEntityLabel = c)} />
                   </div>
                 </div>
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
-                    <button className="btn btn-primary J_excel" type="button" onClick={() => this.postExcel()}>
+                    <button className="btn btn-primary" type="button" onClick={() => this.postExcel()}>
                       {$L('下一步')}
                     </button>
                     <button className="btn btn-link" type="button" onClick={() => this.hide()}>
@@ -204,7 +204,7 @@ class EntityNew2 extends RbModalHandler {
               <InitModels ref={(c) => (this._InitModels = c)} />
               <div className="dialog-footer">
                 <div className="float-right">
-                  <button className="btn btn-primary J_rbstore" onClick={() => this.postRbImports()}>
+                  <button className="btn btn-primary" onClick={() => this.postRbImports()}>
                     {$L('开始导入')}
                   </button>
                 </div>
@@ -257,6 +257,8 @@ class EntityNew2 extends RbModalHandler {
       }
     )
     $(this._$uploadbtn).on('click', () => this._$uploadfile.click())
+
+    setTimeout(() => $(this._$entityLabel).focus(), 200)
   }
 
   postNew() {
@@ -271,7 +273,7 @@ class EntityNew2 extends RbModalHandler {
       if (!data.mainEntity) return RbHighbar.create($L('请选择主实体'))
     }
 
-    const $btn = $(this._$container).find('.J_new').button('loading')
+    const $btn = $(this._$container).find('.btn').button('loading')
     $.post(`/admin/entity/entity-new?nameField=${$val(this._$nameField)}&seriesField=${$val(this._$seriesField)}`, JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
@@ -292,7 +294,7 @@ class EntityNew2 extends RbModalHandler {
     if (!data.sourceEntity) return RbHighbar.create($L('请选择从哪个实体复制'))
     if (!data.entityName) return RbHighbar.create($L('请输入实体名称'))
 
-    const $btn = $(this._$container).find('.J_copy').button('loading')
+    const $btn = $(this._$container).find('.btn').button('loading')
     $.post('/admin/entity/entity-copy', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`
@@ -328,16 +330,16 @@ class EntityNew2 extends RbModalHandler {
     const s = this._InitModels.getSelected()
     if (s.length < 1) return RbHighbar.create($L('请选择要导入的实体'))
 
-    const $btn = $(this._$container).find('.J_rbstore').button('loading')
+    const $btn = $(this._$container).find('.btn').button('loading')
     $mp.start()
     $.post(`/admin/metadata/imports?key=${s.join(',')}`, (res) => {
       $mp.end()
-      $btn.button('reset')
 
       if (res.error_code === 0) {
         RbHighbar.success($L('导入成功'))
         setTimeout(() => location.reload(), 1500)
       } else {
+        $btn.button('reset')
         RbHighbar.error(res.error_msg)
       }
     })
@@ -379,7 +381,7 @@ class ExcelPreview extends RbModal {
               </tr>
             </thead>
             <tbody>
-              <tr ref={(c) => (this._$dataHead = c)}>
+              <tr ref={(c) => (this._$datahead = c)}>
                 <th>1</th>
                 {colNames.map((item, idx) => {
                   return (
@@ -407,6 +409,7 @@ class ExcelPreview extends RbModal {
                         <select className="form-control form-control-sm">
                           {this.state.refEntities &&
                             this.state.refEntities.map((item) => {
+                              if (item.entityName === 'Team') return null
                               return (
                                 <option key={item.entityName} value={item.entityName}>
                                   {item.entityLabel}
@@ -455,11 +458,11 @@ class ExcelPreview extends RbModal {
           </table>
         </div>
         <div className="float-left">
-          <p className="text-muted m-0 p-3">{$L('预览数据最多显示前 %d 行', 20)}</p>
+          <p className="protips m-0 p-3 pt-4">{$L('最多显示前 %d 行数据', 20)}</p>
         </div>
-        <div className="text-right p-2" ref={(c) => (this._$btns = c)}>
+        <div className="text-right p-2 pt-3" ref={(c) => (this._$btns = c)}>
           <button className="btn btn-link btn-space" type="button" onClick={() => this.hide()}>
-            {$L('取消')}
+            {$L('返回')}
           </button>
           <button className="btn btn-primary btn-space" type="button" onClick={() => this.post2()}>
             {$L('确定')}
@@ -490,46 +493,42 @@ class ExcelPreview extends RbModal {
     }
 
     $.get('/admin/entity/entity-list?detail=true', (res) => {
-      const d = res.data || []
-      d.push({ entityName: 'User', entityLabel: $L('用户') })
-      d.push({ entityName: 'Department', entityLabel: $L('部门') })
-      d.push({ entityName: 'Team', entityLabel: $L('团队') })
-      this.setState({ refEntities: d })
+      this.setState({ refEntities: res.data || [] })
 
       $.get('/admin/metadata/classification/list', (res2) => {
-        this.setState({ refClasses: res2.data || [] })
-      })
-
-      setTimeout(() => {
-        this.__colNames.forEach((item, idx) => {
-          const type = _evalFieldType(this.__colDatas[idx])
-          type && $(this._$dataHead).find('td').eq(idx).find('.J_type select').val(type)
-        })
-
-        $(this._$dataHead)
-          .find('.J_type select')
-          .on('change', function () {
-            const $td = $(this).parents('td')
-            $td.find('.J_refEntity, .J_refClass').addClass('hide')
-
-            const t = $(this).val()
-            if (t === 'REFERENCE' || t === 'N2NREFERENCE') {
-              $td.find('.J_refEntity').removeClass('hide')
-            } else if (t === 'CLASSIFICATION') {
-              $td.find('.J_refClass').removeClass('hide')
-            }
+        this.setState({ refClasses: res2.data || [] }, () => {
+          // init
+          this.__colNames.forEach((item, idx) => {
+            const type = _evalFieldType(this.__colDatas[idx] || [])
+            type && $(this._$datahead).find('td').eq(idx).find('.J_type select').val(type)
           })
 
-        $(this._$dataHead).find('select').select2({
-          allowClear: false,
+          $(this._$datahead)
+            .find('.J_type select')
+            .on('change', function () {
+              const $td = $(this).parents('td')
+              $td.find('.J_refEntity, .J_refClass').addClass('hide')
+
+              const t = $(this).val()
+              if (t === 'REFERENCE' || t === 'N2NREFERENCE') {
+                $td.find('.J_refEntity').removeClass('hide')
+              } else if (t === 'CLASSIFICATION') {
+                $td.find('.J_refClass').removeClass('hide')
+              }
+            })
+
+          $(this._$datahead).find('select').select2({
+            allowClear: false,
+            matcher: $select2MatcherAll,
+          })
         })
-      }, 1000)
+      })
     })
   }
 
   post2() {
     const fieldsNew = []
-    $(this._$dataHead)
+    $(this._$datahead)
       .find('td')
       .each(function () {
         const name = $(this).find('input').val()
