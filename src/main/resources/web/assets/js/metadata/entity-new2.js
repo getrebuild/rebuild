@@ -538,14 +538,13 @@ class ExcelPreview extends RbModal {
       entityLabel: this.props.entityLabel,
       fields: fieldsNew,
     }
-    console.log(JSON.stringify(post))
 
     RbAlert.create($L('请确认导入字段配置。开始导入吗？'), {
       onConfirm: function () {
-        this.hide()
-
-        const $btn = $(that._$btns).find('.btn').button('loading')
+        this.disabled(true, true)
         $.post('/admin/entity/entity-excel', JSON.stringify(post), (res) => {
+          this.hide(true)
+
           if (res.error_code === 0) {
             RbAlert.create($L('实体导入成功。是否需要进行数据导入？'), {
               onConfirm: function () {
@@ -556,7 +555,6 @@ class ExcelPreview extends RbModal {
               },
             })
           } else {
-            $btn.button('reset')
             RbHighbar.error(res.error_msg)
           }
         })
