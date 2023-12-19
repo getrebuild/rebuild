@@ -828,7 +828,6 @@ class AnyRecordSelector extends React.Component {
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
-            matcher: $select2MatcherAll,
           })
           .on('change', () => {
             $(this._record).val(null).trigger('change')

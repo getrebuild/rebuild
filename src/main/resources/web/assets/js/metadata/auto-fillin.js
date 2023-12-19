@@ -172,7 +172,6 @@ class DlgRuleEdit extends RbFormHandler {
       const $s2target = $(this._targetField).select2({
         placeholder: $L('选择字段'),
         allowClear: false,
-        matcher: $select2MatcherAll,
       })
       this.__select2.push($s2target)
 
@@ -184,7 +183,6 @@ class DlgRuleEdit extends RbFormHandler {
             .select2({
               placeholder: $L('选择字段'),
               allowClear: false,
-              matcher: $select2MatcherAll,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
           this.__select2.push($s2source)

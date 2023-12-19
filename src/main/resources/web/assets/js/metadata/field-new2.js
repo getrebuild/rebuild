@@ -111,7 +111,7 @@ class FieldNew2 extends RbModalHandler {
 
   componentDidMount() {
     $(this._$type)
-      .select2({ allowClear: false, matcher: $select2MatcherAll })
+      .select2({ allowClear: false })
       .on('change', (e) => {
         this.setState({ fieldType: e.target.value })
       })
@@ -121,7 +121,7 @@ class FieldNew2 extends RbModalHandler {
 
       $.get('/admin/metadata/classification/list', (res2) => {
         this.setState({ refClasses: res2.data || [] }, () => {
-          $([this._$refEntity, this._$refClass]).select2({ allowClear: false, matcher: $select2MatcherAll })
+          $([this._$refEntity, this._$refClass]).select2({ allowClear: false })
         })
       })
     })

@@ -230,13 +230,9 @@ class EntityNew2 extends RbModalHandler {
 
     $.get('/admin/entity/entity-list?detail=true', (res) => {
       this.setState({ entities: res.data }, () => {
-        const ps = {
-          allowClear: false,
-          matcher: $select2MatcherAll,
-        }
-        $(this._$mainEntity).select2(ps)
+        $(this._$mainEntity).select2({ allowClear: false })
         $(this._$copySourceEntity)
-          .select2(ps)
+          .select2({ allowClear: false })
           .on('change', (e) => {
             const val = e.currentTarget.value
             const found = this.state.entities.find((x) => x.entityName === val)
@@ -517,10 +513,7 @@ class ExcelPreview extends RbModal {
               }
             })
 
-          $(this._$datahead).find('select').select2({
-            allowClear: false,
-            matcher: $select2MatcherAll,
-          })
+          $(this._$datahead).find('select').select2({ allowClear: false })
         })
       })
     })

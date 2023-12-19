@@ -32,7 +32,6 @@ $(document).ready(() => {
       .select2({
         placeholder: $L('选择关联项'),
         allowClear: false,
-        matcher: $select2MatcherAll,
       })
       .on('change', () => {
         if (item_current_isNew === true) {
