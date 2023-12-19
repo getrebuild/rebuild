@@ -5415,3 +5415,10 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
 .code-viewport:hover > a.copy {
   display: inline-block;
 }
+
+span.icon-append .icon {
+  float: left;
+  width: 22px;
+  font-size: 1.2rem;
+  padding-top: 2px;
+}

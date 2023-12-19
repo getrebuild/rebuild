@@ -32,6 +32,12 @@ $(document).ready(() => {
       .select2({
         placeholder: $L('选择关联项'),
         allowClear: false,
+        templateResult: function (res) {
+          const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+          const found = _entities[res.id]
+          if (found) $(`<i class="icon zmdi zmdi-${found.icon}"></i>`).appendTo($span)
+          return $span
+        },
       })
       .on('change', () => {
         if (item_current_isNew === true) {

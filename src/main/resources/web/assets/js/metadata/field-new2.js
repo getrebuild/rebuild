@@ -111,17 +111,27 @@ class FieldNew2 extends RbModalHandler {
 
   componentDidMount() {
     $(this._$type)
-      .select2({ allowClear: false })
+      .select2({
+        allowClear: false,
+        templateResult: function (res) {
+          const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+          $(`<i class="icon mdi ${(FIELD_TYPES[res.id] || [])[1]}"></i>`).appendTo($span)
+          return $span
+        },
+      })
       .on('change', (e) => {
         this.setState({ fieldType: e.target.value })
       })
 
     $.get('/admin/entity/entity-list?detail=true&bizz=true', (res) => {
-      this.setState({ refEntities: res.data || [] })
+      const _entities = res.data || []
+      this.setState({ refEntities: _entities }, () => {
+        $(this._$refEntity).select2({ allowClear: false })
+      })
 
       $.get('/admin/metadata/classification/list', (res2) => {
         this.setState({ refClasses: res2.data || [] }, () => {
-          $([this._$refEntity, this._$refClass]).select2({ allowClear: false })
+          $(this._$refClass).select2({ allowClear: false })
         })
       })
     })
