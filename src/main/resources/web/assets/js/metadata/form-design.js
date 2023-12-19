@@ -393,7 +393,8 @@ const render_unset = function (data) {
 const render_type = function (fieldType) {
   const $item = $(`<li class="dd-item"><div class="dd-handle"><i class="icon mdi ${fieldType.icon || 'mdi-form-textbox'}"></i> ${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
   $item.on('click', function () {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType.name}`, $L('添加字段'), { disposeOnHide: true })
+    // eslint-disable-next-line react/jsx-no-undef
+    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} fieldType={fieldType.name} />)
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
   return $item
@@ -514,7 +515,7 @@ class DlgEditRefform extends DlgEditField {
             <option value="">{$L('无')}</option>
             {Object.keys(_ValidFields).map((k) => {
               const field = _ValidFields[k]
-              if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName)  && field.fieldName !== 'approvalId') {
+              if (['REFERENCE', 'ANYREFERENCE'].includes(field.displayTypeName) && field.fieldName !== 'approvalId') {
                 return (
                   <option key={field.fieldName} value={field.fieldName}>
                     {field.fieldLabel}
@@ -537,19 +538,17 @@ class DlgEditRefform extends DlgEditField {
 
 // 追加到布局
 // eslint-disable-next-line no-unused-vars
-const add2Layout = function (fieldName) {
+const add2Layout = function (fieldName, dlg) {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
         render_item({ ...this, tip: this.tip || null })
         _ValidFields[fieldName] = this
-        console.log(JSON.stringify(_ValidFields))
         return false
       }
     })
   })
-
-  RbModal.hide()
+  dlg && dlg.hide()
 }
 
 // 高级控制

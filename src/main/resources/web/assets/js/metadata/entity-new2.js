@@ -17,7 +17,6 @@ class EntityNew2 extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    // this.state.excelfile = '133654136__副本IUI000008390352CNY23100100N-111.xls'
   }
 
   render() {
@@ -473,6 +472,23 @@ class ExcelPreview extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
+    // 评估字段类型
+    function _evalFieldType(cols) {
+      let isNumber = undefined
+      let isDecimal = undefined
+      cols.forEach((item) => {
+        if ($empty(item)) return
+
+        if (isNumber || isNumber === undefined) isNumber = !isNaN(item)
+        if (isDecimal || isDecimal === undefined) {
+          isDecimal = isNumber && /\./g.test(item)
+        }
+      })
+      if (isDecimal) return 'DECIMAL'
+      if (isNumber) return 'NUMBER'
+      return null
+    }
+
     $.get('/admin/entity/entity-list?detail=true', (res) => {
       const d = res.data || []
       d.push({ entityName: 'User', entityLabel: $L('用户') })
@@ -561,20 +577,4 @@ class ExcelPreview extends RbModal {
       },
     })
   }
-}
-
-function _evalFieldType(cols) {
-  let isNumber = undefined
-  let isDecimal = undefined
-  cols.forEach((item) => {
-    if ($empty(item)) return
-
-    if (isNumber || isNumber === undefined) isNumber = !isNaN(item)
-    if (isDecimal || isDecimal === undefined) {
-      isDecimal = isNumber && /\./g.test(item)
-    }
-  })
-  if (isDecimal) return 'DECIMAL'
-  if (isNumber) return 'NUMBER'
-  return null
 }
