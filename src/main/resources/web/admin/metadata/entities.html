@@ -190,6 +190,8 @@
                 RbHighbar.error('仅超级管理员可添加实体')
               }
             })
+            .find('.more-action')
+            .remove()
 
           delete groups[NO_TAG]
 
@@ -209,12 +211,13 @@
           href: `entity/${item.entityName}/base`,
           title: item.comments || null,
         })
-        $t.find('.icon').addClass(`zmdi-${item.icon}`)
+        $t.find('.icon:eq(0)').addClass(`zmdi-${item.icon}`)
         $t.find('span').text(item.entityLabel)
-        $t.find('p').text(item.comments || '-')
+        if (item.comments) $t.find('p').text(item.comments)
+        else $t.find('p').html('&nbsp;')
 
         if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card'))
-        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
+        if (item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
         return $t
       }
     </script>
