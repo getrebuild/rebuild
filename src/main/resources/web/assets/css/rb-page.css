@@ -4982,7 +4982,7 @@ pre.unstyle {
 }
 
 .dropdown-menu.entity-switch {
-  min-width: 220px;
+  width: 235px;
 }
 
 .dropdown-menu.entity-switch .dropdown-item.current,
