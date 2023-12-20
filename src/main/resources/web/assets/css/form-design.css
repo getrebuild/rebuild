@@ -18,12 +18,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   z-index: 1;
 }
 
-.readonly {
-  border-left: 3px solid #bbb !important;
-}
-
 .not-nullable {
   border-left: 3px solid #ea4335 !important;
+}
+
+.readonly {
+  border-left: 3px solid #bbb !important;
 }
 
 .field-aside .rb-content {

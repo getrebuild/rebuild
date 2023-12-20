@@ -51,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -348,7 +349,9 @@ public class EasyExcelGenerator extends SetUser {
                         String format = easyField.getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT);
                         int scale = StringUtils.isBlank(format) ? 2 : format.split("\\.")[1].length();
                         // Keep Type
-                        fieldValue = ObjectUtils.round(((BigDecimal) fieldValue).doubleValue(), scale);
+//                        fieldValue = ObjectUtils.round(((BigDecimal) fieldValue).doubleValue(), scale);
+                        fieldValue = ((BigDecimal) fieldValue).setScale(scale, RoundingMode.HALF_UP);
+
                     } else {
                         fieldValue = FieldValueHelper.wrapFieldValue(fieldValue, easyField, Boolean.TRUE);
                     }

@@ -114,7 +114,7 @@ public class FilesHelper {
             if (!access) continue;
 
             o[2] = SCOPE_SELF.equals(o[2]);
-            o[3] = user.equals(o[3]);
+            o[3] = user.equals(o[3]) || UserHelper.isAdmin(user);  // v3.5.1 管理员可删除
             o[5] = scopeSpecUsers;
             JSONObject folder = JSONUtils.toJSONObject(
                     new String[] { "id", "text", "private", "self", "parent", "specUsers" }, o);

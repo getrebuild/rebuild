@@ -194,7 +194,7 @@ $(document).ready(function () {
     }
 
     if (!$('#fieldNullable').prop('disabled') && !$('#fieldNullable').prop('checked') && !$('#fieldCreatable').prop('checked')) {
-      RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法创建记录。是否仍要保存？'), {
+      RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法新建记录。是否仍要保存？'), {
         onConfirm: function () {
           this.disabled(true)
           save()
@@ -514,7 +514,7 @@ const _handleReference = function (isN2N) {
     } else {
       const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} />, function () {
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} useWhite />, function () {
         _ReferenceSearcher = this
       })
     }

@@ -533,7 +533,7 @@ class RbForm extends React.Component {
     // v3.2 默认收起
     this._dividerRefs.forEach((d) => {
       // eslint-disable-next-line react/no-string-refs
-      this.refs[d].toggle()
+      this.refs[d]._toggle()
     })
 
     setTimeout(() => RbForm.renderAfter(this), 0)
@@ -1259,28 +1259,7 @@ class RbFormTextarea extends RbFormElement {
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
-            <a
-              title={$L('复制')}
-              ref={(c) => (this._actionCopy = c)}
-              className="J_copy"
-              onClick={() => {
-                const that = this
-                const initCopy = function () {
-                  const $copy = $(that._actionCopy)
-                  // eslint-disable-next-line no-undef
-                  new ClipboardJS($copy[0], {
-                    text: function () {
-                      return that.state.value
-                    },
-                  })
-                }
-                if (window.ClipboardJS) {
-                  initCopy()
-                } else {
-                  // eslint-disable-next-line no-undef
-                  $getScript('/assets/lib/clipboard.min.js', initCopy)
-                }
-              }}>
+            <a ref={(c) => (this._actionCopy = c)} onClick={() => {}}>
               <i className="mdi mdi-content-copy" />
             </a>
           </div>
@@ -1292,6 +1271,18 @@ class RbFormTextarea extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     this.props.onView && this.onEditModeChanged(true)
+
+    if (this._actionCopy) {
+      const that = this
+      const initCopy = function () {
+        $clipboard($(that._actionCopy), that.state.value)
+      }
+      if (window.ClipboardJS) {
+        initCopy()
+      } else {
+        $getScript('/assets/lib/clipboard.min.js', initCopy)
+      }
+    }
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {

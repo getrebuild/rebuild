@@ -61,14 +61,8 @@ $(document).ready(function () {
         })
       },
       onRendered: function () {
-        const $b = $(this._element).find('.modal-body b').addClass('newpwd').attr('title', $L('点击复制'))
-        $b.tooltip()
-        // eslint-disable-next-line no-undef
-        new ClipboardJS($b[0], {
-          text: function () {
-            return newpwd
-          },
-        })
+        const $b = $(this._element).find('.modal-body b').addClass('newpwd')
+        $clipboard($b, newpwd)
       },
     })
   })
