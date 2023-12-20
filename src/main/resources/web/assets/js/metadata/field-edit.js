@@ -594,7 +594,7 @@ const _handleCalcFormula = function (formula) {
     $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
       const fs = []
       res.data.forEach((item) => {
-        if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type) && !['approvalLastTime', 'modifiedOn'].includes(item.name) && item.name !== wpc.fieldName) {
+        if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type) && !['approvalLastTime'].includes(item.name) && item.name !== wpc.fieldName) {
           fs.push(item)
         }
       })
