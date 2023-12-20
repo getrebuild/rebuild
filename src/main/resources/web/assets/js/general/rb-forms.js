@@ -581,29 +581,14 @@ class RbForm extends React.Component {
   }
   // 执行
   _onFieldValueChangeCall(field, value) {
-    this._onFieldValueChange__timers = this._onFieldValueChange__timers || {}
-    // that
     if (this._onFieldValueChange_calls) {
-      this._onFieldValueChange_calls.forEach((c) => {
-        const t = this._onFieldValueChange__timers[field]
-        if (t) {
-          clearTimeout(t)
-          delete this._onFieldValueChange__timers[field]
-        }
-        this._onFieldValueChange__timers[field] = setTimeout(() => c({ name: field, value: value }), 200)
-      })
+      this._onFieldValueChange_calls.forEach((c) => c({ name: field, value: value }))
     }
-    // api
+
     if (window.FrontJS) {
       const fieldKey = `${this.props.entity}.${field}`
-      const t = this._onFieldValueChange__timers[fieldKey]
-      if (t) {
-        clearTimeout(t)
-        delete this._onFieldValueChange__timers[fieldKey]
-      }
-      this._onFieldValueChange__timers[fieldKey] = setTimeout(() => {
-        window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
-      }, 200)
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
+      if (ret === false) return false
     }
   }
 
@@ -2995,7 +2980,7 @@ const __calcFormula = function (_this) {
           if (res.data) _this.setValue(res.data)
           else _this.setValue(null)
         })
-      }, 400)
+      }, 300)
       return true
     })
 
@@ -3006,5 +2991,5 @@ const __calcFormula = function (_this) {
         else _this.setValue(null)
       })
     }
-  }, 400) // delay for init
+  }, 600) // delay for init
 }
