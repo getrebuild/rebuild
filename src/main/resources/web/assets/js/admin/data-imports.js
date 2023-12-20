@@ -23,6 +23,12 @@ let import_taskid
 const entity = $urlp('entity')
 _Config.entity = entity || null
 
+_Config.file = $urlp('file') || null
+if (_Config.file) {
+  _Config.file = $decode(_Config.file)
+  $('.J_upload-input').text($fileCutName(_Config.file))
+}
+
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
@@ -288,7 +294,6 @@ const step3_import_cancel = () => {
 }
 
 const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
 // 渲染字段映射
 const _fieldsMapping = (columns, fields) => {
   const canNullText = ` [${$L('必填')}]`

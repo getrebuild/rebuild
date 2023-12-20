@@ -30,7 +30,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={`modal-dialog ${props.useWhite && 'modal-xl'}`} style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''}`} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
@@ -828,7 +828,6 @@ class AnyRecordSelector extends React.Component {
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
-            matcher: $select2MatcherAll,
           })
           .on('change', () => {
             $(this._record).val(null).trigger('change')

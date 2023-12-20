@@ -586,7 +586,8 @@ class RbForm extends React.Component {
     }
 
     if (window.FrontJS) {
-      const ret = window.FrontJS.Form._trigger('fieldValueChange', [`${this.props.entity}.${field}`, value, this.props.id || null])
+      const fieldKey = `${this.props.entity}.${field}`
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       if (ret === false) return false
     }
   }
@@ -2979,7 +2980,7 @@ const __calcFormula = function (_this) {
           if (res.data) _this.setValue(res.data)
           else _this.setValue(null)
         })
-      }, 400)
+      }, 300)
       return true
     })
 
@@ -2990,5 +2991,5 @@ const __calcFormula = function (_this) {
         else _this.setValue(null)
       })
     }
-  }, 400) // delay for init
+  }, 600) // delay for init
 }

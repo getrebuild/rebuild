@@ -16,11 +16,11 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.IdParam;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
@@ -87,11 +87,13 @@ public class CommonPageView extends BaseController {
     }
 
     @GetMapping("/app/home")
-    public void appHome(@IdParam(name = "n", required = false) ID useNav,
-                        @IdParam(name = "d", required = false) ID useDash,
+    public void appHome(@RequestParam(name = "def", required = false) String def,
                         HttpServletResponse response) throws IOException {
-        addCookie("AppHome.Nav", useNav, response);
-        addCookie("AppHome.Dash", useDash, response);
+        if (def != null && def.length() >= 20) {
+            String[] defs = def.split(":");
+            addCookie("AppHome.Nav", ID.isId(defs[0]) ? ID.valueOf(defs[0]) : null, response);
+            addCookie("AppHome.Dash", defs.length > 1 && ID.isId(defs[1]) ? ID.valueOf(defs[1]) : null, response);
+        }
         response.sendRedirect("../dashboard/home");
     }
 

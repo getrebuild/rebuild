@@ -93,11 +93,12 @@ public class DataImportController extends BaseController {
         }
 
         DataFileParser parser;
-        int count = -1;
+        int count;
         List<Cell[]> preview;
         try {
             parser = new DataFileParser(tmp);
-            preview = parser.parse(11);
+            preview = parser.parse(101);
+            count = parser.getRowsCount();
         } catch (Exception ex) {
             log.error("Parse excel error : " + file, ex);
             return RespBody.error(Language.L("无法解析数据，请检查数据文件格式"));

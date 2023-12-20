@@ -30,6 +30,7 @@ public class OverOperatorType {
      * 日期加
      */
     static class DateAdd extends AbstractFunction {
+        private static final long serialVersionUID = -7871678038170332371L;
         @Override
         public String getName() {
             return OperatorType.ADD.getToken();
@@ -54,6 +55,7 @@ public class OverOperatorType {
      * 日期减
      */
     static class DateSub extends AbstractFunction {
+        private static final long serialVersionUID = 8208361199770129766L;
         @Override
         public String getName() {
             return OperatorType.SUB.getToken();

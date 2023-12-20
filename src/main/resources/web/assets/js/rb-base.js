@@ -164,6 +164,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('templateResult', function (res) {
     return $('<span></span>').attr('title', res.text).text(res.text)
   })
+  $.fn.select2.defaults.set('matcher', function (params, data) {
+    return $select2MatcherAll(params, data)
+  })
 })(jQuery)
 
 // extends Array

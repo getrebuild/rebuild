@@ -505,8 +505,8 @@ public class NavBuilder extends NavManager {
         StringBuilder topNavHtml = new StringBuilder();
 
         for (Object[] nd : topNav) {
-            String url = AppUtils.getContextPath("/app/home?n=" + nd[0]);
-            if (nd[1] != null) url += "&d=" + nd[1];
+            String url = AppUtils.getContextPath("/app/home?def=" + nd[0]);
+            if (nd[1] != null) url += ":" + nd[1];
             topNavHtml.append(String.format(
                     "<li class=\"nav-item\" data-id=\"%s\"><a class=\"nav-link text-ellipsis\" href=\"%s\">%s</a></li>", nd[0], url, nd[2]));
         }

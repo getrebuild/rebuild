@@ -583,10 +583,7 @@ class FilterItem extends React.Component {
 
     const that = this
     const $s2field = $(this._filterField)
-      .select2({
-        allowClear: false,
-        matcher: $select2MatcherAll,
-      })
+      .select2({ allowClear: false })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)
         that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => $s2op.val(that.__op[0]).trigger('change'))

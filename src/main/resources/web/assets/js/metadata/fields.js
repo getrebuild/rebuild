@@ -15,12 +15,13 @@ $(document).ready(() => {
     if (e.which === 13) $('.input-search .btn').trigger('click')
   })
   $('.J_new-field').on('click', () => {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
+    // eslint-disable-next-line react/jsx-no-undef
+    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} />)
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
 
-  $('.J_new2-field').on('click', () => {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new2?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
+  $('.J_new9-field').on('click', () => {
+    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new9?entity=${wpc.entityName}`, $L('批量添加字段'), { width: 1064 })
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
 
