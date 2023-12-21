@@ -373,11 +373,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     public static GeneralEntityService getGeneralEntityService() {
-        return (GeneralEntityService) getContext().getBean("generalEntityService");
+        return (GeneralEntityService) getContext().getBean("rbGeneralEntityService");
     }
 
     public static CommonsService getCommonsService() {
-        return getBean(CommonsService.class);
+        return (CommonsService) getContext().getBean("rbCommonsService");
     }
 
     /**

@@ -29,6 +29,7 @@ import java.util.Observer;
 
 /**
  * 可注入观察者的服务
+ * !!! 此类非线程安全，应避免使用默认的单例默认 !!!
  *
  * @author devezhao
  * @see OperatingObserver

@@ -53,6 +53,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -79,7 +81,8 @@ import java.util.TreeMap;
  * @since 11/06/2019
  */
 @Slf4j
-@Service
+@Service("rbGeneralEntityService")
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GeneralEntityService extends ObservableService implements EntityService {
 
     // 有明细

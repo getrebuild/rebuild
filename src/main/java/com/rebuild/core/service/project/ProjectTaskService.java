@@ -21,6 +21,8 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
  * @since 2020/7/2
  */
 @Service
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ProjectTaskService extends BaseTaskService {
 
     // 中值法排序
@@ -126,8 +129,9 @@ public class ProjectTaskService extends BaseTaskService {
                 "select commentId from ProjectTaskComment where taskId = ?")
                 .setParameter(1, taskId)
                 .array();
+        ProjectCommentService pcs = Application.getBean(ProjectCommentService.class);
         for (Object[] c : comments) {
-            Application.getBean(ProjectCommentService.class).delete((ID) c[0]);
+            pcs.delete((ID) c[0]);
         }
 
         // 只有任务本身可以恢复

@@ -9,6 +9,8 @@ package com.rebuild.core.service.feeds;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import com.rebuild.core.metadata.EntityHelper;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/11/4
  */
 @Service
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class FeedsCommentService extends BaseFeedsService {
 
     protected FeedsCommentService(PersistManagerFactory aPMFactory) {
