@@ -17,6 +17,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalHelper;
+import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.core.support.general.RecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -88,10 +89,11 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 } else if (varName.startsWith(DETAIL_PREFIX)) {
                     refName = DETAIL_PREFIX;
                 } else {
+                    // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
                     // .AccountId.SalesOrder.SalesOrderName
                     String[] split = varName.substring(1).split("\\.");
                     if (split.length < 2) throw new ReportsException("Bad REF (Miss .detail prefix?) : " + varName);
-                    
+
                     String refName2 = split[0] + split[1];
                     refName = varName.substring(0, refName2.length() + 2 /* dots */);
                 }
@@ -169,8 +171,12 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 String sortField = templateExtractor33.getSortField(refName);
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
+                String relatedExpr = split[1] + "." + split[0];
+                String where = new ProtocolFilterParser(null).parseRelated(relatedExpr, recordId);
+                querySql = querySql.replace("%s = ?", where);
+
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
-                        ref2Entity.getPrimaryField().getName(), ref2Entity.getName(), split[0]);
+                        ref2Entity.getPrimaryField().getName(), ref2Entity.getName());
             }
 
             log.info("SQL of template : {}", querySql);
