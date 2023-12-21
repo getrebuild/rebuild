@@ -103,7 +103,7 @@ public class FileListController extends BaseController {
 
         List<String> sqlWhere = new ArrayList<>();
         if (StringUtils.isNotBlank(q)) {
-            sqlWhere.add(String.format("filePath like '%%%s%%'", CommonsUtils.escapeSql(q)));
+            sqlWhere.add(String.format("fileName like '%%%s%%'", CommonsUtils.escapeSql(q)));
         }
 
         // 附件

@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #55 (v3.6)
+alter table `attachment`
+  add column `FILE_NAME` varchar(100) comment '文件名称',
+  add column `FILE_MD5` varchar(32) comment '文件MD5';
+
 -- #54 (v3.5)
 alter table `feeds`
   add column `AUTO_LOCATION` varchar(100) comment '发布位置';
