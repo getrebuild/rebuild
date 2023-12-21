@@ -123,7 +123,7 @@ public class SendNotification extends TriggerAction {
             if (msgType == MTYPE_MAIL) {
                 String emailAddr = Application.getUserStore().getUser(user).getEmail();
                 if (RegexUtils.isEMail(emailAddr)) {
-                    String mdHtml = MarkdownUtils.render(message[0]);
+                    String mdHtml = MarkdownUtils.render(message[0], false, true);
                     SMSender.sendMailAsync(emailAddr, message[1], mdHtml);
                     send.add(emailAddr);
                 }
@@ -198,7 +198,7 @@ public class SendNotification extends TriggerAction {
             }
 
             if (msgType == MTYPE_MAIL && RegexUtils.isEMail(mobileOrEmail)) {
-                String mdHtml = MarkdownUtils.render(message[0]);
+                String mdHtml = MarkdownUtils.render(message[0], false, true);
                 SMSender.sendMailAsync(mobileOrEmail, message[1], mdHtml);
                 send.add(mobileOrEmail);
             }

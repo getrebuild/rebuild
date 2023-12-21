@@ -22,7 +22,11 @@ import com.rebuild.core.support.HeavyStopWatcher;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.*;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.MarkdownUtils;
+import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
@@ -85,11 +89,15 @@ public class SMSender {
      * @throws ConfigurationException If mail-account unset
      */
     public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
-        if (Application.devMode()) return null;
         if (specAccount == null || specAccount.length < 5
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
             throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
+        }
+
+        if (Application.devMode()) {
+            log.info("[dev] Fake send email to : {} / {} / {}", to, subject, content);
+            return null;
         }
 
         // 使用邮件模板
@@ -132,7 +140,7 @@ public class SMSender {
                 return emailId;
 
             } catch (EmailException ex) {
-                log.error("SMTP failed to send : {} | {} | {}", to, subject, content, ex);
+                log.error("SMTP failed to send : {} / {} / {}", to, subject, content, ex);
                 return null;
             }
         }
@@ -158,7 +166,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Submail failed to send : {} | {} | {}", to, subject, content, ex);
+            log.error("Submail failed to send : {} / {} / {}", to, subject, content, ex);
             return null;
         }
 
@@ -169,7 +177,7 @@ public class SMSender {
             return sendId;
         }
 
-        log.error("Submail failed to send : {} | {} | {}\nError : {}", to, subject, content, rJson);
+        log.error("Submail failed to send : {} / {} / {}\nError : {}", to, subject, content, rJson);
         createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
         return null;
     }
@@ -185,7 +193,6 @@ public class SMSender {
      * @throws ConfigurationException
      */
     protected static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
-        if (Application.devMode()) return null;
         HtmlEmail email = new HtmlEmail();
         email.addTo(to);
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
@@ -260,11 +267,15 @@ public class SMSender {
      * @throws ConfigurationException If sms-account unset
      */
     public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {
-        if (Application.devMode()) return null;
         if (specAccount == null || specAccount.length < 3
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2])) {
             throw new ConfigurationException(Language.L("短信账户未配置或配置错误"));
+        }
+
+        if (Application.devMode()) {
+            log.warn("[dev] Fake send sms to : {} / {}", to, content);
+            return null;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -283,7 +294,7 @@ public class SMSender {
             String r = OkHttpUtils.post("https://api-v4.mysubmail.com/sms/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            log.error("Subsms failed to send : {} | {}", to, content, ex);
+            log.error("Subsms failed to send : {} / {}", to, content, ex);
             return null;
         } finally {
             HeavyStopWatcher.clean();
@@ -295,7 +306,7 @@ public class SMSender {
             return sendId;
         }
 
-        log.error("Subsms failed to send : {} | {}\nError : {}", to, content, rJson);
+        log.error("Subsms failed to send : {} / {}\nError : {}", to, content, rJson);
         createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
         return null;
     }

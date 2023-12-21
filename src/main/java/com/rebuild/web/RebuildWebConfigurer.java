@@ -89,7 +89,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (StringUtils.isBlank(pageFooter)) {
             pageFooterHtml = null;
         } else {
-            pageFooterHtml = MarkdownUtils.render(pageFooter, true);
+            pageFooterHtml = MarkdownUtils.render(pageFooter, true, false);
         }
         thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooterHtml);
 
