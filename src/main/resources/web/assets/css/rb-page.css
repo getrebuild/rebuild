@@ -1326,6 +1326,10 @@ a.link.link-icon::after {
   top: 119px;
 }
 
+.rbform .type-NTEXT .CodeMirror {
+  padding: 8px;
+}
+
 .editor-toolbar.fullscreen::before,
 .editor-toolbar.fullscreen::after {
   display: none;
