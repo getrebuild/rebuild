@@ -28,6 +28,11 @@ import java.text.MessageFormat;
 public class NotificationObserver extends OperatingObserver {
 
     @Override
+    public int getOrder() {
+        return 3;
+    }
+
+    @Override
     protected boolean isAsync() {
         // NOTE 异步无法使用 NotificationOnce 功能
         return true;

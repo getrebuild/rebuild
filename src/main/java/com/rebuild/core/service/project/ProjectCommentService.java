@@ -20,8 +20,6 @@ import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,7 +27,6 @@ import org.springframework.stereotype.Service;
  * @since 2020/7/27
  */
 @Service
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ProjectCommentService extends BaseTaskService {
 
     protected ProjectCommentService(PersistManagerFactory aPMFactory) {

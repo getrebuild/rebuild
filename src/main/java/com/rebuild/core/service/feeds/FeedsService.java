@@ -17,8 +17,6 @@ import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.support.i18n.Language;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -30,7 +28,6 @@ import java.util.Set;
  * @since 2019/11/4
  */
 @Service
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class FeedsService extends BaseFeedsService {
 
     protected FeedsService(PersistManagerFactory aPMFactory) {

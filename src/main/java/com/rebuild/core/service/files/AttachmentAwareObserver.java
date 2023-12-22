@@ -37,8 +37,9 @@ import java.util.List;
 @Slf4j
 public class AttachmentAwareObserver extends OperatingObserver {
 
-    public AttachmentAwareObserver() {
-        super();
+    @Override
+    public int getOrder() {
+        return 1;
     }
 
     @Override
