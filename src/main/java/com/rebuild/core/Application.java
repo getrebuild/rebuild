@@ -74,11 +74,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "3.5.2";
+    public static final String VER = "3.5.3";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 3050207;
+    public static final int BUILD = 3050308;
 
     static {
         // Driver for DB
@@ -373,11 +373,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     public static GeneralEntityService getGeneralEntityService() {
-        return (GeneralEntityService) getContext().getBean("generalEntityService");
+        return (GeneralEntityService) getContext().getBean("rbGeneralEntityService");
     }
 
     public static CommonsService getCommonsService() {
-        return getBean(CommonsService.class);
+        return (CommonsService) getContext().getBean("rbCommonsService");
     }
 
     /**

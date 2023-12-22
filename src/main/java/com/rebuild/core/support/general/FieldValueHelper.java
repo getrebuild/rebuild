@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -121,7 +122,13 @@ public class FieldValueHelper {
             value = N2NReferenceSupport.items(field.getRawMeta(), (ID) value);
         }
 
-        return field.wrapValue(value);
+        try {
+            return field.wrapValue(value);
+        } catch (JSONException ex) {
+            log.error("Bad JSONArray format : {} < {}", value, field.getRawMeta());
+            return JSONUtils.EMPTY_ARRAY;
+//            throw new RebuildException("BAD VALUE FORMAT:" + value);
+        }
     }
 
     /**

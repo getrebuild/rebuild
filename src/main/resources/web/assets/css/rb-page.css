@@ -1326,6 +1326,10 @@ a.link.link-icon::after {
   top: 119px;
 }
 
+.rbform .type-NTEXT .CodeMirror {
+  padding: 8px;
+}
+
 .editor-toolbar.fullscreen::before,
 .editor-toolbar.fullscreen::after {
   display: none;
@@ -4982,7 +4986,7 @@ pre.unstyle {
 }
 
 .dropdown-menu.entity-switch {
-  min-width: 220px;
+  width: 235px;
 }
 
 .dropdown-menu.entity-switch .dropdown-item.current,

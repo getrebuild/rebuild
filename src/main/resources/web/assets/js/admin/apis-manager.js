@@ -299,7 +299,7 @@ class AppLogsViewer extends RbModal {
       return resp.error_code === 0
     } catch (err) {
       try {
-        return resp.includes('调用成功') || resp.length > 9999
+        return resp.includes('调用成功') || resp.length >= 32767
       } catch (ignored) {
         // ignored
       }

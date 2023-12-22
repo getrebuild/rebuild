@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * @author Zixin (RB)
  * @since 11/06/2019
  */
-@Service
+@Service("rbCommonsService")
 public class CommonsService extends InternalPersistService {
 
     protected CommonsService(PersistManagerFactory aPMFactory) {

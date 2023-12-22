@@ -10,10 +10,9 @@ package com.rebuild.core.service.general;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
 import com.rebuild.core.privileges.bizz.InternalPermission;
+import com.rebuild.core.service.SafeObservable;
+import com.rebuild.core.service.SafeObserver;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * 记录操作观察者。子类复写需要关注的操作即可，**注意实现必须是无状态的**
@@ -23,14 +22,14 @@ import java.util.Observer;
  * @since 10/31/2018
  */
 @Slf4j
-public abstract class OperatingObserver implements Observer {
+public abstract class OperatingObserver implements SafeObserver {
 
     protected OperatingObserver() {
         super();
     }
 
     @Override
-    public void update(final Observable o, final Object arg) {
+    public void update(final SafeObservable o, final Object arg) {
         final OperatingContext ctx = (OperatingContext) arg;
         if (isAsync()) {
             ThreadPool.exec(() -> {

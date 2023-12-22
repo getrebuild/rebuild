@@ -34,6 +34,11 @@ import org.apache.commons.lang.StringUtils;
 public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
+    public int getOrder() {
+        return 2;
+    }
+
+    @Override
     protected void updateByAction(OperatingContext ctx) {
         if (isIgnore(ctx)) return;
 

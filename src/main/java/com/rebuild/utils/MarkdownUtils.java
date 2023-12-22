@@ -51,21 +51,25 @@ public class MarkdownUtils {
      *
      * @param md
      * @return
+     * @see #render(String, boolean, boolean)
      */
     public static String render(String md) {
-        return render(md, false);
+        return render(md, false, false);
     }
 
     /**
-     * MD 渲染，支持表格，HTML 代码会转义
+     * MD 渲染，支持表格
      *
      * @param md
      * @param targetBlank
+     * @param keepHtml HTML 代码保持
      * @return
      */
-    public static String render(String md, boolean targetBlank) {
-        md = CommonsUtils.escapeHtml(md);
-        md = md.replace("&gt; ", "> ");  // for MD quote
+    public static String render(String md, boolean targetBlank, boolean keepHtml) {
+        if (!keepHtml) {
+            md = CommonsUtils.escapeHtml(md);
+            md = md.replace("&gt; ", "> ");  // for MD quote
+        }
 
         if (targetBlank) {
             Node document = PARSER2.parse(md);
