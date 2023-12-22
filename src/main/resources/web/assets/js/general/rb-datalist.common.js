@@ -1090,6 +1090,10 @@ class RbList extends React.Component {
       this.setState({ inLoad: true }, () => this._$wrapper.addClass('rb-loading-active'))
     }, 400)
 
+    if (query.filter && (query.filter.items || []).length > 0) {
+      console.log('API Filter <Body> :\n', JSON.stringify(query.filter))
+    }
+
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {

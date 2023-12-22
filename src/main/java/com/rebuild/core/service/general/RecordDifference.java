@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.general;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -22,6 +23,7 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -80,6 +82,11 @@ public class RecordDifference {
                 Object beforeVal = e.getValue();
                 if (NullValue.is(beforeVal)) beforeVal = null;
 
+                // v3.5.3
+                if (beforeVal instanceof Date && entity.getField(fieldName).getType() == FieldType.DATE) {
+                    beforeVal = CalendarUtils.clearTime((Date) beforeVal);
+                }
+
                 merged.put(fieldName, new Object[]{beforeVal, null});
             }
         }
@@ -93,6 +100,11 @@ public class RecordDifference {
 
                 Object afterVal = e.getValue();
                 if (NullValue.is(afterVal)) continue;
+
+                // v3.5.3
+                if (afterVal instanceof Date && entity.getField(fieldName).getType() == FieldType.DATE) {
+                    afterVal = CalendarUtils.clearTime((Date) afterVal);
+                }
 
                 Object[] mergedValue = merged.computeIfAbsent(fieldName, k -> new Object[]{null, null});
                 mergedValue[1] = afterVal;

@@ -16,6 +16,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.BaseService;
+import com.rebuild.core.service.SafeObservable;
+import com.rebuild.core.service.SafeObserver;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
@@ -23,9 +25,6 @@ import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
-
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * 可注入观察者的服务
@@ -35,7 +34,7 @@ import java.util.Observer;
  * @since 12/28/2018
  */
 @Slf4j
-public abstract class ObservableService extends Observable implements ServiceSpec {
+public abstract class ObservableService extends SafeObservable implements ServiceSpec {
 
     final protected ServiceSpec delegateService;
 
@@ -45,21 +44,14 @@ public abstract class ObservableService extends Observable implements ServiceSpe
     protected ObservableService(PersistManagerFactory aPMFactory) {
         this.delegateService = new BaseService(aPMFactory);
 
-        for (Observer o : getOrderObservers()) {
-            log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
-            addObserver(o);
-        }
+        addObserver(new AttachmentAwareObserver());
+        addObserver(new RevisionHistoryObserver());
     }
 
-    /**
-     * @return
-     */
-    protected Observer[] getOrderObservers() {
-        // 默认监听者
-        return new Observer[] {
-            new RevisionHistoryObserver(),  // 2
-            new AttachmentAwareObserver(),  // 1
-        };
+    @Override
+    public void addObserver(SafeObserver o) {
+        log.info("Add observer : {} for [ {} ] ", o, getEntityCode());
+        super.addObserver(o);
     }
 
     @Override
@@ -72,7 +64,6 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         record = delegateService.create(record);
 
         if (countObservers() > 0) {
-            setChanged();
             notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.CREATE, null, record));
         }
         return record;
@@ -85,7 +76,6 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         record = delegateService.update(record);
 
         if (countObservers() > 0) {
-            setChanged();
             notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.UPDATE, before, record));
         }
         return record;
@@ -103,14 +93,12 @@ public abstract class ObservableService extends Observable implements ServiceSpe
             if (deleted == null) return 0;
 
             // 删除前触发，做一些状态保持
-            setChanged();
             notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, deleted));
         }
 
         int affected = delegateService.delete(recordId);
 
         if (countObservers() > 0) {
-            setChanged();
             notifyObservers(OperatingContext.create(currentUser, BizzPermission.DELETE, deleted, null));
         }
         return affected;

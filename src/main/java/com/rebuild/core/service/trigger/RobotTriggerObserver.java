@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.service.SafeObservable;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.service.general.RepeatedRecordsException;
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 
 import java.util.Map;
-import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rebuild.core.support.CommonsLog.TYPE_TRIGGER;
@@ -40,7 +40,12 @@ public class RobotTriggerObserver extends OperatingObserver {
     private static final ThreadLocal<Boolean> SKIP_TRIGGERS = new NamedThreadLocal<>("Skip triggers");
 
     @Override
-    public void update(final Observable o, Object arg) {
+    public int getOrder() {
+        return 4;
+    }
+
+    @Override
+    public void update(final SafeObservable o, Object arg) {
         if (isSkipTriggers(false)) return;
         super.update(o, arg);
     }

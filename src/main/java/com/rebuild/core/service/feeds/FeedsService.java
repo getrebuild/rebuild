@@ -57,8 +57,9 @@ public class FeedsService extends BaseFeedsService {
                 "select commentId from FeedsComment where feedsId = ?")
                 .setParameter(1, recordId)
                 .array();
+        FeedsCommentService fcs = Application.getBean(FeedsCommentService.class);
         for (Object[] c : comments) {
-            Application.getBean(FeedsCommentService.class).delete((ID) c[0]);
+            fcs.delete((ID) c[0]);
         }
 
         // 只有动态本身可以恢复

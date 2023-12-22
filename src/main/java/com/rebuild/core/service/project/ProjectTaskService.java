@@ -126,8 +126,9 @@ public class ProjectTaskService extends BaseTaskService {
                 "select commentId from ProjectTaskComment where taskId = ?")
                 .setParameter(1, taskId)
                 .array();
+        ProjectCommentService pcs = Application.getBean(ProjectCommentService.class);
         for (Object[] c : comments) {
-            Application.getBean(ProjectCommentService.class).delete((ID) c[0]);
+            pcs.delete((ID) c[0]);
         }
 
         // 只有任务本身可以恢复

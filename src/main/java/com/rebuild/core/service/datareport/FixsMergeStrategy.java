@@ -36,6 +36,7 @@ public class FixsMergeStrategy extends AbstractMergeStrategy {
         int colIndex = cell.getColumnIndex();
         sheet = cell.getSheet();
         Row prevRow = sheet.getRow(rowIndex - 1);
+        if (prevRow == null) return;
         Cell prevCell = prevRow.getCell(colIndex);
         List<CellRangeAddress> craList = sheet.getMergedRegions();
         CellStyle cs = cell.getCellStyle();

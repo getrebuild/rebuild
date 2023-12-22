@@ -52,7 +52,6 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -63,7 +62,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observer;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -79,7 +77,7 @@ import java.util.TreeMap;
  * @since 11/06/2019
  */
 @Slf4j
-@Service
+@Service("rbGeneralEntityService")
 public class GeneralEntityService extends ObservableService implements EntityService {
 
     // 有明细
@@ -87,18 +85,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
-    }
 
-    @Override
-    protected Observer[] getOrderObservers() {
-        Observer[] obs = new Observer[] {
-                // 触发器
-                new RobotTriggerObserver(),
-                // 通知
-                new NotificationObserver(),
-        };
-        obs = ArrayUtils.addAll(obs, super.getOrderObservers());
-        return obs;
+        addObserver(new NotificationObserver());
+        addObserver(new RobotTriggerObserver());
     }
 
     @Override
@@ -375,7 +364,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
 
         if (countObservers() > 0 && assignBefore != null) {
-            setChanged();
             notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.ASSIGN, assignBefore, assignAfter));
         }
         return affected;
@@ -454,7 +442,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         }
 
         if (countObservers() > 0 && shareChange) {
-            setChanged();
             notifyObservers(OperatingContext.create(currentUser, BizzPermission.SHARE, null, sharedAfter));
         }
         return affected;
@@ -476,7 +463,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         delegateService.delete(accessId);
 
         if (countObservers() > 0) {
-            setChanged();
             notifyObservers(OperatingContext.create(currentUser, InternalPermission.UNSHARE, unsharedBefore, null));
         }
         return 1;
