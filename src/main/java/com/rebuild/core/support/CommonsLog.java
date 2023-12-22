@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -65,7 +66,7 @@ public class CommonsLog {
         clog.setID("source", ObjectUtils.defaultIfNull(source, user));
         clog.setInt("status", status);
         clog.setDate("logTime", CalendarUtils.now());
-        if (content != null) clog.setString("logContent", content);
+        if (content != null) clog.setString("logContent", CommonsUtils.maxstr(content, 32767));
 
         TaskExecutors.queue(() -> Application.getCommonsService().create(clog, false));
     }
