@@ -313,7 +313,7 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref="entity" />
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} />
             </div>
           </div>
           <div className="form-group row footer">
@@ -329,16 +329,23 @@ class DlgAddChart extends RbFormHandler {
   }
 
   componentDidMount() {
-    const $entity = $(this.refs['entity'])
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      $(res.data).each(function () {
-        if (!$isSysMask(this.label)) {
-          $(`<option value="${this.name}">${this.label}</option>`).appendTo($entity)
+      const _data = res.data || []
+      _data.forEach((item) => {
+        if (!$isSysMask(item.label)) {
+          $(`<option value="${item.name}">${item.label}</option>`).appendTo(this._$entity)
         }
       })
-      this.__select2 = $entity.select2({
+
+      this.__select2 = $(this._$entity).select2({
         allowClear: false,
         placeholder: $L('选择数据来源'),
+        // templateResult: function (res) {
+        //   const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+        //   const found = _data.find((x) => x.entity === res.id)
+        //   if (found) $(`<i class="icon zmdi zmdi-${found.icon}"></i>`).appendTo($span)
+        //   return $span
+        // },
       })
     })
   }

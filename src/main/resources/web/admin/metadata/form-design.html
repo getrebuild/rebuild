@@ -93,6 +93,9 @@
                         <th>
                           <span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
                         </th>
+                        <th>
+                          <span class="d-inline-block">[[${bundle.L('只读')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -115,6 +118,16 @@
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="requiredOnUpdate" />
+                            <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+                          </label>
+                        </td>
+                        <td>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="readonlyOnCreate" />
+                            <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="readonlyOnUpdate" />
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
                         </td>

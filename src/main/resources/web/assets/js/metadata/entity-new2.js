@@ -17,6 +17,7 @@ class EntityNew2 extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    // this.state.excelfile = '134807507__副本IUI000008390352CNY23100100N-111.xls'
   }
 
   render() {
@@ -305,7 +306,9 @@ class EntityNew2 extends RbModalHandler {
     const excelfile = this.state.excelfile
     if (!excelfile) return RbHighbar.create($L('请上传数据文件'))
 
+    const $btn = $(this._$container).find('.btn').button('loading')
     $.get(`/app/entity/data-imports/check-file?file=${$encode(excelfile)}`, (res) => {
+      $btn.button('reset')
       if (res.error_code > 0) {
         this.setState({ excelfile: null })
         RbHighbar.create(res.error_msg)
@@ -318,7 +321,7 @@ class EntityNew2 extends RbModalHandler {
       const entityLabel = $val(this._$excelEntityLabel)
       if (!entityLabel) return RbHighbar.create($L('请输入实体名称'))
 
-      renderRbcomp(<ExcelPreview datas={_data.preview} entityLabel={entityLabel} excelfile={excelfile} title={$L('导入字段配置')} maximize _maximize disposeOnHide useWhite />)
+      renderRbcomp(<ExcelFieldsPreview datas={_data.preview} entityLabel={entityLabel} excelfile={excelfile} title={$L('确认导入字段')} disposeOnHide width="701" />)
     })
   }
 
@@ -343,125 +346,87 @@ class EntityNew2 extends RbModalHandler {
 }
 
 const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-class ExcelPreview extends RbModal {
+class ExcelFieldsPreview extends RbModal {
   renderContent() {
-    let colMax = 0
-    this.props.datas.forEach((d) => {
-      colMax = Math.max(colMax, d.length)
-    })
-
+    const ftKeys = Object.keys(FIELD_TYPES)
+    const fieldsHead = this.props.datas[0]
     const colNames = []
-    for (let i = 0; i < colMax; i++) {
+    for (let i = 0; i < fieldsHead.length; i++) {
       let L = _LETTERS[i]
       if (i > 25) L = `A${_LETTERS[i - 26] || 'X'}` // AA
       if (i > 51) L = `B${_LETTERS[i - 52] || 'X'}` // BA
       colNames.push(L)
     }
 
-    const ftKeys = Object.keys(FIELD_TYPES)
-    const dataHead = this.props.datas[0]
-
-    this.__colNames = colNames
-    this.__colDatas = {}
-
     return (
       <div className="modal-body m-0 p-0">
-        <div style={{ overflow: 'auto' }}>
-          <table className="table table-bordered table-excel m-0">
-            <thead>
-              <tr>
-                <th></th>
-                {colNames.map((item) => {
-                  return <th key={item}>{item}</th>
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              <tr ref={(c) => (this._$datahead = c)}>
-                <th>1</th>
-                {colNames.map((item, idx) => {
-                  return (
-                    <td key={item} className="align-text-top">
-                      <div>
-                        <label className="mb-0">{$L('字段名称')}</label>
-                        <input className="form-control form-control-sm" defaultValue={dataHead[idx]} placeholder={$L('不导入')} />
-                      </div>
-                      <div className="mt-1 J_type">
-                        <label className="mb-0">{$L('字段类型')}</label>
-                        <select className="form-control form-control-sm" defaultValue={$empty(dataHead[idx]) ? '-' : 'TEXT'}>
-                          <option value="-">{$L('不导入')}</option>
-                          {ftKeys.map((item) => {
-                            if (FIELD_TYPES[item][2]) return null
+        <table className="table table-sm table-hover table-fixed table-excel m-0">
+          <thead>
+            <tr>
+              <th width="40"></th>
+              <th>{$L('字段名称')}</th>
+              <th>{$L('字段类型')}</th>
+            </tr>
+          </thead>
+          <tbody ref={(c) => (this._$tbody = c)}>
+            {fieldsHead.map((item, idx) => {
+              return (
+                <tr key={idx}>
+                  <th className="text-center fs-12">{colNames[idx]}</th>
+                  <td className="pl-0">
+                    <input className="form-control form-control-sm down-1" defaultValue={item} placeholder={$L('不导入')} />
+                  </td>
+                  <td className="pr-3">
+                    <select className="form-control form-control-sm J_type" defaultValue={this._evalFieldType(item, idx) || 'TEXT'}>
+                      {ftKeys.map((type) => {
+                        if (FIELD_TYPES[type][2]) return null
+                        return (
+                          <option key={type} value={type}>
+                            {FIELD_TYPES[type][0]}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <div className="mt-1 J_refEntity hide">
+                      <label className="mb-0 fs-12 text-bold">{$L('选择引用实体')}</label>
+                      <select className="form-control form-control-sm">
+                        {this.state.refEntities &&
+                          this.state.refEntities.map((item) => {
+                            if (item.entityName === 'Team') return null
                             return (
-                              <option key={item} value={item}>
-                                {FIELD_TYPES[item][0]}
+                              <option key={item.entityName} value={item.entityName}>
+                                {item.entityLabel}
                               </option>
                             )
                           })}
-                        </select>
-                      </div>
-                      <div className="mt-1 J_refEntity hide">
-                        <label className="mb-0">{$L('选择引用实体')}</label>
-                        <select className="form-control form-control-sm">
-                          {this.state.refEntities &&
-                            this.state.refEntities.map((item) => {
-                              if (item.entityName === 'Team') return null
-                              return (
-                                <option key={item.entityName} value={item.entityName}>
-                                  {item.entityLabel}
-                                </option>
-                              )
-                            })}
-                        </select>
-                      </div>
-                      <div className="mt-1 J_refClass hide">
-                        <label className="mb-0">{$L('选择分类数据')}</label>
-                        <select className="form-control form-control-sm">
-                          {this.state.refClasses &&
-                            this.state.refClasses.map((item) => {
-                              return (
-                                <option key={item[0]} value={item[0]}>
-                                  {item[1]}
-                                </option>
-                              )
-                            })}
-                        </select>
-                      </div>
-                    </td>
-                  )
-                })}
-              </tr>
-              {this.props.datas.map((d, idx) => {
-                if (idx === 0 || idx > 20) return null
-                return (
-                  <tr key={idx}>
-                    <th>{idx + 1}</th>
-                    {colNames.map((item, idx2) => {
-                      const r = this.__colDatas[idx2] || []
-                      r.push(d[idx2])
-                      this.__colDatas[idx2] = r
+                      </select>
+                    </div>
+                    <div className="mt-1 J_refClass hide">
+                      <label className="mb-0 fs-12 text-bold">{$L('选择分类数据')}</label>
+                      <select className="form-control form-control-sm">
+                        {this.state.refClasses &&
+                          this.state.refClasses.map((item) => {
+                            return (
+                              <option key={item[0]} value={item[0]}>
+                                {item[1]}
+                              </option>
+                            )
+                          })}
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
 
-                      return (
-                        <td key={`${idx}-${idx2}`} className="text-break">
-                          {d[idx2] || ''}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="float-left">
-          <p className="protips m-0 p-3 pt-4">{$L('最多显示前 %d 行数据', 20)}</p>
-        </div>
-        <div className="text-right p-2 pt-3" ref={(c) => (this._$btns = c)}>
-          <button className="btn btn-link btn-space" type="button" onClick={() => this.hide()}>
-            {$L('返回')}
-          </button>
-          <button className="btn btn-primary btn-space" type="button" onClick={() => this.post2()}>
+        <div style={{ padding: 20, paddingLeft: 40 }} ref={(c) => (this._$btns = c)}>
+          <button className="btn btn-primary" type="button" onClick={() => this.post2()}>
             {$L('确定')}
+          </button>
+          <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+            {$L('返回')}
           </button>
         </div>
       </div>
@@ -471,38 +436,24 @@ class ExcelPreview extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    // 评估字段类型
-    function _evalFieldType(cols) {
-      let isNumber = undefined
-      let isDecimal = undefined
-      cols.forEach((item) => {
-        if ($empty(item)) return
-
-        if (isNumber || isNumber === undefined) isNumber = !isNaN(item)
-        if (isDecimal || isDecimal === undefined) {
-          isDecimal = isNumber && /\./g.test(item)
-        }
-      })
-      if (isDecimal) return 'DECIMAL'
-      if (isNumber) return 'NUMBER'
-      return null
-    }
-
     $.get('/admin/entity/entity-list?detail=true', (res) => {
       this.setState({ refEntities: res.data || [] })
 
       $.get('/admin/metadata/classification/list', (res2) => {
         this.setState({ refClasses: res2.data || [] }, () => {
           // init
-          this.__colNames.forEach((item, idx) => {
-            const type = _evalFieldType(this.__colDatas[idx] || [])
-            type && $(this._$datahead).find('td').eq(idx).find('.J_type select').val(type)
-          })
-
-          $(this._$datahead)
-            .find('.J_type select')
+          $(this._$tbody)
+            .find('.J_type')
+            .select2({
+              allowClear: false,
+              templateResult: function (res) {
+                const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+                $(`<i class="icon mdi ${(FIELD_TYPES[res.id] || [])[1]}"></i>`).appendTo($span)
+                return $span
+              },
+            })
             .on('change', function () {
-              const $td = $(this).parents('td')
+              const $td = $(this).parent()
               $td.find('.J_refEntity, .J_refClass').addClass('hide')
 
               const t = $(this).val()
@@ -513,20 +464,39 @@ class ExcelPreview extends RbModal {
               }
             })
 
-          $(this._$datahead).find('select').select2({ allowClear: false })
+          $(this._$tbody).find('.J_refEntity select, .J_refClass select').select2({ allowClear: false })
         })
       })
     })
   }
 
+  _evalFieldType(name, colidx) {
+    if ($empty(name)) return null
+
+    let isNumber = undefined
+    let isDecimal = undefined
+    this.props.datas.forEach((row, idx) => {
+      if (idx < 1) return
+      const v = row[colidx]
+      if (isNumber || isNumber === undefined) isNumber = !isNaN(v)
+      if (isDecimal || isDecimal === undefined) {
+        isDecimal = isNumber && /\./g.test(v)
+      }
+    })
+
+    if (isDecimal) return 'DECIMAL'
+    if (isNumber) return 'NUMBER'
+    return null
+  }
+
   post2() {
     const fieldsNew = []
-    $(this._$datahead)
-      .find('td')
+    $(this._$tbody)
+      .find('tr')
       .each(function () {
         const name = $(this).find('input').val()
-        const type = $(this).find('.J_type select').val()
-        if (name && type && type !== '-') {
+        const type = $(this).find('.J_type').val()
+        if (name) {
           let ref2 = null
           if (type === 'REFERENCE' || type === 'N2NREFERENCE') {
             ref2 = $(this).find('.J_refEntity select').val()
@@ -539,7 +509,7 @@ class ExcelPreview extends RbModal {
           fieldsNew.push([name, type, ref2])
         }
       })
-    if (fieldsNew.length === 0) return RbHighbar.create($L('没有配置任何导入字段'))
+    if (fieldsNew.length === 0) return RbHighbar.create($L('没有任何导入字段'))
 
     const that = this
     const post = {
@@ -547,21 +517,24 @@ class ExcelPreview extends RbModal {
       fields: fieldsNew,
     }
 
-    RbAlert.create($L('请确认导入字段配置。开始导入吗？'), {
+    RbAlert.create($L('请再次确认导入字段。开始导入吗？'), {
       onConfirm: function () {
         this.disabled(true, true)
         $.post('/admin/entity/entity-excel', JSON.stringify(post), (res) => {
           this.hide(true)
 
           if (res.error_code === 0) {
-            RbAlert.create($L('实体导入成功。是否需要进行数据导入？'), {
-              onConfirm: function () {
-                location.href = `${rb.baseUrl}/admin/data/data-imports?entity=${res.data}&file=${$encode(that.props.excelfile)}`
-              },
-              onCancel: function () {
-                location.href = `${rb.baseUrl}/admin/entity/${res.data}/fields`
-              },
-            })
+            setTimeout(() => {
+              RbAlert.create($L('实体导入成功。是否需要进行数据导入？'), {
+                onConfirm: function () {
+                  location.href = `${rb.baseUrl}/admin/data/data-imports?entity=${res.data}&file=${$encode(that.props.excelfile)}`
+                },
+                onCancel: function () {
+                  location.href = `${rb.baseUrl}/admin/entity/${res.data}/fields`
+                },
+                cancelText: $L('不需要'),
+              })
+            }, 200)
           } else {
             RbHighbar.error(res.error_msg)
           }
