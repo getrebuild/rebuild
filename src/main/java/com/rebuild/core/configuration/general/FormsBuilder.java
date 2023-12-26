@@ -347,11 +347,13 @@ public class FormsBuilder extends FormsManager {
             // v2.2 高级控制
             if (viewModel) useAdvControl = false;
             if (useAdvControl) {
-                Object displayOnCreate = el.remove("displayOnCreate");
-                Object displayOnUpdate = el.remove("displayOnUpdate");
-                Object requiredOnCreate = el.remove("requiredOnCreate");
-                Object requiredOnUpdate = el.remove("requiredOnUpdate");
-                
+                final Object displayOnCreate = el.remove("displayOnCreate");
+                final Object displayOnUpdate = el.remove("displayOnUpdate");
+                final Object requiredOnCreate = el.remove("requiredOnCreate");
+                final Object requiredOnUpdate = el.remove("requiredOnUpdate");
+                final Object readonlyOnCreate = el.remove("readonlyOnCreate");
+                final Object readonlyOnUpdate = el.remove("readonlyOnUpdate");
+
                 // fix v3.3.4 跟随主记录新建/更新
                 boolean isNew2 = isNew;
                 if (entity.getMainEntity() != null) {
@@ -375,6 +377,14 @@ public class FormsBuilder extends FormsManager {
                 }
                 if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && !isNew2) {
                     el.put("nullable", false);
+                }
+
+                // 只读 v3.6
+                if (readonlyOnCreate != null && (Boolean) readonlyOnCreate && isNew2) {
+                    el.put("readonly", true);
+                }
+                if (readonlyOnUpdate != null && (Boolean) readonlyOnUpdate && !isNew2) {
+                    el.put("readonly", true);
                 }
             }
 

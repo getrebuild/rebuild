@@ -563,9 +563,20 @@ const AdvControl = {
   set: function (field) {
     const $c = $(`<tr data-field="${field.fieldName}">${this._template}</tr>`).appendTo(this.$tbody)
     $c.find('td:eq(0)').text(field.fieldLabel)
+
+    // 必填
     const $req = $c.find('td:eq(2)')
     if (field.builtin) $req.empty()
-    else if (!field.nullable) $req.find('input').attr({ disabled: true, checked: true })
+    else if (!field.nullable) {
+      $req.find('input').attr({ disabled: true, checked: true })
+    }
+    // 只读
+    const $ro = $c.find('td:eq(3)')
+    if (field.builtin) $ro.empty()
+    else {
+      if (!field.creatable) $ro.find('input:eq(0)').attr({ disabled: true, checked: true })
+      if (!field.updatable) $ro.find('input:eq(1)').attr({ disabled: true, checked: true })
+    }
 
     this.$tbody.find(`tr[data-field="${field.fieldName}"] input`).each(function () {
       const $this = $(this)
