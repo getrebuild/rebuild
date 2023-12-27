@@ -92,4 +92,17 @@ class AviatorUtilsTest {
         Assertions.assertThrows(ExpressionRuntimeException.class,
                 () -> AviatorUtils.eval("date1 + date1", env, false));
     }
+
+    @Test
+    void testDateCompare() {
+        Map<String, Object> env = new HashMap<>();
+        env.put("date1", CalendarUtils.now());
+        env.put("date2", CalendarUtils.addDay(1));
+        AviatorUtils.eval("p(date1 == date1)", env, true);
+        AviatorUtils.eval("p(date1 != date2)", env, true);
+        AviatorUtils.eval("p(date1 > date2)", env, true);
+        AviatorUtils.eval("p(date1 < date2)", env, true);
+        AviatorUtils.eval("p(date1 <= date1)", env, true);
+        AviatorUtils.eval("p(date2 <= date2)", env, true);
+    }
 }
