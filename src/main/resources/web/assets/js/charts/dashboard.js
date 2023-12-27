@@ -321,6 +321,9 @@ class DlgAddChart extends RbFormHandler {
               <button className="btn btn-primary" type="button" onClick={() => this.next()}>
                 {$L('下一步')}
               </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
             </div>
           </div>
         </div>
@@ -340,12 +343,6 @@ class DlgAddChart extends RbFormHandler {
       this.__select2 = $(this._$entity).select2({
         allowClear: false,
         placeholder: $L('选择数据来源'),
-        // templateResult: function (res) {
-        //   const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
-        //   const found = _data.find((x) => x.entity === res.id)
-        //   if (found) $(`<i class="icon zmdi zmdi-${found.icon}"></i>`).appendTo($span)
-        //   return $span
-        // },
       })
     })
   }

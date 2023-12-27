@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaDate, FormulaCalc */
+/* global FormulaDate, FormulaCalc, FIELD_TYPES */
 
 const wpc = window.__PageConfig
 const __gExtConfig = {}
@@ -298,6 +298,14 @@ $(document).ready(function () {
         $countdownButton($(this._dlg).find('.btn-danger'))
       },
     })
+  })
+
+  $('.J_cast-type').on('click', () => {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+    renderRbcomp(<FieldTypeCast entity={wpc.entityName} field={wpc.fieldName} fromType={wpc.fieldType} />)
   })
 })
 
@@ -731,4 +739,88 @@ const _handleAnyReference = function (es) {
     // init
     if (es) $s2.val(es.split(',')).trigger('change')
   })
+}
+
+// 字段类型转换
+const __TYPE2TYPE = {
+  'NUMBER': ['DECIMAL'],
+  'DECIMAL': ['NUMBER'],
+  'DATE': ['DATETIME'],
+  'DATETIME': ['DATE'],
+  'TEXT': ['NTEXT', 'PHONE', 'EMAIL', 'URL'],
+  'PHONE': ['TEXT'],
+  'EMAIL': ['TEXT'],
+  'URL': ['TEXT'],
+  'NTEXT': ['TEXT'],
+  'IMAGE': ['FILE'],
+  'FILE': ['IMAGE'],
+}
+class FieldTypeCast extends RbFormHandler {
+  render() {
+    const toTypes = __TYPE2TYPE[this.props.fromType] || []
+
+    return (
+      <RbModal title={$L('转换字段类型')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('当前字段类型')}</label>
+            <div className="col-sm-7">
+              <div className="form-control-plaintext text-bold">{FIELD_TYPES[this.props.fromType][0]}</div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('新字段类型')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => (this._$toType = c)}>
+                {toTypes.map((t) => {
+                  return (
+                    <option value={t} key={t}>
+                      {(FIELD_TYPES[t] || [t])[0]}
+                    </option>
+                  )
+                })}
+              </select>
+              <p className="form-text">{$L('转换可能导致一定的精度损失，请谨慎进行')}</p>
+            </div>
+          </div>
+          <div className="form-group row footer" ref={(c) => (this._$btns = c)}>
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+                {$L('确定')}
+              </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$toType).select2({
+      placeholder: $L('不可转换'),
+      templateResult: function (res) {
+        const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+        $(`<i class="icon mdi ${(FIELD_TYPES[res.id] || [])[1]}"></i>`).appendTo($span)
+        return $span
+      },
+    })
+  }
+
+  post() {
+    const toType = $(this._$toType).val()
+    if (!toType) return RbHighbar.create($L('不可转换'))
+
+    const $btn = $(this._$btns).find('.btn').button('loading')
+    $.post(`/admin/entity/field-type-cast?entity=${this.props.entity}&field=${this.props.field}&toType=${toType}`, (res) => {
+      if (res.error_code === 0) {
+        location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
 }

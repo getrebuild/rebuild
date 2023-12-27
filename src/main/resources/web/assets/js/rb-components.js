@@ -181,12 +181,12 @@ class RbModalHandler extends React.Component {
     this.state = { ...props }
   }
 
-  show = (state, call) => {
+  show = (state, cb) => {
     const callback = () => {
       // eslint-disable-next-line react/no-string-refs
       const dlg = this._dlg || this.refs['dlg']
       if (dlg) dlg.show()
-      typeof call === 'function' && call(this)
+      typeof cb === 'function' && cb(this)
     }
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
@@ -1243,7 +1243,7 @@ const renderRbcomp = function (jsx, target, callback) {
     target = target[0]
   }
 
-  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
+  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, callback)
   ReactDOM.render(jsx, target, callback)
   return target
 }
