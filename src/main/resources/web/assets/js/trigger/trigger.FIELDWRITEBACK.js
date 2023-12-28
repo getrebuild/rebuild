@@ -339,8 +339,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       sourceField = this._$sourceValue.val()
       if (!sourceField) return
     } else if (mode === 'VNULL') {
-      const tf = this.state.targetFields.find((x) => x.name === targetField)
-      if (!tf.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', `[ ${tf.label} ]`))
+      // v3.6 不校验
+      // const tf = this.state.targetFields.find((x) => x.name === targetField)
+      // if (!tf.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', tf.label))
     }
 
     const items = this.state.items || []
