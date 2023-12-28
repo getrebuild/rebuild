@@ -66,7 +66,12 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('类型')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <input class="form-control form-control-sm" type="text" readonly th:value="${fieldTypeLabel}" />
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" type="text" readonly th:value="${fieldTypeLabel}" />
+                      <div class="input-group-append hide">
+                        <button type="button" class="btn btn-secondary J_cast-type" th:title="${bundle.L('转换字段类型')}"><i class="zmdi zmdi-swap icon"></i></button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <th:block th:if="${fieldType == 'DECIMAL'}">
@@ -531,6 +536,7 @@
     <script th:src="@{/assets/js/general/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-edit.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
   </body>
 </html>

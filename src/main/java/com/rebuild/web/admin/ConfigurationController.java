@@ -245,6 +245,7 @@ public class ConfigurationController extends BaseController {
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName"),
                     data.getString("MailCc"),
+                    data.getString("MailBcc"),
                     data.getString("MailSmtpServer")
             };
             if (specAccount[1].contains("*")) {
@@ -277,7 +278,7 @@ public class ConfigurationController extends BaseController {
 
         Object[] smsCount = Application.createQueryNoFilter(sqlCount)
                 .setParameter(1, 1)
-                .setParameter(1, xday)
+                .setParameter(2, xday)
                 .unique();
 
         Object[][] email = Application.createQueryNoFilter(sql)

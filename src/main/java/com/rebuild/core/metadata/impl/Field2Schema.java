@@ -411,4 +411,54 @@ public class Field2Schema extends SetUser {
 
         return identifier;
     }
+
+    /**
+     * 类型转换
+     *
+     * @param field
+     * @param toType
+     * @param force
+     * @return
+     */
+    public boolean castType(Field field, DisplayType toType, boolean force) {
+        EasyField easyMeta = EasyMetaFactory.valueOf(field);
+        ID metaRecordId = easyMeta.getMetaId();
+        if (easyMeta.isBuiltin() || metaRecordId == null) {
+            throw new MetadataModificationException(Language.L("系统内置，不允许转换"));
+        }
+
+        if (!force) {
+            long count;
+            if ((count = checkRecordCount(field.getOwnEntity())) > 100000) {
+                throw new MetadataModificationException(Language.L("实体记录过多 (%d)，转换字段可能导致表损坏", count));
+            }
+        }
+
+        Record meta = EntityHelper.forUpdate(metaRecordId, getUser(), false);
+        meta.setString("displayType", toType.name());
+        Application.getCommonsService().update(meta, false);
+
+        Dialect dialect = Application.getPersistManagerFactory().getDialect();
+        final Table table = new Table(field.getOwnEntity(), dialect);
+        StringBuilder ddl = new StringBuilder();
+        table.generateFieldDDL(field, ddl);
+
+        String alterSql = String.format("alter table `%s` change column `%s` ",
+                field.getOwnEntity().getPhysicalName(), field.getPhysicalName());
+        alterSql += ddl.toString().trim();
+
+        try {
+            Application.getSqlExecutor().executeBatch(new String[]{alterSql}, DDL_TIMEOUT);
+        } catch (Throwable ex) {
+            // 还原
+            meta.setString("displayType", EasyMetaFactory.getDisplayType(field).name());
+            Application.getCommonsService().update(meta, false);
+
+            log.error("DDL ERROR : \n" + alterSql, ex);
+            throw new MetadataModificationException(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        }
+
+        MetadataHelper.getMetadataFactory().refresh();
+        return true;
+    }
 }

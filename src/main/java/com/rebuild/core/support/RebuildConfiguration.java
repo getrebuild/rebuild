@@ -115,7 +115,7 @@ public class RebuildConfiguration extends KVStorage {
     /**
      * 邮件账号
      *
-     * @return returns [MailUser, MailPassword, MailAddr, MailName, MailCc, MailSmtpServer]
+     * @return returns [MailUser, MailPassword, MailAddr, MailName, MailCc, MailBcc, MailSmtpServer]
      */
     public static String[] getMailAccount() {
         String[] set = getsNoUnset(false,
@@ -123,11 +123,13 @@ public class RebuildConfiguration extends KVStorage {
         if (set == null) return null;
 
         String cc = get(ConfigurationItem.MailCc);
+        String bcc = get(ConfigurationItem.MailBcc);
         String smtpServer = get(ConfigurationItem.MailSmtpServer);
 
         return new String[] {
                 set[0], set[1], set[2], set[3],
                 StringUtils.defaultIfBlank(cc, null),
+                StringUtils.defaultIfBlank(bcc, null),
                 StringUtils.defaultIfBlank(smtpServer, null)
         };
     }

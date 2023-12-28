@@ -46,6 +46,12 @@ public class AviatorUtils {
 
         AVIATOR.addOpFunction(OperatorType.ADD, new OverOperatorType.DateAdd());
         AVIATOR.addOpFunction(OperatorType.SUB, new OverOperatorType.DateSub());
+        AVIATOR.addOpFunction(OperatorType.LE, new OverOperatorType.DateCompareLE());
+        AVIATOR.addOpFunction(OperatorType.LT, new OverOperatorType.DateCompareLT());
+        AVIATOR.addOpFunction(OperatorType.GE, new OverOperatorType.DateCompareGE());
+        AVIATOR.addOpFunction(OperatorType.GT, new OverOperatorType.DateCompareGT());
+        AVIATOR.addOpFunction(OperatorType.EQ, new OverOperatorType.DateCompareEQ());
+        AVIATOR.addOpFunction(OperatorType.NEQ, new OverOperatorType.DateCompareNEQ());
 
         addCustomFunction(new DateDiffFunction());
         addCustomFunction(new DateAddFunction());
