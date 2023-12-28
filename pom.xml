@@ -473,7 +473,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.21</version>
+            <version>5.8.24</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
