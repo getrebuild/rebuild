@@ -1172,10 +1172,10 @@ a.link.link-icon::after {
   cursor: default;
   background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
-  line-height: 18px;
   display: none;
   width: 18px;
-  height: 18px;
+  height: 19px;
+  line-height: 19px;
 }
 
 .img-field.avatar label.img-upload b {
