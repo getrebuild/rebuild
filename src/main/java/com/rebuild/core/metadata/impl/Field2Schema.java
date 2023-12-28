@@ -455,7 +455,7 @@ public class Field2Schema extends SetUser {
             Application.getCommonsService().update(meta, false);
 
             log.error("DDL ERROR : \n" + alterSql, ex);
-            return false;
+            throw new MetadataModificationException(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
 
         MetadataHelper.getMetadataFactory().refresh();
