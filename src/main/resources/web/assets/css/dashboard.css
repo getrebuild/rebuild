@@ -184,17 +184,8 @@ body.fullscreen .dash-right .J_darkmode {
   display: inline-block;
 }
 
-body.fullscreen.darkmode {
-  background: #0a1b3b url(../img/datav-bg.png) no-repeat 0 0;
-  background-size: 100% 100%;
-}
-
-body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content {
-  background-color: rgba(6, 30, 93, 0.5);
-}
-
-body.fullscreen.darkmode .grid-stack .grid-stack-item.fullscreen .grid-stack-item-content {
-  background-color: #0a1b3b;
+body.fullscreen .announcement-wrapper {
+  display: none;
 }
 
 .grid-stack-item.fullscreen {
@@ -237,4 +228,47 @@ body.fullscreen .tools-bar h4 {
 
 .grid-stack-item.bgcolor .rb-spinner svg {
   stroke: #fff;
+}
+
+/* darkmode */
+
+body.fullscreen.darkmode {
+  background: #191a2c;
+}
+
+body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content,
+body.fullscreen.darkmode .chart-box.ApprovalList .progress-wrap,
+body.fullscreen.darkmode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #24273e;
+}
+
+body.fullscreen.darkmode .chart .table,
+body.fullscreen.darkmode .chart .table td > a {
+  background-color: transparent;
+  color: #fff;
+}
+
+body.fullscreen.darkmode .chart .table th {
+  background-color: #1e2033;
+}
+
+body.fullscreen.darkmode .chart .table thead,
+body.fullscreen.darkmode .chart .table tbody,
+body.fullscreen.darkmode .chart .table th,
+body.fullscreen.darkmode .chart .table td,
+body.fullscreen.darkmode .chart .table {
+  border-color: #191a2c;
+}
+
+body.fullscreen.darkmode .chart .table tr:hover,
+body.fullscreen.darkmode .chart .table th:hover,
+body.fullscreen.darkmode .chart .table tr.highlight,
+body.fullscreen.darkmode .tcs-selected {
+  background: unset;
+}
+
+body.fullscreen.darkmode .ApprovalList thead th,
+body.fullscreen.darkmode .ProjectTasks thead th,
+body.fullscreen.darkmode .FeedsSchedule thead th {
+  padding-top: 7px;
 }
