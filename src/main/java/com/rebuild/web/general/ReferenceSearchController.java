@@ -197,8 +197,8 @@ public class ReferenceSearchController extends EntityController {
 
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
         String sqlWhere = String.format(
-                "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by fullName",
-                useClassification.toLiteral(), openLevel, q, q);
+                "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
+                useClassification.toLiteral(), openLevel, q, q, q);
 
         List<Object> result = resultSearch(
                 sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 10);
