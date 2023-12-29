@@ -434,7 +434,7 @@ public class FieldWriteback extends FieldAggregation {
                             continue;
                         }
 
-                        Object retValue = useSourceData.getObjectValue(fieldName);
+                        Object value = useSourceData.getObjectValue(fieldName);
 
                         // fix: 3.5.4
                         Field varField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
@@ -442,28 +442,30 @@ public class FieldWriteback extends FieldAggregation {
                         boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
                                 || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
 
-                        if (retValue instanceof Date) {
-                            retValue = CalendarUtils.getUTCDateTimeFormat().format(retValue);
-                        } else if (retValue == null) {
+                        if (value instanceof Date) {
+                            value = CalendarUtils.getUTCDateTimeFormat().format(value);
+                        } else if (value == null) {
                             // N2N 保持 `NULL`
                             Field isN2NField = sourceEntity.containsField(fieldName) ? sourceEntity.getField(fieldName) : null;
                             // 数字字段置 `0`
                             if (varField != null
                                     && (varField.getType() == FieldType.LONG || varField.getType() == FieldType.DECIMAL)) {
-                                retValue = 0;
+                                value = 0;
                             } else if (fieldVarsN2NPath.contains(fieldName)
                                     || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
                                 // Keep NULL
                             } else {
-                                retValue = StringUtils.EMPTY;
+                                value = StringUtils.EMPTY;
                             }
                         } else if (isMultiField) {
-                            retValue = easyVarField.convertCompatibleValue(retValue, targetFieldEasy);
-                        } else if (retValue instanceof ID || forceUseQuote) {
-                            retValue = retValue.toString();
+                            // force `TEXT`
+                            EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
+                            value = easyVarField.convertCompatibleValue(value, fakeTextField);
+                        } else if (value instanceof ID || forceUseQuote) {
+                            value = value.toString();
                         }
 
-                        envMap.put(fieldName, retValue);
+                        envMap.put(fieldName, value);
                     }
 
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
