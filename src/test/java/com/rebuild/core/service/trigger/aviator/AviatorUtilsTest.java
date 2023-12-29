@@ -8,12 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.aviator;
 
 import cn.devezhao.commons.CalendarUtils;
+import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -82,8 +82,8 @@ class AviatorUtilsTest {
 
     @Test
     void testDateOp() {
-        Map<String, Object> env = new HashMap<>();
-        env.put("date1", CalendarUtils.now());
+        Map<String, Object> env = AviatorEvaluator.newEnv("date1", CalendarUtils.now());
+
         AviatorUtils.eval("p(date1 + 8)", env, true);
         AviatorUtils.eval("p(date1 - 8)", env, true);
         AviatorUtils.eval("p(date1 - date1)", env, true);
@@ -97,20 +97,26 @@ class AviatorUtilsTest {
 
     @Test
     void testDateCompare() {
-        Map<String, Object> env = new HashMap<>();
-        env.put("date1", CalendarUtils.now());
-        env.put("date2", CalendarUtils.addDay(1));
-        AviatorUtils.eval("p(date1 == date1)", env, true);
-        AviatorUtils.eval("p(date1 != date2)", env, true);
-        AviatorUtils.eval("p(date1 > date2)", env, true);
-        AviatorUtils.eval("p(date1 < date2)", env, true);
-        AviatorUtils.eval("p(date1 <= date1)", env, true);
-        AviatorUtils.eval("p(date2 <= date2)", env, true);
+        Map<String, Object> env = AviatorEvaluator.newEnv(
+                "date1", CalendarUtils.now(),
+                "date2", CalendarUtils.addDay(1));
 
-        AviatorUtils.eval("p(1 != 2)", env, true);
-        AviatorUtils.eval("p(2 != 1)", env, true);
-        AviatorUtils.eval("p(2.1 != 1)", env, true);
-        AviatorUtils.eval("p(2 != 2.1)", env, true);
-        AviatorUtils.eval("p(2 != 2)", env, true);
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 == date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 != date2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("date1 > date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 >= date1", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("date1 < date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 <= date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 == date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 != date2", env));
+
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1.0 == 1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1 != 2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("1 > 2", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("2 >= 2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("3.1 < 2", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("4.56 <= 4.56", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("12.34560 == 12.3456", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1 != 2", env));
     }
 }

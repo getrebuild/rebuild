@@ -9,6 +9,7 @@ package com.rebuild.core.service.trigger.aviator;
 
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author devezhao
  * @since 2021/4/12
  */
+@Slf4j
 public class AviatorDate extends AviatorObject {
     private static final long serialVersionUID = 2930549924386648595L;
 
@@ -38,7 +40,13 @@ public class AviatorDate extends AviatorObject {
 
     @Override
     public int innerCompare(AviatorObject other, Map<String, Object> env) {
-        return 0;
+        Object $date = other.getValue(env);
+        if ($date instanceof Date) {
+            return dateValue.compareTo((Date) $date);
+        }
+
+        log.warn("Could not compare " + desc(env) + " with " + other.desc(env));
+        return -1;
     }
 
     @Override

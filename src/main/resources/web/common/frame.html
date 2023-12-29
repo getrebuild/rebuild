@@ -33,7 +33,8 @@
     <script>
       $(document).ready(() => {
         const $frame = $('.frame-wrap iframe')
-        $frame.attr('src', $decode($urlp('url')))
+        const url = $urlp('url') || $urlp('src')
+        $frame.attr('src', $decode(url))
 
         $addResizeHandler(() => {
           $frame.css({ minHeight: $(window).height() - 61 })
