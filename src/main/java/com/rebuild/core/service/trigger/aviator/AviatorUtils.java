@@ -44,15 +44,17 @@ public class AviatorUtils {
         } catch (Exception ignored) {
         }
 
-        AVIATOR.addOpFunction(OperatorType.ADD, new OverOperatorType.DateAdd());
-        AVIATOR.addOpFunction(OperatorType.SUB, new OverOperatorType.DateSub());
-        AVIATOR.addOpFunction(OperatorType.LE, new OverOperatorType.DateCompareLE());
-        AVIATOR.addOpFunction(OperatorType.LT, new OverOperatorType.DateCompareLT());
-        AVIATOR.addOpFunction(OperatorType.GE, new OverOperatorType.DateCompareGE());
-        AVIATOR.addOpFunction(OperatorType.GT, new OverOperatorType.DateCompareGT());
-        AVIATOR.addOpFunction(OperatorType.EQ, new OverOperatorType.DateCompareEQ());
-        AVIATOR.addOpFunction(OperatorType.NEQ, new OverOperatorType.DateCompareNEQ());
+        // 重载操作符
+        AVIATOR.addOpFunction(OperatorType.ADD, new OverDateOperator.DateAdd());
+        AVIATOR.addOpFunction(OperatorType.SUB, new OverDateOperator.DateSub());
+        AVIATOR.addOpFunction(OperatorType.LE, new OverDateOperator.DateCompareLE());
+        AVIATOR.addOpFunction(OperatorType.LT, new OverDateOperator.DateCompareLT());
+        AVIATOR.addOpFunction(OperatorType.GE, new OverDateOperator.DateCompareGE());
+        AVIATOR.addOpFunction(OperatorType.GT, new OverDateOperator.DateCompareGT());
+        AVIATOR.addOpFunction(OperatorType.EQ, new OverDateOperator.DateCompareEQ());
+        AVIATOR.addOpFunction(OperatorType.NEQ, new OverDateOperator.DateCompareNEQ());
 
+        // 自定义函数
         addCustomFunction(new DateDiffFunction());
         addCustomFunction(new DateAddFunction());
         addCustomFunction(new DateSubFunction());

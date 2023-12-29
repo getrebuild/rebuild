@@ -87,6 +87,8 @@ class AviatorUtilsTest {
         AviatorUtils.eval("p(date1 + 8)", env, true);
         AviatorUtils.eval("p(date1 - 8)", env, true);
         AviatorUtils.eval("p(date1 - date1)", env, true);
+        AviatorUtils.eval("p(1 + 1)", env, true);
+        AviatorUtils.eval("p(1 - 1)", env, true);
 
         // BAD
         Assertions.assertThrows(ExpressionRuntimeException.class,
@@ -104,5 +106,11 @@ class AviatorUtilsTest {
         AviatorUtils.eval("p(date1 < date2)", env, true);
         AviatorUtils.eval("p(date1 <= date1)", env, true);
         AviatorUtils.eval("p(date2 <= date2)", env, true);
+
+        AviatorUtils.eval("p(1 != 2)", env, true);
+        AviatorUtils.eval("p(2 != 1)", env, true);
+        AviatorUtils.eval("p(2.1 != 1)", env, true);
+        AviatorUtils.eval("p(2 != 2.1)", env, true);
+        AviatorUtils.eval("p(2 != 2)", env, true);
     }
 }
