@@ -434,29 +434,36 @@ public class FieldWriteback extends FieldAggregation {
                             continue;
                         }
 
-                        Object value = useSourceData.getObjectValue(fieldName);
+                        Object retValue = useSourceData.getObjectValue(fieldName);
 
-                        if (value instanceof Date) {
-                            value = CalendarUtils.getUTCDateTimeFormat().format(value);
-                        } else if (value == null) {
-                            // 数字字段置 `0`
-                            Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                        // fix: 3.5.4
+                        Field varField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                        EasyField easyVarField = varField == null ? null : EasyMetaFactory.valueOf(varField);
+                        boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
+                                || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
+
+                        if (retValue instanceof Date) {
+                            retValue = CalendarUtils.getUTCDateTimeFormat().format(retValue);
+                        } else if (retValue == null) {
                             // N2N 保持 `NULL`
                             Field isN2NField = sourceEntity.containsField(fieldName) ? sourceEntity.getField(fieldName) : null;
-                            if (isNumberField != null
-                                    && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
-                                value = 0;
+                            // 数字字段置 `0`
+                            if (varField != null
+                                    && (varField.getType() == FieldType.LONG || varField.getType() == FieldType.DECIMAL)) {
+                                retValue = 0;
                             } else if (fieldVarsN2NPath.contains(fieldName)
                                     || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
                                 // Keep NULL
                             } else {
-                                value = StringUtils.EMPTY;
+                                retValue = StringUtils.EMPTY;
                             }
-                        } else if (value instanceof ID || forceUseQuote) {
-                            value = value.toString();
+                        } else if (isMultiField) {
+                            retValue = easyVarField.convertCompatibleValue(retValue, targetFieldEasy);
+                        } else if (retValue instanceof ID || forceUseQuote) {
+                            retValue = retValue.toString();
                         }
 
-                        envMap.put(fieldName, value);
+                        envMap.put(fieldName, retValue);
                     }
 
                     Object newValue = AviatorUtils.eval(clearFormula, envMap, Boolean.FALSE);
