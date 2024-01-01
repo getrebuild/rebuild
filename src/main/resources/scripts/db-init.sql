@@ -337,6 +337,8 @@ create table if not exists `attachment` (
   `FILE_PATH`          varchar(191) not null comment '文件路径',
   `FILE_TYPE`          varchar(20) comment '文件类型',
   `FILE_SIZE`          int(11) default '0' comment '文件大小',
+  `FILE_NAME`          varchar(100) comment '文件名称',
+  `FILE_MD5`           varchar(32) comment '文件MD5',
   `IN_FOLDER`          char(20) comment '所在目录',
   `IS_DELETED`         char(1) default 'F' comment '是否删除',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -344,9 +346,10 @@ create table if not exists `attachment` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`ATTACHMENT_ID`),
-  index IX0_attachment (`BELONG_ENTITY`, `BELONG_FIELD`, `FILE_PATH`, `IS_DELETED`),
-  index IX1_attachment (`IN_FOLDER`, `CREATED_ON`, `FILE_PATH`),
-  index IX2_attachment (`RELATED_RECORD`)
+  index IX0_attachment (`BELONG_ENTITY`, `BELONG_FIELD`, `FILE_NAME`, `IS_DELETED`),
+  index IX1_attachment (`IN_FOLDER`, `CREATED_ON`, `FILE_NAME`),
+  index IX2_attachment (`RELATED_RECORD`),
+  index IX3_attachment (`FILE_MD5`)
 )Engine=InnoDB;
 
 -- ************ Entity [AttachmentFolder] DDL ************
@@ -886,4 +889,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 54);
+  values ('021-9000000000000001', 'DBVer', 55);
