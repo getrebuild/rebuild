@@ -30,6 +30,7 @@ public class AviatorDate extends AviatorObject {
     public static final String DU_HOUR = "H";
     public static final String DU_MINUTE = "I";
     public static final String DU_SECOND = "S";
+    public static final String DU_WEEKDAY = "W";
 
     final private Date dateValue;
 
