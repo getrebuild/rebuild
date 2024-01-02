@@ -240,8 +240,6 @@ public class QueryParser {
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 40);
-        pageNo = Math.max(pageNo, 1);
-        pageSize = Math.max(Math.min(pageSize, 1000), 1);
         this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };
 
         this.reload = limit[1] == 0;
