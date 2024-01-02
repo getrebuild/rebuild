@@ -323,6 +323,7 @@ public class EntityHelper {
     public static final int FeedsComment = 41;
     public static final int FeedsLike = 42;
     public static final int FeedsMention = 43;
+    public static final int FeedsStatus = 44;
 
     // 项目
 

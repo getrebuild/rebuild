@@ -3006,7 +3006,7 @@ form {
 }
 
 .user-show + .user-show {
-  margin-left: 10px;
+  margin-left: 6px;
 }
 
 .user-show:hover {
@@ -4016,8 +4016,8 @@ a.icon-link > .zmdi {
   line-height: 1.7;
   font-size: 1.1rem;
   border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .announcement-contents img.emoji {

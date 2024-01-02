@@ -694,13 +694,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 #collapseUser .aside-tree li > a {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 #collapseUser .aside-tree li > a .avatar {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   margin-right: 6px;
   font-size: 0;
@@ -713,4 +713,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aside-tree li.nodata {
   min-height: 36px;
   padding-top: 9px;
+}
+
+.read-status .user-show {
+  margin: 0;
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+.read-status .user-show .avatar {
+  width: 24px;
+  height: 24px;
 }

@@ -242,7 +242,21 @@ public class FeedsListController extends BaseController {
 
         // 更多内容
         if (o[10] != null) {
-            item.put("contentMore", JSON.parse((String) o[10]));
+            JSON more = (JSON) JSON.parse((String) o[10]);
+            item.put("contentMore", more);
+
+            // 公告已读
+            if ((int) o[8] == FeedsType.ANNOUNCEMENT.getMask() && ((JSONObject) more).getBooleanValue("reqRead")) {
+                Object[][] status = Application.createQueryNoFilter(
+                        "select createdBy,createdOn from FeedsStatus where feedsId = ? order by createdOn")
+                        .setParameter(1, o[0])
+                        .array();
+                List<Object> statusList = new ArrayList<>();
+                for (Object[] s : status) {
+                    statusList.add(new Object[] { s[0], UserHelper.getName((ID) s[0]), s[1] });
+                }
+                item.put("readStatus", statusList);
+            }
         }
 
         return item;
