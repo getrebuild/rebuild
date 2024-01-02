@@ -436,15 +436,20 @@ public class FieldWriteback extends FieldAggregation {
 
                         Object value = useSourceData.getObjectValue(fieldName);
 
+                        // fix: 3.5.4
+                        Field varField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                        EasyField easyVarField = varField == null ? null : EasyMetaFactory.valueOf(varField);
+                        boolean isMultiField = easyVarField != null && (easyVarField.getDisplayType() == DisplayType.MULTISELECT
+                                || easyVarField.getDisplayType() == DisplayType.TAG || easyVarField.getDisplayType() == DisplayType.N2NREFERENCE);
+
                         if (value instanceof Date) {
                             value = CalendarUtils.getUTCDateTimeFormat().format(value);
                         } else if (value == null) {
-                            // 数字字段置 `0`
-                            Field isNumberField = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
                             // N2N 保持 `NULL`
                             Field isN2NField = sourceEntity.containsField(fieldName) ? sourceEntity.getField(fieldName) : null;
-                            if (isNumberField != null
-                                    && (isNumberField.getType() == FieldType.LONG || isNumberField.getType() == FieldType.DECIMAL)) {
+                            // 数字字段置 `0`
+                            if (varField != null
+                                    && (varField.getType() == FieldType.LONG || varField.getType() == FieldType.DECIMAL)) {
                                 value = 0;
                             } else if (fieldVarsN2NPath.contains(fieldName)
                                     || (isN2NField != null && isN2NField.getType() == FieldType.REFERENCE_LIST)) {
@@ -452,6 +457,10 @@ public class FieldWriteback extends FieldAggregation {
                             } else {
                                 value = StringUtils.EMPTY;
                             }
+                        } else if (isMultiField) {
+                            // force `TEXT`
+                            EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
+                            value = easyVarField.convertCompatibleValue(value, fakeTextField);
                         } else if (value instanceof ID || forceUseQuote) {
                             value = value.toString();
                         }

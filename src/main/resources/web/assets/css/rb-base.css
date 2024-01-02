@@ -23229,7 +23229,7 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 
 /* EXT */
 
-.rb-error .error-container {
+.rb-error.v35 .error-container {
   background: #fff url(../img/browser-bar.png) 0 0 no-repeat;
   max-width: 888px;
   margin: 60px auto;

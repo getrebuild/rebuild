@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserService;
@@ -114,13 +115,20 @@ public class DataListBuilderImpl implements DataListBuilder {
                         label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());
                     }
 
+                    EasyField easyField = EasyMetaFactory.valueOf(field);
+
                     Object value = count[i];
                     if (ChartsHelper.isZero(value)) {
                         value = ChartsHelper.VALUE_ZERO;
                     } else if (field.getType() == FieldType.LONG) {
                         value = ObjectUtils.toLong(value);
                     } else {
-                        value = EasyMetaFactory.valueOf(field).wrapValue(value);
+                        value = easyField.wrapValue(value);
+                    }
+
+                    // fix: 3.5.4
+                    if (FieldValueHelper.isUseDesensitized(easyField, this.user)) {
+                        value = FieldValueHelper.desensitized(easyField, value);
                     }
 
                     stats.add(JSONUtils.toJSONObject(new String[] { "label", "value" }, new Object[] {label,value} ));
