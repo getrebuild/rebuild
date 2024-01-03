@@ -14,22 +14,36 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .table tr.group > td {
+      .table.group-table > thead > tr > th {
+        border-bottom-width: 0;
+      }
+      .table tr.group-title > td {
         padding: 0;
       }
-      .table tr.group > td > h5 {
-        padding: 8px 10px;
+      .table tr.group-title > td > h5 {
+        padding: 10px;
+        padding-left: 28px;
         margin: 0;
-        background-color: #dee2e6;
+        background-color: #eee;
         border-radius: 0;
+        position: relative;
       }
-      .table tr.group > td > h5,
-      .table tr.group > td > h5 * {
-        color: #444;
+      .table tr.group-title > td > h5,
+      .table tr.group-title > td > h5 * {
+        color: #777;
         font-weight: normal;
+        line-height: 1;
       }
-      .table.group > thead > tr > th {
-        border-bottom-width: 0;
+      .table tr.group-title > td > h5::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 9px;
+        width: 12px;
+        height: 12px;
+        background-color: #dee2e6;
+        border-radius: 50px;
+        border: 2px solid #fff;
       }
     </style>
   </head>

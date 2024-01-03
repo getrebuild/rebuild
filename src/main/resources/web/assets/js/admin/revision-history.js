@@ -186,7 +186,7 @@ class HistoryViewport extends React.Component {
     }
 
     return (
-      <table className="table table-fixed group">
+      <table className="table table-fixed group-table">
         <thead>
           <tr>
             <th width="25%">{$L('字段')}</th>
@@ -198,7 +198,7 @@ class HistoryViewport extends React.Component {
           {this.state.dataList.map((item, idx) => {
             return (
               <RF key={idx}>
-                <tr className="group">
+                <tr className="group-title">
                   <td colSpan="3">
                     <h5>{WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}</h5>
                   </td>
