@@ -229,6 +229,7 @@ public class QiniuCloud {
      */
     @SuppressWarnings("deprecation")
     public long stats() {
+        // https://developer.qiniu.com/kodo/3906/statistic-interface
         String time = CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
         String url = String.format(
                 "%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day",

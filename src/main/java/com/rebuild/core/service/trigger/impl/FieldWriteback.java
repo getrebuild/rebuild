@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
@@ -52,6 +53,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -458,9 +460,15 @@ public class FieldWriteback extends FieldAggregation {
                                 value = StringUtils.EMPTY;
                             }
                         } else if (isMultiField) {
-                            // force `TEXT`
-                            EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
-                            value = easyVarField.convertCompatibleValue(value, fakeTextField);
+                            // v3.6: 目标值为多引用时保持 `ID[]`
+                            if (easyVarField.getDisplayType() == DisplayType.N2NREFERENCE
+                                    && targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
+                                value = StringUtils.join((ID[]) value, MultiValue.MV_SPLIT);
+                            } else {
+                                // force `TEXT`
+                                EasyField fakeTextField = EasyMetaFactory.valueOf(MetadataHelper.getField("User", "fullName"));
+                                value = easyVarField.convertCompatibleValue(value, fakeTextField);
+                            }
                         } else if (value instanceof ID || forceUseQuote) {
                             value = value.toString();
                         }
@@ -530,11 +538,13 @@ public class FieldWriteback extends FieldAggregation {
         } else if (dt == DisplayType.N2NREFERENCE) {
 
             String[] ids = value.toString().split(",");
-            List<String> idsList = new ArrayList<>();
+            Set<ID> idsSet = new LinkedHashSet<>();
             for (String id : ids) {
-                if (ID.isId(id)) idsList.add(id);
+                id = id.trim();
+                if (ID.isId(id)) idsSet.add(ID.valueOf(id));
             }
-            if (ids.length == idsList.size()) newValue = value.toString();
+            // v3.6: 目标值为多引用时保持 `ID[]`
+            newValue = idsSet.toArray(new ID[0]);
 
         } else if (dt == DisplayType.BOOL) {
 
