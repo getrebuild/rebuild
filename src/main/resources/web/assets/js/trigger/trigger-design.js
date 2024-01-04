@@ -61,7 +61,7 @@ $(document).ready(() => {
           message={
             <div>
               <span className="mr-1">{$L('预计执行时间 (最多显示近 9 次)')} : </span>
-              <code>{res.data.slice(0, 10).join(', ')}</code>
+              <code>{res.data.slice(0, 9).join(', ')}</code>
             </div>
           }
         />,
