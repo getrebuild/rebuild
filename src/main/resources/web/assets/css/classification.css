@@ -102,9 +102,3 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 7px;
   display: block;
 }
-
-.modal-body .tab-container {
-  margin-left: -5px;
-  margin-right: -5px;
-  margin-top: -15px;
-}

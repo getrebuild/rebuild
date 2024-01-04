@@ -341,7 +341,7 @@ class DlgImports extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('导入分类数据')} ref={(c) => (this._dlg = c)}>
-        <div className="tab-container">
+        <div className="tab-container" style={{ marginTop: -10 }}>
           <ul className="nav nav-tabs">
             <li className="nav-item">
               <a className="nav-link active" href="#FILE" data-toggle="tab">
