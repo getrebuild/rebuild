@@ -191,6 +191,11 @@ const _toggleImage = function (el, init) {
     _$imgCurrent.find('>i').css('background-image', `url(${rb.baseUrl}/assets/img/s.gif)`)
     changeValue({ target: { name: _$imgCurrent.data('id'), value: '' } })
   })
+  $img
+    .find('.J_logo-gen')
+    .removeAttr('title')
+    .off('click')
+    .on('click', () => {})
 }
 
 class DlgMM extends RbAlert {
