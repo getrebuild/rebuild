@@ -158,14 +158,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: auto;
 }
 
-.file-field.attachments > .img-thumbnail b {
-  top: 0;
-  right: 0;
-  left: unset;
-  width: 28px;
-  padding-top: 12px;
-}
-
 #task-comment .comments,
 #task-comment .comments .comment-reply {
   margin: 0;

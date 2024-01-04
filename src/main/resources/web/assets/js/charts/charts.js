@@ -572,7 +572,7 @@ class ChartTreemap extends BaseChart {
         series: [
           {
             data: data.data,
-            type: 'treemap',
+            type: 'treemap', // sunburst
             width: '100%',
             height: '100%',
             top: window.render_preview_chart ? 0 : 15, // In preview

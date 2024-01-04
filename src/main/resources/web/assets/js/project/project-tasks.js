@@ -660,7 +660,7 @@ class TaskViewModal extends React.Component {
         location.hash = '#!/View/'
       })
 
-    $dlg.modal({ show: true })
+    $dlg.modal({ show: true, backdrop: !false })
     // fix: 打开视图卡顿
     setTimeout(() => this.setState({ _taskUrl: `${rb.baseUrl}/project/task/${this.state.taskid}` }), 200)
   }
@@ -676,6 +676,7 @@ class TaskViewModal extends React.Component {
 
   refreshTask(planChanged) {
     const ref = __TaskRefs[this.state.taskid]
+    if (!ref) return
     if (planChanged) {
       ref.props.$$$parent.refreshTasks()
       __PlanRefs[planChanged] && __PlanRefs[planChanged].refreshTasks()

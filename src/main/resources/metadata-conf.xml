@@ -463,6 +463,15 @@
         <index field-list="user,feedsId,commentId"/>
     </entity>
 
+    <entity name="FeedsStatus" type-code="044" description="动态扩展" queryable="false" parent="false">
+        <field name="statusId" type="primary"/>
+        <field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" cascade="delete"/>
+        <field name="content" type="text" description="扩展内容"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="feedsId,createdBy,createdOn"/>
+    </entity>
+
     <entity name="ProjectConfig" type-code="050" description="项目" queryable="false">
         <field name="configId" type="primary"/>
         <field name="projectName" type="string" max-length="100" nullable="false" description="项目名称"/>

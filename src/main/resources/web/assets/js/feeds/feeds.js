@@ -37,7 +37,7 @@ class GroupList extends React.Component {
             <li key={`item-${item.id}`} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
               <a className="text-truncate" onClick={() => this._handleActive(item.id)}>
                 {this._showAvatar && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
-                {item.name}
+                <span className="down-1 d-inline-block">{item.name}</span>
               </a>
               <i className={`zmdi zmdi-star-outline ${item.star && 'star'}`} onClick={() => this._handleStar(item)} title={$L('星标')} />
             </li>

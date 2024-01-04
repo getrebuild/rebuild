@@ -10,7 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.commons.CalendarUtils;
 import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
-import com.googlecode.aviator.runtime.type.AviatorBoolean;
+import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.type.AviatorLong;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 
@@ -18,14 +18,14 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * 操作符重载
+ * 日期相关操作符重载
  *
  * @author RB
  * @since 2023/12/6
  */
-public class OverOperatorType {
+public class OverDateOperator {
 
-    private OverOperatorType() {}
+    private OverDateOperator() {}
 
     // -- 计算
 
@@ -49,7 +49,7 @@ public class OverOperatorType {
             } else if ($argv2 instanceof Date && $argv1 instanceof Number) {
                 return opDate((Date) $argv2, ((Number) $argv1).intValue());
             } else {
-                return arg1.add(arg2, env);  // Use default
+                return arg1.add(arg2, env);
             }
         }
     }
@@ -77,7 +77,7 @@ public class OverOperatorType {
                 int diff = CalendarUtils.getDayLeft((Date) $argv1, (Date) $argv2);
                 return AviatorLong.valueOf(diff);
             } else {
-                return arg1.add(arg2, env);  // Use default
+                return arg1.sub(arg2, env);
             }
         }
     }
@@ -90,10 +90,15 @@ public class OverOperatorType {
     // -- 比较
 
     /**
-     * 日期比较
+     * 日期比较: LE `<=`
      */
-    static abstract class DateCompare extends AbstractFunction {
-        private static final long serialVersionUID = -4160230503581309424L;
+    static class DateCompareLE extends AbstractFunction {
+        private static final long serialVersionUID = 1321662048697121893L;
+        @Override
+        public String getName() {
+            return OperatorType.LE.getToken();
+        }
+
         @Override
         public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
             Object $argv1 = arg1.getValue(env);
@@ -102,86 +107,141 @@ public class OverOperatorType {
             if ($argv1 instanceof Date && $argv2 instanceof Date) {
                 long v1 = ((Date) $argv1).getTime();
                 long v2 = ((Date) $argv2).getTime();
-                boolean b = compare(v1, v2);
-                return AviatorBoolean.valueOf(b);
+                return FunctionUtils.wrapReturn(v1 <= v2);
             } else {
-                return arg1.add(arg2, env);  // Use default
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s <= 0);
             }
         }
-
-        abstract protected boolean compare(long v1, long v2);
     }
 
-    // LE `<=`
-    static class DateCompareLE extends DateCompare {
-        private static final long serialVersionUID = 1321662048697121893L;
-        @Override
-        public String getName() {
-            return OperatorType.LE.getToken();
-        }
-        @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 <= v2;
-        }
-    }
-    // LT `<`
-    static class DateCompareLT extends DateCompare {
+    /**
+     * 日期比较: LT `<`
+     */
+    static class DateCompareLT extends AbstractFunction {
         private static final long serialVersionUID = 8197857653882782806L;
         @Override
         public String getName() {
             return OperatorType.LT.getToken();
         }
+
         @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 < v2;
+        public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+            Object $argv1 = arg1.getValue(env);
+            Object $argv2 = arg2.getValue(env);
+
+            if ($argv1 instanceof Date && $argv2 instanceof Date) {
+                long v1 = ((Date) $argv1).getTime();
+                long v2 = ((Date) $argv2).getTime();
+                return FunctionUtils.wrapReturn(v1 < v2);
+            } else {
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s < 0);
+            }
         }
     }
-    // GE `>=`
-    static class DateCompareGE extends DateCompare {
+
+    /**
+     * 日期比较: GE `>=`
+     */
+    static class DateCompareGE extends AbstractFunction {
         private static final long serialVersionUID = -7966630104916265372L;
         @Override
         public String getName() {
             return OperatorType.GE.getToken();
         }
+
         @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 >= v2;
+        public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+            Object $argv1 = arg1.getValue(env);
+            Object $argv2 = arg2.getValue(env);
+
+            if ($argv1 instanceof Date && $argv2 instanceof Date) {
+                long v1 = ((Date) $argv1).getTime();
+                long v2 = ((Date) $argv2).getTime();
+                return FunctionUtils.wrapReturn(v1 >= v2);
+            } else {
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s >= 0);
+            }
         }
     }
-    // GT `>`
-    static class DateCompareGT extends DateCompare {
+
+    /**
+     * 日期比较: GT `>`
+     */
+    static class DateCompareGT extends AbstractFunction {
         private static final long serialVersionUID = 5214573679573440753L;
         @Override
         public String getName() {
             return OperatorType.GT.getToken();
         }
+
         @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 > v2;
+        public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+            Object $argv1 = arg1.getValue(env);
+            Object $argv2 = arg2.getValue(env);
+
+            if ($argv1 instanceof Date && $argv2 instanceof Date) {
+                long v1 = ((Date) $argv1).getTime();
+                long v2 = ((Date) $argv2).getTime();
+                return FunctionUtils.wrapReturn(v1 > v2);
+            } else {
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s > 0);
+            }
         }
     }
-    // EQ `==`
-    static class DateCompareEQ extends DateCompare {
+
+    /**
+     * 日期比较: EQ `==`
+     */
+    static class DateCompareEQ extends AbstractFunction {
         private static final long serialVersionUID = -6142749075506832977L;
         @Override
         public String getName() {
             return OperatorType.EQ.getToken();
         }
+
         @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 == v2;
+        public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+            Object $argv1 = arg1.getValue(env);
+            Object $argv2 = arg2.getValue(env);
+
+            if ($argv1 instanceof Date && $argv2 instanceof Date) {
+                long v1 = ((Date) $argv1).getTime();
+                long v2 = ((Date) $argv2).getTime();
+                return FunctionUtils.wrapReturn(v1 == v2);
+            } else {
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s == 0);
+            }
         }
     }
-    // NEQ `!=`
-    static class DateCompareNEQ extends DateCompare {
+
+    /**
+     * 日期比较: NEQ `!=`
+     */
+    static class DateCompareNEQ extends AbstractFunction {
         private static final long serialVersionUID = -838391653977975466L;
         @Override
         public String getName() {
             return OperatorType.NEQ.getToken();
         }
+
         @Override
-        protected boolean compare(long v1, long v2) {
-            return v1 != v2;
+        public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+            Object $argv1 = arg1.getValue(env);
+            Object $argv2 = arg2.getValue(env);
+
+            if ($argv1 instanceof Date && $argv2 instanceof Date) {
+                long v1 = ((Date) $argv1).getTime();
+                long v2 = ((Date) $argv2).getTime();
+                return FunctionUtils.wrapReturn(v1 != v2);
+            } else {
+                int s = arg1.compare(arg2, env);
+                return FunctionUtils.wrapReturn(s != 0);
+            }
         }
     }
 }

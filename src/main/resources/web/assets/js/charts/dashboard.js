@@ -140,8 +140,12 @@ $(document).ready(() => {
 
   $('.J_dash-fullscreen').on('click', () => {
     const $body = $(document.body)
-    if ($body.hasClass('fullscreen')) $fullscreen.exit()
-    else $fullscreen.open()
+    if ($body.hasClass('fullscreen')) {
+      $fullscreen.exit()
+    } else {
+      $fullscreen.open()
+      $body.addClass('darkmode')
+    }
     $body.toggleClass('fullscreen')
   })
 

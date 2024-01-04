@@ -771,7 +771,7 @@ class UserSelector extends React.Component {
 
 // ~~ 用户显示
 const UserShow = function (props) {
-  const viewUrl = props.id ? `#!/View/User/${props.id}` : null
+  const viewUrl = props.id && props.noLink !== true ? `#!/View/User/${props.id}` : null
   const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
 
   return (

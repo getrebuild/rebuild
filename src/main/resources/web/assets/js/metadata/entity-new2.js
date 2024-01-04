@@ -23,7 +23,7 @@ class EntityNew2 extends RbModalHandler {
   render() {
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('添加实体')} className="entity-new2">
-        <div className="tab-container" ref={(c) => (this._$container = c)}>
+        <div className="tab-container" style={{ marginTop: -10 }} ref={(c) => (this._$container = c)}>
           <ul className="nav nav-tabs">
             <li className="nav-item">
               <a className="nav-link active" href="#MANUAL" data-toggle="tab">
@@ -166,13 +166,13 @@ class EntityNew2 extends RbModalHandler {
             <div className="tab-pane" id="EXCEL">
               <div className="form">
                 <div className="form-group row">
-                  <label className="col-sm-3 col-form-label text-sm-right">{$L('上传数据文件')}</label>
+                  <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
                   <div className="col-sm-7">
                     <div className="file-select">
                       <input type="file" className="inputfile" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._$uploadfile = c)} />
                       <label htmlFor="upload-input" className="btn-secondary mb-0" ref={(c) => (this._$uploadbtn = c)}>
                         <i className="zmdi zmdi-upload"></i>
-                        <span>{$L('上传文件')}</span>
+                        <span>{$L('选择文件')}</span>
                       </label>
                     </div>
                     {this.state.excelfile && (

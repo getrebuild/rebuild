@@ -341,7 +341,7 @@ class DlgImports extends RbModalHandler {
   render() {
     return (
       <RbModal title={$L('导入分类数据')} ref={(c) => (this._dlg = c)}>
-        <div className="tab-container">
+        <div className="tab-container" style={{ marginTop: -10 }}>
           <ul className="nav nav-tabs">
             <li className="nav-item">
               <a className="nav-link active" href="#FILE" data-toggle="tab">
@@ -481,8 +481,8 @@ class DlgImports extends RbModalHandler {
 
   _checkState(taskid) {
     if (!this.__mp) {
-      const mp_parent = $(this._dlg._element).find('.modal-body').attr('id')
-      this.__mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+      const mp_parent = $(this._dlg._element).find('.modal-body').attr('id', $random('node-'))
+      this.__mp = new Mprogress({ template: 1, start: true, parent: `#` + $(mp_parent).attr('id') })
     }
 
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
@@ -517,12 +517,13 @@ class DlgEditItem extends RbAlert {
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
-          <label className="text-bold">{$L('分类项名称')}</label>
+          <label className="text-bold">{$L('名称')}</label>
           <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} maxLength="50" />
         </div>
         <div className="form-group">
           <label className="text-bold">{$L('编码')}</label>
           <input type="text" className="form-control form-control-sm" name="code" value={this.state.code || ''} onChange={this.handleChange} maxLength="50" placeholder={$L('无')} />
+          <p className="form-text">{$L('编码可用于排序和搜素')}</p>
         </div>
         <div className="form-group">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
@@ -553,6 +554,11 @@ class DlgEditItem extends RbAlert {
       itemCode: this.state.code,
       itemHide: this.state.hide,
     }
+    if (!_data.itemName) {
+      RbHighbar.create($L('请输入名称'))
+      return
+    }
+
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(_data)
     this.hide()
   }

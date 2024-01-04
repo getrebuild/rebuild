@@ -94,7 +94,11 @@ class MessageList extends React.Component {
               {$L('查看')}
             </a>
           )}
-          {item[3] && <a className="read-mark text-muted">{$L('标记已读')}</a>}
+          {item[3] && (
+            <a className="read-mark text-muted">
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('标记已读')}
+            </a>
+          )}
         </span>
       </li>
     )

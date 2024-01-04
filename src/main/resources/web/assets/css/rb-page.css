@@ -1172,10 +1172,10 @@ a.link.link-icon::after {
   cursor: default;
   background-color: rgba(0, 0, 0, 0.3);
   text-align: center;
-  line-height: 18px;
   display: none;
   width: 18px;
-  height: 18px;
+  height: 19px;
+  line-height: 19px;
 }
 
 .img-field.avatar label.img-upload b {
@@ -3006,7 +3006,7 @@ form {
 }
 
 .user-show + .user-show {
-  margin-left: 10px;
+  margin-left: 6px;
 }
 
 .user-show:hover {
@@ -4016,8 +4016,8 @@ a.icon-link > .zmdi {
   line-height: 1.7;
   font-size: 1.1rem;
   border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .announcement-contents img.emoji {
