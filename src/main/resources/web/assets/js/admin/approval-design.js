@@ -36,7 +36,7 @@ $(document).ready(() => {
 let isCanvasMounted = false
 // 节点类型
 const NTs = {
-  start: ['start', $L('发起人'), $L('记录所属用户')],
+  start: ['start', $L('发起人'), $L('所有人')],
   approver: ['approver', $L('审批人'), $L('自选审批人')],
   cc: ['cc', $L('抄送人'), $L('自选抄送人')],
 }
@@ -129,7 +129,7 @@ class NodeGroupSpec extends React.Component {
 
   renderNodes() {
     return (this.state.nodes || []).map((item) => {
-      const props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
+      const props = { ...item, key: `kn-${item.nodeId}`, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
       else return <SimpleNode {...props} />
     })
@@ -335,10 +335,10 @@ class ConditionBranch extends NodeGroupSpec {
         </div>
         {this.renderNodes()}
         {this.state.isLast && (
-          <React.Fragment>
+          <RF>
             <div className="top-right-cover-line" />
             <div className="bottom-right-cover-line" />
-          </React.Fragment>
+          </RF>
         )}
       </div>
     )
@@ -482,7 +482,7 @@ const hideDlgAddNode = function () {
 class StartNodeConfig extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state.users = (props.users || ['OWNS'])[0]
+    this.state.users = (props.users || ['ALL'])[0]
     if (!UTs[this.state.users]) this.state.users = 'SPEC'
     this.state.selfSelecting = props.selfSelecting !== false
     this.state.submitFilter = props.filter || null
@@ -913,7 +913,7 @@ class RbFlowCanvas extends NodeGroupSpec {
             <i className="zmdi zmdi-minus" />
           </a>
         </div>
-        <div className={'box-scale' + (wpc.preview ? ' preview' : '')} style={this.state.zoomStyle}>
+        <div className={`box-scale ${wpc.preview ? 'preview' : ''}`} style={this.state.zoomStyle}>
           <SimpleNode type="start" $$$parent={this} nodeId="ROOT" ref={(c) => (this._root = c)} />
           {this.renderNodes()}
           <div className="end-node">
@@ -1052,7 +1052,7 @@ class DlgCopy extends ConfigFormDlg {
 
   renderFrom() {
     return (
-      <React.Fragment>
+      <RF>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('新名称')}</label>
           <div className="col-sm-7">
@@ -1067,7 +1067,7 @@ class DlgCopy extends ConfigFormDlg {
             </label>
           </div>
         </div>
-      </React.Fragment>
+      </RF>
     )
   }
 
