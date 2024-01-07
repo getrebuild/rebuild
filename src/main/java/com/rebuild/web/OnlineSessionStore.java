@@ -107,14 +107,15 @@ public class OnlineSessionStore implements HttpSessionListener {
 
     /**
      * @param request
+     * @param h5NoKill
      */
-    public void storeLoginSuccessed(HttpServletRequest request) {
+    public void storeLoginSuccessed(HttpServletRequest request, boolean h5NoKill) {
         HttpSession s = request.getSession();
         Object loginUser = s.getAttribute(WebUtils.CURRENT_USER);
         Assert.notNull(loginUser, "No login user found in session!");
 
         if (!RebuildConfiguration.getBool(ConfigurationItem.MultipleSessions)) {
-            HttpSession previous = getSession((ID) loginUser);
+            HttpSession previous = h5NoKill ? null : getSession((ID) loginUser);
             if (previous != null) {
                 log.warn("Kill previous session : {} ({})", previous.getId(), loginUser);
 
