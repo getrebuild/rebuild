@@ -5434,3 +5434,11 @@ span.icon-append .icon {
 .tooltip {
   z-index: 1100;
 }
+
+.cursor-help {
+  cursor: help;
+}
+
+.cursou-default {
+  cursor: default;
+}

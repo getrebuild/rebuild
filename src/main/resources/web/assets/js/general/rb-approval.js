@@ -817,6 +817,11 @@ class ApprovalStepViewer extends React.Component {
                   </a>
                 )}
               </p>
+              {(item.druation || item.druation === 0) && (
+                <span className="float-right badge badge-light badge-pill cursor-help" title={$L('审批时长')}>
+                  {$sec2Time(item.druation)}
+                </span>
+              )}
               {item.remark && (
                 <blockquote className="blockquote timeline-blockquote mb-0">
                   <p className="text-wrap">{item.remark}</p>

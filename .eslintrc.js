@@ -133,5 +133,6 @@ module.exports = {
     CodeViewport: true,
     $clipboard: true,
     $getScript: true,
+    $sec2Time: true,
   },
 }
