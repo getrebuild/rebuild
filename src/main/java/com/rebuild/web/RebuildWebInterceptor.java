@@ -176,7 +176,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
-        // Notings
+        // v3.6 H5 session 时间
+        if (AppUtils.isRbMobile(request)) {
+            request.getSession().setMaxInactiveInterval(60 * 5);
+        }
     }
 
     @Override

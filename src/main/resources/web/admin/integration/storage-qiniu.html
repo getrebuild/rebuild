@@ -28,11 +28,10 @@
                         <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[3]}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('存储空间')}]]
-                          <p>[[${bundle.L('存储空间变更需你自行迁移原有数据')}]]</p>
+                        <td>[[${bundle.L('存储空间')}]]</td>
+                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}" th:data-form-text="${bundle.L('存储空间变更需你自行迁移原有数据')}">
+                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]
                         </td>
-                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('密钥 AK')}]]</td>
