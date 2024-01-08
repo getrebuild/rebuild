@@ -3973,6 +3973,26 @@ a.icon-link > .zmdi {
   color: #fff;
   padding: 15px 25px;
   font-size: 1rem;
+  position: relative;
+}
+
+.announcement-wrapper > div::after {
+  content: '\f2fb';
+  font-family: 'Material-Design-Iconic-Font', serif;
+  position: absolute;
+  right: 25px;
+  top: 10px;
+  font-size: 1.65rem;
+  width: 15px;
+  text-align: center;
+}
+
+.announcement-wrapper > div.read-state1::after {
+  content: '\f19c';
+}
+
+.announcement-wrapper > div.read-state2::after {
+  content: '\f26b';
 }
 
 .announcement-wrapper > div:hover {
