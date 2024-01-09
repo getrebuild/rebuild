@@ -94,10 +94,11 @@ const $showAnnouncement = function () {
       return (
         <div key={item.id} id={`anno-${item.id}`} className={`bg-warning ${stateClazz}`} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
-          <p dangerouslySetInnerHTML={{ __html: item.content }} />
+          <p dangerouslySetInnerHTML={{ __html: $removeHtml(item.content) }} />
         </div>
       )
     })
+
     renderRbcomp(<RF>{shows}</RF>, $aw, function () {
       $(this)
         .find('p>a[href]')

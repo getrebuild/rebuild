@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -1189,4 +1189,9 @@ function $sec2Time(s) {
   if (days) return $L('%d天', days) + ' ' + time
   else if (hh === '00') return time.substr(3)
   return time
+}
+
+// 移除 HTML
+function $removeHtml(content) {
+  return $('<span></span>').html(content).text()
 }

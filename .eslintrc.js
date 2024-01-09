@@ -134,5 +134,6 @@ module.exports = {
     $clipboard: true,
     $getScript: true,
     $sec2Time: true,
+    $removeHtml: true,
   },
 }
