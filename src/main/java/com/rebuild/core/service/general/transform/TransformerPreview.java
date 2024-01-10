@@ -168,20 +168,4 @@ public class TransformerPreview {
     public boolean fillback(ID newId) {
         return new RecordTransfomer(this.configId).fillback(this.sourceId, newId);
     }
-
-    /**
-     */
-    static class UseFormsBuilder extends FormsBuilder {
-        public static final UseFormsBuilder instance = new UseFormsBuilder();
-
-        protected JSON buildNewForm(Entity entity, Record record, ID user) {
-            JSON model = buildForm(entity.getName(), user, null);
-            String hasError = ((JSONObject) model).getString("error");
-            if (hasError != null) throw new DataSpecificationException(hasError);
-
-            JSONArray elements = ((JSONObject) model).getJSONArray("elements");
-            buildModelElements(elements, entity, record, user, false, true);
-            return model;
-        }
-    }
 }

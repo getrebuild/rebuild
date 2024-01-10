@@ -448,6 +448,10 @@ class RbForm extends React.Component {
                     </a>
                   )
                 })}
+                <div className="dropdown-divider" />
+                <a className="dropdown-item" onClick={() => _ProTable.clear()}>
+                  {$L('清空')}
+                </a>
               </div>
             </div>
           </div>

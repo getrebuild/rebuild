@@ -33,6 +33,10 @@ public class EasyEntityConfigProps {
      * 明细显示位置
      */
     public static final String DETAILS_SHOWAT2 = "detailsShowAt2";
+    /**
+     * 明细复制按钮
+     */
+    public static final String DETAILS_COPIABLE = "detailsCopiable";
 
     /**
      * 隐藏常用查询面板

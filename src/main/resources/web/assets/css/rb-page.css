@@ -4948,6 +4948,11 @@ pre.unstyle {
   min-width: 48px;
 }
 
+.protable .table .col-action.has-copy-btn {
+  width: 86px;
+  min-width: 86px;
+}
+
 .protable .table .col-action .btn {
   min-width: 38px;
 }
