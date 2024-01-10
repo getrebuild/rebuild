@@ -32,7 +32,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 审批处理。此类是作为 ApprovalStepService 的辅助，因为有些逻辑放在 Service 中不合适
@@ -501,6 +510,7 @@ public class ApprovalProcessor extends SetUser {
         steps.add(submitStep);
 
         int nodeIndex = 0;
+        Date prevNodeTime = (Date) firstStep[4];  // 提交时间
         Map<String, String> nodeIndexNames = new HashMap<>();
         for (Map.Entry<String, List<Object[]>> e : stepBatchMap.entrySet()) {
             nodeIndex++;
@@ -515,42 +525,59 @@ public class ApprovalProcessor extends SetUser {
                 });
             }
 
-            String node = (String) group.get(0)[6];
+            String nodeNo = (String) group.get(0)[6];
             FlowNode flowNode = null;
-            try {
-                flowNode = getFlowParser().getNode(node);
-            } catch (ApprovalException | ConfigurationException ex) {
-                log.warn("Cannot parse node : {}", node, ex);
+            if (FlowNode.NODE_REVOKED.equals(nodeNo) || FlowNode.NODE_CANCELED.equals(nodeNo)) {
+                // 特殊节点
+            } else {
+                try {
+                    flowNode = getFlowParser().getNode(nodeNo);
+                } catch (ApprovalException | ConfigurationException ex) {
+                    log.warn("Cannot parse node : {}", nodeNo, ex);
+                }
             }
 
             JSONArray step = new JSONArray();
             for (Object[] o : group) {
                 JSONObject s = formatStep(o, flowNode == null ? FlowNode.SIGN_OR : flowNode.getSignMode());
 
-                if (FlowNode.NODE_AUTOAPPROVAL.equals(node)) {
+                if (FlowNode.NODE_AUTOAPPROVAL.equals(nodeNo)) {
                     // No name
-                } else if (FlowNode.NODE_REVOKED.equals(node)) {
+                } else if (FlowNode.NODE_REVOKED.equals(nodeNo)) {
                     String nodeName = Language.L("管理员撤销");
                     s.put("nodeName", nodeName);
-                } else if (FlowNode.NODE_CANCELED.equals(node)) {
+                } else if (FlowNode.NODE_CANCELED.equals(nodeNo)) {
                     String nodeName = Language.L("提交人撤回");
                     s.put("nodeName", nodeName);
                 } else {
                     String nodeName = flowNode == null ? null : flowNode.getDataMap().getString("nodeName");
                     if (StringUtils.isBlank(nodeName)) {
-                        nodeName = nodeIndexNames.get(node);
+                        nodeName = nodeIndexNames.get(nodeNo);
                         if (StringUtils.isBlank(nodeName)) {
                             nodeName = Language.L("审批人") + "#" + nodeIndex;
-                            nodeIndexNames.put(node, nodeName);
+                            nodeIndexNames.put(nodeNo, nodeName);
                         }
                     }
                     s.put("nodeName", nodeName);
+
+                    int state = s.getIntValue("state");
+                    if (state == ApprovalState.DRAFT.getState()
+                            && (status.getCurrentState() == ApprovalState.REVOKED || status.getCurrentState() == ApprovalState.CANCELED)) {
+                        // 无需显示
+                    } else {
+                        Date nodeTime = (Date) (o[3] == null ? CalendarUtils.now() : o[3]);
+                        long druation = (nodeTime.getTime() - prevNodeTime.getTime()) / 1000;
+                        s.put("druation", druation);
+                    }
                 }
 
-                s.put("node", node);
+                s.put("node", nodeNo);
                 step.add(s);
             }
             steps.add(step);
+
+            Object[] lastNode = group.get(group.size() - 1);
+            prevNodeTime = (Date) (lastNode[3] == null ? lastNode[4] : lastNode[3]);
         }
 
         return steps;

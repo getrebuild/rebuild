@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -126,7 +127,9 @@ public class AnnouncementController extends BaseController {
         Record status = EntityHelper.forNew(EntityHelper.FeedsStatus, user);
         status.setID("feedsId", aid);
         Application.getCommonsService().create(status);
-        return RespBody.ok();
+
+        String time = I18nUtils.formatDate(CalendarUtils.now());
+        return RespBody.ok(time);
     }
 
     private Date parseTime(String time) {

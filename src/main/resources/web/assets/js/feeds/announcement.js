@@ -34,11 +34,11 @@ class AnnouncementModal extends React.Component {
                   <span className="float-right mr-2">
                     {state.readState === 1 && (
                       <a className="text-primary" onClick={() => this._makeRead()}>
-                        <i className="icon zmdi zmdi-check text-bold" /> {$L('标记已读')}
+                        <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
                       </a>
                     )}
-                    {state.readState !== 1 && (
-                      <a className="text-muted">
+                    {typeof state.readState === 'string' && (
+                      <a className="text-muted" title={state.readState}>
                         <i className="icon zmdi zmdi-check text-bold" /> {$L('已读')}
                       </a>
                     )}
@@ -73,7 +73,8 @@ class AnnouncementModal extends React.Component {
 
     $.post(`/commons/announcements/make-read?id=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ readState: 2 })
+        this.setState({ readState: res.data }) // time
+        $(`#anno-${this.props.id}`).addClass('read-state2')
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -88,15 +89,17 @@ const $showAnnouncement = function () {
   $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
 
-    const as = res.data.map((item, idx) => {
+    const shows = res.data.map((item) => {
+      const stateClazz = item.readState === 1 ? 'read-state1' : typeof item.readState === 'string' ? 'read-state2' : null
       return (
-        <div className="bg-warning" key={idx} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
+        <div key={item.id} id={`anno-${item.id}`} className={`bg-warning ${stateClazz}`} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
-          <p dangerouslySetInnerHTML={{ __html: item.content }} />
+          <p dangerouslySetInnerHTML={{ __html: $removeHtml(item.content) }} />
         </div>
       )
     })
-    renderRbcomp(<React.Fragment>{as}</React.Fragment>, $aw, function () {
+
+    renderRbcomp(<RF>{shows}</RF>, $aw, function () {
       $(this)
         .find('p>a[href]')
         .click((e) => e.stopPropagation())

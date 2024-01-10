@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -1167,4 +1167,31 @@ var $clipboard = function ($el, text) {
       $b.tooltip('show')
     }, 20)
   })
+}
+
+// 格式化秒显示
+function $sec2Time(s) {
+  if (!s || ~~s <= 0) return '00:00'
+
+  var days
+  var hh = Math.floor(s / 3600)
+  var mm = Math.floor(s / 60) % 60
+  var ss = ~~(s % 60)
+  if (~~hh >= 24) {
+    days = ~~(hh / 24)
+    hh = hh % 24
+  }
+  if (hh < 10) hh = '0' + hh
+  if (mm < 10) mm = '0' + mm
+  if (ss < 10) ss = '0' + ss
+
+  var time = `${hh}:${mm}:${ss}`
+  if (days) return $L('%d天', days) + ' ' + time
+  else if (hh === '00') return time.substr(3)
+  return time
+}
+
+// 移除 HTML
+function $removeHtml(content) {
+  return $('<span></span>').html(content).text()
 }
