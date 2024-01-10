@@ -59,7 +59,7 @@ $(document).ready(() => {
     }
 
     // v3.6
-    if (rb.commercial < 100) {
+    if (rb.commercial < 10) {
       const checkAdv = ['detailsNotEmpty', 'detailsGlobalRepeat', 'detailsShowAt2', 'detailsCopiable', 'repeatFieldsCheckMode', 'disabledViewEditable']
       let needRbv = false
       for (let i = 0; i < checkAdv.length; i++) {
