@@ -69,6 +69,7 @@ a[disabled] {
 code {
   color: #e83e8c;
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
 }
 
 /* 1280 */
@@ -217,7 +218,6 @@ code {
 .badge {
   font-weight: normal !important;
   font-style: normal !important;
-  text-transform: uppercase;
 }
 
 .badge.badge-light,
