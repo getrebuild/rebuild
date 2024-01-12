@@ -161,48 +161,43 @@ public class FieldValueHelper {
      * 获取记录的 NAME/LABEL 字段值
      *
      * @param id
-     * @param defaultValue
+     * @param default4Null
      * @return
      * @throws NoRecordFoundException If no record found
      */
-    public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
+    public static String getLabel(ID id, String default4Null) throws NoRecordFoundException {
         Assert.notNull(id, "[id] cannot be null");
-        Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+        // v3.6
+        if (EntityHelper.isUnsavedId(id)) return Language.L("新的");
+
+        final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 
         if (id.getEntityCode() == EntityHelper.ClassificationData) {
             String hasValue = ClassificationManager.instance.getFullName(id);
-            if (hasValue == null) {
-                throw new NoRecordFoundException("No ClassificationData found by id : " + id);
-            }
+            if (hasValue == null) throw new NoRecordFoundException("No ClassificationData found by id : " + id);
             return hasValue;
         } else if (id.getEntityCode() == EntityHelper.PickList) {
             String hasValue = PickListManager.instance.getLabel(id);
-            if (hasValue == null) {
-                throw new NoRecordFoundException("No PickList found by id : " + id);
-            }
+            if (hasValue == null) throw new NoRecordFoundException("No PickList found by id : " + id);
             return hasValue;
         } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
             return Language.L("自动审批");
         } else if (MetadataHelper.isBizzEntity(id.getEntityCode())) {
             String hasName = UserHelper.getName(id);
-            if (hasName == null) {
-                throw new NoRecordFoundException("No Bizz found by id : " + id);
-            }
+            if (hasName == null) throw new NoRecordFoundException("No Bizz found by id : " + id);
             return hasName;
         }
 
         Field nameField = entity.getNameField();
         Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
-        if (nameValue == null) {
-            throw new NoRecordFoundException(id);
-        }
+        if (nameValue == null) throw new NoRecordFoundException(id);
 
         Object nameLabel = wrapFieldValue(nameValue[0], nameField, true);
         if (!CommonsUtils.hasLength(nameLabel)) {
-            if (defaultValue == null) {
-                defaultValue = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+            if (default4Null == null) {
+                default4Null = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
-            return defaultValue;
+            return default4Null;
         }
         return nameLabel.toString();
     }

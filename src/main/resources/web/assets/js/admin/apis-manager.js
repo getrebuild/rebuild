@@ -252,13 +252,6 @@ class AppLogsViewer extends RbModal {
     this._loadNext()
   }
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this._$codeReq && this._$codeResp && (this.state.dataShow || [])[6] !== (prevState || [])[6]) {
-  //     this._$codeReq.innerHTML = $formattedCode(this.state.dataShow[4])
-  //     this._$codeResp.innerHTML = $formattedCode(this.state.dataShow[5])
-  //   }
-  // }
-
   _loadNext(reset, q) {
     if (this.__inLoading) return
     this.__pageNo = (this.__pageNo || 0) + 1
@@ -266,7 +259,7 @@ class AppLogsViewer extends RbModal {
     if (reset) this.__pageNo = 1
 
     this.__inLoading = true
-    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(q)}`, (res) => {
+    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(this.__q)}`, (res) => {
       const _data = res.data || []
       const dataLogs = reset ? _data : (this.state.dataLogs || []).concat(_data)
       this.setState(

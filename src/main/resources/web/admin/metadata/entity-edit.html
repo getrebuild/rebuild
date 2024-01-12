@@ -94,8 +94,8 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1"></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <a href="javascript:;" class="J_more-options-btn">[[${bundle.L('更多选项')}]] <i class="mdi mdi-chevron-double-down"></i></a>
-                    <div class="J_more-options hide">
+                    <a href="javascript:;" class="adv-options-btn">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
+                    <div class="adv-options hide">
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
@@ -124,7 +124,13 @@
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsShowAt2" />
-                            <span class="custom-control-label">[[${bundle.L('在详情页明细显示在下方')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]]</span>
+                          </label>
+                        </div>
+                        <div class="mt-2">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" id="detailsCopiable" />
+                            <span class="custom-control-label">[[${bundle.L('启用明细复制功能')}]]</span>
                           </label>
                         </div>
                       </th:block>

@@ -161,7 +161,7 @@ $(document).ready(function () {
     if (SHOW_SCANCODE.includes(dt)) extConfigNew['textScanCode'] = $val('#textScanCode')
 
     if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode']) && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持高级功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbHighbar.error(WrapHtml($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 

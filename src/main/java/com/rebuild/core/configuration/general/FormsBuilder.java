@@ -90,11 +90,11 @@ public class FormsBuilder extends FormsManager {
      *
      * @param entity
      * @param user
-     * @param record null 表示新建
+     * @param recordId null 表示新建
      * @return
      */
-    public JSON buildForm(String entity, ID user, ID record) {
-        return buildModel(entity, user, record, false);
+    public JSON buildForm(String entity, ID user, ID recordId) {
+        return buildModel(entity, user, recordId, false);
     }
 
     /**
@@ -102,30 +102,30 @@ public class FormsBuilder extends FormsManager {
      *
      * @param entity
      * @param user
-     * @param record
+     * @param recordId
      * @return
      */
-    public JSON buildView(String entity, ID user, ID record) {
-        Assert.notNull(record, "[record] cannot be null");
-        return buildModel(entity, user, record, true);
+    public JSON buildView(String entity, ID user, ID recordId) {
+        Assert.notNull(recordId, "[recordId] cannot be null");
+        return buildModel(entity, user, recordId, true);
     }
 
     /**
      * @param entity
      * @param user
-     * @param record
+     * @param recordId
      * @param viewMode 视图模式
      * @return
      */
-    private JSON buildModel(String entity, ID user, ID record, boolean viewMode) {
+    private JSON buildModel(String entity, ID user, ID recordId, boolean viewMode) {
         Assert.notNull(entity, "[entity] cannot be null");
         Assert.notNull(user, "[user] cannot be null");
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
-        if (record != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not matchs");
+        if (recordId != null) {
+            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not matchs");
 
-            if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, record)) {
+            if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
             }
         }
@@ -134,12 +134,13 @@ public class FormsBuilder extends FormsManager {
         final Entity hasMainEntity = entityMeta.getMainEntity();
         // 审批流程（状态）
         ApprovalState approvalState;
+        // 提示
         String readonlyMessage = null;
 
         // 判断表单权限
 
         // 新建
-        if (record == null) {
+        if (recordId == null) {
             if (hasMainEntity != null) {
                 ID mainid = FormsBuilderContextHolder.getMainIdOfDetail(false);
                 Assert.notNull(mainid, "Call `FormBuilderContextHolder#setMainIdOfDetail` first!");
@@ -166,20 +167,20 @@ public class FormsBuilder extends FormsManager {
         }
         // 查看（视图）
         else if (viewMode) {
-            if (!Application.getPrivilegesManager().allowRead(user, record)) {
+            if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
             }
 
-            approvalState = getHadApproval(entityMeta, record);
+            approvalState = getHadApproval(entityMeta, recordId);
 
         }
         // 编辑
         else {
-            if (!Application.getPrivilegesManager().allowUpdate(user, record)) {
+            if (!Application.getPrivilegesManager().allowUpdate(user, recordId)) {
                 return formatModelError(Language.L("你没有修改此记录的权限"));
             }
 
-            approvalState = getHadApproval(entityMeta, record);
+            approvalState = getHadApproval(entityMeta, recordId);
             if (approvalState != null) {
                 String recordType = hasMainEntity == null ? Language.L("记录") : Language.L("主记录");
                 if (approvalState == ApprovalState.APPROVED) {
@@ -197,8 +198,8 @@ public class FormsBuilder extends FormsManager {
         }
 
         Record recordData = null;
-        if (record != null) {
-            recordData = findRecord(record, user, elements);
+        if (recordId != null) {
+            recordData = findRecord(recordId, user, elements);
             if (recordData == null) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
             }
@@ -206,7 +207,7 @@ public class FormsBuilder extends FormsManager {
 
         // 自动只读
         Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(entity);
-        Set<String> roAutosWithout = record == null ? null : Collections.emptySet();
+        Set<String> roAutosWithout = recordId == null ? null : Collections.emptySet();
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
             if (roAutos.contains(field.getString("field")) || readonlyMessage != null) {
@@ -235,11 +236,12 @@ public class FormsBuilder extends FormsManager {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
             // v3.4
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            // v3.6
+            model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_COPIABLE));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3
             model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
-
             // v3.4 N-D
             List<JSON> detailMetas = new ArrayList<>();
             for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) detailMetas.add(EasyMetaFactory.toJSON(de));
