@@ -175,6 +175,7 @@ class AppLogsViewer extends RbModal {
                   placeholder={$L('搜索')}
                   onKeyDown={(e) => {
                     if (e.keyCode === 13) {
+                      this.__q = null
                       this._loadNext(true, e.target.value)
                     }
                   }}
