@@ -59,7 +59,7 @@ import java.util.Set;
 @Slf4j
 public class RecordCheckout {
 
-    private static final String MVAL_SPLIT = "[,，;；]";
+    public static final String MVAL_SPLIT = "[,，;；]";
 
     final private List<String> traceLogs = new ArrayList<>();
 

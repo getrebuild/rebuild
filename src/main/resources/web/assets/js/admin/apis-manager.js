@@ -174,6 +174,7 @@ class AppLogsViewer extends RbModal {
                 placeholder={$L('查询')}
                 onKeyDown={(e) => {
                   if (e.keyCode === 13) {
+                    this.__q = null
                     this._loadNext(true, e.target.value)
                   }
                 }}
@@ -279,7 +280,7 @@ class AppLogsViewer extends RbModal {
     if (reset) this.__pageNo = 1
 
     this.__inLoading = true
-    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(q)}`, (res) => {
+    $.get(`/admin/apis-manager/request-logs?appid=${this.props.appid}&pn=${this.__pageNo}&q=${$encode(this.__q)}`, (res) => {
       const _data = res.data || []
       const dataLogs = reset ? _data : (this.state.dataLogs || []).concat(_data)
       this.setState(
