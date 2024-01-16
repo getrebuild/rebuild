@@ -460,7 +460,7 @@ public class FieldWriteback extends FieldAggregation {
                                 value = StringUtils.EMPTY;
                             }
                         } else if (isMultiField) {
-                            // v3.6: 目标值为多引用时保持 `ID[]`
+                            // v3.5.5: 目标值为多引用时保持 `ID[]`
                             if (easyVarField.getDisplayType() == DisplayType.N2NREFERENCE
                                     && targetFieldEasy.getDisplayType() == DisplayType.N2NREFERENCE) {
                                 value = StringUtils.join((ID[]) value, MultiValue.MV_SPLIT);
@@ -543,7 +543,7 @@ public class FieldWriteback extends FieldAggregation {
                 id = id.trim();
                 if (ID.isId(id)) idsSet.add(ID.valueOf(id));
             }
-            // v3.6: 目标值为多引用时保持 `ID[]`
+            // v3.5.5: 目标值为多引用时保持 `ID[]`
             newValue = idsSet.toArray(new ID[0]);
 
         } else if (dt == DisplayType.BOOL) {
