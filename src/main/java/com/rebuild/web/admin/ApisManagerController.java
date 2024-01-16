@@ -90,6 +90,8 @@ public class ApisManagerController extends BaseController {
         if (StringUtils.isNotBlank(q)) {
             q = CommonsUtils.escapeSql(q);
             sql = sql.replace("(1=1)", String.format("(requestBody like '%%%s%%' or responseBody like '%%%s%%')", q, q));
+//            // TODO 使用全文索引搜索
+//            sql = sql.replace("(1=1)", String.format("(requestBody match '%s' or responseBody match '%s')", q, q));
         }
 
         Object[][] array = Application.createQueryNoFilter(sql)

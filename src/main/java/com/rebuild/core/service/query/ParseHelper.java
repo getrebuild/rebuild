@@ -79,6 +79,7 @@ public class ParseHelper {
      * 全文索引。MySQL5.7 或以上支持中文
      * my.ini 配置分词大小 ngram_token_size=2
      * 创建索引时使用 `PARSER ngram`
+     * https://dev.mysql.com/doc/refman/5.7/en/fulltext-search.html
      */
     public static final String FT = "FT";    // 全文索引（暂未用）
 
