@@ -127,7 +127,23 @@ public class DataListBuilderImpl implements DataListBuilder {
      *
      * @return
      */
-    public List<Object[]> getStats() {
+    public JSONArray getJSONStats() {
+        List<Object[]> stats2 = getStats();
+        if (stats2.size() < 2) return null;
+
+        JSONArray stats = new JSONArray();
+        for (int i = 1; i < stats2.size(); i++) {
+            stats.add(JSONUtils.toJSONObject(new String[] {"label", "value"}, stats2.get(i)));
+        }
+        return stats;
+    }
+
+    /**
+     * 获取统计字段值
+     *
+     * @return
+     */
+    protected List<Object[]> getStats() {
         List<Object[]> stats = new ArrayList<>();
 
         final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
