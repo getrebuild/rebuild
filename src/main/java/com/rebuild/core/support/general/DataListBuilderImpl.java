@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -70,7 +71,8 @@ public class DataListBuilderImpl implements DataListBuilder {
     public String getDefaultFilter() {
         final int entity = queryParser.getEntity().getEntityCode();
 
-        if (entity == EntityHelper.User || entity == EntityHelper.Department || entity == EntityHelper.Team || entity == EntityHelper.Role) {
+        if (entity == EntityHelper.User || entity == EntityHelper.Department
+                || entity == EntityHelper.Team || entity == EntityHelper.Role) {
             List<String> where = new ArrayList<>();
             // 隐藏系统用户
             if (entity == EntityHelper.User) {
@@ -78,7 +80,7 @@ public class DataListBuilderImpl implements DataListBuilder {
             }
 
             // 部门用户隔离
-            String s = UserFilters.getEnableBizzPartFilter(entity, this.user);
+            String s = UserFilters.getEnableBizzPartFilter(entity, user);
             if (s != null) where.add(s);
 
             return where.isEmpty() ? null : "( " + StringUtils.join(where, " and ") + " )";
@@ -96,42 +98,17 @@ public class DataListBuilderImpl implements DataListBuilder {
 
     @Override
     public JSON getJSONResult() {
-        int totalRows = 0;
-        List<JSON> stats = null;
+        long totalRows = 0;
+        JSONArray stats = null;
         if (isNeedReload()) {
-            Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
-            totalRows = ObjectUtils.toInt(count[0]);
+            List<Object[]> stats2 = getStats();
+            totalRows = (long) stats2.get(0)[1];
 
-            // 统计列
-            List<Map<String, Object>> countFields = queryParser.getCountFields();
-            if (count.length > 1 && !countFields.isEmpty()) {
-                stats = new ArrayList<>();
-                for (int i = 1; i < count.length; i++) {
-                    Map<String, Object> cfg = countFields.get(i);
-                    Field field = entity.getField((String) cfg.get("field"));
-                    String label = (String) cfg.get("label2");
-                    if (StringUtils.isBlank(label)) {
-                        String calc = (String) cfg.get("calc");
-                        label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());
-                    }
-
-                    EasyField easyField = EasyMetaFactory.valueOf(field);
-
-                    Object value = count[i];
-                    if (ChartsHelper.isZero(value)) {
-                        value = ChartsHelper.VALUE_ZERO;
-                    } else if (field.getType() == FieldType.LONG) {
-                        value = ObjectUtils.toLong(value);
-                    } else {
-                        value = easyField.wrapValue(value);
-                    }
-
-                    // fix: 3.5.4
-                    if (FieldValueHelper.isUseDesensitized(easyField, this.user)) {
-                        value = FieldValueHelper.desensitized(easyField, value);
-                    }
-
-                    stats.add(JSONUtils.toJSONObject(new String[] { "label", "value" }, new Object[] {label,value} ));
+            // 统计字段
+            if (stats2.size() > 1) {
+                stats = new JSONArray();
+                for (int i = 1; i < stats2.size(); i++) {
+                    stats.add(JSONUtils.toJSONObject(new String[] {"label", "value"}, stats2.get(i)));
                 }
             }
         }
@@ -140,9 +117,54 @@ public class DataListBuilderImpl implements DataListBuilder {
         int[] limits = queryParser.getSqlLimit();
         Object[][] data = query.setLimit(limits[0], limits[1]).array();
 
-        JSONObject listdata = (JSONObject) createDataListWrapper(totalRows, data, query).toJson();
+        JSONObject listdata = (JSONObject) createDataListWrapper((int) totalRows, data, query).toJson();
         if (stats != null) listdata.put("stats", stats);
         return listdata;
+    }
+
+    /**
+     * 获取统计字段值
+     *
+     * @return
+     */
+    public List<Object[]> getStats() {
+        List<Object[]> stats = new ArrayList<>();
+
+        final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
+        stats.add(new Object[] {null, count[0]} );
+        if (count.length < 2) return stats;
+
+        List<Map<String, Object>> statsFields = queryParser.getCountFields();
+        if (statsFields.isEmpty()) return stats;
+
+        // 统计列
+        for (int i = 1; i < count.length; i++) {
+            Map<String, Object> c = statsFields.get(i);
+            Field field = entity.getField((String) c.get("field"));
+            String label = (String) c.get("label2");
+            if (StringUtils.isBlank(label)) {
+                String calc = (String) c.get("calc");
+                label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());
+            }
+
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            Object value = count[i];
+            if (ChartsHelper.isZero(value)) {
+                value = ChartsHelper.VALUE_ZERO;
+            } else if (field.getType() == FieldType.LONG) {
+                value = ObjectUtils.toLong(value);
+            } else {
+                value = easyField.wrapValue(value);
+            }
+
+            // fix: 3.5.4
+            if (FieldValueHelper.isUseDesensitized(easyField, user)) {
+                value = FieldValueHelper.desensitized(easyField, value);
+            }
+
+            stats.add(new Object[] {label, value});
+        }
+        return stats;
     }
 
     /**
