@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="container">
-      <h5 class="text-bold mt-5">[[${bundle.L('快速检查')}]]</h5>
+      <h5 class="text-bold mt-5 text-uppercase">[[${bundle.L('快速检查')}]]</h5>
       <table class="table table-bordered table-sm table-hover">
         <tbody>
           <tr>
@@ -67,7 +67,7 @@
         </tbody>
       </table>
       <th:block th:if="${isAdminVerified || !ok}">
-        <h5 class="text-bold mt-5">[[${bundle.L('系统信息')}]]</h5>
+        <h5 class="text-bold mt-5 text-uppercase">[[${bundle.L('系统信息')}]]</h5>
         <table class="table table-bordered table-sm table-hover">
           <tbody>
             <tr>
@@ -100,7 +100,7 @@
             </tr>
             <tr>
               <th>Temp Directory</th>
-              <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfTemp("/")}]]</td>
+              <td>[[${T(org.apache.commons.io.FileUtils).getTempDirectoryPath()}]]</td>
             </tr>
           </tbody>
         </table>

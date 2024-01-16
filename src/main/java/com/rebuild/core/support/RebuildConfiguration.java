@@ -34,7 +34,7 @@ import java.util.List;
 public class RebuildConfiguration extends KVStorage {
 
     /**
-     * 获取数据目录下的文件（或目录）
+     * 获取 RB 数据目录下的文件（或目录）
      *
      * @param filepath
      * @return
@@ -69,7 +69,7 @@ public class RebuildConfiguration extends KVStorage {
     }
 
     /**
-     * 获取临时文件（或目录）。注意临时文件会定时删除
+     * 获取 RB 临时文件（或目录）。此目录与 JAVA 临时目录不同，同时注意此临时目录文件会定时删除
      *
      * @param filepath
      * @return
