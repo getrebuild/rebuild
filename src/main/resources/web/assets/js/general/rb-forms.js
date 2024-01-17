@@ -230,6 +230,7 @@ class RbFormModal extends React.Component {
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    // `__CURRENT35`, `__HOLDER` 可能已 unmount
     const that = this
     if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
@@ -434,7 +435,7 @@ class RbForm extends React.Component {
 
             <div className="btn-group">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
-                <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
+                <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
               <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>

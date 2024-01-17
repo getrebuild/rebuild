@@ -29,18 +29,23 @@ const RbListPage = {
 
     const that = this
 
+    $('.J_view').on('click', () => {
+      const ids = this._RbList.getSelectedIds()
+      if (ids.length >= 1) {
+        location.hash = `!/View/${entity[0]}/${ids[0]}`
+        RbViewModal.create({ id: ids[0], entity: entity[0] })
+      }
+    })
     $('.J_edit').on('click', () => {
       const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         RbFormModal.create({ id: ids[0], title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
       }
     })
-
     $('.J_delete').on('click', () => {
       if ($('.J_delete').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
-
       const needEntity = wpc.type === 'DetailList' || wpc.type === 'DetailView' ? null : entity[0]
       renderRbcomp(
         <DeleteConfirm
@@ -52,36 +57,22 @@ const RbListPage = {
         />
       )
     })
-
-    $('.J_view').on('click', () => {
-      const ids = this._RbList.getSelectedIds()
-      if (ids.length >= 1) {
-        location.hash = `!/View/${entity[0]}/${ids[0]}`
-        RbViewModal.create({ id: ids[0], entity: entity[0] })
-      }
-    })
-
-    $('.J_columns').on('click', () => RbModal.create(`/p/general/list-fields?entity=${entity[0]}`, $L('设置列显示')))
-
-    // 权限实体才有
-
     $('.J_assign').on('click', () => {
       if ($('.J_assign').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
-
     $('.J_share').on('click', () => {
       if ($('.J_share').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
-
     $('.J_unshare').on('click', () => {
       if ($('.J_unshare').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
+    $('.J_columns').on('click', () => RbModal.create(`/p/general/list-fields?entity=${entity[0]}`, $L('设置列显示')))
 
     // Privileges
     if (ep) {

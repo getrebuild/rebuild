@@ -794,15 +794,11 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    // 新建
     $('.J_new')
       .attr('disabled', false)
       .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
-    // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
-    // 批量修改
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
-    // 批量审批
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
 
     // 自动打开新建

@@ -623,15 +623,11 @@ const RbViewPage = {
     })
 
     $('.J_edit').on('click', () => {
-      // 优先父页面打开?
-      // const m = window.parent && window.parent.RbFormModal ? window.parent.RbFormModal : RbFormModal
       RbFormModal.create({ id: id, title: $L('编辑%s', entity[1]), entity: entity[0], icon: entity[2] }, true)
     })
-
     $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_report').on('click', () => SelectReport.create(entity[0], id))
-
     $('.J_add-details>a').on('click', function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
