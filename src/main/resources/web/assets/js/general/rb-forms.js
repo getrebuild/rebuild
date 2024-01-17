@@ -1206,7 +1206,7 @@ class RbFormDecimal extends RbFormNumber {
   }
 }
 
-class RbFormTextarea extends RbFormElement {
+class RbFormNText extends RbFormElement {
   constructor(props) {
     super(props)
 
@@ -1260,7 +1260,7 @@ class RbFormTextarea extends RbFormElement {
             })}
           </div>
 
-          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide'}`}>
+          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION ? '' : 'hide1'}`}>
             <a title={$L('展开/收起')} onClick={() => $(this._textarea).toggleClass('ntext-expand')}>
               <i className="mdi mdi-arrow-expand" />
             </a>
@@ -2813,7 +2813,7 @@ var detectElement = function (item, entity) {
   if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
-    return <RbFormTextarea {...item} />
+    return <RbFormNText {...item} />
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />
   } else if (item.type === 'EMAIL') {
@@ -2861,7 +2861,6 @@ var detectElement = function (item, entity) {
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else if (item.field === TYPE_REFFORM) {
-    console.log(item)
     return <RbFormRefform {...item} />
   } else {
     return <RbFormUnsupportted {...item} />
