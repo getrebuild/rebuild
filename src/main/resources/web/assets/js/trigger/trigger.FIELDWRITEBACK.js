@@ -207,7 +207,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2 bosskey-show">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用传播')}</span>
+                  <span className="custom-control-label">{$L('禁用传播')} (LAB)</span>
                 </label>
               </div>
             </div>

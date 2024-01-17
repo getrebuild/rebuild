@@ -202,7 +202,7 @@ public class AutoFillinManager implements ConfigManager {
      * 表单后端回填
      *
      * @param record
-     * @param fillinForce 是否强制（无视配置）
+     * @param fillinForce 是否强制（无视配置），请谨慎使用!!!
      * @return
      */
     public int fillinRecord(Record record, boolean fillinForce) {

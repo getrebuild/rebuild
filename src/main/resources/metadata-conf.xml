@@ -322,6 +322,8 @@
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间"/>
         <index field-list="appId,remoteIp,requestTime"/>
+        <index field-list="requestBody" type="fulltext"/>
+        <index field-list="responseBody" type="fulltext"/>
     </entity>
 
     <entity name="DataReportConfig" type-code="032" description="报表模板" queryable="false">

@@ -1906,7 +1906,7 @@ th.column-fixed {
 .dataTables_info .stat-item::before {
   content: '·';
   color: #999;
-  font-weight: bolder;
+  font-weight: bold;
   margin: 0 5px;
 }
 

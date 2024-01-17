@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 寻找目标实体记录
+ * 通过字段匹配记录（而非通过引用关联）
  *
  * @author devezhao
  * @since 2023/10/25

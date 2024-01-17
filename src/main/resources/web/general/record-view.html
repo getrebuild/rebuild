@@ -55,7 +55,7 @@
               </div>
             </div>
             <div th:if="${detailEntity != null}" class="col-12 col-lg-6 J_add-detail">
-              <button class="btn btn-secondary" type="button" data-toggle="dropdown"><i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('添加明细')}]]</button>
+              <button class="btn btn-secondary" type="button" data-toggle="dropdown"><i class="icon x14 mdi mdi-playlist-plus"></i> [[${bundle.L('添加明细')}]]</button>
               <div class="dropdown-menu dropdown-menu-right J_add-details">
                 <a th:each="e : ${detailEntities}" class="dropdown-item" th:data-entity="${e[1]}" th:data-label="${e[2]}" th:data-icon="${e[3]}">
                   <i class="icon zmdi" th:classappend="|zmdi-${e[3]}|"></i> [[${e[2]}]]
@@ -127,7 +127,8 @@
         viewAdds: [(${ViewAdds})],
         transformTos: [(${TransformTos})],
         recordId: '[[${id}]]',
-        forceSubView: true
+        forceSubView: true,
+        statsField: true,
       }
     </script>
     <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>

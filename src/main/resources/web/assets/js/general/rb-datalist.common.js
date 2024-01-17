@@ -794,15 +794,11 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    // 新建
     $('.J_new')
       .attr('disabled', false)
       .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
-    // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
-    // 批量修改
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
-    // 批量审批
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
 
     // 自动打开新建
@@ -996,7 +992,6 @@ class RbList extends React.Component {
       // wheelSpeed: 1,
     })
 
-    // Use `pin`
     if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
@@ -1104,7 +1099,8 @@ class RbList extends React.Component {
         })
 
         if (reload && this._Pagination) {
-          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
+          this.__holdRowsStats = res.data.stats
+          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: this.__holdRowsStats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -1179,16 +1175,16 @@ class RbList extends React.Component {
 
   _checkSelected() {
     const chkSelected = $(this._$tbody).find('>tr .custom-control-input:checked').length
+    const chkTotal = this.state.rowsData.length
 
     // 全选/半选/全清
-    const chkAll = this.state.rowsData.length
     if (chkSelected === 0) {
       $(this._checkAll).prop('checked', false).parent().removeClass('indeterminate')
-    } else if (chkSelected !== chkAll) {
+    } else if (chkSelected !== chkTotal) {
       $(this._checkAll).prop('checked', false).parent().addClass('indeterminate')
     }
 
-    if (chkSelected > 0 && chkSelected === chkAll) {
+    if (chkSelected > 0 && chkSelected === chkTotal) {
       $(this._checkAll).prop('checked', true).parent().removeClass('indeterminate')
     }
 
@@ -1201,7 +1197,26 @@ class RbList extends React.Component {
     }
 
     // 分页组件
-    this._Pagination && this._Pagination.setState({ selectedTotal: chkSelected })
+    if (this._Pagination) {
+      this._Pagination.setState({ selectedTotal: chkSelected }, () => {
+        if (chkSelected > 1) {
+          const ids = this.getSelectedIds(true)
+          const qurey = {
+            protocolFilter: `ids:${ids.join('|')}`,
+            entity: this._entity,
+            fields: [],
+            statsField: true,
+          }
+
+          $.post(`/app/${this._entity}/data-list-stats`, JSON.stringify(qurey), (res) => {
+            this._Pagination.setState({ rowsStats: res.data || [] })
+            if (res.error_code !== 0) RbHighbar.error(res.error_msg)
+          })
+        } else {
+          this._Pagination.setState({ rowsStats: this.__holdRowsStats })
+        }
+      })
+    }
   }
 
   _clearSelected() {
@@ -1320,7 +1335,7 @@ class RbList extends React.Component {
   }
 
   // 取选中 ID[]
-  getSelectedIds(noWarn) {
+  getSelectedIds(hideWarning) {
     const selected = []
     $(this._$tbody)
       .find('>tr .custom-control-input:checked')
@@ -1328,7 +1343,7 @@ class RbList extends React.Component {
         selected.push($(this).parents('tr').data('id'))
       })
 
-    if (selected.length === 0 && noWarn !== true) RbHighbar.create($L('未选中任何记录'))
+    if (selected.length === 0 && hideWarning !== true) RbHighbar.create($L('未选中任何记录'))
     return selected
   }
 
@@ -1371,9 +1386,7 @@ class RbListPagination extends React.Component {
     return (
       <div className="row rb-datatable-footer">
         <div className="col-12 col-lg-6">
-          <div className="dataTables_info" key="page-rowsTotal">
-            {this.renderStats()}
-          </div>
+          <div className="dataTables_info">{this.renderStats()}</div>
         </div>
         <div className="col-12 col-lg-6">
           <div className="float-right paging_sizes">
@@ -1435,8 +1448,8 @@ class RbListPagination extends React.Component {
   renderStats() {
     return (
       <div>
-        {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
         {this.state.rowsTotal > 0 && <span>{$L('共 %d 条记录', this.state.rowsTotal)}</span>}
+        {this.state.selectedTotal > 1 && <span className="stat-item">{$L('已选中 %d 条', this.state.selectedTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
@@ -1447,7 +1460,7 @@ class RbListPagination extends React.Component {
         {rb.isAdminUser && wpc.statsField && (
           <a
             className="list-stats-settings"
-            onClick={() =>
+            onClick={() => {
               RbModal.create(
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
                 <RF>
@@ -1455,7 +1468,7 @@ class RbListPagination extends React.Component {
                   <sup className="rbv" />
                 </RF>
               )
-            }>
+            }}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}

@@ -111,7 +111,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.L("实体 [%s] 已经不存在，请检查配置", entityName.toUpperCase()));
+            throw new MissingMetaExcetion(Language.L("实体 [%s] 已经不存在，请检查配置", StringUtils.upperCase(entityName)));
         }
     }
 
