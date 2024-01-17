@@ -996,7 +996,6 @@ class RbList extends React.Component {
       // wheelSpeed: 1,
     })
 
-    // Use `pin`
     if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')

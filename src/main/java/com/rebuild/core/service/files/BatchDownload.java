@@ -44,8 +44,8 @@ public class BatchDownload extends HeavyTask<File> {
         for (String path : files) {
             if (StringUtils.isBlank(path)) continue;
 
+            // TODO 太大的文件不适用于下载
             File dest = new File(tmp, QiniuCloud.parseFileName(path));
-
             try {
                 if (QiniuCloud.instance().available()) {
                     QiniuCloud.instance().download(path, dest);
@@ -66,6 +66,8 @@ public class BatchDownload extends HeavyTask<File> {
     }
 
     /**
+     * 压缩成功后的文件
+     *
      * @return
      */
     public File getDestZip() {
