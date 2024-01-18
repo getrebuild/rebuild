@@ -1861,7 +1861,12 @@ class RecordMerger extends RbModalHandler {
                   {idData &&
                     idData.map((item, idx) => {
                       if (idx === 0) return null
-                      if (idx === 1) return <th width="200">{$L('字段/记录')}</th>
+                      if (idx === 1)
+                        return (
+                          <th key={idx} width="200">
+                            {$L('字段/记录')}
+                          </th>
+                        )
 
                       return (
                         <th key={idx} data-id={item[0]}>
@@ -1914,11 +1919,11 @@ class RecordMerger extends RbModalHandler {
             <p className="protips mt-1">{$L('点击单元格选择需要保留的值')}</p>
           </div>
           <div className="float-right mr-1">
-            <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={() => this.handleCancel()}>
+            <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.hide()}>
               {$L('取消')}
             </button>
-            <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
-              {$L('开始合并')}
+            <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this._post()}>
+              {$L('合并')}
             </button>
           </div>
           <div className="clearfix" />
@@ -1940,6 +1945,27 @@ class RecordMerger extends RbModalHandler {
   }
 
   _post() {
+    const that = this
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认合并吗？')}</b>
+        <div className="mt-1">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked />
+            <span className="custom-control-label"> {$L('合并后自动删除被合并记录')}</span>
+          </label>
+        </div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const del = $(this._element).find('input')[0].checked
+          that._post2(del)
+        },
+      }
+    )
+  }
+
+  _post2(del) {
     const merged = {}
     $(this._$tbody)
       .find('tr')
@@ -1955,7 +1981,7 @@ class RecordMerger extends RbModalHandler {
       })
 
     const $btn = this._$btn.find('.btn').button('loading')
-    $.post(`/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}`, JSON.stringify(merged), (res) => {
+    $.post(`/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&delete=${del || false}`, JSON.stringify(merged), (res) => {
       if (res.error_code === 0) {
         this.hide()
         this.props.listRef.reload()
