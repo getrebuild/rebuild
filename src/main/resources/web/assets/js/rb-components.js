@@ -424,6 +424,14 @@ class RbHighbar extends React.Component {
 
   /**
    * @param {*} message
+   * @param {*} option
+   */
+  static createl(message, option) {
+    return RbHighbar.create($L(message), option)
+  }
+
+  /**
+   * @param {*} message
    */
   static success(message) {
     RbHighbar.create(message || $L('操作成功'), { type: 'success' })

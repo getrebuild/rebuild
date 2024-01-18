@@ -230,7 +230,7 @@ class BatchOperator extends RbFormHandler {
     const queryRows = _listRef.getLastQueryTotal()
 
     return (
-      <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
+      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form batch-form">
           <div className="form-group">
             <label className="text-bold">{$L('选择数据范围')}</label>
@@ -800,6 +800,11 @@ const RbListCommon = {
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
+    $('.J_record-merge').on('click', () => {
+      const ids = _RbList().getSelectedIds()
+      if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
+      renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} ids={ids} />)
+    })
 
     // 自动打开新建
     if (location.hash === '#!/New') {
@@ -1507,7 +1512,7 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表（单元格）渲染
+// 数据列表（单元格）渲染
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
@@ -1834,3 +1839,130 @@ CellRenders.addRender('TAG', function (v, s, k) {
     </td>
   )
 })
+
+// ~~ 记录合并
+
+class RecordMerger extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const datas = this.state.datas || []
+    const idData = datas[0]
+
+    return (
+      <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1100">
+        <div style={{ padding: 10 }}>
+          <div className="record-merge-table">
+            <table className="table table-bordered table-sm m-0">
+              <thead ref={(c) => (this._$thead = c)}>
+                <tr>
+                  {idData &&
+                    idData.map((item, idx) => {
+                      if (idx === 0) return null
+                      if (idx === 1) return <th width="200">{$L('字段/记录')}</th>
+
+                      return (
+                        <th key={idx} data-id={item[0]}>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank">
+                            {item[1]}
+                          </a>
+                        </th>
+                      )
+                    })}
+                </tr>
+              </thead>
+              <tbody ref={(c) => (this._$tbody = c)}>
+                {datas.map((item, idx) => {
+                  if (idx === 0) return null
+
+                  let chk
+                  const data4field = []
+                  for (let i = 2; i < item.length; i++) {
+                    let s = item[i]
+                    let activeClazz
+                    if ($empty(item[i])) {
+                      s = <span className="text-muted">{$L('空')}</span>
+                    } else {
+                      activeClazz = 'active'
+                      if (chk) activeClazz = null
+                      if (activeClazz) chk = true
+                    }
+
+                    data4field.push(
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => this._chkValue(e)}>
+                        {s}
+                      </td>
+                    )
+                  }
+
+                  return (
+                    <tr key={item[0]} data-field={item[0]}>
+                      <th>{item[1]}</th>
+                      {data4field}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-2 mb-1" ref={(c) => (this._$btn = c)}>
+          <div className="float-left ml-2">
+            <p className="protips mt-1">{$L('点击单元格选择需要保留的值')}</p>
+          </div>
+          <div className="float-right mr-1">
+            <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={() => this.handleCancel()}>
+              {$L('取消')}
+            </button>
+            <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
+              {$L('开始合并')}
+            </button>
+          </div>
+          <div className="clearfix" />
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/record-merge/fetch-datas?ids=${this.props.ids.join(',')}`, (res) => {
+      this.setState({ datas: res.data || [] })
+    })
+  }
+
+  _chkValue(e) {
+    const $td = $(e.target)
+    $td.parent().find('td').removeClass('active')
+    $td.addClass('active')
+  }
+
+  _post() {
+    const merged = {}
+    $(this._$tbody)
+      .find('tr')
+      .each((idx, item) => {
+        const field = $(item).data('field')
+        const index = ~~$(item).find('td.active').data('index')
+        if (index > 0) {
+          const id = $(this._$thead)
+            .find(`th:eq(${index - 1})`)
+            .data('id')
+          merged[field] = id
+        }
+      })
+
+    const $btn = this._$btn.find('.btn').button('loading')
+    $.post(`/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}`, JSON.stringify(merged), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        this.props.listRef.reload()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btn.button('reset')
+    })
+  }
+}

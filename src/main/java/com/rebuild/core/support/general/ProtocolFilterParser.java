@@ -63,6 +63,12 @@ public class ProtocolFilterParser {
     final private String protocolExpr;
 
     /**
+     */
+    public ProtocolFilterParser() {
+        this(null);
+    }
+
+    /**
      * @param protocolExpr
      */
     public ProtocolFilterParser(String protocolExpr) {
@@ -73,6 +79,7 @@ public class ProtocolFilterParser {
      * @return
      */
     public String toSqlWhere() {
+        Assert.notNull(protocolExpr, "[protocolExpr] cannot be null");
         String[] ps = protocolExpr.split(":");
         Assert.isTrue(ps.length >= 2, "Bad arguments of protocol expr : " + protocolExpr);
 

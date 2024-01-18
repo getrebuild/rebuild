@@ -107,6 +107,7 @@
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${_HadApproval}" class="dropdown-item J_batch-approve"><i class="icon mdi mdi-progress-check"></i> [[${bundle.L('批量审批')}]] <sup class="rbv"></sup></a>
+                          <a class="dropdown-item J_record-merge"><i class="icon mdi mdi-set-merge"></i> [[${bundle.L('记录合并')}]] <sup class="rbv"></sup></a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
@@ -139,7 +140,7 @@
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
     <th:block th:replace="~{/_include/forms}" />
-    <th:block th:if="${commercial > 1}"><script th:src="@{/web/assets/js/general/rb-filterpane.js}" type="text/babel"></script></th:block>
+    <th:block th:if="${commercial > 1}"><script th:src="@{/assets/js/general/rb-filterpane.js}" type="text/babel"></script></th:block>
     <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
   </body>
 </html>

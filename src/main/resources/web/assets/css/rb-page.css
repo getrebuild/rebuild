@@ -5467,3 +5467,36 @@ span.icon-append .icon {
 .cursou-default {
   cursor: default;
 }
+
+.table-bordered.table-sm > thead > tr > th {
+  padding: 7px;
+}
+
+.record-merge-table {
+  width: 100%;
+  overflow: auto;
+}
+
+.record-merge-table table th {
+  min-width: 200px;
+}
+
+.record-merge-table table td {
+  cursor: default;
+  position: relative;
+}
+
+.record-merge-table table td.active {
+  background-color: #f5f8fd;
+  background-color: #dee2e6;
+}
+
+.record-merge-table table td.active::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F012C';
+  position: absolute;
+  right: 7px;
+  top: 5px;
+  color: #4285f4;
+  font-size: 1.25rem;
+}
