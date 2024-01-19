@@ -95,10 +95,10 @@ public class SMSender {
             throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
         }
 
-//        if (Application.devMode()) {
-//            log.info("[dev] Fake send email to : {} / {} / {}", to, subject, content);
-//            return null;
-//        }
+        if (Application.devMode()) {
+            log.info("[dev] Fake send email to : {} / {} / {}", to, subject, content);
+            return null;
+        }
 
         // 使用邮件模板
         if (useTemplate) {
