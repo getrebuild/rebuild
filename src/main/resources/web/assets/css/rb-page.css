@@ -528,6 +528,10 @@ a.btn {
   padding-left: 1.9377rem;
 }
 
+.custom-control.custom-control-sm.pl {
+  padding-left: 1.9377rem !important;
+}
+
 /*
 .custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
     font-size: 13px;
@@ -5491,6 +5495,10 @@ span.icon-append .icon {
   background-color: #dee2e6;
 }
 
+.record-merge-table table td.sysfield {
+  cursor: not-allowed;
+}
+
 .record-merge-table table td.active::after {
   font-family: 'Material Design Icons', serif;
   content: '\F012C';
@@ -5499,4 +5507,8 @@ span.icon-append .icon {
   top: 5px;
   color: #4285f4;
   font-size: 1.25rem;
+}
+
+.record-merge-table table tr.bt2 {
+  border-top: 2px solid #dee2e6;
 }

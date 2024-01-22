@@ -54,7 +54,7 @@
             <li class="nav-item">
               <a class="nav-link active"><span class="icon zmdi" th:classappend="|zmdi-${mainEntityIcon}|"></span> [[${mainEntityLabel}]]</a>
             </li>
-            <li th:each="e : ${detailEntities}" class="nav-item">
+            <li th:each="e : ${detailEntities}" class="nav-item J_details">
               <a th:href="|../${e[1]}/list|" class="nav-link"><span class="icon zmdi" th:classappend="|zmdi-${e[3]}|"></span> [[${e[2]}]]</a>
             </li>
           </ul>

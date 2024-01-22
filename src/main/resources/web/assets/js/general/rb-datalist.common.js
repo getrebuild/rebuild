@@ -803,7 +803,7 @@ const RbListCommon = {
     $('.J_record-merge').on('click', () => {
       const ids = _RbList().getSelectedIds()
       if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
-      renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} ids={ids} />)
+      renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
     })
 
     // 自动打开新建
@@ -1855,23 +1855,19 @@ class RecordMerger extends RbModalHandler {
       <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1100">
         <div style={{ padding: 10 }}>
           <div className="record-merge-table">
-            <table className="table table-bordered table-sm m-0">
+            <label className="mb-2 text-bold">{$L('选择需要保留的值')}</label>
+            <table className="table table-bordered table-hover table-sm m-0">
               <thead ref={(c) => (this._$thead = c)}>
                 <tr>
+                  <th width="200">{$L('字段/记录')}</th>
                   {idData &&
                     idData.map((item, idx) => {
                       if (idx === 0) return null
-                      if (idx === 1)
-                        return (
-                          <th key={idx} width="200">
-                            {$L('字段/记录')}
-                          </th>
-                        )
-
                       return (
                         <th key={idx} data-id={item[0]}>
-                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank">
-                            {item[1]}
+                          <strong>{item[1]}</strong>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                            <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
                           </a>
                         </th>
                       )
@@ -1884,7 +1880,7 @@ class RecordMerger extends RbModalHandler {
 
                   let chk
                   const data4field = []
-                  for (let i = 2; i < item.length; i++) {
+                  for (let i = 1; i < item.length; i++) {
                     let s = item[i]
                     let activeClazz
                     if ($empty(item[i])) {
@@ -1895,29 +1891,49 @@ class RecordMerger extends RbModalHandler {
                       if (activeClazz) chk = true
                     }
 
+                    const IS_COMMONS = item[0][2]
+                    if (IS_COMMONS) activeClazz = 'sysfield'
+
                     data4field.push(
-                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => this._chkValue(e)}>
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._chkValue(e)}>
                         {s}
                       </td>
                     )
                   }
 
+                  const fieldMeta = item[0]
                   return (
-                    <tr key={item[0]} data-field={item[0]}>
-                      <th>{item[1]}</th>
+                    <tr key={fieldMeta[0]} data-field={fieldMeta[0]}>
+                      <th>{fieldMeta[1]}</th>
                       {data4field}
                     </tr>
                   )
                 })}
+
+                {this.props.hasDetails && idData && (
+                  <tr className="bt2" ref={(c) => (this._$mergeDetails = c)}>
+                    <th>{$L('合并明细记录')}</th>
+                    {idData &&
+                      idData.map((item, idx) => {
+                        if (idx === 0) return null
+                        return (
+                          <td key={idx}>
+                            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline pl">
+                              <input className="custom-control-input" type="checkbox" defaultChecked value={item[0]} />
+                              <span className="custom-control-label"> {$L('是')}</span>
+                            </label>
+                          </td>
+                        )
+                      })}
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
         <div className="mt-2 mb-1" ref={(c) => (this._$btn = c)}>
-          <div className="float-left ml-2">
-            <p className="protips mt-1">{$L('点击单元格选择需要保留的值')}</p>
-          </div>
+          <div className="float-left ml-2"></div>
           <div className="float-right mr-1">
             <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.hide()}>
               {$L('取消')}
@@ -1959,6 +1975,7 @@ class RecordMerger extends RbModalHandler {
       {
         onConfirm: function () {
           const del = $(this._element).find('input')[0].checked
+          this.hide()
           that._post2(del)
         },
       }
@@ -1973,22 +1990,32 @@ class RecordMerger extends RbModalHandler {
         const field = $(item).data('field')
         const index = ~~$(item).find('td.active').data('index')
         if (index > 0) {
-          const id = $(this._$thead)
-            .find(`th:eq(${index - 1})`)
-            .data('id')
-          merged[field] = id
+          const id = $(this._$thead).find(`th:eq(${index})`).data('id')
+          merged[field] = id || null
         }
       })
+    console.log(merged)
 
-    const $btn = this._$btn.find('.btn').button('loading')
-    $.post(`/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&delete=${del || false}`, JSON.stringify(merged), (res) => {
+    const details = []
+    $(this._$mergeDetails)
+      .find('input[checked]')
+      .each(function () {
+        details.push($(this).val())
+      })
+    const url = `/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(url, JSON.stringify(merged), (res) => {
       if (res.error_code === 0) {
         this.hide()
+        RbHighbar.success($L('合并成功'))
         this.props.listRef.reload()
+        setTimeout(() => {
+          CellRenders.clickView({ id: res.data, entity: this.props.entity })
+        }, 500)
       } else {
         RbHighbar.error(res.error_msg)
+        $btn.button('reset')
       }
-      $btn.button('reset')
     })
   }
 }
