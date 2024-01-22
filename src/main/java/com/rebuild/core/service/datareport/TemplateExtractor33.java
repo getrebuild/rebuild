@@ -74,14 +74,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
                 // 明细实体
                 else if (varName.startsWith(DETAIL_PREFIX)) {
                     String detailField = listField.substring(DETAIL_PREFIX.length());
-                    if (detailField.endsWith(SORT_ASC)) {
-                        detailField = detailField.substring(0, detailField.length() - 4);
-                        sortFields.put(DETAIL_PREFIX, detailField + " asc");
-                    } else if (detailField.endsWith(SORT_DESC)) {
-                        detailField = detailField.substring(0, detailField.length() - 5);
-                        sortFields.put(DETAIL_PREFIX, detailField + " desc");
-                    }
-                    
+                    detailField = getFieldNameWithSort(DETAIL_PREFIX, detailField);
+
                     if (detailEntity != null && MetadataHelper.getLastJoinField(detailEntity, detailField) != null) {
                         map.put(varName, detailField);
                     } else {
@@ -99,13 +93,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     if (ref2FieldMeta != null && entity.equals(ref2FieldMeta.getReferenceEntity())) {
                         String refName = NROW_PREFIX + ref2Field + "." + ref2Entity;
                         String subField = listField.substring(refName.length());
-                        if (subField.endsWith(SORT_ASC)) {
-                            subField = subField.substring(0, subField.length() - 4);
-                            sortFields.put(refName, subField + " asc");
-                        } else if (subField.endsWith(SORT_DESC)) {
-                            subField = subField.substring(0, subField.length() - 5);
-                            sortFields.put(refName, subField + " desc");
-                        }
+                        subField = getFieldNameWithSort(refName, subField);
 
                         if (MetadataHelper.getLastJoinField(MetadataHelper.getEntity(ref2Entity), subField) != null) {
                             map.put(varName, subField);
@@ -124,6 +112,26 @@ public class TemplateExtractor33 extends TemplateExtractor {
             }
         }
         return map;
+    }
+
+    private String getFieldNameWithSort(String refName, String varFieldName) {
+        String hasSort = null;
+        if (varFieldName.endsWith(SORT_ASC)) {
+            varFieldName = varFieldName.substring(0, varFieldName.length() - 4);
+            hasSort = varFieldName + " asc";
+        } else if (varFieldName.endsWith(SORT_DESC)) {
+            varFieldName = varFieldName.substring(0, varFieldName.length() - 5);
+            hasSort = varFieldName + " desc";
+        }
+
+        if (hasSort != null) {
+            String useSorts = sortFields.get(refName);
+            if (useSorts != null) useSorts += "," + hasSort;
+            else useSorts = hasSort;
+            sortFields.put(refName, useSorts);
+        }
+
+        return varFieldName;
     }
 
     /**
