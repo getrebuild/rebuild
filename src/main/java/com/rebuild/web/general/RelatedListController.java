@@ -126,7 +126,7 @@ public class RelatedListController extends BaseController {
         // format: Entity.Field
         Entity relatedEntity = MetadataHelper.getEntity(relatedExpr.split("\\.")[0]);
 
-        String where = new ProtocolFilterParser(null).parseRelated(relatedExpr, mainid);
+        String where = new ProtocolFilterParser().parseRelated(relatedExpr, mainid);
 
         // @see FeedsListController#fetchFeeds
         if (relatedEntity.getEntityCode() == EntityHelper.Feeds) {

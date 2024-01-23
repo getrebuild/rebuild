@@ -170,3 +170,50 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .quick-filter-tabs + .nav-tabs {
   margin-top: 44px;
 }
+
+.dataTables_oper.invisible2 > .btn,
+.dataTables_oper.invisible2 > .btn-group {
+  display: none;
+}
+
+.dataTables_oper.invisible2 > .btn.J_view {
+  display: inline-block;
+}
+
+.record-merge-table {
+  width: 100%;
+  overflow: auto;
+}
+
+.record-merge-table table th {
+  min-width: 200px;
+}
+
+.record-merge-table table td {
+  cursor: default;
+  position: relative;
+}
+
+.record-merge-table table td.active {
+  background-color: #f5f8fd;
+  background-color: #dee2e6;
+}
+
+.record-merge-table table td.sysfield {
+  cursor: not-allowed;
+}
+
+.record-merge-table table td.active::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F012C';
+  position: absolute;
+  right: 7px;
+  top: 5px;
+  color: #34a853;
+  font-size: 1.12rem;
+  font-weight: bold;
+}
+
+.record-merge-table table tr.bt2 {
+  border-top: 2px solid #dee2e6;
+}

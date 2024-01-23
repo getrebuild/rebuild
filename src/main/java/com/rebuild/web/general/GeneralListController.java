@@ -134,10 +134,17 @@ public class GeneralListController extends EntityController {
                 if (!paneFields.isEmpty()) mv.getModel().put("paneFields", paneFields);
             }
 
-            // 查询页签 v3.3
-
+            // v3.3 查询页签
             String advListFilterTabs = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_FILTERTABS);
             mv.getModel().put(EasyEntityConfigProps.ADV_LIST_FILTERTABS, advListFilterTabs);
+
+            // v3.6 记录合并
+            String enableRecordMerger = easyEntity.getExtraAttr(EasyEntityConfigProps.ENABLE_RECORD_MERGER);
+            if (BooleanUtils.toBoolean(enableRecordMerger)) {
+                if (Application.getPrivilegesManager().allow(user, ZeroEntry.AllowRecordMerge)) {
+                    mv.getModel().put(EasyEntityConfigProps.ENABLE_RECORD_MERGER, true);
+                }
+            }
 
         } else if (listMode == 2) {
             listConfig = DataListManager.instance.getFieldsLayoutMode2(listEntity);

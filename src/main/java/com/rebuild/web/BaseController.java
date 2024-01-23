@@ -13,15 +13,16 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controller;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Base Controller.
@@ -33,6 +34,7 @@ import java.util.Set;
  * @see com.rebuild.api.RespBody
  * @see ControllerRespBodyAdvice
  */
+@Slf4j
 public abstract class BaseController extends Controller {
 
     /**
@@ -188,11 +190,25 @@ public abstract class BaseController extends Controller {
         String v = request.getParameter(name);
         if (v == null) return ID.EMPTY_ID_ARRAY;
 
-        Set<ID> set = new LinkedHashSet<>();
+        List<ID> idsList = new ArrayList<>();
         for (String id : v.split("[,;|]")) {
-            if (ID.isId(id)) set.add(ID.valueOf(id));
+            if (ID.isId(id)) idsList.add(ID.valueOf(id));
+            else log.warn("Bad id string : {}", id);
         }
-        return set.toArray(new ID[0]);
+        return idsList.toArray(new ID[0]);
+    }
+
+    /**
+     * @param request
+     * @param name
+     * @return
+     */
+    protected ID[] getIdArrayParameterNotNull(HttpServletRequest request, String name) {
+        ID[] ids = getIdArrayParameter(request, name);
+        if (ids == null || ids.length == 0) {
+            throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, request.getParameter(name)));
+        }
+        return ids;
     }
 
     /**

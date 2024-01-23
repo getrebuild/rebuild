@@ -10,9 +10,13 @@ package com.rebuild.core.support.distributed;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.SetParams;
+
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * 分布式环境下（多 RB 实例），避免一个 Job 多个实例都运行。
@@ -53,5 +57,21 @@ public abstract class DistributedJobLock {
 
         log.info("The job [ {} ] will be executed safely ...", getClass().getSimpleName());
         return true;
+    }
+
+    /**
+     * 获取当前执行 JOB 线程数量
+     *
+     * @return
+     */
+    public static int getActiveCount() {
+        try {
+            ThreadPoolTaskScheduler taskScheduler = (ThreadPoolTaskScheduler) Application.getContext().getBean("taskScheduler");
+            ScheduledThreadPoolExecutor poolExecutor = taskScheduler.getScheduledThreadPoolExecutor();
+            return poolExecutor.getActiveCount();
+        } catch (BeansException ex) {
+            log.error(null, ex);
+            return -1;
+        }
     }
 }

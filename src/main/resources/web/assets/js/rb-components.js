@@ -17,8 +17,9 @@ class RbModal extends React.Component {
   render() {
     const props = this.props
     const style2 = { maxWidth: ~~(props.width || 680) }
-    if (props.useWhite) {
+    if (props.useWhite || props.maximize) {
       style2.maxWidth = this.state._maximize ? $(window).width() - 60 : null
+      if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
 
     const modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
@@ -420,6 +421,14 @@ class RbHighbar extends React.Component {
       option = option || {}
       renderRbcomp(<RbHighbar message={message} type={option.type} timeout={option.timeout} />)
     }
+  }
+
+  /**
+   * @param {*} message
+   * @param {*} option
+   */
+  static createl(message, option) {
+    return RbHighbar.create($L(message), option)
   }
 
   /**

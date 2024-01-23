@@ -54,7 +54,8 @@ public class PerHourJob extends DistributedJobLock {
             doBackups();
         } else if (hour == 1) {
             doCleanTempFiles();
-            doCleanExpiredShare();
+            doCleanExpiredSharedUrls();
+            doCleanSystemRefs();
         }
 
         new SysbaseHeartbeat().heartbeat();
@@ -64,7 +65,7 @@ public class PerHourJob extends DistributedJobLock {
     }
 
     /**
-     * 备份
+     * 执行备份
      */
     protected void doBackups() {
         File backups = RebuildConfiguration.getFileOfData("_backups");
@@ -110,11 +111,18 @@ public class PerHourJob extends DistributedJobLock {
      * 清理过期共享文件
      * @see com.rebuild.core.support.ShortUrls
      */
-    protected void doCleanExpiredShare() {
+    protected void doCleanExpiredSharedUrls() {
         String dsql = String.format(
-                "delete from `short_url` where EXPIRE_TIME < '%s'", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+                "delete from `short_url` where `EXPIRE_TIME` < '%s'",
+                CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         int a = Application.getSqlExecutor().execute(dsql, 600);
-        log.info("Clean expired share(s) : {}", a);
+        log.info("Clean expired shared urls : {}", a);
+    }
+
+    /**
+     * TODO 清理系统级引用
+     */
+    protected void doCleanSystemRefs() {
     }
 
     // --

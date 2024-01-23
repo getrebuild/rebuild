@@ -172,7 +172,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
                 String relatedExpr = split[1] + "." + split[0];
-                String where = new ProtocolFilterParser(null).parseRelated(relatedExpr, recordId);
+                String where = new ProtocolFilterParser().parseRelated(relatedExpr, recordId);
                 querySql = querySql.replace("%s = ?", where);
 
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),

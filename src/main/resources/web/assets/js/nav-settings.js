@@ -456,7 +456,7 @@ class TopNavSettings extends Share2Switch {
     let newNameChanged = false
     const sets = []
     $(this._$scrollbar)
-      .find('input:checked')
+      .find('input.custom-control-input')
       .each((idx, item) => {
         const n = $(item).data('id')
         const d = $(item).parents('.row').find('select').val()
@@ -464,7 +464,7 @@ class TopNavSettings extends Share2Switch {
         const newName = $(item).parents('.row').find('input').val()
 
         // eslint-disable-next-line eqeqeq
-        sets.push([n, d || null, oldName == newName ? null : newName])
+        sets.push([n, d || null, oldName == newName ? null : newName, $val(item)])
         // eslint-disable-next-line eqeqeq
         if (oldName != newName) newNameChanged = true
       })

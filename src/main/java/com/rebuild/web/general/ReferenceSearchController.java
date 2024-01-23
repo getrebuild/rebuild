@@ -74,7 +74,7 @@ public class ReferenceSearchController extends EntityController {
         String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
         if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
 
-        String protocolFilter = new ProtocolFilterParser(null)
+        String protocolFilter = new ProtocolFilterParser()
                 .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
         String q = StringUtils.trim(getParameter(request, "q"));

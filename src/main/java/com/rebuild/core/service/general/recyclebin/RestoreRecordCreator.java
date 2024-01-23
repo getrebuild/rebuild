@@ -12,7 +12,10 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -42,8 +45,18 @@ public class RestoreRecordCreator extends JsonRecordCreator {
             }
 
             Object value = e.getValue();
-            if (value == null || StringUtils.isEmpty(value.toString())) {
-                continue;
+            if (value == null || StringUtils.isEmpty(value.toString())) continue;
+
+            // fix: v3.6
+            DisplayType dt = EasyMetaFactory.getDisplayType(entity.getField(fileName));
+            if (dt == DisplayType.N2NREFERENCE || dt == DisplayType.TAG) {
+                // 只需保留一个作为标志，因为 NreferenceItem/TagItem 中并未删除
+                try {
+                    JSONArray valueArray = (JSONArray) value;
+                    value = valueArray.get(0);
+                } catch (Exception ignored) {
+                    continue;
+                }
             }
 
             setFieldValue(entity.getField(fileName), value.toString(), record);

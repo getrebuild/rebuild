@@ -230,7 +230,7 @@ class BatchOperator extends RbFormHandler {
     const queryRows = _listRef.getLastQueryTotal()
 
     return (
-      <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
+      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form batch-form">
           <div className="form-group">
             <label className="text-bold">{$L('选择数据范围')}</label>
@@ -800,6 +800,11 @@ const RbListCommon = {
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
+    $('.J_record-merge').on('click', () => {
+      const ids = _RbList().getSelectedIds()
+      if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
+      renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
+    })
 
     // 自动打开新建
     if (location.hash === '#!/New') {
@@ -1507,7 +1512,7 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表（单元格）渲染
+// 数据列表（单元格）渲染
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
@@ -1834,3 +1839,183 @@ CellRenders.addRender('TAG', function (v, s, k) {
     </td>
   )
 })
+
+// ~~ 记录合并
+
+class RecordMerger extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const datas = this.state.datas || []
+    const idData = datas[0]
+
+    return (
+      <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1000" maximize>
+        <div style={{ padding: 10 }}>
+          <div className="record-merge-table">
+            <label className="mb-2 text-bold">{$L('选择需要保留的值')}</label>
+            <table className="table table-bordered table-hover table-sm m-0">
+              <thead ref={(c) => (this._$thead = c)}>
+                <tr>
+                  <th width="200">{$L('字段/记录')}</th>
+                  {idData &&
+                    idData.map((item, idx) => {
+                      if (idx === 0) return null
+                      return (
+                        <th key={idx} data-id={item[0]}>
+                          <strong>{item[1]}</strong>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                            <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
+                          </a>
+                        </th>
+                      )
+                    })}
+                </tr>
+              </thead>
+              <tbody ref={(c) => (this._$tbody = c)}>
+                {datas.map((item, idx) => {
+                  if (idx === 0) return null
+
+                  let chk
+                  const data4field = []
+                  for (let i = 1; i < item.length; i++) {
+                    let s = item[i]
+                    let activeClazz
+                    if ($empty(item[i])) {
+                      s = <span className="text-muted">{$L('空')}</span>
+                    } else {
+                      activeClazz = 'active'
+                      if (chk) activeClazz = null
+                      if (activeClazz) chk = true
+                    }
+
+                    const IS_COMMONS = item[0][2]
+                    if (IS_COMMONS) activeClazz = 'sysfield'
+
+                    data4field.push(
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._chkValue(e)}>
+                        {s}
+                      </td>
+                    )
+                  }
+
+                  const fieldMeta = item[0]
+                  return (
+                    <tr key={fieldMeta[0]} data-field={fieldMeta[0]}>
+                      <th>{fieldMeta[1]}</th>
+                      {data4field}
+                    </tr>
+                  )
+                })}
+
+                {this.props.hasDetails && idData && (
+                  <tr className="bt2" ref={(c) => (this._$mergeDetails = c)}>
+                    <th>{$L('合并明细记录')}</th>
+                    {idData &&
+                      idData.map((item, idx) => {
+                        if (idx === 0) return null
+                        return (
+                          <td key={idx}>
+                            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline pl">
+                              <input className="custom-control-input" type="checkbox" defaultChecked value={item[0]} />
+                              <span className="custom-control-label"> {$L('是')}</span>
+                            </label>
+                          </td>
+                        )
+                      })}
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-2 mb-1" ref={(c) => (this._$btn = c)}>
+          <div className="float-left ml-2"></div>
+          <div className="float-right mr-1">
+            <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.hide()}>
+              {$L('取消')}
+            </button>
+            <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this._post()}>
+              {$L('合并')}
+            </button>
+          </div>
+          <div className="clearfix" />
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/record-merge/fetch-datas?ids=${this.props.ids.join(',')}`, (res) => {
+      this.setState({ datas: res.data || [] })
+    })
+  }
+
+  _chkValue(e) {
+    const $td = $(e.target)
+    $td.parent().find('td').removeClass('active')
+    $td.addClass('active')
+  }
+
+  _post() {
+    const that = this
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认合并吗？')}</b>
+        <div className="mt-1">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked />
+            <span className="custom-control-label"> {$L('合并后自动删除被合并记录')}</span>
+          </label>
+        </div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const del = $(this._element).find('input')[0].checked
+          this.hide()
+          that._post2(del)
+        },
+      }
+    )
+  }
+
+  _post2(del) {
+    const merged = {}
+    $(this._$tbody)
+      .find('tr')
+      .each((idx, item) => {
+        const field = $(item).data('field')
+        const index = ~~$(item).find('td.active').data('index')
+        if (index > 0) {
+          const id = $(this._$thead).find(`th:eq(${index})`).data('id')
+          merged[field] = id || null
+        }
+      })
+    console.log(merged)
+
+    const details = []
+    $(this._$mergeDetails)
+      .find('input[checked]')
+      .each(function () {
+        details.push($(this).val())
+      })
+    const url = `/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(url, JSON.stringify(merged), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        RbHighbar.success($L('合并成功'))
+        this.props.listRef.reload()
+        setTimeout(() => {
+          CellRenders.clickView({ id: res.data, entity: this.props.entity })
+        }, 500)
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+}

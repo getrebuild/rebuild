@@ -528,6 +528,10 @@ a.btn {
   padding-left: 1.9377rem;
 }
 
+.custom-control.custom-control-sm.pl {
+  padding-left: 1.9377rem !important;
+}
+
 /*
 .custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
     font-size: 13px;
@@ -5415,15 +5419,6 @@ div.dataTables_wrapper.compact div.dataTables_oper .btn-space {
   border-bottom: 1px solid #dee2e6;
 }
 
-.dataTables_oper.invisible2 > .btn,
-.dataTables_oper.invisible2 > .btn-group {
-  display: none;
-}
-
-.dataTables_oper.invisible2 > .btn.J_view {
-  display: inline-block;
-}
-
 .code-viewport {
   position: relative;
 }
@@ -5466,4 +5461,8 @@ span.icon-append .icon {
 
 .cursou-default {
   cursor: default;
+}
+
+.table-bordered.table-sm > thead > tr > th {
+  padding: 7px;
 }

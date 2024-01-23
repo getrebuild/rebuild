@@ -62,6 +62,11 @@ public enum ZeroEntry {
      */
     AllowRevokeApproval(false),
 
+    /**
+     * 允许合并记录
+     */
+    AllowRecordMerge(false),
+
     ;
 
     private final boolean defaultVal;
