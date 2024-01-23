@@ -70,4 +70,9 @@ public class EasyEntityConfigProps {
      * 禁用视图单字段编辑
      */
     public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
+
+    /**
+     * 启用记录合并（还需配合权限）
+     */
+    public static final String ENABLE_RECORD_MERGER = "enableRecordMerger";
 }
