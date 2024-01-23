@@ -635,7 +635,7 @@ public class ApprovalProcessor extends SetUser {
         LinkedList<String[]> set = new LinkedList<>();
         while (currentNode != null) {
             FlowNode node = flowParser.getNode(currentNode);
-            if (!FlowNode.TYPE_CC.equals(node.getType())) {
+            if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
                 set.addFirst(new String[] { node.getNodeId(), node.getDataMap().getString("nodeName") });
             }
 
