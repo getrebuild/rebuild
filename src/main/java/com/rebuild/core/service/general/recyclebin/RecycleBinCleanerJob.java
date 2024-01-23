@@ -59,7 +59,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             // 相关引用也在此时一并删除，因为记录已经彻底删除
             // Field: recordId
             String[] refs = new String[] {
-                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem"
+                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem"
             };
             for (String refName : refs) {
                 Entity refEntity = MetadataHelper.getEntity(refName);
@@ -99,7 +99,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             log.warn("RevisionHistory cleaned : {}", del);
         }
 
-        // CommonLog
+        // CommonLog 保留6个月
 
         Entity entity = MetadataHelper.getEntity(EntityHelper.CommonsLog);
         String delSql = String.format(
