@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controller;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @see com.rebuild.api.RespBody
  * @see ControllerRespBodyAdvice
  */
+@Slf4j
 public abstract class BaseController extends Controller {
 
     /**
@@ -191,6 +193,7 @@ public abstract class BaseController extends Controller {
         List<ID> idsList = new ArrayList<>();
         for (String id : v.split("[,;|]")) {
             if (ID.isId(id)) idsList.add(ID.valueOf(id));
+            else log.warn("Bad id string : {}", id);
         }
         return idsList.toArray(new ID[0]);
     }
