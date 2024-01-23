@@ -1852,7 +1852,7 @@ class RecordMerger extends RbModalHandler {
     const idData = datas[0]
 
     return (
-      <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1100">
+      <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1000" maximize>
         <div style={{ padding: 10 }}>
           <div className="record-merge-table">
             <label className="mb-2 text-bold">{$L('选择需要保留的值')}</label>

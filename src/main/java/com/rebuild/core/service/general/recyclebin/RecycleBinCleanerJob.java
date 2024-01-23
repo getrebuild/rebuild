@@ -56,12 +56,12 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
             List<String> dels = new ArrayList<>();
 
-            // 相关引用也在此时一并删除，因为记录已经彻底删除
+            // 相关系统引用也在此时一并删除，因为记录已经彻底删除
             // Field: recordId
-            String[] refs = new String[] {
+            String[] sysRefs = new String[] {
                     "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem"
             };
-            for (String refName : refs) {
+            for (String refName : sysRefs) {
                 Entity refEntity = MetadataHelper.getEntity(refName);
                 String refRecordIdName = "Attachment".equals(refName) ? "relatedRecord" : "recordId";
 
