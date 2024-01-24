@@ -124,6 +124,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
             hasSort = varFieldName + " desc";
         }
 
+        // 有多个字段排序的，其排序顺序取决于字段出现在模板中的位置
         if (hasSort != null) {
             String useSorts = sortFields.get(refName);
             if (useSorts != null) useSorts += "," + hasSort;

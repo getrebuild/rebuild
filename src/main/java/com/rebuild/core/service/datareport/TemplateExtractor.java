@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,7 +137,7 @@ public class TemplateExtractor {
     protected Set<String> extractVars() {
         List<Cell[]> rows = ExcelUtils.readExcel(templateFile);
 
-        Set<String> vars = new HashSet<>();
+        Set<String> vars = new LinkedHashSet<>();
         for (Cell[] row : rows) {
             for (Cell cell : row) {
                 if (cell.isEmpty()) continue;
