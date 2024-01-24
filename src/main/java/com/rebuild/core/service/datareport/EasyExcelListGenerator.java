@@ -51,7 +51,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
      * @see DataListBuilderImpl#getJSONResult()
      */
     @Override
-    protected List<Map<String, Object>> buildData() {
+    protected Map<String, List<Map<String, Object>>> buildData() {
         Entity entity = MetadataHelper.getEntity(queryData.getString("entity"));
         TemplateExtractor varsExtractor = new TemplateExtractor(templateFile, Boolean.TRUE);
         Map<String, String> varsMap = varsExtractor.transformVars(entity);
@@ -72,7 +72,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
             }
         }
 
-        if (validFields.isEmpty()) return Collections.emptyList();
+        if (validFields.isEmpty()) return Collections.emptyMap();
 
         queryData.put("fields", validFields);  // 使用模板字段
 
@@ -95,7 +95,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         if (varsMap.containsKey(PH__CURRENTDATE)) phValues.put(PH__CURRENTDATE, getPhValue(PH__CURRENTDATE));
         if (varsMap.containsKey(PH__CURRENTDATETIME)) phValues.put(PH__CURRENTDATETIME, getPhValue(PH__CURRENTDATETIME));
 
-        return datas;
+        return Collections.singletonMap(MDATA_KEY, datas);
     }
 
     public int getExportCount() {

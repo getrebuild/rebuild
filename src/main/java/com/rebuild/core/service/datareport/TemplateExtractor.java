@@ -38,7 +38,7 @@ public class TemplateExtractor {
     // 列表（即多条记录）
     public static final String NROW_PREFIX = ".";
     // 审批节点字段
-    protected static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
+    public static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
 
     // 占位
     public static final String PLACEHOLDER = "__";
