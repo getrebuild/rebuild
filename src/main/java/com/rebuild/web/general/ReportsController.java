@@ -40,19 +40,21 @@ import com.rebuild.utils.PdfConverter;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.admin.data.ReportTemplateController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * 报表/导出
@@ -67,10 +69,10 @@ public class ReportsController extends BaseController {
 
     // 报表模板
 
-    @RequestMapping("report/available")
+    @GetMapping("report/available")
     public JSON availableReports(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        JSONArray res = DataReportManager.instance.getReports(
+        JSONArray res = DataReportManager.instance.getReportTemplates(
                 MetadataHelper.getEntity(entity),
                 getIntParameter(request, "type", DataReportManager.TYPE_RECORD), user);
 
@@ -84,16 +86,11 @@ public class ReportsController extends BaseController {
     }
 
     @RequestMapping({"report/generate", "report/export"})
-    public void reportGenerate(@PathVariable String entity,
+    public ModelAndView reportGenerate(@PathVariable String entity,
                                @IdParam(name = "report") ID reportId,
                                HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String record = getParameterNotNull(request, "record");
-        List<ID> recordIds = new ArrayList<>();
-        for (String id : record.split(",")) {
-            if (ID.isId(id)) recordIds.add(ID.valueOf(id));
-        }
-
-        final ID recordId = recordIds.get(0);
+        final ID[] recordIds = getIdArrayParameterNotNull(request, "record");
+        final ID recordId = recordIds[0];
         final TemplateFile tt = DataReportManager.instance.getTemplateFile(reportId);
 
         File output = null;
@@ -102,9 +99,15 @@ public class ReportsController extends BaseController {
                 EasyExcelGenerator33 word = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
                         "com.rebuild.rbv.data.WordReportGenerator#create", reportId, recordId);
                 output = word.generate();
+
+            } else if (tt.type == DataReportManager.TYPE_HTML5) {
+                EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", reportId, recordId);
+                output = html5.generate();
+
             } else {
                 // 支持多个
-                output = EasyExcelGenerator.create(reportId, recordIds).generate();
+                output = EasyExcelGenerator.create(reportId, Arrays.asList(recordIds)).generate();
             }
 
         } catch (ExcelRuntimeException ex) {
@@ -112,6 +115,13 @@ public class ReportsController extends BaseController {
         }
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
+
+        String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
+
+        // v3.6
+        if (tt.type == DataReportManager.TYPE_HTML5) {
+            return ReportTemplateController.buildHtml5ModelAndView(output, fileName);
+        }
 
         final String typeOutput = getParameter(request, "output");
         final boolean isHtml = "HTML".equalsIgnoreCase(typeOutput);
@@ -121,8 +131,6 @@ public class ReportsController extends BaseController {
         } else if (isHtml) {
             output = PdfConverter.convertHtml(output.toPath()).toFile();
         }
-
-        final String fileName = DataReportManager.getReportName(reportId, recordId, output.getName());
 
         if (ServletUtils.isAjaxRequest(request)) {
             JSONObject data = JSONUtils.toJSONObject(
@@ -153,6 +161,7 @@ public class ReportsController extends BaseController {
             boolean forcePreview = isHtml || isPdf || getBoolParameter(request, "preview");
             FileDownloader.downloadTempFile(response, output, forcePreview ? FileDownloader.INLINE_FORCE : fileName);
         }
+        return null;
     }
     
     // 列表数据导出

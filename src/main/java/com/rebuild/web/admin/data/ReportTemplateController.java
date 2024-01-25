@@ -37,6 +37,7 @@ import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.commons.FileDownloader;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -164,7 +166,7 @@ public class ReportTemplateController extends BaseController {
     }
 
     @GetMapping("/report-templates/preview")
-    public void preview(@IdParam(required = false) ID reportId,
+    public ModelAndView preview(@IdParam(required = false) ID reportId,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
         final TemplateFile tt;
         // 新建时
@@ -183,7 +185,7 @@ public class ReportTemplateController extends BaseController {
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, Language.L("未找到可供预览的记录"));
-            return;
+            return null;
         }
 
         File output;
@@ -201,6 +203,12 @@ public class ReportTemplateController extends BaseController {
                         "com.rebuild.rbv.data.WordReportGenerator#create", tt.templateFile, random[0]);
                 output = word.generate();
             }
+            // HTML5
+            else if (tt.type == DataReportManager.TYPE_HTML5) {
+                EasyExcelGenerator33 html5 = (EasyExcelGenerator33) CommonsUtils.invokeMethod(
+                        "com.rebuild.rbv.data.Html5ReportGenerator#create", tt.templateContent, random[0]);
+                output = html5.generate();
+            }
             // EXCEL
             else {
                 output = EasyExcelGenerator.create(tt.templateFile, (ID) random[0], tt.isV33).generate();
@@ -208,13 +216,19 @@ public class ReportTemplateController extends BaseController {
 
         } catch (ConfigurationException ex) {
             response.sendError(500, ex.getLocalizedMessage());
-            return;
+            return null;
         }
 
         RbAssert.is(output != null, Language.L("无法输出报表，请检查报表模板是否有误"));
 
-        String attname = "RBREPORT-PREVIEW." + FileNameUtil.getSuffix(output);
+        String attname = "RBREPORT-PREVIEW";
 
+        // v3.6
+        if (tt.type == DataReportManager.TYPE_HTML5) {
+            return buildHtml5ModelAndView(output, attname);
+        }
+
+        attname += "." + FileNameUtil.getSuffix(output);
         String typeOutput = getParameter(request, "output");
         if (PdfConverter.TYPE_PDF.equalsIgnoreCase(typeOutput) || PdfConverter.TYPE_HTML.equalsIgnoreCase(typeOutput)) {
             output = PdfConverter.convert(output.toPath(), typeOutput).toFile();
@@ -222,6 +236,7 @@ public class ReportTemplateController extends BaseController {
         }
 
         FileDownloader.downloadTempFile(response, output, attname);
+        return null;
     }
 
     @GetMapping("/report-templates/download")
@@ -231,5 +246,19 @@ public class ReportTemplateController extends BaseController {
 
         FileDownloader.setDownloadHeaders(request, response, attname, false);
         FileDownloader.writeLocalFile(template, response);
+    }
+
+    /**
+     * @param html5
+     * @param title
+     * @return
+     * @throws IOException
+     */
+    public static ModelAndView buildHtml5ModelAndView(File html5, String title) throws IOException {
+        String content = FileUtils.readFileToString(html5, StandardCharsets.UTF_8);
+        ModelAndView mv = new ModelAndView("/admin/data/template5-view");
+        mv.getModelMap().put("reportName", title);
+        mv.getModelMap().put("reportContent", content);
+        return mv;
     }
 }

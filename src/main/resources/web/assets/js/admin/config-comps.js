@@ -27,7 +27,7 @@ class ConfigFormDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.confirm}>
-                {$L('确定')}
+                {this.confirmText || $L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
                 {$L('取消')}

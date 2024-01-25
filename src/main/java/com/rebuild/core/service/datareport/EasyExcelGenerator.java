@@ -173,9 +173,9 @@ public class EasyExcelGenerator extends SetUser {
     protected File getTargetFile() {
         String suffix = "xls";
         if (templateFile.getName().endsWith(".xlsx")) suffix = "xlsx";
-        if (templateFile.getName().endsWith(".html")) suffix = "html";
-        if (templateFile.getName().endsWith(".docx")) suffix = "docx";
-        if (templateFile.getName().endsWith(".doc")) suffix = "doc";
+        else if (templateFile.getName().endsWith(".html")) suffix = "html";
+        else if (templateFile.getName().endsWith(".docx")) suffix = "docx";
+        else if (templateFile.getName().endsWith(".doc")) suffix = "doc";
 
         return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s", System.currentTimeMillis(), suffix));
     }
