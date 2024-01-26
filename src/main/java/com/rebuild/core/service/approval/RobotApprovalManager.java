@@ -134,11 +134,13 @@ public class RobotApprovalManager implements ConfigManager {
             // 发起人匹配
             JSONArray users = root.getDataMap().getJSONArray("users");
             if (users == null || users.isEmpty()) {
-                users = JSON.parseArray("['OWNS']");
+                // v3.5.5/3.5.6 默认所有人可发起
+                users = JSON.parseArray("['ALL']");
             }
 
-            if (FlowNode.USER_ALL.equals(users.getString(0))
-                    || (FlowNode.USER_OWNS.equals(users.getString(0)) && owning.equals(user))
+            final String rootUser = users.getString(0);
+            if (FlowNode.USER_ALL.equals(rootUser)
+                    || (FlowNode.USER_OWNS.equals(rootUser) && owning.equals(user))
                     || UserHelper.parseUsers(users, recordId).contains(user)) {
 
                 // 过滤条件
