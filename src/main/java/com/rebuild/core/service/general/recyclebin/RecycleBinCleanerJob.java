@@ -59,7 +59,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             // 相关引用也在此时一并删除，因为记录已经彻底删除
             // Field: recordId
             String[] refs = new String[] {
-                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem"
+                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem"
             };
             for (String refName : refs) {
                 Entity refEntity = MetadataHelper.getEntity(refName);
