@@ -284,6 +284,9 @@ class ContentGroupAggregation extends ActionContentSpec {
         $(this._$stopPropagation).attr('checked', true).parents('.bosskey-show').removeClass('bosskey-show')
       }
       this.saveAdvFilter(content.dataFilter)
+
+      // eslint-disable-next-line no-undef
+      DlgSpecFields.render(content)
     } else {
       $(this._$autoCreate).attr('checked', true)
     }
@@ -545,6 +548,9 @@ renderContentComp = function (props) {
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
+
+  // 指定字段
+  $('.when-update a.hide').removeClass('hide')
 
   // eslint-disable-next-line no-undef
   useExecManual()

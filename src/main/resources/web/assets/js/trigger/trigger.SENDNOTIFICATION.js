@@ -232,7 +232,6 @@ class ContentSendNotification extends ActionContentSpec {
       return false
     }
 
-    if (window.whenUpdateFields) _data.whenUpdateFields = window.whenUpdateFields
     return _data
   }
 }

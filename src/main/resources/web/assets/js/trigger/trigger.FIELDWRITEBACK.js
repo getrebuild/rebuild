@@ -244,6 +244,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
       $(this._$matchFields).val(content.targetEntityMatchFields || null)
+
+      // eslint-disable-next-line no-undef
+      DlgSpecFields.render(content)
     }
   }
 
@@ -636,6 +639,9 @@ renderContentComp = function (props) {
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
+
+  // 指定字段
+  $('.when-update a.hide').removeClass('hide')
 
   // eslint-disable-next-line no-undef
   useExecManual()
