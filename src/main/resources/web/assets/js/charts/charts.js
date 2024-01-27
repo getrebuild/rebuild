@@ -32,7 +32,7 @@ class BaseChart extends React.Component {
         </a>
 
         <a className="d-none d-md-inline-block" data-toggle="dropdown">
-          <i className="icon zmdi zmdi-more-vert" />
+          <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
         </a>
         <div className="dropdown-menu dropdown-menu-right">
           {this.props.isManageable && !this.props.builtin && (
@@ -130,6 +130,16 @@ class BaseChart extends React.Component {
   }
 
   export() {
+    function _fnLinks(table, a, b) {
+      $(table)
+        .find('a')
+        .each(function () {
+          $(this)
+            .attr(a, `${$(this).attr(b)}`)
+            .removeAttr(b)
+        })
+    }
+
     if (this._echarts) {
       const base64 = this._echarts.getDataURL({
         type: 'png',
@@ -144,8 +154,15 @@ class BaseChart extends React.Component {
     } else {
       const table = $(this._$body).find('table.table')[0]
       if (table) {
-        const wb = XLSX.utils.table_to_book(table)
+        // Remove links
+        _fnLinks(table, '__href', 'href')
+
+        // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+        // https://docs.sheetjs.com/docs/api/write-options
+        const wb = XLSX.utils.table_to_book(table, { raw: true })
         XLSX.writeFile(wb, `${this.state.title}.xls`)
+
+        setTimeout(() => _fnLinks(table, 'href', '__href'), 500)
       } else {
         RbHighbar.createl('该图表暂不支持导出')
       }
