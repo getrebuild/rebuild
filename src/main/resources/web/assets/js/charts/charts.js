@@ -19,26 +19,35 @@ class BaseChart extends React.Component {
     const opActions = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a className="J_view-source" title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`} target="_blank">
             <i className="zmdi zmdi-rss" />
           </a>
         )}
         <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="J_fullscreen d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
+        <a className="d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
-        {this.props.isManageable && !this.props.builtin && (
-          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
-            <i className="zmdi zmdi-edit" />
+
+        <a className="d-none d-md-inline-block" data-toggle="dropdown">
+          <i className="icon zmdi zmdi-more-vert" style={{ width: 16 }} />
+        </a>
+        <div className="dropdown-menu dropdown-menu-right">
+          {this.props.isManageable && !this.props.builtin && (
+            <a className="dropdown-item J_chart-edit" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+              {$L('编辑')}
+            </a>
+          )}
+          {this.props.editable && (
+            <a className="dropdown-item" title={$L('移除')} onClick={() => this.remove()}>
+              {$L('移除')}
+            </a>
+          )}
+          <a className="dropdown-item" title={$L('导出')} onClick={() => this.export()}>
+            {$L('导出')}
           </a>
-        )}
-        {this.props.editable && (
-          <a title={$L('移除')} onClick={() => this.remove()}>
-            <i className="zmdi zmdi-close" />
-          </a>
-        )}
+        </div>
       </div>
     )
 
@@ -119,6 +128,51 @@ class BaseChart extends React.Component {
     })
   }
 
+  export() {
+    if (this._echarts) {
+      const base64 = this._echarts.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+      })
+
+      const $a = document.createElement('a')
+      $a.href = base64
+      $a.download = `${this.state.title}.png`
+      $a.click()
+    } else {
+      const table = $(this._$body).find('table.table')[0]
+      if (table) {
+        this._exportTable(table)
+      } else {
+        RbHighbar.createl('该图表暂不支持导出')
+      }
+    }
+  }
+
+  _exportTable(table) {
+    function reLinks(table, a, b) {
+      $(table)
+        .find('a')
+        .each(function () {
+          $(this)
+            .attr(a, `${$(this).attr(b)}`)
+            .removeAttr(b)
+        })
+    }
+
+    // Remove
+    reLinks(table, '__href', 'href')
+
+    // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+    // https://docs.sheetjs.com/docs/api/write-options
+    const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+    window.XLSX.writeFile(wb, `${this.state.title}.xls`)
+
+    // Add
+    setTimeout(() => reLinks(table, 'href', '__href'), 500)
+  }
+
   renderError(msg, cb) {
     this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> }, cb)
   }
@@ -195,16 +249,7 @@ class ChartTable extends BaseChart {
         .css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      // let tdActive = null
-      // const $els = $tb.find('tbody td').on('mousedown', function () {
-      //   if (tdActive === this) {
-      //     $(this).toggleClass('highlight')
-      //     return
-      //   }
-      //   tdActive = this
-      //   $els.removeClass('highlight')
-      //   $(this).addClass('highlight')
-      // })
+      // selected
       $tb.find('table').tableCellsSelection()
 
       if (window.render_preview_chart) {

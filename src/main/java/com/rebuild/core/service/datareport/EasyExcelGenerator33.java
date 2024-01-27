@@ -41,7 +41,10 @@ import java.util.Map;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.APPROVAL_PREFIX2;
 import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PREFIX2;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFIX2;
 
 /**
  * V33
@@ -65,7 +68,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     }
 
     @Override
-    protected List<Map<String, Object>> buildData() {
+    protected Map<String, List<Map<String, Object>>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         final TemplateExtractor33 templateExtractor33 = this.buildTemplateExtractor33();
@@ -82,25 +85,25 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             final String varName = e.getKey();
             final String fieldName = e.getValue();
 
-            String refName = null;
-            if (varName.startsWith(NROW_PREFIX)) {
-                if (varName.startsWith(APPROVAL_PREFIX)) {
-                    refName = APPROVAL_PREFIX;
-                } else if (varName.startsWith(DETAIL_PREFIX)) {
-                    refName = DETAIL_PREFIX;
+            String refKey = null;
+            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
+                if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
+                    refKey = APPROVAL_PREFIX;
+                } else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
+                    refKey = DETAIL_PREFIX;
                 } else {
                     // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
-                    // .AccountId.SalesOrder.SalesOrderName
-                    String[] split = varName.substring(1).split("\\.");
+                    // .AccountId.SalesOrder.SalesOrderName or $AccountId$SalesOrder$SalesOrderName
+                    String[] split = varName.substring(1).split("[.$]");
                     if (split.length < 2) throw new ReportsException("Bad REF (Miss .detail prefix?) : " + varName);
 
                     String refName2 = split[0] + split[1];
-                    refName = varName.substring(0, refName2.length() + 2 /* dots */);
+                    refKey = varName.substring(0, refName2.length() + 2 /* dots */);
                 }
 
-                Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refName, new HashMap<>());
+                Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refKey, new HashMap<>());
                 varsMapOfRef.put(varName, fieldName);
-                varsMapOfRefs.put(refName, varsMapOfRef);
+                varsMapOfRefs.put(refKey, varsMapOfRef);
 
             } else {
                 varsMapOfMain.put(varName, fieldName);
@@ -114,22 +117,23 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 continue;
             }
 
-            if (varName.startsWith(NROW_PREFIX)) {
-                List<String> fieldsOfRef = fieldsOfRefs.getOrDefault(refName, new ArrayList<>());
+            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
+                List<String> fieldsOfRef = fieldsOfRefs.getOrDefault(refKey, new ArrayList<>());
                 fieldsOfRef.add(fieldName);
-                fieldsOfRefs.put(refName, fieldsOfRef);
+                fieldsOfRefs.put(refKey, fieldsOfRef);
             } else {
                 fieldsOfMain.add(fieldName);
             }
         }
 
         if (fieldsOfMain.isEmpty() && fieldsOfRefs.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final List<Map<String, Object>> datas = new ArrayList<>();
+        final Map<String, List<Map<String, Object>>> datas = new HashMap<>();
         final String baseSql = "select %s,%s from %s where %s = ?";
 
+        // 主记录
         if (!fieldsOfMain.isEmpty()) {
             String sql = String.format(baseSql,
                     StringUtils.join(fieldsOfMain, ","),
@@ -140,13 +144,14 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     .record();
             Assert.notNull(record, "No record found : " + recordId);
 
-            this.hasMain = true;
-            datas.add(buildData(record, varsMapOfMain));
+            Map<String, Object> d = buildData(record, varsMapOfMain);
+            datas.put(MDATA_KEY, Collections.singletonList(d));
         }
 
+        // 相关记录（含明细、审批）
         for (Map.Entry<String, List<String>> e : fieldsOfRefs.entrySet()) {
-            final String refName = e.getKey();
-            final boolean isApproval = refName.startsWith(APPROVAL_PREFIX);
+            final String refKey = e.getKey();
+            final boolean isApproval = refKey.startsWith(APPROVAL_PREFIX);
 
             String querySql = baseSql;
             if (isApproval) {
@@ -154,7 +159,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
 
-            } else if (refName.startsWith(DETAIL_PREFIX)) {
+            } else if (refKey.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
 
                 String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
@@ -164,11 +169,11 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                         de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
 
             } else {
-                String[] split = refName.substring(1).split("\\.");
+                String[] split = refKey.substring(1).split("[.$]");
                 Field ref2Field = MetadataHelper.getField(split[1], split[0]);
                 Entity ref2Entity = ref2Field.getOwnEntity();
 
-                String sortField = templateExtractor33.getSortField(refName);
+                String sortField = templateExtractor33.getSortField(refKey);
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
                 String relatedExpr = split[1] + "." + split[0];
@@ -193,13 +198,14 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                         .add("state", 0)
                         .build(UserService.SYSTEM_USER);
 
-                List<Record> list2 = new ArrayList<>();
-                list2.add(submit);
-                list2.addAll(list);
-                list = list2;
+                List<Record> listReplace = new ArrayList<>();
+                listReplace.add(submit);
+                listReplace.addAll(list);
+                list = listReplace;
             }
 
             phNumber = 1;
+            List<Map<String, Object>> refDatas = new ArrayList<>();
             for (Record c : list) {
                 // 特殊处理
                 if (isApproval) {
@@ -207,10 +213,10 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     Date approvedTime = c.getDate("approvedTime");
                     if (approvedTime == null && state > 1) c.setDate("approvedTime", c.getDate("createdOn"));
                 }
-                
-                datas.add(buildData(c, varsMapOfRefs.get(refName)));
+                refDatas.add(buildData(c, varsMapOfRefs.get(refKey)));
                 phNumber++;
             }
+            datas.put(refKey, refDatas);
         }
 
         return datas;
@@ -273,7 +279,6 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             this.templateFile = targetFile;
             this.writeSheetAt = newSheetAt;
             this.recordId = recordId;
-            this.hasMain = false;
             this.phNumber = 1;
             this.phValues.clear();
 

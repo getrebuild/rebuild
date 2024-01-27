@@ -26,7 +26,11 @@ import java.util.Set;
 public class TemplateExtractor33 extends TemplateExtractor {
 
     // 明细字段
-    protected static final String DETAIL_PREFIX = NROW_PREFIX + "detail";
+    public static final String DETAIL_PREFIX = NROW_PREFIX + "detail";
+    // $
+    public static final String NROW_PREFIX2 = "$";
+    public static final String DETAIL_PREFIX2 = NROW_PREFIX2 + "detail";
+    public static final String APPROVAL_PREFIX2 = NROW_PREFIX2 + "approval";
 
     // 排序
     private static final String SORT_ASC = ":asc";
@@ -56,14 +60,15 @@ public class TemplateExtractor33 extends TemplateExtractor {
         Map<String, String> map = new HashMap<>();
         for (final String varName : vars) {
             // 列表型字段
-            if (varName.startsWith(NROW_PREFIX)) {
+            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
                 final String listField = varName.substring(1).replace("$", ".");
 
+                // 占位
                 if (isPlaceholder(listField)) {
                     map.put(varName, null);
                 }
                 // 审批流程
-                else if (varName.startsWith(APPROVAL_PREFIX)) {
+                else if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
                     String stepNodeField = listField.substring(APPROVAL_PREFIX.length());
                     if (approvalEntity != null && MetadataHelper.getLastJoinField(approvalEntity, stepNodeField) != null) {
                         map.put(varName, stepNodeField);
@@ -72,7 +77,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     }
                 }
                 // 明细实体
-                else if (varName.startsWith(DETAIL_PREFIX)) {
+                else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
                     String detailField = listField.substring(DETAIL_PREFIX.length());
                     detailField = getFieldNameWithSort(DETAIL_PREFIX, detailField);
 
@@ -124,6 +129,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
             hasSort = varFieldName + " desc";
         }
 
+        // 有多个字段排序的，其排序顺序取决于字段出现在模板中的位置
         if (hasSort != null) {
             String useSorts = sortFields.get(refName);
             if (useSorts != null) useSorts += "," + hasSort;
@@ -151,6 +157,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
      * @return
      */
     public static boolean isPlaceholder(String varName) {
-        return varName.startsWith(PLACEHOLDER) || varName.contains(NROW_PREFIX + PLACEHOLDER);
+        return varName.startsWith(PLACEHOLDER)
+                || varName.contains(NROW_PREFIX + PLACEHOLDER)
+                || varName.contains(NROW_PREFIX2 + PLACEHOLDER);
     }
 }

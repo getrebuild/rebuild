@@ -100,12 +100,14 @@ public enum ConfigurationItem {
     DingtalkSyncUsers(false),
     DingtalkSyncUsersRole,
     DingtalkRobotCode,
+    DingtalkSyncUsersMatch("ID"),
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
     WxworkRxToken, WxworkRxEncodingAESKey,
     WxworkAuthFile,
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
+    WxworkSyncUsersMatch("ID"),
 
     // PORTALs
     PortalBaiduMapAk,

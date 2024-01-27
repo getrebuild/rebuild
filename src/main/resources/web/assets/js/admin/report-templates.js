@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
-  // $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
+  $('.J_add-html5').on('click', () => renderRbcomp(<ReportEditor isHtml5 />))
 
   renderRbcomp(<ReportList />, 'dataList')
 })
@@ -31,7 +31,7 @@ class ReportList extends ConfigList {
             <tr key={item[0]}>
               <td>
                 {isHtml5 ? (
-                  <a title={$L('在线模板编辑器')} href={`report-template/design?id=${item[0]}`}>
+                  <a title={$L('在线模板编辑')} href={`report-template/design?id=${item[0]}`}>
                     {item[3]}
                   </a>
                 ) : (
@@ -39,7 +39,7 @@ class ReportList extends ConfigList {
                 )}
                 {item[6] === 1 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">EXCEL</span>}
                 {item[6] === 2 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 excel">{$L('EXCEL 列表')}</span>}
-                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1">{$L('在线模板')}</span>}
+                {isHtml5 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 html5">{$L('在线模板')}</span>}
                 {item[6] === 4 && <span className="badge badge-info badge-arrow3 badge-sm ml-1 word">WORD</span>}
 
                 {outputType.includes('pdf') && <span className="badge badge-secondary badge-sm ml-1">PDF</span>}
@@ -97,6 +97,7 @@ class ReportEditor extends ConfigFormDlg {
   constructor(props) {
     super(props)
     this.subtitle = $L('报表模板')
+    this.confirmText = this.props.isHtml5 && !this.props.id ? $L('下一步') : null
     this.hasDetail = true
   }
 

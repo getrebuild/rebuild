@@ -56,7 +56,7 @@ public class DataReportManager implements ConfigManager {
      * @param user
      * @return
      */
-    public JSONArray getReports(Entity entity, int type, ID user) {
+    public JSONArray getReportTemplates(Entity entity, int type, ID user) {
         JSONArray alist = new JSONArray();
         for (ConfigBean e : getReportsRaw(entity)) {
             if (e.getBoolean("disabled")) continue;
@@ -66,7 +66,8 @@ public class DataReportManager implements ConfigManager {
             if (type == DataReportManager.TYPE_LIST) {
                 can = aType == type;
             } else {
-                can = aType == DataReportManager.TYPE_RECORD || aType == DataReportManager.TYPE_WORD;
+                can = aType == DataReportManager.TYPE_RECORD
+                        || aType == DataReportManager.TYPE_WORD || aType == DataReportManager.TYPE_HTML5;
             }
 
             if (can) {
@@ -210,10 +211,12 @@ public class DataReportManager implements ConfigManager {
                     name = ContentWithFieldVars.replaceWithRecord(name, (ID) idOrEntity);
                 }
 
-                // suffix
+                // Suffix
                 if (fileName.endsWith(".pdf")) name += ".pdf";
                 else if (fileName.endsWith(".docx")) name += ".docx";
-                else name += fileName.endsWith(".xlsx") ? ".xlsx" : ".xls";
+                else if (fileName.endsWith(".doc")) name += ".doc";
+                else if (fileName.endsWith(".xlsx")) name += ".xlsx";
+                else if (fileName.endsWith(".xls")) name += ".xls";
                 break;
             }
         }

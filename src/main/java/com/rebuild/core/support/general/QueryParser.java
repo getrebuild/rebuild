@@ -223,17 +223,16 @@ public class QueryParser {
 
         // 排序
 
-        StringBuilder sqlSort = new StringBuilder(" order by ");
-
         String sortNode = queryExpr.getString("sort");
+        String sortSql = null;
         if (StringUtils.isNotBlank(sortNode)) {
-            sqlSort.append(StringUtils.defaultString(parseSort(sortNode), ""));
+            sortSql = parseSort(sortNode);
         } else if (entity.containsField(EntityHelper.ModifiedOn)) {
-            sqlSort.append(EntityHelper.ModifiedOn + " desc");
+            sortSql = EntityHelper.ModifiedOn + " desc";
         } else if (entity.containsField(EntityHelper.CreatedOn)) {
-            sqlSort.append(EntityHelper.CreatedOn + " desc");
+            sortSql = EntityHelper.CreatedOn + " desc";
         }
-        if (sqlSort.length() >= 14) fullSql.append(sqlSort);
+        if (StringUtils.isNotBlank(sortSql)) fullSql.append(" order by ").append(sortSql);
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + sqlWhere;
