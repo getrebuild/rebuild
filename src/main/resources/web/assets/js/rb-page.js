@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // GA
-(function () {
+;(function () {
   var gaScript = document.createElement('script')
   gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZCZHJPMEG7'
   gaScript.async = true
@@ -207,18 +207,18 @@ $(function () {
   // }
 })
 
-var $addResizeHandler__calls = []
+var $addResizeHandler__cbs = []
 /**
  * 窗口 RESIZE 回调
  */
-var $addResizeHandler = function (call) {
-  typeof call === 'function' && $addResizeHandler__calls && $addResizeHandler__calls.push(call)
+var $addResizeHandler = function (callback) {
+  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
   return function () {
-    if (!$addResizeHandler__calls || $addResizeHandler__calls.length === 0) return
+    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Calls ' + $addResizeHandler__calls.length + ' handlers of resize ...')
-    $addResizeHandler__calls.forEach(function (call) {
-      call()
+    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
+    $addResizeHandler__cbs.forEach(function (cb) {
+      cb()
     })
   }
 }
@@ -1019,7 +1019,7 @@ var $useMap = function (onLoad) {
 }
 
 // 自动定位（有误差）
-var $autoLocation = function (call) {
+var $autoLocation = function (callback) {
   $useMap(function () {
     var geo = new window.BMapGL.Geolocation()
     geo.enableSDKLocation()
@@ -1032,7 +1032,7 @@ var $autoLocation = function (call) {
             lng: e.longitude,
             text: r ? r.address : null,
           }
-          typeof call === 'function' && call(v)
+          typeof callback === 'function' && callback(v)
         })
       } else {
         console.log('Geolocation failed :', this.getStatus())

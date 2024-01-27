@@ -4,7 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global XLSX */
 
 // in `chart-design`
 const __PREVIEW = !!(window.__PageConfig || {}).chartConfig
@@ -130,16 +129,6 @@ class BaseChart extends React.Component {
   }
 
   export() {
-    function _fnLinks(table, a, b) {
-      $(table)
-        .find('a')
-        .each(function () {
-          $(this)
-            .attr(a, `${$(this).attr(b)}`)
-            .removeAttr(b)
-        })
-    }
-
     if (this._echarts) {
       const base64 = this._echarts.getDataURL({
         type: 'png',
@@ -154,19 +143,34 @@ class BaseChart extends React.Component {
     } else {
       const table = $(this._$body).find('table.table')[0]
       if (table) {
-        // Remove links
-        _fnLinks(table, '__href', 'href')
-
-        // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
-        // https://docs.sheetjs.com/docs/api/write-options
-        const wb = XLSX.utils.table_to_book(table, { raw: true })
-        XLSX.writeFile(wb, `${this.state.title}.xls`)
-
-        setTimeout(() => _fnLinks(table, 'href', '__href'), 500)
+        this._exportTable(table)
       } else {
         RbHighbar.createl('该图表暂不支持导出')
       }
     }
+  }
+
+  _exportTable(table) {
+    function reLinks(table, a, b) {
+      $(table)
+        .find('a')
+        .each(function () {
+          $(this)
+            .attr(a, `${$(this).attr(b)}`)
+            .removeAttr(b)
+        })
+    }
+
+    // Remove
+    reLinks(table, '__href', 'href')
+
+    // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+    // https://docs.sheetjs.com/docs/api/write-options
+    const wb = window.XLSX.utils.table_to_book(table, { raw: true })
+    window.XLSX.writeFile(wb, `${this.state.title}.xls`)
+
+    // Add
+    setTimeout(() => reLinks(table, 'href', '__href'), 500)
   }
 
   renderError(msg, cb) {
