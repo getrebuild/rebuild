@@ -215,7 +215,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     /**
-     * 优先使用 `#createOrUpdate(Record) `
+     * 优先使用 `#createOrUpdate`。直接使用此方法请注意调用重复检查 `#getAndCheckRepeated`
+     *
+     * @param record
+     * @return
+     * @see #createOrUpdate(Record)
+     * @see #getAndCheckRepeated(Record, int)
      */
     @Override
     public Record create(Record record) {
@@ -226,7 +231,12 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     /**
-     * 优先使用 `#createOrUpdate(Record) `
+     * 优先使用 `#createOrUpdate`。直接使用此方法请注意调用重复检查 `#getAndCheckRepeated`
+     *
+     * @param record
+     * @return
+     * @see #createOrUpdate(Record)
+     * @see #getAndCheckRepeated(Record, int)
      */
     @Override
     public Record update(Record record) {
