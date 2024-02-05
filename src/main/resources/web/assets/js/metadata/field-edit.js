@@ -561,7 +561,7 @@ const _loadRefsLabel = function ($dv, $dvClear) {
     $dv.attr('data-value-id', CURRENT_BIZZ)
     $dvClear && $dvClear.removeClass('hide')
   } else if (dvid) {
-    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(dvid)}&ignoreMiss=true`, (res) => {
+    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(dvid)}&ignoreMiss=false`, (res) => {
       if (res.data) {
         const ids = []
         const labels = []
