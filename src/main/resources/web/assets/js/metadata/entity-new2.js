@@ -6,11 +6,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global InitModels, FIELD_TYPES */
 
-window.__LAB_SHOWNDETAIL = false
-window.bosskeyTrigger = function () {
-  window.__LAB_SHOWNDETAIL = true
-}
-
 // ~~ 新建实体
 // eslint-disable-next-line no-unused-vars
 class EntityNew2 extends RbModalHandler {
@@ -98,7 +93,7 @@ class EntityNew2 extends RbModalHandler {
                       {this.state.entities &&
                         this.state.entities.map((item) => {
                           if (item.mainEntity) return null
-                          if (item.detailEntity && !window.__LAB_SHOWNDETAIL) return null
+                          if (item.detailEntity && !window.__BOSSKEY) return null
                           return (
                             <option key={item.entityName} value={item.entityName}>
                               {item.entityLabel}

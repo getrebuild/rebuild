@@ -6,11 +6,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global dlgActionAfter ShowEnable */
 
-let bosskeyShow = false
-window.bosskeyTrigger = function () {
-  bosskeyShow = true
-}
-
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
@@ -25,6 +20,7 @@ const RBV_TRIGGERS = {
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
+  'AUTOGENREPORT': $L('自动导出报表'),
 }
 
 const WHENS = {
@@ -197,8 +193,8 @@ class TriggerEdit extends ConfigFormDlg {
     // #1
     $.get('/admin/robot/trigger/available-actions', (res) => {
       let actions = res.data || []
-      if (!bosskeyShow) {
-        actions = actions.filter((item) => item[0] !== 'PROXYTRIGGERACTION')
+      if (!window.__BOSSKEY) {
+        actions = actions.filter((item) => !['PROXYTRIGGERACTION', 'AUTOGENREPORT'].includes(item[0]))
       }
 
       this.setState({ actions }, () => {
