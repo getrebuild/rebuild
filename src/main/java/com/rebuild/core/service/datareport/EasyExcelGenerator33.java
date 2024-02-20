@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -22,10 +23,15 @@ import com.rebuild.core.support.general.RecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
+import org.apache.poi.xssf.usermodel.XSSFTextRun;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -38,6 +44,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
@@ -56,6 +64,9 @@ import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFI
 public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     final private List<ID> recordIdMultiple;
+
+    private Set<String> inShapeVars;
+    private Map<String, Object> mdataHolder;
 
     protected EasyExcelGenerator33(File templateFile, ID recordId) {
         super(templateFile, recordId);
@@ -146,6 +157,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
             Map<String, Object> d = buildData(record, varsMapOfMain);
             datas.put(MDATA_KEY, Collections.singletonList(d));
+            mdataHolder = d;
         }
 
         // 相关记录（含明细、审批）
@@ -219,6 +231,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             datas.put(refKey, refDatas);
         }
 
+        inShapeVars = templateExtractor33.getInShapeVars();
         return datas;
     }
 
@@ -233,7 +246,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     @Override
     public File generate() {
-        if (recordIdMultiple == null) return super.generate();
+        if (recordIdMultiple == null) return superGenerate();
 
         // init
         File targetFile = super.getTargetFile();
@@ -282,7 +295,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             this.phNumber = 1;
             this.phValues.clear();
 
-            targetFile = super.generate();
+            targetFile = superGenerate();
         }
 
         // 删除模板 Sheet
@@ -296,5 +309,55 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         return targetFile;
+    }
+
+    private File superGenerate() {
+        File file = super.generate();
+        if (inShapeVars.isEmpty() || mdataHolder == null) return file;
+
+        // v3.6 提取文本框
+        try (Workbook wb = WorkbookFactory.create(file)) {
+            Sheet sheet = wb.getSheetAt(0);
+            for (Object o : sheet.getDrawingPatriarch()) {
+                XSSFSimpleShape shape = (XSSFSimpleShape) o;
+                String shapeText = shape.getText();
+                Matcher matcher = TemplateExtractor33.PATT_V2.matcher(shapeText);
+                while (matcher.find()) {
+                    String varName = matcher.group(1);
+                    if (StringUtils.isNotBlank(varName)) {
+                        shapeText = shapeText.replace("{" + varName +"}", String.valueOf(mdataHolder.get(varName)));
+                    }
+                }
+
+                // 样式
+                XSSFTextRun s = shape.getTextParagraphs().get(0).getTextRuns().get(0);
+                XSSFFont font = (XSSFFont) wb.createFont();
+                font.setFontName(s.getFontFamily());
+                font.setFontHeightInPoints((short) s.getFontSize());
+                font.setBold(s.isBold());
+                font.setItalic(s.isItalic());
+                font.setStrikeout(s.isStrikethrough());
+                font.setUnderline(s.isUnderline() ? Font.U_SINGLE : Font.U_NONE);
+                // TODO 颜色不生效
+
+                XSSFRichTextString richTextString = new XSSFRichTextString(shapeText);
+                richTextString.applyFont(font);
+                shape.setText(richTextString);
+            }
+
+            // 保存生效
+            File file2 = new File(file.getParent(), "2" + file.getName());
+            try (FileOutputStream fos = new FileOutputStream(file2)) {
+                wb.write(fos);
+
+                FileUtils.deleteQuietly(file);
+                return file2;
+            }
+
+        } catch (IOException e) {
+            Log.error("Cannot fill vars to shape", e);
+        }
+
+        return file;
     }
 }

@@ -9,13 +9,22 @@ package com.rebuild.core.service.datareport;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  * V33
@@ -36,6 +45,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
     private static final String SORT_ASC = ":asc";
     private static final String SORT_DESC = ":desc";
     private Map<String, String> sortFields = new HashMap<>();
+
+    private Set<String> inShapeVars = new HashSet<>();
 
     /**
      * @param templateFile
@@ -160,5 +171,41 @@ public class TemplateExtractor33 extends TemplateExtractor {
         return varName.startsWith(PLACEHOLDER)
                 || varName.contains(NROW_PREFIX + PLACEHOLDER)
                 || varName.contains(NROW_PREFIX2 + PLACEHOLDER);
+    }
+
+    @Override
+    protected Set<String> extractVars() {
+        Set<String> vars = super.extractVars();
+
+        // v3.6 提取文本框
+        if (templateFile.getName().endsWith(".xlsx")) {
+            try (Workbook wb = WorkbookFactory.create(templateFile)) {
+                Sheet sheet = wb.getSheetAt(0);
+                for (Object o : sheet.getDrawingPatriarch()) {
+                    XSSFSimpleShape shape = (XSSFSimpleShape) o;
+                    String shapeText = shape.getText();
+                    Matcher matcher = PATT_V2.matcher(shapeText);
+                    while (matcher.find()) {
+                        String varName = matcher.group(1);
+                        if (StringUtils.isNotBlank(varName)) {
+                            vars.add(varName);
+                            inShapeVars.add(varName);
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                Log.error("Cannot extract vars in shape", e);
+            }
+        }
+
+        return vars;
+    }
+
+    /**
+     * @return
+     */
+    public Set<String> getInShapeVars() {
+        return inShapeVars;
     }
 }
