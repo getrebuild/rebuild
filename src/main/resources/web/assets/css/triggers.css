@@ -570,3 +570,13 @@ textarea.formula-code + .fields-vars {
   width: auto;
   margin-bottom: 0;
 }
+
+.v36-logdesc > .badge {
+  font-size: 12px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.v36-logdesc > .badge + .badge {
+  margin-left: 0;
+}
