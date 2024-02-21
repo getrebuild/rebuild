@@ -120,6 +120,7 @@ $(document).ready(() => {
     const content = contentComp.buildContent()
     if (content === false) return
 
+    if (window.whenUpdateFields) content.whenUpdateFields = window.whenUpdateFields
     const data = {
       when: when,
       whenTimer: whenTimer,
@@ -384,8 +385,17 @@ class DlgSpecFields extends RbModalHandler {
     const _selected = this.props.selected || []
 
     return (
-      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide width="780">
-        <div className="p-1">
+      <RbModal
+        title={
+          <RF>
+            {$L('指定字段')}
+            <sup className="rbv" />
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        disposeOnHide
+        width="780">
+        <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
 
           <div className="row " ref={(c) => (this._fields = c)}>
@@ -404,18 +414,23 @@ class DlgSpecFields extends RbModalHandler {
         </div>
 
         <div className="dialog-footer">
-          <button className="btn btn-primary btn-space mr-2" type="button" onClick={this.handleConfirm}>
-            {$L('确定')}
-          </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={this.hide}>
             {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
           </button>
         </div>
       </RbModal>
     )
   }
 
-  handleConfirm = () => {
+  handleConfirm() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     const selected = []
     $(this._fields)
       .find('input:checked')

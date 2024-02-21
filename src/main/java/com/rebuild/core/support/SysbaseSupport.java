@@ -17,6 +17,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,11 +36,18 @@ public class SysbaseSupport {
      * @return
      */
     public String submit() {
-        File file = SysbaseHeartbeat.getLogbackFile();
+        StringBuilder logConf = new StringBuilder("RebuildConfiguration :\n----------\n");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String v = RebuildConfiguration.get(item);
+            logConf.append(StringUtils.rightPad(item.name(), 31)).append(" : ").append(v == null ? "" : v).append("\n");
+        }
+        log.warn(logConf.append("----------").toString());
+        
+        File logFile = SysbaseHeartbeat.getLogbackFile();
 
         JSONObject resJson;
         try {
-            String res = upload(file, "https://getrebuild.com/api/misc/request-support");
+            String res = upload(logFile, "https://getrebuild.com/api/misc/request-support");
             log.info("Upload support-file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {

@@ -23,11 +23,11 @@ import java.util.Collection;
 public class TriggerResult implements JSONAware {
 
     // 状态 1=成功, 2=警告, 3=错误
-    private int level;
+    final private int level;
     // 消息
-    private String message;
+    final private String message;
     // 影响的记录
-    private Collection<ID> affected;
+    final private Collection<ID> affected;
 
     private TriggerSource chain;
 
@@ -43,6 +43,14 @@ public class TriggerResult implements JSONAware {
 
     public boolean hasAffected() {
         return affected != null && !affected.isEmpty();
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public String getMessage() {
+        return message;
     }
     
     @Override

@@ -239,6 +239,7 @@ public class EasyExcelGenerator extends SetUser {
         final Map<String, List<Map<String, Object>>> datas = new HashMap<>();
         final String baseSql = "select %s,%s from %s where %s = ?";
 
+        // 主记录
         if (!fieldsOfMain.isEmpty()) {
             String sql = String.format(baseSql,
                     StringUtils.join(fieldsOfMain, ","),

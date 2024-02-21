@@ -137,6 +137,7 @@ $(function () {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
+        window.__BOSSKEY = true
       }
     }
   })
@@ -748,7 +749,6 @@ var $unmount = function (container, delay, keepContainer) {
  * 初始化引用字段（搜索）
  */
 var $initReferenceSelect2 = function (el, option) {
-  console.log(option)
   var search_input = null
   var $el = $(el).select2({
     placeholder: option.placeholder || $L('选择%s', option.label),

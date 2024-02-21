@@ -174,7 +174,7 @@ public class ReportTemplateController extends BaseController {
             String entity = getParameter(request, "entity");
             String template = getParameter(request, "file");
             int type = getIntParameter(request, "type", DataReportManager.TYPE_RECORD);
-            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true);
+            tt = new TemplateFile(RebuildConfiguration.getFileOfData(template), MetadataHelper.getEntity(entity), type, true, null);
         } else {
             // 使用配置
             tt = DataReportManager.instance.getTemplateFile(reportId);

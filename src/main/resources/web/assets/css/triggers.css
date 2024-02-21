@@ -565,3 +565,18 @@ textarea.formula-code + .fields-vars {
   padding: 4px 10px;
   border-left: 4px solid #e0e0e0;
 }
+
+.auto-gen-report .dist-tips .alert {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.v36-logdesc > .badge {
+  font-size: 12px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.v36-logdesc > .badge + .badge {
+  margin-left: 0;
+}

@@ -151,7 +151,7 @@ public class DataReportManager implements ConfigManager {
 
         // v35 HTML5
         if (templateContent != null) {
-            return new TemplateFile(templateContent, entity);
+            return new TemplateFile(templateContent, entity, reportId);
         }
 
         if (templateFile == null) {
@@ -163,7 +163,7 @@ public class DataReportManager implements ConfigManager {
             throw new ConfigurationException("File of template not extsts : " + file);
         }
 
-        return new TemplateFile(file, entity, type, isV33);
+        return new TemplateFile(file, entity, type, isV33, reportId);
     }
 
     /**
