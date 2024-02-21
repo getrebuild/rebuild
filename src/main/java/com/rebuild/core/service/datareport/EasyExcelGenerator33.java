@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -354,8 +353,8 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 return file2;
             }
 
-        } catch (IOException e) {
-            Log.error("Cannot fill vars to shape", e);
+        } catch (Exception ex) {
+            log.error("Cannot fill vars to shape", ex);
         }
 
         return file;

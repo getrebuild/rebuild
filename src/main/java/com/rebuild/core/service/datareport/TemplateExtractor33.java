@@ -9,9 +9,9 @@ package com.rebuild.core.service.datareport;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,7 +20,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,6 +32,7 @@ import java.util.regex.Matcher;
  * @author devezhao
  * @since 2023/4/5
  */
+@Slf4j
 public class TemplateExtractor33 extends TemplateExtractor {
 
     // 明细字段
@@ -178,7 +178,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
     protected Set<String> extractVars() {
         Set<String> vars = super.extractVars();
 
-        // v3.6 提取文本框
+        // v3.6 LAB 提取文本框
         if (templateFile.getName().endsWith(".xlsx")) {
             try (Workbook wb = WorkbookFactory.create(templateFile)) {
                 Sheet sheet = wb.getSheetAt(0);
@@ -198,8 +198,8 @@ public class TemplateExtractor33 extends TemplateExtractor {
                     }
                 }
 
-            } catch (IOException e) {
-                Log.error("Cannot extract vars in shape", e);
+            } catch (Exception ex) {
+                log.error("Cannot extract vars in shape", ex);
             }
         }
 
