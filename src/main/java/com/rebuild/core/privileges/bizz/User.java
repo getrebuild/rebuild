@@ -133,4 +133,14 @@ public class User extends cn.devezhao.bizz.security.member.User {
     public Role getMainRole() {
         return super.getOwningRole();
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

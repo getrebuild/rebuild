@@ -29,6 +29,7 @@ public class DatafileBackup extends DatabaseBackup {
      * @return
      * @throws IOException
      */
+    @Override
     public File backup(File backups) throws IOException {
         File rbdata = RebuildConfiguration.getFileOfData("");
 
@@ -37,7 +38,7 @@ public class DatafileBackup extends DatabaseBackup {
 
         CompressUtils.forceZip(rbdata, dest, pathname -> {
             String name = pathname.getName();
-            return !(name.equals("_backups") || name.equals("_log") || name.equals("temp") || name.equals("rebuild.pid"));
+            return !("_backups".equals(name) || "_log".equals(name) || "temp".equals(name) || "rebuild.pid".equals(name));
         });
 
         log.info("Backup succeeded : {} ({})", dest, FileUtils.byteCountToDisplaySize(dest.length()));
