@@ -13,6 +13,7 @@ import com.esotericsoftware.minlog.Log;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -181,15 +182,18 @@ public class TemplateExtractor33 extends TemplateExtractor {
         if (templateFile.getName().endsWith(".xlsx")) {
             try (Workbook wb = WorkbookFactory.create(templateFile)) {
                 Sheet sheet = wb.getSheetAt(0);
-                for (Object o : sheet.getDrawingPatriarch()) {
-                    XSSFSimpleShape shape = (XSSFSimpleShape) o;
-                    String shapeText = shape.getText();
-                    Matcher matcher = PATT_V2.matcher(shapeText);
-                    while (matcher.find()) {
-                        String varName = matcher.group(1);
-                        if (StringUtils.isNotBlank(varName)) {
-                            vars.add(varName);
-                            inShapeVars.add(varName);
+                Drawing<?> drawing = sheet.getDrawingPatriarch();
+                if (drawing != null) {
+                    for (Object o : sheet.getDrawingPatriarch()) {
+                        XSSFSimpleShape shape = (XSSFSimpleShape) o;
+                        String shapeText = shape.getText();
+                        Matcher matcher = PATT_V2.matcher(shapeText);
+                        while (matcher.find()) {
+                            String varName = matcher.group(1);
+                            if (StringUtils.isNotBlank(varName)) {
+                                vars.add(varName);
+                                inShapeVars.add(varName);
+                            }
                         }
                     }
                 }

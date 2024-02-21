@@ -182,7 +182,7 @@ class PreviewTable extends React.Component {
         )
       }
     } else if (item.type === 'BOOL') {
-      return item.value ? $L('是') : $L('否')
+      return item.value === 'T' || item.value === true ? $L('是') : $L('否')
     } else if (item.type === 'MULTISELECT') {
       return (
         <ul className="m-0 p-0 pl-4">
