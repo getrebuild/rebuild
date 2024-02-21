@@ -20,7 +20,7 @@ const RBV_TRIGGERS = {
   'PROXYTRIGGERACTION': $L('自定义触发器'),
   'AUTOUNSHARE': $L('自动取消共享'),
   'CREATEFEED': $L('新建动态'),
-  'AUTOGENREPORT': $L('自动导出报表'),
+  'AUTOGENREPORT': $L('自动报表导出'),
 }
 
 const WHENS = {

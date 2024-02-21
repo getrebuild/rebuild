@@ -42,7 +42,7 @@ public enum ActionType {
     CREATEFEED("新建动态", "com.rebuild.rbv.trigger.CreateFeed"),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     PROXYTRIGGERACTION("自定义触发器", "com.rebuild.rbv.trigger.ProxyTriggerAction"),
-    AUTOGENREPORT("自动导出报表", "com.rebuild.rbv.trigger.AutoGenReport"),
+    AUTOGENREPORT("自动报表导出", "com.rebuild.rbv.trigger.AutoGenReport"),
 
     ;
 
