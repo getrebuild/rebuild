@@ -171,8 +171,8 @@ class ProTable extends React.Component {
   }
 
   copyLine(lineKey) {
-    const c = this.getLineFrom(lineKey)
-    const data = c ? c.getFormData() : null
+    const f = this.getLineForm(lineKey)
+    const data = f ? f.getFormData() : null
     if (!data) return
 
     // New
@@ -184,6 +184,7 @@ class ProTable extends React.Component {
       else RbHighbar.error(res.error_msg)
     })
   }
+
   removeLine(lineKey) {
     if (!this.state.inlineForms) return
     const forms = this.state.inlineForms.filter((x) => {
@@ -243,7 +244,7 @@ class ProTable extends React.Component {
    * @param {string} lineKey
    * @returns
    */
-  getLineFrom(lineKey) {
+  getLineForm(lineKey) {
     if (!this.state.inlineForms) return null
     const f = this.state.inlineForms.find((c) => c.key === lineKey)
     return f ? f.ref.current || null : null
@@ -385,9 +386,11 @@ class InlineForm extends RbForm {
         data[item.field] = val || null
       }
     })
+    // updated
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
-      if (!err) data[k] = this.__FormData[k].value
+      if (err) data[k] = null
+      else data[k] = this.__FormData[k].value
     }
 
     data.metadata = {
