@@ -77,7 +77,7 @@ public class PicklistDataController extends BaseController {
 
         Object[][] data = Application.createQueryNoFilter(sql + " order by code,name")
                 .setParameter(1, useClassification)
-                .setLimit(500)  // 最多显示
+                .setLimit(1000)  // 最多显示
                 .array();
 
         return RespBody.ok(data);
