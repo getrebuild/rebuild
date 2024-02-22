@@ -75,7 +75,7 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('用户匹配方式')}]]</td>
+                        <td>[[${bundle.L('同步用户匹配方式')}]]</td>
                         <td data-id="WxworkSyncUsersMatch" th:data-value="${WxworkSyncUsersMatch}" th:data-form-text="${bundle.L('针对已存在用户，采用何种方式进行匹配，如无匹配则新建')}">
                           <th:block th:if="${WxworkSyncUsersMatch == 'ID'}">[[${bundle.L('默认')}]]</th:block>
                           <th:block th:if="${WxworkSyncUsersMatch == 'EMAIL'}">[[${bundle.L('邮箱')}]]</th:block>
