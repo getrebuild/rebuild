@@ -26,7 +26,7 @@ $(document).ready(function () {
     $('.J_fieldAttrs, .J_advOpt, .J_for-STATE').remove()
     $('#referenceCascadingField, #referenceQuickNew, #referenceDataFilter').parents('.form-group').remove()
   } else {
-    $('.J_cast-type').parent().removeClass('hide')
+    Object.keys(__TYPE2TYPE).includes(wpc.fieldType) && $('.J_cast-type').parent().removeClass('hide')
   }
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
