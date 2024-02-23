@@ -2785,9 +2785,8 @@ class RbFormRefform extends React.Component {
         return
       }
 
-      // 支持嵌套
-      this.__ViewData = {}
       this.__nestDepth = (this.props.$$$parent.__nestDepth || 0) + 1
+      this.__ViewData = {}
 
       const VFORM = (
         <RF>
