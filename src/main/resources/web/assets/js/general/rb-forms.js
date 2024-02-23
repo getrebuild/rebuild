@@ -2768,15 +2768,11 @@ class RbFormRefform extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.reffield) return
-
+    const v = this.props.refvalue
     const $$$parent = this.props.$$$parent
-    if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
-      // 避免循环嵌套死循环
-      if (($$$parent.__nestDepth || 0) < 3) {
-        const s = $$$parent.__ViewData[this.props.reffield]
-        this._renderViewFrom({ ...s })
-      }
+    // 避免循环嵌套死循环
+    if (v && $$$parent && ($$$parent.__nestDepth || 0) < 3) {
+      this._renderViewFrom({ id: v[0], entity: v[1] })
     }
   }
 
