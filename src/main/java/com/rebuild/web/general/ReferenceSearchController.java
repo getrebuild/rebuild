@@ -95,7 +95,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        int pageSize = getIntParameter(request, "pageSize", 10);
+        int pageSize = getIntParameter(request, "pageSize", 20);
         return buildResultSearch(
                 searchEntity, getParameter(request, "quickFields"), q, protocolFilter, pageSize, user);
     }
@@ -122,7 +122,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        int pageSize = getIntParameter(request, "pageSize", 10);
+        int pageSize = getIntParameter(request, "pageSize", 20);
         return buildResultSearch(
                 searchEntity, getParameter(request, "quickFields"), q, null, pageSize, user);
     }
@@ -201,7 +201,7 @@ public class ReferenceSearchController extends EntityController {
                 useClassification.toLiteral(), openLevel, q, q, q);
 
         List<Object> result = resultSearch(
-                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 10);
+                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 20);
         return (JSON) JSON.toJSON(result);
     }
 
