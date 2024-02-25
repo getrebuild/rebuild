@@ -98,7 +98,7 @@ class RbFormModal extends React.Component {
           $unmount($root.parent().parent())
         }
       })
-    this.showAfter({}, true)
+    this._showAfter({}, true)
   }
 
   // 渲染表单
@@ -167,14 +167,14 @@ class RbFormModal extends React.Component {
 
     if (reset) {
       state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
-      this.setState(state, () => this.showAfter({ reset: false }, true))
+      this.setState(state, () => this._showAfter({ reset: false }, true))
     } else {
-      this.showAfter({ ...state, reset: false })
+      this._showAfter({ ...state, reset: false })
       this._checkDrityData()
     }
   }
 
-  showAfter(state, modelChanged) {
+  _showAfter(state, modelChanged) {
     this.setState(state, () => {
       $(this._rbmodal).modal('show')
       if (modelChanged === true) this.getFormModel()
@@ -483,6 +483,11 @@ class RbForm extends React.Component {
           {$L('保存并打开')}
         </a>
       )
+      moreActions.push(
+        <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+          {$L('保存并继续新建')}
+        </a>
+      )
     }
 
     // Clean others action
@@ -631,6 +636,8 @@ class RbForm extends React.Component {
   static NEXT_ADDDETAIL = 102
   // 保存并打开
   static NEXT_VIEW = 104
+  // 保存并新建
+  static NEXT_ADD36 = 105
   /**
    * @next {Number}
    */
@@ -726,6 +733,11 @@ class RbForm extends React.Component {
             if (window.RbListPage) {
               location.hash = `!/View/${this.state.entity}/${recordId}`
             }
+          } else if (next === RbForm.NEXT_ADD36) {
+            let title2 = $$$parent.state.title
+            if ($$$parent.props.id) title2 = title2.replace($L('编辑%s', ''), $L('新建%s', ''))
+            const copyProps = { entity: $$$parent.state.entity, icon: $$$parent.state.icon, title: title2 }
+            RbFormModal.create(copyProps, false)
           } else if (previewid && window.RbViewPage) {
             window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
@@ -2756,15 +2768,11 @@ class RbFormRefform extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.reffield) return
-
+    const v = this.props.refvalue
     const $$$parent = this.props.$$$parent
-    if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
-      // 避免循环嵌套死循环
-      if (($$$parent.__nestDepth || 0) < 3) {
-        const s = $$$parent.__ViewData[this.props.reffield]
-        this._renderViewFrom({ ...s })
-      }
+    // 避免循环嵌套死循环
+    if (v && $$$parent && ($$$parent.__nestDepth || 0) < 3) {
+      this._renderViewFrom({ id: v[0], entity: v[1] })
     }
   }
 
@@ -2777,9 +2785,8 @@ class RbFormRefform extends React.Component {
         return
       }
 
-      // 支持嵌套
-      this.__ViewData = {}
       this.__nestDepth = (this.props.$$$parent.__nestDepth || 0) + 1
+      this.__ViewData = {}
 
       const VFORM = (
         <RF>

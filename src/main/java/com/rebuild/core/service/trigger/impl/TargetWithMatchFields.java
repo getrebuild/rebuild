@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -48,6 +49,8 @@ public class TargetWithMatchFields {
 
     @Getter
     private List<String> qFieldsFollow;
+    @Getter
+    private List<String[]> qFieldsRefresh;
     @Getter
     private Object targetRecordId;
 
@@ -88,7 +91,11 @@ public class TargetWithMatchFields {
         // 0.字段关联 <Source, Target>
 
         Map<String, String> matchFieldsMapping = new HashMap<>();
-        for (Object o : actionContent.getJSONArray("targetEntityMatchFields")) {
+
+        JSONArray matchFields = actionContent.getJSONArray("targetEntityMatchFields");
+        if (matchFields == null) matchFields = actionContent.getJSONArray("groupFields");
+
+        for (Object o : matchFields) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
             String targetField = item.getString("targetField");
@@ -122,6 +129,7 @@ public class TargetWithMatchFields {
         boolean allNull = true;
         List<String> qFields = new ArrayList<>();
         qFieldsFollow = new ArrayList<>();
+        qFieldsRefresh = new ArrayList<>();
 
         for (Map.Entry<String, String> e : matchFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
@@ -132,9 +140,7 @@ public class TargetWithMatchFields {
                 qFields.add(String.format("%s is null", targetField));
                 qFieldsFollow.add(String.format("%s is null", sourceField));
             } else {
-                //noinspection ConstantConditions
                 EasyField sourceFieldEasy = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(sourceEntity, sourceField));
-                //noinspection ConstantConditions
                 EasyField targetFieldEasy = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(targetEntity, targetField));
 
                 // @see Dimension#getSqlName
@@ -170,10 +176,8 @@ public class TargetWithMatchFields {
                 }
                 // 分类分组
                 else if (sourceFieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
-                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(
-                            MetadataHelper.getLastJoinField(sourceEntity, sourceField));
-                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(
-                            MetadataHelper.getLastJoinField(targetEntity, targetField));
+                    int sourceFieldLevel = ClassificationManager.instance.getOpenLevel(sourceFieldEasy.getRawMeta());
+                    int targetFieldLevel = ClassificationManager.instance.getOpenLevel(targetFieldEasy.getRawMeta());
 
                     // 目标等级必须小于等于源等级
                     Assert.isTrue(targetFieldLevel <= sourceFieldLevel,
@@ -199,6 +203,8 @@ public class TargetWithMatchFields {
                 qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
                 allNull = false;
             }
+
+            qFieldsRefresh.add(new String[] { targetField, sourceField, val == null ? null : val.toString() });
         }
 
         if (allNull) {

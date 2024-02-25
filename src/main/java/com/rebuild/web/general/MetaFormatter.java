@@ -210,4 +210,19 @@ public class MetaFormatter {
         }
         return item;
     }
+
+    /**部分特殊实体的字段不要显示
+     *
+     * @param field
+     * @return
+     */
+    public static boolean isSystemField4Hide(Field field) {
+        if (field.getOwnEntity().getEntityCode() == EntityHelper.User) {
+            return field.getName().equals("password") || field.getName().equals("externalId");
+        }
+        if (field.getOwnEntity().getEntityCode() == EntityHelper.Department) {
+            return field.getName().equals("externalId");
+        }
+        return false;
+    }
 }

@@ -17,6 +17,7 @@ import java.util.Arrays;
  */
 class N2NReferenceSupportTest extends TestSupport {
 
+    // FIXME 测试时缺少字段
     @Test
     void getN2NValueByMixPath() {
         Object[] F_N2N = N2NReferenceSupport.getN2NValueByMixPath("zuijindingdan.kehunn", ID.valueOf("982-01870e95356e0036"));

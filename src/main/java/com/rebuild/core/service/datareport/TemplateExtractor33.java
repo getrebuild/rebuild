@@ -56,12 +56,7 @@ public class TemplateExtractor33 extends TemplateExtractor {
         super(templateFile, Boolean.FALSE);
     }
 
-    /**
-     * 转换模板中的变量
-     *
-     * @param entity
-     * @return
-     */
+    @Override
     public Map<String, String> transformVars(Entity entity) {
         final Set<String> vars = extractVars();
 

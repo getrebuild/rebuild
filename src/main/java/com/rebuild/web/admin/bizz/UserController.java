@@ -172,7 +172,7 @@ public class UserController extends EntityController {
 
         } else if (bizzId.getEntityCode() == EntityHelper.Role) {
             hasMember = UserHelper.getMembers(bizzId).length;
-            hasMember += UserHelper.getRoleMembers(bizzId).size();
+            hasMember += UserHelper.getMembersOfRole(bizzId).size();
 
         } else if (bizzId.getEntityCode() == EntityHelper.User) {
             hasMember = UserService.checkHasUsed(bizzId) ? 1 : 0;

@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 /**
- * 普通的 CRUD 服务
+ * 基础 CRUD 服务，使用请注意：
  * <br>- 此类有事物
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
+ * <br>- 此类不对多值字段进行处理 {@link BaseService}
+ * <br>- 此类无任何系统规则，如默认值、重复检查、自动编号等
  * <br>- 有权限的实体使用此类需要指定 <tt>strictMode=false</tt>
  *
  * @author Zixin (RB)

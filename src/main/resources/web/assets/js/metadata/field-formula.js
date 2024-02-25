@@ -323,3 +323,140 @@ class FormulaDate extends RbAlert {
     this.hide()
   }
 }
+
+// ~~ 匹配字段
+// eslint-disable-next-line no-unused-vars
+class MatchFields extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    this.state.targetFields = this.reset(props, true)
+  }
+
+  render() {
+    return (
+      <div className="group-fields">
+        {this.state.groupFields && this.state.groupFields.length > 0 && (
+          <div className="mb-1">
+            {this.state.groupFields.map((item) => {
+              return (
+                <span className="d-inline-block mb-1" key={item.targetField}>
+                  <span className="badge badge-primary badge-close m-0 mr-1">
+                    <span>{FormulaAggregation.getLabel(item.targetField, this.__targetFields)}</span>
+                    <i className="mdi mdi-arrow-left-right ml-1 mr-1" />
+                    <span>{FormulaAggregation.getLabel(item.sourceField, this.__sourceFields)}</span>
+                    <a className="close" title={$L('移除')} onClick={() => this._delGroupField(item.targetField)}>
+                      <i className="mdi mdi-close" />
+                    </a>
+                  </span>
+                </span>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="row">
+          <div className="col-5">
+            <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
+              {(this.state.targetFields || []).map((item) => {
+                if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item.name) || item.type === 'DATETIME') return null
+                return (
+                  <option key={item.name} value={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+            </select>
+            <p>{$L('目标字段')}</p>
+          </div>
+          <div className="col-5">
+            <i className="zmdi mdi mdi-arrow-left-right" />
+            <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
+              {(this.state.sourceFields || []).map((item) => {
+                return (
+                  <option key={item.name} value={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+            </select>
+            <p>{$L('源字段')}</p>
+          </div>
+        </div>
+        <div className="mt-1">
+          <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this._addGroupField()}>
+            + {$L('添加')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$sourceField)
+      .select2({ placeholder: $L('选择源字段') })
+      .on('change', () => {})
+
+    $(this._$targetField)
+      .select2({ placeholder: $L('选择目标字段') })
+      .on('change', (e) => {
+        let TF = e.target.value
+        if (!TF) return
+        TF = this.__targetFields.find((x) => x.name === TF)
+
+        // 仅同类型的字段（DATE DATETIME 兼容）
+        const SF = this.__sourceFields.filter((x) => {
+          if (TF.type === 'DATE' && x.type === 'DATETIME') return true
+          if (TF.type === 'DATETIME' && x.type === 'DATE') return true
+          if (TF.type === x.type) {
+            if (x.type === 'REFERENCE') return TF.ref[0] === x.ref[0]
+            if (x.type === 'CLASSIFICATION') return TF.classification === x.classification
+            return true
+          }
+          return false
+        })
+        this.setState({ sourceFields: SF })
+      })
+      .trigger('change')
+  }
+
+  _addGroupField() {
+    const item = { targetField: $(this._$targetField).val(), sourceField: $(this._$sourceField).val() }
+    if (!item.targetField) return RbHighbar.create($L('请选择目标字段'))
+    if (!item.sourceField) return RbHighbar.create($L('请选择源字段'))
+
+    const groupFields = this.state.groupFields || []
+    let exists = groupFields.find((x) => item.targetField === x.targetField)
+    if (exists) return RbHighbar.create($L('目标字段已添加'))
+    exists = groupFields.find((x) => item.sourceField === x.sourceField)
+    if (exists) return RbHighbar.create($L('源字段已添加'))
+
+    groupFields.push(item)
+    this.setState({ groupFields })
+  }
+
+  _delGroupField(TF) {
+    const groupFields = this.state.groupFields.filter((x) => x.targetField !== TF)
+    this.setState({ groupFields })
+  }
+
+  reset(props, init) {
+    this.__targetFields = props.targetFields || []
+    this.__sourceFields = props.sourceFields || []
+
+    const targetFields = []
+    this.__targetFields.forEach((item) => {
+      if (['TEXT', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
+    })
+
+    if (init) {
+      return targetFields
+    } else {
+      this.setState({ targetFields, groupFields: props.groupFields || [] }, () => $(this._$targetField).trigger('change'))
+    }
+  }
+
+  val() {
+    return this.state.groupFields || []
+  }
+}

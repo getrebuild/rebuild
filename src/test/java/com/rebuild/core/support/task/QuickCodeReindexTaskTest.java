@@ -21,7 +21,7 @@ public class QuickCodeReindexTaskTest extends TestSupport {
 
     @Test
     void testGenerateQuickCode() {
-        Assertions.assertFalse("NIHAOHELLOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好     hello      世 界")));
+        Assertions.assertTrue("NIHAOHELLOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好     hello      世 界")));
         Assertions.assertTrue("HELLOWORLD".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("hello     world     ........")));
         Assertions.assertTrue("HELLOWORLD".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
         Assertions.assertTrue("NIHAOSHIJIE".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));

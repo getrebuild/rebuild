@@ -338,7 +338,20 @@ public class FormsBuilder extends FormsManager {
             JSONObject el = (JSONObject) iter.next();
             String fieldName = el.getString("field");
             if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) continue;
-            if (REFFORM_LINE.equalsIgnoreCase(fieldName)) continue;
+            if (REFFORM_LINE.equalsIgnoreCase(fieldName)) {
+                // v3.6
+                if (viewModel && recordData != null) {
+                    String reffield = el.getString("reffield");
+                    Object v = recordData.getObjectValue(reffield);
+                    if (v == null && entity.containsField(reffield)) {
+                        v = Application.getQueryFactory().unique(recordData.getPrimary(), reffield)[0];
+                    }
+                    if (v != null) {
+                        el.put("refvalue", new Object[]{ v, entity.getField(reffield).getReferenceEntity().getName() });
+                    }
+                }
+                continue;
+            }
 
             // 已删除字段
             if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {

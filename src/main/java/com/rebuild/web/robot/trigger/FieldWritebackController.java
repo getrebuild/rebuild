@@ -120,7 +120,8 @@ public class FieldWritebackController extends BaseController {
         JSONArray sourceFields = MetaFormatter.buildFieldsWithRefs(sourceEntity, 3, true, field -> {
             if (field instanceof EasyField) {
                 EasyField easyField = (EasyField) field;
-                return easyField.getDisplayType() == DisplayType.BARCODE;
+                return easyField.getDisplayType() == DisplayType.BARCODE
+                        || MetaFormatter.isSystemField4Hide(easyField.getRawMeta());
             }
             return false;
         });

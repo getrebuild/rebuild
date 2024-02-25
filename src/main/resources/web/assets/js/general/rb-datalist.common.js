@@ -1252,12 +1252,6 @@ class RbList extends React.Component {
     return false
   }
 
-  _tryActive($el) {
-    if ($el.length === 1) {
-      this._clickRow({ target: $el.find('td:eq(1)') })
-    }
-  }
-
   _keyEvent(e) {
     if (!$(e.target).is('body')) return
     if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
@@ -1266,13 +1260,14 @@ class RbList extends React.Component {
     if ($chk.length === 0) return
 
     const $tr = $chk.eq(0).parents('tr')
-    if (e.keyCode === 40) {
-      this._tryActive($tr.next())
-    } else if (e.keyCode === 38) {
-      this._tryActive($tr.prev())
-    } else {
-      this._openView($tr)
-    }
+    if (e.keyCode === 40) this._tryActive($tr.next())
+    else if (e.keyCode === 38) this._tryActive($tr.prev())
+    else this._openView($tr)
+  }
+
+  _tryActive($el) {
+    if ($el.length !== 1) return
+    this._clickRow({ target: $el.find('td:eq(1)') })
   }
 
   _openView($tr) {

@@ -81,7 +81,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .field-aggregation .col-2 > .zmdi,
 .field-writeback .col-5 > .zmdi,
-.group-aggregation .col-5 > .zmdi {
+.group-aggregation .col-5 > .zmdi,
+.group-fields .col-5 > .zmdi {
   position: absolute;
   left: -5px;
   color: #fbbc05;
@@ -103,7 +104,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation .items > div .badge,
-.group-aggregation .badge-primary {
+.group-aggregation .badge-primary,
+.group-fields .badge-primary {
   font-weight: normal;
   font-size: 1rem;
   padding: 3px 10px;
@@ -142,25 +144,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: inline-block;
 }
 
-.group-aggregation .col-5 > .zmdi {
+.group-aggregation .col-5 > .zmdi,
+.group-fields .col-5 > .zmdi {
   color: #4285f4;
   font-size: 1.25rem;
 }
 
-.group-aggregation .col-5 > .zmdi.mdi {
+.group-aggregation .col-5 > .zmdi.mdi,
+.group-fields .col-5 > .zmdi.mdi {
   left: -7px;
 }
 
-.group-aggregation .items > div .col-5 > .zmdi {
+.group-aggregation .items > div .col-5 > .zmdi,
+.group-fields .items > div .col-5 > .zmdi {
   margin-top: 5px;
 }
 
-.group-aggregation .badge-primary {
+.group-aggregation .badge-primary,
+.group-fields .badge-primary {
   border-radius: 0;
   position: relative;
 }
 
-.group-aggregation .badge-primary::after {
+.group-aggregation .badge-primary::after,
+.group-fields .badge-primary::after {
   position: absolute;
   width: 0;
   height: 0;
@@ -170,16 +177,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: -4px;
   right: -4px;
 }
-
-/* .group-aggregation .badge-primary[data-toggle='dropdown'] {
-  cursor: pointer;
-}
-
-.group-aggregation .badge-primary[data-toggle='dropdown']::before {
-  font-family: 'Material-Design-Iconic-Font';
-  content: '\f2f9';
-  margin-right: 6px;
-} */
 
 /* Formula */
 
@@ -470,7 +467,7 @@ textarea.formula-code + .fields-vars {
   font-size: 1rem;
   font-weight: normal;
   opacity: 0.8;
-  margin-left: 5px;
+  margin-left: 4px;
   margin-top: 3px;
   text-shadow: unset;
   display: none;

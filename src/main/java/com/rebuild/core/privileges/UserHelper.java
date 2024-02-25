@@ -11,6 +11,7 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -405,11 +406,11 @@ public class UserHelper {
     /**
      * 获取用户的所有角色
      *
-     * @param user
+     * @param userId
      * @return
      */
-    public static Set<ID> getUserRoles(ID user) {
-        Role role = Application.getUserStore().getUser(user).getOwningRole();
+    public static Set<ID> getRolesOfUser(ID userId) {
+        Role role = Application.getUserStore().getUser(userId).getOwningRole();
         Set<ID> s = new HashSet<>();
         if (role != null) {
             s.add((ID) role.getIdentity());
@@ -421,20 +422,34 @@ public class UserHelper {
     }
 
     /**
+     * 获取用户的所有团队
+     *
+     * @param userId
+     * @return
+     */
+    public static Set<ID> getTeamsOfUser(ID userId) {
+        Set<ID> s = new HashSet<>();
+        for (Team t : Application.getUserStore().getUser(userId).getOwningTeams()) {
+            s.add((ID) t.getIdentity());
+        }
+        return Collections.unmodifiableSet(s);
+    }
+
+    /**
      * 获取附加了指定角色的用户
      *
      * @param roleId
      * @return
      */
-    public static Set<ID> getRoleMembers(ID roleId) {
+    public static Set<ID> getMembersOfRole(ID roleId) {
         Object[][] array = Application.createQueryNoFilter(
                 "select userId from RoleMember where roleId = ?")
                 .setParameter(1, roleId)
                 .array();
 
-        Set<ID> set = new HashSet<>();
-        for (Object[] o : array) set.add((ID) o[0]);
-        return set;
+        Set<ID> s = new HashSet<>();
+        for (Object[] o : array) s.add((ID) o[0]);
+        return s;
     }
 
     /**
