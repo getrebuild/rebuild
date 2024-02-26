@@ -1046,3 +1046,8 @@ body {
 .view-header > span > .close.J_back {
   font-size: 1.6rem;
 }
+
+.view-action.invisible2,
+.view-history.invisible2 {
+  display: none;
+}
