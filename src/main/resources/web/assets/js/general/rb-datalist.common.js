@@ -360,7 +360,7 @@ class DataExport extends BatchOperator {
     $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+        $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled(false)
