@@ -8,6 +8,8 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class RecordCheckoutTest extends TestSupport {
 
     @Test
@@ -27,5 +29,18 @@ class RecordCheckoutTest extends TestSupport {
 
         Field MULTISELECT = MetadataHelper.getEntity(TestAllFields).getField("MULTISELECT");
         checkout.checkoutMultiSelectValue(MULTISELECT, new Cell("1哈哈； 3"));
+    }
+
+    @Test
+    void checkoutDateValue() {
+        RecordCheckout checkout = new RecordCheckout(null);
+
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019-01-01 23:59:59")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019-01-01")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019年01月01日 23分59分59秒")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019年01月01日")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019/01/01 23:59:59")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2019/01/01")));
+        assertNotNull(checkout.checkoutDateValue(new Cell("2024/2/26")));
     }
 }
