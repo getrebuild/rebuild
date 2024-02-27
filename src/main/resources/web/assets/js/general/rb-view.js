@@ -773,7 +773,10 @@ const RbViewPage = {
 
       // v3.4 明细显示在下方
       if (this.showAt2 === 2) {
-        $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        const $pane = $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        $(`<a class="icon zmdi zmdi-chevron-down" title="${$L('展开/收起')}"></a>`)
+          .appendTo($pane.find('h5'))
+          .on('click', () => $pane.toggleClass('toggle-hide'))
         renderRbcomp(<MixRelatedList {...listProps} />, tabId)
         return
       }

@@ -1038,6 +1038,28 @@ body {
   font-size: 15px;
 }
 
+.tab-content-bottom .tab-pane-bottom h5 > a {
+  float: right;
+  font-size: 1.5rem;
+  width: 22px;
+  height: 22px;
+  display: block;
+  text-align: right;
+  margin-top: -2px;
+}
+
+.tab-content-bottom .tab-pane-bottom h5 > a:hover {
+  color: #4285f4;
+}
+
+.tab-content-bottom .tab-pane-bottom.toggle-hide > div {
+  display: none;
+}
+
+.tab-content-bottom .tab-pane-bottom.toggle-hide h5 > a.icon::before {
+  content: '\f2fb' !important;
+}
+
 .tab-content-bottom .related-list {
   min-height: auto;
 }
