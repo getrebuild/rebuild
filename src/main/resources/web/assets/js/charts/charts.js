@@ -52,7 +52,7 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={`chart-box ${this.props.type}`} ref={(c) => (this._$box = c)}>
+      <div className={`chart-box ${this.props.type} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opActions}
@@ -1622,7 +1622,7 @@ const detectChart = function (cfg, id) {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin={true} />
-  } else if (cfg.type === 'DataList') {
+  } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>

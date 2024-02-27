@@ -54,7 +54,7 @@ $(document).ready(() => {
         if ($(this).hasClass('J_axis-dim')) return !dragIsNum
         else return true
       },
-      drop: function (event, ui) {
+      drop: function (e, ui) {
         if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
       },
     })
@@ -102,6 +102,7 @@ $(document).ready(() => {
   })
 
   $('.chart-option .custom-control').on('click', () => render_option())
+  $('.chart-option input[type="text"]').on('blur', () => render_option())
 
   // 保存按钮
   $('.rb-toggle-left-sidebar')

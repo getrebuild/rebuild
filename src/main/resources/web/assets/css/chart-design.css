@@ -450,6 +450,23 @@ a.ui-draggable.ui-draggable-dragging {
   background-position: -1290px -1288px;
 }
 
+.chart-type > a.DATALIST2 {
+  transform: translateY(8px);
+}
+
+.chart-type > a > i.DATALIST2 {
+  position: absolute;
+  background: none;
+  font-size: 22px;
+  color: #ccc;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.chart-type > a.active > i.DATALIST2 {
+  color: #4285f4;
+}
+
 .chart-option label {
   margin-bottom: 10px;
 }
@@ -457,4 +474,18 @@ a.ui-draggable.ui-draggable-dragging {
 .rbcolors > a + a,
 .rbcolors input[type='color'] {
   margin-left: 5px;
+}
+
+.J_opt-DATALIST2 input {
+  border: 0 none;
+  outline: 0 none;
+  width: 50px;
+  border-bottom: 1px solid #ccc;
+  padding: 2px;
+  margin-left: 5px;
+  text-align: center;
+}
+
+.J_opt-DATALIST2 input:focus {
+  border-color: #4285f4;
 }
