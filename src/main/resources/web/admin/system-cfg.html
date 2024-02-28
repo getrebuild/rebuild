@@ -290,9 +290,9 @@
                         <td>[[${bundle.L('悼念模式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr>
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true">[[${MobileNavStyle ?:'34'}]]</td>
+                        <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
