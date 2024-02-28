@@ -468,6 +468,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-position: -1372px -1464px;
 }
 
+.chart-list > div .chart-icon > i.DATALIST2 {
+  background: none;
+}
+
+.chart-list > div .chart-icon > i.DATALIST2::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F04F1';
+  color: #4285f4;
+  font-size: 21px;
+  font-style: normal;
+}
+
 .sortable-box.h200 {
   height: 208px;
 }

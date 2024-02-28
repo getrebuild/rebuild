@@ -25,6 +25,7 @@ import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.DashboardManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
+import com.rebuild.core.service.dashboard.charts.builtin.DataList;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -151,6 +152,8 @@ public class DashboardController extends BaseController {
         // 附加内置图表
         if (!("ENTITY".equalsIgnoreCase(type) || "MYSELF".equalsIgnoreCase(type))) {
             for (BuiltinChart b : ChartsFactory.getBuiltinCharts()) {
+                if (b.getChartId().equals(DataList.MYID)) continue;
+
                 charts.add(JSONUtils.toJSONObject(
                         new String[] { "id", "title", "type", "entityLabel" },
                         new Object[] { b.getChartId(), b.getChartTitle(), b.getChartType(), Language.L("内置") }));

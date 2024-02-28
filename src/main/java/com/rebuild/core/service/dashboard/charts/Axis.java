@@ -9,6 +9,7 @@ package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Objects;
@@ -21,10 +22,17 @@ import java.util.Objects;
  */
 public class Axis {
 
+    /**
+     * -- GETTER --
+     *
+     * @return
+     */
+    @Getter
     private Field field;
     private FormatSort sort;
     private FormatCalc calc;
     protected String label;
+    @Getter
     private Field parentField;
 
     /**
@@ -40,13 +48,6 @@ public class Axis {
         this.sort = sort;
         this.label = label;
         this.parentField = parentField;
-    }
-
-    /**
-     * @return
-     */
-    public Field getField() {
-        return field;
     }
 
     /**

@@ -30,6 +30,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -63,38 +64,44 @@ public class TransformerPreview {
      * @return
      */
     public JSON buildForm(boolean isDetails) {
-        ConfigBean config = TransformManager.instance.getTransformConfig(
-                configId, MetadataHelper.getEntity(sourceId.getEntityCode()).getName());
+        Entity mainOrDetailEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
+        ConfigBean config = TransformManager.instance.getTransformConfig(configId, mainOrDetailEntity.getName());
         JSONObject transConfig = (JSONObject) config.getJSON("config");
 
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
-        Entity sourceEntity = MetadataHelper.getEntity(sourceId.getEntityCode());
+        Entity sourceEntity = mainOrDetailEntity;
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, transConfig, false);
         transfomer.setUser(this.user);
 
-        // 明细
+        // 获取明细
         if (isDetails) {
             JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMappingDetail");
             if (fieldsMapping == null || fieldsMapping.isEmpty()) {
                 return JSONUtils.EMPTY_ARRAY;
             }
 
-            List<ID> ids = QueryHelper.detailIdsNoFilter(sourceId);
-            if (ids.isEmpty()) {
-                return JSONUtils.EMPTY_ARRAY;
+            List<ID> details;
+            ID fakeMainid;
+            // 源为明细
+            if (sourceEntity.getMainEntity() != null) {
+                details = Collections.singletonList(sourceId);
+                fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getMainEntity().getEntityCode());
+            } else {
+                details = QueryHelper.detailIdsNoFilter(sourceId);
+                fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
             }
+            if (details.isEmpty()) return JSONUtils.EMPTY_ARRAY;
 
-            ID fakeMainid = EntityHelper.newUnsavedId(sourceEntity.getEntityCode());
+            sourceEntity = sourceEntity.getMainEntity() != null ? sourceEntity : sourceEntity.getDetailEntity();
+            targetEntity = targetEntity.getMainEntity() != null ? targetEntity : targetEntity.getDetailEntity();
+
             JSONObject initialVal = JSONUtils.toJSONObject(FormsBuilder.DV_MAINID, FormsBuilder.DV_MAINID);
-
-            sourceEntity = sourceEntity.getDetailEntity();
-            targetEntity = targetEntity.getDetailEntity();
 
             JSONArray detailModels = new JSONArray();
             FormsBuilderContextHolder.setMainIdOfDetail(fakeMainid);
             try {
-                for (ID did : ids) {
+                for (ID did : details) {
                     Record targetRecord = transfomer.transformRecord(
                             sourceEntity, targetEntity, fieldsMapping, did, null, true, false, false);
 

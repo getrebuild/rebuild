@@ -1196,3 +1196,12 @@ function $sec2Time(s) {
 function $removeHtml(content) {
   return $('<span></span>').html(content).text()
 }
+
+// 打开新窗口下载 `window.open`
+function $openWindow(url) {
+  var handle = window.open(url)
+  if (!handle) {
+    // 不允许/被阻止
+    RbAlert.create(WrapHtml(`<p class="text-bold pb-3">${$L('文件已就绪。')}<a class="link" href="${url}" target="_blank">${$L('点击下载')}</a></p>`), { type: 'clear' })
+  }
+}

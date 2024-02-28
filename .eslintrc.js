@@ -135,5 +135,6 @@ module.exports = {
     $getScript: true,
     $sec2Time: true,
     $removeHtml: true,
+    $openWindow: true,
   },
 }

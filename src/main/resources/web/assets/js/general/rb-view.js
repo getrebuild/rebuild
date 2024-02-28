@@ -635,10 +635,10 @@ const RbViewPage = {
     })
 
     if (wpc.transformTos && wpc.transformTos.length > 0) {
-      this.initTrans(wpc.transformTos)
-      $('.J_trans').removeClass('hide')
+      this.initTransform(wpc.transformTos)
+      $('.J_transform').removeClass('hide')
     } else {
-      $('.J_trans').remove()
+      $('.J_transform').remove()
     }
 
     // Privileges
@@ -744,6 +744,9 @@ const RbViewPage = {
           $(this).addClass('hide')
         })
       }
+
+      // v3.6
+      $('.view-history.invisible2').removeClass('invisible2')
     })
   },
 
@@ -770,7 +773,10 @@ const RbViewPage = {
 
       // v3.4 明细显示在下方
       if (this.showAt2 === 2) {
-        $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        const $pane = $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        $(`<a class="icon zmdi zmdi-chevron-down" title="${$L('展开/收起')}"></a>`)
+          .appendTo($pane.find('h5'))
+          .on('click', () => $pane.toggleClass('toggle-hide'))
         renderRbcomp(<MixRelatedList {...listProps} />, tabId)
         return
       }
@@ -854,7 +860,7 @@ const RbViewPage = {
   },
 
   // 转换
-  initTrans(config) {
+  initTransform(config) {
     const that = this
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
@@ -903,7 +909,7 @@ const RbViewPage = {
         }
       })
 
-      $('.J_trans .dropdown-divider').before($item)
+      $('.J_transform .dropdown-divider').before($item)
     })
   },
 
@@ -936,13 +942,15 @@ const RbViewPage = {
       () => {
         $cleanMenu('.view-action .J_mores')
         $cleanMenu('.view-action .J_adds')
-        $cleanMenu('.view-action .J_trans')
+        $cleanMenu('.view-action .J_transform')
         $('.view-action .col-lg-6').each(function () {
           if ($(this).children().length === 0) $(this).remove()
         })
         if ($('.view-action').children().length === 0) $('.view-action').addClass('mt-0').empty()
+        // v3.6
+        $('.view-action.invisible2').removeClass('invisible2')
       },
-      100,
+      20,
       '_cleanViewActionButton'
     )
   },
