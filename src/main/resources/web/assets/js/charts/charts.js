@@ -1175,26 +1175,28 @@ class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
 
-    const $op = $(this._$box).find('.chart-oper')
-    $op.find('.J_chart-edit').on('click', (e) => {
-      $stopEvent(e, true)
+    if (this.props.type === 'DataList') {
+      const $op = $(this._$box).find('.chart-oper')
+      $op.find('.J_chart-edit').on('click', (e) => {
+        $stopEvent(e, true)
 
-      const config2 = this.state.config
-      renderRbcomp(
-        <DataListSettings
-          chart={config2.chart}
-          {...config2.extconfig}
-          onConfirm={(s) => {
-            if (typeof window.save_dashboard === 'function') {
-              config2.extconfig = s
-              this.setState({ config: config2 }, () => this.loadChartData())
-            } else {
-              console.log('No `save_dashboard` found :', s)
-            }
-          }}
-        />
-      )
-    })
+        const config2 = this.state.config
+        renderRbcomp(
+          <DataListSettings
+            chart={config2.chart}
+            {...config2.extconfig}
+            onConfirm={(s) => {
+              if (typeof window.save_dashboard === 'function') {
+                config2.extconfig = s
+                this.setState({ config: config2 }, () => this.loadChartData())
+              } else {
+                console.log('No `save_dashboard` found :', s)
+              }
+            }}
+          />
+        )
+      })
+    }
   }
 
   renderChart(data) {
@@ -1256,6 +1258,7 @@ class DataList extends BaseChart {
 
                       // refresh
                       const config2 = this.state.config
+                      if (!config2.extconfig) config2.extconfig = {}
                       config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
                       this.setState({ config: config2 }, () => this.loadChartData(true))
                     }}>

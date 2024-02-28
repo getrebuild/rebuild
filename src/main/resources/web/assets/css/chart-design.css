@@ -142,6 +142,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: -4px;
 }
 
+.axis-target .item > span > em {
+  font-style: normal;
+  margin-left: 4px;
+}
+
 .axis-target .item > a {
   display: inline-block;
   width: 14px;
@@ -451,16 +456,16 @@ a.ui-draggable.ui-draggable-dragging {
 }
 
 .chart-type > a.DATALIST2 {
-  transform: translateY(8px);
+  transform: translateY(7px);
 }
 
 .chart-type > a > i.DATALIST2 {
   position: absolute;
   background: none;
-  font-size: 22px;
+  font-size: 21px;
   color: #ccc;
   margin-top: 5px;
-  margin-left: 5px;
+  margin-left: 5.5px;
 }
 
 .chart-type > a.active > i.DATALIST2 {
@@ -488,4 +493,11 @@ a.ui-draggable.ui-draggable-dragging {
 
 .J_opt-DATALIST2 input:focus {
   border-color: #4285f4;
+}
+
+.rb-content.DATALIST2 .axis-target .dropdown-item.J_date,
+.rb-content.DATALIST2 .axis-target .dropdown-item.J_clazz,
+.rb-content.DATALIST2 .axis-target .dropdown-divider,
+.rb-content.DATALIST2 .axis-target .item > span > em {
+  display: none;
 }

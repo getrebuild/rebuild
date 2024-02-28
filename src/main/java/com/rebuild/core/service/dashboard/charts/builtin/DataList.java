@@ -32,7 +32,9 @@ import java.util.Map;
  *
  * @author devezhao
  * @since 2023/1/6
+ * @deprecated v3.6
  */
+@Deprecated
 public class DataList extends ChartData implements BuiltinChart {
 
     // 虚拟ID

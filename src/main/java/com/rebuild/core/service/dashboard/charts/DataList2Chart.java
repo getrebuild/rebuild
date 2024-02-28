@@ -23,6 +23,7 @@ import java.util.Map;
  *
  * @author devezhao
  * @since 2/27/2024
+ * @see com.rebuild.core.service.dashboard.charts.builtin.DataList
  */
 public class DataList2Chart extends ChartData {
 
@@ -40,16 +41,26 @@ public class DataList2Chart extends ChartData {
         String sort = null;
         for (Dimension listField : dims) {
             Map<String, Object> m = DataListManager.instance.formatField(listField.getField(), listField.getParentField());
+            if (listField.getLabel() != null) m.put("label", listField.getLabel());
             fieldsRich.add(m);
-            fields.add((String) m.get("field"));
+
+            String fieldPath = (String) m.get("field");
+            fields.add(fieldPath);
 
             // 排序
             FormatSort formatSort = listField.getFormatSort();
-            if (formatSort == FormatSort.ASC) sort = m.get("field") + ":asc";
-            else if (formatSort == FormatSort.DESC) sort = m.get("field") + ":desc";
+            if (formatSort == FormatSort.ASC) sort = fieldPath + ":asc";
+            else if (formatSort == FormatSort.DESC) sort = fieldPath + ":desc";
+        }
+
+        Map<String, Object> params = getExtraParams();
+        JSONObject extconfig = (JSONObject) params.get("extconfig");
+        if (extconfig != null && extconfig.getString("sort") != null) {
+            sort = extconfig.getString("sort");
         }
 
         int pageSize = config.getJSONObject("option").getIntValue("pageSize");
+        if (pageSize == 0) pageSize = 40;
 
         JSONObject listConfig = new JSONObject();
         listConfig.put("pageNo", 1);

@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 let dataFilter
+// v3.6 数据列表
+let type_DATALIST2
 
 $(document).ready(() => {
   if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
@@ -45,14 +47,20 @@ $(document).ready(() => {
       start: function () {
         dragIsNum = $(this).data('type') === 'num'
       },
+      stop: function () {
+        dragIsNum = false
+      },
     })
     .disableSelection()
   $('.axis-target')
     .droppable({
       accept: function () {
         if (dargOnSort === true) return false
-        if ($(this).hasClass('J_axis-dim')) return !dragIsNum
-        else return true
+
+        const isdim = $(this).hasClass('J_axis-dim')
+        if (type_DATALIST2) return isdim
+        if (isdim) return !dragIsNum
+        return true
       },
       drop: function (e, ui) {
         if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
@@ -98,6 +106,11 @@ $(document).ready(() => {
     if ($this.hasClass('active') === false) return
     $types.removeClass('select')
     $this.addClass('select')
+
+    type_DATALIST2 = $this.data('type') === 'DATALIST2'
+    if (!type_DATALIST2) $('.J_axis-dim span[data-type="num"]').remove()
+    $('.rb-content').attr('class', `rb-content ${type_DATALIST2 ? 'DATALIST2' : ''}`)
+
     render_option()
   })
 
@@ -317,7 +330,7 @@ const add_axis = (target, axis) => {
   if (sort) $dropdown.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('text-primary')
 
   $dropdown.attr({ 'data-type': fieldType, 'data-field': fieldName })
-  $dropdown.find('span').text(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
+  $dropdown.find('span').html(fieldLabel + (calc ? `<em>(${CTs[calc]})</em>` : ''))
   $dropdown.find('a.del').on('click', () => {
     $dropdown.remove()
     render_option()
