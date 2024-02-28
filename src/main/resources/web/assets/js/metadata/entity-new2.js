@@ -175,7 +175,7 @@ class EntityNew2 extends RbModalHandler {
                         <u className="text-bold">{$fileCutName(this.state.excelfile)}</u>
                       </div>
                     )}
-                    <p className="form-text">{$L('[点击查看](https://getrebuild.com/docs/admin/entity/#%E4%BB%8E%20EXCEL%20%E5%AF%BC%E5%85%A5) 数据文件格式要求')}</p>
+                    <p className="form-text link">{WrapHtml($L('[点击查看](https://getrebuild.com/docs/admin/entity/#%E4%BB%8E%20EXCEL%20%E5%AF%BC%E5%85%A5) 数据文件格式要求'))}</p>
                   </div>
                 </div>
                 <div className="form-group row">

@@ -16,7 +16,11 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 最近使用的数据（引用型字段搜索）
@@ -31,7 +35,7 @@ public class RecentlyUsedHelper {
     private static final int MAXNUM_PRE_ENTITY = 50;
 
     /**
-     * 获取最近使用（最多10个）
+     * 获取最近使用
      *
      * @param user
      * @param entity
@@ -43,7 +47,7 @@ public class RecentlyUsedHelper {
     }
 
     /**
-     * 获取最近使用（最多10个）
+     * 获取最近使用
      *
      * @param user
      * @param entity
