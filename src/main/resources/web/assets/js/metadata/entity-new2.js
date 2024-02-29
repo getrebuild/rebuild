@@ -371,7 +371,7 @@ class ExcelFieldsPreview extends RbModal {
                   <td className="pl-0">
                     <input className="form-control form-control-sm down-1" defaultValue={item} placeholder={$L('不导入')} />
                   </td>
-                  <td className="pr-3">
+                  <td className="pr-4">
                     <select className="form-control form-control-sm J_type" defaultValue={this._evalFieldType(item, idx) || 'TEXT'}>
                       {ftKeys.map((type) => {
                         if (FIELD_TYPES[type][2]) return null
@@ -473,7 +473,9 @@ class ExcelFieldsPreview extends RbModal {
     this.props.datas.forEach((row, idx) => {
       if (idx < 1) return
       const v = row[colidx]
-      if (isNumber || isNumber === undefined) isNumber = !isNaN(v)
+      if (isNumber || isNumber === undefined) {
+        isNumber = v && !isNaN(v)
+      }
       if (isDecimal || isDecimal === undefined) {
         isDecimal = isNumber && /\./g.test(v)
       }
