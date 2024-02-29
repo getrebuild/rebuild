@@ -21,6 +21,8 @@ $(document).ready(function () {
     }
   )
 
+  // setTimeout(() => renderRbcomp(<MediaCapture title="CAMERA" useWhite width="768" disposeOnHide type="video" />), 3000)
+
   $('.J_email').click(() => renderRbcomp(<DlgChangeEmail />))
   $('.J_passwd').click(() => renderRbcomp(<DlgChangePasswd />))
   $('.J_temp-auth').click(() => {
