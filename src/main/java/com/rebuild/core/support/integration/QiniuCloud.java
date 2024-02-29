@@ -150,13 +150,13 @@ public class QiniuCloud {
     }
 
     /**
-     * 生成访问 URL（有效期 180s）
+     * 生成访问 URL（有效期 30m）
      *
      * @param filePath
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 3 * 60);
+        return makeUrl(filePath, 30 * 60);
     }
 
     /**

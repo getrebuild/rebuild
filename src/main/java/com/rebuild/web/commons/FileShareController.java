@@ -133,7 +133,7 @@ public class FileShareController extends BaseController {
     private String makePublicUrl(String fileUrl) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
-            publicUrl = QiniuCloud.instance().makeUrl(fileUrl, 5 * 60);
+            publicUrl = QiniuCloud.instance().makeUrl(fileUrl, 15 * 60);
         } else {
             String e = CodecUtils.randomCode(40);
             Application.getCommonsCache().put(e, "rb", 5 * 60);
