@@ -35,16 +35,16 @@ class BaseChart extends React.Component {
         </a>
         <div className="dropdown-menu dropdown-menu-right">
           {this.props.isManageable && !this.props.builtin && (
-            <a className="dropdown-item J_chart-edit" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+            <a className="dropdown-item J_chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
               {$L('编辑')}
             </a>
           )}
           {this.props.editable && (
-            <a className="dropdown-item" title={$L('移除')} onClick={() => this.remove()}>
+            <a className="dropdown-item" onClick={() => this.remove()}>
               {$L('移除')}
             </a>
           )}
-          <a className="dropdown-item" title={$L('导出')} onClick={() => this.export()}>
+          <a className="dropdown-item" onClick={() => this.export()}>
             {$L('导出')}
           </a>
         </div>
