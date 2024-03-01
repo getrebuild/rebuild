@@ -115,7 +115,7 @@ public class ReferenceSearchController extends EntityController {
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently.length == 0) {
-                if (forceResults);
+                if (forceResults);  // Nothings
                 else return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, null);
@@ -148,16 +148,18 @@ public class ReferenceSearchController extends EntityController {
             searchWhere = String.format("(%s)", searchWhere);
         }
 
-        int sec = searchEntity.getEntityCode();
-        if (sec == EntityHelper.User || sec == EntityHelper.Department || sec == EntityHelper.Role) {
-            String s = UserFilters.getEnableBizzPartFilter(sec, user);
+        final int sEntityCode = searchEntity.getEntityCode();
+        if (MetadataHelper.isBizzEntity(sEntityCode)) {
+            String s = UserFilters.getBizzFilter(sEntityCode, user);
+            if (s != null) searchWhere += " and " + s;
+            s = UserFilters.getEnableBizzPartFilter(sEntityCode, user);
             if (s != null) searchWhere += " and " + s;
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
         // v35 本人/本部门
         if ("self".equals(q)) {
-            if (sec == EntityHelper.User || sec == EntityHelper.Department) {
+            if (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department) {
                 result.add(JSONUtils.toJSONObject(
                         new String[]{ "id", "text" }, new Object[] { _SELF, Language.L("本人/本部门") }));
             }
