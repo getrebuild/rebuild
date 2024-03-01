@@ -124,11 +124,12 @@ public class EasyExcelGenerator extends SetUser {
                     .registerWriteHandler(new FormulaCellWriteHandler())
                     .build();
 
-            // 有引用记录
+            // 一个列表
             if (datas.size() == 1) {
-                excelWriter.fill(datas, fillConfig, writeSheet);
+                Object o = datas.values().iterator().next();
+                excelWriter.fill(o, fillConfig, writeSheet);
             }
-            // fix: v3.6 有多个引用记录
+            // fix: v3.6 多个列表
             else if (datas.size() > 1) {
                 for (Map.Entry<String, List<Map<String, Object>>> e : datas.entrySet()) {
                     final String refKey = NROW_PREFIX2 + e.getKey().substring(1);
@@ -138,7 +139,8 @@ public class EasyExcelGenerator extends SetUser {
                     for (Map<String, Object> map : refDatas) {
                         Map<String, Object> mapNew = new HashMap<>();
                         for (Map.Entry<String, Object> ee : map.entrySet()) {
-                            String keyNew = ee.getKey().substring(refKey.length() + 1);
+                            String keyNew = ee.getKey().substring(refKey.length());
+                            if (keyNew.startsWith("$") || keyNew.startsWith(".")) keyNew = keyNew.substring(1);
                             mapNew.put(keyNew, ee.getValue());
                         }
                         refDatasNew.add(mapNew);

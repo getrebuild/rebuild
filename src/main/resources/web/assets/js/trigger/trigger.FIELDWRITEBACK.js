@@ -440,7 +440,7 @@ class FieldFormula extends React.Component {
 
     // 数字、日期支持计算器模式
     const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(type)
-    const initCode = this._value ? this._value.substr(4, this._value.length - 8) : null
+    const initCode = this._value && this._value.startsWith('{{{{') ? this._value.substr(4, this._value.length - 8) : null
 
     renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initCode={initCode} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
   }
@@ -467,17 +467,15 @@ FieldFormula.formatText = function (formula, fields) {
   if (formula.startsWith('{{{{')) {
     return FormulaCode.textCode(formula)
   }
-  // DATE
+  // compatible: DATE
   if (formula.includes('#')) {
     const fs = formula.split('#')
     const field = fields.find((x) => x.name === fs[0])
     return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
   }
-  // NUM
+  // NUM,DATE
   else {
-    const fs = []
-    fields.forEach((item) => fs.push([item.name, item.label]))
-    return FormulaCalcWithCode.textFormula(formula, fs)
+    return FormulaCalcWithCode.textFormula(formula, fields)
   }
 }
 
