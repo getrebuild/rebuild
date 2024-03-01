@@ -129,7 +129,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Object[] unique(ID recordId, String... fields) {
@@ -139,7 +139,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Object[] uniqueNoFilter(ID recordId, String... fields) {
@@ -149,7 +149,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Record record(ID recordId, String... fields) {
@@ -159,7 +159,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Record recordNoFilter(ID recordId, String... fields) {
