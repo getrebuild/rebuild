@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _VIDEO_WIDTH = 768
 
 // eslint-disable-next-line no-unused-vars
-class MediaCapture extends RbModal {
+class MediaCapturer extends RbModal {
   constructor(props) {
     super(props)
 
@@ -28,14 +28,30 @@ class MediaCapture extends RbModal {
 
         <div className="action">
           <button className="btn btn-primary J_used" type="button" onClick={() => this.handleConfirm()}>
-            {$L('确定')}
+            {$L('使用')}
           </button>
-          <button className="btn btn-secondary J_reset" type="button" onClick={() => this.initDevice()}>
-            {$L('重拍')}
+          <button className="btn btn-secondary J_reset w-auto" type="button" onClick={() => this.initDevice(null, $storage.get('MediaCapturerDeviceId'))} title={$L('重拍')}>
+            <i className="icon mdi mdi-restore" />
           </button>
           <button className="btn btn-secondary J_capture" type="button" onClick={() => this.capture()}>
             {this.props.type === 'video' ? (this.state.recording ? $L('停止') : $L('录制')) : $L('拍照')}
           </button>
+          {this.state.webcamList && (
+            <span className="dropdown J_webcam">
+              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" title={$L('选择设备')}>
+                <i className="icon mdi mdi-webcam" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                {this.state.webcamList.map((c) => {
+                  return (
+                    <a className="dropdown-item" key={c[0]} onClick={() => this.initDevice(null, c[0])}>
+                      {c[1]}
+                    </a>
+                  )
+                })}
+              </div>
+            </span>
+          )}
         </div>
       </div>
     )
@@ -45,18 +61,17 @@ class MediaCapture extends RbModal {
     super.componentDidMount()
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      this.initDevice()
+      this.initDevice(null, $storage.get('MediaCapturerDeviceId'))
 
-      // All
       navigator.mediaDevices
         .enumerateDevices()
         .then((devices) => {
-          this.__videoDevices = []
-          const videoDevices = devices.filter((device) => device.kind === 'videoinput')
-          videoDevices.forEach((device, idx) => {
-            this.__videoDevices.push(device.deviceId, device.label || idx)
+          const devices2 = devices.filter((device) => device.kind === 'videoinput')
+          const devices3 = []
+          devices2.forEach((device, idx) => {
+            devices3.push([device.deviceId, device.label || idx])
           })
-          console.log(this.__videoDevices)
+          this.setState({ webcamList: devices3 })
         })
         .catch((err) => {
           console.log(err)
@@ -68,6 +83,10 @@ class MediaCapture extends RbModal {
 
   initDevice(cb, deviceId) {
     this.setState({ captured: false, initMsg: $L('请稍后') })
+    if (deviceId) {
+      this._stopTracks()
+      $storage.set('MediaCapturerDeviceId', deviceId)
+    }
 
     if (this._$camera && this._$camera.srcObject) {
       typeof cb === 'function' && cb()

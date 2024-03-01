@@ -5497,7 +5497,8 @@ span.icon-append .icon {
 .media-capture .results,
 .media-capture .action .btn.J_used,
 .media-capture .action .btn.J_reset,
-.media-capture.captured .action .btn.J_capture {
+.media-capture.captured .action .btn.J_capture,
+.media-capture.captured .action .J_webcam {
   display: none;
 }
 

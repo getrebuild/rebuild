@@ -136,6 +136,6 @@ module.exports = {
     $sec2Time: true,
     $removeHtml: true,
     $openWindow: true,
-    MediaCapture: true,
+    MediaCapturer: true,
   },
 }
