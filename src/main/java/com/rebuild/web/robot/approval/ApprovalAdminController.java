@@ -124,23 +124,23 @@ public class ApprovalAdminController extends BaseController {
 
         // 虚拟字段
         Field[] userRefFields = MetadataSorter.sortFields(
-                MetadataHelper.getEntity(EntityHelper.User), DisplayType.REFERENCE);
+                MetadataHelper.getEntity(EntityHelper.User), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
         Field[] deptRefFields = MetadataSorter.sortFields(
-                MetadataHelper.getEntity(EntityHelper.Department), DisplayType.REFERENCE);
+                MetadataHelper.getEntity(EntityHelper.Department), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
 
-        Set<String> filterNames = new HashSet<>();
-        Collections.addAll(filterNames, EntityHelper.ApprovalLastUser, "deptId");
+        Set<String> fieldsNames = new HashSet<>();
+        Collections.addAll(fieldsNames, EntityHelper.ApprovalLastUser, "deptId");
 
         // 发起人
         for (Field field : userRefFields) {
-            if (isRefUserOrDeptField(field, filterNames, true)) {
+            if (isRefUserOrDeptField(field, fieldsNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_SUBMITOR + field.getName(),
                         textSubmitor + EasyMetaFactory.getLabel(field)} );
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserOrDeptField(field, filterNames, true)) {
+            if (isRefUserOrDeptField(field, fieldsNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_SUBMITOR + "deptId." + field.getName(),
                         textSubmitor + textDept + EasyMetaFactory.getLabel(field)} );
@@ -149,14 +149,14 @@ public class ApprovalAdminController extends BaseController {
 
         // （上一）审批人
         for (Field field : userRefFields) {
-            if (isRefUserOrDeptField(field, filterNames, true)) {
+            if (isRefUserOrDeptField(field, fieldsNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_APPROVER + field.getName(),
                         textApprover + EasyMetaFactory.getLabel(field)} );
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserOrDeptField(field, filterNames, true)) {
+            if (isRefUserOrDeptField(field, fieldsNames, true)) {
                 fields.add(new String[] {
                         ApprovalHelper.APPROVAL_APPROVER + "deptId." + field.getName(),
                         textApprover + textDept + EasyMetaFactory.getLabel(field)} );
@@ -166,7 +166,7 @@ public class ApprovalAdminController extends BaseController {
         // 本实体字段
         Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
         for (Field field : refFields) {
-            if (isRefUserOrDeptField(field, filterNames, false)) {
+            if (isRefUserOrDeptField(field, fieldsNames, false)) {
                 fields.add(new String[] { field.getName(), EasyMetaFactory.getLabel(field)} );
             }
         }
@@ -180,7 +180,7 @@ public class ApprovalAdminController extends BaseController {
 
             Field[] refFields2 = MetadataSorter.sortFields(field.getReferenceEntity(), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
             for (Field field2 : refFields2) {
-                if (isRefUserOrDeptField(field2, filterNames, false)) {
+                if (isRefUserOrDeptField(field2, fieldsNames, false)) {
                     fields.add(new String[] { parentName + field2.getName(), parentLabel + EasyMetaFactory.getLabel(field2)} );
                 }
             }
