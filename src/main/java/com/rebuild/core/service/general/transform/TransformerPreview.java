@@ -107,8 +107,7 @@ public class TransformerPreview {
 
                     fillLabelOfReference(targetRecord);
 
-                    JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, user);
-                    UseFormsBuilder.instance.setFormInitialValue(targetEntity, model, initialVal);
+                    JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, FormsBuilder.DV_MAINID, user);
                     detailModels.add(model);
                 }
             } finally {
@@ -140,14 +139,7 @@ public class TransformerPreview {
         }
 
         try {
-            JSON model = UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, user);
-            if (mainid != null) {
-                JSONObject initialVal = JSONUtils.toJSONObject(FormsBuilder.DV_MAINID, mainid);
-                UseFormsBuilder.instance.setFormInitialValue(targetEntity, model, initialVal);
-            }
-
-            return model;
-
+            return UseFormsBuilder.instance.buildNewForm(targetEntity, targetRecord, mainid, user);
         } finally {
             if (mainid != null) FormsBuilderContextHolder.getMainIdOfDetail(true);
         }
