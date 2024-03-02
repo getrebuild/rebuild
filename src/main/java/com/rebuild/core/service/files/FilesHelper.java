@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 文件&附件帮助类
+ * 文件、附件帮助类
  *
  * @author ZHAO
  * @since 2019/11/12

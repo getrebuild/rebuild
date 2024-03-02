@@ -95,7 +95,6 @@ public class VerfiyCode {
      * 清除验证码
      *
      * @param key
-     * @return
      */
     public static void clean(String key) {
         Application.getCommonsCache().evict(VC_PREFIX + key);

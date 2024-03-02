@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 最近搜索（针对引用字段）。
- * 非自动，需要调用 <tt>recently-add</tt> 方法手动添加方可用，后期考虑自动化
+ * 非自动，需要调用 `recently-add` 方法手动添加方可用，后期考虑自动化
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25

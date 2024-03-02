@@ -24,7 +24,7 @@ public class EasyFile extends EasyField {
     }
 
     /**
-     * 注意此类型字段存储值为 <tt>TEXT</tt>，但是此处会转换为/返回 <tt>JSONArray</tt>
+     * 注意此类型字段存储值为 TEXT，但是此处会转换为/返回 JSONArray
      */
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {

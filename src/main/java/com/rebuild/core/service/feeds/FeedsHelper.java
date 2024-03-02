@@ -68,7 +68,7 @@ public class FeedsHelper {
      * 指定用户是否点赞
      *
      * @param feedsOrComment
-     * @param user           指定用户
+     * @param user 指定用户
      * @return
      */
     public static boolean isMyLike(ID feedsOrComment, ID user) {
@@ -81,7 +81,7 @@ public class FeedsHelper {
     }
 
     /**
-     * 获取内容中的 @USERID
+     * 获取内容中的 `@USERID`
      *
      * @param content
      * @return
@@ -96,7 +96,7 @@ public class FeedsHelper {
      * 获取内容中的 @USERID
      *
      * @param content
-     * @return Returns Map<@NAME, @ID>
+     * @return returns Map<@NAME, @ID>
      */
     public static Map<String, ID> findMentionsMap(String content) {
         Map<String, ID> found = new HashMap<>();

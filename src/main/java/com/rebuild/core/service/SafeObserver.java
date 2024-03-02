@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service;
 
 /**
- * Thread-Safe <tt>Observer</tt>
+ * Thread-Safe `Observer`
  *
  * @author devezhao
  * @since 2023/12/22
