@@ -188,13 +188,17 @@
 
 // 文件类型检查（扩展名）
 function html5Uploader_checkAccept(file, accept) {
-  // eg. *
-  if (!accept || accept === '*') {
+  if (!accept || accept === '*' || accept === '*/*') {
     return true
   }
-  // eg. image/*, video/*
-  if (accept.split('/')[1] === '*' && accept.split('/')[0] === file.type.split('/')[0]) {
-    return true
+
+  // eg. image/*,video/*
+  var acceptList = accept.split(',')
+  for (var i = 0; i < acceptList.length; i++) {
+    var a = acceptList[i]
+    if (a.split('/')[1] === '*' && a.split('/')[0] === file.type.split('/')[0]) {
+      return true
+    }
   }
 
   var fileExt = file.name.split('.')

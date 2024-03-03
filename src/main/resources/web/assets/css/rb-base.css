@@ -23151,7 +23151,9 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 .file-icon[data-type='mp3'],
 .file-icon[data-type='wma'],
 .file-icon[data-type='m4a'],
-.file-icon[data-type='flac'] {
+.file-icon[data-type='flac'],
+.file-icon[data-type='ogg'],
+.file-icon[data-type='acc'] {
   background: #8e44ad;
 }
 
@@ -23159,7 +23161,11 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 .file-icon[data-type='wmv'],
 .file-icon[data-type='mov'],
 .file-icon[data-type='avi'],
-.file-icon[data-type='mkv'] {
+.file-icon[data-type='mkv'],
+.file-icon[data-type='webm'],
+.file-icon[data-type='m4v'],
+.file-icon[data-type='mpg'],
+.file-icon[data-type='mpge'] {
   background: #7a3ce7;
 }
 

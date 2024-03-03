@@ -215,10 +215,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'IMAGE'}" class="form-group row J_for-IMAGE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
-                    <i class="support-plat2 mdi mdi-cellphone-check" th:title="${bundle.L('支持 H5')}"></i>
-                    [[${bundle.L('仅允许拍照上传')}]]
-                  </label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('仅允许拍照上传')}]] </label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="imageCapture" />
