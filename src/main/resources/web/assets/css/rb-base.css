@@ -23163,12 +23163,34 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   background: #7a3ce7;
 }
 
-.file-icon[data-type='bmp'],
 .file-icon[data-type='jpg'],
 .file-icon[data-type='jpeg'],
 .file-icon[data-type='gif'],
-.file-icon[data-type='png'] {
+.file-icon[data-type='png'],
+.file-icon[data-type='bmp'],
+.file-icon[data-type='jfif'],
+.file-icon[data-type='svg'],
+.file-icon[data-type='webp'] {
   background: #f4b400;
+}
+
+.file-icon.image::before,
+.file-icon.image::after {
+  display: none;
+}
+
+.file-icon.image {
+  width: 30px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.file-icon.image > img {
+  max-height: 100%;
+  max-width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* BS v4.4 */

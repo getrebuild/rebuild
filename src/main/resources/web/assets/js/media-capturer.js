@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// css width
 const _VIDEO_WIDTH = 768
 
 // eslint-disable-next-line no-unused-vars
@@ -13,7 +14,7 @@ class MediaCapturer extends RbModal {
     super(props)
 
     this._mediaRecorder = null
-    this.__blobs = []
+    this._blobs = []
   }
 
   renderContent() {
@@ -27,6 +28,7 @@ class MediaCapturer extends RbModal {
         </div>
 
         <div className="action">
+          <input type="file" className="hide" ref={(c) => (this._$fileinput = c)} />
           <button className="btn btn-primary J_used" type="button" onClick={() => this.handleConfirm()}>
             {$L('使用')}
           </button>
@@ -79,6 +81,20 @@ class MediaCapturer extends RbModal {
     } else {
       this.setState({ initMsg: $L('你的浏览器不支持此功能') })
     }
+
+    if (this.props.forceFile) {
+      $initUploader(
+        this._$fileinput,
+        () => {
+          $mp.start()
+        },
+        (res) => {
+          $mp.end()
+          console.log(res.key)
+          typeof this.props.callback === 'function' && this.props.callback(res.key)
+        }
+      )
+    }
   }
 
   initDevice(cb, deviceId) {
@@ -103,13 +119,11 @@ class MediaCapturer extends RbModal {
         if (this.props.type === 'video') {
           this._mediaRecorder = new MediaRecorder(stream)
           this._mediaRecorder.addEventListener('dataavailable', (e) => {
-            if (e.data && e.data.size > 0) this.__blobs.push(e.data)
+            if (e.data && e.data.size > 0) this._blobs.push(e.data)
           })
           this._mediaRecorder.addEventListener('stop', () => {
-            this._capturedData = this.__blobs
-
-            const videoBlob = new Blob(this.__blobs, { type: 'video/mp4' })
-            const videoBlobURL = URL.createObjectURL(videoBlob)
+            this._capturedData = new Blob(this._blobs, { type: 'video/mp4' })
+            const videoBlobURL = URL.createObjectURL(this._capturedData)
             this._$resVideo.src = videoBlobURL
             this.setState({ captured: true, initMsg: null })
           })
@@ -141,7 +155,7 @@ class MediaCapturer extends RbModal {
     this._$resImage.width = _VIDEO_WIDTH
     this._$resImage.height = (_VIDEO_WIDTH / 4) * 3
     context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
-    this._capturedData = this._$resImage.toDataURL('image/png')
+    this._capturedData = this._$resImage.toDataURL('image/jpeg')
 
     this._stopTracks()
     this.setState({ captured: true, initMsg: null })
@@ -150,7 +164,7 @@ class MediaCapturer extends RbModal {
   captureVideo() {
     console.log('MediaRecorder state :', this._mediaRecorder.state)
     if (this._mediaRecorder.state === 'inactive') {
-      this.__blobs = []
+      this._blobs = []
       this._mediaRecorder.start()
       this.setState({ recording: true, initMsg: null })
     } else if (this._mediaRecorder.state === 'recording') {
@@ -170,8 +184,36 @@ class MediaCapturer extends RbModal {
     this._$camera.srcObject = null
   }
 
+  _dataurl2File(dataurl, filename) {
+    const arr = dataurl.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new File([u8arr], filename, { type: mime })
+  }
+
   handleConfirm() {
-    console.log(this._capturedData)
-    typeof this.props.callback === 'function' && this.props.callback(this._capturedData)
+    let dataOrFile = this._capturedData
+    console.log(dataOrFile)
+
+    if (this.props.forceFile) {
+      if (this.props.type === 'video') {
+        dataOrFile = new File([dataOrFile], 'captured-video.mp4', { type: 'video/mp4' })
+      } else {
+        dataOrFile = this._dataurl2File(dataOrFile, 'captured-image.jpg')
+      }
+
+      const dataTransfer = new DataTransfer()
+      dataTransfer.items.add(dataOrFile)
+      this._$fileinput.files = dataTransfer.files
+      $(this._$fileinput).trigger('change')
+    } else {
+      typeof this.props.callback === 'function' && this.props.callback(dataOrFile)
+    }
+    this.hide()
   }
 }

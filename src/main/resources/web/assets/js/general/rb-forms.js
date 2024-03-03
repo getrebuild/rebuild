@@ -1625,6 +1625,11 @@ class RbFormImage extends RbFormElement {
 }
 
 class RbFormFile extends RbFormImage {
+  constructor(props) {
+    super(props)
+    this.__useCapture = this.props.fileSuffix === '.image/*' || this.props.fileSuffix === '.video/*'
+  }
+
   renderElement() {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
@@ -1640,11 +1645,10 @@ class RbFormFile extends RbFormImage {
     return (
       <div className="file-field">
         {value.map((item) => {
-          let fileName = $fileCutName(item)
+          const fileName = $fileCutName(item)
           return (
             <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
+              {this._renderFileIcon(fileName, item)}
               {!this.props.readonly && (
                 <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                   <span className="zmdi zmdi-close" />
@@ -1655,7 +1659,7 @@ class RbFormFile extends RbFormImage {
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
-          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
           </label>
@@ -1672,19 +1676,54 @@ class RbFormFile extends RbFormImage {
     return (
       <div className="file-field">
         {value.map((item) => {
-          let fileName = $fileCutName(item)
+          const fileName = $fileCutName(item)
           return (
             <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
+              {this._renderFileIcon(fileName, item)}
             </a>
           )
         })}
       </div>
     )
   }
-}
 
+  _renderFileIcon(fileName, file) {
+    const extName = $fileExtName(fileName)
+    // @see `file-preview.js`
+    const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
+    return (
+      <RF>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+          {isImage && <img src={this._formatUrl(file)} />}
+        </i>
+        <span>{fileName}</span>
+      </RF>
+    )
+  }
+
+  _fileClick(e) {
+    if (this.__useCapture) {
+      $stopEvent(e, true)
+      renderRbcomp(
+        <MediaCapturer
+          title={$L('拍摄')}
+          width="768"
+          useWhite
+          disposeOnHide
+          type={this.props.fileSuffix === '.video/*'}
+          forceFile
+          callback={(fileKey) => {
+            const paths = this.state.value || []
+            if (paths.length < this.__maxUpload) {
+              paths.push(fileKey)
+              this.handleChange({ target: { value: paths } }, true)
+            }
+          }}
+        />
+      )
+    }
+  }
+}
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
