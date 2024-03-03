@@ -1707,10 +1707,10 @@ class RbFormFile extends RbFormImage {
       renderRbcomp(
         <MediaCapturer
           title={$L('拍摄')}
-          width="768"
+          width="1000"
           useWhite
           disposeOnHide
-          type={this.props.fileSuffix === '.video/*'}
+          type={this.props.fileSuffix === '.video/*' ? 'video' : 'image'}
           forceFile
           callback={(fileKey) => {
             const paths = this.state.value || []

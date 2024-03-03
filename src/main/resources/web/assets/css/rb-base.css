@@ -23180,17 +23180,14 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 }
 
 .file-icon.image {
-  width: 30px;
+  width: auto;
   background-color: rgba(0, 0, 0, 0.1);
 }
 
 .file-icon.image > img {
-  max-height: 100%;
-  max-width: 100%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  min-height: 30px;
+  height: 100%;
+  width: auto;
 }
 
 /* BS v4.4 */

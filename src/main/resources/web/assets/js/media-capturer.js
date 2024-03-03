@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 // css width
-const _VIDEO_WIDTH = 768
+const _VIDEO_WIDTH = 1000
 
 // eslint-disable-next-line no-unused-vars
 class MediaCapturer extends RbModal {
@@ -22,15 +22,15 @@ class MediaCapturer extends RbModal {
       <div className={`media-capture ${this.props.type === 'video' ? 'video' : 'image'} ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
         {this.state.initMsg && <div className="must-center text-muted fs-14">{this.state.initMsg}</div>}
 
-        <video autoPlay ref={(c) => (this._$camera = c)}></video>
+        <video autoPlay ref={(c) => (this._$camera = c)} controls={false}></video>
         <div className="results">
           {this.props.type === 'video' ? <video controls controlsList="nodownload" ref={(c) => (this._$resVideo = c)}></video> : <canvas ref={(c) => (this._$resImage = c)}></canvas>}
         </div>
 
-        <div className="action">
+        <div className="action" ref={(c) => (this._$btn = c)}>
           <input type="file" className="hide" ref={(c) => (this._$fileinput = c)} />
           <button className="btn btn-primary J_used" type="button" onClick={() => this.handleConfirm()}>
-            {$L('使用')}
+            <i className="icon mdi mdi-check" /> {$L('使用')}
           </button>
           <button className="btn btn-secondary J_reset w-auto" type="button" onClick={() => this.initDevice(null, $storage.get('MediaCapturerDeviceId'))} title={$L('重拍')}>
             <i className="icon mdi mdi-restore" />
@@ -38,7 +38,7 @@ class MediaCapturer extends RbModal {
           <button className="btn btn-secondary J_capture" type="button" onClick={() => this.capture()}>
             {this.props.type === 'video' ? (this.state.recording ? $L('停止') : $L('录制')) : $L('拍照')}
           </button>
-          {this.state.webcamList && (
+          {this.state.webcamList && this.state.webcamList.length > 0 && (
             <span className="dropdown J_webcam">
               <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" title={$L('选择设备')}>
                 <i className="icon mdi mdi-webcam" />
@@ -86,12 +86,19 @@ class MediaCapturer extends RbModal {
       $initUploader(
         this._$fileinput,
         () => {
-          $mp.start()
+          if (!$mp.isStarted()) {
+            $mp.start()
+            $(this._$btn).button('loading')
+          }
         },
         (res) => {
           $mp.end()
-          console.log(res.key)
+          $(this._$btn).button('reset')
           typeof this.props.callback === 'function' && this.props.callback(res.key)
+        },
+        () => {
+          $mp.end()
+          $(this._$btn).button('reset')
         }
       )
     }
@@ -151,9 +158,14 @@ class MediaCapturer extends RbModal {
   }
 
   captureImage() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 2)
+    this._$resImage.style.width = _VIDEO_WIDTH
+    this._$resImage.style.height = (_VIDEO_WIDTH / 4) * 3
+    this._$resImage.width = _VIDEO_WIDTH * ratio
+    this._$resImage.height = (_VIDEO_WIDTH / 4) * 3 * ratio
+
     const context = this._$resImage.getContext('2d')
-    this._$resImage.width = _VIDEO_WIDTH
-    this._$resImage.height = (_VIDEO_WIDTH / 4) * 3
+    context.scale(ratio, ratio)
     context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
     this._capturedData = this._$resImage.toDataURL('image/jpeg')
 
@@ -198,13 +210,12 @@ class MediaCapturer extends RbModal {
 
   handleConfirm() {
     let dataOrFile = this._capturedData
-    console.log(dataOrFile)
-
     if (this.props.forceFile) {
+      const time = moment().format('YYYYMMDDHHmmss')
       if (this.props.type === 'video') {
-        dataOrFile = new File([dataOrFile], 'captured-video.mp4', { type: 'video/mp4' })
+        dataOrFile = new File([dataOrFile], `captured-video-${time}.mp4`, { type: 'video/mp4' })
       } else {
-        dataOrFile = this._dataurl2File(dataOrFile, 'captured-image.jpg')
+        dataOrFile = this._dataurl2File(dataOrFile, `captured-image-${time}.jpg`)
       }
 
       const dataTransfer = new DataTransfer()

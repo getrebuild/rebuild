@@ -5479,6 +5479,8 @@ span.icon-append .icon {
   padding: 0;
   width: 768px;
   height: 576px;
+  width: 1000px;
+  height: 750px;
   background-color: #000;
   text-align: center;
 }
@@ -5509,6 +5511,15 @@ span.icon-append .icon {
 .media-capture.captured .action .btn.J_used,
 .media-capture.captured .action .btn.J_reset {
   display: inline-block;
+}
+
+.media-capture.image .action .btn.J_capture::before {
+  display: inline-block;
+  font-family: 'Material Design Icons', serif;
+  content: '\F0100';
+  font-size: 1.231rem;
+  margin-right: 3px;
+  transform: translateY(1.5px);
 }
 
 .media-capture.video .action .btn.J_capture::before {
