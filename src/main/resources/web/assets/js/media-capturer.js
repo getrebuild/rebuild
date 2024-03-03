@@ -13,18 +13,21 @@ class MediaCapturer extends RbModal {
   constructor(props) {
     super(props)
 
+    this._recVideo = props.type === 'video' || props.type === '*'
+    this._recImage = props.type === 'image' || props.type === '*'
     this._mediaRecorder = null
     this._blobs = []
   }
 
   renderContent() {
     return (
-      <div className={`media-capture ${this.props.type === 'video' ? 'video' : 'image'} ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
+      <div className={`media-capture ${this.state.captured && 'captured'} ${this.state.recording && 'recording'}`}>
         {this.state.initMsg && <div className="must-center text-muted fs-14">{this.state.initMsg}</div>}
 
         <video autoPlay ref={(c) => (this._$camera = c)} controls={false}></video>
         <div className="results">
-          {this.props.type === 'video' ? <video controls controlsList="nodownload" ref={(c) => (this._$resVideo = c)}></video> : <canvas ref={(c) => (this._$resImage = c)}></canvas>}
+          <video controls controlsList="nodownload" ref={(c) => (this._$resVideo = c)} className={this.state.recType === 'video' ? '' : 'hide'}></video>
+          <canvas ref={(c) => (this._$resImage = c)} className={this.state.recType === 'image' ? '' : 'hide'}></canvas>
         </div>
 
         <div className="action" ref={(c) => (this._$btn = c)}>
@@ -35,12 +38,21 @@ class MediaCapturer extends RbModal {
           <button className="btn btn-secondary J_reset w-auto" type="button" onClick={() => this.initDevice(null, $storage.get('MediaCapturerDeviceId'))} title={$L('重拍')}>
             <i className="icon mdi mdi-restore" />
           </button>
-          <button className="btn btn-secondary J_capture" type="button" onClick={() => this.capture()}>
-            {this.props.type === 'video' ? (this.state.recording ? $L('停止') : $L('录制')) : $L('拍照')}
-          </button>
+
+          {this._recVideo && (
+            <button className="btn btn-secondary J_capture-video" type="button" onClick={() => this.captureVideo()}>
+              {this.state.recording ? $L('停止') : $L('录制')}
+            </button>
+          )}
+          {this._recImage && (
+            <button className="btn btn-secondary J_capture-image" type="button" onClick={() => this.captureImage()} disabled={this.state.recording === true}>
+              <i className="icon mdi mdi-camera" /> {$L('拍照')}
+            </button>
+          )}
+
           {this.state.webcamList && this.state.webcamList.length > 0 && (
-            <span className="dropdown J_webcam">
-              <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" title={$L('选择设备')}>
+            <span className="dropdown">
+              <button className="btn btn-secondary dropdown-toggle w-auto J_webcam" type="button" data-toggle="dropdown" title={$L('选择设备')} disabled={this.state.recording === true}>
                 <i className="icon mdi mdi-webcam" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -124,7 +136,7 @@ class MediaCapturer extends RbModal {
       .then((stream) => {
         this._$camera.srcObject = stream
 
-        if (this.props.type === 'video') {
+        if (this._recVideo) {
           this._mediaRecorder = new MediaRecorder(stream)
           this._mediaRecorder.addEventListener('dataavailable', (e) => {
             if (e.data && e.data.size > 0) this._blobs.push(e.data)
@@ -151,41 +163,38 @@ class MediaCapturer extends RbModal {
     this._stopTracks()
   }
 
-  capture() {
-    this.initDevice(() => {
-      if (this.props.type === 'video') this.captureVideo()
-      else this.captureImage()
-    })
-  }
-
   captureImage() {
-    const ratio = Math.max(window.devicePixelRatio || 1, 2)
-    this._$resImage.style.width = _VIDEO_WIDTH
-    this._$resImage.style.height = (_VIDEO_WIDTH / 4) * 3
-    this._$resImage.width = _VIDEO_WIDTH * ratio
-    this._$resImage.height = (_VIDEO_WIDTH / 4) * 3 * ratio
+    this.initDevice(() => {
+      const ratio = Math.max(window.devicePixelRatio || 1, 2)
+      this._$resImage.style.width = _VIDEO_WIDTH
+      this._$resImage.style.height = (_VIDEO_WIDTH / 4) * 3
+      this._$resImage.width = _VIDEO_WIDTH * ratio
+      this._$resImage.height = (_VIDEO_WIDTH / 4) * 3 * ratio
 
-    const context = this._$resImage.getContext('2d')
-    context.scale(ratio, ratio)
-    context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
-    this._capturedData = this._$resImage.toDataURL('image/jpeg')
+      const context = this._$resImage.getContext('2d')
+      context.scale(ratio, ratio)
+      context.drawImage(this._$camera, 0, 0, _VIDEO_WIDTH, (_VIDEO_WIDTH / 4) * 3)
+      this._capturedData = this._$resImage.toDataURL('image/jpeg')
 
-    this._stopTracks()
-    this.setState({ captured: true, initMsg: null })
+      this._stopTracks()
+      this.setState({ captured: true, initMsg: null, recType: 'image' })
+    })
   }
 
   captureVideo() {
     console.log('MediaRecorder state :', this._mediaRecorder.state)
-    if (this._mediaRecorder.state === 'inactive') {
-      this._blobs = []
-      this._mediaRecorder.start()
-      this.setState({ recording: true, initMsg: null })
-    } else if (this._mediaRecorder.state === 'recording') {
-      this._mediaRecorder.stop()
-      this._stopTracks()
-      this.setState({ recording: false })
-      // @see stop event
-    }
+    this.initDevice(() => {
+      if (this._mediaRecorder.state === 'inactive') {
+        this._blobs = []
+        this._mediaRecorder.start()
+        this.setState({ recording: true, initMsg: null, recType: 'video' })
+      } else if (this._mediaRecorder.state === 'recording') {
+        this._mediaRecorder.stop()
+        this._stopTracks()
+        this.setState({ recording: false })
+        // @see stop event
+      }
+    })
   }
 
   _stopTracks() {
@@ -213,10 +222,10 @@ class MediaCapturer extends RbModal {
     let dataOrFile = this._capturedData
     if (this.props.forceFile) {
       const time = moment().format('YYYYMMDDHHmmss')
-      if (this.props.type === 'video') {
-        dataOrFile = new File([dataOrFile], `captured-video-${time}.mp4`, { type: 'video/mp4' })
+      if (this.state.recType === 'video') {
+        dataOrFile = new File([dataOrFile], `RBVID-${time}.mp4`, { type: 'video/mp4' })
       } else {
-        dataOrFile = this._dataurl2File(dataOrFile, `captured-image-${time}.jpg`)
+        dataOrFile = this._dataurl2File(dataOrFile, `RBIMG-${time}.jpg`)
       }
 
       const dataTransfer = new DataTransfer()

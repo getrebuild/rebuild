@@ -1489,23 +1489,18 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
+    this._captureType = props.imageCapture ? 'image' : false
   }
 
   renderElement() {
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !this.props.readonly && !this.props.imageCapture
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
     if (value.length === 0) {
       if (this.props.readonly) {
         return (
           <div className="form-control-plaintext text-muted">
             <i className="mdi mdi-information-outline" /> {$L('只读')}
-          </div>
-        )
-      } else if (this.props.imageCapture) {
-        return (
-          <div className="form-control-plaintext text-muted">
-            <i className="mdi mdi-information-outline" /> {$L('仅允许拍照上传')}
           </div>
         )
       }
@@ -1529,7 +1524,7 @@ class RbFormImage extends RbFormElement {
         })}
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
-          <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
+          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             <span className="zmdi zmdi-image-alt down-2" />
           </label>
         </span>
@@ -1567,14 +1562,34 @@ class RbFormImage extends RbFormElement {
     p.RbPreview.create(urlKey, idx)
   }
 
+  _fileClick(e) {
+    if (this._captureType) {
+      $stopEvent(e, true)
+      renderRbcomp(
+        <MediaCapturer
+          title={$L('拍摄')}
+          width="1000"
+          useWhite
+          disposeOnHide
+          type={this._captureType}
+          forceFile
+          callback={(fileKey) => {
+            const paths = this.state.value || []
+            if (paths.length < this.__maxUpload) {
+              paths.push(fileKey)
+              this.handleChange({ target: { value: paths } }, true)
+            }
+          }}
+        />
+      )
+    }
+  }
+
   onEditModeChanged(destroy) {
     if (destroy) {
       // NOOP
     } else {
-      // Mobile camera only
-      if (this.props.imageCapture === true) {
-        return
-      } else if (!this._fieldValue__input) {
+      if (!this._fieldValue__input) {
         console.warn('No element `_fieldValue__input` defined')
         return
       }
@@ -1627,7 +1642,15 @@ class RbFormImage extends RbFormElement {
 class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
-    this.__useCapture = this.props.fileSuffix === 'image/*' || this.props.fileSuffix === 'video/*'
+
+    this._captureType = false
+    if (props.fileSuffix) {
+      const img = props.fileSuffix.includes('image/*')
+      const vid = props.fileSuffix.includes('video/*')
+      if (img && vid) this._captureType = '*'
+      else if (img) this._captureType = 'image'
+      else if (vid) this._captureType = 'video'
+    }
   }
 
   renderElement() {
@@ -1699,29 +1722,6 @@ class RbFormFile extends RbFormImage {
         <span>{fileName}</span>
       </RF>
     )
-  }
-
-  _fileClick(e) {
-    if (this.__useCapture) {
-      $stopEvent(e, true)
-      renderRbcomp(
-        <MediaCapturer
-          title={$L('拍摄')}
-          width="1000"
-          useWhite
-          disposeOnHide
-          type={this.props.fileSuffix === 'video/*' ? 'video' : 'image'}
-          forceFile
-          callback={(fileKey) => {
-            const paths = this.state.value || []
-            if (paths.length < this.__maxUpload) {
-              paths.push(fileKey)
-              this.handleChange({ target: { value: paths } }, true)
-            }
-          }}
-        />
-      )
-    }
   }
 }
 class RbFormPickList extends RbFormElement {

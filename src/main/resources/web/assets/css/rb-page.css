@@ -5459,7 +5459,7 @@ span.icon-append .icon {
   cursor: help;
 }
 
-.cursou-default {
+.cursor-default {
   cursor: default;
 }
 
@@ -5477,12 +5477,16 @@ span.icon-append .icon {
 .media-capture canvas {
   margin: 0;
   padding: 0;
-  width: 768px;
-  height: 576px;
   width: 1000px;
   height: 750px;
   background-color: #000;
   text-align: center;
+}
+
+.media-capture.md video,
+.media-capture.md canvas {
+  width: 768px;
+  height: 576px;
 }
 
 .media-capture .action {
@@ -5492,37 +5496,32 @@ span.icon-append .icon {
 }
 
 .media-capture .action .btn {
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .media-capture.captured > video,
-.media-capture .results,
-.media-capture .action .btn.J_used,
-.media-capture .action .btn.J_reset,
-.media-capture.captured .action .btn.J_capture,
-.media-capture.captured .action .J_webcam {
+.media-capture .results {
   display: none;
 }
 
-.media-capture.captured > .results {
+.media-capture.captured .results {
   display: block;
 }
 
-.media-capture.captured .action .btn.J_used,
-.media-capture.captured .action .btn.J_reset {
+.media-capture .btn.J_used,
+.media-capture .btn.J_reset,
+.media-capture.captured .btn.J_capture-video,
+.media-capture.captured .btn.J_capture-image,
+.media-capture.captured .btn.J_webcam {
+  display: none;
+}
+
+.media-capture.captured .btn.J_used,
+.media-capture.captured .btn.J_reset {
   display: inline-block;
 }
 
-.media-capture.image .action .btn.J_capture::before {
-  display: inline-block;
-  font-family: 'Material Design Icons', serif;
-  content: '\F0100';
-  font-size: 1.231rem;
-  margin-right: 3px;
-  transform: translateY(1.5px);
-}
-
-.media-capture.video .action .btn.J_capture::before {
+.media-capture .action .btn.J_capture-video::before {
   display: inline-block;
   content: '';
   width: 9px;
@@ -5530,7 +5529,7 @@ span.icon-append .icon {
   overflow: hidden;
   border-radius: 99px;
   background-color: green;
-  margin-right: 6px;
+  margin-right: 5px;
 }
 
 @keyframes blink {
@@ -5545,7 +5544,7 @@ span.icon-append .icon {
   }
 }
 
-.media-capture.video.recording .action .btn.J_capture::before {
+.media-capture.recording .action .btn.J_capture-video::before {
   background-color: red;
   animation: blink 1s infinite;
 }
