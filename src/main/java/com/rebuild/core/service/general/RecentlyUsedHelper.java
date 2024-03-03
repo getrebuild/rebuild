@@ -11,12 +11,18 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserFilters;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 最近使用的数据（引用型字段搜索）
@@ -31,7 +37,7 @@ public class RecentlyUsedHelper {
     private static final int MAXNUM_PRE_ENTITY = 50;
 
     /**
-     * 获取最近使用（最多10个）
+     * 获取最近使用
      *
      * @param user
      * @param entity
@@ -43,7 +49,7 @@ public class RecentlyUsedHelper {
     }
 
     /**
-     * 获取最近使用（最多10个）
+     * 获取最近使用
      *
      * @param user
      * @param entity
@@ -73,10 +79,12 @@ public class RecentlyUsedHelper {
         Set<ID> missed = new HashSet<>();
         List<ID> data = new ArrayList<>();
 
+        int entityCode = 0;
         for (int i = 0; i < limit && i < cached.size(); i++) {
             final ID raw = cached.get(i);
+            entityCode = raw.getEntityCode();
 
-            boolean allowRead = raw.getEntityCode() == EntityHelper.ClassificationData
+            boolean allowRead = entityCode == EntityHelper.ClassificationData
                     || Application.getPrivilegesManager().allowRead(user, raw);
             if (!allowRead) continue;
 
@@ -99,6 +107,13 @@ public class RecentlyUsedHelper {
         if (!missed.isEmpty()) {
             cached.removeAll(missed);
             Application.getCommonsCache().putx(ckey, cached);
+        }
+
+        // 过滤 BIZZ
+        if (!data.isEmpty() && MetadataHelper.isBizzEntity(entityCode) && !UserHelper.isAdmin(user)) {
+            if (entityCode == EntityHelper.Role || UserFilters.isEnableBizzPart(user)) {
+                data.clear();
+            }
         }
 
         return data.toArray(new ID[0]);

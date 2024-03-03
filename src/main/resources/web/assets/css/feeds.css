@@ -103,7 +103,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-width: 0;
 }
 
-.btn.btn-scope > .zmdi {
+.btn.btn-scope > .zmdi,
+.btn.btn-scope > .mdi {
   margin-right: 4px;
 }
 

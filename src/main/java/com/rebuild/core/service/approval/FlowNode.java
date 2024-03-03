@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.utils.JSONUtils;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -66,7 +67,9 @@ public class FlowNode {
 
     // --
 
+    @Getter
     private String nodeId;
+    @Getter
     private String type;
     private JSONObject dataMap;
 
@@ -82,20 +85,6 @@ public class FlowNode {
         this.nodeId = nodeId;
         this.type = type;
         this.dataMap = dataMap;
-    }
-
-    /**
-     * @return
-     */
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    /**
-     * @return
-     */
-    public String getType() {
-        return type;
     }
 
     /**
@@ -188,11 +177,11 @@ public class FlowNode {
                 ApprovalState state = ApprovalHelper.getApprovalState(record);
                 boolean isSubmitted = state == ApprovalState.PROCESSING || state == ApprovalState.APPROVED;
 
-                ID whichUser = operator;
+                ID followUser = operator;
 
                 if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)) {
                     if (isSubmitted) {
-                        whichUser = ApprovalHelper.getSubmitter(record);
+                        followUser = ApprovalHelper.getSubmitter(record);
                     } else {
                         // 提交人即发起人
                     }
@@ -200,27 +189,32 @@ public class FlowNode {
                     if (isSubmitted) {
                         // 提交人即审批人
                     } else {
-                        whichUser = null;  // 未提交
+                        followUser = null;  // 未提交
                     }
                 }
 
-                if (whichUser != null) {
+                if (followUser != null) {
                     Field userField = ApprovalHelper.checkVirtualField(def);
                     if (userField != null) {
                         Object[] ud;
                         // 部门中的用户（如上级）
                         if (userField.getOwnEntity().getEntityCode() == EntityHelper.Department) {
-                            Department d = Application.getUserStore().getUser(whichUser).getOwningDept();
+                            Department d = Application.getUserStore().getUser(followUser).getOwningDept();
                             ud = Application.getQueryFactory().uniqueNoFilter((ID) d.getIdentity(), userField.getName());
                         } else {
-                            ud = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
+                            ud = Application.getQueryFactory().uniqueNoFilter(followUser, userField.getName());
                         }
 
                         if (ud != null && ud[0] != null) {
                             if (userField.getReferenceEntity().getEntityCode() == EntityHelper.Department) {
-                                defsList.add(ud[0].toString());
+                                if (ud[0] instanceof ID[]) {
+                                    for (ID x : (ID[]) ud[0]) defsList.add(x.toString());
+                                } else {
+                                    defsList.add(ud[0].toString());
+                                }
                             } else {
-                                users.add((ID) ud[0]);
+                                if (ud[0] instanceof ID[]) Collections.addAll(users, (ID[]) ud[0]);
+                                else users.add((ID) ud[0]);
                             }
                         }
                     }

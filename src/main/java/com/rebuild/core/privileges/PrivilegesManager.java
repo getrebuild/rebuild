@@ -443,7 +443,7 @@ public class PrivilegesManager {
     }
 
     /**
-     * 转换明细实体的权限。<tt>删除/新建/更新</tt>明细记录，等于修改主实体，因此要转换成<tt>更新</tt>权限
+     * 转换明细实体的权限。`删除/新建/更新`明细记录，等于修改主实体，因此要转换成`更新`权限
      *
      * @param detailAction
      * @return

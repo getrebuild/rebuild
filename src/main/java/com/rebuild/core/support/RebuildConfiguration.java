@@ -262,7 +262,6 @@ public class RebuildConfiguration extends KVStorage {
     /**
      * @param name
      * @param value
-     * @return
      */
     public static void set(ConfigurationItem name, Object value) {
         if (ConfigurationItem.inJvmArgs(name.name())) {

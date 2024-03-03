@@ -98,7 +98,7 @@ public class N2NReferenceSupport {
     }
 
     /**
-     * 获取谁引用了我 <tt>referenceId</tt>
+     * 获取谁引用了我 `referenceId`
      *
      * @param field
      * @param referenceId

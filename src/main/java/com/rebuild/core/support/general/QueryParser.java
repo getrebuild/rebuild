@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
+import lombok.Getter;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -42,6 +43,7 @@ public class QueryParser {
     private JSONObject queryExpr;
     private DataListBuilder dataListBuilder;
 
+    @Getter
     private Entity entity;
 
     private String sql;
@@ -88,13 +90,6 @@ public class QueryParser {
     protected String toCountSql() {
         doParseIfNeed();
         return countSql;
-    }
-
-    /**
-     * @return
-     */
-    public Entity getEntity() {
-        return entity;
     }
 
     /**
@@ -248,6 +243,8 @@ public class QueryParser {
     }
 
     /**
+     * 排序字段（支持多个）
+     *
      * @param sort
      * @return
      */

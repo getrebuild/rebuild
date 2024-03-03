@@ -152,7 +152,7 @@ public class MetadataHelper {
     }
 
     /**
-     * <tt>reference</tt> 的哪些字段引用了 <tt>source</tt>
+     * `reference` 的哪些字段引用了 `source`
      *
      * @param sourceEntity
      * @param referenceEntity
@@ -182,7 +182,7 @@ public class MetadataHelper {
     }
 
     /**
-     * 哪些字段引用了 <tt>source</tt>
+     * 哪些字段引用了 `source`
      *
      * @param sourceEntity
      * @param includeN2N

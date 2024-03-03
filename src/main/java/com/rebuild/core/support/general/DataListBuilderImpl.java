@@ -17,12 +17,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserFilters;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.charts.ChartsHelper;
 import com.rebuild.core.service.dashboard.charts.FormatCalc;
 import com.rebuild.core.support.i18n.Language;
@@ -71,18 +69,14 @@ public class DataListBuilderImpl implements DataListBuilder {
     public String getDefaultFilter() {
         final int entity = queryParser.getEntity().getEntityCode();
 
-        if (entity == EntityHelper.User || entity == EntityHelper.Department
-                || entity == EntityHelper.Team || entity == EntityHelper.Role) {
+        if (MetadataHelper.isBizzEntity(entity)) {
             List<String> where = new ArrayList<>();
-            // 隐藏系统用户
-            if (entity == EntityHelper.User) {
-                where.add(String.format("userId <> '%s'", UserService.SYSTEM_USER));
-            }
-
-            // 部门用户隔离
-            String s = UserFilters.getEnableBizzPartFilter(entity, user);
+            String s = UserFilters.getBizzFilter(entity, user);
             if (s != null) where.add(s);
 
+            // 部门用户隔离
+            s = UserFilters.getEnableBizzPartFilter(entity, user);
+            if (s != null) where.add(s);
             return where.isEmpty() ? null : "( " + StringUtils.join(where, " and ") + " )";
         }
 

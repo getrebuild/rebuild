@@ -35,7 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 群组 & 团队
+ * 群组、团队
  *
  * @author devezhao
  * @see Team

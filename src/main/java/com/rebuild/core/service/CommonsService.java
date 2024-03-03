@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
  * <br>- 此类不对多值字段进行处理 {@link BaseService}
  * <br>- 此类无任何系统规则，如默认值、重复检查、自动编号等
- * <br>- 有权限的实体使用此类需要指定 <tt>strictMode=false</tt>
+ * <br>- 有权限的实体使用此类需要指定 `strictMode=false`
  *
  * @author Zixin (RB)
  * @since 11/06/2019
