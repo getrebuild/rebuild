@@ -11,7 +11,7 @@ const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp', '.jfif', '.svg', '.webp']
 const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql', '.conf', '.sh', '.bat']
 const TYPE_AUDIOS = ['.mp3', '.wma', '.m4a', '.flac', '.ogg', '.acc']
-const TYPE_VIDEOS = ['.mp4', '.wmv', '.mov', '.avi', '.mkv', '.webm']
+const TYPE_VIDEOS = ['.mp4', '.wmv', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.mpg', '.mpge']
 
 // 点击遮罩关闭预览
 const HIDE_ONCLICK = false

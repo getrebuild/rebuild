@@ -95,6 +95,7 @@ class MediaCapturer extends RbModal {
           $mp.end()
           $(this._$btn).button('reset')
           typeof this.props.callback === 'function' && this.props.callback(res.key)
+          this.hide()
         },
         () => {
           $mp.end()
@@ -224,7 +225,7 @@ class MediaCapturer extends RbModal {
       $(this._$fileinput).trigger('change')
     } else {
       typeof this.props.callback === 'function' && this.props.callback(dataOrFile)
+      this.hide()
     }
-    this.hide()
   }
 }

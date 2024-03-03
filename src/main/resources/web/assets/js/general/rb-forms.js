@@ -1627,7 +1627,7 @@ class RbFormImage extends RbFormElement {
 class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
-    this.__useCapture = this.props.fileSuffix === '.image/*' || this.props.fileSuffix === '.video/*'
+    this.__useCapture = this.props.fileSuffix === 'image/*' || this.props.fileSuffix === 'video/*'
   }
 
   renderElement() {
@@ -1710,7 +1710,7 @@ class RbFormFile extends RbFormImage {
           width="1000"
           useWhite
           disposeOnHide
-          type={this.props.fileSuffix === '.video/*' ? 'video' : 'image'}
+          type={this.props.fileSuffix === 'video/*' ? 'video' : 'image'}
           forceFile
           callback={(fileKey) => {
             const paths = this.state.value || []

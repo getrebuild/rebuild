@@ -109,8 +109,9 @@ $(document).ready(function () {
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
       const fix = []
       extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
+        n = $.trim(n)
         if (n) {
-          if (n.substring(0, 1) !== '.') n = `.${n.trim()}`
+          if (n.substring(0, 1) !== '.' && !n.includes('/*')) n = `.${n.trim()}`
           fix.push(n.trim())
         }
       })

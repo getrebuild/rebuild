@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable quotes */
 /* eslint-disable no-unused-vars */
-(function ($) {
+;(function ($) {
   $.fn.html5Uploader = function (options) {
     var crlf = '\r\n'
     var boundary = 'iloveigloo'
@@ -192,7 +192,7 @@ function html5Uploader_checkAccept(file, accept) {
   if (!accept || accept === '*') {
     return true
   }
-  // eg. image/*
+  // eg. image/*, video/*
   if (accept.split('/')[1] === '*' && accept.split('/')[0] === file.type.split('/')[0]) {
     return true
   }
