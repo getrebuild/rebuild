@@ -304,7 +304,7 @@ public class AutoFillinManager implements ConfigManager {
         return newValue;
     }
 
-    // 利用表单回填功能取到的值是 <tt>String</tt>，这里需要转换成类型值
+    // 利用表单回填功能取到的值是 String，这里需要转换成类型值
     private Object conversion2RecordValue(Field target, Object value) {
         if (NullValue.isNull(value)) return null;
 

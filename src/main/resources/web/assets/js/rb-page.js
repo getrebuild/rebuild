@@ -850,6 +850,10 @@ var $mp = {
       $mp._mp = null
     }
   },
+  // 状态
+  isStarted() {
+    return $mp._timer || $mp._mp ? true : false
+  },
 }
 
 var RBEMOJIS = {

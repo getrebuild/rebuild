@@ -85,7 +85,7 @@ public class SMSender {
      * @param content
      * @param useTemplate
      * @param specAccount
-     * @return <tt>null</tt> if failed or SENDID
+     * @return null if failed or SENDID
      * @throws ConfigurationException If mail-account unset
      */
     public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
@@ -265,7 +265,7 @@ public class SMSender {
      * @param to
      * @param content
      * @param specAccount
-     * @return <tt>null</tt> if failed or SENDID
+     * @return null if failed or SENDID
      * @throws ConfigurationException If sms-account unset
      */
     public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {

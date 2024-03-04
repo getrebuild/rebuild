@@ -46,7 +46,7 @@ public class RobotApprovalManager implements ConfigManager {
      *
      * @param entity
      * @param recordId
-     * @return <tt>null</tt> 表示没有流程
+     * @return null 表示没有流程
      */
     public ApprovalState hadApproval(Entity entity, ID recordId) {
         if (entity.getMainEntity() != null || !MetadataHelper.hasApprovalField(entity)) return null;

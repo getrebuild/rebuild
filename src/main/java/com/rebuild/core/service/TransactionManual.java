@@ -67,7 +67,7 @@ public class TransactionManual {
     }
 
     /**
-     * Shadow for <tt>TransactionAspectSupport#currentTransactionStatus</tt>
+     * Shadow for `TransactionAspectSupport#currentTransactionStatus`
      *
      * @return
      */
@@ -76,7 +76,7 @@ public class TransactionManual {
     }
 
     /**
-     * Shadow for <tt>TransactionSynchronizationManager.getCurrentTransactionName</tt>
+     * Shadow for `TransactionSynchronizationManager.getCurrentTransactionName`
      *
      * @return
      */

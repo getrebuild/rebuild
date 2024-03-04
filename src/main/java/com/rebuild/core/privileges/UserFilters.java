@@ -156,4 +156,21 @@ public class UserFilters {
 
         return where;
     }
+
+    /**
+     * @param bizzEntityCode
+     * @param user
+     * @return
+     */
+    public static String getBizzFilter(int bizzEntityCode, ID user) {
+        // 隐藏系统用户
+        if (bizzEntityCode == EntityHelper.User) {
+            return String.format("userId <> '%s'", UserService.SYSTEM_USER);
+        }
+        // 普通用户对角色不可见
+        if (bizzEntityCode == EntityHelper.Role && !UserHelper.isAdmin(user)) {
+            return "(1=2)";
+        }
+        return null;
+    }
 }

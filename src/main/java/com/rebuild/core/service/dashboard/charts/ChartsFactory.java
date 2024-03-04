@@ -17,7 +17,11 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dashboard.ChartManager;
-import com.rebuild.core.service.dashboard.charts.builtin.*;
+import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
+import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
+import com.rebuild.core.service.dashboard.charts.builtin.DataList;
+import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
+import com.rebuild.core.service.dashboard.charts.builtin.ProjectTasks;
 import com.rebuild.core.support.i18n.Language;
 
 /**
@@ -78,6 +82,8 @@ public class ChartsFactory {
             return (ChartData) new RadarChart(config).setUser(user);
         } else if ("SCATTER".equalsIgnoreCase(type)) {
             return (ChartData) new ScatterChart(config).setUser(user);
+        } else if ("DATALIST2".equalsIgnoreCase(type)) {
+            return (ChartData) new DataList2Chart(config).setUser(user);
         } else {
             for (BuiltinChart ch : getBuiltinCharts()) {
                 if (ch.getChartType().equalsIgnoreCase(type)) {

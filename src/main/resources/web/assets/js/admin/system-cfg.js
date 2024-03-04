@@ -12,6 +12,10 @@ $(document).ready(() => {
   const $dl = $('#_DefaultLanguage')
   $dl.text(wpc._LANGS[$dl.text()] || '中文')
 
+  const $ns = $('#_MobileNavStyle')
+  // eslint-disable-next-line eqeqeq
+  $ns.text($ns.text() == '35' ? $L('卡片式') : $L('默认'))
+
   // 禁用
   ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
     const $d = $(`td[data-id=${item}]`)
@@ -113,6 +117,13 @@ useEditComp = function (name) {
         <option value="1">{$L('手机或邮箱')}</option>
         <option value="2">{$L('仅手机')}</option>
         <option value="3">{$L('仅邮箱')}</option>
+      </select>
+    )
+  } else if ('MobileNavStyle' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="34">{$L('默认')}</option>
+        <option value="35">{$L('卡片式')}</option>
       </select>
     )
   }

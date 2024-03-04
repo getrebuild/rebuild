@@ -35,16 +35,16 @@ class BaseChart extends React.Component {
         </a>
         <div className="dropdown-menu dropdown-menu-right">
           {this.props.isManageable && !this.props.builtin && (
-            <a className="dropdown-item J_chart-edit" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+            <a className="dropdown-item J_chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
               {$L('编辑')}
             </a>
           )}
           {this.props.editable && (
-            <a className="dropdown-item" title={$L('移除')} onClick={() => this.remove()}>
+            <a className="dropdown-item" onClick={() => this.remove()}>
               {$L('移除')}
             </a>
           )}
-          <a className="dropdown-item" title={$L('导出')} onClick={() => this.export()}>
+          <a className="dropdown-item" onClick={() => this.export()}>
             {$L('导出')}
           </a>
         </div>
@@ -52,7 +52,7 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={`chart-box ${this.props.type}`} ref={(c) => (this._$box = c)}>
+      <div className={`chart-box ${this.props.type} ${this.props.type === 'DATALIST2' && 'DataList'}`} ref={(c) => (this._$box = c)}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opActions}
@@ -1175,26 +1175,28 @@ class DataList extends BaseChart {
   componentDidMount() {
     super.componentDidMount()
 
-    const $op = $(this._$box).find('.chart-oper')
-    $op.find('.J_chart-edit').on('click', (e) => {
-      $stopEvent(e, true)
+    if (this.props.type === 'DataList') {
+      const $op = $(this._$box).find('.chart-oper')
+      $op.find('.J_chart-edit').on('click', (e) => {
+        $stopEvent(e, true)
 
-      const config2 = this.state.config
-      renderRbcomp(
-        <DataListSettings
-          chart={config2.chart}
-          {...config2.extconfig}
-          onConfirm={(s) => {
-            if (typeof window.save_dashboard === 'function') {
-              config2.extconfig = s
-              this.setState({ config: config2 }, () => this.loadChartData())
-            } else {
-              console.log('No `save_dashboard` found :', s)
-            }
-          }}
-        />
-      )
-    })
+        const config2 = this.state.config
+        renderRbcomp(
+          <DataListSettings
+            chart={config2.chart}
+            {...config2.extconfig}
+            onConfirm={(s) => {
+              if (typeof window.save_dashboard === 'function') {
+                config2.extconfig = s
+                this.setState({ config: config2 }, () => this.loadChartData())
+              } else {
+                console.log('No `save_dashboard` found :', s)
+              }
+            }}
+          />
+        )
+      })
+    }
   }
 
   renderChart(data) {
@@ -1256,6 +1258,7 @@ class DataList extends BaseChart {
 
                       // refresh
                       const config2 = this.state.config
+                      if (!config2.extconfig) config2.extconfig = {}
                       config2.extconfig.sort = `${item.field}:${$th.hasClass('sort-desc') ? 'desc' : 'asc'}`
                       this.setState({ config: config2 }, () => this.loadChartData(true))
                     }}>
@@ -1622,7 +1625,7 @@ const detectChart = function (cfg, id) {
     return <ChartScatter {...props} />
   } else if (cfg.type === 'ProjectTasks') {
     return <ProjectTasks {...props} builtin={true} />
-  } else if (cfg.type === 'DataList') {
+  } else if (cfg.type === 'DataList' || cfg.type === 'DATALIST2') {
     return <DataList {...props} builtin={false} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>

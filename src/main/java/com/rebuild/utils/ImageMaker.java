@@ -39,7 +39,6 @@ public class ImageMaker {
      * @param text
      * @param color
      * @param dest
-     * @return
      */
     @Deprecated
     public static void makeLogo(String text, Color color, File dest) {

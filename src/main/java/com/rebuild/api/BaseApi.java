@@ -22,7 +22,7 @@ public abstract class BaseApi extends Controller {
     }
 
     /**
-     * API 名称。默认使用类名（遇大写字符加 -），如 SystemTime <tt>system-time</tt>
+     * API 名称。默认使用类名（遇大写字符加 -），如 SystemTime `system-time`
      *
      * @return
      */

@@ -506,10 +506,10 @@ textarea.formula-code + .fields-vars {
   .timeline.spare .timeline-item {
     padding-left: 140px;
   }
-  .timeline:before {
+  .timeline::before {
     left: 120px;
   }
-  .timeline-item:before {
+  .timeline-item::before {
     left: 112px;
   }
 }

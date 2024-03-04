@@ -3359,7 +3359,7 @@ form {
     border-radius: 0;
     border-bottom: 1px solid #ebebeb;
   }
-  .rb-icons-nav > li.dropdown.global-create2 > a:after {
+  .rb-icons-nav > li.dropdown.global-create2 > a::after {
     bottom: 0;
   }
 }
@@ -4707,7 +4707,7 @@ pre.unstyle {
   border-width: 2px;
 }
 
-.custom-checkbox.ptask:hover .custom-control-input:not(:disabled) ~ .custom-control-label:before {
+.custom-checkbox.ptask:hover .custom-control-input:not(:disabled) ~ .custom-control-label::before {
   border-color: #4285f4;
 }
 
@@ -5030,7 +5030,7 @@ pre.unstyle {
   text-align: left;
 }
 
-.switch-button.switch-button-xs label:before {
+.switch-button.switch-button-xs label::before {
   font-size: 12px;
   transform: scale(0.8333);
   font-weight: normal;
@@ -5459,10 +5459,92 @@ span.icon-append .icon {
   cursor: help;
 }
 
-.cursou-default {
+.cursor-default {
   cursor: default;
 }
 
 .table-bordered.table-sm > thead > tr > th {
   padding: 7px;
+}
+
+.media-capture {
+  position: relative;
+  font-size: 0;
+  line-height: 1;
+}
+
+.media-capture video,
+.media-capture canvas {
+  margin: 0;
+  padding: 0;
+  width: 1000px;
+  height: 750px;
+  background-color: #000;
+  text-align: center;
+}
+
+.media-capture.md video,
+.media-capture.md canvas {
+  width: 768px;
+  height: 576px;
+}
+
+.media-capture .action {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.media-capture .action .btn {
+  margin-left: 5px;
+}
+
+.media-capture.captured > video,
+.media-capture .results {
+  display: none;
+}
+
+.media-capture.captured .results {
+  display: block;
+}
+
+.media-capture .btn.J_used,
+.media-capture .btn.J_reset,
+.media-capture.captured .btn.J_capture-video,
+.media-capture.captured .btn.J_capture-image,
+.media-capture.captured .btn.J_webcam {
+  display: none;
+}
+
+.media-capture.captured .btn.J_used,
+.media-capture.captured .btn.J_reset {
+  display: inline-block;
+}
+
+.media-capture .action .btn.J_capture-video::before {
+  display: inline-block;
+  content: '';
+  width: 9px;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background-color: green;
+  margin-right: 5px;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.media-capture.recording .action .btn.J_capture-video::before {
+  background-color: red;
+  animation: blink 1s infinite;
 }

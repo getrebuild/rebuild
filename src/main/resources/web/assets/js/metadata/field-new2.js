@@ -47,7 +47,6 @@ class FieldNew2 extends RbModalHandler {
                 <select className="form-control form-control-sm" ref={(c) => (this._$refEntity = c)}>
                   {this.state.refEntities &&
                     this.state.refEntities.map((item) => {
-                      if (item.entityName === 'Team') return null
                       return (
                         <option key={item.entityName} value={item.entityName}>
                           {item.entityLabel}
