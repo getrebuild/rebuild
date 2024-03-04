@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/list-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
     <title th:text="${entityLabel}"></title>
@@ -40,10 +39,10 @@
             </div>
           </div>
         </aside>
-        <div class="main-content container-fluid">
+        <div class="main-content container-fluid position-relative">
           <div class="quick-filter-tabs" th:if="${advListFilterTabs == 'true'}">
             <div>
-              <div class="dropdown-item"><a>[[${bundle.L('全部数据')}]]</a></div>
+              <div class="dropdown-item"><a>[[${bundle.L('默认视图')}]]</a></div>
             </div>
           </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
@@ -135,7 +134,7 @@
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
     <th:block th:replace="~{/_include/forms}" />
-    <th:block th:if="${commercial > 1}"><script th:src="@{/assets/js/rb-filterpane.js}" type="text/babel"></script></th:block>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <th:block th:if="${commercial > 1}"><script th:src="@{/assets/js/general/rb-filterpane.js}" type="text/babel"></script></th:block>
+    <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
   </body>
 </html>

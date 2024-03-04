@@ -316,12 +316,20 @@ class BaiduMap extends React.Component {
       that._map = map
 
       // 初始位置
-      if (that.props.lnglat && that.props.lnglat.lng && that.props.lnglat.lat) {
-        that.center(that.props.lnglat)
+      const _lnglat = that.props.lnglat
+      if (_lnglat) {
+        if (_lnglat.lng && _lnglat.lat) {
+          that.center(_lnglat)
+        } else if (_lnglat.text) {
+          const geoc = new _BMapGL.Geocoder()
+          geoc.getPoint(_lnglat.text, function (point) {
+            that.center(point)
+          })
+        }
       } else {
-        const geo = new window.BMapGL.Geolocation()
-        geo.enableSDKLocation()
-        geo.getCurrentPosition(function (e) {
+        const geol = new _BMapGL.Geolocation()
+        geol.enableSDKLocation()
+        geol.getCurrentPosition(function (e) {
           if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
             map.centerAndZoom(e.point, 14)
           } else {

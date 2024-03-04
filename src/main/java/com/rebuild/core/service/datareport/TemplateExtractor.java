@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class TemplateExtractor {
     // 列表（即多条记录）
     public static final String NROW_PREFIX = ".";
     // 审批节点字段
-    protected static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
+    public static final String APPROVAL_PREFIX = NROW_PREFIX + "approval";
 
     // 占位
     public static final String PLACEHOLDER = "__";
@@ -137,7 +137,7 @@ public class TemplateExtractor {
     protected Set<String> extractVars() {
         List<Cell[]> rows = ExcelUtils.readExcel(templateFile);
 
-        Set<String> vars = new HashSet<>();
+        Set<String> vars = new LinkedHashSet<>();
         for (Cell[] row : rows) {
             for (Cell cell : row) {
                 if (cell.isEmpty()) continue;

@@ -475,7 +475,9 @@ create table if not exists `rebuild_api_request` (
   `REQUEST_TIME`       timestamp not null default current_timestamp comment '请求时间',
   `RESPONSE_TIME`      timestamp not null default current_timestamp comment '响应时间',
   primary key  (`REQUEST_ID`),
-  index IX0_rebuild_api_request (`APP_ID`, `REMOTE_IP`, `REQUEST_TIME`)
+  index IX0_rebuild_api_request (`APP_ID`, `REMOTE_IP`, `REQUEST_TIME`),
+  fulltext index FIX1_rebuild_api_request (`REQUEST_BODY`),
+  fulltext index FIX2_rebuild_api_request (`RESPONSE_BODY`)
 )Engine=InnoDB;
 
 -- ************ Entity [DataReportConfig] DDL ************
@@ -663,6 +665,17 @@ create table if not exists `feeds_mention` (
   `USER`               char(20) not null comment '哪个用户',
   primary key  (`MENTION_ID`),
   index IX0_feeds_mention (`USER`, `FEEDS_ID`, `COMMENT_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [FeedsStatus] DDL ************
+create table if not exists `feeds_status` (
+  `STATUS_ID`          char(20) not null,
+  `FEEDS_ID`           char(20) not null comment '哪个动态',
+  `CONTENT`            text(65535) comment '扩展内容',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`STATUS_ID`),
+  index IX0_feeds_status (`FEEDS_ID`, `CREATED_BY`, `CREATED_ON`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectConfig] DDL ************
@@ -886,4 +899,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 54);
+  values ('021-9000000000000001', 'DBVer', 55);

@@ -17,6 +17,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
@@ -55,7 +56,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,6 +69,7 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PH__CURRENTU
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__KEEP;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PH__NUMBER;
 import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFIX2;
 
 /**
  * 报表生成 easyexcel
@@ -80,11 +81,12 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 @Slf4j
 public class EasyExcelGenerator extends SetUser {
 
+    final protected static String MDATA_KEY = ".";
+
     protected File templateFile;
     protected Integer writeSheetAt = null;
     protected ID recordId;
 
-    protected boolean hasMain = false;
     protected int phNumber = 1;
     protected Map<String, Object> phValues = new HashMap<>();
 
@@ -93,7 +95,7 @@ public class EasyExcelGenerator extends SetUser {
      * @param recordId
      */
     protected EasyExcelGenerator(File template, ID recordId) {
-        this.templateFile = getFixTemplate(template);
+        this.templateFile = template;
         this.recordId = recordId;
     }
 
@@ -105,14 +107,13 @@ public class EasyExcelGenerator extends SetUser {
     public File generate() {
         final File target = getTargetFile();
 
-        List<Map<String, Object>> datas = buildData();
+        Map<String, List<Map<String, Object>>> datas = buildData();
         if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
         Map<String, Object> main = null;
-        if (this.hasMain) {
-            Iterator<Map<String, Object>> iter = datas.iterator();
-            main = iter.next();
-            iter.remove();
+        if (datas.containsKey(MDATA_KEY)) {
+            main = datas.get(MDATA_KEY).get(0);
+            datas.remove(MDATA_KEY);
         }
 
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -123,9 +124,30 @@ public class EasyExcelGenerator extends SetUser {
                     .registerWriteHandler(new FormulaCellWriteHandler())
                     .build();
 
-            // 有明细记录
-            if (!datas.isEmpty()) {
-                excelWriter.fill(datas, fillConfig, writeSheet);
+            // 一个列表
+            if (datas.size() == 1) {
+                Object o = datas.values().iterator().next();
+                excelWriter.fill(o, fillConfig, writeSheet);
+            }
+            // fix: v3.6 多个列表
+            else if (datas.size() > 1) {
+                for (Map.Entry<String, List<Map<String, Object>>> e : datas.entrySet()) {
+                    final String refKey = NROW_PREFIX2 + e.getKey().substring(1);
+                    final List<Map<String, Object>> refDatas = e.getValue();
+
+                    List<Map<String, Object>> refDatasNew = new ArrayList<>();
+                    for (Map<String, Object> map : refDatas) {
+                        Map<String, Object> mapNew = new HashMap<>();
+                        for (Map.Entry<String, Object> ee : map.entrySet()) {
+                            String keyNew = ee.getKey().substring(refKey.length());
+                            if (keyNew.startsWith("$") || keyNew.startsWith(".")) keyNew = keyNew.substring(1);
+                            mapNew.put(keyNew, ee.getValue());
+                        }
+                        refDatasNew.add(mapNew);
+                    }
+
+                    excelWriter.fill(new FillWrapper(refKey, refDatasNew), fillConfig, writeSheet);
+                }
             }
 
             // 主记录
@@ -153,9 +175,9 @@ public class EasyExcelGenerator extends SetUser {
     protected File getTargetFile() {
         String suffix = "xls";
         if (templateFile.getName().endsWith(".xlsx")) suffix = "xlsx";
-        if (templateFile.getName().endsWith(".html")) suffix = "html";
-        if (templateFile.getName().endsWith(".docx")) suffix = "docx";
-        if (templateFile.getName().endsWith(".doc")) suffix = "doc";
+        else if (templateFile.getName().endsWith(".html")) suffix = "html";
+        else if (templateFile.getName().endsWith(".docx")) suffix = "docx";
+        else if (templateFile.getName().endsWith(".doc")) suffix = "doc";
 
         return RebuildConfiguration.getFileOfTemp(String.format("RBREPORT-%d.%s", System.currentTimeMillis(), suffix));
     }
@@ -165,7 +187,7 @@ public class EasyExcelGenerator extends SetUser {
      *
      * @return 第一个为主记录（若有）
      */
-    protected List<Map<String, Object>> buildData() {
+    protected Map<String, List<Map<String, Object>>> buildData() {
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         TemplateExtractor templateExtractor = new TemplateExtractor(templateFile);
@@ -213,12 +235,13 @@ public class EasyExcelGenerator extends SetUser {
         }
 
         if (fieldsOfMain.isEmpty() && fieldsOfDetail.isEmpty() && fieldsOfApproval.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final List<Map<String, Object>> datas = new ArrayList<>();
+        final Map<String, List<Map<String, Object>>> datas = new HashMap<>();
         final String baseSql = "select %s,%s from %s where %s = ?";
 
+        // 主记录
         if (!fieldsOfMain.isEmpty()) {
             String sql = String.format(baseSql,
                     StringUtils.join(fieldsOfMain, ","),
@@ -229,8 +252,8 @@ public class EasyExcelGenerator extends SetUser {
                     .record();
             Assert.notNull(record, "No record found : " + recordId);
 
-            datas.add(buildData(record, varsMapOfMain));
-            this.hasMain = true;
+            Map<String, Object> d = buildData(record, varsMapOfMain);
+            datas.put(MDATA_KEY, Collections.singletonList(d));
         }
 
         // 明细
@@ -246,10 +269,12 @@ public class EasyExcelGenerator extends SetUser {
                     .list();
 
             phNumber = 1;
+            List<Map<String, Object>> detailList = new ArrayList<>();
             for (Record c : list) {
-                datas.add(buildData(c, varsMapOfDetail));
+                detailList.add(buildData(c, varsMapOfDetail));
                 phNumber++;
             }
+            datas.put(MDATA_KEY + "detail", detailList);
         }
 
         // 审批
@@ -263,10 +288,12 @@ public class EasyExcelGenerator extends SetUser {
                     .list();
 
             phNumber = 1;
+            List<Map<String, Object>> approvalList = new ArrayList<>();
             for (Record c : list) {
-                datas.add(buildData(c, varsMapOfApproval));
+                approvalList.add(buildData(c, varsMapOfApproval));
                 phNumber++;
             }
+            datas.put(MDATA_KEY + "approval", approvalList);
         }
 
         return datas;
@@ -463,62 +490,6 @@ public class EasyExcelGenerator extends SetUser {
             return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
         }
         return null;
-    }
-
-    // 修复模板
-    private File getFixTemplate(File template) {
-        return template;
-
-        // v34 暂不启用
-//        String fixName = template.getName();
-//        fixName = fixName.substring(0, fixName.lastIndexOf(".")) + "__FIX34" + fixName.substring(fixName.lastIndexOf("."));
-//        File fixTemplate = new File(template.getParent(), fixName);
-//        if (fixTemplate.exists()) return fixTemplate;
-//
-//        // Use copy
-//        try {
-//            FileUtils.copyFile(template, fixTemplate);
-//        } catch (IOException e) {
-//            throw new ReportsException(e);
-//        }
-//
-//        // 替换 `.` > `$`
-//        try (Workbook wb = WorkbookFactory.create(Files.newInputStream(template.toPath()))) {
-//            Sheet sheet = wb.getSheetAt(0);
-//            for (Iterator<Row> iterRow = sheet.rowIterator(); iterRow.hasNext(); ) {
-//                final Row row = iterRow.next();
-//
-//                for (Iterator<Cell> iterCell = row.cellIterator(); iterCell.hasNext(); ) {
-//                    final Cell cell = iterCell.next();
-//                    final String cellValue = cell.getStringCellValue();
-//
-//                    String newCellValue = cellValue;
-//                    Matcher matcher = TemplateExtractor.PATT_V2.matcher(cellValue);
-//                    while (matcher.find()) {
-//                        String varName = matcher.group(1);
-//                        if (varName.contains(".") && !varName.startsWith(".")) {
-//                            newCellValue = newCellValue.replace(".", "$");
-//                        }
-//                    }
-//
-//                    if (!cellValue.equals(newCellValue)) {
-//                        log.info("Replace `{}` to `{}` in : {}", cellValue, newCellValue, template);
-//                        cell.setCellValue(newCellValue);
-//                    }
-//                }
-//            }
-//
-//            try (FileOutputStream fos = new FileOutputStream(fixTemplate)) {
-//                wb.write(fos);
-//            }
-//        } catch (IOException ex) {
-//            log.error("Cannot fix template : {}", template, ex);
-//
-//            FileUtils.deleteQuietly(fixTemplate);
-//            return template;
-//        }
-//
-//        return fixTemplate;
     }
 
     // --

@@ -322,6 +322,8 @@
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间"/>
         <index field-list="appId,remoteIp,requestTime"/>
+        <index field-list="requestBody" type="fulltext"/>
+        <index field-list="responseBody" type="fulltext"/>
     </entity>
 
     <entity name="DataReportConfig" type-code="032" description="报表模板" queryable="false">
@@ -461,6 +463,15 @@
         <field name="commentId" type="reference" ref-entity="FeedsComment" updatable="false" description="哪个评论" cascade="delete"/>
         <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="哪个用户" cascade="delete"/>
         <index field-list="user,feedsId,commentId"/>
+    </entity>
+
+    <entity name="FeedsStatus" type-code="044" description="动态扩展" queryable="false" parent="false">
+        <field name="statusId" type="primary"/>
+        <field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" cascade="delete"/>
+        <field name="content" type="text" description="扩展内容"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="feedsId,createdBy,createdOn"/>
     </entity>
 
     <entity name="ProjectConfig" type-code="050" description="项目" queryable="false">

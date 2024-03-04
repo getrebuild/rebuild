@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 文件&附件帮助类
+ * 文件、附件帮助类
  *
  * @author ZHAO
  * @since 2019/11/12
@@ -71,7 +71,8 @@ public class FilesHelper {
         if (FILESIZES.containsKey(filePath)) {
             attach.setInt("fileSize", FILESIZES.remove(filePath));
         } else {
-            Object[] db = Application.createQueryNoFilter("select fileSize from Attachment where filePath = ?")
+            Object[] db = Application.createQueryNoFilter(
+                    "select fileSize from Attachment where filePath = ?")
                     .setParameter(1, filePath)
                     .unique();
             if (db != null) {

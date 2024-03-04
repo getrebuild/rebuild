@@ -230,7 +230,7 @@ class BatchOperator extends RbFormHandler {
     const queryRows = _listRef.getLastQueryTotal()
 
     return (
-      <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
+      <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form batch-form">
           <div className="form-group">
             <label className="text-bold">{$L('选择数据范围')}</label>
@@ -266,7 +266,7 @@ class BatchOperator extends RbFormHandler {
         </div>
 
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
-          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-spacem mr-2" type="button" onClick={() => this.handleCancel()}>
             {$L('取消')}
           </button>
           <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
@@ -288,6 +288,32 @@ class BatchOperator extends RbFormHandler {
   renderOperator() {}
 
   handleConfirm() {}
+
+  handleCancel() {
+    if (!this._taskid) {
+      this.hide()
+      return
+    }
+
+    const that = this
+    RbAlert.create($L('是否取消/终止当前操作？'), {
+      onConfirm: function () {
+        if (!that._taskid) {
+          this.hide()
+          return
+        }
+
+        $.post(`/commons/task/cancel?taskid=${that._taskid}`, (res) => {
+          if (res.error_code !== 0) {
+            RbHighbar.error(res.error_msg)
+          } else {
+            $(that._btns).find('.btn-secondary').button('loading')
+            this.hide()
+          }
+        })
+      },
+    })
+  }
 }
 
 // ~ 数据导出
@@ -334,7 +360,7 @@ class DataExport extends BatchOperator {
     $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}&report=${useReport}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        window.open(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
+        $openWindow(`${rb.baseUrl}/filex/download/${res.data.fileKey}?temp=yes&attname=${$encode(res.data.fileName)}`)
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled(false)
@@ -445,12 +471,16 @@ class BatchUpdate extends BatchOperator {
     RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
       onConfirm: function () {
         this.hide()
-        that.disabled(true)
+        that.disabled(true, true)
         $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
+
+            // v36 终止
+            that._taskid = res.data
+            $(that._btns).find('.btn-secondary').button('reset')
           } else {
             that.disabled(false)
             RbHighbar.error(res.error_msg)
@@ -473,15 +503,19 @@ class BatchUpdate extends BatchOperator {
         }
 
         const cp = res.data.progress
-        if (cp >= 1) {
+        if (res.data.isCompleted) {
           mp && mp.end()
-          $(this._btns).find('.btn-primary').text($L('已完成'))
+          $(this._btns)
+            .find('.btn-primary')
+            .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
 
+          RbListPage.reload()
+          this._taskid = null
           setTimeout(() => {
-            RbListPage.reload()
-            setTimeout(() => this.hide(), 1000)
-          }, 500)
+            this.disabled(false)
+            this.hide()
+          }, 2000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
@@ -657,15 +691,19 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create($L('请再次确认审批数据范围和审批结果。开始审批吗？'), {
+    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批结果。开始审批吗？')}</b>, {
       onConfirm: function () {
         this.hide()
-        that.disabled(true)
+        that.disabled(true, true)
         $.post(`/app/entity/approval/approve-batch?dr=${that.state.dataRange}&entity=${that.props.entity}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id')
-            const mp = new Mprogress({ template: 1, start: true, parent: `#${mp_parent}` })
+            const mp_parent = $(that._dlg._element).find('.modal-body').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
             that._checkState(res.data, mp)
+
+            // v36 终止
+            that._taskid = res.data
+            $(that._btns).find('.btn-secondary').button('reset')
           } else {
             that.disabled(false)
             RbHighbar.error(res.error_msg)
@@ -685,19 +723,22 @@ class BatchApprove extends BatchOperator {
         }
 
         const cp = res.data.progress
-        if (cp >= 1) {
+        if (res.data.isCompleted) {
           mp && mp.end()
-          $(this._btns).find('.btn-primary').text($L('已完成'))
+          $(this._btns)
+            .find('.btn-primary')
+            .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           if (res.data.succeeded > 0) {
             RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
           } else {
             RbHighbar.create($L('没有任何符合批量审批条件的记录'))
           }
 
+          RbListPage.reload()
           setTimeout(() => {
-            RbListPage.reload()
-            setTimeout(() => this.hide(), 1000)
-          }, 500)
+            this.disabled(false)
+            this.hide()
+          }, 2000)
         } else {
           mp && mp.set(cp)
           setTimeout(() => this._checkState(taskid, mp), 1500)
@@ -753,16 +794,17 @@ const RbListCommon = {
     RbListPage.init(wpc.listConfig, entity, wpc.privileges)
     if (wpc.advFilter !== false) AdvFilters.init('.adv-search', entity[0])
 
-    // 新建
     $('.J_new')
       .attr('disabled', false)
       .on('click', () => RbFormModal.create({ title: $L('新建%s', entity[1]), entity: entity[0], icon: entity[2] }))
-    // 导出
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
-    // 批量修改
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
-    // 批量审批
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
+    $('.J_record-merge').on('click', () => {
+      const ids = _RbList().getSelectedIds()
+      if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
+      renderRbcomp(<RecordMerger listRef={_RbList()} entity={entity[0]} hasDetails={!!$('.J_details')[0]} ids={ids} />)
+    })
 
     // 自动打开新建
     if (location.hash === '#!/New') {
@@ -955,16 +997,16 @@ class RbList extends React.Component {
       // wheelSpeed: 1,
     })
 
-    // Use `pin`
     if (this.props.unpin !== true) {
       $('.main-content').addClass('pb-0')
       if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
-        let mh = $(window).height() - 210 + 5
+        let mh = $(window).height() - (61 + 20 + 61 + 60 + 2) /* Nav, MarginTop20, TableHeader, TableFooter */
         if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
         if ($('.main-content .quick-filter-pane')[0]) mh -= 75 // Has query-pane
-        if ($('.main-content .quick-filter-tabs')[0]) mh -= 55 // Has query-tabs
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // Has query-tabs
+
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
@@ -1049,7 +1091,7 @@ class RbList extends React.Component {
     }, 400)
 
     if (query.filter && (query.filter.items || []).length > 0) {
-      console.log('API Filter <Body> :\n', JSON.stringify(query.filter))
+      console.log(`API Filter <Body> :\n %c${JSON.stringify(query.filter)}`, 'color:#e83e8c;font-size:16px')
     }
 
     $.post(`/app/${this._entity}/data-list`, JSON.stringify(RbList.queryBefore(query)), (res) => {
@@ -1062,7 +1104,8 @@ class RbList extends React.Component {
         })
 
         if (reload && this._Pagination) {
-          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
+          this.__holdRowsStats = res.data.stats
+          this._Pagination.setState({ rowsTotal: res.data.total, rowsStats: this.__holdRowsStats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -1137,16 +1180,16 @@ class RbList extends React.Component {
 
   _checkSelected() {
     const chkSelected = $(this._$tbody).find('>tr .custom-control-input:checked').length
+    const chkTotal = this.state.rowsData.length
 
     // 全选/半选/全清
-    const chkAll = this.state.rowsData.length
     if (chkSelected === 0) {
       $(this._checkAll).prop('checked', false).parent().removeClass('indeterminate')
-    } else if (chkSelected !== chkAll) {
+    } else if (chkSelected !== chkTotal) {
       $(this._checkAll).prop('checked', false).parent().addClass('indeterminate')
     }
 
-    if (chkSelected > 0 && chkSelected === chkAll) {
+    if (chkSelected > 0 && chkSelected === chkTotal) {
       $(this._checkAll).prop('checked', true).parent().removeClass('indeterminate')
     }
 
@@ -1159,7 +1202,26 @@ class RbList extends React.Component {
     }
 
     // 分页组件
-    this._Pagination && this._Pagination.setState({ selectedTotal: chkSelected })
+    if (this._Pagination) {
+      this._Pagination.setState({ selectedTotal: chkSelected }, () => {
+        if (chkSelected > 1) {
+          const ids = this.getSelectedIds(true)
+          const qurey = {
+            protocolFilter: `ids:${ids.join('|')}`,
+            entity: this._entity,
+            fields: [],
+            statsField: true,
+          }
+
+          $.post(`/app/${this._entity}/data-list-stats`, JSON.stringify(qurey), (res) => {
+            this._Pagination.setState({ rowsStats: res.data || [] })
+            if (res.error_code !== 0) RbHighbar.error(res.error_msg)
+          })
+        } else {
+          this._Pagination.setState({ rowsStats: this.__holdRowsStats })
+        }
+      })
+    }
   }
 
   _clearSelected() {
@@ -1190,12 +1252,6 @@ class RbList extends React.Component {
     return false
   }
 
-  _tryActive($el) {
-    if ($el.length === 1) {
-      this._clickRow({ target: $el.find('td:eq(1)') })
-    }
-  }
-
   _keyEvent(e) {
     if (!$(e.target).is('body')) return
     if (!(e.keyCode === 40 || e.keyCode === 38 || e.keyCode === 13)) return
@@ -1204,13 +1260,14 @@ class RbList extends React.Component {
     if ($chk.length === 0) return
 
     const $tr = $chk.eq(0).parents('tr')
-    if (e.keyCode === 40) {
-      this._tryActive($tr.next())
-    } else if (e.keyCode === 38) {
-      this._tryActive($tr.prev())
-    } else {
-      this._openView($tr)
-    }
+    if (e.keyCode === 40) this._tryActive($tr.next())
+    else if (e.keyCode === 38) this._tryActive($tr.prev())
+    else this._openView($tr)
+  }
+
+  _tryActive($el) {
+    if ($el.length !== 1) return
+    this._clickRow({ target: $el.find('td:eq(1)') })
   }
 
   _openView($tr) {
@@ -1278,7 +1335,7 @@ class RbList extends React.Component {
   }
 
   // 取选中 ID[]
-  getSelectedIds(noWarn) {
+  getSelectedIds(hideWarning) {
     const selected = []
     $(this._$tbody)
       .find('>tr .custom-control-input:checked')
@@ -1286,7 +1343,7 @@ class RbList extends React.Component {
         selected.push($(this).parents('tr').data('id'))
       })
 
-    if (selected.length === 0 && noWarn !== true) RbHighbar.create($L('未选中任何记录'))
+    if (selected.length === 0 && hideWarning !== true) RbHighbar.create($L('未选中任何记录'))
     return selected
   }
 
@@ -1329,9 +1386,7 @@ class RbListPagination extends React.Component {
     return (
       <div className="row rb-datatable-footer">
         <div className="col-12 col-lg-6">
-          <div className="dataTables_info" key="page-rowsTotal">
-            {this.renderStats()}
-          </div>
+          <div className="dataTables_info">{this.renderStats()}</div>
         </div>
         <div className="col-12 col-lg-6">
           <div className="float-right paging_sizes">
@@ -1393,8 +1448,8 @@ class RbListPagination extends React.Component {
   renderStats() {
     return (
       <div>
-        {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
         {this.state.rowsTotal > 0 && <span>{$L('共 %d 条记录', this.state.rowsTotal)}</span>}
+        {this.state.selectedTotal > 1 && <span className="stat-item">{$L('已选中 %d 条', this.state.selectedTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
@@ -1405,7 +1460,7 @@ class RbListPagination extends React.Component {
         {rb.isAdminUser && wpc.statsField && (
           <a
             className="list-stats-settings"
-            onClick={() =>
+            onClick={() => {
               RbModal.create(
                 `/p/admin/metadata/list-stats?entity=${this._entity}`,
                 <RF>
@@ -1413,7 +1468,7 @@ class RbListPagination extends React.Component {
                   <sup className="rbv" />
                 </RF>
               )
-            }>
+            }}>
             <i className="icon zmdi zmdi-settings" title={$L('配置统计列')} />
           </a>
         )}
@@ -1452,7 +1507,7 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表（单元格）渲染
+// 数据列表（单元格）渲染
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
@@ -1779,3 +1834,183 @@ CellRenders.addRender('TAG', function (v, s, k) {
     </td>
   )
 })
+
+// ~~ 记录合并
+
+class RecordMerger extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const datas = this.state.datas || []
+    const idData = datas[0]
+
+    return (
+      <RbModal title={$L('记录合并')} ref={(c) => (this._dlg = c)} disposeOnHide width="1000" maximize>
+        <div style={{ padding: 10 }}>
+          <div className="record-merge-table">
+            <label className="mb-2 text-bold">{$L('选择需要保留的值')}</label>
+            <table className="table table-bordered table-hover table-sm m-0">
+              <thead ref={(c) => (this._$thead = c)}>
+                <tr>
+                  <th width="200">{$L('字段/记录')}</th>
+                  {idData &&
+                    idData.map((item, idx) => {
+                      if (idx === 0) return null
+                      return (
+                        <th key={idx} data-id={item[0]}>
+                          <strong>{item[1]}</strong>
+                          <a href={`${rb.baseUrl}/app/redirect?id=${item[0]}&type=newtab`} target="_blank" title={$L('打开')}>
+                            <i className="icon zmdi zmdi zmdi-open-in-new ml-1" />
+                          </a>
+                        </th>
+                      )
+                    })}
+                </tr>
+              </thead>
+              <tbody ref={(c) => (this._$tbody = c)}>
+                {datas.map((item, idx) => {
+                  if (idx === 0) return null
+
+                  let chk
+                  const data4field = []
+                  for (let i = 1; i < item.length; i++) {
+                    let s = item[i]
+                    let activeClazz
+                    if ($empty(item[i])) {
+                      s = <span className="text-muted">{$L('空')}</span>
+                    } else {
+                      activeClazz = 'active'
+                      if (chk) activeClazz = null
+                      if (activeClazz) chk = true
+                    }
+
+                    const IS_COMMONS = item[0][2]
+                    if (IS_COMMONS) activeClazz = 'sysfield'
+
+                    data4field.push(
+                      <td key={`${idx}-${i}`} data-index={i} className={activeClazz} onClick={(e) => !IS_COMMONS && this._chkValue(e)}>
+                        {s}
+                      </td>
+                    )
+                  }
+
+                  const fieldMeta = item[0]
+                  return (
+                    <tr key={fieldMeta[0]} data-field={fieldMeta[0]}>
+                      <th>{fieldMeta[1]}</th>
+                      {data4field}
+                    </tr>
+                  )
+                })}
+
+                {this.props.hasDetails && idData && (
+                  <tr className="bt2" ref={(c) => (this._$mergeDetails = c)}>
+                    <th>{$L('合并明细记录')}</th>
+                    {idData &&
+                      idData.map((item, idx) => {
+                        if (idx === 0) return null
+                        return (
+                          <td key={idx}>
+                            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline pl">
+                              <input className="custom-control-input" type="checkbox" defaultChecked value={item[0]} />
+                              <span className="custom-control-label"> {$L('是')}</span>
+                            </label>
+                          </td>
+                        )
+                      })}
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-2 mb-1" ref={(c) => (this._$btn = c)}>
+          <div className="float-left ml-2"></div>
+          <div className="float-right mr-1">
+            <button className="btn btn-secondary btn-space mr-2" type="button" onClick={() => this.hide()}>
+              {$L('取消')}
+            </button>
+            <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this._post()}>
+              {$L('合并')}
+            </button>
+          </div>
+          <div className="clearfix" />
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/record-merge/fetch-datas?ids=${this.props.ids.join(',')}`, (res) => {
+      this.setState({ datas: res.data || [] })
+    })
+  }
+
+  _chkValue(e) {
+    const $td = $(e.target)
+    $td.parent().find('td').removeClass('active')
+    $td.addClass('active')
+  }
+
+  _post() {
+    const that = this
+    RbAlert.create(
+      <RF>
+        <b>{$L('确认合并吗？')}</b>
+        <div className="mt-1">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked />
+            <span className="custom-control-label"> {$L('合并后自动删除被合并记录')}</span>
+          </label>
+        </div>
+      </RF>,
+      {
+        onConfirm: function () {
+          const del = $(this._element).find('input')[0].checked
+          this.hide()
+          that._post2(del)
+        },
+      }
+    )
+  }
+
+  _post2(del) {
+    const merged = {}
+    $(this._$tbody)
+      .find('tr')
+      .each((idx, item) => {
+        const field = $(item).data('field')
+        const index = ~~$(item).find('td.active').data('index')
+        if (index > 0) {
+          const id = $(this._$thead).find(`th:eq(${index})`).data('id')
+          merged[field] = id || null
+        }
+      })
+    console.log(merged)
+
+    const details = []
+    $(this._$mergeDetails)
+      .find('input[checked]')
+      .each(function () {
+        details.push($(this).val())
+      })
+    const url = `/app/${this.props.entity}/record-merge/merge?ids=${this.props.ids.join(',')}&deleteAfter=${del || false}&mergeDetails=${details.join(',')}`
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(url, JSON.stringify(merged), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        RbHighbar.success($L('合并成功'))
+        this.props.listRef.reload()
+        setTimeout(() => {
+          CellRenders.clickView({ id: res.data, entity: this.props.entity })
+        }, 500)
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+}

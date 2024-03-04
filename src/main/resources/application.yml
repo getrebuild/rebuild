@@ -14,12 +14,12 @@ server:
       cookie:
         same-site: lax
         name: RBSESSION
-      timeout: 14400
+      timeout: 7200
   error:
     whitelabel.enabled: false
   tomcat:
     uri-encoding: UTF-8
-    threads.max: 200
+    threads.max: 400
     relaxed-path-chars: <,`,^,\,|,{,[,],}
   max-http-header-size: 32KB
 
@@ -40,6 +40,6 @@ spring:
     scheduling:
       thread-name-prefix: rbScheduler-
       pool:
-        size: 5
+        size: 10
   main:
     banner-mode: off

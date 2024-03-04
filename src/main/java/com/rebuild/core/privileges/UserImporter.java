@@ -57,6 +57,8 @@ public class UserImporter extends HeavyTask<Integer> {
         this.setTotal(data.size());
 
         for (Cell[] row : data) {
+            if (isInterruptState()) break;
+
             String loginName = cellAsString(row, 0);
             String password = cellAsString(row, 1);
             if (StringUtils.isBlank(loginName) || StringUtils.isBlank(password)) {

@@ -92,17 +92,17 @@ public class PdfConverter {
     protected static Path convert(Path path, String type, boolean forceRegen) throws IOException {
         type = StringUtils.defaultIfBlank(type, TYPE_PDF);
 
-        String pathFileName = path.getFileName().toString();
-        boolean isExcel = pathFileName.endsWith(".xlsx") || pathFileName.endsWith(".xls");
-        boolean isWord = pathFileName.endsWith(".docx") || pathFileName.endsWith(".doc");
+        final String pathFileName = path.getFileName().toString();
+        final boolean isExcel = pathFileName.endsWith(".xlsx") || pathFileName.endsWith(".xls");
+        final boolean isWord = pathFileName.endsWith(".docx") || pathFileName.endsWith(".doc");
         // Excel 公式生效
         if (isExcel) {
             ExcelUtils.reSaveAndCalcFormula(path);
         }
 
-        final File outdir = RebuildConfiguration.getFileOfTemp(null);
-        String outName = pathFileName.substring(0, pathFileName.lastIndexOf(".") + 1) + type;
-        final File dest = new File(outdir, outName);
+        final File outDir = RebuildConfiguration.getFileOfTemp(null);
+        final String outName = pathFileName.substring(0, pathFileName.lastIndexOf(".") + 1) + type;
+        final File dest = new File(outDir, outName);
 
         if (dest.exists()) {
             if (forceRegen) FileUtils.deleteQuietly(dest);
@@ -125,7 +125,7 @@ public class PdfConverter {
         // alias
         String soffice = RebuildConfiguration.get(ConfigurationItem.LibreofficeBin);
         if (StringUtils.isBlank(soffice)) soffice = SystemUtils.IS_OS_WINDOWS ? "soffice.exe" : "libreoffice";
-        String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outdir);
+        String cmd = String.format("%s --headless --convert-to %s \"%s\" --outdir \"%s\"", soffice, type, path, outDir);
 
         String echo = DatabaseBackup.execFor(cmd);
         if (!echo.isEmpty()) log.info(echo);

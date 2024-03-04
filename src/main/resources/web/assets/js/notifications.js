@@ -90,11 +90,15 @@ class MessageList extends React.Component {
             </div>
           </div>
           {append && (
-            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}`}>
+            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}&type=newtab`} target="_blank">
               {$L('查看')}
             </a>
           )}
-          {item[3] && <a className="read-mark text-muted">{$L('标记已读')}</a>}
+          {item[3] && (
+            <a className="read-mark text-muted">
+              <i className="icon zmdi zmdi-check text-bold" /> {$L('点击已读')}
+            </a>
+          )}
         </span>
       </li>
     )

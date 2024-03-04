@@ -57,8 +57,16 @@ public class ProtocolFilterParser {
     public static final String P_CATEGORY = "category";
     // related:field:id
     public static final String P_RELATED = "related";
+    // id:x|x|x
+    public static final String P_IDS = "ids";
 
     final private String protocolExpr;
+
+    /**
+     */
+    public ProtocolFilterParser() {
+        this(null);
+    }
 
     /**
      * @param protocolExpr
@@ -71,6 +79,7 @@ public class ProtocolFilterParser {
      * @return
      */
     public String toSqlWhere() {
+        Assert.notNull(protocolExpr, "[protocolExpr] cannot be null");
         String[] ps = protocolExpr.split(":");
         Assert.isTrue(ps.length >= 2, "Bad arguments of protocol expr : " + protocolExpr);
 
@@ -86,6 +95,9 @@ public class ProtocolFilterParser {
             }
             case P_RELATED: {
                 return parseRelated(ps[1], ID.valueOf(ps[2]));
+            }
+            case P_IDS: {
+                return parseIds(ps[1]);
             }
             default: {
                 log.warn("Unknown protocol expr : {}", protocolExpr);
@@ -286,6 +298,19 @@ public class ProtocolFilterParser {
         }
 
         return where;
+    }
+
+    /**
+     * 主键 IN
+     *
+     * @param idsExpr
+     * @return
+     */
+    public String parseIds(String idsExpr) {
+        String[] ids = idsExpr.split("[,|]");
+        ID id0 = ID.valueOf(ids[0]);
+        Entity entity0 = MetadataHelper.getEntity(id0.getEntityCode());
+        return String.format("%s in ('%s')", entity0.getPrimaryField().getName(), StringUtils.join(ids, "','"));
     }
 
     // --

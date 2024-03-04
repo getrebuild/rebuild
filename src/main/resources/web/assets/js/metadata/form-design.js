@@ -393,7 +393,8 @@ const render_unset = function (data) {
 const render_type = function (fieldType) {
   const $item = $(`<li class="dd-item"><div class="dd-handle"><i class="icon mdi ${fieldType.icon || 'mdi-form-textbox'}"></i> ${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
   $item.on('click', function () {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType.name}`, $L('添加字段'), { disposeOnHide: true })
+    // eslint-disable-next-line react/jsx-no-undef
+    if (wpc.isSuperAdmin) renderRbcomp(<FieldNew2 entity={wpc.entityName} fieldType={fieldType.name} />)
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
   return $item
@@ -537,19 +538,17 @@ class DlgEditRefform extends DlgEditField {
 
 // 追加到布局
 // eslint-disable-next-line no-unused-vars
-const add2Layout = function (fieldName) {
+const add2Layout = function (fieldName, dlg) {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
         render_item({ ...this, tip: this.tip || null })
         _ValidFields[fieldName] = this
-        console.log(JSON.stringify(_ValidFields))
         return false
       }
     })
   })
-
-  RbModal.hide()
+  dlg && dlg.hide()
 }
 
 // 高级控制
@@ -564,9 +563,20 @@ const AdvControl = {
   set: function (field) {
     const $c = $(`<tr data-field="${field.fieldName}">${this._template}</tr>`).appendTo(this.$tbody)
     $c.find('td:eq(0)').text(field.fieldLabel)
+
+    // 必填
     const $req = $c.find('td:eq(2)')
     if (field.builtin) $req.empty()
-    else if (!field.nullable) $req.find('input').attr({ disabled: true, checked: true })
+    else if (!field.nullable) {
+      $req.find('input').attr({ disabled: true, checked: true })
+    }
+    // 只读
+    const $ro = $c.find('td:eq(3)')
+    if (field.builtin) $ro.empty()
+    else {
+      if (!field.creatable) $ro.find('input:eq(0)').attr({ disabled: true, checked: true })
+      if (!field.updatable) $ro.find('input:eq(1)').attr({ disabled: true, checked: true })
+    }
 
     this.$tbody.find(`tr[data-field="${field.fieldName}"] input`).each(function () {
       const $this = $(this)

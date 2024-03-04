@@ -70,6 +70,25 @@
       .new-entity .card.entity .card-body .ml-7 .text-muted {
         display: none;
       }
+      .entity-new2 .dialog-footer {
+        margin: 15px -35px 10px;
+        padding-top: 25px;
+      }
+
+      .entity-new2 .init-models {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+      .table.table-excel th,
+      .table.table-excel td {
+        vertical-align: text-top;
+      }
+      .table.table-excel thead th {
+        border: 0 none;
+      }
+      .table.table-excel {
+        border-bottom: 1px solid #dee2e6;
+      }
     </style>
   </head>
   <body>
@@ -113,6 +132,9 @@
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
       }
     </script>
+    <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/entity-new2.js}" type="text/babel"></script>
     <script type="text/babel">
       $(document).ready(function () {
         const NO_TAG = '__'
@@ -138,6 +160,7 @@
             if (!this.builtin) render_entity(this)
           })
 
+          let _EntityNew2
           const $new = render_entity({
             icon: 'plus',
             entityLabel: $L('添加实体'),
@@ -147,9 +170,20 @@
             .find('a.card')
             .attr('href', 'javascript:;')
             .click(function () {
-              if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $L('添加实体'))
-              else RbHighbar.error('仅超级管理员可添加实体')
+              if (window.__PageConfig.isSuperAdmin) {
+                if (_EntityNew2) {
+                  _EntityNew2.show()
+                } else {
+                  renderRbcomp(<EntityNew2 />, null, function () {
+                    _EntityNew2 = this
+                  })
+                }
+              } else {
+                RbHighbar.error('仅超级管理员可添加实体')
+              }
             })
+            .find('.more-action')
+            .remove()
 
           delete groups[NO_TAG]
 
@@ -169,12 +203,13 @@
           href: `entity/${item.entityName}/base`,
           title: item.comments || null,
         })
-        $t.find('.icon').addClass(`zmdi-${item.icon}`)
+        $t.find('.icon:eq(0)').addClass(`zmdi-${item.icon}`)
         $t.find('span').text(item.entityLabel)
-        $t.find('p').text(item.comments || '-')
+        if (item.comments) $t.find('p').text(item.comments)
+        else $t.find('p').html('&nbsp;')
 
         if (item.builtin) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('内置')}</i>`).appendTo($t.find('a.card'))
-        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
+        if (item.detailEntity) $(`<i class="badge badge-pill badge-secondary font-weight-light">${$L('明细')}</i>`).appendTo($t.find('a.card'))
         return $t
       }
     </script>

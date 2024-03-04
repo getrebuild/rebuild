@@ -82,10 +82,7 @@ public class DataImporter extends HeavyTask<Integer> {
         final EntityService ies = Application.getEntityService(rule.getToEntity().getEntityCode());
 
         for (final Cell[] row : rows) {
-            if (isInterrupt()) {
-                this.setInterrupted();
-                break;
-            }
+            if (isInterruptState()) break;
 
             final Cell firstCell = row == null || row.length == 0 ? null : row[0];
             if (firstCell == null || firstCell.getRowNo() == 0) continue;

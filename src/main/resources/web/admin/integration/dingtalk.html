@@ -28,11 +28,11 @@
                         <td data-id="DingtalkAgentid" th:data-value="${DingtalkAgentid ?:''}">[[${DingtalkAgentid ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>AppKey</td>
+                        <td>AppKey (Client ID)</td>
                         <td data-id="DingtalkAppkey" th:data-value="${DingtalkAppkey ?:''}">[[${DingtalkAppkey ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>AppSecret</td>
+                        <td>AppSecret (Client Secret)</td>
                         <td data-id="DingtalkAppsecret" th:data-value="${DingtalkAppsecret ?:''}">[[${DingtalkAppsecret ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
@@ -75,8 +75,17 @@
                         </td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('同步用户匹配方式')}]]</td>
+                        <td data-id="DingtalkSyncUsersMatch" th:data-value="${DingtalkSyncUsersMatch}" th:data-form-text="${bundle.L('通过何种方式匹配已存在用户，如无匹配则新建')}">
+                          <th:block th:if="${DingtalkSyncUsersMatch == 'ID'}">[[${bundle.L('默认')}]]</th:block>
+                          <th:block th:if="${DingtalkSyncUsersMatch == 'EMAIL'}">[[${bundle.L('邮箱')}]]</th:block>
+                          <th:block th:if="${DingtalkSyncUsersMatch == 'NAME'}">[[${bundle.L('用户名')}]]</th:block>
+                          <th:block th:if="${DingtalkSyncUsersMatch == 'NAME2'}">[[${bundle.L('姓名')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('用户默认角色')}]]</td>
-                        <td data-id="DingtalkSyncUsersRole" th:data-value="${DingtalkSyncUsersRole}" th:data-form-text="${bundle.L('如不指定新同步的用户将不可用，直到你为他们指定了角色')}">
+                        <td data-id="DingtalkSyncUsersRole" th:data-value="${DingtalkSyncUsersRole}" th:data-form-text="${bundle.L('如不指定，新建用户将不可用，直到你为他们指定了角色')}">
                           [[${DingtalkSyncUsersRoleLabel ?:bundle.L('无')}]]
                         </td>
                       </tr>

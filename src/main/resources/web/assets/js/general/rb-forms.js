@@ -98,7 +98,7 @@ class RbFormModal extends React.Component {
           $unmount($root.parent().parent())
         }
       })
-    this.showAfter({}, true)
+    this._showAfter({}, true)
   }
 
   // 渲染表单
@@ -167,14 +167,14 @@ class RbFormModal extends React.Component {
 
     if (reset) {
       state = { formComponent: null, initialValue: null, previewid: null, alertMessage: null, inLoad: true, ...state }
-      this.setState(state, () => this.showAfter({ reset: false }, true))
+      this.setState(state, () => this._showAfter({ reset: false }, true))
     } else {
-      this.showAfter({ ...state, reset: false })
+      this._showAfter({ ...state, reset: false })
       this._checkDrityData()
     }
   }
 
-  showAfter(state, modelChanged) {
+  _showAfter(state, modelChanged) {
     this.setState(state, () => {
       $(this._rbmodal).modal('show')
       if (modelChanged === true) this.getFormModel()
@@ -230,6 +230,7 @@ class RbFormModal extends React.Component {
    * @param {*} forceNew
    */
   static create(props, forceNew) {
+    // `__CURRENT35`, `__HOLDER` 可能已 unmount
     const that = this
     if (forceNew === true) {
       renderRbcomp(<RbFormModal {...props} disposeOnHide />, function () {
@@ -434,7 +435,7 @@ class RbForm extends React.Component {
 
             <div className="btn-group">
               <button className="btn btn-secondary" type="button" onClick={() => _addNew()} disabled={this.props.readonly}>
-                <i className="icon x14 zmdi zmdi-playlist-plus mr-1" />
+                <i className="icon x14 mdi mdi-playlist-plus mr-1" />
                 {$L('添加明细')}
               </button>
               <button className="btn btn-secondary dropdown-toggle w-auto" type="button" data-toggle="dropdown" disabled={this.props.readonly}>
@@ -448,6 +449,10 @@ class RbForm extends React.Component {
                     </a>
                   )
                 })}
+                <div className="dropdown-divider" />
+                <a className="dropdown-item" onClick={() => _ProTable.clear()}>
+                  {$L('清空')}
+                </a>
               </div>
             </div>
           </div>
@@ -476,6 +481,11 @@ class RbForm extends React.Component {
       moreActions.push(
         <a key="Action104" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_VIEW)}>
           {$L('保存并打开')}
+        </a>
+      )
+      moreActions.push(
+        <a key="Action105" className="dropdown-item" onClick={() => this.post(RbForm.NEXT_ADD36)}>
+          {$L('保存并继续新建')}
         </a>
       )
     }
@@ -586,7 +596,8 @@ class RbForm extends React.Component {
     }
 
     if (window.FrontJS) {
-      const ret = window.FrontJS.Form._trigger('fieldValueChange', [`${this.props.entity}.${field}`, value, this.props.id || null])
+      const fieldKey = `${this.props.entity}.${field}`
+      const ret = window.FrontJS.Form._trigger('fieldValueChange', [fieldKey, value, this.props.id || null])
       if (ret === false) return false
     }
   }
@@ -625,6 +636,8 @@ class RbForm extends React.Component {
   static NEXT_ADDDETAIL = 102
   // 保存并打开
   static NEXT_VIEW = 104
+  // 保存并新建
+  static NEXT_ADD36 = 105
   /**
    * @next {Number}
    */
@@ -720,6 +733,11 @@ class RbForm extends React.Component {
             if (window.RbListPage) {
               location.hash = `!/View/${this.state.entity}/${recordId}`
             }
+          } else if (next === RbForm.NEXT_ADD36) {
+            let title2 = $$$parent.state.title
+            if ($$$parent.props.id) title2 = title2.replace($L('编辑%s', ''), $L('新建%s', ''))
+            const copyProps = { entity: $$$parent.state.entity, icon: $$$parent.state.icon, title: title2 }
+            RbFormModal.create(copyProps, false)
           } else if (previewid && window.RbViewPage) {
             window.RbViewPage.clickView(`#!/View/${this.state.entity}/${recordId}`)
           }
@@ -1165,80 +1183,8 @@ class RbFormNumber extends RbFormText {
 
   componentDidMount() {
     super.componentDidMount()
-
-    // 表单计算（视图下无效）
-    if (this.props.calcFormula && !this.props.onView) {
-      const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
-      const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
-
-      // 等待字段初始化完毕
-      setTimeout(() => {
-        const calcFormulaValues = {}
-        const watchFields = calcFormula.match(/\{([a-z0-9]+)}/gi) || []
-
-        watchFields.forEach((item) => {
-          const name = item.substr(1, item.length - 2)
-          const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
-          if (fieldComp && !$emptyNum(fieldComp.state.value)) {
-            calcFormulaValues[name] = this._removeComma(fieldComp.state.value)
-          }
-        })
-
-        // 表单计算
-        let _timer
-        this.props.$$$parent.onFieldValueChange((s) => {
-          if (!watchFields.includes(`{${s.name}}`)) {
-            if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, this.props.field)
-            return false
-          } else if (rb.env === 'dev') {
-            console.log('onFieldValueChange for calcFormula :', s, this.props.field)
-          }
-
-          // // fix: 3.2 字段相互使用导致死循环
-          // this.__fixUpdateDepth = (this.__fixUpdateDepth || 0) + 1
-          // if (this.__fixUpdateDepth > 9) {
-          //   console.log(`Maximum update depth exceeded : ${this.props.field}=${this.props.calcFormula}`)
-          //   setTimeout(() => (this.__fixUpdateDepth = 0), 100)
-          //   return false
-          // }
-
-          if ($emptyNum(s.value)) {
-            delete calcFormulaValues[s.name]
-          } else {
-            calcFormulaValues[s.name] = this._removeComma(s.value)
-          }
-
-          let formula = calcFormula
-          for (let key in calcFormulaValues) {
-            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), calcFormulaValues[key] || 0)
-          }
-
-          if (_timer) {
-            clearTimeout(_timer)
-            _timer = null
-          }
-
-          // v34 延迟执行
-          _timer = setTimeout(() => {
-            // 还有变量无值
-            if (formula.includes('{')) {
-              this.setValue(null)
-              return false
-            }
-
-            try {
-              let calcv = null
-              eval(`calcv = ${formula}`)
-              if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-            } catch (err) {
-              if (rb.env === 'dev') console.log(err)
-            }
-            return true
-          }, 200)
-          // _timer end
-        })
-      }, 200) // init
-    }
+    // 表单计算
+    if (this.props.calcFormula && !this.props.onView) __calcFormula(this)
   }
 
   // 移除千分为位
@@ -1272,7 +1218,7 @@ class RbFormDecimal extends RbFormNumber {
   }
 }
 
-class RbFormTextarea extends RbFormElement {
+class RbFormNText extends RbFormElement {
   constructor(props) {
     super(props)
 
@@ -1487,6 +1433,12 @@ class RbFormDateTime extends RbFormElement {
       wt = $(this._fieldValue).offset().top
     return wt + 280 < wh ? 'bottom-right' : 'top-right'
   }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // 表单计算
+    if (this.props.calcFormula && !this.props.onView) __calcFormula(this)
+  }
 }
 
 class RbFormTime extends RbFormDateTime {
@@ -1537,23 +1489,18 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = 0
       this.__maxUpload = 9
     }
+    this._captureType = props.imageCapture ? 'image' : false
   }
 
   renderElement() {
     const value = this.state.value || []
-    const showUpload = value.length < this.__maxUpload && !this.props.readonly && !this.props.imageCapture
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly
 
     if (value.length === 0) {
       if (this.props.readonly) {
         return (
           <div className="form-control-plaintext text-muted">
             <i className="mdi mdi-information-outline" /> {$L('只读')}
-          </div>
-        )
-      } else if (this.props.imageCapture) {
-        return (
-          <div className="form-control-plaintext text-muted">
-            <i className="mdi mdi-information-outline" /> {$L('仅允许拍照上传')}
           </div>
         )
       }
@@ -1577,7 +1524,7 @@ class RbFormImage extends RbFormElement {
         })}
         <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)} className={showUpload ? '' : 'hide'}>
           <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={this._htmlid} accept="image/*" multiple />
-          <label htmlFor={this._htmlid} className="img-thumbnail img-upload">
+          <label htmlFor={this._htmlid} className="img-thumbnail img-upload" onClick={(e) => this._fileClick(e)}>
             <span className="zmdi zmdi-image-alt down-2" />
           </label>
         </span>
@@ -1615,14 +1562,34 @@ class RbFormImage extends RbFormElement {
     p.RbPreview.create(urlKey, idx)
   }
 
+  _fileClick(e) {
+    if (this._captureType) {
+      $stopEvent(e, true)
+      renderRbcomp(
+        <MediaCapturer
+          title={$L('拍摄')}
+          width="1000"
+          useWhite
+          disposeOnHide
+          type={this._captureType}
+          forceFile
+          callback={(fileKey) => {
+            const paths = this.state.value || []
+            if (paths.length < this.__maxUpload) {
+              paths.push(fileKey)
+              this.handleChange({ target: { value: paths } }, true)
+            }
+          }}
+        />
+      )
+    }
+  }
+
   onEditModeChanged(destroy) {
     if (destroy) {
       // NOOP
     } else {
-      // Mobile camera only
-      if (this.props.imageCapture === true) {
-        return
-      } else if (!this._fieldValue__input) {
+      if (!this._fieldValue__input) {
         console.warn('No element `_fieldValue__input` defined')
         return
       }
@@ -1673,6 +1640,19 @@ class RbFormImage extends RbFormElement {
 }
 
 class RbFormFile extends RbFormImage {
+  constructor(props) {
+    super(props)
+
+    this._captureType = false
+    if (props.fileSuffix) {
+      const img = props.fileSuffix.includes('image/*')
+      const vid = props.fileSuffix.includes('video/*')
+      if (img && vid) this._captureType = '*'
+      else if (img) this._captureType = 'image'
+      else if (vid) this._captureType = 'video'
+    }
+  }
+
   renderElement() {
     const value = this.state.value || []
     const showUpload = value.length < this.__maxUpload && !this.props.readonly
@@ -1688,11 +1668,10 @@ class RbFormFile extends RbFormImage {
     return (
       <div className="file-field">
         {value.map((item) => {
-          let fileName = $fileCutName(item)
+          const fileName = $fileCutName(item)
           return (
             <div key={item} className="img-thumbnail" title={fileName} onClick={() => this._filePreview(item)}>
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
+              {this._renderFileIcon(fileName, item)}
               {!this.props.readonly && (
                 <b title={$L('移除')} onClick={(e) => this.removeItem(item, e)}>
                   <span className="zmdi zmdi-close" />
@@ -1703,7 +1682,7 @@ class RbFormFile extends RbFormImage {
         })}
         <div className={`file-select ${showUpload ? '' : 'hide'}`}>
           <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={this._htmlid} accept={this.props.fileSuffix || null} multiple />
-          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+          <label htmlFor={this._htmlid} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary" onClick={(e) => this._fileClick(e)}>
             <i className="zmdi zmdi-upload" />
             <span>{$L('上传文件')}</span>
           </label>
@@ -1720,19 +1699,31 @@ class RbFormFile extends RbFormImage {
     return (
       <div className="file-field">
         {value.map((item) => {
-          let fileName = $fileCutName(item)
+          const fileName = $fileCutName(item)
           return (
             <a key={item} title={fileName} onClick={() => this._filePreview(item)} className="img-thumbnail">
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
+              {this._renderFileIcon(fileName, item)}
             </a>
           )
         })}
       </div>
     )
   }
-}
 
+  _renderFileIcon(fileName, file) {
+    const extName = $fileExtName(fileName)
+    // @see `file-preview.js`
+    const isImage = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'jfif', 'svg', 'webp'].includes(extName)
+    return (
+      <RF>
+        <i className={`file-icon ${isImage && 'image'}`} data-type={extName}>
+          {isImage && <img src={this._formatUrl(file)} />}
+        </i>
+        <span>{fileName}</span>
+      </RF>
+    )
+  }
+}
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
@@ -2816,15 +2807,11 @@ class RbFormRefform extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.reffield) return
-
+    const v = this.props.refvalue
     const $$$parent = this.props.$$$parent
-    if ($$$parent && $$$parent.__ViewData && $$$parent.__ViewData[this.props.reffield]) {
-      // 避免循环嵌套死循环
-      if (($$$parent.__nestDepth || 0) < 3) {
-        const s = $$$parent.__ViewData[this.props.reffield]
-        this._renderViewFrom({ ...s })
-      }
+    // 避免循环嵌套死循环
+    if (v && $$$parent && ($$$parent.__nestDepth || 0) < 3) {
+      this._renderViewFrom({ id: v[0], entity: v[1] })
     }
   }
 
@@ -2837,9 +2824,8 @@ class RbFormRefform extends React.Component {
         return
       }
 
-      // 支持嵌套
-      this.__ViewData = {}
       this.__nestDepth = (this.props.$$$parent.__nestDepth || 0) + 1
+      this.__ViewData = {}
 
       const VFORM = (
         <RF>
@@ -2873,7 +2859,7 @@ var detectElement = function (item, entity) {
   if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
-    return <RbFormTextarea {...item} />
+    return <RbFormNText {...item} />
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />
   } else if (item.type === 'EMAIL') {
@@ -2921,7 +2907,6 @@ var detectElement = function (item, entity) {
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else if (item.field === TYPE_REFFORM) {
-    console.log(item)
     return <RbFormRefform {...item} />
   } else {
     return <RbFormUnsupportted {...item} />
@@ -2992,4 +2977,60 @@ const __addRecentlyUse = function (id) {
   if (id && typeof id === 'string') {
     $.post(`/commons/search/recently-add?id=${id}`)
   }
+}
+
+// 表单计算（视图下无效）
+const __calcFormula = function (_this) {
+  const watchFields = _this.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
+  const $$$parent = _this.props.$$$parent
+
+  const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${$$$parent.props.entity}&field=${_this.props.field}`
+  setTimeout(() => {
+    const calcFormulaValues = {}
+    let _timer
+
+    // init
+    watchFields.forEach((item) => {
+      const name = item.substr(1, item.length - 2)
+      const fieldComp = $$$parent.refs[`fieldcomp-${name}`]
+      if (fieldComp && !$empty(fieldComp.state.value)) {
+        calcFormulaValues[name] = fieldComp.state.value
+      }
+    })
+
+    // onchange
+    $$$parent.onFieldValueChange((s) => {
+      if (!watchFields.includes(`{${s.name}}`)) {
+        if (rb.env === 'dev') console.log('onFieldValueChange ignored :', s, _this.props.field)
+        return false
+      } else if (rb.env === 'dev') {
+        console.log('onFieldValueChange for calcFormula :', s, _this.props.field)
+      }
+
+      if ($empty(s.value)) delete calcFormulaValues[s.name]
+      else calcFormulaValues[s.name] = s.value
+
+      if (_timer) {
+        clearTimeout(_timer)
+        _timer = null
+      }
+
+      // v36
+      _timer = setTimeout(() => {
+        $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
+          if (res.data) _this.setValue(res.data)
+          else _this.setValue(null)
+        })
+      }, 300)
+      return true
+    })
+
+    // 新建时
+    if (_this._isNew) {
+      $.post(evalUrl, JSON.stringify(calcFormulaValues), (res) => {
+        if (res.data) _this.setValue(res.data)
+        else _this.setValue(null)
+      })
+    }
+  }, 600) // delay for init
 }

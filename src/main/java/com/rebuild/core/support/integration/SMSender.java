@@ -85,11 +85,11 @@ public class SMSender {
      * @param content
      * @param useTemplate
      * @param specAccount
-     * @return <tt>null</tt> if failed or SENDID
+     * @return null if failed or SENDID
      * @throws ConfigurationException If mail-account unset
      */
     public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
-        if (specAccount == null || specAccount.length < 5
+        if (specAccount == null || specAccount.length < 6
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
             throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
@@ -133,7 +133,7 @@ public class SMSender {
         final String logContent = "【" + subject + "】" + content;
 
         // Use SMTP
-        if (specAccount.length >= 6 && StringUtils.isNotBlank(specAccount[5])) {
+        if (specAccount.length >= 7 && StringUtils.isNotBlank(specAccount[6])) {
             try {
                 String emailId = sendMailViaSmtp(to, subject, content, specAccount);
                 createLog(to, logContent, TYPE_EMAIL, emailId, null);
@@ -150,6 +150,7 @@ public class SMSender {
         params.put("signature", specAccount[1]);
         params.put("to", to);
         if (StringUtils.isNotBlank(specAccount[4])) params.put("cc", specAccount[4]);
+        if (StringUtils.isNotBlank(specAccount[5])) params.put("bcc", specAccount[5]);
         params.put("from", specAccount[2]);
         params.put("from_name", specAccount[3]);
         params.put("subject", subject);
@@ -196,6 +197,7 @@ public class SMSender {
         HtmlEmail email = new HtmlEmail();
         email.addTo(to);
         if (StringUtils.isNotBlank(specAccount[4])) email.addCc(specAccount[4]);
+        if (StringUtils.isNotBlank(specAccount[5])) email.addBcc(specAccount[5]);
         email.setSubject(subject);
         email.setHtmlMsg(htmlContent);
 
@@ -203,7 +205,7 @@ public class SMSender {
         email.setAuthentication(specAccount[0], specAccount[1]);
 
         // HOST[:PORT:SSL|TLS]
-        String[] hostPortSsl = specAccount[5].split(":");
+        String[] hostPortSsl = specAccount[6].split(":");
         email.setHostName(hostPortSsl[0]);
         if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
         if (hostPortSsl.length > 2) {
@@ -263,7 +265,7 @@ public class SMSender {
      * @param to
      * @param content
      * @param specAccount
-     * @return <tt>null</tt> if failed or SENDID
+     * @return null if failed or SENDID
      * @throws ConfigurationException If sms-account unset
      */
     public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {

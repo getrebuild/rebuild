@@ -82,9 +82,8 @@ public class CommonsUtils {
      * @return
      */
     public static String maxstr(String text, int maxLength) {
-        if (text.length() > maxLength) {
-            return text.substring(0, maxLength);
-        }
+        if (text == null) return null;
+        if (text.length() > maxLength) return text.substring(0, maxLength);
         return text;
     }
 
@@ -134,7 +133,6 @@ public class CommonsUtils {
      *
      * @param file
      * @return
-     * @throws IOException
      */
     public static String getStringOfRes(String file) {
         try (InputStream is = getStreamOfRes(file)) {
@@ -181,8 +179,6 @@ public class CommonsUtils {
 
     /**
      * 打印调用栈（for DEBUG）
-     *
-     * @return
      */
     public static void printStackTrace() {
         if (Application.devMode() || log.isDebugEnabled()) {

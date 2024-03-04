@@ -508,7 +508,7 @@ class AnnouncementOptions extends React.Component {
           </dd>
         </dl>
         <dl className="row">
-          <dt className="col-12 col-lg-3 pt-2"> {$L('公示时间')}</dt>
+          <dt className="col-12 col-lg-3 pt-2">{$L('公示时间')}</dt>
           <dd className="col-12 col-lg-9" ref={(c) => (this._$showTime = c)}>
             <div className="input-group">
               <input type="text" className="form-control form-control-sm" placeholder={$L('现在')} />
@@ -517,6 +517,15 @@ class AnnouncementOptions extends React.Component {
               </div>
               <input type="text" className="form-control form-control-sm" placeholder={$L('选择结束时间')} />
             </div>
+          </dd>
+        </dl>
+        <dl className="row mb-1">
+          <dt className="col-12 col-lg-3">{$L('要求已读')}</dt>
+          <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._$reqRead = c)}>
+            <label className="custom-control custom-checkbox custom-control-inline">
+              <input className="custom-control-input" name="reqRead" type="checkbox" disabled={this.props.readonly} />
+              <span className="custom-control-label">{$L('是')}</span>
+            </label>
           </dd>
         </dl>
       </div>
@@ -540,6 +549,9 @@ class AnnouncementOptions extends React.Component {
         .each(function () {
           if ((~~$(this).val() & initValue.showWhere) !== 0) $(this).prop('checked', true)
         })
+      $(this._$reqRead)
+        .find('input')
+        .prop('checked', initValue.reqRead === true)
     }
   }
 
@@ -566,12 +578,14 @@ class AnnouncementOptions extends React.Component {
       timeStart: timeStart || null,
       timeEnd: timeEnd,
       showWhere: where,
+      reqRead: $(this._$reqRead).find('input')[0].checked,
     }
   }
 
   reset() {
     $(this._$showTime).find('.form-control').val('')
     $(this._$showWhere).find('input').prop('checked', false)
+    $(this._$reqRead).find('input').prop('checked', false)
   }
 }
 

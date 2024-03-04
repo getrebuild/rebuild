@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
      * @see DataListBuilderImpl#getJSONResult()
      */
     @Override
-    protected List<Map<String, Object>> buildData() {
+    protected Map<String, List<Map<String, Object>>> buildData() {
         Entity entity = MetadataHelper.getEntity(queryData.getString("entity"));
         TemplateExtractor varsExtractor = new TemplateExtractor(templateFile, Boolean.TRUE);
         Map<String, String> varsMap = varsExtractor.transformVars(entity);
@@ -72,7 +73,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
             }
         }
 
-        if (validFields.isEmpty()) return Collections.emptyList();
+        if (validFields.isEmpty()) return Collections.emptyMap();
 
         queryData.put("fields", validFields);  // 使用模板字段
 
@@ -95,7 +96,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         if (varsMap.containsKey(PH__CURRENTDATE)) phValues.put(PH__CURRENTDATE, getPhValue(PH__CURRENTDATE));
         if (varsMap.containsKey(PH__CURRENTDATETIME)) phValues.put(PH__CURRENTDATETIME, getPhValue(PH__CURRENTDATETIME));
 
-        return datas;
+        Map<String, List<Map<String, Object>>> datasMap = new HashMap<>();
+        datasMap.put(MDATA_KEY, datas);
+        return datasMap;
     }
 
     public int getExportCount() {
@@ -110,7 +113,8 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
      * @return
      */
     public static EasyExcelListGenerator create(ID reportId, JSONObject queryData) {
-        TemplateFile tb = DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(queryData.getString("entity")), reportId);
+        TemplateFile tb = DataReportManager.instance.getTemplateFile(
+                MetadataHelper.getEntity(queryData.getString("entity")), reportId);
         return create(tb.templateFile, queryData);
     }
 

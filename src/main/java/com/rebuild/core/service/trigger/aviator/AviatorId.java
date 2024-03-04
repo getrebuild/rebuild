@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import com.googlecode.aviator.runtime.type.AviatorType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author devezhao
  * @since 2023/4/16
  */
+@Slf4j
 public class AviatorId extends AviatorObject {
     private static final long serialVersionUID = 7227725706972057446L;
 
@@ -31,7 +33,13 @@ public class AviatorId extends AviatorObject {
 
     @Override
     public int innerCompare(AviatorObject other, Map<String, Object> env) {
-        return 0;
+        Object $id = other.getValue(env);
+        if (idValue.equals($id)) {
+            return 0;
+        }
+        
+        log.warn("Could not compare " + desc(env) + " with " + other.desc(env));
+        return -1;
     }
 
     @Override

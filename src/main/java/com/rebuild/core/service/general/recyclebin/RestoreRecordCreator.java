@@ -45,9 +45,7 @@ public class RestoreRecordCreator extends JsonRecordCreator {
             }
 
             Object value = e.getValue();
-            if (value == null || StringUtils.isEmpty(value.toString())) {
-                continue;
-            }
+            if (value == null || StringUtils.isEmpty(value.toString())) continue;
 
             // fix: v3.5.6/v3.6
             DisplayType dt = EasyMetaFactory.getDisplayType(entity.getField(fileName));

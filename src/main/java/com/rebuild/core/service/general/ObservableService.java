@@ -90,6 +90,7 @@ public abstract class ObservableService extends SafeObservable implements Servic
         if (countObservers() > 0) {
             deleted = EntityHelper.forUpdate(recordId, currentUser, Boolean.FALSE);
             deleted = recordSnap(deleted, true);
+            if (deleted == null) return 0;
 
             // 删除前触发，做一些状态保持
             notifyObservers(OperatingContext.create(currentUser, InternalPermission.DELETE_BEFORE, deleted, deleted));

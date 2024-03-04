@@ -95,7 +95,7 @@ public class GroupAggregationController extends BaseController {
     }
 
     // 分组字段类型的支持
-    private static Predicate<BaseMeta> GF_FILTER = field -> {
+    private static final Predicate<BaseMeta> GF_FILTER = field -> {
         if (field instanceof EasyField) {
             DisplayType dt = ((EasyField) field).getDisplayType();
             return !(dt == DisplayType.TEXT

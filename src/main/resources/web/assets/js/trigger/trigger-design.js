@@ -120,6 +120,7 @@ $(document).ready(() => {
     const content = contentComp.buildContent()
     if (content === false) return
 
+    if (window.whenUpdateFields) content.whenUpdateFields = window.whenUpdateFields
     const data = {
       when: when,
       whenTimer: whenTimer,
@@ -351,27 +352,29 @@ function useExecManual() {
         return
       }
 
-      RbAlert.create($L('此操作将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
+      RbAlert.create($L('将直接执行此触发器，数据过多耗时会较长，请耐心等待。是否继续？'), {
         onConfirm: function () {
           this.disabled(true, true)
-          $mp.start()
-
           $.post(`/admin/robot/trigger/exec-manual?id=${wpc.configId}`, (res) => {
-            useExecManual_checkState(res.data, this)
+            const mp_parent = $(this._dlg).find('.modal-header').attr('id', $random('node-'))
+            const mp = new Mprogress({ template: 1, start: true, parent: '#' + $(mp_parent).attr('id') })
+            useExecManual_checkState(res.data, mp, this)
           })
         },
       })
     })
 }
 // 检查状态
-function useExecManual_checkState(taskid, _alert) {
-  $.get('/commons/task/state?taskid=' + taskid, (res) => {
-    if ((res.data || {}).isCompleted) {
+function useExecManual_checkState(taskid, mp, _alert) {
+  $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+    const cp = res.data.progress
+    if (res.data.isCompleted) {
+      mp && mp.end()
       _alert && _alert.hide(true)
-      $mp.end()
       RbHighbar.success($L('执行成功'))
     } else {
-      setTimeout(() => useExecManual_checkState(taskid, _alert), 1000)
+      mp && mp.set(cp)
+      setTimeout(() => useExecManual_checkState(taskid, mp, _alert), 1000)
     }
   })
 }
@@ -382,8 +385,17 @@ class DlgSpecFields extends RbModalHandler {
     const _selected = this.props.selected || []
 
     return (
-      <RbModal title={$L('指定字段')} ref={(c) => (this._dlg = c)} disposeOnHide width="780">
-        <div className="p-1">
+      <RbModal
+        title={
+          <RF>
+            {$L('指定字段')}
+            <sup className="rbv" />
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        disposeOnHide
+        width="780">
+        <div className="p-2">
           <RbAlertBox message={$L('指定字段被更新时触发，默认为全部字段')} />
 
           <div className="row " ref={(c) => (this._fields = c)}>
@@ -402,18 +414,23 @@ class DlgSpecFields extends RbModalHandler {
         </div>
 
         <div className="dialog-footer">
-          <button className="btn btn-primary btn-space mr-2" type="button" onClick={this.handleConfirm}>
-            {$L('确定')}
-          </button>
-          <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
+          <button className="btn btn-secondary btn-space mr-2" type="button" onClick={this.hide}>
             {$L('取消')}
+          </button>
+          <button className="btn btn-primary btn-space" type="button" onClick={() => this.handleConfirm()}>
+            {$L('确定')}
           </button>
         </div>
       </RbModal>
     )
   }
 
-  handleConfirm = () => {
+  handleConfirm() {
+    if (rb.commercial < 1) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+
     const selected = []
     $(this._fields)
       .find('input:checked')

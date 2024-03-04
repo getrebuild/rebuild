@@ -5,6 +5,11 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/entity/" />
     <title>[[${bundle.L('基本信息')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
+    <style>
+      .custom-control-label .support-plat2 {
+        margin-top: 1px;
+      }
+    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -94,12 +99,18 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1"></label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <a href="javascript:;" class="J_more-options-btn">[[${bundle.L('更多选项')}]] <i class="mdi mdi-chevron-double-down"></i></a>
-                    <div class="J_more-options hide">
+                    <a href="javascript:;" class="adv-options-btn">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
+                    <div class="adv-options hide">
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
-                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]]</span>
+                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
+                        </label>
+                      </div>
+                      <div class="mt-2">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
+                          <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
                         </label>
                       </div>
                       <div class="mt-2">
@@ -124,7 +135,13 @@
                         <div class="mt-2">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsShowAt2" />
-                            <span class="custom-control-label">[[${bundle.L('明细显示在下方')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
+                          </label>
+                        </div>
+                        <div class="mt-2">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" id="detailsCopiable" />
+                            <span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('支持 PC')}"></i></span>
                           </label>
                         </div>
                       </th:block>

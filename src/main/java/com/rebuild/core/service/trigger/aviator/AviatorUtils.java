@@ -11,6 +11,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
+import com.googlecode.aviator.lexer.token.OperatorType;
 import com.googlecode.aviator.runtime.function.system.AssertFunction;
 import com.googlecode.aviator.runtime.type.AviatorFunction;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * // https://www.yuque.com/boyan-avfmj/aviatorscript
+ * https://www.yuque.com/boyan-avfmj/aviatorscript
  *
  * @author devezhao
  * @since 2021/4/12
@@ -43,6 +44,17 @@ public class AviatorUtils {
         } catch (Exception ignored) {
         }
 
+        // 重载操作符
+        AVIATOR.addOpFunction(OperatorType.ADD, new OverDateOperator.DateAdd());
+        AVIATOR.addOpFunction(OperatorType.SUB, new OverDateOperator.DateSub());
+        AVIATOR.addOpFunction(OperatorType.LE, new OverDateOperator.DateCompareLE());
+        AVIATOR.addOpFunction(OperatorType.LT, new OverDateOperator.DateCompareLT());
+        AVIATOR.addOpFunction(OperatorType.GE, new OverDateOperator.DateCompareGE());
+        AVIATOR.addOpFunction(OperatorType.GT, new OverDateOperator.DateCompareGT());
+        AVIATOR.addOpFunction(OperatorType.EQ, new OverDateOperator.DateCompareEQ());
+        AVIATOR.addOpFunction(OperatorType.NEQ, new OverDateOperator.DateCompareNEQ());
+
+        // 自定义函数
         addCustomFunction(new DateDiffFunction());
         addCustomFunction(new DateAddFunction());
         addCustomFunction(new DateSubFunction());
@@ -55,13 +67,21 @@ public class AviatorUtils {
     }
 
     /**
-     * 表达式计算
-     *
      * @param expression
      * @return
+     * @see #eval(String, Map, boolean)
      */
-    public static Object evalQuietly(String expression) {
-        return eval(expression, null, true);
+    public static Object eval(String expression) {
+        return eval(expression, null, false);
+    }
+
+    /**
+     * @param expression
+     * @return
+     * @see #eval(String, Map, boolean)
+     */
+    public static Object eval(String expression, Map<String, Object> env) {
+        return eval(expression, env, false);
     }
 
     /**
@@ -74,13 +94,13 @@ public class AviatorUtils {
      */
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
         try {
-            return AVIATOR.execute(expression, env);
+            return AVIATOR.execute(expression, env == null ? Collections.emptyMap() : env);
         } catch (Exception ex) {
             if (ex instanceof AssertFunction.AssertFailed) {
                 throw new AssertFailedException((AssertFunction.AssertFailed) ex);
             }
 
-            log.error("Bad aviator expression : \n{}\n<< {}", expression, env, ex);
+            log.error("Bad aviator expression : \n>> {}\n>> {}\n>> {}", expression, env, ex.getLocalizedMessage());
             if (!quietly) throw ex;
         }
         return null;

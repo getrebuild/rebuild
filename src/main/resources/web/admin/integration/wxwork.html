@@ -75,8 +75,17 @@
                         </td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('同步用户匹配方式')}]]</td>
+                        <td data-id="WxworkSyncUsersMatch" th:data-value="${WxworkSyncUsersMatch}" th:data-form-text="${bundle.L('通过何种方式匹配已存在用户，如无匹配则新建')}">
+                          <th:block th:if="${WxworkSyncUsersMatch == 'ID'}">[[${bundle.L('默认')}]]</th:block>
+                          <th:block th:if="${WxworkSyncUsersMatch == 'EMAIL'}">[[${bundle.L('邮箱')}]]</th:block>
+                          <th:block th:if="${WxworkSyncUsersMatch == 'NAME'}">[[${bundle.L('用户名/账号')}]]</th:block>
+                          <th:block th:if="${WxworkSyncUsersMatch == 'NAME2'}">[[${bundle.L('姓名')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('用户默认角色')}]]</td>
-                        <td data-id="WxworkSyncUsersRole" th:data-value="${WxworkSyncUsersRole}" th:data-form-text="${bundle.L('如不指定新同步的用户将不可用，直到你为他们指定了角色')}">
+                        <td data-id="WxworkSyncUsersRole" th:data-value="${WxworkSyncUsersRole}" th:data-form-text="${bundle.L('如不指定，新建用户将不可用，直到你为他们指定了角色')}">
                           [[${WxworkSyncUsersRoleLabel ?:bundle.L('无')}]]
                         </td>
                       </tr>

@@ -12,14 +12,14 @@ class RbModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._htmlid = $random('modal-body-', true, 20)
   }
 
   render() {
     const props = this.props
     const style2 = { maxWidth: ~~(props.width || 680) }
-    if (props.useWhite) {
+    if (props.useWhite || props.maximize) {
       style2.maxWidth = this.state._maximize ? $(window).width() - 60 : null
+      if (!style2.maxWidth && props.width) style2.maxWidth = ~~props.width
     }
 
     const modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
@@ -31,7 +31,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={`modal-dialog ${props.useWhite && 'modal-xl'}`} style={style2}>
+        <div className={`modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''}`} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
@@ -74,7 +74,7 @@ class RbModal extends React.Component {
   renderContent() {
     const iframe = !this.props.children // No child
     return (
-      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`} id={this._htmlid}>
+      <div className={`modal-body ${iframe ? 'iframe rb-loading' : ''} ${iframe && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
         {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
         {iframe && <RbSpinner />}
       </div>
@@ -182,12 +182,12 @@ class RbModalHandler extends React.Component {
     this.state = { ...props }
   }
 
-  show = (state, call) => {
+  show = (state, cb) => {
     const callback = () => {
       // eslint-disable-next-line react/no-string-refs
       const dlg = this._dlg || this.refs['dlg']
       if (dlg) dlg.show()
-      typeof call === 'function' && call(this)
+      typeof cb === 'function' && cb(this)
     }
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
@@ -236,8 +236,9 @@ class RbFormHandler extends RbModalHandler {
     }
   }
 
-  disabled(d) {
-    if (!this._btns) return
+  disabled(d, preventHide) {
+    this._dlg && _preventHide(d, preventHide, this._dlg._element)
+
     if (d === true) $(this._btns).find('.btn').button('loading')
     else $(this._btns).find('.btn').button('reset')
   }
@@ -248,7 +249,6 @@ class RbAlert extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._htmlid = $random('alert-body-', true, 20)
   }
 
   render() {
@@ -269,9 +269,7 @@ class RbAlert extends React.Component {
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
-            <div className="modal-body" id={this._htmlid}>
-              {this.renderContent()}
-            </div>
+            <div className="modal-body">{this.renderContent()}</div>
           </div>
         </div>
       </div>
@@ -337,25 +335,7 @@ class RbAlert extends React.Component {
   disabled(d, preventHide) {
     d = d === true
     // 带有 tabIndex=-1 导致 select2 组件搜索框无法搜索???
-    this.setState({ disable: d }, () => {
-      if (d && preventHide) {
-        $(this._dlg).find('.close').attr('disabled', true)
-        $(this._dlg)
-          .off('hide.bs.modal')
-          .on('hide.bs.modal', function () {
-            if ($(event.target).hasClass('zmdi-close')) RbHighbar.create($L('请等待请求执行完毕'))
-            return false
-          })
-      }
-      if (!d) {
-        $(this._dlg).find('.close').attr('disabled', false)
-        $(this._dlg)
-          .off('hide.bs.modal')
-          .on('hide.bs.modal', function () {
-            return true
-          })
-      }
-    })
+    this.setState({ disable: d }, () => _preventHide(d, preventHide, this._dlg))
   }
 
   // -- Usage
@@ -373,6 +353,27 @@ class RbAlert extends React.Component {
     option = option || {}
     const props = { ...option, title: titleOrOption, message: message }
     renderRbcomp(<RbAlert {...props} />, null, option.onRendered || option.call)
+  }
+}
+
+function _preventHide(d, preventHide, dlg) {
+  if (d && preventHide) {
+    $(dlg).find('.close').attr('disabled', true)
+    $(dlg)
+      .off('hide.bs.modal')
+      .on('hide.bs.modal', function () {
+        if (event && event.target && $(event.target).hasClass('zmdi-close')) {
+          RbHighbar.create($L('请等待请求执行完毕'))
+        }
+        return false
+      })
+  } else if (!d) {
+    $(dlg).find('.close').attr('disabled', false)
+    $(dlg)
+      .off('hide.bs.modal')
+      .on('hide.bs.modal', function () {
+        return true
+      })
   }
 }
 
@@ -420,6 +421,14 @@ class RbHighbar extends React.Component {
       option = option || {}
       renderRbcomp(<RbHighbar message={message} type={option.type} timeout={option.timeout} />)
     }
+  }
+
+  /**
+   * @param {*} message
+   * @param {*} option
+   */
+  static createl(message, option) {
+    return RbHighbar.create($L(message), option)
   }
 
   /**
@@ -771,7 +780,7 @@ class UserSelector extends React.Component {
 
 // ~~ 用户显示
 const UserShow = function (props) {
-  const viewUrl = props.id ? `#!/View/User/${props.id}` : null
+  const viewUrl = props.id && props.noLink !== true ? `#!/View/User/${props.id}` : null
   const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
 
   return (
@@ -828,7 +837,6 @@ class AnyRecordSelector extends React.Component {
           .select2({
             placeholder: $L('无可用实体'),
             allowClear: false,
-            matcher: $select2MatcherAll,
           })
           .on('change', () => {
             $(this._record).val(null).trigger('change')
@@ -1182,6 +1190,41 @@ class RbGritter extends React.Component {
   }
 }
 
+// 代码
+class CodeViewport extends React.Component {
+  render() {
+    return (
+      <div className="code-viewport">
+        <pre ref={(c) => (this._$code = c)}>Loading</pre>
+        {window.ClipboardJS && (
+          <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
+            <i className="icon zmdi zmdi-copy" />
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._$code.innerHTML = $formattedCode(this.props.code || '')
+
+    if (this._$copy) {
+      const that = this
+      const $copy = $(this._$copy).on('mouseenter', () => $(this._$copy).removeClass('copied-check'))
+      // eslint-disable-next-line no-undef
+      new ClipboardJS($copy[0], {
+        text: function () {
+          return $(that._$code).text()
+        },
+      }).on('success', () => $copy.addClass('copied-check'))
+    }
+  }
+
+  UNSAFE_componentWillReceiveProps(newProps) {
+    if (newProps.code) this._$code.innerHTML = $formattedCode(newProps.code)
+  }
+}
+
 /**
  * JSX 组件渲染
  *
@@ -1209,7 +1252,7 @@ const renderRbcomp = function (jsx, target, callback) {
     target = target[0]
   }
 
-  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, call)
+  // ReactDOM.render(<React.StrictMode>{jsx}</React.StrictMode>, target, callback)
   ReactDOM.render(jsx, target, callback)
   return target
 }

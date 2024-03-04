@@ -60,15 +60,46 @@ public class LoginAction extends BaseController {
     protected static final String PREFIX_ALT = "ALT:";
 
     /**
+     * @param request
+     * @param response
+     * @param user
+     * @param autoLogin
+     * @return
+     */
+    protected Integer loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
+        return loginSuccessed(request, response, user, autoLogin, false);
+    }
+
+    /**
+     * @param request
+     * @param response
+     * @param user
+     * @return
+     */
+    protected Map<String, Object> loginSuccessedH5(HttpServletRequest request, HttpServletResponse response, ID user) {
+        Map<String, Object> resMap = new HashMap<>();
+
+        Integer ed = loginSuccessed(request, response, user, false, true);
+        if (ed != null) resMap.put("passwdExpiredDays", ed);
+
+        String authToken = AuthTokenManager.generateAccessToken(user);
+        resMap.put("authToken", authToken);
+
+        request.getSession().invalidate();
+        return resMap;
+    }
+
+    /**
      * 登录成功
      *
      * @param request
      * @param response
      * @param user
      * @param autoLogin
+     * @param fromH5
      * @return 密码过期时间（如有）
      */
-    protected Integer loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
+    private Integer loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin, boolean fromH5) {
         // 自动登录
         if (autoLogin) {
             final String altToken = CodecUtils.randomCode(60);
@@ -82,7 +113,7 @@ public class LoginAction extends BaseController {
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
         ServletUtils.setSessionAttribute(request, SK_USER_THEME, KVStorage.getCustomValue("THEME." + user));
-        Application.getSessionStore().storeLoginSuccessed(request);
+        Application.getSessionStore().storeLoginSuccessed(request, fromH5);
 
         // 头像缓存
         ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
@@ -109,27 +140,8 @@ public class LoginAction extends BaseController {
     }
 
     /**
-     * 登录成功 H5
+     * 登录日志
      *
-     * @param request
-     * @param response
-     * @param user
-     * @return
-     */
-    protected Map<String, Object> loginSuccessedH5(HttpServletRequest request, HttpServletResponse response, ID user) {
-        Map<String, Object> resMap = new HashMap<>();
-
-        Integer ed = loginSuccessed(request, response, user, false);
-        if (ed != null) resMap.put("passwdExpiredDays", ed);
-
-        String authToken = AuthTokenManager.generateAccessToken(user);
-        resMap.put("authToken", authToken);
-
-        request.getSession().invalidate();
-        return resMap;
-    }
-
-    /**
      * @param request
      * @param user
      */

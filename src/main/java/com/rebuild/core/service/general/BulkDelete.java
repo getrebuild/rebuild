@@ -33,6 +33,8 @@ public class BulkDelete extends BulkOperator {
 
         String lastError = null;
         for (ID id : records) {
+            if (isInterruptState()) break;
+
             if (Application.getPrivilegesManager().allowDelete(context.getOpUser(), id)) {
                 try {
                     int d = ges.delete(id, context.getCascades());

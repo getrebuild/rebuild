@@ -42,18 +42,32 @@ $(document).ready(() => {
       quickFields: $('#quickFields').val().join(','),
       tags: $('#tags').val().join(','),
     }
-    // v3.1
     if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
-      // v3.4
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
-      // v3.5
       extConfig.detailsShowAt2 = $val('#detailsShowAt2')
+      // v3.6
+      extConfig.detailsCopiable = $val('#detailsCopiable')
     }
-    // v3.4
-    if ($('#repeatFieldsCheckMode')[0]) {
-      extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
-      extConfig.disabledViewEditable = $val('#disabledViewEditable')
+    extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
+    extConfig.disabledViewEditable = $val('#disabledViewEditable')
+    extConfig.enableRecordMerger = $val('#enableRecordMerger')
+
+    // v3.6
+    if (rb.commercial < 10) {
+      const checkAdv = ['detailsNotEmpty', 'detailsGlobalRepeat', 'detailsShowAt2', 'detailsCopiable', 'repeatFieldsCheckMode', 'disabledViewEditable', 'enableRecordMerger']
+      let needRbv = false
+      for (let i = 0; i < checkAdv.length; i++) {
+        if ($val(`#${checkAdv[i]}`)) {
+          needRbv = true
+          break
+        }
+      }
+
+      if (needRbv) {
+        RbHighbar.error(WrapHtml($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+        return
+      }
     }
 
     extConfig = wpc.extConfig ? { ...wpc.extConfig, ...extConfig } : extConfig
@@ -157,19 +171,18 @@ $(document).ready(() => {
       $('#tags').val(wpc.extConfig.tags.split(',')).trigger('change')
     }
 
-    $('.J_more-options-btn').on('click', () => {
-      // $('.J_more-options-btn i.mdi').toggleClass('mdi-chevron-double-up')
-      $('.J_more-options-btn').addClass('hide')
-      $('.J_more-options').toggleClass('hide')
+    $('.adv-options-btn').on('click', () => {
+      $('.adv-options-btn').addClass('hide')
+      $('.adv-options').toggleClass('hide')
     })
   })
 
-  // v3.1
   if (wpc.extConfig.detailsNotEmpty) $('#detailsNotEmpty').attr('checked', true)
-  // v3.4
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
   if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
-  // v3.5
   if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
+  // v3.6
+  if (wpc.extConfig.detailsCopiable) $('#detailsCopiable').attr('checked', true)
+  if (wpc.extConfig.enableRecordMerger) $('#enableRecordMerger').attr('checked', true)
 })

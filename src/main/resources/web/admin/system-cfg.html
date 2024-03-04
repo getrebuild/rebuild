@@ -70,6 +70,12 @@
         padding: 10px 15px;
         display: none;
       }
+      td.td-MobileAppPath .J_MobileAppPath-del {
+        display: none;
+      }
+      td.td-MobileAppPath:hover .J_MobileAppPath-del {
+        display: inline-block;
+      }
     </style>
   </head>
   <body>
@@ -105,7 +111,10 @@
                             <i class="logo-img white"></i>
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
-                          <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，建议尺寸 300 × 60')}]]</p>
+                          <p class="mt-2 text-dark hide">
+                            [[${bundle.L('请分别上传深色与白色 LOGO，透明背景，建议尺寸 300 × 60')}]]
+                            <a class="ml-2 J_logo-gen hide" href="###genlogo"><i class="icon mdi mdi-pencil-ruler"></i> 制作 LOGO</a>
+                          </p>
                         </td>
                       </tr>
                       <tr>
@@ -281,13 +290,18 @@
                         <td>[[${bundle.L('悼念模式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 1 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr>
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true">[[${MobileNavStyle ?:'34'}]]</td>
+                        <td th:data-id="${commercial > 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 1 ? 'MobileAppPath' : ''}" th:data-value="${MobileAppPath}" data-optional="true" id="_MobileAppPath">[[${MobileAppPath ?:bundle.L('无')}]]</td>
+                        <td class="td-MobileAppPath">
+                          <a class="J_MobileAppPath hide-empty mr-1 link" target="_blank" href="../h5app-download">[[${MobileAppPath}]]</a>
+                          <input type="file" class="hide J_MobileAppPath" accept=".apk" />
+                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
+                          <button class="btn btn-light w-auto btn-sm J_MobileAppPath-del hide" type="button" th:title="${bundle.L('删除')}"><i class="icon zmdi zmdi-delete"></i></button>
+                        </td>
                       </tr>
                     </tbody>
                   </table>

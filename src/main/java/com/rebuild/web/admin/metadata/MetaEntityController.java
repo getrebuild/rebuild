@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -30,6 +31,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.metadata.impl.Entity2Schema;
+import com.rebuild.core.metadata.impl.ExcelEntity;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
@@ -355,5 +357,15 @@ public class MetaEntityController extends EntityController {
 
         mv.getModel().put("entities", entities);
         return mv;
+    }
+
+    @PostMapping("entity/entity-excel")
+    public RespBody entityExcelEvalft(HttpServletRequest request) {
+        final JSON post = ServletUtils.getRequestJson(request);
+        String entityLabel = ((JSONObject) post).getString("entityLabel");
+        JSONArray fields = ((JSONObject) post).getJSONArray("fields");
+
+        String entityName = new ExcelEntity().imports(entityLabel, fields);
+        return RespBody.ok(entityName);
     }
 }

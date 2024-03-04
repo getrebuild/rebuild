@@ -208,7 +208,6 @@ public class GeneralModelController extends EntityController {
             @PathVariable String entity, @IdParam(name = "mainid", required = false) ID id,
             HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final Entity metaEntity = MetadataHelper.getEntity(entity);
 
         // 记录转换预览模式
         final String previewid = request.getParameter("previewid");
@@ -216,6 +215,7 @@ public class GeneralModelController extends EntityController {
             return new TransformerPreview(previewid, user).buildForm(true);
         }
 
+        Entity metaEntity = MetadataHelper.getEntity(entity);
         Field dtf = MetadataHelper.getDetailToMainField(metaEntity);
         String sql = String.format("select %s from %s where %s = ? order by autoId asc",
                 metaEntity.getPrimaryField().getName(), metaEntity.getName(), dtf.getName());

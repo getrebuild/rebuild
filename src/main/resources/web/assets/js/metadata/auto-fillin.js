@@ -138,7 +138,7 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
             </div>
           </div>
-          <div className="form-group row pt-1">
+          <div className="form-group row pt-0">
             <label className="col-sm-3 col-form-label text-sm-right pt-1"></label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -172,7 +172,6 @@ class DlgRuleEdit extends RbFormHandler {
       const $s2target = $(this._targetField).select2({
         placeholder: $L('选择字段'),
         allowClear: false,
-        matcher: $select2MatcherAll,
       })
       this.__select2.push($s2target)
 
@@ -184,7 +183,6 @@ class DlgRuleEdit extends RbFormHandler {
             .select2({
               placeholder: $L('选择字段'),
               allowClear: false,
-              matcher: $select2MatcherAll,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
           this.__select2.push($s2source)

@@ -25,7 +25,7 @@
                         </div>
                       </div>
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" data-quickFields="recordId,recordName" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" data-quickFields="recordId,recordName" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
@@ -34,6 +34,7 @@
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper">
+                      <button class="btn btn-space btn-secondary J_details" type="button"><i class="icon mdi mdi-text-box-search-outline"></i> [[${bundle.L('详情')}]]</button>
                       <button class="btn btn-space btn-outline btn-danger J_restore" type="button"><i class="icon zmdi zmdi-time-restore"></i> [[${bundle.L('恢复')}]]</button>
                     </div>
                   </div>
@@ -48,8 +49,11 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/recycle-bin.js}" type="text/babel"></script>
+    <script th:src="@{/assets/lib/prettier/standalone.js}"></script>
+    <script th:src="@{/assets/lib/prettier/parser-babel.js}"></script>
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
   </body>
 </html>

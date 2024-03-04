@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/manual/basic#%E5%88%97%E8%A1%A8%E6%93%8D%E4%BD%9C" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/list-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
     <title th:text="${entityLabel}"></title>
@@ -40,10 +39,10 @@
             </div>
           </div>
         </aside>
-        <div class="main-content container-fluid">
+        <div class="main-content container-fluid position-relative">
           <div class="quick-filter-tabs" th:if="${advListFilterTabs == 'true'}">
             <div>
-              <div class="dropdown-item"><a>[[${bundle.L('全部数据')}]]</a></div>
+              <div class="dropdown-item"><a>[[${bundle.L('默认视图')}]]</a></div>
             </div>
           </div>
           <div class="quick-filter-pane" th:if="${advListFilterPane == 'true'}">
@@ -55,7 +54,7 @@
             <li class="nav-item">
               <a class="nav-link active"><span class="icon zmdi" th:classappend="|zmdi-${mainEntityIcon}|"></span> [[${mainEntityLabel}]]</a>
             </li>
-            <li th:each="e : ${detailEntities}" class="nav-item">
+            <li th:each="e : ${detailEntities}" class="nav-item J_details">
               <a th:href="|../${e[1]}/list|" class="nav-link"><span class="icon zmdi" th:classappend="|zmdi-${e[3]}|"></span> [[${e[2]}]]</a>
             </li>
           </ul>
@@ -108,6 +107,7 @@
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
                           <a th:if="${_HadApproval}" class="dropdown-item J_batch-approve"><i class="icon mdi mdi-progress-check"></i> [[${bundle.L('批量审批')}]] <sup class="rbv"></sup></a>
+                          <a th:if="${enableRecordMerger}" class="dropdown-item J_record-merge"><i class="icon mdi mdi-set-merge"></i> [[${bundle.L('记录合并')}]] <sup class="rbv"></sup></a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
@@ -140,7 +140,7 @@
     <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-valueset.js}" type="text/babel"></script>
     <th:block th:replace="~{/_include/forms}" />
-    <th:block th:if="${commercial > 1}"><script th:src="@{/assets/js/rb-filterpane.js}" type="text/babel"></script></th:block>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <th:block th:if="${commercial > 1}"><script th:src="@{/assets/js/general/rb-filterpane.js}" type="text/babel"></script></th:block>
+    <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
   </body>
 </html>

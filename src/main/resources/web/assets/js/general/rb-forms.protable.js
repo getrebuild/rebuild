@@ -16,8 +16,7 @@ class ProTable extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-
-    this._readonly = props.$$$main.props.readonly
+    this._isReadonly = props.$$$main.props.readonly
   }
 
   render() {
@@ -62,7 +61,7 @@ class ProTable extends React.Component {
                   </th>
                 )
               })}
-              <td className={`col-action ${fixed && 'column-fixed'}`} />
+              <td className={`col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${fixed && 'column-fixed'}`} />
             </tr>
           </thead>
           <tbody>
@@ -74,10 +73,12 @@ class ProTable extends React.Component {
                   {FORM}
 
                   <td className={`col-action ${fixed && 'column-fixed'}`}>
-                    <button className="btn btn-light hide" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._readonly}>
-                      <i className="icon zmdi zmdi-copy fs-14" />
-                    </button>
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={this._readonly}>
+                    {this._initModel.detailsCopiable && (
+                      <button className="btn btn-light" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={this._isReadonly}>
+                        <i className="icon zmdi zmdi-copy fs-14" />
+                      </button>
+                    )}
+                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={this._isReadonly}>
                       <i className="icon zmdi zmdi-close fs-16 text-bold" />
                     </button>
                   </td>
@@ -138,21 +139,21 @@ class ProTable extends React.Component {
         if (specFieldValues[item.field]) item.value = specFieldValues[item.field]
       })
     }
-
-    this.addLine(model)
+    this._addLine(model)
   }
 
-  addLine(model) {
+  _addLine(model) {
     // 明细未配置或出错
     if (!model) {
       if (this.state.hasError) RbHighbar.create(this.state.hasError)
       return
     }
 
-    const lineKey = `${this.props.entity.entity}-${model.id ? model.id : $random()}`
+    const entityName = this.props.entity.entity
+    const lineKey = `${entityName}-${model.id ? model.id : $random()}`
     const ref = React.createRef()
     const FORM = (
-      <InlineForm entity={this.props.entity.entity} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref}>
+      <InlineForm entity={entityName} id={model.id} rawModel={model} $$$parent={this} $$$main={this.props.$$$main} key={lineKey} ref={ref}>
         {model.elements.map((item) => {
           return detectElement({ ...item, colspan: 4 })
         })}
@@ -169,26 +170,37 @@ class ProTable extends React.Component {
     })
   }
 
+  copyLine(lineKey) {
+    const f = this.getLineForm(lineKey)
+    const data = f ? f.getFormData() : null
+    if (!data) return
+
+    // New
+    delete data.metadata.id
+
+    const mainid = this.props.$$$main.props.id || '000-0000000000000000'
+    $.post(`/app/entity/extras/formdata-rebuild?mainid=${mainid}`, JSON.stringify(data), (res) => {
+      if (res.error_code === 0) this._addLine(res.data)
+      else RbHighbar.error(res.error_msg)
+    })
+  }
+
   removeLine(lineKey) {
     if (!this.state.inlineForms) return
-    const forms = this.state.inlineForms.filter((c) => {
-      if (c.key === lineKey && c.props.id) {
+    const forms = this.state.inlineForms.filter((x) => {
+      if (x.key === lineKey && x.props.id) {
         const d = this._deletes || []
-        d.push(c.props.id)
+        d.push(x.props.id)
         this._deletes = d
       }
-      return c.key !== lineKey
+      return x.key !== lineKey
     })
     this.setState({ inlineForms: forms }, () => this._onLineUpdated(lineKey))
   }
 
-  copyLine(id) {
-    console.log('TODO `copyLine`:', id)
-  }
-
   setLines(models = []) {
     models.forEach((item, idx) => {
-      setTimeout(() => this.addLine(item), idx * 20)
+      setTimeout(() => this._addLine(item), idx * 20)
     })
   }
 
@@ -232,7 +244,7 @@ class ProTable extends React.Component {
    * @param {string} lineKey
    * @returns
    */
-  getLineFrom(lineKey) {
+  getLineForm(lineKey) {
     if (!this.state.inlineForms) return null
     const f = this.state.inlineForms.find((c) => c.key === lineKey)
     return f ? f.ref.current || null : null
@@ -361,6 +373,29 @@ class InlineForm extends RbForm {
         entity: this.state.entity,
         id: this.state.id || null,
       }
+    }
+    return data
+  }
+
+  getFormData() {
+    const data = {}
+    this.props.rawModel.elements.forEach((item) => {
+      let val = item.value
+      if (val) {
+        val = typeof val === 'object' ? val.id || val : val
+        data[item.field] = val || null
+      }
+    })
+    // updated
+    for (let k in this.__FormData) {
+      const err = this.__FormData[k].error
+      if (err) data[k] = null
+      else data[k] = this.__FormData[k].value
+    }
+
+    data.metadata = {
+      entity: this.state.entity,
+      id: this.state.id || null,
     }
     return data
   }

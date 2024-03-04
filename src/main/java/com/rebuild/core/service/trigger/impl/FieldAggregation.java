@@ -142,6 +142,10 @@ public class FieldAggregation extends TriggerAction {
 
     @Override
     public Object execute(OperatingContext operatingContext) throws TriggerException {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && !hasUpdateFields(operatingContext)) {
+            return TriggerResult.noUpdateFields();
+        }
+
         final String chainName = String.format("%s:%s:%s", actionContext.getConfigId(),
                 operatingContext.getFixedRecordId(), operatingContext.getAction().getName());
         final List<String> tschain = checkTriggerChain(chainName);

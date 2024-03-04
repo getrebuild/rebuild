@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet, EditorWithFieldVars */
+/* global FieldValueSet, EditorWithFieldVars, MatchFields */
 
 const wpc = window.__PageConfig
 
@@ -50,7 +50,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                     })}
 
                     {targetEntities2.length > 0 && (
-                      <optgroup label={$L('通过规则匹配')}>
+                      <optgroup label={$L('通过字段匹配')}>
                         {targetEntities2.map((item) => {
                           const val = `${item[2]}.${item[0]}`
                           return (
@@ -73,14 +73,12 @@ class ContentFieldWriteback extends ActionContentSpec {
             </div>
           </div>
 
-          {__LAB_MATCHFIELDS && (
-            <div className={`form-group row ${this.state.showMatchFields ? '' : 'hide'}`}>
+          {this.state.showMatchFields && (
+            <div className="form-group row">
               <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
               <div className="col-md-12 col-lg-9">
-                <div>
-                  <h5 className="mt-0 text-bold">{$L('目标实体/记录匹配规则')} (LAB)</h5>
-                  <textarea className="formula-code" style={{ height: 72 }} ref={(c) => (this._$matchFields = c)} placeholder="## [{ sourceField:XXX, targetField:XXX }]" />
-                </div>
+                <h5 className="mt-0 text-bold">{$L('字段匹配规则')} (LAB)</h5>
+                <MatchFields targetFields={this.state.targetFields} sourceFields={this.__sourceFieldsCache} ref={(c) => (this._MatchFields = c)} />
               </div>
             </div>
           )}
@@ -207,7 +205,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2 bosskey-show">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用传播')}</span>
+                  <span className="custom-control-label">{$L('禁用传播')} (LAB)</span>
                 </label>
               </div>
             </div>
@@ -243,7 +241,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       $(this._$clearFields).attr('checked', content.clearFields === true)
       $(this._$stopPropagation).attr('checked', content.stopPropagation === true)
       if (content.stopPropagation === true) $(this._$stopPropagation).parents('.bosskey-show').removeClass('bosskey-show')
-      $(this._$matchFields).val(content.targetEntityMatchFields || null)
+
+      // eslint-disable-next-line no-undef
+      DlgSpecFields.render(content)
     }
   }
 
@@ -252,8 +252,9 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (!teSplit || !teSplit[1]) return
     // 清空现有规则
     this.setState({ items: [], targetEntity: teSplit[1] })
-
-    if (__LAB_MATCHFIELDS) this.setState({ showMatchFields: teSplit[0] === '$' })
+    if (__LAB_MATCHFIELDS) {
+      this.setState({ showMatchFields: teSplit[0] === '$' })
+    }
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${teSplit[1]}`, (res) => {
       this.setState({ hasWarning: res.data.hadApproval ? $L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)，建议启用“允许强制更新”') : null })
@@ -265,6 +266,7 @@ class ContentFieldWriteback extends ActionContentSpec {
           $(this._$targetField).trigger('change')
         })
       } else {
+        // init
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2tf = $(this._$targetField)
             .select2({ placeholder: $L('选择目标字段') })
@@ -282,10 +284,16 @@ class ContentFieldWriteback extends ActionContentSpec {
           this.__select2.push($s2sf)
         })
 
-        if (this.props.content) {
-          this.setState({ items: this.props.content.items || [] })
+        const content = this.props.content
+        if (content) {
+          this.setState({ items: content.items || [] })
+          if (content.targetEntityMatchFields) {
+            setTimeout(() => this._MatchFields && this._MatchFields.setState({ groupFields: content.targetEntityMatchFields }), 200)
+          }
         }
       }
+
+      this._MatchFields && this._MatchFields.reset({ targetFields: this.state.targetFields, sourceFields: this.__sourceFieldsCache })
     })
   }
 
@@ -339,8 +347,9 @@ class ContentFieldWriteback extends ActionContentSpec {
       sourceField = this._$sourceValue.val()
       if (!sourceField) return
     } else if (mode === 'VNULL') {
-      const tf = this.state.targetFields.find((x) => x.name === targetField)
-      if (!tf.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', `[ ${tf.label} ]`))
+      // v3.6 不校验
+      // const tf = this.state.targetFields.find((x) => x.name === targetField)
+      // if (!tf.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', tf.label))
     }
 
     const items = this.state.items || []
@@ -361,7 +370,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   buildContent() {
     const content = {
       targetEntity: $(this._$targetEntity).val(),
-      targetEntityMatchFields: $(this._$matchFields).val() || null,
+      targetEntityMatchFields: null,
       items: this.state.items,
       readonlyFields: $(this._$readonlyFields).prop('checked'),
       forceUpdate: $(this._$forceUpdate).prop('checked'),
@@ -372,25 +381,19 @@ class ContentFieldWriteback extends ActionContentSpec {
       RbHighbar.create($L('请选择目标实体'))
       return false
     }
+
+    if (this.state.showMatchFields) {
+      const v = this._MatchFields.val()
+      if (v.length === 0) {
+        RbHighbar.create($L('请添加字段匹配规则'))
+        return false
+      }
+      content.targetEntityMatchFields = v
+    }
+
     if (content.items.length === 0) {
       RbHighbar.create($L('请至少添加 1 个更新规则'))
       return false
-    }
-
-    if (this.state.showMatchFields) {
-      let badFormat = !content.targetEntityMatchFields
-      if (!badFormat) {
-        try {
-          badFormat = JSON.parse(content.targetEntityMatchFields)
-          badFormat = !$.isArray(badFormat)
-        } catch (err) {
-          badFormat = true
-        }
-      }
-      if (badFormat) {
-        RbHighbar.create($L('请正确填写目标实体/记录匹配规则'))
-        return false
-      }
     }
 
     const one2one = this.state.targetEntities.find((x) => `${x[2]}.${x[0]}` === content.targetEntity)
@@ -437,7 +440,7 @@ class FieldFormula extends React.Component {
 
     // 数字、日期支持计算器模式
     const forceCode = !['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(type)
-    const initCode = this._value ? this._value.substr(4, this._value.length - 8) : null
+    const initCode = this._value && this._value.startsWith('{{{{') ? this._value.substr(4, this._value.length - 8) : null
 
     renderRbcomp(<FormulaCalcWithCode entity={this.state.entity} fields={fieldVars} forceCode={forceCode} initCode={initCode} onConfirm={(expr) => this.onConfirm(expr)} verifyFormula />)
   }
@@ -464,17 +467,15 @@ FieldFormula.formatText = function (formula, fields) {
   if (formula.startsWith('{{{{')) {
     return FormulaCode.textCode(formula)
   }
-  // DATE
+  // compatible: DATE
   if (formula.includes('#')) {
     const fs = formula.split('#')
     const field = fields.find((x) => x.name === fs[0])
     return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
   }
-  // NUM
+  // NUM,DATE
   else {
-    const fs = []
-    fields.forEach((item) => fs.push([item.name, item.label]))
-    return FormulaCalcWithCode.textFormula(formula, fs)
+    return FormulaCalcWithCode.textFormula(formula, fields)
   }
 }
 
@@ -635,6 +636,9 @@ renderContentComp = function (props) {
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()
   })
+
+  // 指定字段
+  $('.when-update a.hide').removeClass('hide')
 
   // eslint-disable-next-line no-undef
   useExecManual()

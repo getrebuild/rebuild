@@ -140,8 +140,12 @@ $(document).ready(() => {
 
   $('.J_dash-fullscreen').on('click', () => {
     const $body = $(document.body)
-    if ($body.hasClass('fullscreen')) $fullscreen.exit()
-    else $fullscreen.open()
+    if ($body.hasClass('fullscreen')) {
+      $fullscreen.exit()
+    } else {
+      $fullscreen.open()
+      $body.addClass('darkmode')
+    }
     $body.toggleClass('fullscreen')
   })
 
@@ -313,13 +317,16 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref="entity" />
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)} />
             </div>
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={() => this.next()}>
                 {$L('下一步')}
+              </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
               </button>
             </div>
           </div>
@@ -329,17 +336,17 @@ class DlgAddChart extends RbFormHandler {
   }
 
   componentDidMount() {
-    const $entity = $(this.refs['entity'])
     $.get('/commons/metadata/entities?detail=true', (res) => {
-      $(res.data).each(function () {
-        if (!$isSysMask(this.label)) {
-          $(`<option value="${this.name}">${this.label}</option>`).appendTo($entity)
+      const _data = res.data || []
+      _data.forEach((item) => {
+        if (!$isSysMask(item.label)) {
+          $(`<option value="${item.name}">${item.label}</option>`).appendTo(this._$entity)
         }
       })
-      this.__select2 = $entity.select2({
+
+      this.__select2 = $(this._$entity).select2({
         allowClear: false,
         placeholder: $L('选择数据来源'),
-        matcher: $select2MatcherAll,
       })
     })
   }

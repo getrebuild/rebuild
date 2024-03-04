@@ -108,7 +108,10 @@ public class I18nGettextParser extends TestSupport {
 
     static List<String> parseJs(File file) throws IOException {
         Pattern pattern = Pattern.compile("\\$L\\('(.*?)'[,)]");
-        return parseWithPattern(file, pattern);
+        List<String> list = parseWithPattern(file, pattern);
+        pattern = Pattern.compile("\\.createl\\('(.*?)'[,)]");
+        list.addAll(parseWithPattern(file, pattern));
+        return list;
     }
 
     static List<String> parseHtml(File file) throws IOException {

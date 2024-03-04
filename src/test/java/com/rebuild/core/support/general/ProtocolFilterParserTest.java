@@ -20,13 +20,13 @@ public class ProtocolFilterParserTest extends TestSupport {
 
     @Test
     public void parseVia() {
-        System.out.println(new ProtocolFilterParser(null)
+        System.out.println(new ProtocolFilterParser()
                 .parseVia(ID.newId(EntityHelper.ChartConfig).toLiteral(), null));
     }
 
     @Test
     public void parseRef() {
-        System.out.println(new ProtocolFilterParser(null)
+        System.out.println(new ProtocolFilterParser()
                 .parseRef("REFERENCE.TESTALLFIELDS", null));
     }
 }

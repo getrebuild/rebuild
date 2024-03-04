@@ -33,6 +33,10 @@ public class EasyEntityConfigProps {
      * 明细显示位置
      */
     public static final String DETAILS_SHOWAT2 = "detailsShowAt2";
+    /**
+     * 明细复制按钮
+     */
+    public static final String DETAILS_COPIABLE = "detailsCopiable";
 
     /**
      * 隐藏常用查询面板
@@ -66,4 +70,9 @@ public class EasyEntityConfigProps {
      * 禁用视图单字段编辑
      */
     public static final String DISABLED_VIEW_EDITABLE = "disabledViewEditable";
+
+    /**
+     * 启用记录合并（还需配合权限）
+     */
+    public static final String ENABLE_RECORD_MERGER = "enableRecordMerger";
 }

@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Iterator;
 
 /**
  * 导航菜单设置
@@ -125,19 +126,25 @@ public class NavSettings extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         if (!UserHelper.isAdmin(user)) return RespBody.error();
 
-        JSONArray s = (JSONArray) ServletUtils.getRequestJson(request);
+        JSONArray sets = (JSONArray) ServletUtils.getRequestJson(request);
         // v34 修改名称
-        for (Object o : s) {
-            JSONArray item = (JSONArray) o;
-            String newName = item.getString(2);
-            if (StringUtils.isBlank(newName)) continue;
 
-            Record record = EntityHelper.forUpdate(ID.valueOf(item.getString(0)), user);
-            record.setString("configName", newName);
-            Application.getBean(LayoutConfigService.class).update(record);
+        for (Iterator<Object> iter = sets.iterator(); iter.hasNext(); ) {
+            JSONArray item = (JSONArray) iter.next();
+            String newName = item.getString(2);
+            if (StringUtils.isNotBlank(newName)) {
+                Record record = EntityHelper.forUpdate(ID.valueOf(item.getString(0)), user);
+                record.setString("configName", newName);
+                Application.getBean(LayoutConfigService.class).update(record);
+            }
+
+            // 不显示
+            if (!item.getBooleanValue(3)) {
+                iter.remove();
+            }
         }
 
-        KVStorage.setCustomValue("TopNav32", s.toJSONString());
+        KVStorage.setCustomValue("TopNav32", sets.toJSONString());
         return RespBody.ok();
     }
 

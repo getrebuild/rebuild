@@ -150,13 +150,13 @@ public class QiniuCloud {
     }
 
     /**
-     * 生成访问 URL（有效期 180s）
+     * 生成访问 URL（有效期 30m）
      *
      * @param filePath
      * @return
      */
     public String makeUrl(String filePath) {
-        return makeUrl(filePath, 3 * 60);
+        return makeUrl(filePath, 30 * 60);
     }
 
     /**
@@ -229,6 +229,7 @@ public class QiniuCloud {
      */
     @SuppressWarnings("deprecation")
     public long stats() {
+        // https://developer.qiniu.com/kodo/3906/statistic-interface
         String time = CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
         String url = String.format(
                 "%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day",

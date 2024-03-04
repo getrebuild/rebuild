@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Thread-Safe <tt>Observable</tt>
+ * Thread-Safe `Observable`
  *
  * @author devezhao
  * @since 2023/12/22

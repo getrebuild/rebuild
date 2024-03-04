@@ -42,6 +42,8 @@ public class ClassificationFileImporter extends ClassificationImporter {
 
         boolean first = true;
         for (Cell[] row : rows) {
+            if (isInterruptState()) break;
+
             if (first) {
                 first = false;
                 continue;

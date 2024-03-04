@@ -100,7 +100,7 @@ public class OperatingContext {
      */
     public ID getFixedRecordId() {
         ID recordId = getAnyRecord().getPrimary();
-        if (recordId.getEntityCode() == EntityHelper.ShareAccess) {
+        if (recordId != null && recordId.getEntityCode() == EntityHelper.ShareAccess) {
             recordId = getAnyRecord().getID("recordId");
             Assert.notNull(recordId, "[recordId] in ShareAccess cannot be null");
         }

@@ -7,7 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
-import com.rebuild.core.service.trigger.impl.*;
+import com.rebuild.core.service.trigger.impl.AutoApproval;
+import com.rebuild.core.service.trigger.impl.AutoAssign;
+import com.rebuild.core.service.trigger.impl.AutoShare;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.service.trigger.impl.FieldWriteback;
+import com.rebuild.core.service.trigger.impl.GroupAggregation;
+import com.rebuild.core.service.trigger.impl.SendNotification;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -36,6 +42,7 @@ public enum ActionType {
     CREATEFEED("新建动态", "com.rebuild.rbv.trigger.CreateFeed"),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     PROXYTRIGGERACTION("自定义触发器", "com.rebuild.rbv.trigger.ProxyTriggerAction"),
+    AUTOGENREPORT("自动报表导出", "com.rebuild.rbv.trigger.AutoGenReport"),
 
     ;
 

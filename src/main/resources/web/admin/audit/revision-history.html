@@ -14,6 +14,36 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .table.group-table > thead > tr > th {
+        border-bottom-width: 0;
+      }
+      .table tr.group-title > td {
+        padding: 0;
+      }
+      .table tr.group-title > td > h5 {
+        padding: 10px 10px 10px 28px;
+        margin: 0;
+        background-color: #eee;
+        border-radius: 0;
+        position: relative;
+      }
+      .table tr.group-title > td > h5,
+      .table tr.group-title > td > h5 * {
+        color: #777;
+        font-weight: normal;
+        line-height: 1;
+      }
+      .table tr.group-title > td > h5::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 9px;
+        width: 12px;
+        height: 12px;
+        background-color: #fbbc05;
+        border-radius: 50px;
+        border: 2px solid #fff;
+      }
     </style>
   </head>
   <body>
@@ -59,8 +89,8 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/rb-datalist.common.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-datalist.common.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/general/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/revision-history.js}" type="text/babel"></script>
   </body>
 </html>

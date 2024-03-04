@@ -16,10 +16,12 @@ import java.util.Set;
 /**
  * 消息合并发送，用于批量操作时合并消息。
  * Using:
- * <tt>begin</tt>
- * <tt>[didBegin]</tt>
- * <tt>[getMergeSet]</tt>
- * <tt>end</tt>
+ * ```
+ * begin
+ * [didBegin]
+ * [getMergeSet]
+ * end
+ * ```
  *
  * @author ZHAO
  * @since 2019/12/2

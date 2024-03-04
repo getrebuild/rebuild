@@ -23,6 +23,12 @@ let import_taskid
 const entity = $urlp('entity')
 _Config.entity = entity || null
 
+_Config.file = $urlp('file') || null
+if (_Config.file) {
+  _Config.file = $decode(_Config.file)
+  $('.J_upload-input').text($fileCutName(_Config.file))
+}
+
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
@@ -107,7 +113,7 @@ $(document).ready(() => {
   }
 
   window.onbeforeunload = function () {
-    if (import_inprogress === true) return false
+    if (import_inprogress === true) return 'SHOW-CLOSE-CONFIRM'
   }
 
   $('.J_step3-trace').on('click', () => {
@@ -244,10 +250,10 @@ const step3_import_state = (taskid, inLoad) => {
 
     const _state = res.data
     const elapsedTime = ~~_state.elapsedTime / 1000
-    $('.J_import_time').text(_secToTime(elapsedTime))
+    $('.J_import_time').text($sec2Time(elapsedTime))
     const sspeed = _state.completed / elapsedTime
     $('.J_import_speed').text($L('%s条/秒', ~~sspeed))
-    $('.J_remain_time').text(_secToTime((_state.total - _state.completed) / sspeed))
+    $('.J_remain_time').text($sec2Time((_state.total - _state.completed) / sspeed))
 
     if (_state.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
@@ -288,7 +294,6 @@ const step3_import_cancel = () => {
 }
 
 const _LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
 // 渲染字段映射
 const _fieldsMapping = (columns, fields) => {
   const canNullText = ` [${$L('必填')}]`
@@ -345,20 +350,6 @@ const _fieldsMapping = (columns, fields) => {
       }
     })
     .trigger('change')
-}
-
-// 格式化秒显示
-function _secToTime(s) {
-  if (!s || ~~s <= 0) return '00:00'
-  let hh = Math.floor(s / 3600)
-  let mm = Math.floor(s / 60) % 60
-  let ss = ~~(s % 60)
-  if (hh < 10) hh = '0' + hh
-  if (mm < 10) mm = '0' + mm
-  if (ss < 10) ss = '0' + ss
-
-  if (hh === '00') return mm + ':' + ss
-  return hh + ':' + mm + ':' + ss
 }
 
 // 检查所属用户权限

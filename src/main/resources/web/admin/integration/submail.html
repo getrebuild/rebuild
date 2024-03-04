@@ -21,6 +21,9 @@
       .smtp tr.smtp-show {
         display: table-row;
       }
+      .smtp td[data-id='MailAddr'] > p {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -43,8 +46,8 @@
                     <tbody>
                       <tr class="smtp-show">
                         <td width="40%">[[${bundle.L('SMTP 服务器地址')}]]</td>
-                        <td data-id="MailSmtpServer" data-ignore="true" th:data-value="${mailAccount == null ? '' : mailAccount[5]}">
-                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[5]}]]
+                        <td data-id="MailSmtpServer" data-ignore="true" th:data-value="${mailAccount == null ? '' : mailAccount[6]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[6]}]]
                         </td>
                       </tr>
                       <tr>
@@ -62,11 +65,10 @@
                         <td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[1]}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('发件人地址')}]]
-                          <p class="smtp-hide">[[${bundle.L('地址域名需与 SUBMAIL 中配置的域名匹配')}]]</p>
+                        <td>[[${bundle.L('发件人地址')}]]</td>
+                        <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}" th:data-form-text="${bundle.L('地址域名需与 SUBMAIL 中配置的域名匹配')}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[2]}]]
                         </td>
-                        <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[2]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('发件人名称')}]]</td>
@@ -76,6 +78,12 @@
                         <td>[[${bundle.L('抄送地址')}]]</td>
                         <td data-id="MailCc" th:data-value="${mailAccount == null || mailAccount[4] == null ? '' : mailAccount[4]}" data-optional="true">
                           [[${mailAccount == null || mailAccount[4] == null ? bundle.L('无') : mailAccount[4]}]]
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('密送地址')}]]</td>
+                        <td data-id="MailBcc" th:data-value="${mailAccount == null || mailAccount[5] == null ? '' : mailAccount[5]}" data-optional="true">
+                          [[${mailAccount == null || mailAccount[5] == null ? bundle.L('无') : mailAccount[5]}]]
                         </td>
                       </tr>
                       <tr class="show-on-edit">

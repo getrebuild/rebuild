@@ -166,8 +166,6 @@ class AdvFilter extends React.Component {
       })
       this._fields = fields
 
-      console.log(REFENTITY_CACHE)
-
       // init
       if (this.__initItems) {
         this.__initItems.forEach((item) => {
@@ -581,27 +579,31 @@ class FilterItem extends React.Component {
   componentDidMount() {
     this.props.onRef(this)
 
+    let $s2field, $s2op
+    let op4init = this.props.op
     const that = this
-    const $s2field = $(this._filterField)
-      .select2({
-        allowClear: false,
-        matcher: $select2MatcherAll,
-      })
+    $s2field = $(this._filterField)
+      .select2({ allowClear: false })
       .on('change', function (e) {
         const fieldAndType = e.target.value.split(NT_SPLIT)
-        that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => $s2op.val(that.__op[0]).trigger('change'))
+        that.setState({ field: fieldAndType[0], type: fieldAndType[1] }, () => {
+          if (op4init) {
+            $s2op.val(op4init).trigger('change')
+            op4init = null
+          } else {
+            $s2op.val(that.__op[0]).trigger('change')
+          }
+        })
       })
-    const $s2op = $(this._filterOp)
-      .select2({
-        allowClear: false,
-      })
+    $s2op = $(this._filterOp)
+      .select2({ allowClear: false })
       .on('change', function (e) {
         that.setState({ op: e.target.value }, () => that._componentDidUpdate())
       })
 
     this.__select2 = [$s2field, $s2op]
 
-    // Load
+    // init
     if (this.props.field) {
       let field = this.props.field
       $(this.props.fields).each(function () {
@@ -611,7 +613,6 @@ class FilterItem extends React.Component {
         }
       })
       $s2field.val(field).trigger('change')
-      setTimeout(() => $s2op.val(that.props.op).trigger('change'), 100)
     } else {
       $s2field.trigger('change')
     }

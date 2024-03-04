@@ -69,7 +69,7 @@ import java.util.TreeMap;
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
  * <br>- 有业务验证
  * <br>- 会带有系统设置规则的执行
- * <br>- 会开启一个事务，详见 <tt>application-bean.xml</tt> 配置
+ * <br>- 会开启一个事务，详见 `application-bean.xml` 配置
  *
  * <p>如有需要，其他实体可根据自身业务继承并复写</p>
  *

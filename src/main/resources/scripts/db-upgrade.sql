@@ -1,6 +1,17 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #55 (v3.6)
+create table if not exists `feeds_status` (
+  `STATUS_ID`          char(20) not null,
+  `FEEDS_ID`           char(20) not null comment '哪个动态',
+  `CONTENT`            text(65535) comment '扩展内容',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`STATUS_ID`),
+  index IX0_feeds_status (`FEEDS_ID`, `CREATED_BY`, `CREATED_ON`)
+)Engine=InnoDB;
+
 -- #54 (v3.5)
 alter table `feeds`
   add column `AUTO_LOCATION` varchar(100) comment '发布位置';

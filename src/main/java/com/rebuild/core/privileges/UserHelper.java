@@ -11,6 +11,7 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -24,21 +25,13 @@ import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ImageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -305,95 +298,28 @@ public class UserHelper {
         return users;
     }
 
-    private static final Color[] RB_COLORS = new Color[]{
-            new Color(66, 133, 244),
-            new Color(52, 168, 83),
-            new Color(251, 188, 5),
-            new Color(234, 67, 53),
-            new Color(155, 82, 222),
-            new Color(22, 168, 143),
-    };
-
     /**
      * 生成用户头像
      *
      * @param name
      * @param forceMake
      * @return
+     * @see ImageMaker
      */
     public static File generateAvatar(String name, boolean forceMake) {
         if (StringUtils.isBlank(name)) name = "RB";
 
-        File avatar = RebuildConfiguration.getFileOfData("avatar-" + name + "29.jpg");
-        if (avatar.exists()) {
+        File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + "29.jpg");
+        if (avatarFile.exists()) {
             if (forceMake) {
-                FileUtils.deleteQuietly(avatar);
+                FileUtils.deleteQuietly(avatarFile);
             } else {
-                return avatar;
+                return avatarFile;
             }
         }
 
-        if (name.length() > 2) name = name.substring(name.length() - 2);
-        name = name.toUpperCase();
-
-        BufferedImage bi = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = (Graphics2D) bi.getGraphics();
-
-        g2d.setColor(RB_COLORS[RandomUtils.nextInt(RB_COLORS.length)]);
-        g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-
-        try {
-            final Font font = createFont();
-            g2d.setFont(font);
-            g2d.setColor(Color.WHITE);
-            FontMetrics fontMetrics = g2d.getFontMetrics(font);
-            int x = fontMetrics.stringWidth(name);
-            g2d.drawString(name, (200 - x) / 2, 128);
-            g2d.setColor(new Color(0, 0, 0, 1));
-            g2d.drawString("wbr", 0, 62);
-            g2d.dispose();
-
-            try (FileOutputStream fos = new FileOutputStream(avatar)) {
-                ImageIO.write(bi, "png", fos);
-                fos.flush();
-            }
-
-        } catch (Throwable ex) {
-            log.warn("Cannot make font-avatar : {}", name, ex);
-
-            InputStream is = null;
-            try {
-                is = CommonsUtils.getStreamOfRes("/web" + DEFAULT_AVATAR);
-
-                bi = ImageIO.read(is);
-                try (FileOutputStream fos = new FileOutputStream(avatar)) {
-                    ImageIO.write(bi, "png", fos);
-                    fos.flush();
-                }
-
-            } catch (IOException ignored) {
-                IOUtils.closeQuietly(is);
-            }
-        }
-
-        return avatar;
-    }
-
-    private static Font createFont() {
-        File fontFile = RebuildConfiguration.getFileOfData("SourceHanSansK-Regular.ttf");
-        if (fontFile.exists()) {
-            try {
-                Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-                font = font.deriveFont((float) 81.0);
-                return font;
-            } catch (Throwable ex) {
-                log.warn("Cannot create Font: SourceHanSansK-Regular.ttf", ex);
-            }
-        }
-        // Use default
-        return new Font(Font.SERIF, Font.BOLD, (int) (float) 81.0);
+        ImageMaker.makeAvatar(name, avatarFile);
+        return avatarFile;
     }
 
     /**
@@ -480,11 +406,11 @@ public class UserHelper {
     /**
      * 获取用户的所有角色
      *
-     * @param user
+     * @param userId
      * @return
      */
-    public static Set<ID> getUserRoles(ID user) {
-        Role role = Application.getUserStore().getUser(user).getOwningRole();
+    public static Set<ID> getRolesOfUser(ID userId) {
+        Role role = Application.getUserStore().getUser(userId).getOwningRole();
         Set<ID> s = new HashSet<>();
         if (role != null) {
             s.add((ID) role.getIdentity());
@@ -496,20 +422,34 @@ public class UserHelper {
     }
 
     /**
+     * 获取用户的所有团队
+     *
+     * @param userId
+     * @return
+     */
+    public static Set<ID> getTeamsOfUser(ID userId) {
+        Set<ID> s = new HashSet<>();
+        for (Team t : Application.getUserStore().getUser(userId).getOwningTeams()) {
+            s.add((ID) t.getIdentity());
+        }
+        return Collections.unmodifiableSet(s);
+    }
+
+    /**
      * 获取附加了指定角色的用户
      *
      * @param roleId
      * @return
      */
-    public static Set<ID> getRoleMembers(ID roleId) {
+    public static Set<ID> getMembersOfRole(ID roleId) {
         Object[][] array = Application.createQueryNoFilter(
                 "select userId from RoleMember where roleId = ?")
                 .setParameter(1, roleId)
                 .array();
 
-        Set<ID> set = new HashSet<>();
-        for (Object[] o : array) set.add((ID) o[0]);
-        return set;
+        Set<ID> s = new HashSet<>();
+        for (Object[] o : array) s.add((ID) o[0]);
+        return s;
     }
 
     /**

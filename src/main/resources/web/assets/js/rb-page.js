@@ -137,6 +137,7 @@ $(function () {
       if (++bosskey === 6) {
         $('.bosskey-show').removeClass('bosskey-show')
         typeof window.bosskeyTrigger === 'function' && window.bosskeyTrigger()
+        window.__BOSSKEY = true
       }
     }
   })
@@ -155,6 +156,7 @@ $(function () {
   // Help link in page
   var helpLink = $('meta[name="page-help"]').attr('content')
   if (helpLink) $('.page-help>a').attr('href', helpLink)
+  else if (location.href.indexOf('/admin/') === -1) $('.page-help>a').attr('href', 'https://getrebuild.com/docs/manual/')
 
   // 内容区自适应高度
   $('div[data-fullcontent]').each(function () {
@@ -206,18 +208,18 @@ $(function () {
   // }
 })
 
-var $addResizeHandler__calls = []
+var $addResizeHandler__cbs = []
 /**
  * 窗口 RESIZE 回调
  */
-var $addResizeHandler = function (call) {
-  typeof call === 'function' && $addResizeHandler__calls && $addResizeHandler__calls.push(call)
+var $addResizeHandler = function (callback) {
+  typeof callback === 'function' && $addResizeHandler__cbs && $addResizeHandler__cbs.push(callback)
   return function () {
-    if (!$addResizeHandler__calls || $addResizeHandler__calls.length === 0) return
+    if (!$addResizeHandler__cbs || $addResizeHandler__cbs.length === 0) return
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Calls ' + $addResizeHandler__calls.length + ' handlers of resize ...')
-    $addResizeHandler__calls.forEach(function (call) {
-      call()
+    if (rb.env === 'dev') console.log('Callbacks ' + $addResizeHandler__cbs.length + ' handlers of resize ...')
+    $addResizeHandler__cbs.forEach(function (cb) {
+      cb()
     })
   }
 }
@@ -433,14 +435,19 @@ var _showNotification = function (state) {
         tag: 'rbNotification',
         renotify: true,
         silent: false,
+        requireInteraction: true,
       })
       n.onshow = function () {
+        // 30m
         var expires = moment()
           .add(30 * 60, 'seconds')
           .toDate()
         $.cookie('rb.NotificationShow', 1, {
           expires: expires,
         })
+      }
+      n.onclick = function () {
+        location.href = rb.baseUrl + '/notifications'
       }
       n.onclose = function () {}
       n.onerror = function () {}
@@ -742,7 +749,6 @@ var $unmount = function (container, delay, keepContainer) {
  * 初始化引用字段（搜索）
  */
 var $initReferenceSelect2 = function (el, option) {
-  console.log(option)
   var search_input = null
   var $el = $(el).select2({
     placeholder: option.placeholder || $L('选择%s', option.label),
@@ -843,6 +849,10 @@ var $mp = {
       $mp._mp.end()
       $mp._mp = null
     }
+  },
+  // 状态
+  isStarted() {
+    return $mp._timer || $mp._mp ? true : false
   },
 }
 
@@ -1013,7 +1023,7 @@ var $useMap = function (onLoad) {
 }
 
 // 自动定位（有误差）
-var $autoLocation = function (call) {
+var $autoLocation = function (callback) {
   $useMap(function () {
     var geo = new window.BMapGL.Geolocation()
     geo.enableSDKLocation()
@@ -1026,7 +1036,7 @@ var $autoLocation = function (call) {
             lng: e.longitude,
             text: r ? r.address : null,
           }
-          typeof call === 'function' && call(v)
+          typeof callback === 'function' && callback(v)
         })
       } else {
         console.log('Geolocation failed :', this.getStatus())
@@ -1162,4 +1172,40 @@ var $clipboard = function ($el, text) {
       $b.tooltip('show')
     }, 20)
   })
+}
+
+// 格式化秒显示
+function $sec2Time(s) {
+  if (!s || ~~s <= 0) return '00:00'
+
+  var days
+  var hh = Math.floor(s / 3600)
+  var mm = Math.floor(s / 60) % 60
+  var ss = ~~(s % 60)
+  if (~~hh >= 24) {
+    days = ~~(hh / 24)
+    hh = hh % 24
+  }
+  if (hh < 10) hh = '0' + hh
+  if (mm < 10) mm = '0' + mm
+  if (ss < 10) ss = '0' + ss
+
+  var time = `${hh}:${mm}:${ss}`
+  if (days) return $L('%d天', days) + ' ' + time
+  else if (hh === '00') return time.substr(3)
+  return time
+}
+
+// 移除 HTML
+function $removeHtml(content) {
+  return $('<span></span>').html(content).text()
+}
+
+// 打开新窗口下载 `window.open`
+function $openWindow(url) {
+  var handle = window.open(url)
+  if (!handle) {
+    // 不允许/被阻止
+    RbAlert.create(WrapHtml(`<p class="text-bold pb-3">${$L('文件已就绪。')}<a class="link" href="${url}" target="_blank">${$L('点击下载')}</a></p>`), { type: 'clear' })
+  }
 }

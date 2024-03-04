@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.commons.CalendarUtils;
+import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ class AviatorUtilsTest {
 
     @Test
     void eval() {
-        System.out.println(AviatorUtils.evalQuietly("123*123"));
+        System.out.println(AviatorUtils.eval("123*123"));
 
         System.out.println(AviatorUtils.eval(
                 "abc12_.abc+123", Collections.singletonMap("abc12_.abc", 100), true));
@@ -36,30 +38,30 @@ class AviatorUtilsTest {
 
     @Test
     void func() {
-        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'D'))");
-        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'M'))");
-        AviatorUtils.evalQuietly("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-09 23:59:59', 'Y'))");
+        AviatorUtils.eval("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'D'))");
+        AviatorUtils.eval("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-05 23:59:59', 'M'))");
+        AviatorUtils.eval("p(DATEDIFF('2021-03-04 00:00:00', '2022-03-09 23:59:59', 'Y'))");
 
-        AviatorUtils.evalQuietly("p(DATEADD('2021-01-01 18:17:00', '2H'))");
+        AviatorUtils.eval("p(DATEADD('2021-01-01 18:17:00', '2H'))");
 
-        AviatorUtils.evalQuietly("p(DATESUB('2021-01-01 18:17:00', '1'))");
+        AviatorUtils.eval("p(DATESUB('2021-01-01 18:17:00', '1'))");
     }
 
     @Test
     void funcComplex() {
-        AviatorUtils.evalQuietly("p(100 + DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H'))");
-        AviatorUtils.evalQuietly("p(DATEADD(DATEADD('2021-01-01 18:17:00', '2H'), '1D'))");
+        AviatorUtils.eval("p(100 + DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H'))");
+        AviatorUtils.eval("p(DATEADD(DATEADD('2021-01-01 18:17:00', '2H'), '1D'))");
     }
 
     @Test
     void funcRequestFunction() {
-        AviatorUtils.evalQuietly("p(REQUEST('https://www.baidu.com/'))");
-        AviatorUtils.evalQuietly("p(REQUEST('https://www.google.com/', 'imdefault'))");
+        AviatorUtils.eval("p(REQUEST('https://www.baidu.com/'))");
+        AviatorUtils.eval("p(REQUEST('https://www.google.com/', 'imdefault'))");
     }
 
     @Test
     void funcLocationDistanceFunction() {
-        AviatorUtils.evalQuietly("p(LOCATIONDISTANCE('123.456789,123.456789', '地址$$$$123.456789,123.456789'))");
+        AviatorUtils.eval("p(LOCATIONDISTANCE('123.456789,123.456789', '地址$$$$123.456789,123.456789'))");
     }
 
     @Test
@@ -75,6 +77,46 @@ class AviatorUtilsTest {
 
     @Test
     void testJava() {
-        AviatorUtils.evalQuietly("p(StringUtils.upperCase('abcd'));");
+        AviatorUtils.eval("p(StringUtils.upperCase('abcd'));");
+    }
+
+    @Test
+    void testDateOp() {
+        Map<String, Object> env = AviatorEvaluator.newEnv("date1", CalendarUtils.now());
+
+        AviatorUtils.eval("p(date1 + 8)", env, true);
+        AviatorUtils.eval("p(date1 - 8)", env, true);
+        AviatorUtils.eval("p(date1 - date1)", env, true);
+        AviatorUtils.eval("p(1 + 1)", env, true);
+        AviatorUtils.eval("p(1 - 1)", env, true);
+
+        // BAD
+        Assertions.assertThrows(ExpressionRuntimeException.class,
+                () -> AviatorUtils.eval("date1 + date1", env, false));
+    }
+
+    @Test
+    void testDateCompare() {
+        Map<String, Object> env = AviatorEvaluator.newEnv(
+                "date1", CalendarUtils.now(),
+                "date2", CalendarUtils.addDay(1));
+
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 == date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 != date2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("date1 > date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 >= date1", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("date1 < date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 <= date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 == date1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("date1 != date2", env));
+
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1.0 == 1", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1 != 2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("1 > 2", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("2 >= 2", env));
+        Assertions.assertFalse((Boolean) AviatorUtils.eval("3.1 < 2", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("4.56 <= 4.56", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("12.34560 == 12.3456", env));
+        Assertions.assertTrue((Boolean) AviatorUtils.eval("1 != 2", env));
     }
 }

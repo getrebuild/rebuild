@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -128,7 +129,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Object[] unique(ID recordId, String... fields) {
@@ -138,7 +139,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Object[] uniqueNoFilter(ID recordId, String... fields) {
@@ -148,7 +149,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Record record(ID recordId, String... fields) {
@@ -158,7 +159,7 @@ public class QueryFactory {
 
     /**
      * @param recordId
-     * @param fields 不指定则返使用字段
+     * @param fields 不指定则返所有字段
      * @return
      */
     public Record recordNoFilter(ID recordId, String... fields) {
@@ -170,15 +171,18 @@ public class QueryFactory {
         Assert.notNull(recordId, "[recordId] cannot be null");
 
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        List<String> set = new ArrayList<>();
+        List<String> selectFields = new ArrayList<>();
         if (fields.length == 0) {
-            for (Field field : entity.getFields()) {
-                set.add(field.getName());
-            }
-            fields = set.toArray(new String[0]);
+            for (Field field : entity.getFields()) selectFields.add(field.getName());
+        } else {
+            Collections.addAll(selectFields, fields);
         }
 
+        String pkName = entity.getPrimaryField().getName();
+        // fix: v3.6
+        if (!selectFields.contains(pkName)) selectFields.add(pkName);
+
         return String.format("select %s from %s where %s = ?",
-                StringUtils.join(fields, ","), entity.getName(), entity.getPrimaryField().getName());
+                StringUtils.join(selectFields, ","), entity.getName(), pkName);
     }
 }

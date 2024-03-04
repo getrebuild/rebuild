@@ -129,7 +129,13 @@ module.exports = {
     $escapeHtml: true,
     $isLight: true,
     RbGritter: true,
+    $formattedCode: true,
+    CodeViewport: true,
     $clipboard: true,
     $getScript: true,
+    $sec2Time: true,
+    $removeHtml: true,
+    $openWindow: true,
+    MediaCapturer: true,
   },
 }

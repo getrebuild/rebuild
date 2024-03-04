@@ -54,31 +54,36 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: none;
 }
 
-.chart-box .chart-head .chart-oper a {
+.chart-box .chart-head .chart-oper > a {
   color: #000;
   opacity: 0.4;
   display: inline-block;
   height: 20px;
-  margin-left: 10px;
-  padding-left: 3px;
+  margin-left: 5px;
 }
 
-.chart-box .chart-head .chart-oper a:hover {
+.chart-box .chart-head .chart-oper > a:hover {
   opacity: 0.7;
 }
 
-.chart-box .chart-head .chart-oper a .zmdi {
+.chart-box .chart-head .chart-oper > a .zmdi {
   font-size: 1.3rem;
   vertical-align: middle;
+  width: 20px;
+  text-align: center;
 }
 
-.chart-box .chart-head .chart-oper a .zmdi-close {
+.chart-box .chart-head .chart-oper > a .zmdi-close {
   font-size: 1.45rem;
 }
 
-.chart-box .chart-head .chart-oper a .zmdi-fullscreen,
-.chart-box .chart-head .chart-oper a .zmdi-fullscreen-exit {
+.chart-box .chart-head .chart-oper > a .zmdi-fullscreen,
+.chart-box .chart-head .chart-oper > a .zmdi-fullscreen-exit {
   font-size: 1.43rem;
+}
+
+.chart-box .chart-head .chart-oper .dropdown-menu {
+  min-width: 140px;
 }
 
 .chart-undata {
@@ -271,6 +276,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   top: 0;
 }
 
+.chart-box.ApprovalList .progress-wrap .progress-bar {
+  min-width: 20px;
+}
+
 .chart-box.ApprovalList .progress-wrap .progress-bar:hover {
   cursor: pointer;
   opacity: 0.8;
@@ -457,6 +466,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chart-list > div .chart-icon > i.SUNBURST {
   background-position: -1372px -1464px;
+}
+
+.chart-list > div .chart-icon > i.DATALIST2 {
+  background: none;
+}
+
+.chart-list > div .chart-icon > i.DATALIST2::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F04F1';
+  color: #4285f4;
+  font-size: 21px;
+  font-style: normal;
 }
 
 .sortable-box.h200 {

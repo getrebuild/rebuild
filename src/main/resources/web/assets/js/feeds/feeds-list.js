@@ -211,7 +211,8 @@ class FeedsList extends React.Component {
     const firstFetch = !s.data
     // s.focusFeed 首次加载有效
 
-    $.post(`/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
+    const url = `/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch && s.focusFeed ? s.focusFeed : ''}`
+    $.post(url, JSON.stringify(filter), (res) => {
       const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._Pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null }, () => {
@@ -588,6 +589,13 @@ function __renderRichContent(e) {
     }
   }
 
+  let showTimeTip
+  if (e.type === 3 && contentMore.timeEnd) {
+    showTimeTip = <span className="badge badge-success ml-1">{$L('公示中')}</span>
+    if ($expired(contentMore.timeEnd)) showTimeTip = null
+    else if (contentMore.timeStart && moment().isBefore($moment(contentMore.timeStart))) showTimeTip = null
+  }
+
   let AL = e.autoLocation ? e.autoLocation.split('$$$$') : false
   if (AL) {
     AL = {
@@ -650,6 +658,18 @@ function __renderRichContent(e) {
             {(contentMore.timeStart || contentMore.timeEnd) && (
               <div>
                 <span>{$L('公示时间')} : </span> {contentMore.timeStart || ''} {$L('至')} {contentMore.timeEnd}
+                {showTimeTip}
+              </div>
+            )}
+            {e.readStatus && (
+              <div>
+                <span>{$L('已读用户')} : </span>
+                {e.readStatus.length > 0 ? <RF>{$L('%d 人已读', e.readStatus.length)}</RF> : <span className="text-muted">{$L('无')}</span>}
+                <div className="read-status fs-0">
+                  {e.readStatus.map((item) => {
+                    return <UserShow key={item[0]} id={item[0]} name={item[1]} noLink />
+                  })}
+                </div>
               </div>
             )}
           </div>

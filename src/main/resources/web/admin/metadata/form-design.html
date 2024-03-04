@@ -35,7 +35,7 @@
         <div class="rb-right-sidebar field-aside">
           <div class="rb-content">
             <div class="tab-container">
-              <ul class="nav nav-tabs bg-transparent">
+              <ul class="nav nav-tabs bg-transparent" style="margin-top: 3px">
                 <li class="nav-item"><a class="nav-link active" href="#FIELDLIST" data-toggle="tab">[[${bundle.L('字段列表')}]]</a></li>
                 <li class="nav-item"><a class="nav-link" href="#FIELDNEW" data-toggle="tab">+ [[${bundle.L('添加字段')}]]</a></li>
               </ul>
@@ -93,6 +93,9 @@
                         <th>
                           <span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
                         </th>
+                        <th>
+                          <span class="d-inline-block">[[${bundle.L('只读')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -118,6 +121,16 @@
                             <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
                         </td>
+                        <td>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="readonlyOnCreate" />
+                            <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="readonlyOnUpdate" />
+                            <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+                          </label>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -137,8 +150,9 @@
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
       }
     </script>
-    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/metadata/form-design.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/form-design.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-type.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-new2.js}" type="text/babel"></script>
   </body>
 </html>

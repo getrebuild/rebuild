@@ -16,9 +16,11 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.privileges.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -45,8 +47,9 @@ public class EntityHelper {
      * @see #parse(JSONObject, ID, boolean, boolean)
      */
     public static Record parse(JSONObject data) {
-        log.info("Use SYSTEM_USER do parse");
-        return parse(data, UserService.SYSTEM_USER, true, false);
+        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        log.info("Use '{}' do parse", user);
+        return parse(data, user, true, false);
     }
 
     /**
@@ -112,8 +115,9 @@ public class EntityHelper {
      * @see #forUpdate(ID, ID, boolean)
      */
     public static Record forUpdate(ID recordId) {
-        log.info("Use SYSTEM_USER do forUpdate");
-        return forUpdate(recordId, UserService.SYSTEM_USER, true);
+        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        log.info("Use '{}' do forUpdate", user);
+        return forUpdate(recordId, user, true);
     }
 
     /**
@@ -157,8 +161,9 @@ public class EntityHelper {
      * @see #forNew(int, ID, boolean)
      */
     public static Record forNew(int entity) {
-        log.info("Use SYSTEM_USER do forNew");
-        return forNew(entity, UserService.SYSTEM_USER, true);
+        ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
+        log.info("Use '{}' do forNew", user);
+        return forNew(entity, user, true);
     }
 
     /**
@@ -323,6 +328,7 @@ public class EntityHelper {
     public static final int FeedsComment = 41;
     public static final int FeedsLike = 42;
     public static final int FeedsMention = 43;
+    public static final int FeedsStatus = 44;
 
     // 项目
 

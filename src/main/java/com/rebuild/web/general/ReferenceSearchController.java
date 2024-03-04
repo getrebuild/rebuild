@@ -74,7 +74,7 @@ public class ReferenceSearchController extends EntityController {
         String cascadingValue = getParameter(request, "cascadingValue", StringUtils.EMPTY);
         if (cascadingValue.contains(",")) cascadingValue = cascadingValue.split(",")[0];  // N2N
 
-        String protocolFilter = new ProtocolFilterParser(null)
+        String protocolFilter = new ProtocolFilterParser()
                 .parseRef(referenceField.getName() + "." + entity.getName(), cascadingValue);
 
         String q = StringUtils.trim(getParameter(request, "q"));
@@ -115,7 +115,7 @@ public class ReferenceSearchController extends EntityController {
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently.length == 0) {
-                if (forceResults);
+                if (forceResults);  // Nothings
                 else return JSONUtils.EMPTY_ARRAY;
             } else {
                 return RecentlyUsedSearchController.formatSelect2(recently, null);
@@ -148,16 +148,18 @@ public class ReferenceSearchController extends EntityController {
             searchWhere = String.format("(%s)", searchWhere);
         }
 
-        int sec = searchEntity.getEntityCode();
-        if (sec == EntityHelper.User || sec == EntityHelper.Department || sec == EntityHelper.Role) {
-            String s = UserFilters.getEnableBizzPartFilter(sec, user);
+        final int sEntityCode = searchEntity.getEntityCode();
+        if (MetadataHelper.isBizzEntity(sEntityCode)) {
+            String s = UserFilters.getBizzFilter(sEntityCode, user);
+            if (s != null) searchWhere += " and " + s;
+            s = UserFilters.getEnableBizzPartFilter(sEntityCode, user);
             if (s != null) searchWhere += " and " + s;
         }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
         // v35 本人/本部门
         if ("self".equals(q)) {
-            if (sec == EntityHelper.User || sec == EntityHelper.Department) {
+            if (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department) {
                 result.add(JSONUtils.toJSONObject(
                         new String[]{ "id", "text" }, new Object[] { _SELF, Language.L("本人/本部门") }));
             }
@@ -197,8 +199,8 @@ public class ReferenceSearchController extends EntityController {
 
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
         String sqlWhere = String.format(
-                "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by fullName",
-                useClassification.toLiteral(), openLevel, q, q);
+                "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
+                useClassification.toLiteral(), openLevel, q, q, q);
 
         List<Object> result = resultSearch(
                 sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 10);

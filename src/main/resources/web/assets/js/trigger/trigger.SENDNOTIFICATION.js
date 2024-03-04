@@ -232,7 +232,6 @@ class ContentSendNotification extends ActionContentSpec {
       return false
     }
 
-    if (window.whenUpdateFields) _data.whenUpdateFields = window.whenUpdateFields
     return _data
   }
 }
@@ -277,22 +276,20 @@ class AccountSelectorWithField extends UserSelector {
 // eslint-disable-next-line no-undef
 LastLogsViewer.renderLog = function (log) {
   return log.level === 1 && log.message ? (
-    <dl className="m-0">
-      <dt>{$L('已发送至')}</dt>
-      <dd className="mb-0">
-        {log.message.split(',').map((a, idx) => {
-          return $regex.isId(a) ? (
-            <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
-              {a}
-            </a>
-          ) : (
-            <span key={idx} className="badge text-id text-break">
-              {a}
-            </span>
-          )
-        })}
-      </dd>
-    </dl>
+    <div className="v36-logdesc">
+      {$L('已发送至')}
+      {log.message.split(',').map((a, idx) => {
+        return $regex.isId(a) ? (
+          <a key={idx} className="badge text-id" href={`${rb.baseUrl}/app/redirect?id=${a}&type=newtab`} target="_blank">
+            {a}
+          </a>
+        ) : (
+          <span key={idx} className="badge">
+            {a}
+          </span>
+        )
+      })}
+    </div>
   ) : (
     <p className="m-0 text-muted text-uppercase">{log.message || 'N'}</p>
   )

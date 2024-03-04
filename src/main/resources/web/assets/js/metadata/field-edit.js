@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaDate, FormulaCalc */
+/* global FormulaDate, FormulaCalc, FIELD_TYPES */
 
 const wpc = window.__PageConfig
 const __gExtConfig = {}
@@ -25,6 +25,8 @@ $(document).ready(function () {
   if (wpc.fieldBuildin) {
     $('.J_fieldAttrs, .J_advOpt, .J_for-STATE').remove()
     $('#referenceCascadingField, #referenceQuickNew, #referenceDataFilter').parents('.form-group').remove()
+  } else {
+    Object.keys(__TYPE2TYPE).includes(wpc.fieldType) && $('.J_cast-type').parent().removeClass('hide')
   }
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
@@ -92,12 +94,12 @@ $(document).ready(function () {
 
     const extConfigNew = { ...extConfig, ...__gExtConfig }
 
-    // 不同类型的配置
+    // 不同类型的扩展配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
       if (k) extConfigNew[k] = $val(this)
     })
-    // 单选型
+    // 单选类型
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
       const k = $(this).attr('name')
       if (k) extConfigNew[k] = $val(this)
@@ -107,8 +109,9 @@ $(document).ready(function () {
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
       const fix = []
       extConfigNew['fileSuffix'].split(/[,，;；\s]/).forEach((n) => {
+        n = $.trim(n)
         if (n) {
-          if (n.substring(0, 1) !== '.') n = `.${n.trim()}`
+          if (n.substring(0, 1) !== '.' && !n.includes('/*')) n = `.${n.trim()}`
           fix.push(n.trim())
         }
       })
@@ -159,7 +162,7 @@ $(document).ready(function () {
     if (SHOW_SCANCODE.includes(dt)) extConfigNew['textScanCode'] = $val('#textScanCode')
 
     if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode']) && rb.commercial < 1) {
-      RbHighbar.error(WrapHtml($L('免费版不支持高级功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      RbHighbar.error(WrapHtml($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
       return
     }
 
@@ -232,6 +235,8 @@ $(document).ready(function () {
   } else if (dt === 'SERIES') {
     _handleSeries()
   } else if (dt === 'DATE' || dt === 'DATETIME' || dt === 'TIME') {
+    // 暂不支持 TIME
+    if (dt === 'DATE' || dt === 'DATETIME') _handleCalcFormula(extConfig.calcFormula)
     _handleDatetime(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
     _handleFile(extConfig.uploadNumber)
@@ -247,8 +252,7 @@ $(document).ready(function () {
   } else if (dt === 'BARCODE') {
     $('.J_fieldAttrs input').attr('disabled', true)
   } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
-    _handleNumber(extConfig.calcFormula)
-
+    _handleCalcFormula(extConfig.calcFormula)
     if (dt === 'DECIMAL') {
       if (!extConfig.decimalType || extConfig.decimalType === 0 || extConfig.decimalType === '0' || extConfig.decimalType === '%') {
         // 数字、百分比
@@ -263,6 +267,8 @@ $(document).ready(function () {
     }
   } else if (dt === 'TAG') {
     _handleTag(extConfig.tagList || [], extConfig.tagMaxSelect || null)
+  } else if (dt === 'ANYREFERENCE') {
+    _handleAnyReference(extConfig.anyreferenceEntities)
   }
 
   // 只读属性
@@ -295,6 +301,14 @@ $(document).ready(function () {
         $countdownButton($(this._dlg).find('.btn-danger'))
       },
     })
+  })
+
+  $('.J_cast-type').on('click', () => {
+    if (rb.commercial < 10) {
+      RbHighbar.error(WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
+      return
+    }
+    renderRbcomp(<FieldTypeCast entity={wpc.entityName} field={wpc.fieldName} fromType={wpc.fieldType} />)
   })
 })
 
@@ -580,7 +594,7 @@ const _loadRefsLabel = function ($dv, $dvClear) {
 }
 
 let FIELDS_CACHE
-const _handleNumber = function (calcFormula) {
+const _handleCalcFormula = function (formula) {
   const $el = $('#calcFormula2')
   function _call(s) {
     $('#calcFormula').val(s || '')
@@ -591,13 +605,13 @@ const _handleNumber = function (calcFormula) {
     $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
       const fs = []
       res.data.forEach((item) => {
-        if ((item.type === 'NUMBER' || item.type === 'DECIMAL') && item.name !== wpc.fieldName) {
+        if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type) && !['approvalLastTime'].includes(item.name) && item.name !== wpc.fieldName) {
           fs.push(item)
         }
       })
 
       FIELDS_CACHE = fs
-      if (calcFormula) _call(calcFormula)
+      if (formula) _call(formula)
     })
   }
 
@@ -711,5 +725,105 @@ class TagEditor extends RbAlert {
     const color = this._color || $(this._$rbcolors).find('>a>i').parent().data('color') || ''
     const ok = this.props.onConfirm({ name, color, default: $val(this._$default) })
     ok && this.hide()
+  }
+}
+
+const _handleAnyReference = function (es) {
+  $.get('/commons/metadata/entities?bizz=true&detail=true', (res) => {
+    res.data &&
+      res.data.forEach((item) => {
+        $(`<option value="${item.name}">${item.label}</option>`).appendTo('#anyreferenceEntities')
+      })
+
+    const $s2 = $('#anyreferenceEntities').select2({
+      placeholder: $L('不限'),
+      tag: true,
+    })
+    // init
+    if (es) $s2.val(es.split(',')).trigger('change')
+  })
+}
+
+// 字段类型转换
+const __TYPE2TYPE = {
+  'NUMBER': ['DECIMAL'],
+  'DECIMAL': ['NUMBER'],
+  'DATE': ['DATETIME'],
+  'DATETIME': ['DATE'],
+  'TEXT': ['NTEXT', 'PHONE', 'EMAIL', 'URL'],
+  'PHONE': ['TEXT'],
+  'EMAIL': ['TEXT'],
+  'URL': ['TEXT'],
+  'NTEXT': ['TEXT'],
+  'IMAGE': ['FILE'],
+  'FILE': ['IMAGE'],
+}
+class FieldTypeCast extends RbFormHandler {
+  render() {
+    const toTypes = __TYPE2TYPE[this.props.fromType] || []
+
+    return (
+      <RbModal title={$L('转换字段类型')} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('当前字段类型')}</label>
+            <div className="col-sm-7">
+              <div className="form-control-plaintext text-bold">{FIELD_TYPES[this.props.fromType][0]}</div>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('新字段类型')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => (this._$toType = c)}>
+                {toTypes.map((t) => {
+                  return (
+                    <option value={t} key={t}>
+                      {(FIELD_TYPES[t] || [t])[0]}
+                    </option>
+                  )
+                })}
+              </select>
+              <p className="form-text">{$L('转换可能导致一定的精度损失，请谨慎进行')}</p>
+            </div>
+          </div>
+          <div className="form-group row footer" ref={(c) => (this._$btns = c)}>
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+                {$L('确定')}
+              </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$toType).select2({
+      placeholder: $L('不可转换'),
+      templateResult: function (res) {
+        const $span = $('<span class="icon-append"></span>').attr('title', res.text).text(res.text)
+        $(`<i class="icon mdi ${(FIELD_TYPES[res.id] || [])[1]}"></i>`).appendTo($span)
+        return $span
+      },
+    })
+  }
+
+  post() {
+    const toType = $(this._$toType).val()
+    if (!toType) return RbHighbar.create($L('不可转换'))
+
+    const $btn = $(this._$btns).find('.btn').button('loading')
+    $.post(`/admin/entity/field-type-cast?entity=${this.props.entity}&field=${this.props.field}&toType=${toType}`, (res) => {
+      if (res.error_code === 0) {
+        location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 }

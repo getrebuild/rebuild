@@ -104,7 +104,7 @@ class DlgEdit extends RbFormHandler {
             </div>
           </div>
           {!this.props.id && (
-            <React.Fragment>
+            <RF>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('项目 ID')}</label>
                 <div className="col-sm-7">
@@ -121,7 +121,7 @@ class DlgEdit extends RbFormHandler {
                   </label>
                 </div>
               </div>
-            </React.Fragment>
+            </RF>
           )}
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>

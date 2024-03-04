@@ -22,10 +22,15 @@ import com.rebuild.core.support.general.RecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
+import org.apache.poi.xssf.usermodel.XSSFTextRun;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -38,10 +43,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
 
 import static com.rebuild.core.service.datareport.TemplateExtractor.APPROVAL_PREFIX;
 import static com.rebuild.core.service.datareport.TemplateExtractor.NROW_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.APPROVAL_PREFIX2;
 import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PREFIX;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.DETAIL_PREFIX2;
+import static com.rebuild.core.service.datareport.TemplateExtractor33.NROW_PREFIX2;
 
 /**
  * V33
@@ -54,6 +64,9 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     final private List<ID> recordIdMultiple;
 
+    private Set<String> inShapeVars;
+    private Map<String, Object> mdataHolder;
+
     protected EasyExcelGenerator33(File templateFile, ID recordId) {
         super(templateFile, recordId);
         this.recordIdMultiple = null;
@@ -65,7 +78,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
     }
 
     @Override
-    protected List<Map<String, Object>> buildData() {
+    protected Map<String, List<Map<String, Object>>> buildData() {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         final TemplateExtractor33 templateExtractor33 = this.buildTemplateExtractor33();
@@ -82,25 +95,25 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             final String varName = e.getKey();
             final String fieldName = e.getValue();
 
-            String refName = null;
-            if (varName.startsWith(NROW_PREFIX)) {
-                if (varName.startsWith(APPROVAL_PREFIX)) {
-                    refName = APPROVAL_PREFIX;
-                } else if (varName.startsWith(DETAIL_PREFIX)) {
-                    refName = DETAIL_PREFIX;
+            String refKey = null;
+            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
+                if (varName.startsWith(APPROVAL_PREFIX) || varName.startsWith(APPROVAL_PREFIX2)) {
+                    refKey = APPROVAL_PREFIX;
+                } else if (varName.startsWith(DETAIL_PREFIX) || varName.startsWith(DETAIL_PREFIX2)) {
+                    refKey = DETAIL_PREFIX;
                 } else {
                     // 在客户中导出订单（下列 AccountId 为订单中引用客户的引用字段）
-                    // .AccountId.SalesOrder.SalesOrderName
-                    String[] split = varName.substring(1).split("\\.");
+                    // .AccountId.SalesOrder.SalesOrderName or $AccountId$SalesOrder$SalesOrderName
+                    String[] split = varName.substring(1).split("[.$]");
                     if (split.length < 2) throw new ReportsException("Bad REF (Miss .detail prefix?) : " + varName);
 
                     String refName2 = split[0] + split[1];
-                    refName = varName.substring(0, refName2.length() + 2 /* dots */);
+                    refKey = varName.substring(0, refName2.length() + 2 /* dots */);
                 }
 
-                Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refName, new HashMap<>());
+                Map<String, String> varsMapOfRef = varsMapOfRefs.getOrDefault(refKey, new HashMap<>());
                 varsMapOfRef.put(varName, fieldName);
-                varsMapOfRefs.put(refName, varsMapOfRef);
+                varsMapOfRefs.put(refKey, varsMapOfRef);
 
             } else {
                 varsMapOfMain.put(varName, fieldName);
@@ -114,22 +127,23 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 continue;
             }
 
-            if (varName.startsWith(NROW_PREFIX)) {
-                List<String> fieldsOfRef = fieldsOfRefs.getOrDefault(refName, new ArrayList<>());
+            if (varName.startsWith(NROW_PREFIX) || varName.startsWith(NROW_PREFIX2)) {
+                List<String> fieldsOfRef = fieldsOfRefs.getOrDefault(refKey, new ArrayList<>());
                 fieldsOfRef.add(fieldName);
-                fieldsOfRefs.put(refName, fieldsOfRef);
+                fieldsOfRefs.put(refKey, fieldsOfRef);
             } else {
                 fieldsOfMain.add(fieldName);
             }
         }
 
         if (fieldsOfMain.isEmpty() && fieldsOfRefs.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final List<Map<String, Object>> datas = new ArrayList<>();
+        final Map<String, List<Map<String, Object>>> datas = new HashMap<>();
         final String baseSql = "select %s,%s from %s where %s = ?";
 
+        // 主记录
         if (!fieldsOfMain.isEmpty()) {
             String sql = String.format(baseSql,
                     StringUtils.join(fieldsOfMain, ","),
@@ -140,13 +154,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     .record();
             Assert.notNull(record, "No record found : " + recordId);
 
-            this.hasMain = true;
-            datas.add(buildData(record, varsMapOfMain));
+            Map<String, Object> d = buildData(record, varsMapOfMain);
+            datas.put(MDATA_KEY, Collections.singletonList(d));
+            mdataHolder = d;
         }
 
+        // 相关记录（含明细、审批）
         for (Map.Entry<String, List<String>> e : fieldsOfRefs.entrySet()) {
-            final String refName = e.getKey();
-            final boolean isApproval = refName.startsWith(APPROVAL_PREFIX);
+            final String refKey = e.getKey();
+            final boolean isApproval = refKey.startsWith(APPROVAL_PREFIX);
 
             String querySql = baseSql;
             if (isApproval) {
@@ -154,7 +170,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
                         "createdOn,recordId,state,stepId", "RobotApprovalStep", "recordId");
 
-            } else if (refName.startsWith(DETAIL_PREFIX)) {
+            } else if (refKey.startsWith(DETAIL_PREFIX)) {
                 Entity de = entity.getDetailEntity();
 
                 String sortField = templateExtractor33.getSortField(DETAIL_PREFIX);
@@ -164,15 +180,15 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                         de.getPrimaryField().getName(), de.getName(), MetadataHelper.getDetailToMainField(de).getName());
 
             } else {
-                String[] split = refName.substring(1).split("\\.");
+                String[] split = refKey.substring(1).split("[.$]");
                 Field ref2Field = MetadataHelper.getField(split[1], split[0]);
                 Entity ref2Entity = ref2Field.getOwnEntity();
 
-                String sortField = templateExtractor33.getSortField(refName);
+                String sortField = templateExtractor33.getSortField(refKey);
                 querySql += " order by " + StringUtils.defaultIfBlank(sortField, "createdOn asc");
 
                 String relatedExpr = split[1] + "." + split[0];
-                String where = new ProtocolFilterParser(null).parseRelated(relatedExpr, recordId);
+                String where = new ProtocolFilterParser().parseRelated(relatedExpr, recordId);
                 querySql = querySql.replace("%s = ?", where);
 
                 querySql = String.format(querySql, StringUtils.join(e.getValue(), ","),
@@ -193,13 +209,14 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                         .add("state", 0)
                         .build(UserService.SYSTEM_USER);
 
-                List<Record> list2 = new ArrayList<>();
-                list2.add(submit);
-                list2.addAll(list);
-                list = list2;
+                List<Record> listReplace = new ArrayList<>();
+                listReplace.add(submit);
+                listReplace.addAll(list);
+                list = listReplace;
             }
 
             phNumber = 1;
+            List<Map<String, Object>> refDatas = new ArrayList<>();
             for (Record c : list) {
                 // 特殊处理
                 if (isApproval) {
@@ -207,12 +224,13 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
                     Date approvedTime = c.getDate("approvedTime");
                     if (approvedTime == null && state > 1) c.setDate("approvedTime", c.getDate("createdOn"));
                 }
-                
-                datas.add(buildData(c, varsMapOfRefs.get(refName)));
+                refDatas.add(buildData(c, varsMapOfRefs.get(refKey)));
                 phNumber++;
             }
+            datas.put(refKey, refDatas);
         }
 
+        inShapeVars = templateExtractor33.getInShapeVars();
         return datas;
     }
 
@@ -227,7 +245,7 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
 
     @Override
     public File generate() {
-        if (recordIdMultiple == null) return super.generate();
+        if (recordIdMultiple == null) return superGenerate();
 
         // init
         File targetFile = super.getTargetFile();
@@ -273,11 +291,10 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
             this.templateFile = targetFile;
             this.writeSheetAt = newSheetAt;
             this.recordId = recordId;
-            this.hasMain = false;
             this.phNumber = 1;
             this.phValues.clear();
 
-            targetFile = super.generate();
+            targetFile = superGenerate();
         }
 
         // 删除模板 Sheet
@@ -291,5 +308,55 @@ public class EasyExcelGenerator33 extends EasyExcelGenerator {
         }
 
         return targetFile;
+    }
+
+    private File superGenerate() {
+        File file = super.generate();
+        if (inShapeVars.isEmpty() || mdataHolder == null) return file;
+
+        // v3.6 提取文本框
+        try (Workbook wb = WorkbookFactory.create(file)) {
+            Sheet sheet = wb.getSheetAt(0);
+            for (Object o : sheet.getDrawingPatriarch()) {
+                XSSFSimpleShape shape = (XSSFSimpleShape) o;
+                String shapeText = shape.getText();
+                Matcher matcher = TemplateExtractor33.PATT_V2.matcher(shapeText);
+                while (matcher.find()) {
+                    String varName = matcher.group(1);
+                    if (StringUtils.isNotBlank(varName)) {
+                        shapeText = shapeText.replace("{" + varName +"}", String.valueOf(mdataHolder.get(varName)));
+                    }
+                }
+
+                // 样式
+                XSSFTextRun s = shape.getTextParagraphs().get(0).getTextRuns().get(0);
+                XSSFFont font = (XSSFFont) wb.createFont();
+                font.setFontName(s.getFontFamily());
+                font.setFontHeightInPoints((short) s.getFontSize());
+                font.setBold(s.isBold());
+                font.setItalic(s.isItalic());
+                font.setStrikeout(s.isStrikethrough());
+                font.setUnderline(s.isUnderline() ? Font.U_SINGLE : Font.U_NONE);
+                // TODO 颜色不生效
+
+                XSSFRichTextString richTextString = new XSSFRichTextString(shapeText);
+                richTextString.applyFont(font);
+                shape.setText(richTextString);
+            }
+
+            // 保存生效
+            File file2 = new File(file.getParent(), "2" + file.getName());
+            try (FileOutputStream fos = new FileOutputStream(file2)) {
+                wb.write(fos);
+
+                FileUtils.deleteQuietly(file);
+                return file2;
+            }
+
+        } catch (Exception ex) {
+            log.error("Cannot fill vars to shape", ex);
+        }
+
+        return file;
     }
 }
