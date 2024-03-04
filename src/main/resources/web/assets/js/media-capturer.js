@@ -129,7 +129,8 @@ class MediaCapturer extends RbModal {
       return
     }
 
-    const ps = { video: true }
+    // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+    const ps = { video: true, audio: true }
     if (deviceId) ps.video = { deviceId: deviceId }
     navigator.mediaDevices
       .getUserMedia(ps)
@@ -143,8 +144,7 @@ class MediaCapturer extends RbModal {
           })
           this._mediaRecorder.addEventListener('stop', () => {
             this._capturedData = new Blob(this._blobs, { type: 'video/mp4' })
-            const videoBlobURL = URL.createObjectURL(this._capturedData)
-            this._$resVideo.src = videoBlobURL
+            this._$resVideo.src = URL.createObjectURL(this._capturedData)
             this.setState({ captured: true, initMsg: null })
           })
         }
