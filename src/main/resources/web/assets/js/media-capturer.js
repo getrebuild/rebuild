@@ -29,7 +29,7 @@ class MediaCapturer extends RbModal {
           <canvas ref={(c) => (this._$resImage = c)} className={this.state.recType === 'image' ? '' : 'hide'}></canvas>
         </div>
 
-        <div className="action" ref={(c) => (this._$btn = c)}>
+        <div className={`action ${this.state.unsupportted && 'hide'}`} ref={(c) => (this._$btn = c)}>
           <input type="file" className="hide" ref={(c) => (this._$fileinput = c)} />
           <button className="btn btn-primary J_used" type="button" onClick={() => this.handleConfirm()}>
             <i className="icon mdi mdi-check" /> {$L('使用')}
@@ -73,25 +73,26 @@ class MediaCapturer extends RbModal {
   componentDidMount() {
     super.componentDidMount()
 
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      this.initDevice(null, $storage.get('MediaCapturerDeviceId'))
-
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then((devices) => {
-          const devices2 = devices.filter((device) => device.kind === 'videoinput')
-          const devices3 = []
-          devices2.forEach((device, idx) => {
-            devices3.push([device.deviceId, device.label || idx])
-          })
-          this.setState({ webcamList: devices3 })
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    } else {
-      this.setState({ initMsg: $L('你的浏览器不支持此功能') })
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      this.setState({ initMsg: $L('你的浏览器不支持此功能'), unsupportted: true })
+      return
     }
+
+    this.initDevice(null, $storage.get('MediaCapturerDeviceId'))
+
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        const devices2 = devices.filter((device) => device.kind === 'videoinput')
+        const devices3 = []
+        devices2.forEach((device, idx) => {
+          devices3.push([device.deviceId, device.label || idx])
+        })
+        this.setState({ webcamList: devices3 })
+      })
+      .catch((err) => {
+        console.log(err)
+      })
 
     if (this.props.forceFile) {
       $initUploader(
