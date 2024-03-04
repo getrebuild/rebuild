@@ -6,8 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-undef */
 
-const isMulti = ['MULTISELECT'].includes($urlp('type'))
-const maxOptions = 100
+const isMulti = 'MULTISELECT' === $urlp('type')
+const maxOptions = isMulti ? 32 : 200
 
 $(document).ready(() => {
   const query = `entity=${$urlp('entity')}&field=${$urlp('field')}`
